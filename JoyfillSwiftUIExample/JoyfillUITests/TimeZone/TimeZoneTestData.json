@@ -1,4 +1,7 @@
 {
+  "name" : "JF-88 Repro",
+  "createdOn" : 1722619392797,
+  "identifier" : "template_6849dbb509ede5510725c910",
   "files" : [
     {
       "styles" : {
@@ -79,7 +82,7 @@
               "_id" : "68ccd6f66f6520470a9f0fe6",
               "x" : 0,
               "height" : 15,
-              "y" : 40,
+              "y" : 48,
               "width" : 8,
               "field" : "68ccd6ecec7202b4e4c02c9a",
               "type" : "table",
@@ -97,10 +100,21 @@
               "_id" : "68ccd7cd0dddaa2e1c3ed438",
               "x" : 0,
               "height" : 15,
-              "y" : 55,
+              "y" : 63,
               "width" : 8,
               "field" : "68ccd7a0b7ba38007ae95bbb",
               "type" : "collection",
+              "displayType" : "original"
+            },
+            {
+              "_id" : "68ddf3aafcb179ed78dc7574",
+              "format" : "MM\/DD\/YYYY hh:mma",
+              "x" : 2,
+              "y" : 40,
+              "height" : 8,
+              "width" : 4,
+              "field" : "68ddf39f802a0d082a3bc3c4",
+              "type" : "date",
               "displayType" : "original"
             }
           ],
@@ -122,62 +136,157 @@
       "name" : "Every Field Type Demo"
     }
   ],
+  "_id" : "66a14cedd6e1ebcdf176a8da",
+  "type" : "template",
+  "categories" : [
+
+  ],
   "fields" : [
     {
-      "value" : 1758164402459,
-      "identifier" : "field_686f5ae75b39cdb0fccc5a10",
-      "file" : "66a14ced9dc829a95e272506",
-      "title" : "Europe\/London",
+      "tz" : "Asia\/Kolkata",
+      "identifier" : "field_686f4e3b58a0861ac3f1ebfa",
+      "_id" : "686f4e36557902657597794c",
+      "tipDescription" : "Tooltip Description",
+      "tipTitle" : "Tooltip Title",
+      "required" : false,
       "type" : "date",
-      "_id" : "686f5ae34e3d328d3224b943",
-      "tz" : "Europe\/London"
+      "value" : 1752564600000,
+      "file" : "66a14ced9dc829a95e272506",
+      "title" : "Asia \/ Kolkata",
+      "tipVisible" : false
+    },
+    {
+      "value" : 1752564600000,
+      "title" : "Nill Timezone",
+      "tz" : "nil",
+      "type" : "date",
+      "_id" : "68cbb317a0b02d85dbad2ccc",
+      "file" : "66a14ced9dc829a95e272506",
+      "identifier" : "field_68cbb324ec602b022f35145a"
+    },
+    {
+      "identifier" : "field_68ddf3aae601c5cee39c7807",
+      "_id" : "68ddf39f802a0d082a3bc3c4",
+      "tz" : "America\/New_York",
+      "file" : "66a14ced9dc829a95e272506",
+      "type" : "date",
+      "title" : "Blank Date America\/New_York"
     },
     {
       "value" : [
         {
-          "children" : {
-
+          "_id" : "68ca225a997bfaa34b59d08b",
+          "cells" : {
+            "68ccd71d7a2e455448869138" : 1757475000000,
+            "68cce077e6c867837286f877" : "Asia\/Kolkata",
+            "68ccd726d9509a2322601a7a" : 1757475000000
           },
           "tz" : "Asia\/Kolkata",
-          "_id" : "68ccd80c35f56b6a02e7e8ee",
+          "deleted" : 0
+        },
+        {
+          "deleted" : 0,
+          "tz" : "Asia\/Kolkata",
           "cells" : {
-            "68ccd7e30abaca33d5c886a4" : 1758339000000,
-            "68ccd7ecd63b2e357a04366f" : 1758339000000,
-            "68cce1681d3fe91b706bc5fc" : "Asia\/Kolkata"
-          }
+            "68ccd726d9509a2322601a7a" : 1757561400000,
+            "68cce077e6c867837286f877" : "Nil",
+            "68ccd71d7a2e455448869138" : 1757561400000
+          },
+          "_id" : "68ca225af2f4ea19c23003ce"
+        },
+        {
+          "deleted" : 0,
+          "cells" : {
+            "68ccd71d7a2e455448869138" : 1757561400000,
+            "68cce077e6c867837286f877" : "invalid123",
+            "68ccd726d9509a2322601a7a" : 1757561400000
+          },
+          "_id" : "68ccdf9722e3ccc025cd8544",
+          "tz" : "Asia\/Kolkata"
         },
         {
           "cells" : {
-            "68ccd7ecd63b2e357a04366f" : 1758425400000,
-            "68ccd7e30abaca33d5c886a4" : 1758425400000,
-            "68cce1681d3fe91b706bc5fc" : "Nil"
+            "68cce077e6c867837286f877" : "America\/New_York",
+            "68ccd71d7a2e455448869138" : 1758339000000,
+            "68ccd726d9509a2322601a7a" : 1758339000000
           },
-          "children" : {
-
-          },
-          "tz" : "Asia\/Kolkata",
-          "_id" : "68cce16d45997a2930fa88c5"
+          "_id" : "68ddf3f76c5d17f635d517fe",
+          "deleted" : 0,
+          "tz" : "America\/New_York"
         },
         {
-          "tz" : "Asia\/Kolkata",
-          "children" : {
-
-          },
-          "_id" : "68cce170a5690a4cb8768473",
           "cells" : {
-            "68ccd7ecd63b2e357a04366f" : 1758425400000,
-            "68ccd7e30abaca33d5c886a4" : 1758425400000,
-            "68cce1681d3fe91b706bc5fc" : "invalid123"
-          }
+            "68cce077e6c867837286f877" : "Blank with Europe\/London"
+          },
+          "_id" : "68ddf3fbc5b1e1c9116566c1",
+          "tz" : "Europe\/London",
+          "deleted" : 0
         }
       ],
-      "_id" : "68ccd7a0b7ba38007ae95bbb",
-      "type" : "collection",
-      "identifier" : "field_68ccd7cd7c399ae0f5ecb56a",
+      "identifier" : "field_68ccd6f6b1f17df7c2e8d1c3",
+      "tableColumns" : [
+        {
+          "_id" : "68ccd71d7a2e455448869138",
+          "title" : "Date Column",
+          "type" : "date",
+          "width" : 0
+        },
+        {
+          "_id" : "68ccd726d9509a2322601a7a",
+          "title" : "Date Column",
+          "type" : "date",
+          "width" : 0
+        },
+        {
+          "_id" : "68cce077e6c867837286f877",
+          "title" : "Text Column",
+          "type" : "text",
+          "width" : 0
+        }
+      ],
+      "rowOrder" : [
+        "68ca225a997bfaa34b59d08b",
+        "68ca225af2f4ea19c23003ce",
+        "68ccdf9722e3ccc025cd8544",
+        "68ddf3f76c5d17f635d517fe",
+        "68ddf3fbc5b1e1c9116566c1"
+      ],
+      "type" : "table",
+      "tableColumnOrder" : [
+        "68ccd726d9509a2322601a7a",
+        "68ccd71d7a2e455448869138",
+        "68cce077e6c867837286f877"
+      ],
       "file" : "66a14ced9dc829a95e272506",
+      "title" : "Asia, Nil, Invalid",
+      "_id" : "68ccd6ecec7202b4e4c02c9a"
+    },
+    {
+      "identifier" : "field_686f5af63327f3a6a334bff7",
+      "title" : "America\/New_York",
+      "file" : "66a14ced9dc829a95e272506",
+      "value" : 1752530400000,
+      "tz" : "America\/New_York",
+      "_id" : "686f5af19075d01b7489230c",
+      "type" : "date"
+    },
+    {
+      "type" : "date",
+      "value" : 1758164402459,
+      "file" : "66a14ced9dc829a95e272506",
+      "tz" : "Europe\/London",
+      "title" : "Europe\/London",
+      "identifier" : "field_686f5ae75b39cdb0fccc5a10",
+      "_id" : "686f5ae34e3d328d3224b943"
+    },
+    {
+      "type" : "collection",
       "title" : "Collection",
+      "_id" : "68ccd7a0b7ba38007ae95bbb",
       "schema" : {
         "68ccd7fa8b46a7e4571c58ff" : {
+          "hidden" : false,
+          "title" : "New Table",
           "tableColumns" : [
             {
               "deleted" : false,
@@ -188,11 +297,9 @@
               "format" : "MM\/DD\/YYYY hh:mma"
             }
           ],
-          "title" : "New Table",
           "children" : [
 
-          ],
-          "hidden" : false
+          ]
         },
         "collectionSchemaId" : {
           "title" : "Main Collection",
@@ -226,125 +333,79 @@
             }
           ]
         }
-      }
-    },
-    {
-      "identifier" : "field_68ccd6f6b1f17df7c2e8d1c3",
+      },
       "file" : "66a14ced9dc829a95e272506",
-      "type" : "table",
+      "identifier" : "field_68ccd7cd7c399ae0f5ecb56a",
       "value" : [
         {
-          "tz" : "Asia\/Kolkata",
-          "deleted" : 0,
-          "_id" : "68ca225a997bfaa34b59d08b",
-          "cells" : {
-            "68cce077e6c867837286f877" : "Asia\/Kolkata",
-            "68ccd726d9509a2322601a7a" : 1757475000000,
-            "68ccd71d7a2e455448869138" : 1757475000000
-          }
-        },
-        {
-          "_id" : "68ca225af2f4ea19c23003ce",
-          "cells" : {
-            "68ccd726d9509a2322601a7a" : 1757561400000,
-            "68cce077e6c867837286f877" : "Nil",
-            "68ccd71d7a2e455448869138" : 1757561400000
+          "children" : {
+
           },
-          "deleted" : 0,
+          "cells" : {
+            "68ccd7e30abaca33d5c886a4" : 1758339000000,
+            "68cce1681d3fe91b706bc5fc" : "Asia\/Kolkata",
+            "68ccd7ecd63b2e357a04366f" : 1758339000000
+          },
+          "_id" : "68ccd80c35f56b6a02e7e8ee",
           "tz" : "Asia\/Kolkata"
         },
         {
+          "children" : {
+
+          },
+          "_id" : "68cce16d45997a2930fa88c5",
+          "tz" : "Asia\/Kolkata",
           "cells" : {
-            "68cce077e6c867837286f877" : "invalid123",
-            "68ccd71d7a2e455448869138" : 1757561400000,
-            "68ccd726d9509a2322601a7a" : 1757561400000
+            "68ccd7ecd63b2e357a04366f" : 1758425400000,
+            "68ccd7e30abaca33d5c886a4" : 1758425400000,
+            "68cce1681d3fe91b706bc5fc" : "Nil"
+          }
+        },
+        {
+          "_id" : "68cce170a5690a4cb8768473",
+          "children" : {
+
           },
           "tz" : "Asia\/Kolkata",
-          "deleted" : 0,
-          "_id" : "68ccdf9722e3ccc025cd8544"
-        }
-      ],
-      "rowOrder" : [
-        "68ca225a997bfaa34b59d08b",
-        "68ca225af2f4ea19c23003ce",
-        "68ccdf9722e3ccc025cd8544"
-      ],
-      "tableColumns" : [
-        {
-          "_id" : "68ccd71d7a2e455448869138",
-          "title" : "Date Column",
-          "type" : "date",
-          "width" : 0
+          "cells" : {
+            "68ccd7e30abaca33d5c886a4" : 1758425400000,
+            "68ccd7ecd63b2e357a04366f" : 1758425400000,
+            "68cce1681d3fe91b706bc5fc" : "invalid123"
+          }
         },
         {
-          "_id" : "68ccd726d9509a2322601a7a",
-          "title" : "Date Column",
-          "type" : "date",
-          "width" : 0
+          "_id" : "68ddf4893530e8c2b8a737d0",
+          "children" : {
+
+          },
+          "cells" : {
+            "68ccd7ecd63b2e357a04366f" : 1761017400000,
+            "68cce1681d3fe91b706bc5fc" : "America\/New_York",
+            "68ccd7e30abaca33d5c886a4" : 1761017400000
+          },
+          "tz" : "America\/New_York"
         },
         {
-          "_id" : "68cce077e6c867837286f877",
-          "title" : "Text Column",
-          "type" : "text",
-          "width" : 0
+          "children" : {
+
+          },
+          "tz" : "Europe\/London",
+          "cells" : {
+            "68cce1681d3fe91b706bc5fc" : "Blank with Europe\/London"
+          },
+          "_id" : "68ddf48dc149f7291e6bfa2f"
         }
-      ],
-      "tableColumnOrder" : [
-        "68ccd726d9509a2322601a7a",
-        "68ccd71d7a2e455448869138",
-        "68cce077e6c867837286f877"
-      ],
-      "_id" : "68ccd6ecec7202b4e4c02c9a",
-      "title" : "Asia, Nil, Invalid"
+      ]
     },
     {
       "type" : "date",
-      "value" : 1752564600000,
-      "file" : "66a14ced9dc829a95e272506",
-      "_id" : "68cbb317a0b02d85dbad2ccc",
-      "tz" : "nil",
-      "identifier" : "field_68cbb324ec602b022f35145a",
-      "title" : "Nill Timezone"
-    },
-    {
-      "required" : false,
-      "tipTitle" : "Tooltip Title",
-      "tipVisible" : false,
-      "tipDescription" : "Tooltip Description",
-      "identifier" : "field_686f4e3b58a0861ac3f1ebfa",
-      "value" : 1752564600000,
-      "tz" : "Asia\/Kolkata",
-      "type" : "date",
-      "title" : "Asia \/ Kolkata",
-      "_id" : "686f4e36557902657597794c",
-      "file" : "66a14ced9dc829a95e272506"
-    },
-    {
+      "value" : 1751355000000,
       "title" : "Invalid Timezone",
       "_id" : "68cbb34a8e340c36bd9d9154",
       "file" : "66a14ced9dc829a95e272506",
-      "identifier" : "field_68cbb34f304a11e7675412da",
-      "value" : 1751355000000,
       "tz" : "123kjh",
-      "type" : "date"
-    },
-    {
-      "_id" : "686f5af19075d01b7489230c",
-      "file" : "66a14ced9dc829a95e272506",
-      "tz" : "America\/New_York",
-      "value" : 1752530400000,
-      "title" : "America\/New_York",
-      "identifier" : "field_686f5af63327f3a6a334bff7",
-      "type" : "date"
+      "identifier" : "field_68cbb34f304a11e7675412da"
     }
   ],
-  "_id" : "66a14cedd6e1ebcdf176a8da",
-  "type" : "template",
-  "identifier" : "template_6849dbb509ede5510725c910",
-  "deleted" : false,
-  "createdOn" : 1722619392797,
-  "name" : "JF-88 Repro",
-  "categories" : [
-
-  ]
+  "deleted" : false
 }

@@ -230,8 +230,44 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     func testReadonlyShouldNotEdit() {
         app.swipeUp()
         app.buttons.matching(identifier: "TableDetailViewIdentifier").element(boundBy: 2).tap()
-        app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0).tap()
+        let checkBox = app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0)
+        XCTAssertTrue(checkBox.waitForNonExistence(timeout: 2))
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2))
+        
+        let addRowButton = app.buttons["TableAddRowIdentifier"].firstMatch
+        XCTAssertFalse(addRowButton.isEnabled)
+        addRowButton.tap()
+        addRowButton.tap()
+        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        XCTAssertEqual(cells.count, 2)
+        
+        let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertFalse(textField.isEnabled)
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
+        XCTAssertFalse(dropdownButtons.isEnabled)
+        
+        let multiSelectButton = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        XCTAssertFalse(multiSelectButton.isEnabled)
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        XCTAssertFalse(imageButton.isEnabled)
+        app.swipeLeft()
+        
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        XCTAssertFalse(numberField.isEnabled)
+        numberField.tap()
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        app.swipeLeft()
+        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").firstMatch
+        XCTAssertFalse(barcodeField.isEnabled)
+        barcodeField.tap()
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        
+        let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        XCTAssertFalse(signatureButton.isEnabled)
     }
     
     func testCopyPasteDataInColumn() throws {

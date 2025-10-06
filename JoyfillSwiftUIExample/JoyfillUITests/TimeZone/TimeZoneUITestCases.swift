@@ -255,6 +255,42 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(dateButton.exists, "Invalid timezone button should remain stable after multiple interactions")
     }
     
+    func testBlankDateField() {
+        var firstIndex = 5
+        var secondIndex = 6
+        if UIDevice.current.userInterfaceIdiom == .pad  {
+            firstIndex = 23
+            secondIndex = 24
+        } else {
+            app.swipeUp()
+        }
+        
+        let calendarImage = app.images.element(boundBy: 1)
+        calendarImage.tap()
+        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+        
+        // Get initial label from button
+        let firstLabel = getDateFieldButtonLabel(firstIndex)
+        let secondLabel = getDateFieldButtonLabel(secondIndex)
+        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
+        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata")?.normalizedSpaces
+        
+        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
+        
+        let payload = onChangeResult().dictionary
+        guard
+            let change = payload["change"] as? [String: Any],
+            let actualValue = change["value"] as? Int64,
+            let actualTZ = change["tz"] as? String
+        else {
+            XCTFail("Invalid onChange payload structure")
+            return
+        }
+        
+        XCTAssertNotNil(actualValue)
+        XCTAssertEqual(actualTZ, "America/New_York", "onChange payload value should match expected value")
+    }
+    
     /* Table timezone UI test cases */
     
     func testTableTimezoneFields() throws {
@@ -393,6 +429,181 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
+    func testTableBlankDateTimeWithDifferentTimezone() {
+        app.swipeUp()
+        goToTableDetailPage()
+        let CalendarImages = app.images.matching(identifier: "CalendarImageIdentifier")
+        CalendarImages.element(boundBy: 0).tap()
+        
+        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        let dateField = app.buttons[convertedTime ?? ""].firstMatch
+        XCTAssertEqual(dateField.label, convertedTime, "Datetime should be same after epoch convert")
+        
+        let payload = onChangeResult().dictionary
+        if let change = payload["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+           XCTAssertEqual(payloadTimezone, "Europe/London")
+            
+            if let rowId = change["rowId"] as? String {
+                XCTAssertFalse(rowId.isEmpty, "Table row ID should not be empty")
+            }
+            
+            if let cells = row["cells"] as? [String: Any] {
+                XCTAssertGreaterThan(cells.count, 0, "Table row should have cells")
+            }
+        } else {
+            XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+        
+        // Use the correct button selector for table date fields
+        let tableTimezoneFields = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'October'"))
+        
+        let timezoneField = tableTimezoneFields.element(boundBy: 0)
+        XCTAssertTrue(timezoneField.waitForExistence(timeout: 5), "Table timezone field at index \(String(describing: index)) should exist")
+        timezoneField.tap()
+        
+        let monthName: String = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "LLLL"   // Full month name
+            return df.string(from: Date())
+        }()
+        
+        let currentDay = Calendar.current.component(.day, from: Date())
+        let nextDay = currentDay + 1
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(nextDay) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            nextDayButton.tap()
+        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(currentDay - 1) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            prevDayButton.tap()
+        }
+        
+        dismissSheet()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        
+        let payload2 = onChangeResult().dictionary
+        if let change = payload2["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+           XCTAssertEqual(payloadTimezone, "Europe/London")
+            
+            if let rowId = change["rowId"] as? String {
+                XCTAssertFalse(rowId.isEmpty, "Table row ID should not be empty")
+            }
+            
+            if let cells = row["cells"] as? [String: Any] {
+                XCTAssertGreaterThan(cells.count, 0, "Table row should have cells")
+            }
+        } else {
+            XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+        
+        
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 4).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.images.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 1).tap()
+        let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
+        dismissSheet()
+        let convertedTime2 = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        let dateField2 = app.buttons[convertedTime2 as? String ?? ""].firstMatch
+        XCTAssertEqual(dateField2.label, convertedTime2, "Datetime should be same after epoch convert")
+        
+        let payload3 = onChangeResult().dictionary
+        if let change = payload3["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+           XCTAssertEqual(payloadTimezone, "Europe/London")
+            
+            if let rowId = change["rowId"] as? String {
+                XCTAssertFalse(rowId.isEmpty, "Table row ID should not be empty")
+            }
+            
+            if let cells = row["cells"] as? [String: Any] {
+                XCTAssertGreaterThan(cells.count, 0, "Table row should have cells")
+            }
+        } else {
+            XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+    }
+    
+    func testTableBlankDateTimeWithDifferentTimezoneBulkEdit() {
+        app.swipeUp()
+        goToTableDetailPage()
+        
+        let checkButtons = app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton")
+        checkButtons.element(boundBy: 0).tap()
+        checkButtons.element(boundBy: 1).tap()
+        checkButtons.element(boundBy: 2).tap()
+        checkButtons.element(boundBy: 3).tap()
+        checkButtons.element(boundBy: 4).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let dateFields = app.images.matching(identifier: "EditRowsDateFieldIdentifier")
+        dateFields.element(boundBy: 0).tap()
+        dateFields.element(boundBy: 1).tap()
+        let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let convertedTime = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+         
+        let monthName: String = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "LLLL"   // Full month name
+            return df.string(from: Date())
+        }()
+        
+        let tableTimezoneFields = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] '\(monthName)'"))
+        
+        // Test nil and invalid timezone fields in table
+        for index in 0..<min(tableTimezoneFields.count, 10) { // Test first 2 fields for nil/invalid
+            let timezoneField = tableTimezoneFields.element(boundBy: index)
+            XCTAssertTrue(timezoneField.exists, "Table timezone field at index \(index) should exist")
+            XCTAssertEqual(timezoneField.label, convertedTime)
+        }
+        
+        let result = onChangeResult()
+
+//        if let payloadArray = result.dictionary as? [[String: Any]] {
+//            // Multiple payloads
+//            for (index, payload3) in payloadArray.enumerated() {
+//                if let change = payload3["change"] as? [String: Any],
+//                   let row = change["row"] as? [String: Any],
+//                   let payloadTimezone = row["tz"] as? String {
+//                    
+//                    XCTAssertNotNil(payloadTimezone)
+//                    
+//                    if let rowId = change["rowId"] as? String {
+//                        XCTAssertFalse(rowId.isEmpty, "Row ID should not be empty (index \(index))")
+//                    }
+//                    
+//                    if let cells = row["cells"] as? [String: Any] {
+//                        XCTAssertGreaterThan(cells.count, 0, "Cells should not be empty (index \(index))")
+//                    }
+//                } else {
+//                    XCTFail("Payload missing row-based timezone structure (index \(index))")
+//                }
+//            }
+//        } else {
+//            XCTFail("Table onChange payload should contain row-based timezone structure")
+//        }
+    }
+    
+    
     func testTableSingleEdit() throws {
         goToTableDetailPage()
         
@@ -467,31 +678,50 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         app.images.element(boundBy: firstIndex).firstMatch.tap()
         app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 0).tap()
         // Try to tap any available date in current month
+        let monthName: String = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "LLLL"   // Full month name
+            return df.string(from: Date())
+        }()
+        
         let currentDay = Calendar.current.component(.day, from: Date())
         let nextDay = currentDay + 1
-        
-        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(nextDay)") && $0.isHittable }) {
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(nextDay) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
             nextDayButton.tap()
-        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(currentDay - 1)") && $0.isHittable }) {
+        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(currentDay - 1) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
             prevDayButton.tap()
-        } else {
-            // Fallback: tap any hittable date button
-            app.buttons.allElementsBoundByIndex.first { $0.isHittable && $0.label.contains("August") }?.tap()
         }
         dismissSheet()
         app.images.element(boundBy: secondIndex).firstMatch.tap()
         app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 1).tap()
         // Try to tap any available date in current month
-        let currentDay2 = Calendar.current.component(.day, from: Date())
-        let nextDay2 = currentDay2 + 1
-        
-        if let nextDayButton2 = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(nextDay2)") && $0.isHittable }) {
-            nextDayButton2.tap()
-        } else if let prevDayButton2 = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(currentDay2 - 1)") && $0.isHittable }) {
-            prevDayButton2.tap()
-        } else {
-            // Fallback: tap any hittable date button
-            app.buttons.allElementsBoundByIndex.first { $0.isHittable && $0.label.contains("August") }?.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(nextDay) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            nextDayButton.tap()
+        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(currentDay - 1) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            prevDayButton.tap()
         }
         dismissSheet()
         app.buttons["ApplyAllButtonIdentifier"].tap()
@@ -771,32 +1001,51 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         app.images.element(boundBy: firstIndex).firstMatch.tap()
         app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 0).tap()
         // Try to tap any available date in current month
+        let monthName: String = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "LLLL"   // Full month name
+            return df.string(from: Date())
+        }()
+        
         let currentDay = Calendar.current.component(.day, from: Date())
         let nextDay = currentDay + 1
-        
-        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(nextDay)") && $0.isHittable }) {
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(nextDay) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
             nextDayButton.tap()
-        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(currentDay - 1)") && $0.isHittable }) {
+        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(currentDay - 1) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
             prevDayButton.tap()
-        } else {
-            // Fallback: tap any hittable date button
-            app.buttons.allElementsBoundByIndex.first { $0.isHittable && $0.label.contains("August") }?.tap()
         }
         dismissSheet()
         
         app.images.element(boundBy: secondIndex).firstMatch.tap()
         app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 1).tap()
         // Try to tap any available date in current month
-        let currentDay2 = Calendar.current.component(.day, from: Date())
-        let nextDay2 = currentDay2 + 1
-        
-        if let nextDayButton2 = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(nextDay2)") && $0.isHittable }) {
-            nextDayButton2.tap()
-        } else if let prevDayButton2 = app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("\(currentDay2 - 1)") && $0.isHittable }) {
-            prevDayButton2.tap()
-        } else {
-            // Fallback: tap any hittable date button
-            app.buttons.allElementsBoundByIndex.first { $0.isHittable && $0.label.contains("August") }?.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(nextDay) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            nextDayButton.tap()
+        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(currentDay - 1) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            prevDayButton.tap()
         }
         dismissSheet()
         app.buttons["ApplyAllButtonIdentifier"].tap()
@@ -816,6 +1065,175 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         } else {
             XCTFail("Collection bulk edit second date field onChange payload should contain row-based timezone structure")
         }
+    }
+    
+    func testCollectionBlankDateTimeWithDifferentTimezone() {
+        app.swipeUp()
+        goToCollectionDetailPage()
+        let CalendarImages = app.images.matching(identifier: "CalendarImageIdentifier")
+        CalendarImages.element(boundBy: 0).tap()
+        
+        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        let dateField = app.buttons[convertedTime ?? ""].firstMatch
+        XCTAssertEqual(dateField.label, convertedTime, "Datetime should be same after epoch convert")
+        
+        let payload = onChangeResult().dictionary
+        if let change = payload["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+           XCTAssertEqual(payloadTimezone, "Europe/London")
+            
+            if let rowId = change["rowId"] as? String {
+                XCTAssertFalse(rowId.isEmpty, "Table row ID should not be empty")
+            }
+            
+            if let cells = row["cells"] as? [String: Any] {
+                XCTAssertGreaterThan(cells.count, 0, "Table row should have cells")
+            }
+        } else {
+            XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+        
+        // Use the correct button selector for table date fields
+        let tableTimezoneFields = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'October'"))
+        
+        let timezoneField = tableTimezoneFields.element(boundBy: 0)
+        XCTAssertTrue(timezoneField.waitForExistence(timeout: 5), "Table timezone field at index \(String(describing: index)) should exist")
+        timezoneField.tap()
+        
+        let monthName: String = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "LLLL"   // Full month name
+            return df.string(from: Date())
+        }()
+        
+        let currentDay = Calendar.current.component(.day, from: Date())
+        let nextDay = currentDay + 1
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(nextDay) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            nextDayButton.tap()
+        } else if let prevDayButton = app.buttons.allElementsBoundByIndex.first(where: {
+            let lbl = $0.label
+            return lbl.contains(", \(currentDay - 1) \(monthName)") &&
+                   !lbl.contains(":") &&
+                   !$0.identifier.hasPrefix("DatePicker.")
+        }) {
+            prevDayButton.tap()
+        }
+        
+        dismissSheet()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        
+        let payload2 = onChangeResult().dictionary
+        if let change = payload2["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+           XCTAssertEqual(payloadTimezone, "Europe/London")
+            
+            if let rowId = change["rowId"] as? String {
+                XCTAssertFalse(rowId.isEmpty, "Table row ID should not be empty")
+            }
+            
+            if let cells = row["cells"] as? [String: Any] {
+                XCTAssertGreaterThan(cells.count, 0, "Table row should have cells")
+            }
+        } else {
+            XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+        
+        
+        selectRow(number: 5)
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.images.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 1).tap()
+        let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
+        dismissSheet()
+        let convertedTime2 = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        let dateField2 = app.buttons[convertedTime2 as? String ?? ""].firstMatch
+        XCTAssertEqual(dateField2.label, convertedTime2, "Datetime should be same after epoch convert")
+        
+        let payload3 = onChangeResult().dictionary
+        if let change = payload3["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+           XCTAssertEqual(payloadTimezone, "Europe/London")
+            
+            if let rowId = change["rowId"] as? String {
+                XCTAssertFalse(rowId.isEmpty, "Table row ID should not be empty")
+            }
+            
+            if let cells = row["cells"] as? [String: Any] {
+                XCTAssertGreaterThan(cells.count, 0, "Table row should have cells")
+            }
+        } else {
+            XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+    }
+    
+    func testCollectionBlankDateTimeWithDifferentTimezoneBulkEdit() {
+        app.swipeUp()
+        goToCollectionDetailPage()
+        
+        selectAllParentRows()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let dateFields = app.images.matching(identifier: "EditRowsDateFieldIdentifier")
+        dateFields.element(boundBy: 0).tap()
+        dateFields.element(boundBy: 1).tap()
+        let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let convertedTime = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        
+        let monthName: String = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = "LLLL"   // Full month name
+            return df.string(from: Date())
+        }()
+        
+        let tableTimezoneFields = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] '\(monthName)'"))
+        
+        // Test nil and invalid timezone fields in table
+        for index in 0..<min(tableTimezoneFields.count, 10) { // Test first 2 fields for nil/invalid
+            let timezoneField = tableTimezoneFields.element(boundBy: index)
+            XCTAssertTrue(timezoneField.exists, "Table timezone field at index \(index) should exist")
+            XCTAssertEqual(timezoneField.label, convertedTime)
+        }
+        
+        let result = onChangeResult()
+
+//        if let payloadArray = result.dictionary as? [[String: Any]] {
+//            // Multiple payloads
+//            for (index, payload3) in payloadArray.enumerated() {
+//                if let change = payload3["change"] as? [String: Any],
+//                   let row = change["row"] as? [String: Any],
+//                   let payloadTimezone = row["tz"] as? String {
+//
+//                    XCTAssertNotNil(payloadTimezone)
+//
+//                    if let rowId = change["rowId"] as? String {
+//                        XCTAssertFalse(rowId.isEmpty, "Row ID should not be empty (index \(index))")
+//                    }
+//
+//                    if let cells = row["cells"] as? [String: Any] {
+//                        XCTAssertGreaterThan(cells.count, 0, "Cells should not be empty (index \(index))")
+//                    }
+//                } else {
+//                    XCTFail("Payload missing row-based timezone structure (index \(index))")
+//                }
+//            }
+//        } else {
+//            XCTFail("Table onChange payload should contain row-based timezone structure")
+//        }
     }
     
     func dismissSheet() {

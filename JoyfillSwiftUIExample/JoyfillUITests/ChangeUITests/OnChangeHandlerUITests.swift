@@ -1979,6 +1979,133 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToTableDetailPage(index: 1)
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
+    
+    func testCheckAllFields() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 2)
+        tapOnSecondPage.tap()
+        
+        let textField = app.textFields.element(boundBy: 0)
+        textField.tap()
+        textField.typeText("Hello")
+        
+        let field = app.textViews.element(boundBy: 0)
+        XCTAssertTrue(field.exists)
+        field.tap()
+        field.typeText("hello\nsir")
+        
+        let numberField = app.textFields.element(boundBy: 1)
+        numberField.tap()
+        numberField.typeText("123")
+         
+        let dropdownField = app.buttons.matching(identifier: "Dropdown").element(boundBy: 0)
+        dropdownField.tap()
+        app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
+         
+        
+        let multi = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
+        multi.element(boundBy: 2).tap()
+        
+        let fieldSingle = app.buttons.matching(identifier: "SingleSelectionIdentifier").element(boundBy: 0)
+        fieldSingle.tap()
+        XCTAssertEqual(fieldSingle.label, "Yes")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        XCTAssertEqual(textField.value as? String, "Hello")
+        XCTAssertEqual(field.value as? String, "hello\nsir")
+        XCTAssertEqual(numberField.value as? String, "123")
+        XCTAssertEqual(dropdownField.label, "Yes")
+        XCTAssertEqual(fieldSingle.label, "Yes")
+    }
+    
+    func testDateField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 2)
+        tapOnSecondPage.tap()
+        
+        let calendarImage = app.images.element(boundBy: 2)
+        calendarImage.tap()
+        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+        
+        // Get initial label from button
+        let firstLabel = getDateFieldButtonLabel(16)
+        let secondLabel = getDateFieldButtonLabel(17)
+        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
+        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata")?.normalizedSpaces
+        
+        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        
+        let lab1 = getDateFieldButtonLabel(16)
+        let lab2 = getDateFieldButtonLabel(17)
+        let fullLabel2 = (lab1 + " " + lab2).normalizedSpaces
+        
+        XCTAssertEqual(fullLabel2, convertedTime, "Datetime should be same after epoch convert")
+    }
+    
+    func getDateFieldButtonByIndex(_ index: Int) -> XCUIElement {
+        return app.buttons.element(boundBy: index)
+    }
+    
+    func getDateFieldButtonLabel(_ index: Int) -> String {
+        let dateButton = getDateFieldButtonByIndex(index)
+        return dateButton.label
+    }
+    
+    func formatEpoch(
+        _ epoch: Int64,
+        timeZoneTitle: String?,
+        format: String = "d MMM yyyy h:mm a"
+    ) -> String? {
+        // Detect ms vs s
+        let seconds: TimeInterval = epoch > 10_000_000_000
+            ? TimeInterval(epoch) / 1000.0
+            : TimeInterval(epoch)
+        let date = Date(timeIntervalSince1970: seconds)
+
+        // Resolve timezone
+        let tzString = (timeZoneTitle ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let isNilLike = tzString.isEmpty || tzString.lowercased() == "nil"
+        let tz = (!isNilLike ? TimeZone(identifier: tzString) : nil) ?? .current
+
+        // Formatter
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX") // stable parsing/formatting
+        df.timeZone = tz
+        df.dateFormat = format
+
+        return df.string(from: date)
+    }
+    
+    func extractChangeValueAsString() -> String? {
+        guard let result = onChangeOptionalResult(),
+              let change = result.change,
+              let value = change["value"] as? String else {
+            return nil
+        }
+        return value
+    }
 }
 
 extension XCUIElementQuery {
@@ -1991,5 +2118,16 @@ extension XCUIElementQuery {
             }
         }
         return matchCount
+    }
+}
+
+extension String {
+    /// Replaces narrow/regular no-break spaces with a normal space and collapses multiples.
+    var normalizedSpaces: String {
+        self
+            .replacingOccurrences(of: "\u{202F}", with: " ") // narrow no-break space
+            .replacingOccurrences(of: "\u{00A0}", with: " ") // no-break space
+            .replacingOccurrences(of: #" {2,}"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
