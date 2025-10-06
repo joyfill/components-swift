@@ -32,6 +32,7 @@ struct TableBarcodeView: View {
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
+                    .accessibilityIdentifier("TableBarcodeFieldIdentifierReadonly")
                 Spacer()
                 Image(systemName: "barcode.viewfinder")
                     .padding(.trailing, 12)

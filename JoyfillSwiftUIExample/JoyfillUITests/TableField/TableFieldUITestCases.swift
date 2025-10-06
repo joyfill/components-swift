@@ -239,10 +239,10 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertFalse(addRowButton.isEnabled)
         addRowButton.tap()
         addRowButton.tap()
-        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        let cells = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly")
         XCTAssertEqual(cells.count, 2)
         
-        let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        let textField = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0)
         XCTAssertFalse(textField.isEnabled)
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         
@@ -261,7 +261,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         app.swipeLeft()
-        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").firstMatch
+        let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
         XCTAssertFalse(barcodeField.isEnabled)
         barcodeField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")

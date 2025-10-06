@@ -20,6 +20,7 @@ struct TableTextView: View {
             Text(cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
+                .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
         } else {
             TextEditor(text: $cellModel.data.title)
                 .font(.system(size: 15))
