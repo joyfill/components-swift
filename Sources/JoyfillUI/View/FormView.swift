@@ -119,7 +119,7 @@ struct PagesView: View {
         VStack(alignment: .leading) {
             if documentEditor.showPageNavigationView {
                 Button(action: {
-                    isSheetPresented = true
+                    isSheetPresented.toggle()
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
