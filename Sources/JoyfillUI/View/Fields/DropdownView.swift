@@ -4,6 +4,7 @@ import JoyfillModel
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
+    @State private var isTransitioning = false
     private var dropdownDataModel: DropdownDataModel
 
     let eventHandler: FieldChangeEvents
@@ -20,8 +21,15 @@ struct DropdownView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true))
             Button(action: {
-                isSheetPresented.toggle()
+                guard !isTransitioning else { return }
+                isTransitioning = true
+                isSheetPresented = true
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
+                
+                // Reset transitioning state after animation completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    isTransitioning = false
+                }
             }, label: {
                 HStack {
                     Text(dropdownDataModel.options?.filter {
@@ -36,12 +44,16 @@ struct DropdownView: View {
                 .padding(.horizontal, 10)
                 .frame(height: 40)
             })
+            .disabled(isTransitioning)
             .accessibilityIdentifier("Dropdown")
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
-            .sheet(isPresented: $isSheetPresented) {
+            .sheet(isPresented: $isSheetPresented, onDismiss: {
+                // Ensure transitioning state is reset when sheet is dismissed
+                isTransitioning = false
+            }) {
                 if #available(iOS 16, *) {
                     DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
                         .presentationDetents([.medium])
