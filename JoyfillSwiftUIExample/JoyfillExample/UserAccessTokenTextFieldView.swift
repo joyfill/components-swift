@@ -237,17 +237,18 @@ struct FormDestinationView: View {
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = false
     @State var document = JoyDoc()
-    @State var license: String = licenseKey
+    @State var license: String
 
-    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>) {
+    init(jsonString: String, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>, license: String) {
         self.jsonString = jsonString
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
         self.enableChangelogs = enableChangelogs
         self._showPublicApis = showPublicApis
+        self.license = license
     }
 
-    init(editor: DocumentEditor, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>) {
+    init(editor: DocumentEditor, changeManager: ChangeManager, showChangelogView: Binding<Bool>, enableChangelogs: Bool, showPublicApis: Binding<Bool>, license: String) {
         self.jsonString = ""
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
@@ -255,6 +256,7 @@ struct FormDestinationView: View {
         self._documentEditor = State(initialValue: editor)
         self._showPublicApis = showPublicApis
         self._document = State(initialValue: editor.document)
+        self.license = license
     }
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
@@ -271,7 +273,7 @@ struct FormDestinationView: View {
                 navigation: true,
                 isPageDuplicateEnabled: isPageDuplicated,
                 validateSchema: validateSchema,
-                license: licenseKey
+                license: license
             )
 
             // Publish to UI on the main actor

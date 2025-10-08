@@ -157,8 +157,8 @@ struct CollectionFilterModal: View {
                 .id(refreshID)
                 .padding(.all, 16)
             }
-            .background(colorScheme == .dark ? Color.black : Color.white)
         }
+        .background(colorScheme == .dark ? Color.black : Color.white)
         .onAppear {
             // Initialize with root schema key if not set
             if selectedSchemaKey.isEmpty {

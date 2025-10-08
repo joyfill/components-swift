@@ -224,7 +224,8 @@ struct UserJsonTextFieldView: View {
                                 changeManager: changeManagerWrapper.changeManager,
                                 showChangelogView: $showChangelogView,
                                 enableChangelogs: enableChangelogs,
-                                showPublicApis: $showPublicApisView
+                                showPublicApis: $showPublicApisView,
+                                license: useCustomLicense ? customLicenseKey : licenseKey
                             )
                         } else {
                             // Fallback (should rarely happen): keep old path
@@ -233,7 +234,8 @@ struct UserJsonTextFieldView: View {
                                 changeManager: changeManagerWrapper.changeManager,
                                 showChangelogView: $showChangelogView,
                                 enableChangelogs: enableChangelogs,
-                                showPublicApis: $showPublicApisView
+                                showPublicApis: $showPublicApisView,
+                                license: useCustomLicense ? customLicenseKey : licenseKey
                             )
                         }
                     },

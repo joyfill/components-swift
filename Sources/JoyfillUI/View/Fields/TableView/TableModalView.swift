@@ -9,18 +9,12 @@ struct TableRowView : View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                }
-                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty),
-                       maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty),
-                       minHeight: 50,
-                       maxHeight: .infinity)
+                TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                    .frame(width: 200, height: 60)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                    )
             }
         }
     }
@@ -57,6 +51,7 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .background(colorScheme == .dark ? Color.black : Color.white)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -203,7 +198,6 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
@@ -211,7 +205,6 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
@@ -230,9 +223,13 @@ struct TableModalView : View {
                     currentSelectedCol = currentSelectedCol == index ? Int.min : index
                 }, label: {
                     HStack {
-                        Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id ?? ""))
-                            .multilineTextAlignment(.leading)
-                            .darkLightThemeColor()
+                        ScrollView {
+                            Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id ?? ""))
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.all, 8)
+                                .frame(maxHeight: .infinity, alignment: .center)
+                                .darkLightThemeColor()
+                        }
                         
                         if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
                             Image(systemName: "asterisk")
@@ -248,18 +245,18 @@ struct TableModalView : View {
                     }
                     .padding(.all, 4)
                     .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id ?? "") ?? .unknown,
-                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id ?? "") ?? .empty))
-                    .frame(minHeight: textHeight)
-                    .overlay(
-                        Rectangle()
-                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
-                    )
+                    .frame(width: 200, height: 60)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .inset(by: 1)
+                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1.5)
+                    )
                 })
                 .accessibilityIdentifier("ColumnButtonIdentifier")
                 .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0)
 //                .disabled(true)
+                .zIndex(currentSelectedCol == index ? 1 : 0)
                 .fixedSize(horizontal: false, vertical: true)
                 .background(
                     GeometryReader { geometry in
@@ -327,7 +324,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+                    
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
@@ -354,7 +351,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+                    
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
