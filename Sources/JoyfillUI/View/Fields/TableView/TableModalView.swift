@@ -9,18 +9,12 @@ struct TableRowView : View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                }
-                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty),
-                       maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty),
-                       minHeight: 50,
-                       maxHeight: .infinity)
+                TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                    .frame(width: 200, height: 60)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                    )
             }
         }
     }
@@ -57,6 +51,7 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -203,7 +198,6 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
@@ -211,7 +205,6 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
@@ -327,7 +320,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+                    
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
@@ -354,7 +347,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+                    
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
