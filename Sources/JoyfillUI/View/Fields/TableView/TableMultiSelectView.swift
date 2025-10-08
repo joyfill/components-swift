@@ -85,6 +85,10 @@ struct TableMultiSelectView: View {
         .background(selectedOptionColor)
         .cornerRadius(16)
         .padding(.horizontal, 8)
+        .shadow(
+          color: (colorScheme == .dark ? .white.opacity(0.4) : .black.opacity(0.12)),
+          radius: 3, x: 2, y: 2
+        )
         .sheet(isPresented: $showMoreImages2) {
             TableMultiSelectSheetView(
                 cellModel: $cellModel,
