@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct TableMultiSelectView: View {
+    @Environment(\.colorScheme) var colorScheme
     @State private var showMoreImages = 5
     @State private var showMoreImages2 = false
     @Binding var cellModel: TableCellModel
@@ -30,7 +31,7 @@ struct TableMultiSelectView: View {
            let color = firstSelectedOption.color {
             return Color(hex: color)
         }
-        return Color(red: 239 / 255, green: 239 / 255, blue: 240 / 255)
+        return colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
     }
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, isSearching: Bool = false, searchValue: String? = nil) {
@@ -63,7 +64,7 @@ struct TableMultiSelectView: View {
                     Text(optionValue)
                         .lineLimit(1)
                         .font(.system(size: 15))
-                        .foregroundStyle(.black)
+                        .darkLightThemeColor()
                 }
 
                 Spacer()
@@ -71,11 +72,11 @@ struct TableMultiSelectView: View {
                 if selectedValues.count > 1 {
                     Text("+\(selectedValues.count - 1)")
                         .font(.system(size: 15))
-                        .foregroundStyle(.black)
+                        .darkLightThemeColor()
                 }
 
                 Image(systemName: "chevron.down")
-                    .foregroundStyle(.black)
+                    .darkLightThemeColor()
                     .padding(.vertical, 2)
             }
         }
