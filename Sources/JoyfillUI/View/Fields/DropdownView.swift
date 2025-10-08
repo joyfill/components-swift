@@ -1,10 +1,13 @@
 import SwiftUI
 import JoyfillModel
 
+private struct DropdownSheetPresenter: Identifiable {
+    let id = UUID()
+}
+
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
-    @State private var isSheetPresented = false
-    @State private var isTransitioning = false
+    @State private var activeSheet: DropdownSheetPresenter?
     private var dropdownDataModel: DropdownDataModel
 
     let eventHandler: FieldChangeEvents
@@ -21,15 +24,8 @@ struct DropdownView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true))
             Button(action: {
-                guard !isTransitioning else { return }
-                isTransitioning = true
-                isSheetPresented = true
+                activeSheet = DropdownSheetPresenter()
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
-                
-                // Reset transitioning state after animation completes
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    isTransitioning = false
-                }
             }, label: {
                 HStack {
                     Text(dropdownDataModel.options?.filter {
@@ -44,22 +40,14 @@ struct DropdownView: View {
                 .padding(.horizontal, 10)
                 .frame(height: 40)
             })
-            .disabled(isTransitioning)
             .accessibilityIdentifier("Dropdown")
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
-            .sheet(isPresented: $isSheetPresented, onDismiss: {
-                // Ensure transitioning state is reset when sheet is dismissed
-                isTransitioning = false
-            }) {
-                if #available(iOS 16, *) {
-                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
-                        .presentationDetents([.medium])
-                } else {
-                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
-                }
+            .sheet(item: $activeSheet) { _ in
+                DropDownOptionList(dropdownDataModel: dropdownDataModel,
+                                   selectedDropdownValueID: $selectedDropdownValueID)
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
@@ -70,9 +58,8 @@ struct DropdownView: View {
     }
 }
 
-
 struct DropDownOptionList: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) private var dismiss
     private var dropdownDataModel: DropdownDataModel
     @Binding var selectedDropdownValueID: String?
     
@@ -86,7 +73,7 @@ struct DropDownOptionList: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 }, label: {
                     Image(systemName: "xmark.circle")
                         .imageScale(.large)
@@ -102,7 +89,7 @@ struct DropDownOptionList: View {
                             } else {
                                 selectedDropdownValueID = option.id
                             }
-                            presentationMode.wrappedValue.dismiss()
+                            dismiss()
                         }, label: {
                             HStack(alignment: .top) {
                                 Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
