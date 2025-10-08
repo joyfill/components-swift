@@ -348,7 +348,6 @@ struct CollectionColumnHeaderView: View {
                     .background(
                         colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor
                     )
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
 //                })
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .accessibilityIdentifier("ColumnButtonIdentifier")
