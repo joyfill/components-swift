@@ -692,7 +692,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
        
     func testMoveUpOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
-        
+        app.swipeDown()
+        app.swipeUp()
         selectNestedRow(number: 2)
         tapOnMoreButton()
         
@@ -720,7 +721,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func testMoveDownOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
-        
+        app.swipeDown()
+        app.swipeUp()
         selectNestedRow(number: 2)
         tapOnMoreButton()
         
@@ -748,7 +750,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func testDeleteAllOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
-        
+        app.swipeDown()
+        app.swipeUp()
         selectAllNestedRows()
         tapOnMoreButton()
         
@@ -984,7 +987,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
-        textField.typeText("Edit")
+        textField.typeText("A")
         app.dismissKeyboardIfVisible()
         
         // Dropdown Field
@@ -1037,7 +1040,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         dateField.tap()
-        
+        app.swipeUp()
         // Number Field
         guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
             XCTFail("Failed to find number text field after swiping")
@@ -1045,10 +1048,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         numberTextField.tap()
         numberTextField.clearText()
-        numberTextField.typeText("12345")
+        numberTextField.typeText("123")
         firstImageButton.tap()
         dismissSheet()
-        app.swipeUp()
+        
         guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
             XCTFail("Failed to find barcode text field after swiping")
             return
@@ -1087,7 +1090,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         waitForAppToSettle()
         // Textfield
         let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-        XCTAssertEqual("Edit", thirdCellTextValue)
+        XCTAssertEqual("A", thirdCellTextValue)
         
         // Dropdown Field
         let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b6442f2e0c095a07aebb"]?.text)
@@ -1103,7 +1106,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Number Field
         let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-        XCTAssertEqual(12345, firstCellNumberValue)
+        XCTAssertEqual(123, firstCellNumberValue)
         
         // Date Column
         let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b77fc568df7b031590dc"]?.number)
@@ -1255,9 +1258,12 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
-        textField.clearText()
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         textField.typeText("o")
-        
+        app.dismissKeyboardIfVisible()
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Select Option", dropdownButton.label)

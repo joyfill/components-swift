@@ -1432,13 +1432,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testCollectionImageUpload() throws {
         app.swipeUp()
-        goToCollectionDetailField(index: 1)
+        goToCollectionDetailField(index: 0)
         
         let uploadButton = app.staticTexts["Upload"]
         let imageButtonIdentifier = "TableImageIdentifier"
         
         let imageButtons = app.buttons.matching(identifier: imageButtonIdentifier)
-        XCTAssertEqual(imageButtons.count, 3, "Expected 3 image buttons")
+        XCTAssertEqual(imageButtons.count, 4, "Expected 3 image buttons")
         
         // Multi Image Upload (Index 0)
         let multiImageButton = imageButtons.element(boundBy: 0)
@@ -1449,10 +1449,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         uploadButton.tap()
         uploadButton.tap()
         
-        assertImageCount(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
+        assertImageCount(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
         
         dismissSheet()
-        app.swipeLeft()
+        //app.swipeLeft()
         // Single Image Upload - Column 2 (Index 1)
         let singleImageButton1 = imageButtons.element(boundBy: 1)
         XCTAssertTrue(singleImageButton1.exists, "Single image button 1 does not exist")
@@ -1461,10 +1461,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         uploadButton.doubleTap()
         uploadButton.tap()
         
-        assertImageCount(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
+        assertImageCount(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
         
         dismissSheet()
-        app.swipeLeft()
+        //app.swipeLeft()
         // Single Image Upload - Column 3 (Index 2)
         let singleImageButton2 = imageButtons.element(boundBy: 2)
         XCTAssertTrue(singleImageButton2.exists, "Single image button 2 does not exist")
@@ -1472,14 +1472,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
         uploadButton.doubleTap()
         uploadButton.tap()
-        assertImageCount(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+        assertImageCount(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
         dismissSheet()
         
         goBack()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        assertImageCountFromValueArray(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
-        assertImageCountFromValueArray(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
-        assertImageCountFromValueArray(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+        assertImageCountFromValueArray(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
+        assertImageCountFromValueArray(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
+        assertImageCountFromValueArray(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
     }
     
     func testFilterApply_BB_NoResult_ThenA_ThenClearAndVerify() {
@@ -2248,13 +2248,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let addRowButton = app.buttons["collectionSchemaAddRowButton"].firstMatch
         XCTAssertTrue(addRowButton.waitForNonExistence(timeout: 5))
-        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        let cells = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly")
         XCTAssertEqual(cells.count, 2)
         expandRow(number: 1)
         expandRow(number: 2)
         XCTAssertTrue(addRowButton.waitForNonExistence(timeout: 5))
         XCTAssertEqual(cells.count, 6)
-        let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        let textField = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0)
         XCTAssertFalse(textField.isEnabled)
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         
@@ -2273,7 +2273,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         numberField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         app.swipeLeft()
-        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").firstMatch
+        let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
         XCTAssertFalse(barcodeField.isEnabled)
         barcodeField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")

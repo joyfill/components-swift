@@ -217,6 +217,13 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.tap()
         multilineTextView.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            multilineTextView.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
+
         let selectAll = app.menuItems["Select All"]
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap() // Select all with keyboard shortcut

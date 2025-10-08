@@ -288,7 +288,11 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
             }
         } else {
             // iPhone: no comma
-            outputFormatter.dateFormat = "EEEE d MMMM"
+            if #available(iOS 26.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
         }
         
         return outputFormatter.string(from: date)

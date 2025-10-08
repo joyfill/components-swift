@@ -58,10 +58,22 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         }
         
         let outputFormatter = DateFormatter()
-        outputFormatter.locale = Locale(identifier: "en_US")
-        // Simplified format to match actual calendar buttons
-        outputFormatter.dateFormat = "EEEE d MMMM"
-        
+        outputFormatter.locale = Locale(identifier: "en_US") 
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad: with comma
+            if #available(iOS 19.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
+        } else {
+            // iPhone: no comma
+            if #available(iOS 26.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
+        }
         return outputFormatter.string(from: date)
     }
     

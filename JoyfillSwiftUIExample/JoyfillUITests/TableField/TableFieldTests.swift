@@ -1571,6 +1571,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Cat 4", enterDateInInsertedField.value as! String)
         enterDateInInsertedField.tap()
         enterDateInInsertedField.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            enterDateInInsertedField.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
         let selectAll = app.menuItems["Select All"]
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()

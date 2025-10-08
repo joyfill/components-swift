@@ -343,7 +343,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first is empty")
-
+        
         // Case 2: First = 20 → second should hide
         firstField.tap()
         firstField.clearText()
@@ -352,7 +352,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first = 20")
-
+        
         // Case 3: First ≠ 10 → second should hide
         firstField.tap()
         firstField.clearText()
@@ -361,7 +361,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when first ≠ 10")
-
+        
         // Case 4: First > 50 → second should hide
         firstField.tap()
         firstField.clearText()
@@ -379,6 +379,8 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.clearText()
         firstField.typeText("10") // Reset to ensure other conditions don't match
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.dismissKeyboardIfVisible()
+        dismissSheet()
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Second field should hide when third < 70")
@@ -386,10 +388,18 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         // Case 6: All invalidated → second should show
         secondField.tap()
         secondField.clearText()
+        app.swipeDown()
+        app.swipeUp()
         secondField.tap()
         secondField.typeText("90")
         firstField.tap()
         firstField.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            firstField.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
         app.menuItems["Select All"].tap()
         firstField.clearText()
         firstField.typeText("10")
@@ -420,6 +430,8 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         firstField.tap()
         firstField.clearText()
         firstField.typeText("10")
+        app.dismissKeyboardIfVisible()
+        dismissSheet()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         secondField.tap()
         secondField.clearText()
@@ -437,5 +449,11 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         XCTAssertEqual(allFields.count, 3, "Third field should stay visible when first ≤ 80")
+    }
+    
+    func dismissSheet() {
+        let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
 }
