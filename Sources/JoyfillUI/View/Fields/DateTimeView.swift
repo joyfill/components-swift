@@ -33,7 +33,7 @@ struct DateTimeView: View {
                         .environment(\.timeZone, TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier) ?? .current)
 
                     Button(action: {
-                        isDatePickerPresented = false
+                        isDatePickerPresented.toggle()
                         let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: ValueUnion.null)
                         eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
                         eventHandler.onChange(event: event)
@@ -64,7 +64,7 @@ struct DateTimeView: View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .onTapGesture {
-                    isDatePickerPresented = true
+                    isDatePickerPresented.toggle()
                     selectedDate = Date()
                     convertDateAccToTimezone()
                 }
@@ -90,10 +90,10 @@ struct DateTimeView: View {
                     let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
                     if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                         selectedDate = date
-                        isDatePickerPresented = true
+                        isDatePickerPresented.toggle()
                     }
                 } else {
-                    isDatePickerPresented = false
+                    isDatePickerPresented.toggle()
                     ignoreOnChangeOnModelUpdate = true
                     selectedDate = Date()
                 }

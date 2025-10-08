@@ -48,7 +48,7 @@ struct TableDateView: View {
                 HStack(spacing: 8) {
                     if !dateString.isEmpty {
                         Button {
-                            isDatePickerPresented = true
+                            isDatePickerPresented.toggle()
                         } label: {
                             Text(dateString)
                                 .darkLightThemeColor()
@@ -223,7 +223,7 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
             let vc = _DatePopupViewController(date: date, mode: mode, timeZone: timeZone)
             vc.onClose = { action, newDate in
                 date = newDate
-                isPresented = false
+                isPresented.toggle()
                 if action == .done { onCommit?(newDate) }
             }
             context.coordinator.presented = vc

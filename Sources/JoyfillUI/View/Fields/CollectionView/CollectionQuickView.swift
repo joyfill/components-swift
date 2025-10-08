@@ -78,7 +78,7 @@ struct CollectionQuickView : View {
             )
             
             Button(action: {
-                isTableModalViewPresented = true
+                isTableModalViewPresented.toggle()
                 if tableDataModel.mode == .fill {
                     eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
                 }
