@@ -321,7 +321,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
         
         // Also check for column buttons
-        let columnButtons = app.buttons.matching(identifier: "ColumnButtonIdentifier")
+        let columnButtons = app.images.matching(identifier: "ColumnButtonIdentifier")
         XCTAssertGreaterThan(columnButtons.count, 0, "Table should have column buttons")
         
         for index in 0..<columnButtons.count {
@@ -603,6 +603,28 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
 //        }
     }
     
+    func testTableBlankDateTimeWithoutTimezone() {
+        app.swipeUp()
+        goToTableDetailPage()
+         
+        let dateFields = app.images.matching(identifier: "CalendarImageIdentifier")
+        dateFields.element(boundBy: 2).tap()
+        let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
+        let convertedTime = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        let dateField = app.buttons[convertedTime ?? ""].firstMatch
+        XCTAssertEqual(dateField.label, convertedTime, "Datetime should be same after epoch convert")
+        
+        let payload = onChangeResult().dictionary
+        XCTAssertNotNil(payload, "Table single edit first date field should trigger onChange event")
+        
+        if let change = payload["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+            XCTAssertEqual(payloadTimezone, "Asia/Kolkata", "Table single edit first date field timezone should be Asia/Kolkata")
+        } else {
+            XCTFail("Table single edit first date field onChange payload should contain row-based timezone structure")
+        }
+    }
     
     func testTableSingleEdit() throws {
         goToTableDetailPage()
@@ -1157,7 +1179,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
         dismissSheet()
         let convertedTime2 = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
-        let dateField2 = app.buttons[convertedTime2 as? String ?? ""].firstMatch
+        let dateField2 = app.buttons[convertedTime2 ?? ""].firstMatch
         XCTAssertEqual(dateField2.label, convertedTime2, "Datetime should be same after epoch convert")
         
         let payload3 = onChangeResult().dictionary
@@ -1175,6 +1197,29 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
             }
         } else {
             XCTFail("Table onChange payload should contain row-based timezone structure")
+        }
+    }
+    
+    func testCollectionBlankDateTimeWithoutTimezone() {
+        app.swipeUp()
+        goToCollectionDetailPage()
+         
+        let dateFields = app.images.matching(identifier: "CalendarImageIdentifier")
+        dateFields.element(boundBy: 2).tap()
+        let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
+        let convertedTime = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MMMM d, yyyy h:mm a")?.normalizedSpaces
+        let dateField = app.buttons[convertedTime ?? ""].firstMatch
+        XCTAssertEqual(dateField.label, convertedTime, "Datetime should be same after epoch convert")
+        
+        let payload = onChangeResult().dictionary
+        XCTAssertNotNil(payload, "Table single edit first date field should trigger onChange event")
+        
+        if let change = payload["change"] as? [String: Any],
+           let row = change["row"] as? [String: Any],
+           let payloadTimezone = row["tz"] as? String {
+            XCTAssertEqual(payloadTimezone, "Asia/Kolkata", "Table single edit first date field timezone should be Asia/Kolkata")
+        } else {
+            XCTFail("Table single edit first date field onChange payload should contain row-based timezone structure")
         }
     }
     
@@ -1295,13 +1340,3 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
     }
 }
 
-extension String {
-    /// Replaces narrow/regular no-break spaces with a normal space and collapses multiples.
-    var normalizedSpaces: String {
-        self
-            .replacingOccurrences(of: "\u{202F}", with: " ") // narrow no-break space
-            .replacingOccurrences(of: "\u{00A0}", with: " ") // no-break space
-            .replacingOccurrences(of: #" {2,}"#, with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-}

@@ -167,6 +167,10 @@
 		36CFA0532CE2068300B7DE34 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA0522CE2068300B7DE34 /* JoyfillModel */; };
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
 		36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */; };
+		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
+		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
+		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
+		9EAAC7C32E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
@@ -538,6 +542,8 @@
 		36CE14662DB6680000799B25 /* LiveViewTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveViewTest.swift; sourceTree = "<group>"; };
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseValidatorTests.swift; sourceTree = "<group>"; };
+		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
+		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
@@ -766,6 +772,7 @@
 			isa = PBXGroup;
 			children = (
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
+				9EAAC7BF2E979A20000B6F3C /* TimeZone */,
 				E274CA302E2E60A000B35C09 /* ChangeUITests */,
 				E2F568BD2E2A47A1005216A6 /* SingleChoiceField */,
 				E2F568B82E2A4792005216A6 /* NumberField */,
@@ -904,6 +911,15 @@
 				36A5EF2F2E29725B0059C2A6 /* testrow.json */,
 			);
 			path = others;
+			sourceTree = "<group>";
+		};
+		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
+			isa = PBXGroup;
+			children = (
+				9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */,
+				9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */,
+			);
+			path = TimeZone;
 			sourceTree = "<group>";
 		};
 		E27061C62E797E12006BAD18 /* OnChangeHandler */ = {
@@ -1565,6 +1581,7 @@
 				E274CA482E2E7FB000B35C09 /* tableField.json in Resources */,
 				E274CA492E2E7FB000B35C09 /* dropdownField.json in Resources */,
 				E274CA4A2E2E7FB000B35C09 /* dateField.json in Resources */,
+				9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */,
 				E274CA4B2E2E7FB000B35C09 /* fileField.json in Resources */,
 				E274CA4C2E2E7FB000B35C09 /* signatureField.json in Resources */,
 				E274CA4D2E2E7FB000B35C09 /* multilineTextField.json in Resources */,
@@ -1612,6 +1629,7 @@
 				E274CB482E2E84F700B35C09 /* baseInputGroupTemplateValidation.json in Resources */,
 				E2FBBAC22E67122E001FBF5B /* 10kRowsCollection.json in Resources */,
 				E274CB492E2E84F700B35C09 /* textFieldValidation.json in Resources */,
+				9EAAC7C32E979BC8000B6F3C /* TimeZoneTestData.json in Resources */,
 				E274CB4A2E2E84F700B35C09 /* baseTableTemplateValidation.json in Resources */,
 				E274CB4B2E2E84F700B35C09 /* tableFieldValidation.json in Resources */,
 				E274CB4C2E2E84F700B35C09 /* baseMultiselectTemplateValidation.json in Resources */,
@@ -1723,6 +1741,7 @@
 				E274CA532E2E7FB000B35C09 /* imageField.json in Resources */,
 				E274CA542E2E7FB000B35C09 /* blockField.json in Resources */,
 				E274CA552E2E7FB000B35C09 /* tableField.json in Resources */,
+				9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */,
 				E274CA562E2E7FB000B35C09 /* dropdownField.json in Resources */,
 				E274CA572E2E7FB000B35C09 /* dateField.json in Resources */,
 				E274CA582E2E7FB000B35C09 /* fileField.json in Resources */,
@@ -1814,6 +1833,7 @@
 				E2F5689D2E2A461A005216A6 /* DropdownFieldUITestCases.swift in Sources */,
 				13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */,
 				136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */,
+				9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */,
 				1307CF1C2BE36ECE00B19FBA /* JoyfillUITests.swift in Sources */,
 				E2F568832E2A45BC005216A6 /* ChartFieldTests.swift in Sources */,
 				E2F568902E2A45F9005216A6 /* TableFieldUITestCases.swift in Sources */,
