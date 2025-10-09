@@ -9,18 +9,12 @@ struct TableRowView : View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                ZStack {
-                    Rectangle()
-                        .stroke()
-                        .foregroundColor(Color.tableCellBorderColor)
-                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                }
-                .frame(minWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty),
-                       maxWidth: Utility.getCellWidth(type: cellModel.data.type ?? .unknown,
-                                                      format: cellModel.data.format ?? .empty),
-                       minHeight: 50,
-                       maxHeight: .infinity)
+                TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                    .frame(width: 200, height: 60)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                    )
             }
         }
     }
@@ -57,6 +51,7 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .background(colorScheme == .dark ? Color.black : Color.white)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
@@ -157,7 +152,7 @@ struct TableModalView : View {
                 HStack(alignment: .center, spacing: 0) {
                     if viewModel.showRowSelector  {
                         Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: textHeight)
+                            .frame(width: 40, height: 60)
                             .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
                             .onTapGesture {
                                 if !viewModel.tableDataModel.allRowSelected {
@@ -170,11 +165,11 @@ struct TableModalView : View {
                             .accessibilityIdentifier("SelectAllRowSelectorButton")
                     }
                     Text("#")
-                        .frame(width: 40, height: textHeight)
+                        .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? 80 : 40, height: textHeight)
+                .frame(width: viewModel.showRowSelector ? 80 : 40, height: 60)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
@@ -203,7 +198,6 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                     .scrollDisabled(true)
                 } else {
@@ -211,7 +205,6 @@ struct TableModalView : View {
                         colsHeader
                             .offset(x: offset.x)
                     }
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
                     .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
                 }
                 
@@ -226,55 +219,43 @@ struct TableModalView : View {
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
-                Button(action: {
-                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
-                }, label: {
-                    HStack {
+                HStack {
+                    ScrollView {
                         Text(viewModel.tableDataModel.getColumnTitle(columnId: column.id ?? ""))
-                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.all, 8)
+                            .frame(maxHeight: .infinity, alignment: .center)
                             .darkLightThemeColor()
-                        
-                        if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                            Image(systemName: "asterisk")
-                                .foregroundColor(.red)
-                                .imageScale(.small)
-                        }
-                        
-                        if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
-                            Image(systemName: "line.3.horizontal.decrease.circle")
-                                .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
-                        }
-                        
                     }
-                    .padding(.all, 4)
-                    .font(.system(size: 15))
-                    .frame(width: Utility.getCellWidth(type: viewModel.tableDataModel.getColumnType(columnId: column.id ?? "") ?? .unknown,
-                                                       format: viewModel.tableDataModel.getColumnFormat(columnId: column.id ?? "") ?? .empty))
-                    .frame(minHeight: textHeight)
-                    .overlay(
-                        Rectangle()
-                            .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
-                    )
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
-                })
-                .accessibilityIdentifier("ColumnButtonIdentifier")
-                .disabled([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0)
-//                .disabled(true)
-                .fixedSize(horizontal: false, vertical: true)
-                .background(
-                    GeometryReader { geometry in
-                        Color.clear
-                            .onAppear {
-                                let height = geometry.size.height
-                                columnHeights[index] = height // Store height for this column
-                                
-                                // Calculate the maximum height after adding this column's height
-                                if let maxColumnHeight = columnHeights.values.max() {
-                                    self.textHeight = maxColumnHeight // Update textHeight with max height
-                                }
-                            }
+                    
+                    if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
+                        Image(systemName: "asterisk")
+                            .foregroundColor(.red)
+                            .imageScale(.small)
                     }
+                    
+                    if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
+                        Image(systemName: "line.3.horizontal.decrease.circle")
+                            .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
+                    }
+                    
+                }
+                .padding(.all, 4)
+                .font(.system(size: 15))
+                .frame(width: 200, height: 60)
+                .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 0)
+                        .inset(by: 1)
+                        .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1.5)
                 )
+                .accessibilityIdentifier("ColumnButtonIdentifier")
+                .zIndex(currentSelectedCol == index ? 1 : 0)
+                .onTapGesture {
+                    if !([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0) {
+                        currentSelectedCol = currentSelectedCol == index ? Int.min : index
+                    }
+                }
             }
         }
     }
@@ -327,7 +308,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+                    
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
@@ -354,7 +335,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
-                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+                    
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)

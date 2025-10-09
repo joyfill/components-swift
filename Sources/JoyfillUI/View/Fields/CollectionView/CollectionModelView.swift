@@ -121,7 +121,7 @@ struct CollectionModalView : View {
         .frame(minHeight: 60)
         .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? 120 : 80) : (viewModel.nestedTableCount > 0 ? 80 : 40), height: 60)
         .border(Color.tableCellBorderColor)
-        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
     }
 
     var collection: some View {
@@ -175,7 +175,7 @@ struct CollectionModalView : View {
                                         .frame(height: 60)
                                     case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                                         CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
-                                            .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                                            .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                                     }
                                 }
                             }
@@ -296,7 +296,7 @@ struct RootTitleRowView: View {
         .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0), height: 60)
         .font(.system(size: 15, weight: .bold))
         .border(Color.tableCellBorderColor)
-        .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
     }
 }
 
@@ -346,7 +346,7 @@ struct CollectionColumnHeaderView: View {
                             .stroke(currentSelectedCol != index || isHeaderNested ? Color.tableCellBorderColor : Color.blue, lineWidth: 1)
                     )
                     .background(
-                        colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor
+                        colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor
                     )
 //                })
                 .zIndex(currentSelectedCol == index ? 1 : 0)
@@ -388,7 +388,7 @@ struct CollectionRowsHeaderView: View {
                             Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                 .frame(width: 40, height: 60)
                                 .border(Color.tableCellBorderColor)
-                                .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
+                                .background(rowModel.isExpanded ? (colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color(UIColor.systemGray6) : .white))
                                 .onTapGesture {
                                     viewModel.expandTables(rowDataModel: rowModel, level: 0)
                                 }
@@ -412,7 +412,7 @@ struct CollectionRowsHeaderView: View {
                                 Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
                                     .frame(width: 40, height: 60)
                                     .border(Color.tableCellBorderColor)
-                                    .background(rowModel.isExpanded ? (colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color.black.opacity(0.8) : .white))
+                                    .background(rowModel.isExpanded ? (colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color(UIColor.systemGray6) : .white))
                                     .onTapGesture {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
                                     }
@@ -424,7 +424,7 @@ struct CollectionRowsHeaderView: View {
                     }
                 case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                     let backgroundColor = (colorScheme == .dark)
-                    ? Color.black.opacity(0.8)
+                    ? Color(UIColor.systemGray6)
                     : Color.tableColumnBgColor
 
                     HStack(spacing: 0){
@@ -489,7 +489,7 @@ struct CollectionRowsHeaderView: View {
             case .header:
                 Text("#")
                     .frame(width: 40, height: 60)
-                    .background(colorScheme == .dark ? Color.black.opacity(0.8) : Color.tableColumnBgColor)
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
             case .nestedRow(let level, let nastedRowIndex, let parentID, let parentSchemaKey):
                 if !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
@@ -547,7 +547,7 @@ struct EmptyRectangleWithBorders: View {
 
     var body: some View {
         Rectangle()
-            .fill(colorScheme == .dark ? Color.black.opacity(0.8) : .white)
+            .fill(colorScheme == .dark ? Color(UIColor.systemGray6) : .white)
             .frame(width: width, height: height)
             .border(Color.tableCellBorderColor)
     }

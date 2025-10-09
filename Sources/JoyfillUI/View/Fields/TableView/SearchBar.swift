@@ -118,6 +118,10 @@ struct SearchBar: View {
         .frame(height: 40)
         .background(Color(.systemGray6))
         .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+        )
         .padding(.horizontal, 12)
     }
 
