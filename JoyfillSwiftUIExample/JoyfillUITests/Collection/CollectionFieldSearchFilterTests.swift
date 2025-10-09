@@ -2281,5 +2281,45 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
         XCTAssertFalse(signatureButton.isEnabled)
     }
+    
+    func testAddRowThenFilterNumberWithZeroValue() throws {
+        goToCollectionDetailField()
+        app.buttons["TableAddRowIdentifier"].tap()
+        app.buttons["TableAddRowIdentifier"].tap()
+        app.swipeLeft()
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier")
+        numberField.element(boundBy: 4).tap()
+        numberField.element(boundBy: 4).typeText("0")
+        
+        numberField.element(boundBy: 5).tap()
+        numberField.element(boundBy: 5).typeText("0.01")
+        
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        filterButton.tap()
+        
+        let columnSelector = app.buttons["CollectionFilterColumnSelectorIdentifier"]
+        columnSelector.tap()
+        
+        // Select "Number D1" column
+        let numberColumnOption = app.buttons["Number  D1"]
+        numberColumnOption.tap()
+        
+        let searchField = app.textFields["SearchBarNumberIdentifier"]
+        if searchField.exists {
+            searchField.tap()
+            searchField.typeText("0")
+            
+            app.buttons["Apply"].tap()
+            XCTAssertTrue(filterButton.exists, "Should return to collection view")
+        }
+        XCTAssertEqual(numberField.count, 2)
+        
+        filterButton.tap()
+        searchField.tap()
+        searchField.clearText()
+        searchField.typeText("0.01")
+        app.buttons["Apply"].tap()
+        XCTAssertEqual(numberField.count, 1)
+    }
 }
 

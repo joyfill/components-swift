@@ -26,7 +26,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func tapOnTextFieldColumn() {
-        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
         textFieldColumnTitleButton.tap()
     }
     

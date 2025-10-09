@@ -798,7 +798,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberFieldColumn() {
-        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 3)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 2)
         textFieldColumnTitleButton.tap()
     }
     
@@ -1418,7 +1418,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-        let headerTimeLabel = app.buttons.element(boundBy: 22).firstMatch
+        let headerTimeLabel = app.buttons.element(boundBy: 4).firstMatch
         XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
         headerTimeLabel.tap()
         app.buttons["12:00 AM"].firstMatch.tap()
