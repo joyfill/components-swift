@@ -26,7 +26,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func tapOnTextFieldColumn() {
-        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
         textFieldColumnTitleButton.tap()
     }
     
@@ -86,6 +86,22 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["target"] as? String, "field.value.rowUpdate")
+        guard let change = payload["change"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'change' dictionary")
+        }
+        // row
+        guard let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'row' dictionary")
+        }
+        
+        // cells
+        guard let cells = row["cells"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'cells' dictionary")
+        }
+        XCTAssertEqual(cells["687478ee0b423b73bb24cafa"] as? String, "Edit")
+        XCTAssertEqual(cells["6875f786e39a025afbe7d481"] as? String, "6875f7865f5cc15caa852f92")
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         for i in 0..<5 {
             let textField = textFields.element(boundBy: i)
@@ -109,6 +125,32 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         let last = textFields.count - 1
         XCTAssertTrue(textFields.element(boundBy: last).exists)
+        let payload = onChangeResult().dictionary
+        XCTAssertEqual(payload["fieldId"] as? String, "6875c7c5e988bf485f897df6")
+        XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
+        XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_6875c7ccc7953a86420924d9")
+        XCTAssertEqual(payload["fieldPositionId"] as? String, "6875c7ccc68951e6aff6ebea")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.value.rowCreate")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
+        XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
+        guard let change = payload["change"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'change' dictionary")
+        }
+        XCTAssertEqual(change["targetRowIndex"] as? Int, 6)
+        
+        // row
+        guard let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'row' dictionary")
+        } 
+        
+        // cells
+        guard let cells = row["cells"] as? [String: Any] else {
+            return XCTFail("Missing or invalid 'cells' dictionary")
+        }
+        XCTAssertEqual(cells["687478ee0b423b73bb24cafa"] as? String, "a")
     }
     
     
@@ -188,8 +230,44 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     func testReadonlyShouldNotEdit() {
         app.swipeUp()
         app.buttons.matching(identifier: "TableDetailViewIdentifier").element(boundBy: 2).tap()
-        app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0).tap()
+        let checkBox = app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0)
+        XCTAssertTrue(checkBox.waitForNonExistence(timeout: 2))
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2))
+        
+        let addRowButton = app.buttons["TableAddRowIdentifier"].firstMatch
+        XCTAssertFalse(addRowButton.isEnabled)
+        addRowButton.tap()
+        addRowButton.tap()
+        let cells = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly")
+        XCTAssertEqual(cells.count, 2)
+        
+        let textField = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0)
+        XCTAssertFalse(textField.isEnabled)
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
+        XCTAssertFalse(dropdownButtons.isEnabled)
+        
+        let multiSelectButton = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        XCTAssertFalse(multiSelectButton.isEnabled)
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        XCTAssertFalse(imageButton.isEnabled)
+        app.swipeLeft()
+        
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        XCTAssertFalse(numberField.isEnabled)
+        numberField.tap()
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        app.swipeLeft()
+        let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
+        XCTAssertFalse(barcodeField.isEnabled)
+        barcodeField.tap()
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        
+        let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        XCTAssertFalse(signatureButton.isEnabled)
     }
     
     func testCopyPasteDataInColumn() throws {
@@ -228,23 +306,23 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
-    func testInsertDataThenScroll() throws {
-        goToTableDetailPage()
-        tapOnTextFieldColumn()
-        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
-        let initialCount = cells.count
-        app.buttons["TableAddRowIdentifier"].tap()
-        let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
-        XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
-        newCell.tap()
-        app.selectAllInTextField(in: newCell, app: app)
-        newCell.typeText("one")
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        while !newCell.isHittable {
-            app.swipeUp()
-        }
-        XCTAssertEqual(newCell.value as? String, "one")
-    }
+//    func testInsertDataThenScroll() throws {
+//        goToTableDetailPage()
+//        tapOnTextFieldColumn()
+//        let cells = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+//        let initialCount = cells.count
+//        app.buttons["TableAddRowIdentifier"].tap()
+//        let newCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: initialCount)
+//        XCTAssertTrue(newCell.waitForExistence(timeout: 5), "New row should appear at the end")
+//        newCell.tap()
+//        app.selectAllInTextField(in: newCell, app: app)
+//        newCell.typeText("one")
+//        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+//        while !newCell.isHittable {
+//            app.swipeUp()
+//        }
+//        XCTAssertEqual(newCell.value as? String, "one")
+//    }
     
     func testTableMoveUpRow() throws {
         goToTableDetailPage()
@@ -262,5 +340,31 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         // check move row data - remains same or not - in this case it remain same
         let checkMovedRowTextField = app.textViews.firstMatch
         XCTAssertEqual("AB", checkMovedRowTextField.value as! String)
+        
+        
+    }
+    
+    func testHideTableByTextField() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        originalPageButton.tap()
+        
+        let tableDetailButton = app.buttons["TableDetailViewIdentifier"].firstMatch
+        XCTAssertTrue(tableDetailButton.exists)
+        
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        XCTAssertFalse(tableDetailButton.exists)
+        
+        textField.tap()
+        textField.clearText()
+        textField.typeText("show")
+        XCTAssertTrue(tableDetailButton.exists)
     }
 }

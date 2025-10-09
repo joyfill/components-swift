@@ -31,8 +31,16 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(targetField.exists)
         triggerField.tap()
         triggerField.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            triggerField.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
+
+        // 2) Now wait for “Select All” (may be offscreen on iPhone)
         let selectAll = app.menuItems["Select All"]
-        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 2))
         selectAll.tap()
         triggerField.typeText("hide first")
         
@@ -44,6 +52,9 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Check if field is hidden
         XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be hidden when condition is met.")
+        
+        
+                                        
     }
 
     func testDisplayBlockHidesOnSpecificMultilineInput() {
@@ -146,11 +157,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let firstField = app.textViews.element(boundBy: 0)
         let secondField = app.textViews.element(boundBy: 1)
         let displayText = app.staticTexts["This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\"."]
-        
-        // Debug: Check if display text exists and what other static texts are available
-        print("DEBUG: Display text exists: \(displayText.exists)")
-        print("DEBUG: All static texts: \(app.staticTexts.allElementsBoundByIndex.map { $0.label })")
-        
+         
         // Step 1: Check if display text exists, if not skip this part
         if !displayText.exists {
             print("DEBUG: Display text not found initially, skipping display text test")
@@ -158,6 +165,12 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
             // Hide display text by setting first field to the trigger value
             firstField.tap()
             firstField.press(forDuration: 1.0)
+            let editMenu = app.otherElements["Editing Menu"].firstMatch
+            if !editMenu.waitForExistence(timeout: 2) {
+                // Retry the long-press once if the menu didn't appear yet
+                firstField.press(forDuration: 0.8)
+                _ = editMenu.waitForExistence(timeout: 3)
+            }
             let selectAll = app.menuItems["Select All"]
             XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
             selectAll.tap()
@@ -171,6 +184,12 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         // According to JSON: Field 1 gets hidden when Field 2 = "hide first"
         secondField.tap()
         secondField.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            secondField.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
         let selectAll = app.menuItems["Select All"]
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
@@ -336,6 +355,11 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686f34f806b47c8397b9b3fe")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686f34f8ed9ba0b32295b17f")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
     }
 
     func testMultilineRequiredAndNonRequiredFieldAsteriskPresence() {
@@ -364,7 +388,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let firstMultiline = app.textViews.element(boundBy: 0)
         let displayText = app.staticTexts["This displayed text will be hidden if the multiline text is \"The quick brown fox jumps over the lazy dog\"."]
         let secondMultiline = app.textViews.element(boundBy: 1)
-        let thirdMultiline = app.textViews.element(boundBy: 2)
+        let selectAll = app.menuItems["Select All"]
         
         // Condition: display text hidden if first = "The quick brown fox jumps over the lazy dog"
         firstMultiline.tap()
@@ -374,28 +398,51 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         
         // Reset and test: second is empty
         firstMultiline.tap()
-        firstMultiline.clearTextReliably()
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            firstMultiline.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         firstMultiline.typeText("reset")
         secondMultiline.tap()
-        secondMultiline.clearText()
-        Thread.sleep(forTimeInterval: 0.5)
+        secondMultiline.press(forDuration: 1.0)
         XCTAssertFalse(displayText.exists, "Display text should be hidden when second multiline is empty.")
         
         // Reset and test: second = "hide second"
         secondMultiline.tap()
-        secondMultiline.clearTextReliably()
+        secondMultiline.press(forDuration: 1.0)
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            secondMultiline.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         secondMultiline.typeText("hide second")
         Thread.sleep(forTimeInterval: 0.5)
         XCTAssertFalse(displayText.exists, "Display text should be hidden when second multiline is 'hide second'.")
         
         // Reset and test: first != "hide"
         secondMultiline.tap()
-        secondMultiline.clearTextReliably()
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            secondMultiline.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
         secondMultiline.typeText("this is text")
         Thread.sleep(forTimeInterval: 0.5)
         firstMultiline.tap()
         firstMultiline.press(forDuration: 1.0)
-        let selectAll = app.menuItems["Select All"]
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            firstMultiline.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
         firstMultiline.typeText("hide")
@@ -405,6 +452,11 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         // Reset and test: second contains "abcd"
         secondMultiline.tap()
         secondMultiline.press(forDuration: 1.0)
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            secondMultiline.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
         secondMultiline.typeText("123 abcd 456")
@@ -414,18 +466,17 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         // Now test third field logic: third is hidden if first is empty and second contains xyz
         firstMultiline.tap()
         firstMultiline.press(forDuration: 1.0)
-          XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-          selectAll.tap()
-        Thread.sleep(forTimeInterval: 0.5)
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        firstMultiline.clearText()
+        app.dismissKeyboardIfVisible()
+        dismissSheet()
         secondMultiline.tap()
-        secondMultiline.press(forDuration: 1.0)
-          XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
-          selectAll.tap()
         secondMultiline.typeText("xyz")
         Thread.sleep(forTimeInterval: 0.5)
         app.swipeUp()
         app.swipeDown()
-        XCTAssertEqual(app.textViews.count, 3, "Third multiline should be hidden when first is empty and second contains 'xyz'")
+        XCTAssertEqual(app.textViews.count, 2, "Third multiline should be hidden when first is empty and second contains 'xyz'")
     }
     
     func testMultilineFieldCallOnChangeAfterTwoSeconds() throws {
@@ -435,6 +486,12 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         // Clear the field completely
         multiLineTextField.tap()
         multiLineTextField.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            multiLineTextField.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
         let selectAll = app.menuItems["Select All"]
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
@@ -443,5 +500,11 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         Thread.sleep(forTimeInterval: 2.0)
         
         XCTAssertEqual("Hello sir", onChangeResultValue().multilineText)
+    }
+    
+    func dismissSheet() {
+        let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
 }

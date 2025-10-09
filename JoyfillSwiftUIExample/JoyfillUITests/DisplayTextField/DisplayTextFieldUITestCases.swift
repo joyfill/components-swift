@@ -101,4 +101,28 @@ final class DisplayTextFieldUITestCases: JoyfillUITestsBaseClass {
         
         XCTAssertEqual("testHello", onChangeResultValue().text!)
     }
+    
+    func testHideDisplayTextByTextField() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 1)
+        originalPageButton.tap()
+        
+        let heading = app.staticTexts["Red Color Heading"].firstMatch
+        XCTAssertTrue(heading.exists)
+        
+        let textField = app.textFields.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.clearText()
+        textField.typeText("hide")
+        XCTAssertFalse(heading.exists)
+        
+        textField.tap()
+        textField.clearText()
+        textField.typeText("show")
+        XCTAssertTrue(heading.exists)
+    }
 }

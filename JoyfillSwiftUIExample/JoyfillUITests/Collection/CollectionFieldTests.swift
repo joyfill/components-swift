@@ -412,6 +412,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("", firstTableTextField.value as! String)
+        XCTAssertTrue(firstTableTextField.waitForExistence(timeout: 5))
         firstTableTextField.tap()
         firstTableTextField.typeText("one")
         //Test change-logs
@@ -555,10 +556,13 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         if let firstCollectionDateField = app.swipeToFindElement(identifier: "CalendarImageIdentifier", type: .image, direction: "left") {
             firstCollectionDateField.tap()
         }
-        
-        let datePickers = app.datePickers
-        XCTAssertTrue(datePickers.element.exists)
-        
+          
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm a"   // Example: 12:58 PM
+        formatter.amSymbol = "AM"
+        formatter.pmSymbol = "PM"
+        let dateButton = app.buttons[formatter.string(from: Date())].firstMatch
+        XCTAssertTrue(dateButton.exists)
         //        element.swipeRight()
         goBack()
         waitForAppToSettle()
@@ -688,7 +692,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
        
     func testMoveUpOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
-        
+        app.swipeDown()
+        app.swipeUp()
         selectNestedRow(number: 2)
         tapOnMoreButton()
         
@@ -716,7 +721,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func testMoveDownOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
-        
+        app.swipeDown()
+        app.swipeUp()
         selectNestedRow(number: 2)
         tapOnMoreButton()
         
@@ -744,7 +750,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func testDeleteAllOnNestedRow() {
         addThreeNestedRows(parentRowNumber: 1)
-        
+        app.swipeDown()
+        app.swipeUp()
         selectAllNestedRows()
         tapOnMoreButton()
         
@@ -927,6 +934,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
         XCTAssertNotNil(firstCellDateValue)
         
+        // Date Column
+        let firstCelltz = try XCTUnwrap(onChangeResultValue().valueElements?[0].tz as? String)
+        XCTAssertEqual(firstCelltz, "Asia/Kolkata")
+        
         // Barcode Field
         let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7a813ea45f5b681dec1"]?.text)
         XCTAssertEqual("quick", firstCellBarcodeTextValue)
@@ -976,7 +987,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
-        textField.typeText("Edit")
+        textField.typeText("A")
         app.dismissKeyboardIfVisible()
         
         // Dropdown Field
@@ -1029,7 +1040,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             return
         }
         dateField.tap()
-        
+        app.swipeUp()
         // Number Field
         guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
             XCTFail("Failed to find number text field after swiping")
@@ -1037,10 +1048,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         numberTextField.tap()
         numberTextField.clearText()
-        numberTextField.typeText("12345")
+        numberTextField.typeText("123")
         firstImageButton.tap()
         dismissSheet()
-        app.swipeUp()
+        
         guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
             XCTFail("Failed to find barcode text field after swiping")
             return
@@ -1079,7 +1090,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         waitForAppToSettle()
         // Textfield
         let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-        XCTAssertEqual("Edit", thirdCellTextValue)
+        XCTAssertEqual("A", thirdCellTextValue)
         
         // Dropdown Field
         let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b6442f2e0c095a07aebb"]?.text)
@@ -1095,7 +1106,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         // Number Field
         let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-        XCTAssertEqual(12345, firstCellNumberValue)
+        XCTAssertEqual(123, firstCellNumberValue)
         
         // Date Column
         let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["6805b77fc568df7b031590dc"]?.number)
@@ -1245,10 +1256,14 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         // Textfield
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
-        textField.clearText()
-        textField.typeText("quick")
-        
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        textField.typeText("o")
+        app.dismissKeyboardIfVisible()
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Select Option", dropdownButton.label)
@@ -1279,7 +1294,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         waitForAppToSettle()
         
         // Textfield
-        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "quick")
+        XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7c2dae7987557c0b602"]?.text , "o")
         
         // Dropdown Field
         XCTAssertEqual(onChangeResultValue().valueElements?.first?.childrens?["6805b7c24343d7bcba916934"]?.valueToValueElements?[0].cells?["6805b7cd4d3e63602cbc0790"]?.text , "6805b7cdd7e3afe29fc94b0c")

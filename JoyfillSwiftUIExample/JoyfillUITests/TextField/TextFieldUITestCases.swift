@@ -217,6 +217,13 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         multilineTextView.tap()
         multilineTextView.press(forDuration: 1.0)
+        let editMenu = app.otherElements["Editing Menu"].firstMatch
+        if !editMenu.waitForExistence(timeout: 2) {
+            // Retry the long-press once if the menu didn't appear yet
+            multilineTextView.press(forDuration: 0.8)
+            _ = editMenu.waitForExistence(timeout: 3)
+        }
+
         let selectAll = app.menuItems["Select All"]
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap() // Select all with keyboard shortcut
@@ -356,6 +363,11 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(payload["pageId"] as? String, "66a14ced15a9dc96374e091e")
         XCTAssertEqual(payload["fieldIdentifier"] as? String, "field_686bc000238ce635c382fbe7")
         XCTAssertEqual(payload["fieldPositionId"] as? String, "686bc000b6539ca7ff945674")
+        XCTAssertEqual(payload["fileId"] as? String, "66a14ced9dc829a95e272506")
+        XCTAssertEqual(payload["target"] as? String, "field.update")
+        XCTAssertEqual(payload["identifier"] as? String, "template_6849dbb509ede5510725c910")
+        XCTAssertEqual(payload["_id"] as? String, "66a14cedd6e1ebcdf176a8da")
+        XCTAssertEqual(payload["sdk"] as? String, "swift")
     }
     
     // Verifies onFocus and onBlur triggers

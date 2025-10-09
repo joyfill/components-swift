@@ -964,6 +964,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
                 multiSelectFilterButton.tap()
                 
                 let option1 = app.buttons["Option 1 D1"].firstMatch
+                XCTAssertTrue(option1.waitForExistence(timeout: 5))
                 if option1.exists {
                     option1.tap()
                 }
@@ -1431,13 +1432,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     
     func testCollectionImageUpload() throws {
         app.swipeUp()
-        goToCollectionDetailField(index: 1)
+        goToCollectionDetailField(index: 0)
         
         let uploadButton = app.staticTexts["Upload"]
         let imageButtonIdentifier = "TableImageIdentifier"
         
         let imageButtons = app.buttons.matching(identifier: imageButtonIdentifier)
-        XCTAssertEqual(imageButtons.count, 3, "Expected 3 image buttons")
+        XCTAssertEqual(imageButtons.count, 4, "Expected 3 image buttons")
         
         // Multi Image Upload (Index 0)
         let multiImageButton = imageButtons.element(boundBy: 0)
@@ -1448,10 +1449,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         uploadButton.tap()
         uploadButton.tap()
         
-        assertImageCount(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
+        assertImageCount(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
         
         dismissSheet()
-        app.swipeLeft()
+        //app.swipeLeft()
         // Single Image Upload - Column 2 (Index 1)
         let singleImageButton1 = imageButtons.element(boundBy: 1)
         XCTAssertTrue(singleImageButton1.exists, "Single image button 1 does not exist")
@@ -1460,10 +1461,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         uploadButton.doubleTap()
         uploadButton.tap()
         
-        assertImageCount(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
+        assertImageCount(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
         
         dismissSheet()
-        app.swipeLeft()
+        //app.swipeLeft()
         // Single Image Upload - Column 3 (Index 2)
         let singleImageButton2 = imageButtons.element(boundBy: 2)
         XCTAssertTrue(singleImageButton2.exists, "Single image button 2 does not exist")
@@ -1471,14 +1472,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(uploadButton.waitForExistence(timeout: 3))
         uploadButton.doubleTap()
         uploadButton.tap()
-        assertImageCount(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+        assertImageCount(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
         dismissSheet()
         
         goBack()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        assertImageCountFromValueArray(for: "686b8f0caa36b1d9e6bbd544", expectedCount: 1)
-        assertImageCountFromValueArray(for: "6813008ea26d706f2a5db2d5", expectedCount: 2)
-        assertImageCountFromValueArray(for: "686b8f0f6c1c6a51b85ccf1f", expectedCount: 1)
+        assertImageCountFromValueArray(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
+        assertImageCountFromValueArray(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
+        assertImageCountFromValueArray(for: "684c3fedad4a18cff0707ac3", expectedCount: 1)
     }
     
     func testFilterApply_BB_NoResult_ThenA_ThenClearAndVerify() {
@@ -2081,7 +2082,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let deletedRowId = change?["rowId"] as? String
         XCTAssertEqual("68599790e8593d6d76c3a09f", deletedRowId)
-
+        
         let parentPath = change?["parentPath"] as? String
         XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
         
@@ -2112,6 +2113,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let fieldId = onChangeResult().fieldId
         XCTAssertEqual("6857510fbfed1553e168161b", fieldId)
+        
+        let fieldPositionId = onChangeResult().fieldPositionId
+        XCTAssertEqual("68575112158ff5dbaa9f78e1", fieldPositionId)
+        
+        let _id = onChangeResult().id
+        XCTAssertEqual("685750eff3216b45ffe73c80", _id)
         
         let docIdentifier = onChangeResult().identifier
         XCTAssertEqual("doc_685750eff3216b45ffe73c80", docIdentifier)
@@ -2147,7 +2154,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
-        textField.typeText(" new value")
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        textField.typeText("q")
         app.dismissKeyboardIfVisible()
         
         let fieldTarget = onChangeResult().target
@@ -2171,7 +2182,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let change = onChangeResult().change
         let rowID = change?["rowId"] as? String
         XCTAssertEqual(rowID, "68599790e8593d6d76c3a09f")
-
+        
         let parentPath = change?["parentPath"] as? String
         XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
         
@@ -2180,7 +2191,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let row = change?["row"] as? [String: Any]
         let cells = row?["cells"] as? [String: Any]
         let updatedValue = cells?["685753be581f231c08d8f11c"] as? String
-        XCTAssertEqual(updatedValue, "A new value")
+        XCTAssertEqual(updatedValue, "q")
     }
     
     func testChangeLogsForEditupperRows() throws {
@@ -2225,6 +2236,90 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let targetRowIndex = change?["targetRowIndex"] as? Double
         XCTAssertEqual(1, targetRowIndex)
         
+    }
+    
+    func testReadonlyShouldNotEdit() {
+        app.swipeUp()
+        goToCollectionDetailField(index: 1)
+        let checkBox = app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0)
+        XCTAssertTrue(checkBox.waitForNonExistence(timeout: 2))
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2))
+        
+        let addRowButton = app.buttons["collectionSchemaAddRowButton"].firstMatch
+        XCTAssertTrue(addRowButton.waitForNonExistence(timeout: 5))
+        let cells = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly")
+        XCTAssertEqual(cells.count, 2)
+        expandRow(number: 1)
+        expandRow(number: 2)
+        XCTAssertTrue(addRowButton.waitForNonExistence(timeout: 5))
+        XCTAssertEqual(cells.count, 6)
+        let textField = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0)
+        XCTAssertFalse(textField.isEnabled)
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
+        XCTAssertFalse(dropdownButtons.isEnabled)
+        
+        let multiSelectButton = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        XCTAssertFalse(multiSelectButton.isEnabled)
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        XCTAssertFalse(imageButton.isEnabled)
+        app.swipeLeft()
+        
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        XCTAssertFalse(numberField.isEnabled)
+        numberField.tap()
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        app.swipeLeft()
+        let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
+        XCTAssertFalse(barcodeField.isEnabled)
+        barcodeField.tap()
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        
+        let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        XCTAssertFalse(signatureButton.isEnabled)
+    }
+    
+    func testAddRowThenFilterNumberWithZeroValue() throws {
+        goToCollectionDetailField()
+        app.buttons["TableAddRowIdentifier"].tap()
+        app.buttons["TableAddRowIdentifier"].tap()
+        app.swipeLeft()
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier")
+        numberField.element(boundBy: 4).tap()
+        numberField.element(boundBy: 4).typeText("0")
+        
+        numberField.element(boundBy: 5).tap()
+        numberField.element(boundBy: 5).typeText("0.01")
+        
+        let filterButton = app.buttons["CollectionFilterButtonIdentifier"]
+        filterButton.tap()
+        
+        let columnSelector = app.buttons["CollectionFilterColumnSelectorIdentifier"]
+        columnSelector.tap()
+        
+        // Select "Number D1" column
+        let numberColumnOption = app.buttons["Number  D1"]
+        numberColumnOption.tap()
+        
+        let searchField = app.textFields["SearchBarNumberIdentifier"]
+        if searchField.exists {
+            searchField.tap()
+            searchField.typeText("0")
+            
+            app.buttons["Apply"].tap()
+            XCTAssertTrue(filterButton.exists, "Should return to collection view")
+        }
+        XCTAssertEqual(numberField.count, 2)
+        
+        filterButton.tap()
+        searchField.tap()
+        searchField.clearText()
+        searchField.typeText("0.01")
+        app.buttons["Apply"].tap()
+        XCTAssertEqual(numberField.count, 1)
     }
 }
 

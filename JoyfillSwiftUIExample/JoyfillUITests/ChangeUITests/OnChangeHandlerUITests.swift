@@ -407,6 +407,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToCollectionView()
         goToCollectionView()
        
+        let firstScroll = app.scrollViews.element(boundBy: 0)
+        let secondScroll = app.scrollViews.element(boundBy: 1)
+        firstScroll.swipeLeft()
+        secondScroll.swipeLeft()
+        
         let firstTableTextField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual("12.2", firstTableTextField.value as! String)
         firstTableTextField.tap()
@@ -495,6 +500,15 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToCollectionView()
         goToCollectionView()
+        
+        
+        let firstScroll = app.scrollViews.element(boundBy: 0)
+        let secondScroll = app.scrollViews.element(boundBy: 1)
+
+        firstScroll.swipeLeft()
+        firstScroll.swipeLeft()
+        secondScroll.swipeLeft()
+        secondScroll.swipeLeft()
         
         let dateFields = app.images.matching(identifier: "CalendarImageIdentifier")
         XCTAssertEqual(dateFields.count, 4, "Date fields should exist")
@@ -784,7 +798,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberFieldColumn() {
-        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 3)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 2)
         textFieldColumnTitleButton.tap()
     }
     
@@ -1023,7 +1037,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         goToTableDetailPage(index: 0)
         
-        let dateButtons = app.buttons.matching(identifier: "1 Jun 2024")
+        let dateButtons = app.buttons.matching(identifier: "June 1, 2024 12:00 AM")
         XCTAssertEqual(dateButtons.count, 4, "Date fields should exist")
         
         let dateField1 = dateButtons.element(boundBy: 0)
@@ -1034,10 +1048,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let newDateButton = app.buttons[formattedDate]
         XCTAssertTrue(newDateButton.exists, "Formatted date button should exist: \(formattedDate)")
         newDateButton.tap()
-        app.buttons["PopoverDismissRegion"].tap()
+        dismissSheet()
         goBack()
         
-        let secDateFields = app.buttons.matching(identifier: "28 Jun 2024")
+        let secDateFields = app.buttons.matching(identifier: "June 28, 2024 12:00 AM")
         XCTAssertEqual(secDateFields.count, 1, "Date fields should exist")
     }
     
@@ -1404,10 +1418,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-        let headerTimeLabel = app.buttons.matching(identifier: "12:00 AM").element(boundBy: 0)
+        let headerTimeLabel = app.buttons.element(boundBy: 4).firstMatch
         XCTAssertTrue(headerTimeLabel.exists, "Expected to see the time header before switching to wheels")
         headerTimeLabel.tap()
-        
+        app.buttons["12:00 AM"].firstMatch.tap()
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
         let periodPicker = app.pickerWheels.element(boundBy: 2)
@@ -1415,14 +1429,13 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         hourPicker.adjust(toPickerWheelValue: "1")
         minutePicker.adjust(toPickerWheelValue: "02")
         periodPicker.adjust(toPickerWheelValue: "PM")
-        XCUIApplication().buttons["PopoverDismissRegion"].tap()
-        
+        //XCUIApplication().buttons["PopoverDismissRegion"].tap()
+        dismissSheet()
+        //RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        //goBack()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        goBack()
-        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        let checkSelectedTimeValue = app.buttons.matching(identifier: "1:02 PM").element(boundBy: 0)
-        XCTAssertTrue(checkSelectedTimeValue.exists)
-        
+        let checkSelectedTimeValue = app.buttons.matching(identifier: "June 1, 2024 1:02 PM")
+        XCTAssertEqual(checkSelectedTimeValue.count, 2)
     }
     
     // Change existing value
@@ -1941,6 +1954,158 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let CheckTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual(CheckTextField.value as! String, "hello")
     }
+    
+    func testAddRowAndSwitchPages() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToTableDetailPage()
+        app.buttons["TableAddRowIdentifier"].firstMatch.tap()
+         
+        let barcodeFieldIdentifier = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 6)
+        XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
+       
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        goBack()
+        goToTableDetailPage(index: 1)
+        XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
+    }
+    
+    func testCheckAllFields() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 2)
+        tapOnSecondPage.tap()
+        
+        let textField = app.textFields.element(boundBy: 0)
+        textField.tap()
+        textField.typeText("Hello")
+        
+        let field = app.textViews.element(boundBy: 0)
+        XCTAssertTrue(field.exists)
+        field.tap()
+        field.typeText("hello\nsir")
+        
+        let numberField = app.textFields.element(boundBy: 1)
+        numberField.tap()
+        numberField.typeText("123")
+         
+        let dropdownField = app.buttons.matching(identifier: "Dropdown").element(boundBy: 0)
+        dropdownField.tap()
+        app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "Yes")).tap()
+         
+        
+        let multi = app.buttons.matching(identifier: "MultiSelectionIdenitfier")
+        multi.element(boundBy: 2).tap()
+        
+        let fieldSingle = app.buttons.matching(identifier: "SingleSelectionIdentifier").element(boundBy: 0)
+        fieldSingle.tap()
+        XCTAssertEqual(fieldSingle.label, "Yes")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        XCTAssertEqual(textField.value as? String, "Hello")
+        XCTAssertEqual(field.value as? String, "hello\nsir")
+        XCTAssertEqual(numberField.value as? String, "123")
+        XCTAssertEqual(dropdownField.label, "Yes")
+        XCTAssertEqual(fieldSingle.label, "Yes")
+    }
+    
+    func testDateField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 2)
+        tapOnSecondPage.tap()
+        
+        let calendarImage = app.images.element(boundBy: 2)
+        calendarImage.tap()
+        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+        
+        // Get initial label from button
+        let firstLabel = getDateFieldButtonLabel(16)
+        let secondLabel = getDateFieldButtonLabel(17)
+        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
+        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata")?.normalizedSpaces
+        
+        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        
+        let lab1 = getDateFieldButtonLabel(16)
+        let lab2 = getDateFieldButtonLabel(17)
+        let fullLabel2 = (lab1 + " " + lab2).normalizedSpaces
+        
+        XCTAssertEqual(fullLabel2, convertedTime, "Datetime should be same after epoch convert")
+    }
+    
+    func getDateFieldButtonByIndex(_ index: Int) -> XCUIElement {
+        return app.buttons.element(boundBy: index)
+    }
+    
+    func getDateFieldButtonLabel(_ index: Int) -> String {
+        let dateButton = getDateFieldButtonByIndex(index)
+        return dateButton.label
+    }
+    
+    func formatEpoch(
+        _ epoch: Int64,
+        timeZoneTitle: String?,
+        format: String = "d MMM yyyy h:mm a"
+    ) -> String? {
+        // Detect ms vs s
+        let seconds: TimeInterval = epoch > 10_000_000_000
+            ? TimeInterval(epoch) / 1000.0
+            : TimeInterval(epoch)
+        let date = Date(timeIntervalSince1970: seconds)
+
+        // Resolve timezone
+        let tzString = (timeZoneTitle ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let isNilLike = tzString.isEmpty || tzString.lowercased() == "nil"
+        let tz = (!isNilLike ? TimeZone(identifier: tzString) : nil) ?? .current
+
+        // Formatter
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX") // stable parsing/formatting
+        df.timeZone = tz
+        df.dateFormat = format
+
+        return df.string(from: date)
+    }
+    
+    func extractChangeValueAsString() -> String? {
+        guard let result = onChangeOptionalResult(),
+              let change = result.change,
+              let value = change["value"] as? String else {
+            return nil
+        }
+        return value
+    }
 }
 
 extension XCUIElementQuery {
@@ -1953,5 +2118,16 @@ extension XCUIElementQuery {
             }
         }
         return matchCount
+    }
+}
+
+extension String {
+    /// Replaces narrow/regular no-break spaces with a normal space and collapses multiples.
+    var normalizedSpaces: String {
+        self
+            .replacingOccurrences(of: "\u{202F}", with: " ") // narrow no-break space
+            .replacingOccurrences(of: "\u{00A0}", with: " ") // no-break space
+            .replacingOccurrences(of: #" {2,}"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

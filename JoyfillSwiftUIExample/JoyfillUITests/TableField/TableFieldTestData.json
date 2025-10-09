@@ -286,11 +286,71 @@
           "identifier": "field_column_68761ceec2c11b31f2b9716e"
         },
         {
-          "_id": "6875dfe7f30b08882e61b0fa",
-          "type": "text",
-          "title": "Text Column",
+          "_id": "68dca4e10cb5f3c3123d9f82",
+          "type": "multiSelect",
+          "title": "Multiselect Column",
           "width": 0,
-          "identifier": "field_column_68761cee83549741ff7d9778"
+          "options": [
+            {
+              "_id": "68dca4e12ee1f748eafb066d",
+              "value": "Option 1",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            },
+            {
+              "_id": "68dca4e1d514d05da6bddaa4",
+              "value": "Option 2",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            },
+            {
+              "_id": "68dca4e1aa91452944962c55",
+              "value": "Option 3",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": "#f0f0f0"
+              }
+            }
+          ]
+        },
+        {
+          "_id": "68dca4e8d8aa8f18d645bea5",
+          "type": "image",
+          "title": "Image Column"
+        },
+        {
+          "_id": "68dca4ec43d723f225cb535d",
+          "type": "number",
+          "title": "Number Column",
+          "width": 0
+        },
+        {
+          "_id": "68dca4f219553271d6d282dc",
+          "type": "date",
+          "title": "Date Column",
+          "width": 0
+        },
+        {
+          "_id": "68dca4f7d9e0b8b00fe264a6",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0
+        },
+        {
+          "_id": "68dca500a57c9af5e3157b03",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0
+        },
+        {
+          "_id": "68dca502c2eee1bc4514f030",
+          "type": "signature",
+          "title": "Signature Column",
+          "width": 0
         }
       ],
       "value": [
@@ -306,7 +366,7 @@
         },
         {
           "_id": "6875dfe7ea4f9c4211af1f6b",
-          "deleted": false,
+          "deleted": true,
           "cells": {}
         }
       ],
@@ -314,12 +374,17 @@
       "tableColumnOrder": [
         "6875dfe7ce1d16f75eba8bea",
         "6875dfe705ee2e896a057427",
-        "6875dfe7f30b08882e61b0fa"
+        "68dca4e10cb5f3c3123d9f82",
+        "68dca4e8d8aa8f18d645bea5",
+        "68dca4ec43d723f225cb535d",
+        "68dca4f219553271d6d282dc",
+        "68dca4f7d9e0b8b00fe264a6",
+        "68dca500a57c9af5e3157b03",
+        "68dca502c2eee1bc4514f030"
       ],
       "rowOrder": [
         "6875dfe73b5823dc2fd3fe0d",
-        "6875dfe76cf5253a5ac993f5",
-        "6875dfe7ea4f9c4211af1f6b"
+        "6875dfe76cf5253a5ac993f5"
       ],
       "disabled": true
     },
@@ -405,6 +470,109 @@
         "6875dfe76cf5253a5ac993f5",
         "6875dfe7ea4f9c4211af1f6b"
       ]
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7ba78fa62c9acb4bf4cb1",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "6875dfe7ce1d16f75eba8bea",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68761d0ad958c5a893bc51d4"
+        },
+        {
+          "_id": "6875dfe705ee2e896a057427",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "options": [
+            {
+              "_id": "6875dfe7a1689091b40faa35",
+              "value": "Yes",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875dfe7962bedc7cc3352d7",
+              "value": "No",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            },
+            {
+              "_id": "6875dfe7ff283562ad61672d",
+              "value": "N/A",
+              "deleted": false,
+              "styles": {
+                "backgroundColor": null
+              }
+            }
+          ],
+          "identifier": "field_column_68761d0ae494e7a5c787ce37"
+        },
+        {
+          "_id": "6875dfe7f30b08882e61b0fa",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68761d0a989488dce1a4a9fe"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6875dfe73b5823dc2fd3fe0d",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6875dfe76cf5253a5ac993f5",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6875dfe7ea4f9c4211af1f6b",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_68761d0ad90ce218ffb41b70",
+      "tableColumnOrder": [
+        "6875dfe7ce1d16f75eba8bea",
+        "6875dfe705ee2e896a057427",
+        "6875dfe7f30b08882e61b0fa"
+      ],
+      "rowOrder": [
+        "6875dfe73b5823dc2fd3fe0d",
+        "6875dfe76cf5253a5ac993f5",
+        "6875dfe7ea4f9c4211af1f6b"
+      ],
+      "logic": {
+        "action": "hide",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "66a14ced9dc829a95e272506",
+            "page": "68d7ba78321dcd7856b3735e",
+            "field": "68d7ba87def652c6110d1c46",
+            "condition": "=",
+            "value": "hide"
+          }
+        ]
+      }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68d7ba87def652c6110d1c46",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68d7ba8b5ed2bffce034975e"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -421,7 +589,8 @@
       },
       "_id": "66a14ced9dc829a95e272506",
       "pageOrder": [
-        "66a14ced15a9dc96374e091e"
+        "66a14ced15a9dc96374e091e",
+        "68d7ba78321dcd7856b3735e"
       ],
       "pages": [
         {
@@ -470,6 +639,44 @@
           "rowHeight": 8,
           "borderWidth": 0,
           "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "Every Field Type",
+          "margin": 0
+        },
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "68761d0af9902feb43f7354a",
+              "type": "table",
+              "field": "68d7ba78fa62c9acb4bf4cb1",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 8,
+              "width": 8,
+              "height": 15
+            },
+            {
+              "_id": "68d7ba8b8bdeb146541f256b",
+              "type": "text",
+              "field": "68d7ba87def652c6110d1c46",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "68d7ba78321dcd7856b3735e",
           "width": 816,
           "name": "Every Field Type",
           "margin": 0

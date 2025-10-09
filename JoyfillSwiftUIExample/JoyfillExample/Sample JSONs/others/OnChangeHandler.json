@@ -1,16 +1,18 @@
 {
   "_id": "685750eff3216b45ffe73c80",
   "identifier": "doc_685750eff3216b45ffe73c80",
-  "name": "New Doc",
+  "name": "All Fields",
   "createdOn": 1734946508793,
   "deleted": false,
   "files": [
     {
       "_id": "685750ef698da1ab427761ba",
-      "name": "New File",
+      "name": "All Fields",
       "pageOrder": [
         "685750efeb612f4fac5819dd",
-        "68d0c93c0a435420d975de7f"
+        "68d0c93c0a435420d975de7f",
+        "68e33b5fc6fe3e7ece654f4d",
+        "68e34182e45b28674c6ad43d"
       ],
       "pages": [
         {
@@ -73,6 +75,148 @@
               "y": 48,
               "width": 8,
               "height": 189
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        },
+        {
+          "_id": "68e33b5fc6fe3e7ece654f4d",
+          "name": "All Fields",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68e3413c4244c20e596861f3",
+              "type": "text",
+              "field": "68e33b947545a6715029a85a",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68e3414382d1801b1e1827f3",
+              "type": "textarea",
+              "field": "68e3413c875ac09309c6e09d",
+              "displayType": "original",
+              "x": 2,
+              "y": 8,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "68e34146bfaaa49f0266fa83",
+              "type": "number",
+              "field": "68e341436cd66b030813ca94",
+              "displayType": "original",
+              "x": 2,
+              "y": 31,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68e3414d0318c1bd80740d93",
+              "type": "date",
+              "field": "68e34146988ec973ec893816",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 2,
+              "y": 39,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68e341518b7ab2a978411d3d",
+              "type": "dropdown",
+              "field": "68e3414d728501f9a52ee799",
+              "displayType": "original",
+              "targetValue": "68dbc240643ad713161d0a6b",
+              "x": 2,
+              "y": 47,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68e34155ac7edd77bb265a79",
+              "type": "multiSelect",
+              "field": "68e34151ac9ad3628ae0d6fd",
+              "displayType": "original",
+              "targetValue": "68dbc2407394524a64db66a8",
+              "x": 2,
+              "y": 55,
+              "width": 4,
+              "height": 15
+            },
+            {
+              "_id": "68e3417d3d04e284cc02e398",
+              "type": "multiSelect",
+              "field": "68e3416fdc601ea9cff1685e",
+              "displayType": "original",
+              "targetValue": "68dbc240454ec48e6a1f3d4a",
+              "x": 2,
+              "y": 70,
+              "width": 4,
+              "height": 15
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        },
+        {
+          "_id": "68e34182e45b28674c6ad43d",
+          "name": "All Fields",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68e34192e2268d50e6938149",
+              "type": "multiSelect",
+              "field": "68e3418dda97529e0630fb94",
+              "displayType": "check",
+              "targetValue": "68dbc240dc9f542679ef742a",
+              "x": 1,
+              "y": 0,
+              "width": 1,
+              "height": 5
+            },
+            {
+              "_id": "68e34195ef44ffce075a292e",
+              "type": "signature",
+              "field": "68e3419203847c580ed10665",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "68e341974a34abc01483c864",
+              "type": "chart",
+              "field": "68e34195ee0d17e732680fea",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 2,
+              "y": 23,
+              "width": 4,
+              "height": 27
+            },
+            {
+              "_id": "68e3419cbb18f577c6ae61e8",
+              "type": "image",
+              "field": "68e34197bed939dcc513a7b6",
+              "displayType": "original",
+              "x": 2,
+              "y": 50,
+              "width": 2,
+              "height": 23
             }
           ],
           "layout": "grid",
@@ -2259,6 +2403,149 @@
         }
       },
       "identifier": "field_68575112847f32f878c77daf"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e33b947545a6715029a85a",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68e3413cb2b2c2a99ff3816e"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e3413c875ac09309c6e09d",
+      "type": "textarea",
+      "title": "Multiline Text",
+      "identifier": "field_68e34143e1b29e924b9886bf"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e341436cd66b030813ca94",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_68e34146d26d70e1233f56cb"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e34146988ec973ec893816",
+      "type": "date",
+      "title": "Date Time",
+      "identifier": "field_68e3414d0c612f79e3688ef9"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e3414d728501f9a52ee799",
+      "type": "dropdown",
+      "title": "Dropdown",
+      "options": [
+        {
+          "_id": "68dbc240643ad713161d0a6b",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "68dbc2401ac963a0a8ffcdbd",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "68dbc24027558fcc0e51c07c",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_68e341517742964b6cf0ef5e"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e34151ac9ad3628ae0d6fd",
+      "type": "multiSelect",
+      "title": "Multiple Choice",
+      "multi": true,
+      "options": [
+        {
+          "_id": "68dbc2407394524a64db66a8",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "68dbc240deef8d60d0215c79",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "68dbc2401c93d907ac0d7e2f",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_68e34155b0e34a3a1959c7b3"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e3416fdc601ea9cff1685e",
+      "type": "multiSelect",
+      "title": "Single Choice",
+      "multi": false,
+      "options": [
+        {
+          "_id": "68dbc240454ec48e6a1f3d4a",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "68dbc240cced7b8e86ffc588",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "68dbc240a8e84340f3a0bc9d",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_68e3417d9e6222ed21668e29"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e3418dda97529e0630fb94",
+      "type": "multiSelect",
+      "title": "Checkbox",
+      "options": [
+        {
+          "_id": "68dbc240dc9f542679ef742a",
+          "value": "Option 1",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_68e341926d634ea2fb100f46"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e3419203847c580ed10665",
+      "type": "signature",
+      "title": "Signature",
+      "identifier": "field_68e3419597aa529367869b22"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e34195ee0d17e732680fea",
+      "type": "chart",
+      "title": "Chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_68e34197e2322d084c36ba30"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68e34197bed939dcc513a7b6",
+      "type": "image",
+      "title": "Image",
+      "identifier": "field_68e3419c370fc146e059ef2f"
     }
   ],
   "type": "template"
