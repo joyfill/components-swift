@@ -16,8 +16,9 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
     }
     
     let imagePicker = ImagePicker()
+
     init() {
-        var document = sampleJSONDocument(fileName: "OnChangeHandler")
+        var document = sampleJSONDocument(fileName: "FormulaTemplate_SignatureField")
         document.id = UUID().uuidString
         print("documentEditor1", document.id)
         documentEditor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
@@ -40,6 +41,7 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
 
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         print("onChange documentID:", document.id)
+        guard nil != documentEditor else { return }
         if document.id == documentEditor.documentID {
             // documentEditor changes
             documentEditor2.change(changes: changes)

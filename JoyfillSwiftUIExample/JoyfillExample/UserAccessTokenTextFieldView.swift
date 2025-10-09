@@ -384,10 +384,12 @@ struct UserJsonTextFieldView: View {
                     let cm = changeManagerWrapper.changeManager
                     Task.detached {
                         let jsonData = json.data(using: .utf8) ?? Data()
-                        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+                        
+//                        let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+                        let dictionary = try! JSONDecoder().decode([String: AnyCodable].self, from: jsonData)
                         let license = await useCustomLicense ? customLicenseKey : licenseKey
                         let editor = DocumentEditor(
-                            document: JoyDoc(dictionary: dictionary),
+                            document: JoyDoc(rawData: dictionary)!,
                             mode: .fill,
                             events: cm,
                             pageID: "",
@@ -543,10 +545,13 @@ struct FormDestinationView: View {
         // Heavy work (JSON parse + DocumentEditor construction) off the main thread
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
-            let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
 
+
+
+//            let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
+            let dictionary = try! JSONDecoder().decode([String: AnyCodable].self, from: jsonData)
             let editor = DocumentEditor(
-                document: JoyDoc(dictionary: dictionary),
+                document: JoyDoc(rawData: dictionary)!,
                 mode: .fill,
                 events: changeManager,
                 pageID: "",
@@ -624,9 +629,9 @@ struct FormDestinationView: View {
         }
         // Kick off background creation once the view appears
         .task {
-            if documentEditor == nil {
-                buildDocumentEditorInBackground()
-            }
+//            if documentEditor == nil {
+//                buildDocumentEditorInBackground()
+//            }
         }
     }
 }
@@ -1088,4 +1093,11 @@ struct TestingChangelogsView: View {
         }
         .modifier(KeyboardDismissModifier())
     }
+}
+
+
+public extension JoyDoc {
+  init?(rawData: [String: AnyCodable]) {
+    self.init(dictionary: rawData.compactMapValues { $0.value })
+  }
 }

@@ -49,7 +49,7 @@ public final class JoyfillLogger {
         if type == .error {
             #if DEBUG
             if NSClassFromString("XCTest") == nil {
-                fatalError(logMessage) // Only crash if not running tests
+//                fatalError(logMessage) // Only crash if not running tests
             }
             #else
             print("Critical error logged: \(logMessage)") // Log error in production builds

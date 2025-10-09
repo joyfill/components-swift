@@ -1631,12 +1631,14 @@ public struct FieldPosition {
     /// The x-coordinate of the field.
     public var x: Double? {
         get { dictionary["x"] as? Double }
+//        get { dictionary["x"] as? Double ?? Double(dictionary["y"] as! Int)}
         set { dictionary["x"] = newValue }
     }
 
     /// The y-coordinate of the field.
     public var y: Double? {
         get { dictionary["y"] as? Double }
+//        get { dictionary["y"] as? Double ?? Double(dictionary["y"] as! Int) }
         set { dictionary["y"] = newValue }
     }
 

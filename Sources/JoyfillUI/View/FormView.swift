@@ -241,7 +241,7 @@ struct FormView: View {
             DateTimeView(dateTimeDataModel: model, eventHandler: self)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .signature(let model):
-            SignatureView(signatureDataModel: model, eventHandler: self)
+            SignatureView(listModel: listModelBinding, eventHandler: self)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .number(let model):
             NumberView(numberDataModel: model, eventHandler: self)

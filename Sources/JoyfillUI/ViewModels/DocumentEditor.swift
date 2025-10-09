@@ -97,7 +97,7 @@ public class DocumentEditor: ObservableObject {
         self.currentPageID = ""
         self.events = events
         // Set feature flags from license
-        self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
+        self.isCollectionFieldEnabled = true
         updateFieldMap()
         updateFieldPositionMap()
 

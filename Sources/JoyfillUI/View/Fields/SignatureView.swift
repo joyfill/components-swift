@@ -13,12 +13,21 @@ struct SignatureView: View {
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
     @State var showError: Bool = false
 
-    private var signatureDataModel: SignatureDataModel
+    @State var signatureDataModel: SignatureDataModel!
     let eventHandler: FieldChangeEvents
 
-    public init(signatureDataModel: SignatureDataModel, eventHandler: FieldChangeEvents) {
+    @Binding var listModel: FieldListModel
+
+    public init(listModel: Binding<FieldListModel>, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
-        self.signatureDataModel = signatureDataModel
+        _listModel = listModel
+        switch listModel.wrappedValue.model {
+        case .signature(let dataModel):
+            _signatureDataModel = State(initialValue: dataModel)
+        default:
+            self.signatureDataModel = nil
+            break
+        }
     }
     
     var body: some View {
@@ -37,7 +46,7 @@ struct SignatureView: View {
                             .resizable()
                             .scaledToFit()
                     }
-                    if showError {
+                    if showError && signatureImage == nil {
                         VStack(spacing: 12) {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .resizable()
@@ -105,22 +114,51 @@ struct SignatureView: View {
             let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
             eventHandler.onChange(event: fieldEvent)
         }
+        .onChange(of: listModel) { newValue in
+            switch newValue.model {
+            case .signature(let dataModel):
+                signatureDataModel = dataModel
+                let incomingURL = dataModel.signatureURL ?? ""
+                let previousURL = self.signatureURL
+                self.signatureURL = incomingURL
+                if incomingURL.isEmpty {
+                    // Signature cleared
+                    self.signatureImage = nil
+                    self.showError = false
+                } else if incomingURL != previousURL || self.signatureImage == nil {
+                    // Only reload when the URL actually changed or we have no image
+                    loadImageFromURL()
+                }
+            default:
+                break
+            }
+        }
     }
     
     func loadImageFromURL() {
-        if !signatureURL.isEmpty {
-            APIService.loadImage(from: signatureURL) { imageData in
-                if let imageData = imageData, let image = UIImage(data: imageData) {
-                    DispatchQueue.main.async {
-                        self.signatureImage = image
-                        ignoreOnChangeOnDefaultImageLoad = true
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        self.showError = true
-                    }
-                    Log("Invalid signature URL or failed to load image: \(String(describing: signatureURL))", type: .warning)
+        // Reset visual state before attempting a new load
+        self.showError = false
+        if signatureURL.isEmpty {
+            // Nothing to load; ensure previous image does not linger
+            self.signatureImage = nil
+            return
+        }
+
+        // Clear stale image while loading a new one
+        self.signatureImage = nil
+        APIService.loadImage(from: signatureURL) { imageData in
+            if let imageData = imageData, let image = UIImage(data: imageData) {
+                DispatchQueue.main.async {
+                    self.signatureImage = image
+                    self.showError = false
+                    ignoreOnChangeOnDefaultImageLoad = true
                 }
+            } else {
+                DispatchQueue.main.async {
+                    self.signatureImage = nil
+                    self.showError = true
+                }
+                Log("Invalid signature URL or failed to load image: \(String(describing: signatureURL))", type: .warning)
             }
         }
     }
