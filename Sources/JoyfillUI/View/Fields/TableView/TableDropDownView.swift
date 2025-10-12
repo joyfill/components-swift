@@ -53,7 +53,7 @@ struct TableDropDownOptionListView: View {
                 .padding(.horizontal, 10)
                 .accessibilityIdentifier("TableDropdownIdentifier")
                 .onChange(of: isSheetPresented) { newValue in
-                    isSheetPresented2 = true
+                    isSheetPresented2.toggle()
                 }
                 .sheet(isPresented: $isSheetPresented2) {
                     TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
