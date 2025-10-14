@@ -760,6 +760,33 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons.matching(identifier: "TableDetailViewIdentifier").element(boundBy: index).tap()
     }
     
+    func tapOnInsertRowButton() {
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableInsertRowIdentifier"].tap()
+    }
+    
+    func enterDataInInsertedRow() {
+        let enterDateInInsertedField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertTrue(enterDateInInsertedField.waitForExistence(timeout: 5),
+                      "Inserted text field never appeared")
+        XCTAssertEqual("", enterDateInInsertedField.value as! String)
+        app.enterTextReliably("one", into: enterDateInInsertedField)
+        
+        // Select first option in dropdown field
+        let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
+        XCTAssertTrue(selectDropdownField.waitForExistence(timeout: 5),
+                      "Inserted text field never appeared")
+        XCTAssertEqual("Select Option", selectDropdownField.label)
+        selectDropdownField.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        XCTAssertTrue(dropdownOptions.element(boundBy: 1).waitForExistence(timeout: 5))
+        XCTAssertGreaterThan(dropdownOptions.count, 0)
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        firstOption.tap()
+    }
+    
     func tapOnMoreButton() {
         let selectallbuttonImage = XCUIApplication().images["SelectAllRowSelectorButton"].firstMatch
         selectallbuttonImage.tap()
@@ -956,6 +983,47 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         print("Number of textViews with value \"FirstA\": \(firstValueCount)")
         XCTAssertEqual(2, firstValueCount, "Expected exactly two textViews with value 'FirstA' (one in each form)")
         
+    }
+    
+    func testTableEditInsertRow() throws {
+        goToTableDetailPage()
+        tapOnInsertRowButton()
+        enterDataInInsertedRow()
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 1).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        app.swipeUp()
+        // Enter data for edit the field
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5), "‘Select All’ menu didn’t show up")
+        textField.typeText("qu")
+        
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("No D1", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.buttons["LowerRowButtonIdentifier"].tap()
+        app.buttons["UpperRowButtonIdentifier"].tap()
+        app.buttons["PlusTheRowButtonIdentifier"].tap()
+        app.buttons["UpperRowButtonIdentifier"].tap()
+        dismissSheet()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableMoveDownRowIdentifier"].firstMatch.tap()
+        goBack()
+        goToTableDetailPage(index: 1)
+        
+        let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("qu", checkEditDataOnTextField.value as! String)
+        
+        let checkEditDataOnDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes D1", checkEditDataOnDropdownField.element(boundBy: 2).label)
+         
+        XCTAssertEqual(app.textViews.matching(identifier: "TabelTextFieldIdentifier").count, 8)
     }
     
     func testTableChangeNumberCollection() {
@@ -2111,6 +2179,185 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let fullLabel2 = (lab1 + " " + lab2).normalizedSpaces
         
         XCTAssertEqual(fullLabel2, convertedTime, "Datetime should be same after epoch convert")
+    }
+    
+    func testSignatureField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 3)
+        tapOnSecondPage.tap()
+          
+        let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        signatureButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        XCTAssertEqual("Edit Signature", signatureButton.label)
+    }
+    
+    func testChartField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 3)
+        tapOnSecondPage.tap()
+          
+        goToChartDetailField()
+
+        app.buttons["ShowHideButtonIdentifier"].tap()
+        let verticalTitleTextFieldIdentifier = app.textFields["VerticalTextFieldIdentifier"]
+        let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
+
+        verticalTitleTextFieldIdentifier.tap()
+        verticalTitleTextFieldIdentifier.typeText(" Label Y")
+        horizontalTitleTextFieldIdentifier.tap()
+        horizontalTitleTextFieldIdentifier.typeText(" Label X")
+
+        let minYValuesTextField = app.textFields["MinY"]
+        let minXValuesTextField = app.textFields["MinX"]
+        let maxYValuesTextField = app.textFields["MaxY"]
+        let maxXValuesTextField = app.textFields["MaxX"]
+
+        minYValuesTextField.tap()
+        minYValuesTextField.clearText()
+        minYValuesTextField.typeText("10")
+        minXValuesTextField.tap()
+        minXValuesTextField.clearText()
+        minXValuesTextField.typeText("20")
+        maxYValuesTextField.tap()
+        maxYValuesTextField.clearText()
+        maxYValuesTextField.typeText("700")
+        maxXValuesTextField.tap()
+        maxXValuesTextField.press(forDuration: 1.0)
+        app.menuItems["Select All"].tap()
+        maxXValuesTextField.clearText()
+        maxXValuesTextField.typeText("800")
+        
+        let addLineButtonIdentifier = app.buttons.matching(identifier: "AddLineIdentifier")
+        let addLineButton = addLineButtonIdentifier.element(boundBy: 0)
+        addLineButton.tap()
+        
+        let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
+        titleTextFieldIdentifier.tap()
+        titleTextFieldIdentifier.clearText()
+        titleTextFieldIdentifier.typeText("Line Title")
+
+        let descriptionTextFieldIdentifier = app.textFields["DescriptionTextFieldIdentifier"]
+        descriptionTextFieldIdentifier.tap()
+        descriptionTextFieldIdentifier.clearText()
+        descriptionTextFieldIdentifier.typeText("Line Description")
+        
+        let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
+        let texts = ["PointLabel1", "PointLabel2", "PointLabel3"]
+
+        for i in 0..<textFields.count {
+            let textField = textFields.element(boundBy: i)
+            guard textField.exists else {
+                XCTFail("Text field \(i) does not exist.")
+                return
+            }
+            textField.tap()
+            if i < texts.count {
+                textField.typeText("\(texts[i])")
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+                app.dismissKeyboardIfVisible()
+            } else {
+                XCTFail("No text provided for text field \(i).")
+            }
+        }
+        
+        
+        let horizontalPointsValueIdentifier = app.textFields.matching(identifier: "HorizontalPointsValue")
+        let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
+        horizontalPointsValue.tap()
+        horizontalPointsValue.clearText()
+        horizontalPointsValue.typeText("10")
+ 
+        let horizontalPointsValue1 = horizontalPointsValueIdentifier.element(boundBy: 1)
+        horizontalPointsValue1.tap()
+        horizontalPointsValue1.clearText()
+        horizontalPointsValue1.typeText("20")
+
+        let verticalPointsValueIdentifier = app.textFields.matching(identifier: "VerticalPointsValue")
+        let verticalPointsValue = verticalPointsValueIdentifier.element(boundBy: 0)
+        verticalPointsValue.tap()
+        verticalPointsValue.clearText()
+        verticalPointsValue.typeText("30")
+        app.swipeUp()
+        let verticalPointsValue1 = verticalPointsValueIdentifier.element(boundBy: 1)
+        verticalPointsValue1.tap()
+        verticalPointsValue1.clearText()
+        verticalPointsValue1.typeText("40")
+ 
+        let horizontalPointsValue2 = horizontalPointsValueIdentifier.element(boundBy: 2)
+        horizontalPointsValue2.tap()
+        horizontalPointsValue2.clearText()
+        horizontalPointsValue2.typeText("50")
+ 
+        let verticalPointsValue2 = verticalPointsValueIdentifier.element(boundBy: 2)
+        verticalPointsValue2.tap()
+        verticalPointsValue2.clearText()
+        verticalPointsValue2.typeText("60")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        goBack()
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.buttons["ShowHideButtonIdentifier"].tap()
+
+        XCTAssertEqual(verticalTitleTextFieldIdentifier.value as? String, "Vertical Label Y", "TextField value is incorrect after navigation")
+        XCTAssertEqual(horizontalTitleTextFieldIdentifier.value as? String, "Horizontal Label X", "TextField value is incorrect after navigation")
+        XCTAssertEqual(minYValuesTextField.value as? String, "10", "TextField value is incorrect after navigation")
+        XCTAssertEqual(minXValuesTextField.value as? String, "20", "TextField value is incorrect after navigation")
+        XCTAssertEqual(maxYValuesTextField.value as? String, "700", "TextField value is incorrect after navigation")
+        XCTAssertEqual(maxXValuesTextField.value as? String, "800", "TextField value is incorrect after navigation")
+        XCTAssertEqual(titleTextFieldIdentifier.value as? String, "Line Title", "TextField value is incorrect after navigation")
+        XCTAssertEqual(descriptionTextFieldIdentifier.value as? String, "Line Description", "TextField value is incorrect after navigation")
+        for i in 0..<textFields.count {
+            let textField = textFields.element(boundBy: i)
+            XCTAssertEqual(textField.value as? String, texts[i], "Text field \(i) value does not match expected value after navigation.")
+        }
+        XCTAssertEqual(horizontalPointsValue.value as? String, "10", "TextField value is incorrect after navigation")
+        XCTAssertEqual(horizontalPointsValue1.value as? String, "20", "TextField value is incorrect after navigation")
+        XCTAssertEqual(verticalPointsValue.value as? String, "30", "TextField value is incorrect after navigation")
+        XCTAssertEqual(verticalPointsValue1.value as? String, "40", "TextField value is incorrect after navigation")
+        XCTAssertEqual(horizontalPointsValue2.value as? String, "50", "TextField value is incorrect after navigation")
+        XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
+    }
+    
+    
+    
+    func goToChartDetailField(index: Int = 0) {
+        let chartViewButton = app.buttons.matching(identifier: "ChartViewIdentifier").element(boundBy: index)
+        
+        var attempts = 0
+        while !chartViewButton.exists && attempts < 5 {
+            app.swipeUp()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+            attempts += 1
+        }
+        
+        XCTAssertTrue(chartViewButton.waitForExistence(timeout: 5), "Chart view button not found")
+        chartViewButton.tap()
     }
     
     func getDateFieldButtonByIndex(_ index: Int) -> XCUIElement {
