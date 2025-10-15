@@ -661,6 +661,7 @@ public struct JoyDocField: Equatable {
     }
 }
 
+/// Represents a conditional logic block attached to a field or page.
 public struct Logic: Equatable{
     public static func == (lhs: Logic, rhs: Logic) -> Bool {
         lhs.id == rhs.id
@@ -714,6 +715,7 @@ public struct Logic: Equatable{
     }
 }
 
+/// Condition model used when evaluating collection schemas.
 public struct SchemaCondition: Equatable {
     public static func == (lhs: SchemaCondition, rhs: SchemaCondition) -> Bool {
         lhs.id == rhs.id
@@ -755,6 +757,7 @@ public struct SchemaCondition: Equatable {
     }
 }
 
+/// Condition model used by standard field/page logic.
 public struct Condition: Equatable{
     public static func == (lhs: Condition, rhs: Condition) -> Bool {
         lhs.id == rhs.id
