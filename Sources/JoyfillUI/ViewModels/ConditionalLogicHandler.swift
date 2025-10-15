@@ -8,18 +8,7 @@
 import Foundation
 import JoyfillModel
 
-
-
-// 1. Cache strcture build
-// 2. Cache build in init
-//   2.1 Wrte a function to check if schema needs to be shown
-// 3. Call new API
-// 4. Write logic to update the cache
-//     on each cell change document editor will Check if needs to update the cache
-//      if yes call the 2.1 to check if schema needs to be shown
-//      update the cache
-
-
+/// Composite identifier used to map collection schemas to specific rows.
 public struct RowSchemaID: Hashable {
     public let rowID: String
     public let schemaID: String
@@ -30,10 +19,12 @@ public struct RowSchemaID: Hashable {
     }
 }
 
+/// Stores schema-visibility flags for a collection field.
 public struct CollectionSchemaLogic {
     public var showSchemaMap = [RowSchemaID: Bool]()   // RowSchemaID : Bool
 }
 
+/// Tracks which schemas depend on a particular column within a collection.
 public struct CollectionDependency {
     public var columnDependencyMap = [String: Set<String>]() // columnID: Set of SchemaIDs
 }

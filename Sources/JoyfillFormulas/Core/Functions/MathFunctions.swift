@@ -1,6 +1,6 @@
 import Foundation
 
-/// Implementation of mathematical functions
+/// Namespace containing Joyfill's built-in mathematical formula functions.
 public struct MathFunctions {
     
     /// Implements the SUM function: SUM(number1, number2, ...) or SUM(arrayOfNumbers)

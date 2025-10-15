@@ -220,6 +220,8 @@ public class Parser {
     private var currentIndex: Int = 0
     private let functionRegistry: FunctionRegistry
 
+    /// Creates a parser configured with the supplied function registry so that lambda bodies can be validated.
+    /// - Parameter functionRegistry: Registry used to resolve function metadata during parsing (defaults to a new instance).
     public init(functionRegistry: FunctionRegistry = FunctionRegistry()) {
         self.functionRegistry = functionRegistry
     }
@@ -705,5 +707,4 @@ public class Parser {
         }
     }
 }
-
 

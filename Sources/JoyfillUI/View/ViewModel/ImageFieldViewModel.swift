@@ -43,7 +43,12 @@ class APIService {
     }
 }
 
+/// View model responsible for downloading images referenced by image fields.
 public class ImageFieldViewModel: ObservableObject {
+    /// Loads all images for the provided URLs (base64 strings or remote/local URLs) and returns the decoded `UIImage` instances on the main queue.
+    /// - Parameters:
+    ///   - imageURLs: Collection of image identifiers/URLs.
+    ///   - completion: Completion handler invoked on the main queue with the successfully decoded images.
     public func loadImageFromURL(imageURLs: [String], completion: @escaping ([UIImage]) -> Void) {
         var loadedImages: [UIImage] = []
         let group = DispatchGroup()
@@ -66,6 +71,10 @@ public class ImageFieldViewModel: ObservableObject {
         }
     }
 
+    /// Loads a single image and returns it on the main queue.
+    /// - Parameters:
+    ///   - imageURL: Base64 string or remote/local URL pointing to the image.
+    ///   - completion: Completion handler invoked with the decoded image, or `nil` if decoding failed.
     func loadSingleURL(imageURL: String, completion: @escaping (UIImage?) -> Void) {
         APIService.loadImage(from: imageURL) { imageData in
             if let imageData = imageData, let image = UIImage(data: imageData) {
