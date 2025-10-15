@@ -26,6 +26,7 @@ public enum FormulaValue: Equatable {
         else { return nil } 
     }
 
+    /// Convenience accessor that returns the underlying Boolean when the value is `.boolean`, otherwise `false`.
     public var boolValue: Bool {
         switch self {
         case .boolean(let bool): return bool

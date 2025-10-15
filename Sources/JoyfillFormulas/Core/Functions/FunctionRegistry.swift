@@ -1,23 +1,27 @@
 import Foundation
 
-// Alias for the function signature: takes arguments, context, evaluator, returns a result
+/// Closure signature used by the formula engine to evaluate registered functions.
 public typealias FormulaFunction = (_ args: [ASTNode], _ context: EvaluationContext, _ evaluator: Evaluator) -> Result<FormulaValue, FormulaError>
 
-// Placeholder for the Evaluation Context - needs proper definition
+/// Abstraction that supplies values to the formula evaluator.
 public protocol EvaluationContext {
+    /// Resolves a reference such as `fieldId` or `table.column` to a runtime value.
     func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError>
-    // We might need a way to temporarily add/override references for MAP/FILTER
+    /// Creates a child context that temporarily overrides or supplies additional variables.
     func contextByAdding(variable name: String, value: FormulaValue) -> EvaluationContext
 }
 
-// Simple dictionary-based context for initial implementation
+/// Minimal `EvaluationContext` that performs lookups against an in-memory dictionary.
 public struct DictionaryContext: EvaluationContext {
     private var values: [String: FormulaValue]
     
+    /// Creates a context using the supplied dictionary.
+    /// - Parameter values: Initial field/value pairs available to the evaluator.
     public init(_ values: [String: FormulaValue] = [:]) {
         self.values = values
     }
     
+    /// Looks up the provided reference and returns either the stored value or an `.invalidReference` error.
     public func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError> {
         // Direct lookup - no brace stripping needed since we now parse field references directly
         if let value = values[name] {
@@ -27,6 +31,7 @@ public struct DictionaryContext: EvaluationContext {
         }
     }
     
+    /// Returns a new context containing the original values plus an override for `name`.
     public func contextByAdding(variable name: String, value: FormulaValue) -> EvaluationContext {
         var newValues = self.values
         // Store field names directly - no brace handling needed
@@ -35,20 +40,26 @@ public struct DictionaryContext: EvaluationContext {
     }
 }
 
-/// Manages the registration and lookup of built-in and custom functions.
+/// Registry that stores built-in and user-defined formula functions.
 public class FunctionRegistry {
     private var functions: [String: FormulaFunction] = [:]
 
+    /// Creates a registry pre-populated with Joyfill's built-in functions.
     public init() {
         registerDefaultFunctions()
     }
 
     /// Registers a function with the given name (case-insensitive).
+    /// - Parameters:
+    ///   - name: Function identifier (e.g. `"SUM"`).
+    ///   - function: Closure that will be invoked by the evaluator.
     public func register(name: String, function: @escaping FormulaFunction) {
         functions[name.uppercased()] = function // Store uppercase for case-insensitivity
     }
 
     /// Retrieves a function by name (case-insensitive).
+    /// - Parameter name: Function identifier to look up.
+    /// - Returns: The registered function, or `nil` when no match exists.
     public func lookup(name: String) -> FormulaFunction? {
         return functions[name.uppercased()]
     }

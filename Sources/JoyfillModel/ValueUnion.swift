@@ -47,13 +47,16 @@ public enum ValueUnion: Codable, Hashable, Equatable {
     /// Represents a `null` value.
     case null
 
-    /// Creates a new `ValueUnion` with the given dictionary.
-    ///
-    /// - Parameter dictionary: The dictionary that contains the initial properties of the column.
+    /// Creates a dictionary-backed union.
+    /// - Parameter dictionary: Key/value pairs that should be represented by the union.
     public init(valueUnionDictionary: [String: ValueUnion]) {
         self = .dictionary(valueUnionDictionary)
     }
 
+    /// Indicates whether the union currently represents an empty or null value.
+    ///
+    /// Strings, arrays, dictionaries, and value-element arrays check for emptiness.  
+    /// The `.bool` case returns the stored Boolean, `.null` returns `true`, and numeric cases currently return `false`.
     public var nullOrEmpty: Bool {
         switch self {
         case .double(let double):
@@ -165,7 +168,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
 #endif
     }
 
-    /// The dictionary representation of the `ValueUnion`.
+    /// Serialises the union into Foundation types suitable for JSON encoding.
     public var dictionary: Any? {
         switch self {
         case .double(let double):
