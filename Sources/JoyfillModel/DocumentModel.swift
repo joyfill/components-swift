@@ -191,6 +191,7 @@ public enum FieldTypes: String, Codable {
     }
 }
 
+/// Column type identifiers used by table and collection schemas.
 public enum ColumnTypes: String {
     case text
     case dropdown
@@ -295,6 +296,7 @@ public func dateToTimestampMilliseconds(date: Date) -> Double {
     return timestampMilliseconds
 }
 
+/// Describes the target row for operations such as duplication or movement.
 public struct TargetRowModel {
     public let id: String
     public let index: Int
