@@ -1,6 +1,9 @@
 # Joyfill iOS SDK - API Documentation
 
-This directory contains the complete API reference documentation for all Joyfill iOS SDK modules, generated using Apple's DocC tool.
+This directory (`API Reference`) contains the complete API reference documentation for all Joyfill iOS SDK modules, generated using Apple's DocC tool.
+
+> **📂 Directory Location**: `/components-swift/API Reference/`  
+> All documentation files are located within this directory.
 
 ## 📚 Available Modules
 
@@ -28,7 +31,7 @@ This directory contains the complete API reference documentation for all Joyfill
 
 ### Option 1: Using Python HTTP Server (Recommended)
 ```bash
-cd docs
+cd "API Reference"
 python3 -m http.server 8080
 ```
 
@@ -74,7 +77,7 @@ To regenerate the documentation:
 
 ```bash
 # 1. Clean previous builds
-rm -rf DerivedData docs/Joyfill docs/JoyfillModel docs/JoyfillFormulas docs/JoyfillAPIService
+rm -rf DerivedData "API Reference/Joyfill" "API Reference/JoyfillModel" "API Reference/JoyfillFormulas" "API Reference/JoyfillAPIService"
 
 # 2. Build documentation symbols for iOS Simulator
 xcodebuild docbuild \
@@ -91,7 +94,7 @@ xcrun docc convert \
   --additional-symbol-graph-dir DerivedData/Build/Intermediates.noindex/Joyfill.build/Debug-iphonesimulator/JoyfillModel.build/symbol-graph/swift \
   --additional-symbol-graph-dir DerivedData/Build/Intermediates.noindex/Joyfill.build/Debug-iphonesimulator/JoyfillFormulas.build/symbol-graph/swift \
   --additional-symbol-graph-dir DerivedData/Build/Intermediates.noindex/Joyfill.build/Debug-iphonesimulator/JoyfillAPIService.build/symbol-graph/swift \
-  --output-path ./docs/Joyfill \
+  --output-path "./API Reference/Joyfill" \
   --transform-for-static-hosting \
   --hosting-base-path Joyfill
 
@@ -102,7 +105,7 @@ xcrun docc convert \
   --fallback-display-name JoyfillModel \
   --fallback-bundle-identifier com.joyfill.JoyfillModel \
   --fallback-bundle-version 1.0 \
-  --output-path ./docs/JoyfillModel \
+  --output-path "./API Reference/JoyfillModel" \
   --transform-for-static-hosting \
   --hosting-base-path JoyfillModel
 
@@ -113,7 +116,7 @@ xcrun docc convert \
   --fallback-display-name JoyfillFormulas \
   --fallback-bundle-identifier com.joyfill.JoyfillFormulas \
   --fallback-bundle-version 1.0 \
-  --output-path ./docs/JoyfillFormulas \
+  --output-path "./API Reference/JoyfillFormulas" \
   --transform-for-static-hosting \
   --hosting-base-path JoyfillFormulas
 
@@ -124,12 +127,12 @@ xcrun docc convert \
   --fallback-display-name JoyfillAPIService \
   --fallback-bundle-identifier com.joyfill.JoyfillAPIService \
   --fallback-bundle-version 1.0 \
-  --output-path ./docs/JoyfillAPIService \
+  --output-path "./API Reference/JoyfillAPIService" \
   --transform-for-static-hosting \
   --hosting-base-path JoyfillAPIService
 
 # 7. Start local server
-cd docs && python3 -m http.server 8080
+cd "API Reference" && python3 -m http.server 8080
 ```
 
 ## 🎯 Platform Support
