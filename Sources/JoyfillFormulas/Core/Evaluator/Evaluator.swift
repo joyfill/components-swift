@@ -5,6 +5,8 @@ public class Evaluator {
 
     private let functionRegistry: FunctionRegistry
 
+    /// Creates an evaluator that will resolve function calls via the supplied registry.
+    /// - Parameter functionRegistry: Registry containing built-in and custom functions. Defaults to a new instance.
     public init(functionRegistry: FunctionRegistry = FunctionRegistry()) {
         self.functionRegistry = functionRegistry
     }
