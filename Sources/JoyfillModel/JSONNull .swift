@@ -27,6 +27,7 @@ class JSONNull: Codable, Hashable {
     }
 }
 
+/// Coding key that preserves arbitrary string keys when decoding JSON payloads.
 public class JSONCodingKey: CodingKey {
     public let key: String
 
@@ -47,6 +48,7 @@ public class JSONCodingKey: CodingKey {
     }
 }
 
+/// Type-erased wrapper that preserves JSON structures containing heterogenous values.
 public class JSONAny: Codable {
 
     public let value: Any
