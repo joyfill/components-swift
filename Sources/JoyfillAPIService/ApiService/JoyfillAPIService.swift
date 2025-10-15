@@ -55,10 +55,15 @@ enum JoyfillAPI {
     }
 }
 
+/// Lightweight Joyfill REST client that wraps `URLSession` and decodes responses into `JoyfillModel` types.
 public class APIService {
     private let accessToken: String
     private let baseURL: String
     
+    /// Creates a service instance configured with the caller's credentials.
+    /// - Parameters:
+    ///   - accessToken: Bearer token used to authenticate each request.
+    ///   - baseURL: Base URL for the Joyfill API (e.g. `https://api.joyfill.io/v1`).
     public init(accessToken: String, baseURL: String) {
         self.accessToken = accessToken
         self.baseURL = baseURL
@@ -73,11 +78,21 @@ public class APIService {
         return request
     }
     
+    /// Executes the provided request and returns the raw response via the completion handler.
+    /// - Parameters:
+    ///   - request: The fully-configured `URLRequest`.
+    ///   - completionHandler: Closure invoked on the URLSession callback queue.
     public func makeAPICall(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) {
         URLSession.shared.dataTask(with: request, completionHandler: completionHandler)
             .resume()
     }
     
+    /// Retrieves documents for the specified template identifier.
+    /// - Parameters:
+    ///   - identifier: Template identifier to filter by.
+    ///   - page: Page number (1-indexed) to request.
+    ///   - limit: Maximum results per page.
+    ///   - completion: Completion handler delivering either decoded documents or an error.
     public func fetchDocuments(identifier: String, page: Int = 1, limit: Int = 10, completion: @escaping (Result<[Document], Error>) -> Void) {
         let request = urlRequest(type: .documents(identifier: identifier, page: page, limit: limit))
         makeAPICall(with: request) { data, response, error in
@@ -95,6 +110,10 @@ public class APIService {
         }
     }
     
+    /// Retrieves submission documents authored from a given template.
+    /// - Parameters:
+    ///   - identifier: Template identifier whose submissions should be listed.
+    ///   - completion: Completion handler delivering either decoded submissions or an error.
     public func fetchDocumentSubmissions(identifier: String, completion: @escaping (Result<[Document], Error>) -> Void) {
         let request = urlRequest(type: .submissiondocuments())
         makeAPICall(with: request) { data, response, error in
@@ -111,6 +130,11 @@ public class APIService {
         }
     }
     
+    /// Retrieves template metadata.
+    /// - Parameters:
+    ///   - page: Page number (1-indexed) to request.
+    ///   - limit: Maximum results per page.
+    ///   - completion: Completion handler delivering either decoded templates or an error.
     public func fetchTemplates(page: Int = 1, limit: Int = 10, completion: @escaping (Result<[Document], Error>) -> Void) {
         let request = urlRequest(type: .templates(page: page, limit: limit))
         makeAPICall(with: request) { data, response, error in
@@ -128,6 +152,10 @@ public class APIService {
         }
     }
     
+    /// Downloads a JoyDoc JSON payload for the specified submission identifier.
+    /// - Parameters:
+    ///   - identifier: Submission identifier to fetch.
+    ///   - completion: Completion handler called on the main queue with the JoyDoc data or an error.
     public func fetchJoyDoc(identifier: String, completion: @escaping (Result<Data, Error>) -> Void) {
         
         let request = urlRequest(type: .submissiondocuments(identifier: identifier))
@@ -144,6 +172,10 @@ public class APIService {
         }
     }
     
+    /// Resolves an image string into raw data, supporting base64, file URLs, or remote URLs.
+    /// - Parameters:
+    ///   - urlString: Base64 string or URL pointing to the image resource.
+    ///   - completion: Completion handler invoked with the loaded data or `nil` when resolution fails.
     public func loadImage(from urlString: String, completion: @escaping (Data?) -> Void) {
         let base64String = String(urlString)
         if let data = Data(base64Encoded: base64String) {
@@ -178,6 +210,8 @@ public class APIService {
     }
     
     
+    /// Lists all groups available to the current token.
+    /// - Parameter completion: Completion handler delivering either decoded groups or an error.
     public func fetchGroups(completion: @escaping (Result<[GroupData], Error>) -> Void) {
         let request = urlRequest(type: .groups())
         makeAPICall(with: request) { data, response, error in
@@ -196,6 +230,10 @@ public class APIService {
         }
     }
     
+    /// Retrieves a single group's metadata.
+    /// - Parameters:
+    ///   - identifier: Group identifier to fetch.
+    ///   - completion: Completion handler delivering the decoded group or an error.
     public func retrieveGroup(identifier: String,completion: @escaping (Result<RetrieveGroup, Error>) -> Void) {
         let request = urlRequest(type: .groups(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
@@ -213,6 +251,8 @@ public class APIService {
         }
     }
     
+    /// Lists all users for the current organisation.
+    /// - Parameter completion: Completion handler delivering either decoded users or an error.
     public func fetchListAllUsers(completion: @escaping (Result<[ListAllUsers], Error>) -> Void) {
         let request = urlRequest(type: .users())
         makeAPICall(with: request) { data, response, error in
@@ -230,6 +270,10 @@ public class APIService {
         }
     }
     
+    /// Retrieves an individual user record.
+    /// - Parameters:
+    ///   - identifier: User identifier to fetch.
+    ///   - completion: Completion handler delivering the decoded user or an error.
     public func retrieveUser(identifier: String,completion: @escaping (Result<RetrieveUsers, Error>) -> Void) {
         let request = urlRequest(type: .users(identifier: identifier))
         makeAPICall(with: request) { data, response, error in
@@ -247,6 +291,10 @@ public class APIService {
         }
     }
     
+    /// Creates a submission document by cloning an existing JoyDoc template.
+    /// - Parameters:
+    ///   - identifier: Template identifier used as the source.
+    ///   - completion: Completion handler delivering the API response or an error.
     public func createDocumentSubmission(identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
         self.fetchJoyDoc(identifier: identifier) { [self] joyDocJSON in
             createDocument(joyDocJSON: joyDocJSON, identifier: identifier) { result in
@@ -255,6 +303,11 @@ public class APIService {
         }
     }
     
+    /// Creates a submission document using a pre-fetched JoyDoc payload.
+    /// - Parameters:
+    ///   - joyDocJSON: Result containing the JoyDoc payload to submit.
+    ///   - identifier: Template identifier that should be assigned to the new document.
+    ///   - completion: Completion handler delivering the API response or an error.
     public func createDocument(joyDocJSON: Result<Data, any Error>, identifier: String, completion: @escaping (Result<Any, Error>) -> Void) {
         guard let url = URL(string: "\(baseURL)/documents") else {
             completion(.failure(APIError.invalidURL))
@@ -298,6 +351,11 @@ public class APIService {
         }
     }
     
+    /// Persists changelog entries for an existing document.
+    /// - Parameters:
+    ///   - identifier: Document identifier to update.
+    ///   - changeLogs: Changelog payload to submit.
+    ///   - completion: Completion handler delivering the API response or an error.
     public func updateDocument(identifier: String, changeLogs: [String: Any], completion: @escaping (Result<Any, Error>) -> Void) {
         do {
             let jsonData = try JSONSerialization.data(withJSONObject: changeLogs, options: .fragmentsAllowed)
@@ -319,6 +377,11 @@ public class APIService {
         }
     }
     
+    /// Persists a document by sending the current `files` and `fields` payload.
+    /// - Parameters:
+    ///   - identifier: Document identifier to update.
+    ///   - document: The JoyDoc whose file and field arrays should be persisted.
+    ///   - completion: Completion handler delivering the API response or an error.
     public func updateDocument(identifier: String, document: JoyDoc, completion: @escaping (Result<Any, Error>) -> Void) {
         do {
             let updateDocumentDict = [
@@ -345,8 +408,8 @@ public class APIService {
     }
 }
 
+/// Errors emitted by ``APIService``.
 public enum APIError: Error {
     case invalidURL
     case unknownError
 }
-
