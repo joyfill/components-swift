@@ -6,8 +6,7 @@ import PackageDescription
 let package = Package(
     name: "Joyfill",
     platforms: [
-        .iOS(.v15), // Set the minimum deployment target to iOS 15
-        .macOS(.v10_15) // Added macOS support for JoyfillFormulas
+        .iOS(.v15) // Set the minimum deployment target to iOS 15 (iOS-only)
     ],
     products: [
         .library(
