@@ -93,6 +93,11 @@ public struct JoyDoc {
         set { dictionary["deleted"] = newValue }
     }
     
+    /// Pages that should be displayed for the active view (web or mobile).
+    ///
+    /// When a view-specific page list is available, the first view's pages are returned;
+    /// otherwise the file-level pages are used. Pages are sorted according to the file's
+    /// `pageOrder` metadata.
     public var pagesForCurrentView: [Page] {
         get {
             guard let firstFile = self.files.first else { return [] } 
@@ -126,6 +131,7 @@ public struct JoyDoc {
         }
     }
     
+    /// Page identifiers ordered according to the active view (web or mobile).
     public var pageOrderForCurrentView: [String] {
         get {
             guard let firstFile = self.files.first else { return [] }
@@ -140,11 +146,12 @@ public struct JoyDoc {
         }
     }
 
+    /// Field positions that should be displayed for the active view.
     public var fieldPositionsForCurrentView: [FieldPosition] {
         return pagesForCurrentView.flatMap { $0.fieldPositions ?? [] }
     }
 
-    /// The formulas defined in the JoyDoc.
+    /// Formulas defined within the JoyDoc.
     public var formulas: [Formula] {
         get { (dictionary["formulas"] as? [[String: Any]])?.compactMap(Formula.init) ?? [] }
         set { dictionary["formulas"] = newValue.compactMap { $0.dictionary } }
