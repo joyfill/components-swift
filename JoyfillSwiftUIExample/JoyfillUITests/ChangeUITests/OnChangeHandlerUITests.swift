@@ -26,6 +26,16 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
     }
     
+    func uploadTestImage() {
+        let moreButton = app.buttons.matching(identifier: "ImageMoreIdentifier").element(boundBy: 0)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        moreButton.tap()
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+    }
+    
     func expandRow(number: Int) {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let identifier = "CollectionExpandCollapseButton\(number)"
@@ -41,6 +51,13 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertTrue(expandButton.isHittable, "Expand/collapse button is not hittable")
         expandButton.tap()
     }
+    
+    func expandNestedRow(number: Int) {
+        let expandButton = app.images["CollectionExpandCollapseNestedButton\(number)"]
+        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        expandButton.tap()
+    }
+    
     
     func selectAllNestedRows() {
         app.images.matching(identifier: "selectAllNestedRows")
@@ -753,6 +770,80 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         moveUpButton().tap()
         let CheckTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertEqual(CheckTextField.value as! String, "hi")
+    }
+    
+    func testDeleteDepth3AndMoveRow() {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        expandRow(number: 1)
+        selectNestedRow(number: 3)
+        tapOnMoreButtonCollection()
+        moveUpButton().tap()
+        tapOnMoreButtonCollection()
+        moveUpButton().tap()
+        tapOnMoreButtonCollection()
+        inserRowBelowButton().tap()
+        let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
+        firstTableTextField.tap()
+        firstTableTextField.typeText("hi")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        goBack()
+        goToCollectionView(index: 1)
+        expandRow(number: 1)
+        let CheckTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual(CheckTextField.value as! String, "a B C")
+        XCTAssertEqual(firstTableTextField.value as! String, "hi")
+    }
+    
+    func testApplyFilterRootTable() {
+        goToCollectionView()
+        applyTextFilter(schema: "Root Table", column: "Text D1", text: "a B c")
+        
+        let parentRowsCount = getVisibleRowCount()
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(parentRowsCount, 1 , "Parent row counting should return valid count")
+         XCTAssertEqual(nestedRowsCount, 0 , "Nested row counting should return valid count")
+    }
+    
+    func testApplyFilterDepth3() {
+        goToCollectionView()
+        applyTextFilter(schema: "Depth 3", column: "Text D3", text: "abc")
+        
+        let parentRowsCount = getVisibleRowCount()
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(parentRowsCount, 2 , "Parent row counting should return valid count")
+        XCTAssertEqual(nestedRowsCount, 6 , "Nested row counting should return valid count")
+    }
+    
+    func testSingleEditInFormView() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToCollectionView()
+        selectRow(number: 1)
+        tapOnMoreButtonCollection()
+        editRowsButton().tap()
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        textField.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        textField.clearText()
+        textField.typeText("Edit")
+        app.buttons["LowerRowButtonIdentifier"].tap()
+        app.buttons["UpperRowButtonIdentifier"].tap()
+        app.buttons["PlusTheRowButtonIdentifier"].tap()
+        dismissSheet()
+        goBack()
+        goToCollectionView(index: 1)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let firstCellTextValue = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
+        let cell = firstCellTextValue.element(boundBy: 0)
+        XCTAssertEqual(cell.value as! String, "Edit")
+        XCTAssertEqual(firstCellTextValue.count, 5)
     }
     
     /* Table on change handler test cases*/
@@ -2344,7 +2435,55 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
     
+    func testImageField() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 3)
+        tapOnSecondPage.tap()
+        
+        let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
+        imageButton.tap()
+        uploadTestImage()
+        clickOnFirstImage()
+        deleteSelectedImages()
+        dismissSheet()
+        imageButton.tap()
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        uploadTestImage()
+        clickOnFirstImage()
+        deleteSelectedImages()
+        dismissSheet()
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 4).tap()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 4).tap()
+        
+        imageButton.tap()
+        uploadTestImage()
+        let imageElements = app.images.matching(identifier: "DetailPageImageSelectionIdentifier")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        XCTAssertEqual(imageElements.count, 8)
+        clickOnFirstImage()
+        clickOnSecondImage()
+        clickOnThirdImage()
+        clickOnFourthImage()
+        deleteSelectedImages()
+    }
     
+    func deleteSelectedImages() {
+        app.buttons["ImageDeleteIdentifier"].tap()
+    }
     
     func goToChartDetailField(index: Int = 0) {
         let chartViewButton = app.buttons.matching(identifier: "ChartViewIdentifier").element(boundBy: index)
@@ -2401,6 +2540,41 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             return nil
         }
         return value
+    }
+    
+    func clickOnFirstImage() {
+        // Try the simplified approach first, then fall back to original complex hierarchy
+        let simpleFirstImage = app.images.matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1)
+        let complexFirstImage = app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 1)
+        
+        var found = simpleFirstImage.waitForExistence(timeout: 3)
+        var imageToTap = simpleFirstImage
+        
+        if !found {
+            found = complexFirstImage.waitForExistence(timeout: 3)
+            imageToTap = complexFirstImage
+        }
+        
+        if !found {
+            app.swipeUp()
+            found = simpleFirstImage.waitForExistence(timeout: 2)
+            imageToTap = simpleFirstImage
+        }
+        
+        XCTAssertTrue(found, "First image with DetailPageImageSelectionIdentifier not found")
+        imageToTap.tap()
+    }
+    
+    func clickOnSecondImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 2).tap()
+    }
+    
+    func clickOnThirdImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 4).tap()
+    }
+    
+    func clickOnFourthImage() {
+        app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 6).tap()
     }
 }
 

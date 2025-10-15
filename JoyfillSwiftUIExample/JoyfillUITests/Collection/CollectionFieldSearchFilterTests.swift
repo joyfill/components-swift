@@ -382,8 +382,42 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             .element.tap()
     }
     
+    func waitForAppToSettle() {
+        guard app.wait(for: .runningForeground, timeout: 2) else {
+            XCTFail("App did not settle")
+            return
+        }
+        usleep(500000) // 0.5 second to allow UI to settle
+    }
+    
+    func drawSignatureLine() {
+        let canvas = app.otherElements["CanvasIdentifier"]
+        canvas.tap()
+        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+        let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
+        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+    }
+    
+    func selectRow(number: Int) {
+        //select the row with number as index
+        app.images.matching(identifier: "selectRowItem\(number)")
+            .element.tap()
+    }
+    
+    func editSingleRowUpperButton() -> XCUIElement {
+        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"]
+    }
+    
+    func editSingleRowLowerButton() -> XCUIElement {
+        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"]
+    }
+    
     func editRowsButton() -> XCUIElement {
         return app.buttons["TableEditRowsIdentifier"]
+    }
+    
+    func editInsertRowPlusButton() -> XCUIElement {
+        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"]
     }
     
     func selectNestedRow(number: Int) {
@@ -1664,6 +1698,136 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(parentRowsCount, 1, "Expected 1 parent row matching 'Hello'")
         XCTAssertEqual(nestedRowsCount, 1, "Expected 1 nested row matching 'Hello'")
         
+    }
+    
+    
+    func testApplyFilterThenUpdateSingleRow() throws {
+        goToCollectionDetailField()
+        applyTextFilter(column: "Text D1", text: "a")
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 4, "Filtered count should be 0 after deleting all rows")
+        
+        selectRow(number: 1)
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        sleep(2)
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        
+        let firstRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("A", firstRowTextField.value as! String)
+        
+        let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertEqual("Yes D1", dropdownButtons.element(boundBy: 0).label)
+        
+        editSingleRowLowerButton().tap()
+        sleep(2)
+        let secondRowTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("AbC", secondRowTextField.value as! String)
+        XCTAssertEqual("Yes D1", dropdownButtons.element(boundBy: 1).label)
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        textField.tap()
+        textField.clearText()
+        textField.typeText("A")
+        app.dismissKeyboardIfVisible()
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            waitForAppToSettle()
+        }
+        
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
+        let firstOption = dropdownOptions.element(boundBy: 1)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(optionsButtons.element.waitForExistence(timeout: 5))
+        //XCTAssertGreaterThan(optionsButtons.count, 0)
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        //app.dismissKeyboardIfVisible()
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        app.swipeUp()
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("123")
+        firstImageButton.tap()
+        dismissSheet()
+        
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode text field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        //waitForAppToSettle()
+        
+        // Double tap if needed to ensure keyboard opens
+        if !app.keyboards.element.exists {
+            barcodeTextField.tap()
+            waitForAppToSettle()
+        }
+        
+        // Assert keyboard presence
+        //XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard did not appear for barcode field")
+        
+        // Clear and type
+        if let textValue = barcodeTextField.value as? String {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: textValue.count + 5)
+            barcodeTextField.typeText(deleteString)
+        }
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("Edit Barcode")
+        
+        // Signature Column
+        let signatureButtons = app.buttons.matching(identifier: "EditRowsSignatureFieldIdentifier")
+        let firstSignatureButton = signatureButtons.element(boundBy: 0)
+        firstSignatureButton.tap()
+        
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        dismissSheet()
+        dismissSheet()
+        let countRows = getVisibleRowCount()
+        XCTAssertEqual(countRows,4)
     }
     
     func testFilterSchemaChangeResetsColumnSelection() {
