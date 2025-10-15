@@ -243,7 +243,7 @@ public enum DateFormatType: String {
 ///
 /// - Parameters:
 ///   - iso8601String: The ISO8601 formatted string representing a date and time.
-///
+///   - tzId: Optional time zone identifier used when formatting the time. Defaults to the current time zone.
 /// - Returns: A formatted time string in the format "hh:mm a".
 public func getTimeFromISO8601Format(iso8601String: String, tzId: String? = nil) -> String {
     let dateFormatter = ISO8601DateFormatter()
@@ -265,7 +265,7 @@ public func getTimeFromISO8601Format(iso8601String: String, tzId: String? = nil)
 /// - Parameters:
 ///   - value: The timestamp value in milliseconds.
 ///   - format: The desired format for the date string. Supported formats are "MM/DD/YYYY", "hh:mma", and any other custom format.
-///
+///   - tzId: Optional time zone identifier to use when formatting the date. Defaults to the current time zone.
 /// - Returns: A formatted date string based on the provided timestamp value and format.
 public func timestampMillisecondsToDate(value: Int, format: DateFormatType, tzId: String? = nil) -> String {
     let timestampMilliseconds: TimeInterval = TimeInterval(value)

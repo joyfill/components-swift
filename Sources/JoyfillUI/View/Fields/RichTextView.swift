@@ -1,3 +1,4 @@
+#if canImport(UIKit)
 import SwiftUI
 import JoyfillModel
 import UIKit
@@ -177,3 +178,17 @@ extension UIColor {
         return nil
     }
 }
+
+#else
+import SwiftUI
+import JoyfillModel
+
+struct RichTextView: View {
+    public init(richTextDataModel: RichTextDataModel, eventHandler: FieldChangeEvents) {}
+    
+    var body: some View {
+        FieldHeaderView(nil)
+        EmptyView()
+    }
+}
+#endif

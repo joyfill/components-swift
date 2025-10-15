@@ -48,7 +48,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
     case null
 
     /// Creates a dictionary-backed union.
-    /// - Parameter dictionary: Key/value pairs that should be represented by the union.
+    /// - Parameter valueUnionDictionary: Key/value pairs that should be represented by the union.
     public init(valueUnionDictionary: [String: ValueUnion]) {
         self = .dictionary(valueUnionDictionary)
     }
@@ -80,7 +80,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
 
     /// Creates a new `ValueUnion` with the given dictionary.
     ///
-    /// - Parameter dictionary: The dictionary that contains the initial properties of the column.
+    /// - Parameter anyDictionary: The dictionary that contains the initial properties of the column.
     public init(anyDictionary: [String: Any]) {
         var dictionary = [String : ValueUnion]()
         anyDictionary.forEach { dict in

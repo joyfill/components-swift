@@ -3,9 +3,13 @@
 //
 //
 //
-
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+public typealias UIImage = NSImage
+#endif
 
 class APIService {
 
