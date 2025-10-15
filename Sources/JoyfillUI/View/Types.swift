@@ -60,6 +60,7 @@ public struct UploadEvent {
     }
 }
 
+/// Event payload used when capturing complex field interactions (e.g. tables or collections).
 public struct CaptureEvent {
     public var fieldEvent: FieldIdentifier
     public var target: String?
@@ -80,11 +81,15 @@ public struct CaptureEvent {
     }
 }
 
+/// Interaction mode for the Joyfill form renderer.
 public enum Mode {
+    /// Allows end users to edit field values.
     case fill
+    /// Presents the document in a read-only state.
     case readonly
 }
 
+/// Protocol adopted by types that expose Joyfill form state to consumers.
 public protocol FormInterface {
     var document: JoyDoc { get }
     var mode: Mode { get }
@@ -269,11 +274,13 @@ public protocol FormChangeEvent {
     func onError(error: JoyfillError)
 }
 
+/// High-level error emitted by the Joyfill UI layer.
 public enum JoyfillError: Error {
     case schemaValidationError(error: SchemaValidationError)
     case schemaVersionError(error: SchemaValidationError)
 }
 
+/// Describes a schema validation failure encountered while loading a JoyDoc.
 public struct SchemaValidationError: Error {
     public let code: String
     public let message: String
