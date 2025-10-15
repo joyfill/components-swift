@@ -2,15 +2,26 @@ import SwiftUI
 import JoyfillModel
 import JoyfillFormulas
 
+/// SwiftUI view that renders an interactive Joyfill document.
 public struct Form: View {
     let documentEditor: DocumentEditor
 
+    /// Creates a form backed by a binding to a `JoyDoc`.
+    ///
+    /// - Parameters:
+    ///   - document: Binding to the JoyDoc that should be rendered.
+    ///   - mode: Interaction mode (`fill` or `readonly`).
+    ///   - events: Optional change/focus/upload callbacks.
+    ///   - pageID: Optional page identifier to show initially.
+    ///   - navigation: Pass `false` to hide the page navigation control.
     @available(*, deprecated, message: "Use init(documentEditor:) instead")
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
         let documentEditor = DocumentEditor(document: document.wrappedValue, mode: mode, events: events, pageID: pageID, navigation: navigation)
         self.documentEditor = documentEditor
     }
 
+    /// Creates a form using an existing `DocumentEditor`.
+    /// - Parameter documentEditor: Editor responsible for document state and events.
     public init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
     }
