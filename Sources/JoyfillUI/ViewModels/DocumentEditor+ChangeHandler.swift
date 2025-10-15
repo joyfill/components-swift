@@ -13,6 +13,8 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be deleted.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements for the table field.
     public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var field = fieldMap[fieldId] else {
@@ -48,6 +50,15 @@ extension DocumentEditor {
         return elements
     }
     
+    /// Deletes nested rows from a collection/table schema.
+    /// - Parameters:
+    ///   - rowIDs: Identifiers of the rows to delete.
+    ///   - fieldIdentifier: Identifier describing the parent field.
+    ///   - rootSchemaKey: Schema key of the root level.
+    ///   - nestedKey: Schema key of the targeted nested collection.
+    ///   - parentRowId: Identifier of the parent row that contains the nested rows.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements for the parent field.
     public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var field = fieldMap[fieldId] else {
@@ -96,6 +107,7 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
+    /// - Returns: A tuple containing the insert indexes mapped to new rows, and the updated elements array.
     public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -136,6 +148,14 @@ extension DocumentEditor {
         return (changes, elements)
     }
     
+    /// Duplicates nested rows within a collection field.
+    /// - Parameters:
+    ///   - selectedRowIds: Identifiers of the rows to duplicate.
+    ///   - fieldIdentifier: Identifier describing the parent collection field.
+    ///   - rootSchemaKey: Schema key of the root collection.
+    ///   - nestedKey: Schema key of the targeted nested collection.
+    ///   - parentRowId: Identifier of the parent row that owns the nested rows.
+    /// - Returns: A tuple containing insert indexes mapped to new rows and the updated element list.
     public func duplicateNestedRows(selectedRowIds: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -223,6 +243,8 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowID: The String identifier of the row to be moved up.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements for the field.
     public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -276,6 +298,15 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
+    /// Moves a nested row up within its parent collection.
+    /// - Parameters:
+    ///   - rowID: Identifier of the row to move.
+    ///   - fieldIdentifier: Identifier describing the collection field.
+    ///   - rootSchemaKey: Schema key of the root collection.
+    ///   - nestedKey: Schema key of the nested collection containing the row.
+    ///   - parentRowId: Identifier of the parent row.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements for the parent field.
     public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
@@ -326,6 +357,8 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowID: The String identifier of the row to be moved down.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements for the field.
     public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -353,6 +386,15 @@ extension DocumentEditor {
         return elements
     }
     
+    /// Moves a nested row down within its parent collection.
+    /// - Parameters:
+    ///   - rowID: Identifier of the row to move.
+    ///   - fieldIdentifier: Identifier describing the collection field.
+    ///   - rootSchemaKey: Schema key of the root collection.
+    ///   - nestedKey: Schema key of the nested collection containing the row.
+    ///   - parentRowId: Identifier of the parent row.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements for the parent field.
     public func moveNestedRowDown(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
@@ -401,12 +443,12 @@ extension DocumentEditor {
     }
 
 
-    ///Inserts a new row below a specified row in a table field.
+    /// Inserts a new row below a specified row in a table field.
     /// - Parameters:
     ///   - selectedRowID: The String identifier of the row below which the new row will be inserted.
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    /// - Returns: A tuple containing the newly created ValueElement and its insert index if successful, nil otherwise.
+    /// - Returns: A tuple containing the newly created value element and its insert index if successful; otherwise `nil`.
     public func insertBelow(selectedRowID: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier) -> (ValueElement, Int)? {
         let fieldId = fieldIdentifier.fieldID
         
@@ -442,6 +484,16 @@ extension DocumentEditor {
         return (newRow, insertIndex)
     }
     
+    /// Inserts a nested row below the specified row within a collection.
+    /// - Parameters:
+    ///   - selectedRowID: Identifier of the row the new row should follow.
+    ///   - cellValues: Cell values for the new row keyed by column identifier.
+    ///   - fieldIdentifier: Identifier describing the parent collection field.
+    ///   - childrenKeys: Optional list of child schema keys to initialise.
+    ///   - rootSchemaKey: Schema key of the root collection.
+    ///   - nestedKey: Schema key of the targeted nested collection.
+    ///   - parentRowId: Identifier of the parent row that owns the nested rows.
+    /// - Returns: The updated element list and the inserted row if the operation succeeded.
     public func insertBelowNestedRow(selectedRowID: String,
                                      cellValues: [String: ValueUnion],
                                      fieldIdentifier: FieldIdentifier,
@@ -520,7 +572,8 @@ extension DocumentEditor {
     ///   - id: The String identifier for the new row.
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    /// - Returns: The newly created ValueElement if successful, nil otherwise.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: A tuple containing the updated value elements and the newly created row.
     public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement) {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
@@ -545,6 +598,13 @@ extension DocumentEditor {
     }
     
     /// Inserts a new row at a specified index in a table field.
+    /// - Parameters:
+    ///   - index: Target index for the new row within the value array.
+    ///   - id: Identifier to assign to the new row.
+    ///   - cellValues: Cell values for the new row keyed by column identifier.
+    ///   - fieldIdentifier: Identifier describing the target field.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated value elements and the inserted row if the index was valid; otherwise `nil`.
     public func insertRow(at index: Int,
                           id: String,
                           cellValues: [String: ValueUnion],
@@ -720,6 +780,12 @@ extension DocumentEditor {
         return nil
     }
     
+    /// Computes the key path to a nested row within a collection hierarchy.
+    /// - Parameters:
+    ///   - targetParentId: Identifier of the parent row being searched.
+    ///   - nestedKey: Schema key representing the nested collection.
+    ///   - child: The hierarchy to search.
+    /// - Returns: A dot-separated path describing the location of the nested row, or `nil` if not found.
     public func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
         for (parentKey,elements) in child {
             guard !elements.isEmpty else { continue }
@@ -742,6 +808,17 @@ extension DocumentEditor {
         return nil
     }
     
+    /// Inserts a row, optionally within a nested collection, and optionally emits change events.
+    /// - Parameters:
+    ///   - id: Identifier to assign to the new row.
+    ///   - cellValues: Cell values for the new row keyed by column identifier.
+    ///   - fieldIdentifier: Identifier describing the target field.
+    ///   - parentRowId: Identifier of the parent row when inserting into a nested collection.
+    ///   - schemaKey: Schema key of the nested collection receiving the row.
+    ///   - childrenKeys: Optional schema keys to initialise on the new row.
+    ///   - rootSchemaKey: Schema key for the root collection.
+    ///   - shouldSendEvent: Pass `false` to suppress change notifications.
+    /// - Returns: The updated element list and newly inserted row if successful.
     public func insertRowWithFilter(id: String,
                                     cellValues: [String: ValueUnion],
                                     fieldIdentifier: FieldIdentifier,
@@ -854,6 +931,15 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
     }
     
+    /// Performs bulk editing inside a nested collection field.
+    /// - Parameters:
+    ///   - changes: A mapping of row identifier to cell updates.
+    ///   - selectedRows: The nested row identifiers to update.
+    ///   - fieldIdentifier: Identifier describing the parent collection field.
+    ///   - parentRowId: Identifier of the parent row that owns the nested rows.
+    ///   - nestedKey: Schema key of the nested collection being edited.
+    ///   - rootSchemaKey: Schema key for the root collection.
+    /// - Returns: Updated top-level value elements and a map of nested rows that were modified.
     public func bulkEditForNested(changes: [String: [String : ValueUnion]],
                                   selectedRows: [String],
                                   fieldIdentifier: FieldIdentifier,

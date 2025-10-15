@@ -20,29 +20,48 @@ private enum ChangeTargetType: String {
     case unknown
 }
 
-// Weak wrapper to hold multiple delegates without causing retain cycles
+/// Weak wrapper that stores a `DocumentEditorDelegate` without creating a retain cycle.
 public class WeakDocumentEditorDelegate {
     weak var value: DocumentEditorDelegate?
     init(_ value: DocumentEditorDelegate) { self.value = value }
 }
 
+/// Delegate hooks that allow field-specific views to respond to row-level edits.
 public protocol DocumentEditorDelegate: AnyObject {
+    /// Applies an in-place row mutation, typically after inline editing.
     func applyRowEditChanges(change: Change)
+    /// Inserts a row described by the provided change payload.
     func insertRow(for change: Change)
+    /// Removes the row referenced in the change payload.
     func deleteRow(for change: Change)
+    /// Reorders the row referenced in the change payload.
     func moveRow(for change: Change)
 }
 
+/// Observable controller that drives Joyfill document rendering, validation,
+/// conditional logic, and formula evaluation.
 public class DocumentEditor: ObservableObject {
+    /// The underlying JoyDoc that is being displayed and mutated.
     private(set) public var document: JoyDoc
+    
+    /// The validation error generated during initialisation, if schema validation failed.
     public var schemaError: SchemaValidationError?
+    
+    /// The identifier of the page currently selected in the editor.
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
     private var isCollectionFieldEnabled: Bool = false
 
+    /// Determines whether the editor operates in fill or read-only mode.
     public var mode: Mode = .fill
+    
+    /// Indicates whether duplicate-page actions should be exposed to the UI.
     public var isPageDuplicateEnabled: Bool = true
+    
+    /// Indicates whether the page navigation UI should be displayed.
     public var showPageNavigationView: Bool = true
+    
+    /// Weak delegate registry used by table and collection views to receive row updates.
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -54,6 +73,8 @@ public class DocumentEditor: ObservableObject {
     @Published var pageFieldModels = [String: PageModel]()
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
+    
+    /// Event callbacks that notify hosts about user interaction.
     public var events: FormChangeEvent?
     let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
     
@@ -61,6 +82,16 @@ public class DocumentEditor: ObservableObject {
     var conditionalLogicHandler: ConditionalLogicHandler!
     private var JoyfillDocContext: JoyfillDocContext!
 
+    /// Creates a `DocumentEditor` with the provided document and configuration.
+    /// - Parameters:
+    ///   - document: The JoyDoc to render.
+    ///   - mode: Interaction mode (`fill` or `readonly`).
+    ///   - events: Optional change/focus/upload callbacks.
+    ///   - pageID: Optional initial page identifier to display.
+    ///   - navigation: When `false`, hides page navigation controls.
+    ///   - isPageDuplicateEnabled: Enables duplicate-page controls when `mode` is `.fill`.
+    ///   - validateSchema: Set to `false` to skip JSON schema validation.
+    ///   - license: Optional license token used to unlock feature flags.
     public init(document: JoyDoc,
                 mode: Mode = .fill,
                 events: FormChangeEvent? = nil,
@@ -117,10 +148,15 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
+    /// Registers a delegate that should receive row change notifications for a specific field.
+    /// - Parameters:
+    ///   - delegate: The delegate instance to register.
+    ///   - fieldID: The identifier of the table or collection field.
     public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
         delegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
     
+    /// Rebuilds the field map from the underlying document.
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
@@ -128,6 +164,7 @@ public class DocumentEditor: ObservableObject {
         }
     }
     
+    /// Rebuilds the field position map that powers layout and field lookup.
     public func updateFieldPositionMap() {
         mapWebViewToMobileViewIfNeeded(fieldPositions: document.fieldPositionsForCurrentView, isMobileViewActive: isMobileViewActive).forEach { fieldPosition in
             guard let fieldID = fieldPosition.field else { return }
@@ -135,26 +172,44 @@ public class DocumentEditor: ObservableObject {
         }
     }
     
+    /// Validates all visible fields and returns a structured result.
+    /// - Returns: A `Validation` summary containing per-field validity.
     public func validate() -> Validation {
         return validationHandler.validate()
     }
     
+    /// Determines whether a field should be visible based on conditional logic.
+    /// - Parameter fieldID: The identifier of the field to evaluate.
+    /// - Returns: `true` when the field passes conditional checks.
     public func shouldShow(fieldID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
     }
     
+    /// Determines whether a page should be visible based on conditional logic.
+    /// - Parameter pageID: The identifier of the page to evaluate.
+    /// - Returns: `true` when the page passes conditional checks.
     public func shouldShow(pageID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(pageID: pageID)
     }
     
+    /// Determines whether the supplied page model should be visible.
+    /// - Parameter page: The page to evaluate.
+    /// - Returns: `true` when the page passes conditional checks.
     public func shouldShow(page: Page?) -> Bool {
         return conditionalLogicHandler.shouldShow(page: page)
     }
     
+    /// Determines whether a nested schema segment within a collection field should be displayed.
+    /// - Parameters:
+    ///   - collectionFieldID: Identifier of the parent collection field.
+    ///   - rowSchemaID: The row/schema composite identifier to evaluate.
+    /// - Returns: `true` when the schema segment should be rendered.
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
     }
     
+    /// Applies changelog entries and notifies delegates when fields were mutated externally.
+    /// - Parameter changes: The set of change records received from the host application.
     public func change(changes: [Change]) {
         for change in changes {
             guard let targetValue = change.target,
@@ -339,49 +394,64 @@ fileprivate extension JoyDoc {
 }
 
 extension DocumentEditor {
+    /// Convenience accessor for `document.id`.
     public var documentID: String? {
         document.id
     }
     
+    /// Convenience accessor for `document.identifier`.
     public var documentIdentifier: String? {
         document.identifier
     }
     
+    /// The files associated with the current document.
     public var files: [File] {
         document.files
     }
     
+    /// Pages that should be displayed for the current view context (web vs. mobile).
     public var pagesForCurrentView: [Page] {
         document.pagesForCurrentView
     }
     
+    /// Updates the cached field entry for a mutated field.
+    /// - Parameter field: The field that should replace the cached value.
     public func updatefield(field: JoyDocField?) {
         guard let fieldID = field?.id else { return }
         fieldMap[fieldID] = field
     }
     
+    /// Retrieves the cached field for the supplied identifier.
+    /// - Parameter fieldID: Identifier of the requested field.
+    /// - Returns: The matching `JoyDocField`, if available.
     public func field(fieldID: String?) -> JoyDocField? {
         guard let fieldID = fieldID else { return nil }
         return fieldMap[fieldID]
     }
     
+    /// All fields currently loaded by the editor.
     public var allFields: [JoyDocField] {
         return fieldMap.map { $1 }
     }
     
+    /// All field positions currently loaded by the editor.
     public var allFieldPositions: [FieldPosition] {
         return fieldPositionMap.map { $1 }
     }
     
+    /// The number of cached fields.
     public var fieldsCount: Int {
         return fieldMap.count
     }
     
+    /// Retrieves the cached field position for the supplied identifier.
+    /// - Parameter fieldID: Identifier of the requested field.
     public func fieldPosition(fieldID: String?) -> FieldPosition? {
         guard let fieldID = fieldID else { return nil }
         return fieldPositionMap[fieldID]
     }
     
+    /// The first page in the active file, if any.
     public var firstPage: Page? {
         let pages = document.pagesForCurrentView
         guard pages.count > 1 else {
@@ -390,26 +460,37 @@ extension DocumentEditor {
         return pages.first(where: shouldShow)
     }
     
+    /// Identifier of the first visible page, if any.
     public var firstPageId: String? {
         return self.firstPage?.id
     }
     
+    /// Indicates whether the current document includes a dedicated mobile view.
     public var isMobileViewActive: Bool {
         return files.first?.views?.contains(where: { $0.type == "mobile" }) ?? false
     }
     
+    /// Returns the first page matching the provided identifier that passes conditional logic.
+    /// - Parameter currentPageID: The page identifier to search for.
+    /// - Returns: The matching page or the first valid page if the identifier is hidden.
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID && shouldShow(page: currentPage)
         } ?? firstPage
     }
     
+    /// Returns the first page with the provided identifier regardless of visibility.
+    /// - Parameter currentPageID: The page identifier to search for.
+    /// - Returns: The matching page, if present.
     public func firstPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID
         }
     }
     
+    /// Builds a `FieldIdentifier` for the supplied field by inspecting page metadata.
+    /// - Parameter fieldID: The field identifier used in the JoyDoc.
+    /// - Returns: A populated `FieldIdentifier` describing page/file context.
     public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
         let fileID = field(fieldID: fieldID)?.file
 
@@ -448,6 +529,10 @@ extension DocumentEditor {
         }
     }
     
+    /// Updates the cached field to reflect a change coming from the UI layer.
+    /// - Parameters:
+    ///   - event: The change payload containing the new value and optional chart metadata.
+    ///   - fieldIdentifier: Context describing where the field resides.
     public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
@@ -473,6 +558,11 @@ extension DocumentEditor {
         return "\(pageID)|\(index)"
     }
     
+    /// Normalises field positions produced for the web renderer so they can be reused on mobile layouts.
+    /// - Parameters:
+    ///   - fieldPositions: Field positions sourced from the JoyDoc.
+    ///   - isMobileViewActive: Pass `true` when the document already targets mobile layout.
+    /// - Returns: A deduplicated, sorted list of field positions suitable for display.
     public func mapWebViewToMobileViewIfNeeded(fieldPositions: [FieldPosition], isMobileViewActive: Bool) -> [FieldPosition] {
         var uniqueFields = Set<String>()
         var resultFieldPositions = [FieldPosition]()
@@ -723,6 +813,8 @@ extension DocumentEditor {
         }
     }
     
+    /// Duplicates the page identified by `pageID`, including its fields and conditional logic.
+    /// - Parameter pageID: The identifier of the page to duplicate.
     public func duplicatePage(pageID: String) {
         guard var firstFile = document.files.first else {
             Log("No file found in document.", type: .error)
