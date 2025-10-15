@@ -9,6 +9,7 @@ import Foundation
 import JoyfillModel
 import JSONSchema
 
+/// Identifies a field within a JoyDoc, including optional page and file context.
 public struct FieldIdentifier: Equatable {
     public var _id: String?
     public var identifier: String?
@@ -18,6 +19,15 @@ public struct FieldIdentifier: Equatable {
     public var fileID: String?
     public var fieldPositionId: String?
     
+    /// Creates a field identifier.
+    /// - Parameters:
+    ///   - _id: Database identifier for the field.
+    ///   - identifier: Human-readable identifier for the field.
+    ///   - fieldID: Required JoyDoc field identifier.
+    ///   - fieldIdentifier: Optional secondary identifier.
+    ///   - pageID: Identifier of the page containing the field.
+    ///   - fileID: Identifier of the file containing the field.
+    ///   - fieldPositionId: Identifier for the field position metadata entry.
     public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil) {
         self._id = _id
         self.identifier = identifier
@@ -29,6 +39,7 @@ public struct FieldIdentifier: Equatable {
     }
 }
 
+/// Event payload used when the UI requests an upload operation.
 public struct UploadEvent {
     public var fieldEvent: FieldIdentifier
     public var target: String?
