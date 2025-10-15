@@ -1,10 +1,15 @@
 import OSLog
 import Foundation
 
+/// Severity levels emitted by ``JoyfillLogger``.
 public enum LogType {
+    /// Diagnostic message helpful during development.
     case debug
+    /// Informational message about normal operation.
     case info
+    /// Warning that indicates a potential problem.
     case warning
+    /// Error that represents an unexpected or fatal condition.
     case error
     
     var icon: String {
@@ -17,12 +22,21 @@ public enum LogType {
     }
 }
 
+/// Lightweight logger that mirrors messages to the console during debug builds.
 public final class JoyfillLogger {
+    /// Shared singleton instance used by the global ``Log`` function.
     public static let shared = JoyfillLogger()
 //    private let logger = Logger(subsystem: "com.joyfill", category: "default")
     
     private init() {}
     
+    /// Writes a message with file/function metadata to the debug console.
+    /// - Parameters:
+    ///   - message: Message text to log.
+    ///   - type: Severity associated with the message.
+    ///   - function: Function name captured via default parameter.
+    ///   - file: File name captured via default parameter.
+    ///   - line: Line number captured via default parameter.
     public func log(
         _ message: String,
         type: LogType,
@@ -59,7 +73,7 @@ public final class JoyfillLogger {
     }
 }
 
-// Convenient global function for logging
+/// Convenient global function for emitting Joyfill log messages.
 public func Log(
     _ message: String,
     type: LogType = .info,

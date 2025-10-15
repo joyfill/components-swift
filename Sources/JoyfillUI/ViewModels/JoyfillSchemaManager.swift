@@ -26,16 +26,17 @@ import Foundation
 ///        // handle error (e.g., show message, log, block submit)
 ///    }
 ///    ```
-///
+/// Validates JoyDoc documents against the SDK's supported schema version and JSON schema.
 public class JoyfillSchemaManager {
     
+    /// Creates a new schema manager.
     public init() {}
 
     // MARK: - Public API
     
-    /// Validates JoyDoc schema and version compatibility
-    /// - Parameter document: The JoyDoc to validate
-    /// - Returns: nil if validation passes, error object if validation fails
+    /// Validates the supplied document against the embedded Joyfill schema and supported version.
+    /// - Parameter document: The JoyDoc that should be checked.
+    /// - Returns: A `SchemaValidationError` describing the failure, or `nil` when the document is valid.
     public func validateSchema(document: JoyDoc) -> SchemaValidationError? {
         // Phase 2: Version Validation (check first to prevent processing unsupported versions)
         if let versionError = validateVersion(document: document) {
