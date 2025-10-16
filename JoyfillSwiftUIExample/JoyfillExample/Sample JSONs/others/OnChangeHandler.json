@@ -12,7 +12,8 @@
         "685750efeb612f4fac5819dd",
         "68d0c93c0a435420d975de7f",
         "68e33b5fc6fe3e7ece654f4d",
-        "68e34182e45b28674c6ad43d"
+        "68e34182e45b28674c6ad43d",
+        "68ef4278060063bc666bb98e"
       ],
       "pages": [
         {
@@ -215,6 +216,29 @@
               "displayType": "original",
               "x": 2,
               "y": 50,
+              "width": 2,
+              "height": 23
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        },
+        {
+          "_id": "68ef4278060063bc666bb98e",
+          "name": "All Fields",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68ef42876a741e2b47599099",
+              "type": "image",
+              "field": "68ef4283335f5f751196d646",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
               "width": 2,
               "height": 23
             }
@@ -2546,6 +2570,14 @@
       "type": "image",
       "title": "Image",
       "identifier": "field_68e3419c370fc146e059ef2f"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68ef4283335f5f751196d646",
+      "type": "image",
+      "title": "Multiple Images",
+      "identifier": "field_68ef4287c5a0b08d32cb7d47",
+      "multi": true
     }
   ],
   "type": "template"
