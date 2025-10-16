@@ -2033,6 +2033,444 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(countNestedRows2, 0)
     }
     
+    func testConditionalLogicAllConditions() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
+        
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        
+        let countRootRows = getVisibleRowCount()
+        XCTAssertEqual(countRootRows, 4)
+        
+        let countNestedRows = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows, 3)
+        
+        selectAllParentRows()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        textField.tap()
+        textField.typeText("one")
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        XCTAssertTrue(dropdownOptions.element.waitForExistence(timeout: 5))
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        app.swipeUp();
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("900")
+        
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        // Barcode Column
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("abc")
+        
+        
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        let countNestedRowsafterOpration = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRowsafterOpration, 0)
+        
+        expandRow(number: 2)
+        expandRow(number: 3)
+        expandRow(number: 4)
+        
+        let countRootRows2 = getVisibleRowCount()
+        XCTAssertEqual(countRootRows2, 4)
+        
+        let countNestedRows2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows2, 0)
+    }
+    
+    func testConditionalLogicAnyConditionDepth4() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
+        
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        
+        let countRootRows = getVisibleRowCount()
+        XCTAssertEqual(countRootRows, 4)
+        
+        let countNestedRows = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows, 3)
+           
+        expandNestedRow(number: 1)
+        
+        let imagesQuery = app.images
+        imagesQuery.matching(identifier: "CollectionExpandCollapseNestedButton1").element(boundBy: 1).tap()
+        app.scrollViews.containing(.staticText, identifier: "Text D3").firstMatch.swipeUp()
+        imagesQuery.matching(identifier: "selectNestedRowItem1").element(boundBy: 1).tap()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
+        XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
+        
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        textField.tap()
+        textField.clearText()
+        textField.typeText("qu")
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            waitForAppToSettle()
+        }
+        
+        XCTAssertGreaterThan(dropdownOptions.count, 0, "Dropdown options did not appear")
+        let firstOption = dropdownOptions.element(boundBy: 2)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(optionsButtons.element.waitForExistence(timeout: 5))
+        let firstOptionButton = optionsButtons.element(boundBy: 0)
+        firstOptionButton.tap()
+        let thirdOptionButton = optionsButtons.element(boundBy: 2)
+        thirdOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+         
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        app.swipeUp()
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("654")
+        firstImageButton.tap()
+        dismissSheet()
+        app.swipeUp()
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode text field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        barcodeTextField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+          XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+          selectAll.tap()
+        barcodeTextField.typeText("22")
+        dismissSheet()
+        dismissSheet()
+        app.swipeUp()
+        imagesQuery.matching(identifier: "CollectionExpandCollapseNestedButton2").element(boundBy: 0).tap()
+        imagesQuery.matching(identifier: "CollectionExpandCollapseNestedButton3").element(boundBy: 0).tap()
+        
+        let countRootRows2 = getVisibleRowCount()
+        XCTAssertEqual(countRootRows2, 4)
+        
+        let countNestedRows2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows2, 6)
+    }
+    
+    
+    func testConditionalLogicDeleteAllRowsAndAddNew() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
+        
+        goToCollectionDetailField()
+        
+        app.images["SelectParentAllRowSelectorButton"].firstMatch.tap()
+        tapOnMoreButton()
+        app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
+        
+        let addRowButton = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        addRowButton.tap()
+        addRowButton.tap()
+        addRowButton.tap()
+        addRowButton.tap()
+        
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        
+        let countRootRows = getVisibleRowCount()
+        XCTAssertEqual(countRootRows, 4)
+        
+        let countNestedRows = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows, 3)
+        
+        selectAllParentRows()
+        
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        
+        // Textfield
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        textField.tap()
+        textField.typeText("one")
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        XCTAssertTrue(dropdownOptions.element.waitForExistence(timeout: 5))
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["EditRowsMultiSelecionFieldIdentifier"]
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        let secOptionButton = optionsButtons.element(boundBy: 1)
+        secOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        app.swipeUp();
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText()
+        numberTextField.typeText("900")
+        
+        // Image Field
+        guard let firstImageButton = app.swipeToFindElement(identifier: "EditRowsImageFieldIdentifier", type: .button) else {
+            XCTFail("Failed to find image button after swiping")
+            return
+        }
+        firstImageButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        app.buttons["ImageUploadImageIdentifier"].tap()
+        dismissSheet()
+        
+        // Barcode Column
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
+        barcodeTextField.tap()
+        barcodeTextField.clearText()
+        barcodeTextField.typeText("abc")
+        
+        
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        let countNestedRowsafterOpration = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRowsafterOpration, 0)
+        
+        expandRow(number: 2)
+        expandRow(number: 3)
+        expandRow(number: 4)
+        
+        let countRootRows2 = getVisibleRowCount()
+        XCTAssertEqual(countRootRows2, 4)
+        
+        let countNestedRows2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows2, 0)
+    }
+    
+    func testConditionalLogicAllWithEmptyValue() throws {
+        guard UIDevice.current.userInterfaceIdiom != .pad else {
+            return
+        }
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 0).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 2)
+        tapOnSecondPage.tap()
+        
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        
+//        let countRootRows = getVisibleRowCount()
+//        XCTAssertEqual(countRootRows, 4)
+//        
+//        let countNestedRows = getVisibleNestexRowsCount()
+//        XCTAssertEqual(countNestedRows, 3)
+         
+        
+        // Textfield
+        let textField = app.textViews["TabelTextFieldIdentifier"].firstMatch
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+          XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+          selectAll.tap()
+        textField.clearText()
+        // Dropdown Field
+        let dropdownButton = app.buttons["TableDropdownIdentifier"].firstMatch
+        XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
+        dropdownButton.tap()
+        
+        // Wait for options to appear
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        
+        let timeout = 5.0
+        let start = Date()
+        while dropdownOptions.count == 0 && Date().timeIntervalSince(start) < timeout {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        }
+        
+        XCTAssertTrue(dropdownOptions.element.waitForExistence(timeout: 5))
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        XCTAssertTrue(firstOption.exists && firstOption.isHittable, "Dropdown option is not tappable")
+        firstOption.tap()
+        app.swipeLeft()
+        // Multiselection Field
+        let multiSelectionButton = app.buttons["TableMultiSelectionFieldIdentifier"].firstMatch
+        //XCTAssertEqual("", multiSelectionButton.label)
+        multiSelectionButton.tap()
+        
+        let optionsButtons = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        let secOptionButton = optionsButtons.element(boundBy: 0)
+        secOptionButton.tap()
+        
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        app.swipeUp();
+        
+        // Number Field
+        guard let numberTextField = app.swipeToFindElement(identifier: "TabelNumberFieldIdentifier", type: .textField, direction: "left") else {
+            XCTFail("Failed to find number text field after swiping")
+            return
+        }
+        numberTextField.tap()
+        numberTextField.clearText() 
+         
+        
+        // Barcode Column
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "TableBarcodeFieldIdentifier", type: .textView, direction: "left") else {
+            XCTFail("Failed to find barcode field after swiping")
+            return
+        }
+        barcodeTextField.press(forDuration: 1.0)
+          XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+          selectAll.tap()
+        barcodeTextField.clearText()
+        app.dismissKeyboardIfVisible()
+        app.swipeRight()
+        app.swipeRight()
+        app.swipeRight()
+        
+        let countRootRows2 = getVisibleRowCount()
+        XCTAssertEqual(countRootRows2, 4)
+        
+        let countNestedRows2 = getVisibleNestexRowsCount()
+        XCTAssertEqual(countNestedRows2, 0)
+    }
+    
     func testRequiredFieldAsteriskPresence() {
         let requiredLabel = app.staticTexts["This is collection\nwith multiline header\ntest."]
         XCTAssertTrue(requiredLabel.exists, "Required field label should display")
