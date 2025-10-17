@@ -6,7 +6,8 @@
   "files": [
     {
       "pageOrder": [
-        "685750efeb612f4fac5819dd"
+        "685750efeb612f4fac5819dd",
+        "68f20e45b90bb7914a6b967a"
       ],
       "pages": [
         {
@@ -51,13 +52,57 @@
           "padding": 24,
           "name": "New Page",
           "rowHeight": 8
+        },
+        {
+          "_id": "68f20e45b90bb7914a6b967a",
+          "name": "Quick View",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68f20e57ad6d65fb76e6a542",
+              "type": "collection",
+              "field": "68f20e53a1ee0fa1c1e6bd7f",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 15
+            },
+            {
+              "_id": "68f20e5f1ab6d3f136a64663",
+              "type": "collection",
+              "field": "68f20e573f103d22e34a70a7",
+              "displayType": "original",
+              "x": 0,
+              "y": 15,
+              "width": 8,
+              "height": 15
+            },
+            {
+              "_id": "68f20e607f782131951d8fac",
+              "type": "collection",
+              "field": "68f20e5f193f54b1327003b7",
+              "displayType": "original",
+              "x": 0,
+              "y": 30,
+              "width": 8,
+              "height": 15
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
         }
       ],
       "_id": "685750ef698da1ab427761ba",
       "styles": {
         "margin": 4
       },
-      "name": "New File"
+      "name": "New File",
+      "views": []
     }
   ],
   "name": "New Doc",
@@ -1449,6 +1494,190 @@
       "file": "685750ef698da1ab427761ba",
       "tipVisible": true,
       "type": "collection"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68f20e53a1ee0fa1c1e6bd7f",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "68f20e80f2815f40eca8fb0c",
+          "cells": {
+            "6813008e76da519a97819c69": "a",
+            "6813008e36be88d98ed5a90a": "6813008efb95416fd9326038",
+            "68f20e7634880cc85f526786": [
+              "68f20e766c9a06a78da2aa0c"
+            ]
+          },
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text"
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "Yes"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "No"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ]
+            },
+            {
+              "_id": "68f20e7634880cc85f526786",
+              "type": "multiSelect",
+              "title": "Multiselect Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "68f20e766c9a06a78da2aa0c",
+                  "value": "Option 1",
+                  "deleted": false,
+                  "styles": {
+                    "backgroundColor": "#f0f0f0"
+                  }
+                },
+                {
+                  "_id": "68f20e7659813f74d1546359",
+                  "value": "Option 2",
+                  "deleted": false,
+                  "styles": {
+                    "backgroundColor": "#f0f0f0"
+                  }
+                },
+                {
+                  "_id": "68f20e761b40367611ef55ff",
+                  "value": "Option 3",
+                  "deleted": false,
+                  "styles": {
+                    "backgroundColor": "#f0f0f0"
+                  }
+                }
+              ],
+              "optionOrder": [
+                "68f20e766c9a06a78da2aa0c",
+                "68f20e7659813f74d1546359",
+                "68f20e761b40367611ef55ff"
+              ]
+            }
+          ]
+        }
+      },
+      "identifier": "field_68f20e57e8616efe71eb6121"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68f20e573f103d22e34a70a7",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "68f20ed4454148c2e76d19f7",
+          "cells": {
+            "68f20eccacdf36d3630c3159": 123,
+            "68f20ecf42f142f5a479d2fc": 1760639400000
+          },
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image"
+            },
+            {
+              "_id": "68f20eccacdf36d3630c3159",
+              "type": "number",
+              "title": "Number Column",
+              "deleted": false,
+              "width": 0
+            },
+            {
+              "_id": "68f20ecf42f142f5a479d2fc",
+              "type": "date",
+              "title": "Date Column",
+              "deleted": false,
+              "width": 0,
+              "format": "MM/DD/YYYY"
+            }
+          ]
+        }
+      },
+      "identifier": "field_68f20e5f3cbbd6d0620d2982"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "68f20e5f193f54b1327003b7",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "68f20ef7a2c2275598bec87f",
+          "cells": {
+            "68f20ef09c0cc97b582d4f37": "quick",
+            "68f20ef32092c7273a574aed": "demo"
+          },
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "68f20ef09c0cc97b582d4f37",
+              "type": "block",
+              "title": "Label Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "68f20ef32092c7273a574aed",
+              "type": "barcode",
+              "title": "Barcode Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "68f20ef5fe4d426770f4ba63",
+              "type": "signature",
+              "title": "Signature Column",
+              "width": 0,
+              "deleted": false
+            }
+          ]
+        }
+      },
+      "identifier": "field_68f20e60e5b229c8a47600af"
     }
   ]
 }
