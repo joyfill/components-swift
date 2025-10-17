@@ -367,4 +367,144 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         textField.typeText("show")
         XCTAssertTrue(tableDetailButton.exists)
     }
+    
+    func testCheckQuickViewValueUpdate() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
+        originalPageButton.tap()
+        
+        let tableDetailButton = app.buttons.matching(identifier: "TableDetailViewIdentifier")
+        tableDetailButton.element(boundBy: 0).tap()
+        
+        let textField = app.textViews.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        textField.typeText("one")
+        
+        let dropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        dropdownField.element(boundBy: 0).tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        let multiselectField = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        multiselectField.element(boundBy: 0).tap()
+        
+        let multiValueOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        multiValueOptions.element(boundBy: 0).tap()
+        multiValueOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        goBack()
+        let button = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        XCTAssertEqual(button.label , "Option 2")
+        
+        let staticText = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").firstMatch
+        XCTAssertEqual(staticText.label , "one")
+        
+        let dropdownText = app.staticTexts["Yes"].firstMatch
+        XCTAssertEqual(dropdownText.label , "Yes")
+        
+        tableDetailButton.element(boundBy: 1).tap()
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        imageButton.tap()
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        dismissSheet()
+        
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        numberField.tap()
+        numberField.clearText()
+        numberField.typeText("123456");
+        app.swipeLeft()
+        let dateField = app.buttons["October 17, 2025"].firstMatch
+        dateField.tap()
+        app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
+        dismissSheet()
+        goBack()
+        
+        let imageText = app.staticTexts["+1"].firstMatch
+        XCTAssertTrue(imageText.exists)
+        
+        let numberText = app.staticTexts["123456"].firstMatch
+        XCTAssertTrue(numberText.exists)
+        
+        let dateText = app.staticTexts["October 10, 2025"].firstMatch
+        XCTAssertTrue(dateText.exists)
+        
+        app.swipeUp()
+        tableDetailButton.element(boundBy: 2).tap()
+        app.swipeLeft()
+        
+        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
+        XCTAssert(barcodeField.waitForExistence(timeout: 5))
+        barcodeField.tap()
+        barcodeField.press(forDuration: 1.0)
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        barcodeField.typeText("code")
+        
+        let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        signatureButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        goBack()
+        
+        let blockText = app.staticTexts["quick"].firstMatch
+        XCTAssertTrue(blockText.exists)
+        
+        let barcodeText = app.staticTexts["code"].firstMatch
+        XCTAssertTrue(barcodeText.exists)
+        
+        let signatureText = app.staticTexts["Signature Column"].firstMatch
+        XCTAssertTrue(signatureText.exists)
+    }
+    
+    func drawSignatureLine() {
+        let canvas = app.otherElements["CanvasIdentifier"]
+        XCTAssertTrue(canvas.waitForExistence(timeout: 5))
+        canvas.tap()
+        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+        let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
+        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+    }
+    
+    private func formattedAccessibilityLabel(for isoDate: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.locale = Locale(identifier: "en_US")
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let date = inputFormatter.date(from: isoDate) else {
+            XCTFail("Invalid date string: \(isoDate)")
+            return ""
+        }
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.locale = Locale(identifier: "en_US")
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad: with comma
+            if #available(iOS 19.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
+        } else {
+            // iPhone: no comma
+            if #available(iOS 26.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
+        }
+        return outputFormatter.string(from: date)
+    }
 }
