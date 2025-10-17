@@ -109,7 +109,14 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     func onUpload(event: UploadEvent) {
         didReceiveUploadEvent = true
         uploadCallback?(didReceiveUploadEvent, didReceiveChange)
-        
+        let dictionary = event.dictionary
+        if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            print(jsonString)
+            setResult(jsonString)
+        } else {
+            print("Failed to convert dictionary to JSON string")
+        }
         // Check if we should skip the upload handler for specific test cases
         let shouldSkipUpload = shouldSkipUploadHandler()
         
@@ -147,4 +154,33 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     }
     func onError(error: JoyfillError) {}
 
+}
+
+// MARK: - UploadEvent → Dictionary helper
+extension UploadEvent {
+    var dictionary: [String: Any] {
+        var dict: [String: Any] = [
+            "multi": multi
+        ]
+        dict["fieldEvent"] = fieldEvent.dictionary   // you’ll need to make FieldIdentifier → dictionary too
+        dict["target"] = target
+        dict["schemaId"] = schemaId
+        dict["parentPath"] = parentPath
+        dict["rowIds"] = rowIds
+        dict["columnId"] = columnId
+        return dict
+    }
+}
+extension FieldIdentifier {
+    var dictionary: [String: Any] {
+        var dict: [String: Any] = [:]
+        dict["_id"] = _id
+        dict["identifier"] = identifier
+        dict["fieldID"] = fieldID
+        dict["fieldIdentifier"] = fieldIdentifier
+        dict["pageID"] = pageID
+        dict["fileID"] = fileID
+        dict["fieldPositionId"] = fieldPositionId
+        return dict
+    }
 }
