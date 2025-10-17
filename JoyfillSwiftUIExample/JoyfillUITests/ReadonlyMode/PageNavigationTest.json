@@ -1,0 +1,97 @@
+{
+  "createdOn": 1722619392797,
+  "name": "JF-88 Repro",
+  "deleted": false,
+  "categories": [],
+  "fields": [
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68f1ec70118ce54aefdcd3a6",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68f1ec731e5b7e640f61b244"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68f1ec7ae3284a298420f82e",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_68f1ec731e5b7e640f61b244"
+    }
+  ],
+  "_id": "66a14cedd6e1ebcdf176a8da",
+  "type": "template",
+  "identifier": "template_6849dbb509ede5510725c910",
+  "files": [
+    {
+      "version": 1,
+      "name": "Every Field Type Demo",
+      "views": [],
+      "metadata": {},
+      "styles": {
+        "margin": 4
+      },
+      "_id": "66a14ced9dc829a95e272506",
+      "pageOrder": [
+        "66a14ced15a9dc96374e091e",
+        "68f1ec7a82ab9eee6414237d"
+      ],
+      "pages": [
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "68f1ec7317c4a1d7564b58ff",
+              "type": "text",
+              "field": "68f1ec70118ce54aefdcd3a6",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "66a14ced15a9dc96374e091e",
+          "width": 816,
+          "name": "First Page",
+          "margin": 0
+        },
+        {
+          "height": 1056,
+          "padding": 24,
+          "presentation": "normal",
+          "cols": 8,
+          "layout": "grid",
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "68f1ec7317c4a1d7564b58ff",
+              "type": "text",
+              "field": "68f1ec7ae3284a298420f82e",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 8
+            }
+          ],
+          "hidden": false,
+          "rowHeight": 8,
+          "borderWidth": 0,
+          "_id": "68f1ec7a82ab9eee6414237d",
+          "width": 816,
+          "name": "Second Page",
+          "margin": 0
+        }
+      ]
+    }
+  ]
+}
