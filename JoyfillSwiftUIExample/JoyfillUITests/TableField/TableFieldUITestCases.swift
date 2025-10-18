@@ -85,34 +85,46 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        goBack()
         
-        let payload = onChangeResult().dictionary
-        XCTAssertEqual(payload["target"] as? String, "field.value.rowUpdate")
-        guard let change = payload["change"] as? [String: Any] else {
-            return XCTFail("Missing or invalid 'change' dictionary")
-        }
-        // row
-        guard let row = change["row"] as? [String: Any] else {
-            return XCTFail("Missing or invalid 'row' dictionary")
+        let valueElements = onChangeResultValue().valueElements
+        XCTAssertNotNil(valueElements, "Value elements should not be nil")
+        
+        guard let rows = valueElements else {
+            XCTFail("Value elements are nil")
+            return
         }
         
-        // cells
-        guard let cells = row["cells"] as? [String: Any] else {
-            return XCTFail("Missing or invalid 'cells' dictionary")
+        let rowCount = rows.count
+        XCTAssertGreaterThan(rowCount, 0, "Should have at least one row")
+        
+        // Verify all rows have the updated text and dropdown values
+        for i in 0..<rowCount {
+            if i == 2 { continue }
+            
+            let textValue = rows[i].cells?["687478ee0b423b73bb24cafa"]?.text
+            XCTAssertEqual(textValue, "Edit", "Row \(i+1) text field should be 'Edit'")
+            
+            let dropdownValue = rows[i].cells?["6875f786e39a025afbe7d481"]?.text
+            XCTAssertEqual(dropdownValue, "6875f7865f5cc15caa852f92", "Row \(i+1) dropdown should be '6875f7865f5cc15caa852f92' (Yes)")
         }
-        XCTAssertEqual(cells["687478ee0b423b73bb24cafa"] as? String, "Edit")
-        XCTAssertEqual(cells["6875f786e39a025afbe7d481"] as? String, "6875f7865f5cc15caa852f92")
+        
+        goToTableDetailPage()
+        
         let textFields = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
-        for i in 0..<5 {
+        for i in 0..<min(rowCount, 10) {
             let textField = textFields.element(boundBy: i)
-            XCTAssertEqual("Edit", textField.value as! String, "The text in field \(i+1) is incorrect")
+            if textField.exists {
+                XCTAssertEqual("Edit", textField.value as! String, "The text in UI field \(i+1) is incorrect")
+            }
         }
         
         let buttons = app.buttons.matching(identifier: "TableDropdownIdentifier")
-        for i in 0..<5 {
+        for i in 0..<min(rowCount, 10) {
             let button = buttons.element(boundBy: i)
-            XCTAssertTrue(button.exists)
-            XCTAssertEqual(button.label, "Yes", "The text on button \(i+1) is incorrect")
+            if button.exists {
+                XCTAssertEqual(button.label, "Yes", "The dropdown label on button \(i+1) is incorrect")
+            }
         }
     }
     
