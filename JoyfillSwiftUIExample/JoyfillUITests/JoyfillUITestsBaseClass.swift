@@ -576,8 +576,13 @@ extension JoyfillUITestsBaseClass {
 
         if let jsonData = jsonString.data(using: .utf8) {
             do {
+                // Try to parse as array first (multiple events)
                 if let dicts = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [[String: Any]] {
                     return dicts.map(Change.init)
+                }
+                // If not an array, try as single object (single event)
+                else if let dict = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] {
+                    return [Change(dictionary: dict)]
                 }
             } catch {
                 print("Failed to decode JSON string to model: \(error)")
