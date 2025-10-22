@@ -562,6 +562,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let uploadButton = app.buttons["ImageUploadImageIdentifier"];
         let imageFields = app.buttons.matching(identifier: "EditRowsImageFieldIdentifier")
         imageFields.element(boundBy: 0).tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         uploadButton.tap()
         uploadButton.tap()
         dismissSheet()
