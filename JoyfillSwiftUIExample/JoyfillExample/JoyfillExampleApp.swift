@@ -12,6 +12,7 @@ import Joyfill
 
 class AppState: ObservableObject {
     @Published var changeResult: String = ""
+    @Published var uploadResult: String = ""
 }
 
 // MARK: - Quick Configuration
@@ -31,6 +32,10 @@ struct JoyfillExampleApp: App {
         let eventHandler =  UITestFormContainerViewHandler() { change in
             DispatchQueue.main.async {
                 appState.changeResult = change
+            }
+        } setUploadResult: { change in
+            DispatchQueue.main.async {
+                appState.uploadResult = change
             }
         }
         _appState = StateObject(wrappedValue: appState)
@@ -84,6 +89,9 @@ struct JoyfillExampleApp: App {
                 .navigationViewStyle(StackNavigationViewStyle())
                 Text(appState.changeResult)
                     .accessibilityIdentifier("resultfield")
+                    .frame(height: 10)
+                Text(appState.uploadResult)
+                    .accessibilityIdentifier("resultUploadfield")
                     .frame(height: 10)
             } else if useQuickTestMode {
                 //Quick test mode: directly open template list with default token

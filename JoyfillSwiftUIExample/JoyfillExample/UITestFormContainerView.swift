@@ -77,12 +77,14 @@ struct UITestFormContainerView: View {
 
 class UITestFormContainerViewHandler: FormChangeEvent {
     var setResult: (String) -> Void
+    var setUploadResult: (String) -> Void
     var didReceiveChange = false
     var didReceiveUploadEvent = false
     var uploadCallback: ((Bool, Bool) -> Void)?
     
-    init(setResult: @escaping (String) -> Void) {
+    init(setResult: @escaping (String) -> Void, setUploadResult: @escaping (String) -> Void) {
         self.setResult = setResult
+        self.setUploadResult = setUploadResult
     }
     
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
@@ -113,7 +115,7 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted),
            let jsonString = String(data: jsonData, encoding: .utf8) {
             print(jsonString)
-            setResult(jsonString)
+            setUploadResult(jsonString)
         } else {
             print("Failed to convert dictionary to JSON string")
         }
