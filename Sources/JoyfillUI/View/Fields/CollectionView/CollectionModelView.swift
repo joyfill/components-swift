@@ -12,6 +12,7 @@ struct CollectionRowView: View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var rowDataModel: RowDataModel
+    var isSelected: Bool = false
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
@@ -21,6 +22,7 @@ struct CollectionRowView: View {
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
+                    .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
@@ -159,12 +161,13 @@ struct CollectionModalView : View {
                                     })
                                     CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index)
                                     
+                                    let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
                                     switch rowCellModels.rowType {
                                     case .row:
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel)
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
                                             .frame(height: 60)
                                     case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel)
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
                                             .frame(height: 60)
                                     case .header(level: let level, tableColumns: let tableColumns):
                                         CollectionColumnHeaderView(viewModel: viewModel,
@@ -369,6 +372,7 @@ struct CollectionRowsHeaderView: View {
     var body: some View {
         let rowArray = rowModel.cells
         let isLastRow = index == viewModel.tableDataModel.filteredcellModels.count - 1
+        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
         HStack(spacing: 0) {
             // Expand Button View
             if viewModel.nestedTableCount > 0 {
@@ -444,9 +448,9 @@ struct CollectionRowsHeaderView: View {
             switch rowModel.rowType {
             case .row(let index):
                 if viewModel.showRowSelector {
-                    let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                     Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
@@ -471,9 +475,9 @@ struct CollectionRowsHeaderView: View {
                 }
             case .nestedRow(let level, let index, _, _):
                 if viewModel.showRowSelector {
-                    let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                     Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowArray.first?.rowID ?? "")
@@ -497,12 +501,14 @@ struct CollectionRowsHeaderView: View {
                         .foregroundColor(.red)
                         .imageScale(.small)
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 } else {
                     Text("\(nastedRowIndex)")
                         .foregroundColor(.secondary)
                         .font(.caption)
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
             case .row(let rowIndex):
@@ -511,12 +517,14 @@ struct CollectionRowsHeaderView: View {
                         .foregroundColor(.red)
                         .imageScale(.small)
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 } else {
                     Text("\(rowIndex)")
                         .foregroundColor(.secondary)
                         .font(.caption)
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
             case .tableExpander:

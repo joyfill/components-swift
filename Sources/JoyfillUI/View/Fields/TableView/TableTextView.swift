@@ -22,13 +22,24 @@ struct TableTextView: View {
                 .lineLimit(1)
                 .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
         } else {
-            TextEditor(text: $cellModel.data.title)
-                .font(.system(size: 15))
-                .accessibilityIdentifier("TabelTextFieldIdentifier")
-                .onChange(of: cellModel.data.title) { _ in
-                    updateFieldValue()
-                }
-                .focused($isTextFieldFocused)
+            if #available(iOS 16.0, *) {
+                TextEditor(text: $cellModel.data.title)
+                    .font(.system(size: 15))
+                    .scrollContentBackground(.hidden)
+                    .accessibilityIdentifier("TabelTextFieldIdentifier")
+                    .onChange(of: cellModel.data.title) { _ in
+                        updateFieldValue()
+                    }
+                    .focused($isTextFieldFocused)
+            } else {
+                TextEditor(text: $cellModel.data.title)
+                    .font(.system(size: 15))
+                    .accessibilityIdentifier("TabelTextFieldIdentifier")
+                    .onChange(of: cellModel.data.title) { _ in
+                        updateFieldValue()
+                    }
+                    .focused($isTextFieldFocused)
+            }
         }
     }
     

@@ -39,12 +39,22 @@ struct TableBarcodeView: View {
             }
         } else {
             HStack(spacing: 0) {
-                TextEditor(text: $text)
-                    .accessibilityIdentifier("TableBarcodeFieldIdentifier")
-                    .font(.system(size: 15))
-                    .onChange(of: text) { newValue in
-                        updateFieldValue(newText: newValue)
-                    }
+                if #available(iOS 16.0, *) {
+                    TextEditor(text: $text)
+                        .accessibilityIdentifier("TableBarcodeFieldIdentifier")
+                        .font(.system(size: 15))
+                        .scrollContentBackground(.hidden)
+                        .onChange(of: text) { newValue in
+                            updateFieldValue(newText: newValue)
+                        }
+                } else {
+                    TextEditor(text: $text)
+                        .accessibilityIdentifier("TableBarcodeFieldIdentifier")
+                        .font(.system(size: 15))
+                        .onChange(of: text) { newValue in
+                            updateFieldValue(newText: newValue)
+                        }
+                }
                 
                 Image(systemName: "barcode.viewfinder")
                     .accessibilityIdentifier("TableScanButtonIdentifier")
