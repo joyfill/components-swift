@@ -102,7 +102,8 @@ struct TableDateView: View {
                 components: datePickerComponent,
                 isPresented: $isDatePickerPresented,
                 onCommit: { _ in },
-                timeZone: TimeZone(identifier: cellModel.timezoneId ?? TimeZone.current.identifier) ?? .current
+                timeZone: TimeZone(identifier: cellModel.timezoneId ?? TimeZone.current.identifier) ?? .current,
+                format: cellModel.data.format ?? .empty
             )
             .onChange(of: selectedDate) { newValue in
                 var cellDataModel = cellModel.data
@@ -138,7 +139,7 @@ private final class _DatePopupViewController: UIViewController {
     private let container = UIView()
     private let timeZone: TimeZone
 
-    init(date: Date, mode: UIDatePicker.Mode, timeZone: TimeZone = .current) {
+    init(date: Date, mode: UIDatePicker.Mode, timeZone: TimeZone = .current, format: DateFormatType = .empty) {
         self.timeZone = timeZone
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .overFullScreen
@@ -151,6 +152,12 @@ private final class _DatePopupViewController: UIViewController {
         picker.datePickerMode = mode
         picker.date = date
         picker.timeZone = timeZone
+        
+        // Set 24-hour format if the format uses HH (24-hour) instead of hh (12-hour)
+        if format.rawValue.contains("HH") {
+            // Force 24-hour format by using a locale that prefers 24-hour time
+            picker.locale = Locale(identifier: "en_GB")  // UK locale uses 24-hour format
+        }
 
         container.backgroundColor = UIColor.secondarySystemBackground
         container.layer.cornerRadius = 12
@@ -209,6 +216,7 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
     var components: DatePickerComponents
     var onCommit: ((Date) -> Void)?
     let timeZone: TimeZone
+    let format: DateFormatType
 
     final class Coordinator {
         var presented: _DatePopupViewController?
@@ -220,7 +228,7 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
     func updateUIViewController(_ host: UIViewController, context: Context) {
         if isPresented, context.coordinator.presented == nil {
             let mode = mode(for: components)
-            let vc = _DatePopupViewController(date: date, mode: mode, timeZone: timeZone)
+            let vc = _DatePopupViewController(date: date, mode: mode, timeZone: timeZone, format: format)
             vc.onClose = { action, newDate in
                 date = newDate
                 isPresented = false
@@ -246,7 +254,9 @@ extension View {
     func datePopup(date: Binding<Date>,
                    components: DatePickerComponents,
                    isPresented: Binding<Bool>,
-                   onCommit: ((Date) -> Void)? = nil, timeZone: TimeZone) -> some View {
-        background(DatePickerPopup(isPresented: isPresented, date: date, components: components, onCommit: onCommit, timeZone: timeZone))
+                   onCommit: ((Date) -> Void)? = nil,
+                   timeZone: TimeZone,
+                   format: DateFormatType = .empty) -> some View {
+        background(DatePickerPopup(isPresented: isPresented, date: date, components: components, onCommit: onCommit, timeZone: timeZone, format: format))
     }
 }

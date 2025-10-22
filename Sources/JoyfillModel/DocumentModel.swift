@@ -216,25 +216,64 @@ public enum ColumnTypes: String {
 
 /// `DateFormatType` is an enumeration that represents the types of date formats.
 ///
-/// It includes cases for dateOnly, timeOnly, dateTime, and empty. Each case has a corresponding date format.
+/// Supports various international date and time formats with automatic conversion from JSON format strings to Swift DateFormatter patterns.
 public enum DateFormatType: String {
+    // US Date Formats (MM/DD/YYYY)
     case dateOnly = "MM/DD/YYYY"
-    case timeOnly = "hh:mma"
     case dateTime = "MM/DD/YYYY hh:mma"
+    case dateTime24 = "MM/DD/YYYY HH:mm"
+    case dateTimeWithSeconds = "MM/DD/YYYY hh:mm:ssa"
+    case dateTime24WithSeconds = "MM/DD/YYYY HH:mm:ss"
+    
+    // European/Australian Date Formats (DD/MM/YYYY)
+    case dateOnlyDDMMYYYY = "DD/MM/YYYY"
+    case dateTimeDDMMYYYY = "DD/MM/YYYY HH:mm"
+    case dateTimeDDMMYYYY12Hour = "DD/MM/YYYY hh:mma"
+    case dateTimeDDMMYYYYWithSeconds = "DD/MM/YYYY HH:mm:ss"
+    case dateTimeDDMMYYYY12HourWithSeconds = "DD/MM/YYYY hh:mm:ssa"
+    
+    // ISO and Asian Date Formats (YYYY-MM-DD / YYYY/MM/DD)
+    case dateOnlyISO = "YYYY-MM-DD"
+    case dateTimeISO = "YYYY-MM-DD HH:mm"
+    case dateTimeISOWithSeconds = "YYYY-MM-DD HH:mm:ss"
+    case dateOnlyYYYYMMDD = "YYYY/MM/DD"
+    case dateTimeYYYYMMDD = "YYYY/MM/DD HH:mm"
+    
+    // Hyphen Separated Formats
+    case dateOnlyDashUS = "MM-DD-YYYY"
+    case dateOnlyDashEU = "DD-MM-YYYY"
+    case dateTimeDashUS = "MM-DD-YYYY HH:mm"
+    case dateTimeDashEU = "DD-MM-YYYY HH:mm"
+    
+    // Short Year Formats (YY)
+    case dateOnlyShortYear = "MM/DD/YY"
+    case dateOnlyShortYearEU = "DD/MM/YY"
+    
+    // Time Only Formats
+    case timeOnly = "hh:mma"
+    case timeOnly24Hour = "HH:mm"
+    case timeOnlyWithSeconds = "hh:mm:ssa"
+    case timeOnly24HourWithSeconds = "HH:mm:ss"
+    
     case empty = ""
     
     /// The date format corresponding to the `DateFormatType`.
+    /// Converts from JSON format pattern (YYYY, DD) to Swift DateFormatter pattern (yyyy, dd).
    public var dateFormat: String {
-        switch self {
-        case .dateOnly:
-            return "MMMM d, yyyy"
-        case .timeOnly:
-            return "hh:mm a"
-        case .dateTime:
-            return "MMMM d, yyyy h:mm a"
-        case .empty:
-            return "MMMM d, yyyy h:mm a"
-        }
+       if self == .empty {
+           return "MMMM d, yyyy h:mm a"
+       }
+        // Convert JSON format to Swift DateFormatter pattern
+        return self.rawValue
+            .replacingOccurrences(of: "YYYY", with: "yyyy")  // Year: YYYY → yyyy
+            .replacingOccurrences(of: "YY", with: "yy")      // Short year: YY → yy
+            .replacingOccurrences(of: "DD", with: "dd")      // Day: DD → dd
+            .replacingOccurrences(of: "MM", with: "MM")      // Month: stays MM (need to handle before mm)
+            .replacingOccurrences(of: "HH", with: "HH")      // Hour 24: stays HH
+            .replacingOccurrences(of: "hh", with: "hh")      // Hour 12: stays hh
+            .replacingOccurrences(of: "mm", with: "mm")      // Minute: stays mm
+            .replacingOccurrences(of: "ss", with: "ss")      // Second: stays ss
+            .replacingOccurrences(of: "a", with: "a")        // AM/PM: stays a
     }
 }
 
@@ -263,7 +302,7 @@ public func getTimeFromISO8601Format(iso8601String: String, tzId: String? = nil)
 ///
 /// - Parameters:
 ///   - value: The timestamp value in milliseconds.
-///   - format: The desired format for the date string. Supported formats are "MM/DD/YYYY", "hh:mma", and any other custom format.
+///   - format: The desired format for the date string. Supports US (MM/DD/YYYY) and European/Australian (DD/MM/YYYY) formats.
 ///
 /// - Returns: A formatted date string based on the provided timestamp value and format.
 public func timestampMillisecondsToDate(value: Int, format: DateFormatType, tzId: String? = nil) -> String {
@@ -272,14 +311,7 @@ public func timestampMillisecondsToDate(value: Int, format: DateFormatType, tzId
     let dateFormatter = DateFormatter()
     let timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
     dateFormatter.timeZone = timeZone
-    
-    if format == .dateOnly {
-        dateFormatter.dateFormat = "MMMM d, yyyy"
-    } else if format == .timeOnly {
-        dateFormatter.dateFormat = "hh:mm a"
-    } else {
-        dateFormatter.dateFormat = "MMMM d, yyyy h:mm a"
-    }
+    dateFormatter.dateFormat = format.dateFormat
     
     let formattedDate = dateFormatter.string(from: date)
     return formattedDate
