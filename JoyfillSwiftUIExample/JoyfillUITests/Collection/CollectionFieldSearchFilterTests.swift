@@ -2425,6 +2425,137 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(signatureText.exists)
     }
     
+    func testImageFieldSingleAndMultiUploadEvents() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
+        originalPageButton.tap()
+        
+       goToCollectionDetailField()
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier")
+        imageButton.element(boundBy: 0).tap()
+        
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0))
+          
+        let uploadResults = onUploadOptionalResults()
+         
+        if uploadResults.isEmpty {
+            XCTFail("Upload results are empty. Result field content")
+            return
+        }
+        
+        XCTAssertGreaterThan(uploadResults.count, 0, "Should have at least one upload event")
+        
+        guard let uploadEvent = uploadResults.first else {
+            XCTFail("Should have at least one upload event in array")
+            return
+        }
+        
+        let eventDict = uploadEvent.dictionary
+        
+        // Verify top-level fields
+        XCTAssertEqual(eventDict["target"] as? String, "field.update", "Target should be 'field.update'")
+        XCTAssertEqual(eventDict["multi"] as? Bool, false, "Multi should be false for single image upload")
+        XCTAssertNotNil(eventDict["columnId"], "columnId should be present")
+        XCTAssertEqual(eventDict["columnId"] as? String, "6813008ea26d706f2a5db2d5", "columnId should match")
+        // Verify rowIds array
+        if let rowIds = eventDict["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+            XCTAssertEqual(rowIds.first, "68f8a5f9891f404c3058fdc0", "rowId should match")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldEvent = eventDict["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        // Verify all fieldEvent properties
+        XCTAssertEqual(fieldEvent["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldEvent["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldEvent["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldEvent["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldEvent["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldEvent["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldEvent["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        
+        dismissSheet()
+        goBack()
+        
+        goToCollectionDetailField()
+        // verify in bulk update
+        selectAllParentRows()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        let uploadButton = app.buttons["ImageUploadImageIdentifier"];
+        let imageFields = app.buttons.matching(identifier: "EditRowsImageFieldIdentifier")
+        imageFields.element(boundBy: 0).tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        uploadButton.tap()
+        uploadButton.tap()
+        dismissSheet()
+        
+        imageFields.element(boundBy: 1).tap()
+        uploadButton.tap()
+        uploadButton.tap()
+        dismissSheet()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0))
+          
+        let uploadResults2 = onUploadOptionalResults()
+         
+        if uploadResults2.isEmpty {
+            XCTFail("Upload results are empty. Result field content")
+            return
+        }
+        
+        XCTAssertGreaterThan(uploadResults2.count, 0, "Should have at least one upload event")
+        
+        guard let uploadEvent2 = uploadResults2.first else {
+            XCTFail("Should have at least one upload event in array")
+            return
+        }
+        
+        let eventDict2 = uploadEvent2.dictionary
+        
+        // Verify top-level fields
+        XCTAssertEqual(eventDict2["target"] as? String, "field.update", "Target should be 'field.update'")
+        XCTAssertEqual(eventDict2["multi"] as? Bool, true, "Multi should be false for single image upload")
+        XCTAssertNotNil(eventDict2["columnId"], "columnId should be present")
+        // Verify rowIds array
+        if let rowIds = eventDict2["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 2, "Should have 1 rowId")
+            XCTAssertEqual(rowIds[0], "68f8a5f9891f404c3058fdc0", "rowId should match")
+            XCTAssertEqual(rowIds[1], "68f8a5fab01784fee64423a5", "rowId should match")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldEvent2 = eventDict2["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        // Verify all fieldEvent properties
+        XCTAssertEqual(fieldEvent2["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldEvent2["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldEvent2["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldEvent2["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldEvent2["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldEvent2["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldEvent2["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+    }
+    
     func drawSignatureLine() {
         let canvas = app.otherElements["CanvasIdentifier"]
         XCTAssertTrue(canvas.waitForExistence(timeout: 5))
