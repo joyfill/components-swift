@@ -794,6 +794,59 @@
       "rowOrder": [
         "68e6704db5c2921b790869f1"
       ]
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68f8827ddb12ab2819f1ff49",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "68e6704df7bb0c4d9518f104",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "identifier": "field_column_68f8828163b8b516dce41d5b"
+        },
+        {
+          "_id": "68f8829bf48e46e8d8c158bb",
+          "type": "image",
+          "title": "Image 1"
+        },
+        {
+          "_id": "68f882ab6f4d37da79c22cf9",
+          "type": "image",
+          "title": "Image 2",
+          "multi": true
+        }
+      ],
+      "value": [
+        {
+          "_id": "68e6704db5c2921b790869f1",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "68e6704de976d53aee73a22f",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "68e6704d2fafb6d27f28f57d",
+          "deleted": true,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_68f88281df6bf6ee60176cbb",
+      "tableColumnOrder": [
+        "68e6704df7bb0c4d9518f104",
+        "68f8829bf48e46e8d8c158bb",
+        "68f882ab6f4d37da79c22cf9"
+      ],
+      "rowOrder": [
+        "68e6704db5c2921b790869f1",
+        "68e6704de976d53aee73a22f"
+      ]
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -812,7 +865,8 @@
       "pageOrder": [
         "66a14ced15a9dc96374e091e",
         "68d7ba78321dcd7856b3735e",
-        "68f1fe14279a2aab1a64e24d"
+        "68f1fe14279a2aab1a64e24d",
+        "68f88270495d5cc6d27273ca"
       ],
       "pages": [
         {
@@ -945,6 +999,30 @@
               "tableColumns": {},
               "x": 0,
               "y": 30,
+              "width": 8,
+              "height": 15
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        },
+        {
+          "_id": "68f88270495d5cc6d27273ca",
+          "name": "Image Field",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68f88281dc5aa9eb8d01d3d9",
+              "type": "table",
+              "field": "68f8827ddb12ab2819f1ff49",
+              "displayType": "original",
+              "tableColumns": {},
+              "x": 0,
+              "y": 0,
               "width": 8,
               "height": 15
             }
