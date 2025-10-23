@@ -159,22 +159,64 @@ private final class _DatePopupViewController: UIViewController {
             picker.locale = Locale(identifier: "en_GB")  // UK locale uses 24-hour format
         }
 
-        container.backgroundColor = UIColor.secondarySystemBackground
+        // Glass/Blur effect background
+        let blurEffect = UIBlurEffect(style: .systemMaterial)
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.layer.cornerRadius = 12
+        blurView.layer.borderWidth = 1
+        blurView.layer.borderColor = UIColor.separator.cgColor
+        blurView.clipsToBounds = true
+        
+        container.backgroundColor = .clear
         container.layer.cornerRadius = 12
-        container.layer.borderWidth = 1
-        container.layer.borderColor = UIColor.separator.cgColor
         container.layer.shadowColor = UIColor.black.cgColor
         container.layer.shadowOpacity = 0.25
         container.layer.shadowRadius = 12
+        container.layer.shadowOffset = CGSize(width: 0, height: 4)
+        container.clipsToBounds = false
 
-        let stack = UIStackView(arrangedSubviews: [picker])
+        // Create toolbar with close button
+        let toolbar = UIView()
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        toolbar.backgroundColor = .clear
+        
+        let closeButton = UIButton(type: .system)
+        closeButton.setImage(UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        closeButton.tintColor = .secondaryLabel
+        closeButton.addTarget(self, action: #selector(doneTapped), for: .touchUpInside)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.accessibilityLabel = "Close"
+        
+        toolbar.addSubview(closeButton)
+        
+        NSLayoutConstraint.activate([
+            closeButton.trailingAnchor.constraint(equalTo: toolbar.trailingAnchor, constant: -12),
+            closeButton.topAnchor.constraint(equalTo: toolbar.topAnchor, constant: 8),
+            closeButton.widthAnchor.constraint(equalToConstant: 28),
+            closeButton.heightAnchor.constraint(equalToConstant: 28),
+            
+            toolbar.heightAnchor.constraint(equalToConstant: 44)
+        ])
+
+        let stack = UIStackView(arrangedSubviews: [toolbar, picker])
         stack.axis = .vertical
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         container.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Add blur view as background layer
+        container.addSubview(blurView)
         container.addSubview(stack)
 
         NSLayoutConstraint.activate([
+            // Blur view fills the container
+            blurView.leadingAnchor.constraint(equalTo: container.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: container.trailingAnchor),
+            blurView.topAnchor.constraint(equalTo: container.topAnchor),
+            blurView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+            
+            // Stack on top of blur
             stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             stack.topAnchor.constraint(equalTo: container.topAnchor),
@@ -229,15 +271,23 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
         if isPresented, context.coordinator.presented == nil {
             let mode = mode(for: components)
             let vc = _DatePopupViewController(date: date, mode: mode, timeZone: timeZone, format: format)
-            vc.onClose = { action, newDate in
+            vc.onClose = { [weak vc] action, newDate in
                 date = newDate
                 isPresented = false
                 if action == .done { onCommit?(newDate) }
+                // Clear coordinator reference immediately to prevent double dismissal
+                context.coordinator.presented = nil
+                // Explicitly dismiss to ensure immediate dismissal (fixes timing issues with inline picker)
+                vc?.dismiss(animated: true)
             }
             context.coordinator.presented = vc
             host.present(vc, animated: true)
         } else if !isPresented, let vc = context.coordinator.presented {
-            vc.dismiss(animated: true) { context.coordinator.presented = nil }
+            // Fallback: dismiss if SwiftUI catches the state change
+            context.coordinator.presented = nil
+            if !vc.isBeingDismissed {
+                vc.dismiss(animated: true)
+            }
         }
     }
 
