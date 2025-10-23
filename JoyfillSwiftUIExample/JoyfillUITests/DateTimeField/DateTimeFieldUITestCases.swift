@@ -68,7 +68,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         dayWheel.adjust(toPickerWheelValue: "17")
         
         // Tap outside the date picker to dismiss it
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+        dismissDate()
         
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should remain after entering value in required field")
     }
@@ -91,7 +91,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         dayWheel.adjust(toPickerWheelValue: "17")
         
         // Tap outside the date picker to dismiss it
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+        dismissDate()
         
         // Scroll to test value persistence
         app.swipeUp()
@@ -112,7 +112,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(dayWheel.waitForExistence(timeout: 3), "Date picker should be in focus")
         
         // Tap outside to dismiss popup
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+        dismissDate()
         
         // The date button should still exist with the value
         XCTAssertTrue(dateButton.exists, "Date button remains visible since field has value")
@@ -141,7 +141,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         if closeButton.waitForExistence(timeout: 3) {
             closeButton.tap()
         } else {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+            dismissDate()
         }
         
         app.swipeUp()
@@ -162,7 +162,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
             if timeCloseButton.waitForExistence(timeout: 3) {
                 timeCloseButton.tap()
             } else {
-                app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+                dismissDate()
             }
         }
         
@@ -179,7 +179,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
             }
             
             // Close picker
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+            dismissDate()
         }
     }
     
@@ -195,7 +195,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         dayWheel.adjust(toPickerWheelValue: "17")
         
         // Tap outside the date picker to dismiss it
-        app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+        dismissDate()
         
         let payload = onChangeResult().dictionary
         XCTAssertEqual(payload["fieldId"] as? String, "686f4e36557902657597794c")
@@ -233,7 +233,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         if closeButton.waitForExistence(timeout: 3) {
             closeButton.tap()
         } else {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+            dismissDate()
         }
         
         app.swipeUp()
@@ -258,7 +258,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         if closeButton.waitForExistence(timeout: 3) {
             closeButton.tap()
         } else {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+            dismissDate()
         }
         
         // Verify date button still exists
@@ -296,5 +296,30 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         }
         XCTAssertEqual(tz, "Asia/Kolkata")
         XCTAssertEqual(actualValue, expectedValue, "onChange payload value should match expected value")
+    }
+    func dismissDate() {
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.1, dy: 0.1)).tap()
+    }
+    //Custom format Text cases
+    func testCustomDateFormat() {
+        app.swipeUp()
+        app.swipeUp()
+        
+        // Additional verification for all ChangeDateIdentifier buttons visible in the hierarchy
+        let allButtons = [
+            "07/10/2025",
+            "10/23/2025",
+            "23/10/2025",
+            "05:23PM",
+            "17:23",
+            "10/23/2025 05:23PM",
+            "23/10/2025 17:23"
+        ]
+        for label in allButtons {
+            let button = app.buttons[label]
+            XCTAssertTrue(button.waitForExistence(timeout: 3), "Button with label \(label) should exist in UI")
+        }
+        app.swipeDown()
+        app.swipeDown()
     }
 }
