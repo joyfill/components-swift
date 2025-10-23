@@ -41,6 +41,7 @@ struct DateTimeView: View {
                         RoundedRectangle(cornerRadius: 8, style: .circular)
                             .fill(Color(uiColor: .secondarySystemFill))
                     )
+                    .accessibilityIdentifier("ChangeDateIdentifier")
                     
                     Spacer()
                     
