@@ -171,6 +171,9 @@
 		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
 		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		9EAAC7C32E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
+		9EAAC7E02EAB3EF4000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
+		9EAAC7E12EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */; };
+		9EAAC7E22EAB3F89000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
 		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E26A54642DFADD04006E05E9 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E26A54632DFADD04006E05E9 /* JoyfillModel */; };
@@ -544,6 +547,8 @@
 		36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseValidatorTests.swift; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
+		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
+		9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadonlyModeUITestCases.swift; sourceTree = "<group>"; };
 		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewModelDocumentEditorDelegateTests.swift; sourceTree = "<group>"; };
@@ -772,6 +777,7 @@
 			isa = PBXGroup;
 			children = (
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
+				9EAAC7DF2EAB3EF4000B6F3C /* ReadonlyMode */,
 				9EAAC7BF2E979A20000B6F3C /* TimeZone */,
 				E274CA302E2E60A000B35C09 /* ChangeUITests */,
 				E2F568BD2E2A47A1005216A6 /* SingleChoiceField */,
@@ -920,6 +926,15 @@
 				9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */,
 			);
 			path = TimeZone;
+			sourceTree = "<group>";
+		};
+		9EAAC7DF2EAB3EF4000B6F3C /* ReadonlyMode */ = {
+			isa = PBXGroup;
+			children = (
+				9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */,
+				9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */,
+			);
+			path = ReadonlyMode;
 			sourceTree = "<group>";
 		};
 		E27061C62E797E12006BAD18 /* OnChangeHandler */ = {
@@ -1510,6 +1525,7 @@
 				36A5EF312E29725B0059C2A6 /* TableNewColumns.json in Resources */,
 				36A5EF322E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
 				36A5EF332E29725B0059C2A6 /* testrow.json in Resources */,
+				9EAAC7E02EAB3EF4000B6F3C /* PageNavigationTest.json in Resources */,
 				E2F5687E2E2A45A8005216A6 /* SignatureFieldTestData.json in Resources */,
 				36A5EF342E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
 				E274CA812E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
@@ -1734,6 +1750,7 @@
 				36A5EF472E29725B0059C2A6 /* testrow.json in Resources */,
 				E2F568C92E2A4A99005216A6 /* ChartFieldTestData.json in Resources */,
 				36A5EF482E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
+				9EAAC7E22EAB3F89000B6F3C /* PageNavigationTest.json in Resources */,
 				36A5EF4A2E29725B0059C2A6 /* CollectionFilter.json in Resources */,
 				E274CA502E2E7FB000B35C09 /* chartField.json in Resources */,
 				E274CA512E2E7FB000B35C09 /* numberField.json in Resources */,
@@ -1851,6 +1868,7 @@
 				E2F5688A2E2A45D6005216A6 /* CollectionFieldTests.swift in Sources */,
 				E2F568B42E2A4786005216A6 /* MultiSelectFieldUITestCases.swift in Sources */,
 				E2F568AB2E2A4758005216A6 /* UITestHelpers.swift in Sources */,
+				9EAAC7E12EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift in Sources */,
 				362A560D2BEE304500B54C14 /* JoyfillUITestsBaseClass.swift in Sources */,
 				E2F568AF2E2A476A005216A6 /* MultilineTextFieldUITestCases.swift in Sources */,
 			);
