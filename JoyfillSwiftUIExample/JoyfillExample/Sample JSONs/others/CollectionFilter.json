@@ -1724,7 +1724,9 @@
         "collectionSchemaId": {
           "title": "Main Collection",
           "root": true,
-          "children": [],
+          "children": [
+            "68fb396b582eff3a37395333"
+          ],
           "tableColumns": [
             {
               "_id": "6813008ea26d706f2a5db2d5",
@@ -1735,6 +1737,32 @@
               "_id": "68f8a5f4be0620095ce1bbeb",
               "type": "image",
               "title": "Image Column",
+              "multi": true,
+              "deleted": false,
+              "width": 0,
+              "maxImageWidth": 190,
+              "maxImageHeight": 120
+            }
+          ]
+        },
+        "68fb396b582eff3a37395333": {
+          "title": "New Table",
+          "children": [],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "68fb3976742897e3c39baf20",
+              "type": "image",
+              "title": "Image D1",
+              "deleted": false,
+              "width": 0,
+              "maxImageWidth": 190,
+              "maxImageHeight": 120
+            },
+            {
+              "_id": "68fb397aac1425dce9f9aaa2",
+              "type": "image",
+              "title": "Image2 D1",
               "multi": true,
               "deleted": false,
               "width": 0,
