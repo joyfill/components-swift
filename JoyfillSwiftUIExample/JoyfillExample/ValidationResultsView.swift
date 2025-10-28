@@ -44,13 +44,27 @@ private struct FieldValidityView: View {
                 Text(fieldTitle)
                     .font(.subheadline).bold()
                 Spacer()
+                
                 StatusTag(status: fieldValidity.status)
             }
+            
+            Text("Field ID: \(fieldID)")
+                .font(.subheadline)
+            
+            
+            Text("Page ID: \(pageID)")
+                .font(.subheadline)
         }
     }
 
     private var fieldTitle: String {
         fieldValidity.field.title ?? (fieldValidity.field.id ?? "Untitled Field")
+    }
+    private var fieldID: String {
+        fieldValidity.field.id ?? ""
+    }
+    private var pageID: String {
+        fieldValidity.pageId ?? ""
     }
 }
 

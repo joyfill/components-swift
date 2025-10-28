@@ -18,23 +18,25 @@ class ValidationHandler {
     func validate() -> Validation {
         var fieldValidities = [FieldValidity]()
         var isValid = true
+        var pageID: String?
         for pagesForCurrentView in documentEditor.pagesForCurrentView {
+            pageID = pagesForCurrentView.id
             let fieldPositionIDs = documentEditor.mapWebViewToMobileViewIfNeeded(fieldPositions: pagesForCurrentView.fieldPositions ?? [], isMobileViewActive: false).map {  $0.field }
         for id in fieldPositionIDs {
             guard let id = id, let field = documentEditor.fieldMap[id] else {
                 continue
             }
             if !documentEditor.shouldShow(page: pagesForCurrentView) {
-                fieldValidities.append(FieldValidity(field: field, status: .valid))
+                fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID))
                 continue
             }
             if !documentEditor.shouldShow(fieldID: field.id) {
-                fieldValidities.append(FieldValidity(field: field, status: .valid))
+                fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID))
                 continue
             }
             
             guard let required = field.required, required else {
-                fieldValidities.append(FieldValidity(field: field, status: .valid))
+                fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID))
                 continue
             }
             guard let fieldID = field.id else {
@@ -43,31 +45,31 @@ class ValidationHandler {
             }
             
             if field.fieldType == .table {
-                let tableFieldValidity = validateTableField(id: fieldID)
+                let tableFieldValidity = validateTableField(id: fieldID, pageId: pageID)
                 if tableFieldValidity.status == .invalid {
                     isValid = false
                 }
                 fieldValidities.append(tableFieldValidity)
             } else if field.fieldType == .collection {
-                let collectionFieldValidity = validateCollectionField(id: fieldID)
+                let collectionFieldValidity = validateCollectionField(id: fieldID, pageId: pageID)
                 if collectionFieldValidity.status == .invalid {
                     isValid = false
                 }
                 fieldValidities.append(collectionFieldValidity)
             } else {
                 if let value = field.value, !value.isEmpty {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid))
+                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID))
                     continue
                 }
                 isValid = false
-                fieldValidities.append(FieldValidity(field: field, status: .invalid))
+                fieldValidities.append(FieldValidity(field: field, status: .invalid, pageId: pageID))
             }
         }
         }
         return Validation(status: isValid ? .valid: .invalid, fieldValidities: fieldValidities)
     }
      
-    func validateTableField(id: String) -> FieldValidity {
+    func validateTableField(id: String, pageId: String?) -> FieldValidity {
         var fieldValidities = [FieldValidity]()
         let field = documentEditor.field(fieldID: id)
         let fieldPosition = documentEditor.fieldPosition(fieldID: id)!
@@ -127,13 +129,13 @@ class ValidationHandler {
         }
         
         let fieldStatus: ValidationStatus = isTableValid ? .valid : .invalid
-        return FieldValidity(field: field!, status: fieldStatus, rowValidities: rowValidities, columnValidities: columnValidities)
+        return FieldValidity(field: field!, status: fieldStatus, pageId: pageId)
     }
 
-    func validateCollectionField(id: String) -> FieldValidity {
+    func validateCollectionField(id: String, pageId: String?) -> FieldValidity {
         guard let field = documentEditor.field(fieldID: id),
               let schema = field.schema else {
-            return FieldValidity(field: JoyDocField(), status: .valid)
+            return FieldValidity(field: JoyDocField(), status: .valid, pageId: pageId)
         }
 
         var isCollectionValid = true
@@ -146,7 +148,7 @@ class ValidationHandler {
 
         // Identify root schema and columns
         guard let rootSchema = schema.first(where: { $0.value.root == true })?.value else {
-            return FieldValidity(field: field, status: .valid)
+            return FieldValidity(field: field, status: .valid, pageId: pageId)
         }
         let columns = rootSchema.tableColumns ?? []
 
@@ -203,7 +205,7 @@ class ValidationHandler {
                                     }
                                 }
                                 // Recurse into children validation
-                                let nestedValidity = validateCollectionFieldChild(fieldID: id, rows: childRows, schema: childSchema)
+                                let nestedValidity = validateCollectionFieldChild(fieldID: id, rows: childRows, schema: childSchema, pageId: pageId)
                                 if nestedValidity.status == .invalid {
                                     isCollectionValid = false
                                 }
@@ -216,10 +218,10 @@ class ValidationHandler {
         }
 
         let status: ValidationStatus = isCollectionValid ? .valid : .invalid
-        return FieldValidity(field: field, status: status)
+        return FieldValidity(field: field, status: status, pageId: pageId)
     }
     
-    private func validateCollectionFieldChild(fieldID: String, rows: [ValueElement], schema: Schema) -> FieldValidity {
+    private func validateCollectionFieldChild(fieldID: String, rows: [ValueElement], schema: Schema, pageId: String?) -> FieldValidity {
         var isValid = true
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
         let columns = schema.tableColumns ?? []
@@ -259,7 +261,7 @@ class ValidationHandler {
                                     continue
                                 }
                             }
-                            let nested = validateCollectionFieldChild(fieldID: fieldID, rows: childRows, schema: childSchema)
+                            let nested = validateCollectionFieldChild(fieldID: fieldID, rows: childRows, schema: childSchema, pageId: pageId)
                             if nested.status == .invalid {
                                 isValid = false
                             }
@@ -276,6 +278,6 @@ class ValidationHandler {
             columnValidities.append(ColumnValidity(status: colStatus, cellValidities: cellValidities))
         }
 
-        return FieldValidity(field: documentEditor.field(fieldID: fieldID)!, status: isValid ? .valid : .invalid, rowValidities: rowValidities, columnValidities: columnValidities)
+        return FieldValidity(field: documentEditor.field(fieldID: fieldID)!, status: isValid ? .valid : .invalid, pageId: pageId)
     }
 }
