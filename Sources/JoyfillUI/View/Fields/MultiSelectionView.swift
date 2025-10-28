@@ -101,9 +101,8 @@ struct MultiSelection: View {
                     multiSelectedOptionArray.append(selectedItemId) // Item doesn't exist, so add it
                 }
         }, label: {
-            HStack(alignment: .top) {
+            HStack(alignment: .center, spacing: 8) {
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                    .padding(.top, 4)
                     .imageScale(.large)
                 Text(option)
                     .darkLightThemeColor()
