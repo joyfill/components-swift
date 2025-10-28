@@ -389,15 +389,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         usleep(500000) // 0.5 second to allow UI to settle
     }
-    
-    func drawSignatureLine() {
-        let canvas = app.otherElements["CanvasIdentifier"]
-        canvas.tap()
-        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
-        let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
-        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-    }
-    
+
     func selectRow(number: Int) {
         //select the row with number as index
         app.images.matching(identifier: "selectRowItem\(number)")
