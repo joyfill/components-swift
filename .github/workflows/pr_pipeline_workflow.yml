@@ -6,7 +6,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     # NO branch restrictions = runs on PRs to ANY branch
-  
+
   # Manual trigger with full control
   workflow_dispatch:
     inputs:
@@ -21,7 +21,7 @@ on:
         - 'full-validation'  # Complete: Syntax + Build + Unit + UI tests (8-12 minutes)
         - 'with-lint'        # Pre-merge + SwiftLint (5-7 minutes)
         - 'custom'           # Choose individual options
-      
+
       # Custom options
       run_lint:
         description: 'SwiftLint code quality'
@@ -65,7 +65,7 @@ jobs:
         uses: actions/checkout@v4  # ✅ Latest is v4 (not v5)
 
       - name: Cache SwiftLint
-        uses: actions/cache@v4  # ✅ Latest is v4 (not v5)
+        uses: actions/cache@v4
         with:
           path: /opt/homebrew/bin/swiftlint
           key: ${{ runner.os }}-swiftlint-${{ runner.arch }}
@@ -89,7 +89,7 @@ jobs:
           # Exit with proper code
           exit ${LINT_EXIT_CODE:-0}
       - name: Upload SwiftLint Report
-        uses: actions/upload-artifact@v4  # Updated to v4
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: swiftlint-report
@@ -99,21 +99,22 @@ jobs:
   # ⚡ Job 2: Swift Syntax Check (Super Fast)
   syntax-check:
     name: "⚡ Syntax Check"
-    runs-on: macos-14  # Latest macOS runner
+    runs-on: macos-14
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_syntax_check == 'true')) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app  # Always use latest stable
+      - name: Setup Xcode 16+
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '>=16.0'
 
       - name: Swift Syntax Validation
         run: |
           cd JoyfillSwiftUIExample
           echo "🔍 Validating Swift syntax..."
           
-          # More robust syntax check with better error reporting
           SYNTAX_ERRORS=0
           while IFS= read -r -d '' file; do
             echo "Checking: $file"
@@ -129,25 +130,35 @@ jobs:
           else
             echo "✅ All Swift files have valid syntax!"
           fi
+
   # 🏗️ Job 3: Full Build
   build:
     name: "🏗️ Build"
-    runs-on: macos-14  # Latest macOS runner
+    runs-on: macos-14
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true'))) }}
     needs: [syntax-check]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
+      - name: Setup Xcode 16+
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '>=16.0'
 
+      - name: Xcode & Simulators (diagnostics)
+        run: |
+          xcodebuild -version
+          xcode-select -p
+          xcrun simctl list runtimes
+          xcrun simctl list devices
 
       - name: Install xcpretty
         run: |
           if ! gem list xcpretty -i; then
             gem install xcpretty
           fi
+
       - name: Build for Simulator
         run: |
           set -o pipefail
@@ -157,7 +168,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillExample \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -184,15 +195,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
-
+      - name: Setup Xcode 16+
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '>=16.0'
 
       - name: Install xcpretty
         run: |
           if ! gem list xcpretty -i; then
             gem install xcpretty
           fi
+
       - name: Run Unit Tests
         run: |
           set -o pipefail
@@ -201,7 +214,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillTests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
@@ -229,22 +242,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
-
+      - name: Setup Xcode 16+
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '>=16.0'
 
       - name: Install xcpretty
         run: |
           if ! gem list xcpretty -i; then
             gem install xcpretty
           fi
+
       - name: Boot iOS Simulator
         run: |
-          # Start iOS Simulator
           xcrun simctl boot "iPhone 16 Pro" || true
           sleep 10
-          # Verify simulator is running
           xcrun simctl list devices | grep "iPhone 16 Pro"
+
       - name: Run UI Tests
         run: |
           set -o pipefail
@@ -253,7 +267,7 @@ jobs:
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillUITests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=18.2' \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
