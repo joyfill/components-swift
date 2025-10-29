@@ -12,6 +12,7 @@ import Joyfill
 
 class AppState: ObservableObject {
     @Published var changeResult: String = ""
+    @Published var uploadResult: String = ""
 }
 
 // MARK: - Quick Configuration
@@ -32,19 +33,44 @@ struct JoyfillExampleApp: App {
             DispatchQueue.main.async {
                 appState.changeResult = change
             }
+        } setUploadResult: { change in
+            DispatchQueue.main.async {
+                appState.uploadResult = change
+            }
         }
         _appState = StateObject(wrappedValue: appState)
         
         // Get JSON file name from launch arguments for UI tests
         let jsonFileName = Self.getJSONFileNameFromLaunchArguments()
+        
+        // Get mode from launch arguments (default to .fill)
+        let mode = Self.getModeFromLaunchArguments()
+        
+        // Get isPageDuplicateEnabled from launch arguments
+        let isPageDuplicateEnabled = Self.getPageDuplicateEnabledFromLaunchArguments()
+        
         // Create document editor with error handling
         do {
-            self.documentEditor = DocumentEditor(document: sampleJSONDocument(fileName: jsonFileName), events: eventHandler, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
+            self.documentEditor = DocumentEditor(
+                document: sampleJSONDocument(fileName: jsonFileName),
+                mode: mode,
+                events: eventHandler,
+                isPageDuplicateEnabled: isPageDuplicateEnabled,
+                validateSchema: false,
+                license: licenseKey
+            )
         } catch {
             print("⚠️  Error creating document editor: \(error)")
             // Create a fallback document editor
             let fallbackDoc = sampleJSONDocument(fileName: "Joydocjson")
-            self.documentEditor = DocumentEditor(document: fallbackDoc, events: eventHandler, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
+            self.documentEditor = DocumentEditor(
+                document: fallbackDoc,
+                mode: mode,
+                events: eventHandler,
+                isPageDuplicateEnabled: isPageDuplicateEnabled,
+                validateSchema: false,
+                license: licenseKey
+            )
         }
         
         // Set up crash prevention for UI tests after all properties are initialized
@@ -63,6 +89,9 @@ struct JoyfillExampleApp: App {
                 .navigationViewStyle(StackNavigationViewStyle())
                 Text(appState.changeResult)
                     .accessibilityIdentifier("resultfield")
+                    .frame(height: 10)
+                Text(appState.uploadResult)
+                    .accessibilityIdentifier("resultUploadfield")
                     .frame(height: 10)
             } else if useQuickTestMode {
                 //Quick test mode: directly open template list with default token
@@ -99,6 +128,38 @@ struct JoyfillExampleApp: App {
             return arguments[jsonFileIndex + 1]
         }
         return nil
+    }
+    
+    /// Get mode from launch arguments
+    private static func getModeFromLaunchArguments() -> Mode {
+        let arguments = CommandLine.arguments
+        if let modeIndex = arguments.firstIndex(of: "--mode"),
+           modeIndex + 1 < arguments.count {
+            let modeString = arguments[modeIndex + 1].lowercased()
+            switch modeString {
+            case "readonly":
+                return .readonly
+            case "fill":
+                return .fill
+            default:
+                return .fill
+            }
+        }
+        return .fill
+    }
+    
+    /// Get isPageDuplicateEnabled from launch arguments
+    /// Usage: --page-duplicate-enabled true OR --page-duplicate-enabled false
+    private static func getPageDuplicateEnabledFromLaunchArguments() -> Bool {
+        let arguments = CommandLine.arguments
+        if let duplicateIndex = arguments.firstIndex(of: "--page-duplicate-enabled"),
+           duplicateIndex + 1 < arguments.count {
+            let enabledString = arguments[duplicateIndex + 1].lowercased()
+            let isEnabled = enabledString == "true"
+            return isEnabled
+        }
+        // Default to true for backward compatibility
+        return true
     }
     
     /// Set up crash prevention for UI tests

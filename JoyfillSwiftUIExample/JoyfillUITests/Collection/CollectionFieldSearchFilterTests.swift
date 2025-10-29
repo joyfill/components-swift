@@ -49,7 +49,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     /// Scrolls up through the scrollView loading new items by identifier, then scrolls back down.
     /// Returns the total number of matching images found.
     enum SwipeDir { case up, down }
-
+    
     func waitUntil(_ timeout: TimeInterval = 5, poll: TimeInterval = 0.05, _ condition: () -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while Date() < deadline {
@@ -58,7 +58,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         return false
     }
-
+    
     @discardableResult
     func safeSwipe(_ dir: SwipeDir, app: XCUIApplication, retries: Int = 3) -> Bool {
         var attempts = 0
@@ -66,14 +66,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             // Re-resolve every time to avoid stale handles
             let scrollView = app.scrollViews.firstMatch
             guard scrollView.waitForExistence(timeout: 3) else { attempts += 1; continue }
-
+            
             // If not hittable yet, wait briefly for layout/animations to settle
             _ = waitUntil(1.5) { scrollView.isHittable }
-
+            
             // Prefer coordinate drag to avoid "no longer valid" during interruptions
             let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: dir == .up ? 0.85 : 0.15))
             let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: dir == .up ? 0.15 : 0.85))
-
+            
             do {
                 start.press(forDuration: 0.01, thenDragTo: end)
                 return true
@@ -83,7 +83,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         return false
     }
-
+    
     func rowCountWithScrollLoad(baseIdentifier: String, maxScrolls: Int = 10, app: XCUIApplication) -> Int {
         // Handle system alerts that might interrupt gestures
         addUIInterruptionMonitor(withDescription: "System Alerts") { alert in
@@ -92,14 +92,14 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             return false
         }
         app.activate() // required for interruption monitor to trigger
-
+        
         let predicate = NSPredicate(format: "identifier BEGINSWITH %@", baseIdentifier)
         let images = app.images.matching(predicate)
-
+        
         var previousCount = -1
         var currentCount = images.count
         var attempts = 0
-
+        
         // Scroll up until counts stabilize or we hit maxScrolls
         while attempts < maxScrolls {
             let swiped = safeSwipe(.up, app: app)
@@ -113,7 +113,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             previousCount = currentCount
             attempts += 1
         }
-
+        
         // Reset and scroll back down until stable (optional but mirrors your logic)
         attempts = 0
         while attempts < maxScrolls {
@@ -127,7 +127,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             if !swiped || currentCount == last { break }
             attempts += 1
         }
-
+        
         return currentCount
     }
     
@@ -389,15 +389,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         usleep(500000) // 0.5 second to allow UI to settle
     }
-    
-    func drawSignatureLine() {
-        let canvas = app.otherElements["CanvasIdentifier"]
-        canvas.tap()
-        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
-        let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
-        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
-    }
-    
+
     func selectRow(number: Int) {
         //select the row with number as index
         app.images.matching(identifier: "selectRowItem\(number)")
@@ -2587,7 +2579,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         verifyOnChangePayload(withValue: unicodeText)
     }
-
+    
     
     func testCopyPasteInSecondField() {
         goToCollectionDetailField()
@@ -2731,7 +2723,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let change = onChangeResult().change
         let newRowIndex = change?["targetRowIndex"] as? Double
         XCTAssertEqual(newRowIndex, 3)
-
+        
         let parentPath = change?["parentPath"] as? String
         XCTAssertEqual("2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e", parentPath)
         
@@ -2828,7 +2820,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let change = onChangeResult().change
         let rowID = change?["rowId"] as? String
         XCTAssertEqual(rowID, "6859957846d24f95d8ee02b6")
-
+        
         let parentPath = change?["parentPath"] as? String
         XCTAssertEqual("0.685753949107b403e2e4a949.0.685753be00360cf5d545a89e", parentPath)
         
@@ -2922,6 +2914,560 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         searchField.typeText("0.01")
         app.buttons["Apply"].tap()
         XCTAssertEqual(numberField.count, 1)
+    }
+    
+    func testCheckQuickViewValueUpdate() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons["Quick View"].firstMatch
+        let originalPageButton = pageSheetSelectionButton
+        originalPageButton.tap()
+        goToCollectionDetailField(index: 0)
+        
+        let textField = app.textViews.element(boundBy: 0)
+        XCTAssert(textField.waitForExistence(timeout: 5))
+        textField.tap()
+        textField.press(forDuration: 1.0)
+        let selectAll = app.menuItems["Select All"]
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        textField.typeText("one")
+        
+        app.swipeLeft()
+        
+        let dropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        dropdownField.element(boundBy: 0).tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        let multiselectField = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        multiselectField.element(boundBy: 0).tap()
+        
+        let multiValueOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        multiValueOptions.element(boundBy: 0).tap()
+        multiValueOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        goBack()
+        let button = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        XCTAssertEqual(button.label , "Option 2")
+        
+        let staticText = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").firstMatch
+        XCTAssertEqual(staticText.label , "one")
+        
+        let dropdownText = app.staticTexts["Yes"].firstMatch
+        XCTAssertEqual(dropdownText.label , "Yes")
+        
+        goToCollectionDetailField(index: 1)
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        imageButton.tap()
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        dismissSheet()
+        
+        app.swipeLeft()
+        
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        numberField.tap()
+        numberField.clearText()
+        numberField.typeText("123456");
+        app.swipeLeft()
+        let dateField = app.buttons["October 17, 2025"].firstMatch
+        dateField.tap()
+        app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
+        dismissSheet()
+        goBack()
+        
+        let imageText = app.staticTexts["+1"].firstMatch
+        XCTAssertTrue(imageText.exists)
+        
+        let numberText = app.staticTexts["123456"].firstMatch
+        XCTAssertTrue(numberText.exists)
+        
+        let dateText = app.staticTexts["October 10, 2025"].firstMatch
+        XCTAssertTrue(dateText.exists)
+        
+        app.swipeUp()
+        goToCollectionDetailField(index: 2)
+        app.swipeLeft()
+        
+        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
+        XCTAssert(barcodeField.waitForExistence(timeout: 5))
+        barcodeField.tap()
+        barcodeField.press(forDuration: 1.0)
+        XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
+        selectAll.tap()
+        barcodeField.typeText("code")
+        
+        let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        signatureButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        goBack()
+        
+        let blockText = app.staticTexts["quick"].firstMatch
+        XCTAssertTrue(blockText.exists)
+        
+        let barcodeText = app.staticTexts["code"].firstMatch
+        XCTAssertTrue(barcodeText.exists)
+        
+        let signatureText = app.staticTexts["Signature Column"].firstMatch
+        XCTAssertTrue(signatureText.exists)
+    }
+    
+    func testImageFieldSingleAndMultiUploadEvents() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
+        originalPageButton.tap()
+        
+        goToCollectionDetailField()
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier")
+        imageButton.element(boundBy: 0).tap()
+        
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0))
+        
+        let uploadResults = onUploadOptionalResults()
+        
+        if uploadResults.isEmpty {
+            XCTFail("Upload results are empty. Result field content")
+            return
+        }
+        
+        XCTAssertGreaterThan(uploadResults.count, 0, "Should have at least one upload event")
+        
+        guard let uploadEvent = uploadResults.first else {
+            XCTFail("Should have at least one upload event in array")
+            return
+        }
+        
+        let eventDict = uploadEvent.dictionary
+        
+        // Verify top-level fields
+        XCTAssertEqual(eventDict["target"] as? String, "field.update", "Target should be 'field.update'")
+        XCTAssertEqual(eventDict["multi"] as? Bool, false, "Multi should be false for single image upload")
+        XCTAssertNotNil(eventDict["columnId"], "columnId should be present")
+        XCTAssertEqual(eventDict["columnId"] as? String, "6813008ea26d706f2a5db2d5", "columnId should match")
+        // Verify rowIds array
+        if let rowIds = eventDict["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+            XCTAssertEqual(rowIds.first, "68f8a5f9891f404c3058fdc0", "rowId should match")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldEvent = eventDict["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        // Verify all fieldEvent properties
+        XCTAssertEqual(fieldEvent["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldEvent["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldEvent["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldEvent["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldEvent["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldEvent["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldEvent["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        dismissSheet()
+        
+        imageButton.element(boundBy: 1).tap()
+        
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        
+        let logsMulti = checkImageChangeLogs(multi: true)
+        XCTAssertNotNil(logsMulti?["columnId"], "columnId should be present")
+        
+        if let rowIds = logsMulti?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logsMulti?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        dismissSheet()
+        goBack()
+        
+        goToCollectionDetailField()
+        // verify in bulk update
+        selectAllParentRows()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        let uploadButton = app.buttons["ImageUploadImageIdentifier"];
+        let imageFields = app.buttons.matching(identifier: "EditRowsImageFieldIdentifier")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        imageFields.element(boundBy: 0).tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        uploadButton.tap()
+        uploadButton.tap()
+        dismissSheet()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        let logs = checkImageChangeLogs(multi: false)
+        XCTAssertNotNil(logs?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 2, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        
+        selectAllParentRows()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        imageFields.element(boundBy: 1).tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        uploadButton.tap()
+        uploadButton.tap()
+        dismissSheet()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 2.0))
+        
+        let eventDict2 = checkImageChangeLogs(multi: true)
+         
+        XCTAssertNotNil(eventDict2?["columnId"], "columnId should be present")
+        // Verify rowIds array
+        if let rowIds = eventDict2?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 2, "Should have 1 rowId")
+            XCTAssertEqual(rowIds[0], "68f8a5f9891f404c3058fdc0", "rowId should match")
+            XCTAssertEqual(rowIds[1], "68f8a5fab01784fee64423a5", "rowId should match")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldEvent2 = eventDict2?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        // Verify all fieldEvent properties
+        XCTAssertEqual(fieldEvent2["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldEvent2["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldEvent2["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldEvent2["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldEvent2["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldEvent2["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldEvent2["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+    }
+    
+    func testImageUploadResultDepth2() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
+        originalPageButton.tap()
+        
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        
+        let imageButton = app.buttons.matching(identifier: "TableImageIdentifier")
+        imageButton.element(boundBy: 2).tap()
+        
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        let logs = checkImageChangeLogs(multi: false)
+        XCTAssertNotNil(logs?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        dismissSheet()
+        
+        imageButton.element(boundBy: 3).tap()
+        XCTAssertTrue(uploadMoreButton.waitForExistence(timeout: 5))
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        let logs2 = checkImageChangeLogs(multi: true)
+        XCTAssertNotNil(logs2?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs2?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs2?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+    }
+    
+    func testImageUploadResultDepth2RowForm() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let originalPageButton = pageSheetSelectionButton.element(boundBy: 2)
+        originalPageButton.tap()
+        
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        tapSchemaAddRowButton(number: 0)
+        tapSchemaAddRowButton(number: 0)
+        app.images["selectNestedRowItem1"].firstMatch.tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        let imageButton = app.buttons.matching(identifier: "EditRowsImageFieldIdentifier")
+        XCTAssertTrue(imageButton.element(boundBy: 0).waitForExistence(timeout: 5))
+        imageButton.element(boundBy: 0).tap()
+        
+        let uploadMoreButton = app.buttons.matching(identifier: "ImageUploadImageIdentifier").element(boundBy: 0)
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        let logs = checkImageChangeLogs(multi: false)
+        XCTAssertNotNil(logs?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        dismissSheet()
+        
+        imageButton.element(boundBy: 1).tap()
+        XCTAssertTrue(uploadMoreButton.waitForExistence(timeout: 5))
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        let logs2 = checkImageChangeLogs(multi: true)
+        XCTAssertNotNil(logs2?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs2?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs2?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        dismissSheet()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        dismissSheet()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        
+        app.images["selectNestedRowItem2"].firstMatch.tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        XCTAssertTrue(imageButton.element(boundBy: 0).waitForExistence(timeout: 5))
+        imageButton.element(boundBy: 0).tap()
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        let logs3 = checkImageChangeLogs(multi: false)
+        XCTAssertNotNil(logs3?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs3?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 2, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs3?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+        dismissSheet()
+        
+        imageButton.element(boundBy: 1).tap()
+        XCTAssertTrue(uploadMoreButton.waitForExistence(timeout: 5))
+        uploadMoreButton.tap()
+        uploadMoreButton.tap()
+        
+        let logs4 = checkImageChangeLogs(multi: true)
+        XCTAssertNotNil(logs4?["columnId"], "columnId should be present")
+        
+        if let rowIds = logs4?["rowIds"] as? [String] {
+            XCTAssertEqual(rowIds.count, 2, "Should have 1 rowId")
+        } else {
+            XCTFail("rowIds should be an array of strings")
+        }
+        
+        guard let fieldLog = logs4?["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        XCTAssertEqual(fieldLog["_id"] as? String, "685750eff3216b45ffe73c80", "_id should match")
+        XCTAssertEqual(fieldLog["fieldID"] as? String, "68f8a5de19cffb5ecd2e8070", "fieldID should match")
+        XCTAssertEqual(fieldLog["identifier"] as? String, "doc_685750eff3216b45ffe73c80", "identifier should match")
+        XCTAssertEqual(fieldLog["fieldIdentifier"] as? String, "field_68f8a5de7d9ea2acad2e5f62", "fieldIdentifier should match")
+        XCTAssertEqual(fieldLog["fieldPositionId"] as? String, "68f8a5ded153be1e48a5f546", "fieldPositionId should match")
+        XCTAssertEqual(fieldLog["pageID"] as? String, "68f8a5d17f82d5a7f6f36b3f", "pageID should match")
+        XCTAssertEqual(fieldLog["fileID"] as? String, "685750ef698da1ab427761ba", "fileID should match")
+    }
+    
+    func checkImageChangeLogs(multi: Bool = false) -> [String: Any]? {
+        let uploadResults = onUploadOptionalResults()
+        
+        if uploadResults.isEmpty {
+            XCTFail("Upload results are empty. Expected at least one event.")
+            return nil
+        }
+        
+        XCTAssertGreaterThan(uploadResults.count, 0, "Should have at least one upload event")
+        
+        // Use first event for verification
+        guard let uploadEvent = uploadResults.first else {
+            XCTFail("Upload event array unexpectedly empty after count check.")
+            return nil
+        }
+        
+        let eventDict = uploadEvent.dictionary
+        
+        // ✅ Verify top-level fields
+        XCTAssertEqual(
+            eventDict["target"] as? String,
+            "field.update",
+            "Target should be 'field.update'"
+        )
+        
+        XCTAssertEqual(
+            eventDict["multi"] as? Bool,
+            multi,
+            "Multi flag mismatch: expected \(multi)"
+        )
+        return eventDict
+    }
+    
+    func drawSignatureLine() {
+        let canvas = app.otherElements["CanvasIdentifier"]
+        XCTAssertTrue(canvas.waitForExistence(timeout: 5))
+        canvas.tap()
+        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+        let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
+        startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
+    }
+    
+    private func formattedAccessibilityLabel(for isoDate: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.locale = Locale(identifier: "en_US")
+        inputFormatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let date = inputFormatter.date(from: isoDate) else {
+            XCTFail("Invalid date string: \(isoDate)")
+            return ""
+        }
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.locale = Locale(identifier: "en_US")
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            // iPad: with comma
+            if #available(iOS 19.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
+        } else {
+            // iPhone: no comma
+            if #available(iOS 26.0, *) {
+                outputFormatter.dateFormat = "EEEE, d MMMM"
+            } else {
+                outputFormatter.dateFormat = "EEEE d MMMM"
+            }
+        }
+        return outputFormatter.string(from: date)
     }
 }
 

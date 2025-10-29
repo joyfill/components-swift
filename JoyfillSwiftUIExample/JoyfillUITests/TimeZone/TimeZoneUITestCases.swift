@@ -1118,9 +1118,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
         
         // Use the correct button selector for table date fields
-        let tableTimezoneFields = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'October'"))
-        
-        let timezoneField = tableTimezoneFields.element(boundBy: 0)
+        let timezoneField = app.buttons["\(dateField.label)"].firstMatch
         XCTAssertTrue(timezoneField.waitForExistence(timeout: 5), "Table timezone field at index \(String(describing: index)) should exist")
         timezoneField.tap()
         

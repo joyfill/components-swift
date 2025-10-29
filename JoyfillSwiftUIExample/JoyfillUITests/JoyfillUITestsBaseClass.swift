@@ -555,4 +555,41 @@ extension JoyfillUITestsBaseClass {
         }
         return []
     }
+    
+    func onUploadOptionalResults() -> [Change] {
+        let resultField = app.staticTexts["resultUploadfield"]
+
+        // Check if result field exists
+        guard resultField.exists else {
+            print("Result field not found")
+            return []
+        }
+
+        let jsonString = resultField.label
+        print("resultField.label: \(resultField.label)")
+
+        // Check if the JSON string is valid
+        guard !jsonString.isEmpty && jsonString != "[]" else {
+            print("Empty or invalid JSON string")
+            return []
+        }
+
+        if let jsonData = jsonString.data(using: .utf8) {
+            do {
+                // Try to parse as array first (multiple events)
+                if let dicts = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [[String: Any]] {
+                    return dicts.map(Change.init)
+                }
+                // If not an array, try as single object (single event)
+                else if let dict = try JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any] {
+                    return [Change(dictionary: dict)]
+                }
+            } catch {
+                print("Failed to decode JSON string to model: \(error)")
+            }
+        } else {
+            print("Failed to convert string to data")
+        }
+        return []
+    }
 }

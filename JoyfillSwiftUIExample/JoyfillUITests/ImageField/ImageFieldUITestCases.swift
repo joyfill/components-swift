@@ -32,6 +32,40 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         clickOnFirstImage()
         deleteSelectedImages()
         emptyImageAssert()
+        
+        let uploadResults = onUploadOptionalResults()
+         
+        if uploadResults.isEmpty {
+            XCTFail("Upload results are empty. Result field content")
+            return
+        }
+        
+        XCTAssertGreaterThan(uploadResults.count, 0, "Should have at least one upload event")
+        
+        guard let uploadEvent = uploadResults.first else {
+            XCTFail("Should have at least one upload event in array")
+            return
+        }
+        
+        let eventDict = uploadEvent.dictionary
+        
+        // Verify top-level fields
+        XCTAssertEqual(eventDict["target"] as? String, "field.update", "Target should be 'field.update'")
+        XCTAssertEqual(eventDict["multi"] as? Bool, false, "Multi should be false for single image upload")
+        
+        guard let fieldEvent = eventDict["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        // Verify all fieldEvent properties
+        XCTAssertEqual(fieldEvent["_id"] as? String, "66a14cedd6e1ebcdf176a8da", "_id should match")
+        XCTAssertEqual(fieldEvent["fieldID"] as? String, "686e205f779bc2a989ef0401", "fieldID should match")
+        XCTAssertEqual(fieldEvent["identifier"] as? String, "template_6849dbb509ede5510725c910", "identifier should match")
+        XCTAssertEqual(fieldEvent["fieldIdentifier"] as? String, "field_686e29c75d5345859568b24c", "fieldIdentifier should match")
+        XCTAssertEqual(fieldEvent["fieldPositionId"] as? String, "686e29c7dcb0658c92bb7d42", "fieldPositionId should match")
+        XCTAssertEqual(fieldEvent["pageID"] as? String, "66a14ced15a9dc96374e091e", "pageID should match")
+        XCTAssertEqual(fieldEvent["fileID"] as? String, "66a14ced9dc829a95e272506", "fileID should match")
     }
     
     func testSingleImageOverwrite() {
@@ -68,6 +102,40 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         clickOnFourthImage()
         deleteSelectedImages()
         emptyImageAssert()
+        
+        let uploadResults = onUploadOptionalResults()
+         
+        if uploadResults.isEmpty {
+            XCTFail("Upload results are empty. Result field content")
+            return
+        }
+        
+        XCTAssertGreaterThan(uploadResults.count, 0, "Should have at least one upload event")
+        
+        guard let uploadEvent = uploadResults.first else {
+            XCTFail("Should have at least one upload event in array")
+            return
+        }
+        
+        let eventDict = uploadEvent.dictionary
+        
+        // Verify top-level fields
+        XCTAssertEqual(eventDict["target"] as? String, "field.update", "Target should be 'field.update'")
+        XCTAssertEqual(eventDict["multi"] as? Bool, true, "Multi should be false for single image upload")
+        
+        guard let fieldEvent = eventDict["fieldEvent"] as? [String: Any] else {
+            XCTFail("fieldEvent should be present and should be a dictionary")
+            return
+        }
+        
+        // Verify all fieldEvent properties
+        XCTAssertEqual(fieldEvent["_id"] as? String, "66a14cedd6e1ebcdf176a8da", "_id should match")
+        XCTAssertEqual(fieldEvent["fieldID"] as? String, "686e2af7a567c8c84ac46984", "fieldID should match")
+        XCTAssertEqual(fieldEvent["identifier"] as? String, "template_6849dbb509ede5510725c910", "identifier should match")
+        XCTAssertEqual(fieldEvent["fieldIdentifier"] as? String, "field_686e2af9af14616ca67c3de9", "fieldIdentifier should match")
+        XCTAssertEqual(fieldEvent["fieldPositionId"] as? String, "686e2af9ec5c52c3b1dc7b90", "fieldPositionId should match")
+        XCTAssertEqual(fieldEvent["pageID"] as? String, "66a14ced15a9dc96374e091e", "pageID should match")
+        XCTAssertEqual(fieldEvent["fileID"] as? String, "66a14ced9dc829a95e272506", "fileID should match")
     }
   
     func testSingleImageOverwriteForNil() {

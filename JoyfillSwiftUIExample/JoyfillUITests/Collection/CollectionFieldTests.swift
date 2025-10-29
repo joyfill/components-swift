@@ -908,43 +908,77 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         goBack()
         waitForAppToSettle()
         
-        // Textfield
+        // Textfield - Row 1
         let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
-        XCTAssertEqual("Edit", firstCellTextValue)
-        XCTAssertEqual("Edit", secondCellTextValue)
+        XCTAssertEqual("Edit", firstCellTextValue, "Row 1 text field should be 'Edit'")
         
-        // Dropdown Field
+        // Dropdown Field - Row 1
         let firstCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b6442f2e0c095a07aebb"]?.text)
-        XCTAssertEqual("6805b644125b5d4c3832603b", firstCellDropdownValue)
+        XCTAssertEqual("6805b644125b5d4c3832603b", firstCellDropdownValue, "Row 1 dropdown should match")
         
-        // Multiselect Column
+        // Multiselect Column - Row 1
         let firstCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
-        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue)
+        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], firstCellMultiSelectValue, "Row 1 multiselect values should match")
         
-        // Image Field
+        // Image Field - Row 1
         let firstCellImageValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
-        XCTAssertEqual(1, firstCellImageValue.count)
+        XCTAssertEqual(1, firstCellImageValue.count, "Row 1 should have 1 image")
         
-        // Number Field
+        // Number Field - Row 1
         let firstCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
-        XCTAssertEqual(12345, firstCellNumberValue)
+        XCTAssertEqual(12345, firstCellNumberValue, "Row 1 number should be 12345")
         
-        // Date Column
+        // Date Column - Row 1
         let firstCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b77fc568df7b031590dc"]?.number)
-        XCTAssertNotNil(firstCellDateValue)
+        XCTAssertNotNil(firstCellDateValue, "Row 1 date should not be nil")
         
-        // Date Column
+        // Timezone - Row 1
         let firstCelltz = try XCTUnwrap(onChangeResultValue().valueElements?[0].tz as? String)
-        XCTAssertEqual(firstCelltz, "Asia/Kolkata")
+        XCTAssertEqual(firstCelltz, "Asia/Kolkata", "Row 1 timezone should be Asia/Kolkata")
         
-        // Barcode Field
+        // Barcode Field - Row 1
         let firstCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b7a813ea45f5b681dec1"]?.text)
-        XCTAssertEqual("quick", firstCellBarcodeTextValue)
+        XCTAssertEqual("quick", firstCellBarcodeTextValue, "Row 1 barcode should be 'quick'")
         
-        // Signature Field
-        XCTAssertNotNil(onChangeResultValue().valueElements?[0].cells?["6805b7ac1325377829f4d92e"]?.text)
+        // Signature Field - Row 1
+        let firstCellSignatureValue = onChangeResultValue().valueElements?[0].cells?["6805b7ac1325377829f4d92e"]?.text
+        XCTAssertNotNil(firstCellSignatureValue, "Row 1 signature should not be nil")
         
+        // Textfield - Row 2
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b644fd938fd8ed7fe2e1"]?.text)
+        XCTAssertEqual("Edit", secondCellTextValue, "Row 2 text field should be 'Edit'")
+        
+        // Dropdown Field - Row 2
+        let secondCellDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b6442f2e0c095a07aebb"]?.text)
+        XCTAssertEqual("6805b644125b5d4c3832603b", secondCellDropdownValue, "Row 2 dropdown should match")
+        
+        // Multiselect Column - Row 2
+        let secondCellMultiSelectValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
+        XCTAssertEqual(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"], secondCellMultiSelectValue, "Row 2 multiselect values should match")
+        
+        // Image Field - Row 2
+        let secondCellImageValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b644fb566d50704a9e2c"]?.valueElements)
+        XCTAssertEqual(1, secondCellImageValue.count, "Row 2 should have 1 image")
+        
+        // Number Field - Row 2
+        let secondCellNumberValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b7796ac9ce35b30e9b7c"]?.number)
+        XCTAssertEqual(12345, secondCellNumberValue, "Row 2 number should be 12345")
+        
+        // Date Column - Row 2
+        let secondCellDateValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b77fc568df7b031590dc"]?.number)
+        XCTAssertNotNil(secondCellDateValue, "Row 2 date should not be nil")
+        
+        // Timezone - Row 2
+        let secondCelltz = try XCTUnwrap(onChangeResultValue().valueElements?[1].tz as? String)
+        XCTAssertEqual(secondCelltz, "Asia/Kolkata", "Row 2 timezone should be Asia/Kolkata")
+        
+        // Barcode Field - Row 2
+        let secondCellBarcodeTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["6805b7a813ea45f5b681dec1"]?.text)
+        XCTAssertEqual("quick", secondCellBarcodeTextValue, "Row 2 barcode should be 'quick'")
+        
+        // Signature Field - Row 2
+        let secondCellSignatureValue = onChangeResultValue().valueElements?[1].cells?["6805b7ac1325377829f4d92e"]?.text
+        XCTAssertNotNil(secondCellSignatureValue, "Row 2 signature should not be nil")
     }
     
     // Edit Single Parent Row

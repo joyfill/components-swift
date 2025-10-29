@@ -2138,7 +2138,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToTableDetailPage(index: 1)
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
-    
+
     func testAddAndDeleteRowAndSwitchPages() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
@@ -2188,6 +2188,94 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(6, barcodeFieldIdentifier.count)
     }
     
+    
+    func testAddAndDeleteRowAndSwitchPagesThenAddRow() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToTableDetailPage()
+        goToTableDetailPage()
+        let addRowButton = app.buttons["TableAddRowIdentifier"].firstMatch
+        addRowButton.tap()
+         
+        let barcodeFieldIdentifier = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        XCTAssertEqual(14, barcodeFieldIdentifier.count)
+        
+        let selectAllButton = app.images.matching(identifier: "SelectAllRowSelectorButton").firstMatch
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        let deleteButton = app.buttons["TableDeleteRowIdentifier"].firstMatch
+        
+        selectAllButton.tap()
+        moreButton.tap()
+        deleteButton.tap()
+        
+        XCTAssertEqual(0, barcodeFieldIdentifier.count)
+        addRowButton.tap()
+        addRowButton.tap()
+        goBack()
+        goBack()
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 1).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 1)
+        tapOnSecondPage.tap()
+        goToTableDetailPage()
+        selectAllButton.tap()
+        moreButton.tap()
+        deleteButton.tap()
+        addRowButton.tap()
+        addRowButton.tap()
+        goBack()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        goToTableDetailPage(index: 1)
+        XCTAssertEqual(2, barcodeFieldIdentifier.count)
+    }
+    
+    func testSwitchPageDeleteAddRowThenSwitchPage() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        goToTableDetailPage()
+        goToTableDetailPage()
+        let addRowButton = app.buttons["TableAddRowIdentifier"].firstMatch
+        addRowButton.tap()
+         
+        let barcodeFieldIdentifier = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        XCTAssertEqual(14, barcodeFieldIdentifier.count)
+        goBack()
+        goBack()
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        pageSelectionButton.element(boundBy: 1).tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 2)
+        tapOnSecondPage.tap()
+        
+        goToTableDetailPage()
+        
+        let selectAllButton = app.images.matching(identifier: "SelectAllRowSelectorButton").firstMatch
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        let deleteButton = app.buttons["TableDeleteRowIdentifier"].firstMatch
+        XCTAssertTrue(selectAllButton.waitForExistence(timeout: 3))
+        selectAllButton.tap()
+        moreButton.tap()
+        deleteButton.tap()
+        
+        XCTAssertEqual(0, barcodeFieldIdentifier.count)
+        addRowButton.tap()
+        addRowButton.tap()
+        goBack()
+        
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 0).tap()
+        goToTableDetailPage(index: 1)
+        XCTAssertEqual(2, barcodeFieldIdentifier.count)
+    }
+
     func testCheckAllFields() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
