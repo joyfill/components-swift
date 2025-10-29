@@ -72,10 +72,6 @@ struct Lexer {
             } else if char == ":" {
                 tokens.append(Token(type: .colon, lexeme: String(char)))
                 advance()
-            } else if char == "." {
-                // Always treat dots as property access for table row syntax like products.0.name
-                tokens.append(Token(type: .dot, lexeme: String(char)))
-                advance()
             } else if char == "\"" { // String literal start (double quotes)
                 advance() // Consume '"'
                 let start = currentIndex
@@ -123,7 +119,8 @@ struct Lexer {
                 } else {
                      tokens.append(Token(type: .identifier, lexeme: lexeme))
                 }
-            } else if char.isNumber || (char == "-" && peek()?.isNumber ?? false) { // Number
+            } else if char.isNumber || (char == "-" && peek()?.isNumber ?? false) {
+                // Note: We handle (char == "." && peek()?.isNumber) specially in the dot section to avoid conflicts with property access
                  let start = currentIndex
                  advance()
                  var hasDecimalPoint = false
@@ -132,8 +129,8 @@ struct Lexer {
                      advance()
                  }
                  
-                 // Check for decimal point only if followed by more numbers
-                 if currentIndex < input.endIndex && input[currentIndex] == "." {
+                 // Check for decimal point only if we haven't already seen one and it's followed by more numbers
+                 if !hasDecimalPoint && currentIndex < input.endIndex && input[currentIndex] == "." {
                      let nextIndex = input.index(after: currentIndex)
                      if nextIndex < input.endIndex && input[nextIndex].isNumber {
                          // This is a valid decimal number like 3.14
@@ -152,6 +149,40 @@ struct Lexer {
                  } else {
                     return .failure(.syntaxError("Invalid number format: \(lexeme)"))
                  }
+            } else if char == "." {
+                // Check if this could be a decimal number starting with dot (like .95)
+                // Only treat it as a decimal if we're NOT after something that can have property access
+                if let nextChar = peek(), nextChar.isNumber {
+                    // Check if the last token can be followed by property access
+                    let lastToken = tokens.last
+                    let canHavePropertyAccess = (lastToken != nil) && (
+                                                 lastToken?.type == .identifier || 
+                                                 lastToken?.type == .numberLiteral ||
+                                                 lastToken?.type == .rightParen ||
+                                                 lastToken?.type == .rightBracket)
+                    
+                    if !canHavePropertyAccess {
+                        // This is a decimal number like .95, parse it as a number
+                        let start = currentIndex
+                        advance() // consume the dot
+                        
+                        while currentIndex < input.endIndex && input[currentIndex].isNumber {
+                            advance()
+                        }
+                        
+                        let lexeme = String(input[start..<currentIndex])
+                        if Double(lexeme) != nil {
+                            tokens.append(Token(type: .numberLiteral, lexeme: lexeme))
+                        } else {
+                            return .failure(.syntaxError("Invalid number format: \(lexeme)"))
+                        }
+                        continue // Skip the rest and continue tokenizing
+                    }
+                }
+                
+                // Otherwise treat dots as property access for table row syntax like products.0.name
+                tokens.append(Token(type: .dot, lexeme: String(char)))
+                advance()
             } else if isOperatorStart(char) {
                 let firstChar = char
                 var finalLexeme: String? = nil

@@ -129,6 +129,306 @@
               "y": 80,
               "width": 4,
               "height": 8
+            },
+            {
+              "_id": "fp_number12",
+              "type": "number",
+              "field": "number12",
+              "displayType": "original",
+              "x": 1,
+              "y": 88,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number13",
+              "type": "number",
+              "field": "number13",
+              "displayType": "original",
+              "x": 1,
+              "y": 96,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number14",
+              "type": "number",
+              "field": "number14",
+              "displayType": "original",
+              "x": 1,
+              "y": 104,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number15",
+              "type": "number",
+              "field": "number15",
+              "displayType": "original",
+              "x": 1,
+              "y": 112,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number16",
+              "type": "number",
+              "field": "number16",
+              "displayType": "original",
+              "x": 1,
+              "y": 120,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number17",
+              "type": "number",
+              "field": "number17",
+              "displayType": "original",
+              "x": 1,
+              "y": 128,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number18",
+              "type": "number",
+              "field": "number18",
+              "displayType": "original",
+              "x": 1,
+              "y": 136,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number19",
+              "type": "number",
+              "field": "number19",
+              "displayType": "original",
+              "x": 1,
+              "y": 144,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number20",
+              "type": "number",
+              "field": "number20",
+              "displayType": "original",
+              "x": 1,
+              "y": 152,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number21",
+              "type": "number",
+              "field": "number21",
+              "displayType": "original",
+              "x": 1,
+              "y": 160,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number22",
+              "type": "number",
+              "field": "number22",
+              "displayType": "original",
+              "x": 1,
+              "y": 168,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number23",
+              "type": "number",
+              "field": "number23",
+              "displayType": "original",
+              "x": 1,
+              "y": 176,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number24",
+              "type": "number",
+              "field": "number24",
+              "displayType": "original",
+              "x": 1,
+              "y": 184,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number25",
+              "type": "number",
+              "field": "number25",
+              "displayType": "original",
+              "x": 1,
+              "y": 192,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number26",
+              "type": "number",
+              "field": "number26",
+              "displayType": "original",
+              "x": 1,
+              "y": 200,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number27",
+              "type": "number",
+              "field": "number27",
+              "displayType": "original",
+              "x": 1,
+              "y": 208,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number28",
+              "type": "number",
+              "field": "number28",
+              "displayType": "original",
+              "x": 1,
+              "y": 216,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number29",
+              "type": "number",
+              "field": "number29",
+              "displayType": "original",
+              "x": 1,
+              "y": 224,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number30",
+              "type": "number",
+              "field": "number30",
+              "displayType": "original",
+              "x": 1,
+              "y": 232,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number31",
+              "type": "number",
+              "field": "number31",
+              "displayType": "original",
+              "x": 1,
+              "y": 240,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number32",
+              "type": "number",
+              "field": "number32",
+              "displayType": "original",
+              "x": 1,
+              "y": 248,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number33",
+              "type": "number",
+              "field": "number33",
+              "displayType": "original",
+              "x": 1,
+              "y": 256,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number34",
+              "type": "number",
+              "field": "number34",
+              "displayType": "original",
+              "x": 1,
+              "y": 264,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number35",
+              "type": "number",
+              "field": "number35",
+              "displayType": "original",
+              "x": 1,
+              "y": 272,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number36",
+              "type": "number",
+              "field": "number36",
+              "displayType": "original",
+              "x": 1,
+              "y": 280,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number37",
+              "type": "number",
+              "field": "number37",
+              "displayType": "original",
+              "x": 1,
+              "y": 288,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number38",
+              "type": "number",
+              "field": "number38",
+              "displayType": "original",
+              "x": 1,
+              "y": 296,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number39",
+              "type": "number",
+              "field": "number39",
+              "displayType": "original",
+              "x": 1,
+              "y": 304,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number40",
+              "type": "number",
+              "field": "number40",
+              "displayType": "original",
+              "x": 1,
+              "y": 312,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "fp_number41",
+              "type": "number",
+              "field": "number41",
+              "displayType": "original",
+              "x": 1,
+              "y": 320,
+              "width": 4,
+              "height": 8
             }
           ],
           "layout": "grid",
@@ -290,6 +590,426 @@
           "key": "value"
         }
       ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number12",
+      "type": "number",
+      "title": "Addition with .25",
+      "identifier": "field_number12",
+      "formulas": [
+        {
+          "_id": "AF_addDotTwoFive",
+          "formula": "addDotTwoFive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number13",
+      "type": "number",
+      "title": "Multiplication with .5",
+      "identifier": "field_number13",
+      "formulas": [
+        {
+          "_id": "AF_multiplyDotFive",
+          "formula": "multiplyDotFive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number14",
+      "type": "number",
+      "title": "Division with .2",
+      "identifier": "field_number14",
+      "formulas": [
+        {
+          "_id": "AF_divideDotTwo",
+          "formula": "divideDotTwo",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number15",
+      "type": "number",
+      "title": "Max with dot decimal",
+      "identifier": "field_number15",
+      "formulas": [
+        {
+          "_id": "AF_maxDotDecimal",
+          "formula": "maxDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number16",
+      "type": "number",
+      "title": "Min with dot decimal",
+      "identifier": "field_number16",
+      "formulas": [
+        {
+          "_id": "AF_minDotDecimal",
+          "formula": "minDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number17",
+      "type": "number",
+      "title": "Negative decimal starting with dot",
+      "identifier": "field_number17",
+      "formulas": [
+        {
+          "_id": "AF_negDotDecimal",
+          "formula": "negDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number18",
+      "type": "number",
+      "title": "Very small decimal .01",
+      "identifier": "field_number18",
+      "formulas": [
+        {
+          "_id": "AF_dotZeroOne",
+          "formula": "dotZeroOne",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number19",
+      "type": "number",
+      "title": "Very small decimal .001",
+      "identifier": "field_number19",
+      "formulas": [
+        {
+          "_id": "AF_dotZeroZeroOne",
+          "formula": "dotZeroZeroOne",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number20",
+      "type": "number",
+      "title": "Power with dot decimal",
+      "identifier": "field_number20",
+      "formulas": [
+        {
+          "_id": "AF_powDotDecimal",
+          "formula": "powDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number21",
+      "type": "number",
+      "title": "Round with dot decimal",
+      "identifier": "field_number21",
+      "formulas": [
+        {
+          "_id": "AF_roundDotDecimal",
+          "formula": "roundDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number22",
+      "type": "number",
+      "title": "Abs with negative dot decimal",
+      "identifier": "field_number22",
+      "formulas": [
+        {
+          "_id": "AF_absDotDecimal",
+          "formula": "absDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number23",
+      "type": "number",
+      "title": "Max with multiple dot decimals",
+      "identifier": "field_number23",
+      "formulas": [
+        {
+          "_id": "AF_maxMultipleDots",
+          "formula": "maxMultipleDots",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number24",
+      "type": "number",
+      "title": "Min with multiple dot decimals",
+      "identifier": "field_number24",
+      "formulas": [
+        {
+          "_id": "AF_minMultipleDots",
+          "formula": "minMultipleDots",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number25",
+      "type": "number",
+      "title": "Chained operations with dot decimals",
+      "identifier": "field_number25",
+      "formulas": [
+        {
+          "_id": "AF_chainedDotOps",
+          "formula": "chainedDotOps",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number26",
+      "type": "number",
+      "title": "Division by dot decimal small result",
+      "identifier": "field_number26",
+      "formulas": [
+        {
+          "_id": "AF_divDotSmall",
+          "formula": "divDotSmall",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number27",
+      "type": "number",
+      "title": "Mod with dot decimal",
+      "identifier": "field_number27",
+      "formulas": [
+        {
+          "_id": "AF_modDotDecimal",
+          "formula": "modDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number28",
+      "type": "number",
+      "title": "Sqrt of dot decimal",
+      "identifier": "field_number28",
+      "formulas": [
+        {
+          "_id": "AF_sqrtDotDecimal",
+          "formula": "sqrtDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number29",
+      "type": "number",
+      "title": "Ceil with dot decimal",
+      "identifier": "field_number29",
+      "formulas": [
+        {
+          "_id": "AF_ceilDotDecimal",
+          "formula": "ceilDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number30",
+      "type": "number",
+      "title": "Floor with dot decimal",
+      "identifier": "field_number30",
+      "formulas": [
+        {
+          "_id": "AF_floorDotDecimal",
+          "formula": "floorDotDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number31",
+      "type": "number",
+      "title": "Complex expression with dot decimals",
+      "identifier": "field_number31",
+      "formulas": [
+        {
+          "_id": "AF_complexDotExpr",
+          "formula": "complexDotExpr",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number32",
+      "type": "number",
+      "title": "Zero point nine",
+      "identifier": "field_number32",
+      "formulas": [
+        {
+          "_id": "AF_dotNine",
+          "formula": "dotNine",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number33",
+      "type": "number",
+      "title": "Zero point zero five",
+      "identifier": "field_number33",
+      "formulas": [
+        {
+          "_id": "AF_dotZeroFive",
+          "formula": "dotZeroFive",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number34",
+      "type": "number",
+      "title": "Max with zero and dot decimal",
+      "identifier": "field_number34",
+      "formulas": [
+        {
+          "_id": "AF_maxZeroDot",
+          "formula": "maxZeroDot",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number35",
+      "type": "number",
+      "title": "Min with zero and dot decimal",
+      "identifier": "field_number35",
+      "formulas": [
+        {
+          "_id": "AF_minZeroDot",
+          "formula": "minZeroDot",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number36",
+      "type": "number",
+      "title": "Precision with tiny decimals",
+      "identifier": "field_number36",
+      "formulas": [
+        {
+          "_id": "AF_tinyDecimal",
+          "formula": "tinyDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number37",
+      "type": "number",
+      "title": "Repeating decimal approximation",
+      "identifier": "field_number37",
+      "formulas": [
+        {
+          "_id": "AF_repeatingDecimal",
+          "formula": "repeatingDecimal",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number38",
+      "type": "number",
+      "title": "Addition of many dot decimals",
+      "identifier": "field_number38",
+      "formulas": [
+        {
+          "_id": "AF_manyDotAddition",
+          "formula": "manyDotAddition",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number39",
+      "type": "number",
+      "title": "Subtraction with dot decimals",
+      "identifier": "field_number39",
+      "formulas": [
+        {
+          "_id": "AF_dotSubtraction",
+          "formula": "dotSubtraction",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number40",
+      "type": "number",
+      "title": "Comparison with dot decimals",
+      "identifier": "field_number40",
+      "formulas": [
+        {
+          "_id": "AF_dotComparison",
+          "formula": "dotComparison",
+          "key": "value"
+        }
+      ]
+    },
+    {
+      "file": "6850502ad5b54e6d8570fbbf",
+      "_id": "number41",
+      "type": "number",
+      "title": "Percentage calculation with dot decimal",
+      "identifier": "field_number41",
+      "formulas": [
+        {
+          "_id": "AF_dotPercentage",
+          "formula": "dotPercentage",
+          "key": "value"
+        }
+      ]
     }
   ],
   "type": "document",
@@ -363,6 +1083,216 @@
       "type": "calc",
       "scope": "private",
       "expression": "max([number1, 25])"
+    },
+    {
+      "_id": "addDotTwoFive",
+      "desc": "Addition with .25",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 + .25"
+    },
+    {
+      "_id": "multiplyDotFive",
+      "desc": "Multiplication with .5",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * .5"
+    },
+    {
+      "_id": "divideDotTwo",
+      "desc": "Division with .2",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 / .2"
+    },
+    {
+      "_id": "maxDotDecimal",
+      "desc": "Max with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "max([number1, .25])"
+    },
+    {
+      "_id": "minDotDecimal",
+      "desc": "Min with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "min([number1, .75])"
+    },
+    {
+      "_id": "negDotDecimal",
+      "desc": "Negative decimal starting with dot",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 + (-0.5)"
+    },
+    {
+      "_id": "dotZeroOne",
+      "desc": "Very small decimal .01",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * .01"
+    },
+    {
+      "_id": "dotZeroZeroOne",
+      "desc": "Very small decimal .001",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * .001"
+    },
+    {
+      "_id": "powDotDecimal",
+      "desc": "Power with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "pow(number1, .5)"
+    },
+    {
+      "_id": "roundDotDecimal",
+      "desc": "Round with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "round(number1 * .123, 2)"
+    },
+    {
+      "_id": "absDotDecimal",
+      "desc": "Abs with negative dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "abs(-0.99)"
+    },
+    {
+      "_id": "maxMultipleDots",
+      "desc": "Max with multiple dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": "max([.25, .5, .75, .1])"
+    },
+    {
+      "_id": "minMultipleDots",
+      "desc": "Min with multiple dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": "min([.25, .5, .75, .1])"
+    },
+    {
+      "_id": "chainedDotOps",
+      "desc": "Chained operations with dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(number1 * .5) + .25"
+    },
+    {
+      "_id": "divDotSmall",
+      "desc": "Division by dot decimal small result",
+      "type": "calc",
+      "scope": "private",
+      "expression": ".5 / number1"
+    },
+    {
+      "_id": "modDotDecimal",
+      "desc": "Mod with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "mod(number1, .3)"
+    },
+    {
+      "_id": "sqrtDotDecimal",
+      "desc": "Sqrt of dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "sqrt(.25)"
+    },
+    {
+      "_id": "ceilDotDecimal",
+      "desc": "Ceil with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "ceil(number1 * .123)"
+    },
+    {
+      "_id": "floorDotDecimal",
+      "desc": "Floor with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "floor(number1 * .123)"
+    },
+    {
+      "_id": "complexDotExpr",
+      "desc": "Complex expression with dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": "(number1 * .5) + (.25 * 4) - .1"
+    },
+    {
+      "_id": "dotNine",
+      "desc": "Zero point nine",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * .9"
+    },
+    {
+      "_id": "dotZeroFive",
+      "desc": "Zero point zero five",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * .05"
+    },
+    {
+      "_id": "maxZeroDot",
+      "desc": "Max with zero and dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "max([0, .5])"
+    },
+    {
+      "_id": "minZeroDot",
+      "desc": "Min with zero and dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "min([0, .5])"
+    },
+    {
+      "_id": "tinyDecimal",
+      "desc": "Precision with tiny decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": ".0001 * 10000"
+    },
+    {
+      "_id": "repeatingDecimal",
+      "desc": "Repeating decimal approximation",
+      "type": "calc",
+      "scope": "private",
+      "expression": "1 / 3"
+    },
+    {
+      "_id": "manyDotAddition",
+      "desc": "Addition of many dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": ".1 + .2 + .3 + .4"
+    },
+    {
+      "_id": "dotSubtraction",
+      "desc": "Subtraction with dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 - .99"
+    },
+    {
+      "_id": "dotComparison",
+      "desc": "Comparison with dot decimals",
+      "type": "calc",
+      "scope": "private",
+      "expression": "if(.5 > .25, 1, 0)"
+    },
+    {
+      "_id": "dotPercentage",
+      "desc": "Percentage calculation with dot decimal",
+      "type": "calc",
+      "scope": "private",
+      "expression": "number1 * .15"
     }
   ]
 }
