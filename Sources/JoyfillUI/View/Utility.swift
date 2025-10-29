@@ -63,13 +63,21 @@ class Utility {
     
     static func getDateType(format: DateFormatType) -> DatePickerComponents {
         switch format {
-        case .dateOnly:
+        // Date Only (all date-only formats)
+        case .dateOnly, .dateOnlyDDMMYYYY, .dateOnlyISO, .dateOnlyYYYYMMDD,
+             .dateOnlyDashUS, .dateOnlyDashEU, .dateOnlyShortYear, .dateOnlyShortYearEU:
             return [.date]
-        case .timeOnly:
+            
+        // Time Only (all time-only formats)
+        case .timeOnly, .timeOnly24Hour, .timeOnlyWithSeconds, .timeOnly24HourWithSeconds:
             return [.hourAndMinute]
-        case .dateTime:
-            return [.date, .hourAndMinute]
-        case .empty:
+            
+        // Date + Time (all combined formats)
+        case .dateTime, .dateTime24, .dateTimeWithSeconds, .dateTime24WithSeconds,
+             .dateTimeDDMMYYYY, .dateTimeDDMMYYYY12Hour, .dateTimeDDMMYYYYWithSeconds, .dateTimeDDMMYYYY12HourWithSeconds,
+             .dateTimeISO, .dateTimeISOWithSeconds, .dateTimeYYYYMMDD,
+             .dateTimeDashUS, .dateTimeDashEU,
+             .empty:
             return [.date, .hourAndMinute]
         }
     }

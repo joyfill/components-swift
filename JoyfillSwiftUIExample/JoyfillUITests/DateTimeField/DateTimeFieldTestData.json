@@ -60,6 +60,54 @@
       "type": "text",
       "title": "enter readonly and hide readonly field ",
       "identifier": "field_687210ac61b669a82c6898d1"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68fa17322bc86806b3fb9cb5",
+      "type": "date",
+      "title": "MM/DD/YYYY",
+      "identifier": "field_68fa173ee39e080c9c64fe83",
+      "value": 1761220380000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68fa17564fe817b1ffafc1ee",
+      "type": "date",
+      "title": "DD/MM/YYYY",
+      "identifier": "field_68fa175a11ca52553839794f",
+      "value": 1761220380000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68fa17680110f3b6c9042df6",
+      "type": "date",
+      "title": "hh:mma",
+      "identifier": "field_68fa176cda64de73cc008898",
+      "value": 1761220380000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68fa1773fe4c6f972d77dcbf",
+      "type": "date",
+      "title": "HH:mm",
+      "identifier": "field_68fa177871904de51afa56bf",
+      "value": 1761220380000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68fa177ee6fa50148ab25fbb",
+      "type": "date",
+      "title": "MM/DD/YYYY hh:mma",
+      "identifier": "field_68fa17833370de9056fa6379",
+      "value": 1761220380000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "68fa17869d87df94d2d469a7",
+      "type": "date",
+      "title": "DD/MM/YYYY HH:mm",
+      "identifier": "field_68fa17894241da0d2fdbfb25",
+      "value": 1761220380000
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -138,6 +186,72 @@
               "displayType": "original",
               "x": 2,
               "y": 32,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68fa173eb24b123d8b2b0a83",
+              "type": "date",
+              "field": "68fa17322bc86806b3fb9cb5",
+              "displayType": "original",
+              "format": "MM/DD/YYYY",
+              "x": 1,
+              "y": 40,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68fa175abb3b19da800811f4",
+              "type": "date",
+              "field": "68fa17564fe817b1ffafc1ee",
+              "displayType": "original",
+              "format": "DD/MM/YYYY",
+              "x": 2,
+              "y": 48,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68fa176c0538a88249d7a014",
+              "type": "date",
+              "field": "68fa17680110f3b6c9042df6",
+              "displayType": "original",
+              "format": "hh:mma",
+              "x": 1,
+              "y": 56,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68fa1778b22429b2b6da7460",
+              "type": "date",
+              "field": "68fa1773fe4c6f972d77dcbf",
+              "displayType": "original",
+              "format": "HH:mm",
+              "x": 3,
+              "y": 64,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68fa1783d4ffce351783cd58",
+              "type": "date",
+              "field": "68fa177ee6fa50148ab25fbb",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 1,
+              "y": 72,
+              "width": 4,
+              "height": 8
+            },
+            {
+              "_id": "68fa1789f734234e20fa605b",
+              "type": "date",
+              "field": "68fa17869d87df94d2d469a7",
+              "displayType": "original",
+              "format": "DD/MM/YYYY HH:mm",
+              "x": 1,
+              "y": 80,
               "width": 4,
               "height": 8
             }

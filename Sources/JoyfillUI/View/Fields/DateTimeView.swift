@@ -7,6 +7,7 @@ struct DateTimeView: View {
     @State private var lastModelValue: ValueUnion?
     @State private var ignoreOnChangeOnModelUpdate = false
     private var dateTimeDataModel: DateTimeDataModel
+    @State var dateString: String = ""
     let eventHandler: FieldChangeEvents
 
     public init(dateTimeDataModel: DateTimeDataModel, eventHandler: FieldChangeEvents) {
@@ -14,9 +15,9 @@ struct DateTimeView: View {
         self.eventHandler = eventHandler
         if let value = dateTimeDataModel.value {
             let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
+            _dateString = State(initialValue: dateString)
             if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                 _selectedDate = State(initialValue: date)
-                _isDatePickerPresented = State(initialValue: true)
             }
         }
     }
@@ -24,16 +25,28 @@ struct DateTimeView: View {
     var body: some View {
         FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil)
         Group {
-            if isDatePickerPresented {
+            if !dateString.isEmpty {
                 HStack(spacing: 8) {
-                    DatePicker("", selection: $selectedDate, displayedComponents: Utility.getDateType(format: dateTimeDataModel.format ?? .empty))
-                        .accessibilityIdentifier("DateIdenitfier")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .labelsHidden()
-                        .environment(\.timeZone, TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier) ?? .current)
-
+                    Button {
+                        isDatePickerPresented = true
+                    } label: {
+                        Text(dateString)
+                            .darkLightThemeColor()
+                            .font(.system(size: 16))
+                    }
+                    .contentShape(Rectangle())
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8, style: .circular)
+                            .fill(Color(uiColor: .secondarySystemFill))
+                    )
+                    .accessibilityIdentifier("ChangeDateIdentifier")
+                    
+                    Spacer()
+                    
                     Button(action: {
-                        isDatePickerPresented = false
+                        self.dateString = ""
                         let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: ValueUnion.null)
                         eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
                         eventHandler.onChange(event: event)
@@ -64,12 +77,19 @@ struct DateTimeView: View {
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
                 .onTapGesture {
-                    isDatePickerPresented = true
                     selectedDate = Date()
                     convertDateAccToTimezone()
                 }
             }
         }
+        .datePopup(
+            date: $selectedDate,
+            components: Utility.getDateType(format: dateTimeDataModel.format ?? .empty),
+            isPresented: $isDatePickerPresented,
+            onCommit: { _ in },
+            timeZone: TimeZone(identifier: dateTimeDataModel.timezoneId ?? TimeZone.current.identifier) ?? .current,
+            format: dateTimeDataModel.format ?? .empty
+        )
         .onChange(of: selectedDate) { newValue in
             guard !ignoreOnChangeOnModelUpdate else {
                 ignoreOnChangeOnModelUpdate = false
@@ -80,6 +100,8 @@ struct DateTimeView: View {
             let event = FieldChangeData(fieldIdentifier: dateTimeDataModel.fieldIdentifier, updateValue: newDateValue)
             eventHandler.onFocus(event: dateTimeDataModel.fieldIdentifier)
             eventHandler.onChange(event: event)
+            
+            self.dateString = newDateValue.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
         }
         .onAppear {
             lastModelValue = dateTimeDataModel.value
@@ -90,10 +112,8 @@ struct DateTimeView: View {
                     let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
                     if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                         selectedDate = date
-                        isDatePickerPresented = true
                     }
                 } else {
-                    isDatePickerPresented = false
                     ignoreOnChangeOnModelUpdate = true
                     selectedDate = Date()
                 }
@@ -107,6 +127,7 @@ struct DateTimeView: View {
         let convertedDate = Utility.convertEpochBetweenTimezones(epochMillis: dateToTimestampMilliseconds(date: selectedDate), from: TimeZone.current, to: timeZone ?? TimeZone.current, format: dateTimeDataModel.format)
         
         if let dateString = ValueUnion.double(convertedDate).dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
+            self.dateString = dateString
             if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                 self.selectedDate = date
             }
