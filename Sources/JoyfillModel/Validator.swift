@@ -64,18 +64,20 @@ struct TableValidity {
 
 public struct FieldValidity {
     public let status: ValidationStatus
+    public let pageId: String?
     public let field: JoyDocField
-    public let children: [FieldValidity]? // For fields with nested structures
-    public let rowValidities: [RowValidity]? // Only available if field is a table
-    public let columnValidities: [ColumnValidity]? // Only available if field is a table
-    public let reasons: [String]? // Available only if status is invalid
+//    public let children: [FieldValidity]? // For fields with nested structures
+//    public let rowValidities: [RowValidity]? // Only available if field is a table
+//    public let columnValidities: [ColumnValidity]? // Only available if field is a table
+//    public let reasons: [String]? // Available only if status is invalid
     
-    public init(field: JoyDocField, status: ValidationStatus, children: [FieldValidity]? = nil, rowValidities: [RowValidity]? = nil, columnValidities: [ColumnValidity]? = nil, reasons: [String]? = nil) {
+    public init(field: JoyDocField, status: ValidationStatus, pageId: String?) {
         self.field = field
         self.status = status
-        self.children = children
-        self.rowValidities = rowValidities
-        self.columnValidities = columnValidities
-        self.reasons = reasons
+//        self.children = children
+//        self.rowValidities = rowValidities
+//        self.columnValidities = columnValidities
+//        self.reasons = reasons
+        self.pageId = pageId
     }
 }
