@@ -65,6 +65,7 @@ struct TableDateView: View {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(Color(uiColor: .secondarySystemFill))
                         )
+                        .accessibilityIdentifier("ChangeCellDateIdentifier")
                         
                         Spacer()
                         
