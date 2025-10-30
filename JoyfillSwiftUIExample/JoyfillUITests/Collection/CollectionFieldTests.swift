@@ -558,7 +558,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
           
         let formatter = DateFormatter()
-        formatter.dateFormat = "hh:mm a"   // Example: 12:58 PM
+        formatter.dateFormat = "hh:mma"   // Example: 12:58 PM
         formatter.amSymbol = "AM"
         formatter.pmSymbol = "PM"
         let dateButton = app.buttons[formatter.string(from: Date())].firstMatch

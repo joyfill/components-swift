@@ -21,7 +21,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     func drawSignatureLine() {
         let canvas = app.otherElements["CanvasIdentifier"]
         canvas.tap()
-        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0))
+        let startPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.2))
         let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
         startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
     }
@@ -832,7 +832,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.clearText()
-        textField.typeText("Edit")
+        textField.typeText("E")
+        textField.typeText("d")
+        textField.typeText("i")
+        textField.typeText("t")
         app.buttons["LowerRowButtonIdentifier"].tap()
         app.buttons["UpperRowButtonIdentifier"].tap()
         app.buttons["PlusTheRowButtonIdentifier"].tap()
@@ -1203,10 +1206,15 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         dateField1.tap()
         
         // Format the expected date dynamically (handles iPhone/iPad differences)
-        let formattedDate = formattedAccessibilityLabel(for: "2024-06-28")
-        let newDateButton = app.buttons[formattedDate]
-        XCTAssertTrue(newDateButton.exists, "Formatted date button should exist: \(formattedDate)")
-        newDateButton.tap()
+        let datePickerButtons = app.datePickers.firstMatch.buttons
+        let day10Button = datePickerButtons.allElementsBoundByIndex.first(where: { $0.label.contains("28") })
+
+        if let day10Button = day10Button {
+            day10Button.tap()
+        } else {
+            XCTFail("No button found containing '10'")
+        }
+
         dismissSheet()
         goBack()
         
