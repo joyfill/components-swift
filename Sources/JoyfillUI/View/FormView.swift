@@ -263,24 +263,33 @@ struct FormView: View {
     }
 
     var body: some View {
-        List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
-            if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
-                fieldView(listModelBinding: $listModel)
-                    .listRowSeparator(.hidden)
-                    .buttonStyle(.borderless)
+        ScrollViewReader { proxy in
+            List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
+                if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
+                    fieldView(listModelBinding: $listModel)
+                        .listRowSeparator(.hidden)
+                        .buttonStyle(.borderless)
+                }
             }
-        }
-        .listStyle(PlainListStyle())
-        .id(documentEditor.currentPageID)
-        .modifier(KeyboardDismissModifier())
-        .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
-            guard newValue != nil else { return }
-            guard lastFocusedFieldsID != newValue else { return }
-            if let lastFocusedFieldsID = lastFocusedFieldsID {
-                let fieldEvent = FieldIdentifier(fieldID: lastFocusedFieldsID)
-                documentEditor.onBlur(event: fieldEvent)
+            .listStyle(PlainListStyle())
+            .modifier(KeyboardDismissModifier())
+            .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
+                guard newValue != nil else { return }
+                guard lastFocusedFieldsID != newValue else { return }
+                if let lastFocusedFieldsID = lastFocusedFieldsID {
+                    let fieldEvent = FieldIdentifier(fieldID: lastFocusedFieldsID)
+                    documentEditor.onBlur(event: fieldEvent)
+                }
+                self.lastFocusedFieldsID = currentFocusedFieldsID
             }
-            self.lastFocusedFieldsID = currentFocusedFieldsID
+            .onChange(of: documentEditor.currentPageID) { _ in
+                // Scroll to top when page changes
+                if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
+                    withAnimation {
+                        proxy.scrollTo(firstFieldID, anchor: .top)
+                    }
+                }
+            }
         }
     }
 }

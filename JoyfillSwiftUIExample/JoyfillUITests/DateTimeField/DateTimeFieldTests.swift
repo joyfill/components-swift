@@ -3,31 +3,46 @@ import XCTest
 final class DateTimeFieldTests: JoyfillUITestsBaseClass {
     func testDatePicker() {
         app.swipeUp()
-        let datePicker = app.datePickers.element(boundBy: 0)
-        XCTAssertTrue(datePicker.exists)
-        XCTAssertEqual(datePicker.label, "")
+        // Tap a date button using its identifier to open the picker popup
+        let dateButton = app.buttons.matching(identifier: "ChangeDateIdentifier").firstMatch
+        XCTAssertTrue(dateButton.waitForExistence(timeout: 5), "Date button should exist")
+        dateButton.tap()
+        
+        // Verify picker popup is shown
+        let pickerExists = app.datePickers.count > 0 || app.pickerWheels.count > 0
+        XCTAssertTrue(pickerExists, "Date picker popup should be visible")
     }
 
     func testTimePicker() {
         app.swipeUp()
-        let datePicker = app.datePickers.element(boundBy: 0)
-        datePicker.tap()
-        XCTAssertTrue(datePicker.exists)
-        XCTAssertEqual(datePicker.label, "")
+        // Tap a time button using its identifier to open the picker popup
+        let timeButton = app.buttons.matching(identifier: "ChangeDateIdentifier").firstMatch
+        XCTAssertTrue(timeButton.waitForExistence(timeout: 5), "Time button should exist")
+        timeButton.tap()
+        
+        // Verify picker popup is shown
+        let pickerExists = app.datePickers.count > 0 || app.pickerWheels.count > 0
+        XCTAssertTrue(pickerExists, "Time picker popup should be visible")
     }
 
     func testDateTimePicker() {
         let app = XCUIApplication()
-        let datePicker = app.datePickers.element(boundBy: 0)
+        
+        // Look for a date/time button using its identifier
+        let dateTimeButton = app.buttons.matching(identifier: "ChangeDateIdentifier").firstMatch
         
         var attempts = 0
-        while !datePicker.exists && attempts < 5 {
+        while !dateTimeButton.exists && attempts < 5 {
             app.swipeUp()
-            _ = datePicker.waitForExistence(timeout: 1)
+            _ = dateTimeButton.waitForExistence(timeout: 1)
             attempts += 1
         }
         
-        XCTAssertTrue(datePicker.waitForExistence(timeout: 5), "Date picker not found on screen")
-        //XCTAssertTrue(datePicker.isHittable, "Date picker should be interactable")
+        XCTAssertTrue(dateTimeButton.waitForExistence(timeout: 5), "Date/time button not found on screen")
+        dateTimeButton.tap()
+        
+        // Verify picker popup is shown
+        let pickerExists = app.datePickers.count > 0 || app.pickerWheels.count > 0
+        XCTAssertTrue(pickerExists, "Date/time picker popup should be visible")
     }
 }

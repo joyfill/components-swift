@@ -2,15 +2,18 @@ import SwiftUI
 import JoyfillModel
 
 struct TableRowView : View {
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
     var longestBlockText: String
+    var isSelected: Bool = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
+                    .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
@@ -264,11 +267,12 @@ struct TableModalView : View {
         LazyVStack(alignment: .leading, spacing: 0) {
            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
                 let rowArray = rowModel.cells
+                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                 HStack(spacing: 0) {
                     if viewModel.showRowSelector {
-                        let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
                         Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                             .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                             .border(Color.tableCellBorderColor)
                             .onTapGesture {
                                 viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
@@ -280,6 +284,7 @@ struct TableModalView : View {
                         .foregroundColor(.secondary)
                         .font(.caption)
                         .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                 }
@@ -294,7 +299,8 @@ struct TableModalView : View {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
                         }
@@ -321,7 +327,8 @@ struct TableModalView : View {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText)
+                                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
                         }

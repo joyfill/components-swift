@@ -15,6 +15,10 @@ extension Color {
     static let buttonBorderColor = Color(hex: "#E2E3E7")
     static let tableDropdownBorderColor = Color(hex: "#D1D1D6")
     static let allFieldBorderColor = Color(hex: "#AAAAAE")
+    static func rowSelectionBackground(isSelected: Bool, colorScheme: ColorScheme) -> Color {
+        guard isSelected else { return .clear }
+        return colorScheme == .dark ? Color.blue.opacity(0.35) : Color.blue.opacity(0.1)
+    }
     
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
