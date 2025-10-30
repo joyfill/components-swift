@@ -506,15 +506,23 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         }
         
         // Try to find and tap any date button - force tap first available one
-        let dateLabel = formattedAccessibilityLabel(for: "2024-04-07")
-        let dateLabel2 = formattedAccessibilityLabel(for: "2024-04-08")
-        let dateButton = app.buttons[dateLabel]
-        if dateButton.exists {
-            dateButton.tap()
+        let dateButtons = app.datePickers.firstMatch.buttons
+        let day10Button = dateButtons.allElementsBoundByIndex.first(where: { $0.label.contains("17") })
+
+        if let day10Button = day10Button {
+            day10Button.tap()
         } else {
-            // Fallback to any date in April
-            app.buttons[dateLabel2].tap()
+            XCTFail("No button found containing '10'")
         }
+//        let dateLabel = formattedAccessibilityLabel(for: "2024-04-07")
+//        let dateLabel2 = formattedAccessibilityLabel(for: "2024-04-08")
+//        let dateButton = app.buttons[dateLabel]
+//        if dateButton.exists {
+//            dateButton.tap()
+//        } else {
+//            // Fallback to any date in April
+//            app.buttons[dateLabel2].tap()
+//        }
         //XCUIApplication().buttons["PopoverDismissRegion"].tap()
         dismissSheet()
         goBack()
@@ -642,18 +650,12 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         let element = app.images.matching(identifier: "xmark.circle").element(boundBy: 0)
         element.tap()
-//        let setDateToNilIdentifierButton = app.buttons.matching(identifier: "SetDateToNilIdentifier")
-//        let tapOnButton = setDateToNilIdentifierButton.element(boundBy: 0)
-//        tapOnButton.tap()
+
         Thread.sleep(forTimeInterval: 0.5)
         app.scrollViews.otherElements.containing(.image, identifier:"CalendarImageIdentifier").children(matching: .image).matching(identifier: "CalendarImageIdentifier").element(boundBy: 0).tap()
-        
-//        let firstDatePicker = app.datePickers.element(boundBy: 0)
-//        let timeCoordinate = firstDatePicker.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
-//        timeCoordinate.tap()
-       
+
         app.buttons.element(boundBy: 2).tap()
-        app.buttons.element(boundBy: 1).tap()
+        app.buttons.allElementsBoundByIndex.first(where: { $0.label.contains("AM") || $0.label.contains("PM") })?.tap()
         let hourPicker = app.pickerWheels.element(boundBy: 0)
         let minutePicker = app.pickerWheels.element(boundBy: 1)
         let periodPicker = app.pickerWheels.element(boundBy: 2)

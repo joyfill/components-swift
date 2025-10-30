@@ -437,7 +437,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.clearText()
         numberField.typeText("123456");
         app.swipeLeft()
-        let dateField = app.buttons["October 17, 2025"].firstMatch
+        let dateField = app.buttons["10/17/2025"].firstMatch
         dateField.tap()
         app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
         dismissSheet()
@@ -449,7 +449,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let numberText = app.staticTexts["123456"].firstMatch
         XCTAssertTrue(numberText.exists)
         
-        let dateText = app.staticTexts["October 10, 2025"].firstMatch
+        let dateText = app.staticTexts["10/10/2025"].firstMatch
         XCTAssertTrue(dateText.exists)
         
         app.swipeUp()

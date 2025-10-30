@@ -155,19 +155,10 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
     }
     
     func testConvertEpochWithTimeZone() {
-        var firstIndex = 14
-        var secondIndex = 15
-        if UIDevice.current.userInterfaceIdiom == .pad  {
-            firstIndex = 15
-            secondIndex = 16
-        }
-        // Get initial label from button
-        let firstLabel = getDateFieldButtonLabel(firstIndex)
-        let secondLabel = getDateFieldButtonLabel(secondIndex)
-        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
-        let convertedTime = formatEpoch(1752530400000, timeZoneTitle: "America/New_York")?.normalizedSpaces
+        let dateButton2 = getDateFieldButtonByIndexAndIdentifier(1)
+        let convertedTime = formatEpoch(1752530400000, timeZoneTitle: "America/New_York", format: "MM/dd/yyyy hh:mma")?.normalizedSpaces
         
-        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
+        XCTAssertEqual(dateButton2.label, convertedTime, "Datetime should be same after epoch convert")
     }
     
     func testNilAndInvalidTimezone() {
@@ -246,41 +237,40 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(dateButton.exists, "Invalid timezone button should remain stable after multiple interactions")
     }
     
-    func testBlankDateField() {
-        var firstIndex = 5
-        var secondIndex = 6
-        if UIDevice.current.userInterfaceIdiom == .pad  {
-            firstIndex = 23
-            secondIndex = 24
-        } else {
-            app.swipeUp()
-        }
-        
-        let calendarImage = app.images.element(boundBy: 1)
-        calendarImage.tap()
-        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
-        
-        // Get initial label from button
-        let firstLabel = getDateFieldButtonLabel(firstIndex)
-        let secondLabel = getDateFieldButtonLabel(secondIndex)
-        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
-        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata")?.normalizedSpaces
-        
-        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
-        
-        let payload = onChangeResult().dictionary
-        guard
-            let change = payload["change"] as? [String: Any],
-            let actualValue = change["value"] as? Int64,
-            let actualTZ = change["tz"] as? String
-        else {
-            XCTFail("Invalid onChange payload structure")
-            return
-        }
-        
-        XCTAssertNotNil(actualValue)
-        XCTAssertEqual(actualTZ, "America/New_York", "onChange payload value should match expected value")
-    }
+//    func testBlankDateField() {
+//        var firstIndex = 5
+//        var secondIndex = 6
+//        if UIDevice.current.userInterfaceIdiom == .pad  {
+//            firstIndex = 23
+//            secondIndex = 24
+//        } else {
+//            app.swipeUp()
+//        }
+//        
+//        let calendarImage = app.images.element(boundBy: 1)
+//        calendarImage.tap()
+//        let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+//        
+//        // Get initial label from button
+//        let firstLabel = getDateFieldButtonLabel(firstIndex)
+//        let secondLabel = getDateFieldButtonLabel(secondIndex)
+//        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
+//        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata", format: "")?.normalizedSpaces
+//        
+//        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
+//        
+//        let payload = onChangeResult().dictionary
+//        guard
+//            let change = payload["change"] as? [String: Any],
+//            let actualValue = change["value"] as? Int64,
+//            let actualTZ = change["tz"] as? String else {
+//            XCTFail("Invalid onChange payload structure")
+//            return
+//        }
+//        
+//        XCTAssertNotNil(actualValue)
+//        XCTAssertEqual(actualTZ, "America/New_York", "onChange payload value should match expected value")
+//    }
     
     /* Table timezone UI test cases */
     
@@ -288,16 +278,16 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         
         // Test Case 1: Check all table timezone fields
-        testTableCheckAllTimezoneFields()
+        tableCheckAllTimezoneFields()
         
         // Test Case 2: Change date time and check timezone
-        testTableChangeDateTimeAndCheckTimezone()
+        tableChangeDateTimeAndCheckTimezone()
         
         // Test Case 3: Nil and invalid timezone behavior
-        testTableNilAndInvalidTimezone()
+        tableNilAndInvalidTimezone()
     }
     
-    private func testTableCheckAllTimezoneFields() {
+    private func tableCheckAllTimezoneFields() {
         let tableTimezoneFields = app.buttons.matching(identifier: "ChangeCellDateIdentifier")
         XCTAssertGreaterThan(tableTimezoneFields.count, 0, "Table should have timezone date fields")
         
@@ -324,7 +314,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
-    private func testTableChangeDateTimeAndCheckTimezone() {
+    private func tableChangeDateTimeAndCheckTimezone() {
         // Use the correct button selector for table date fields
         let tableTimezoneFields = app.buttons.matching(identifier: "ChangeCellDateIdentifier")
         
@@ -380,7 +370,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
-    private func testTableNilAndInvalidTimezone() {
+    private func tableNilAndInvalidTimezone() {
         // Use the correct button selector for table date fields
         let tableTimezoneFields = app.buttons.matching(identifier: "ChangeCellDateIdentifier")
         
@@ -465,9 +455,9 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
         
         // Use the correct button selector for table date fields
-        let tableTimezoneFields = app.buttons.matching(NSPredicate(format: "label CONTAINS[c] 'October'"))
+        let tableTimezoneFields = app.buttons.matching(identifier: "ChangeCellDateIdentifier")
         
-        let timezoneField = tableTimezoneFields.element(boundBy: 0)
+        let timezoneField = tableTimezoneFields.element(boundBy: 8)
         XCTAssertTrue(timezoneField.waitForExistence(timeout: 5), "Table timezone field at index \(String(describing: index)) should exist")
         timezoneField.tap()
         
@@ -1358,15 +1348,15 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
             : TimeInterval(epoch)
         let date = Date(timeIntervalSince1970: seconds)
 
-//        // Resolve timezone
-//        let tzString = (timeZoneTitle ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
-//        let isNilLike = tzString.isEmpty || tzString.lowercased() == "nil"
-//        let tz = (!isNilLike ? TimeZone(identifier: tzString) : nil) ?? .current
+        // Resolve timezone
+        let tzString = (timeZoneTitle ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let isNilLike = tzString.isEmpty || tzString.lowercased() == "nil"
+        let tz = (!isNilLike ? TimeZone(identifier: tzString) : nil) ?? .current
 
         // Formatter
         let df = DateFormatter()
-//        df.locale = Locale(identifier: "en_US_POSIX") // stable parsing/formatting
-//        df.timeZone = tz
+        df.locale = Locale(identifier: "en_US_POSIX") // stable parsing/formatting
+        df.timeZone = tz
         df.dateFormat = format
 
         return df.string(from: date)

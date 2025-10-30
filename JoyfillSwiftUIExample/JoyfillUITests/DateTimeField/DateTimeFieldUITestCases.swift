@@ -154,7 +154,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
             // For time-only, use picker wheels if available
             if app.pickerWheels.count > 1 {
                 app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
-                app.pickerWheels.element(boundBy: 1).adjust(toPickerWheelValue: "30")
+                app.pickerWheels.element(boundBy: 1).adjust(toPickerWheelValue: "March")
             }
             
             // Close picker
