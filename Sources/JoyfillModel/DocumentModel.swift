@@ -218,7 +218,7 @@ public enum ColumnTypes: String {
 ///
 /// Automatically converts JSON format patterns (YYYY, DD) to Swift DateFormatter patterns (yyyy, dd).
 /// Provides convenience properties like `isDateOnly`, `isTimeOnly` to analyze the format.
-public enum DateFormatType {
+public enum DateFormatType: Equatable {
     case empty
     case custom(String)  // ✨ Handles ALL formats!
     
