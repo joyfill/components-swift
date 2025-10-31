@@ -52,9 +52,11 @@ struct DateTimeView: View {
                         eventHandler.onChange(event: event)
                     }, label: {
                         Image(systemName: "xmark.circle.fill")
-                            .imageScale(.large)
+                            .font(.system(size: 20))
                             .foregroundStyle(.secondary)
                     })
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
                     .accessibilityIdentifier("DateClearIdentifier")
                     .buttonStyle(.plain)
                     .accessibilityLabel("Clear")
@@ -69,6 +71,7 @@ struct DateTimeView: View {
                     Text("Select a Date -")
                     Spacer()
                     Image(systemName: "calendar")
+                        .font(.system(size: 18))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
@@ -76,6 +79,7 @@ struct DateTimeView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
+                .contentShape(Rectangle())
                 .onTapGesture {
                     selectedDate = Date()
                     convertDateAccToTimezone()
