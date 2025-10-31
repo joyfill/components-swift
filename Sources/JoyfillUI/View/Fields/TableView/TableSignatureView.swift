@@ -29,6 +29,7 @@ struct TableSignatureView: View {
                 .contentShape(Rectangle())
         })
         .accessibilityIdentifier("TableSignatureOpenSheetButton")
+        .accessibilityValue(title.isEmpty ? "empty" : "filled")
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
         }) {
