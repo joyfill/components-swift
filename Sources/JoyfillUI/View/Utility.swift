@@ -62,22 +62,13 @@ class Utility {
     }
     
     static func getDateType(format: DateFormatType) -> DatePickerComponents {
-        switch format {
-        // Date Only (all date-only formats)
-        case .dateOnly, .dateOnlyDDMMYYYY, .dateOnlyISO, .dateOnlyYYYYMMDD,
-             .dateOnlyDashUS, .dateOnlyDashEU, .dateOnlyShortYear, .dateOnlyShortYearEU:
+        // Use convenience properties to determine picker type
+        if format.isDateOnly {
             return [.date]
-            
-        // Time Only (all time-only formats)
-        case .timeOnly, .timeOnly24Hour, .timeOnlyWithSeconds, .timeOnly24HourWithSeconds:
+        } else if format.isTimeOnly {
             return [.hourAndMinute]
-            
-        // Date + Time (all combined formats)
-        case .dateTime, .dateTime24, .dateTimeWithSeconds, .dateTime24WithSeconds,
-             .dateTimeDDMMYYYY, .dateTimeDDMMYYYY12Hour, .dateTimeDDMMYYYYWithSeconds, .dateTimeDDMMYYYY12HourWithSeconds,
-             .dateTimeISO, .dateTimeISOWithSeconds, .dateTimeYYYYMMDD,
-             .dateTimeDashUS, .dateTimeDashEU,
-             .empty:
+        } else {
+            // DateTime or empty (default shows both)
             return [.date, .hourAndMinute]
         }
     }
@@ -116,7 +107,8 @@ class Utility {
         var toCalendar = Calendar(identifier: .gregorian)
         toCalendar.timeZone = to
 
-        if format == .dateOnly {
+        // Use convenience property to check if date-only
+        if format?.isDateOnly == true {
             let ymd = fromCalendar.dateComponents([.year, .month, .day], from: sourceDate)
             var atNoon = DateComponents()
             atNoon.year = ymd.year

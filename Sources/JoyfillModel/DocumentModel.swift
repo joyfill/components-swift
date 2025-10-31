@@ -216,64 +216,97 @@ public enum ColumnTypes: String {
 
 /// `DateFormatType` is an enumeration that represents the types of date formats.
 ///
-/// Supports various international date and time formats with automatic conversion from JSON format strings to Swift DateFormatter patterns.
-public enum DateFormatType: String {
-    // US Date Formats (MM/DD/YYYY)
-    case dateOnly = "MM/DD/YYYY"
-    case dateTime = "MM/DD/YYYY hh:mma"
-    case dateTime24 = "MM/DD/YYYY HH:mm"
-    case dateTimeWithSeconds = "MM/DD/YYYY hh:mm:ssa"
-    case dateTime24WithSeconds = "MM/DD/YYYY HH:mm:ss"
+/// Automatically converts JSON format patterns (YYYY, DD) to Swift DateFormatter patterns (yyyy, dd).
+/// Provides convenience properties like `isDateOnly`, `isTimeOnly` to analyze the format.
+public enum DateFormatType: Equatable {
+    case empty
+    case custom(String)  // ✨ Handles ALL formats!
     
-    // European/Australian Date Formats (DD/MM/YYYY)
-    case dateOnlyDDMMYYYY = "DD/MM/YYYY"
-    case dateTimeDDMMYYYY = "DD/MM/YYYY HH:mm"
-    case dateTimeDDMMYYYY12Hour = "DD/MM/YYYY hh:mma"
-    case dateTimeDDMMYYYYWithSeconds = "DD/MM/YYYY HH:mm:ss"
-    case dateTimeDDMMYYYY12HourWithSeconds = "DD/MM/YYYY hh:mm:ssa"
+    // MARK: - Initialization
     
-    // ISO and Asian Date Formats (YYYY-MM-DD / YYYY/MM/DD)
-    case dateOnlyISO = "YYYY-MM-DD"
-    case dateTimeISO = "YYYY-MM-DD HH:mm"
-    case dateTimeISOWithSeconds = "YYYY-MM-DD HH:mm:ss"
-    case dateOnlyYYYYMMDD = "YYYY/MM/DD"
-    case dateTimeYYYYMMDD = "YYYY/MM/DD HH:mm"
+    /// Creates a DateFormatType from a format string
+    /// Returns nil only if the string is nil (for optional chaining compatibility)
+    public init?(rawValue: String?) {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+        
+        // Handle empty string
+        if rawValue.isEmpty {
+            self = .empty
+            return
+        }
+        
+        // Trim whitespace
+        let trimmed = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty {
+            self = .empty
+            return
+        }
+        
+        // Everything goes to .custom (no hardcoded formats!)
+        self = .custom(trimmed)
+    }
     
-    // Hyphen Separated Formats
-    case dateOnlyDashUS = "MM-DD-YYYY"
-    case dateOnlyDashEU = "DD-MM-YYYY"
-    case dateTimeDashUS = "MM-DD-YYYY HH:mm"
-    case dateTimeDashEU = "DD-MM-YYYY HH:mm"
-    
-    // Short Year Formats (YY)
-    case dateOnlyShortYear = "MM/DD/YY"
-    case dateOnlyShortYearEU = "DD/MM/YY"
-    
-    // Time Only Formats
-    case timeOnly = "hh:mma"
-    case timeOnly24Hour = "HH:mm"
-    case timeOnlyWithSeconds = "hh:mm:ssa"
-    case timeOnly24HourWithSeconds = "HH:mm:ss"
-    
-    case empty = ""
+    public var rawValue: String {
+        switch self {
+        case .empty: return ""
+        case .custom(let format): return format
+        }
+    }
     
     /// The date format corresponding to the `DateFormatType`.
     /// Converts from JSON format pattern (YYYY, DD) to Swift DateFormatter pattern (yyyy, dd).
-   public var dateFormat: String {
-       if self == .empty {
-           return "MMMM d, yyyy h:mm a"
-       }
+    /// Returns a safe default for empty/invalid formats.
+    public var dateFormat: String {
+        if case .empty = self {
+            return "MM/DD/YYYY hh:mma"  // Default format
+        }
+        
+        let format = rawValue
+        
+        // Safety check: if format is empty or whitespace, use default
+        if format.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "MM/DD/YYYY hh:mma"
+        }
+        
         // Convert JSON format to Swift DateFormatter pattern
-        return self.rawValue
-            .replacingOccurrences(of: "YYYY", with: "yyyy")  // Year: YYYY → yyyy
-            .replacingOccurrences(of: "YY", with: "yy")      // Short year: YY → yy
-            .replacingOccurrences(of: "DD", with: "dd")      // Day: DD → dd
-            .replacingOccurrences(of: "MM", with: "MM")      // Month: stays MM (need to handle before mm)
-            .replacingOccurrences(of: "HH", with: "HH")      // Hour 24: stays HH
-            .replacingOccurrences(of: "hh", with: "hh")      // Hour 12: stays hh
-            .replacingOccurrences(of: "mm", with: "mm")      // Minute: stays mm
-            .replacingOccurrences(of: "ss", with: "ss")      // Second: stays ss
-            .replacingOccurrences(of: "a", with: "a")        // AM/PM: stays a
+        // Replace YYYY before YY to avoid conflicts
+        return format
+            .replacingOccurrences(of: "YYYY", with: "yyyy")  // 4-digit year (do first!)
+            .replacingOccurrences(of: "DD", with: "dd")      // Day
+            .replacingOccurrences(of: "YY", with: "yy")      // 2-digit year (do after YYYY)
+            // Note: MM, HH, hh, mm, ss, SSS, a, Z are same in both JSON and Swift
+    }
+    
+    // MARK: - Convenience Properties (analyze format string)
+    
+    /// Returns true if format contains time components (HH, hh, mm, a)
+    public var hasTimeComponent: Bool {
+        let upper = rawValue.uppercased()
+        return upper.contains("HH")
+    }
+    
+    /// Returns true if format contains date components (YYYY, MM, DD)
+    public var hasDateComponent: Bool {
+        let upper = rawValue.uppercased()
+        return upper.contains("DD")
+    }
+    
+    /// Returns true if format is date-only (no time components)
+    /// Useful for: timezone conversions, picker type selection
+    public var isDateOnly: Bool {
+        return !hasTimeComponent
+    }
+    
+    /// Returns true if format is time-only (no date components)
+    public var isTimeOnly: Bool {
+        return !hasDateComponent
+    }
+    
+    /// Returns true if format has both date and time components
+    public var isDateTime: Bool {
+        return hasDateComponent && hasTimeComponent
     }
 }
 
