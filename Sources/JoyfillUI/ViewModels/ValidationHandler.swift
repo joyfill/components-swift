@@ -152,6 +152,16 @@ class ValidationHandler {
         }
         let columns = rootSchema.tableColumns ?? []
 
+        if let fieldRequired = field.required {
+            if !fieldRequired {
+                return FieldValidity(field: field, status: .valid, pageId: pageId)
+            }
+        } else {
+            FieldValidity(field: field, status: .valid, pageId: pageId)
+        }
+        if nonDeletedRows.count == 0 {
+            return FieldValidity(field: field, status: .invalid, pageId: pageId)
+        }
         // Validate each row's cells
         for row in nonDeletedRows {
             var cellValidities: [CellValidity] = []
