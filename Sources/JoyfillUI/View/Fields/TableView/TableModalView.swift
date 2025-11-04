@@ -45,6 +45,7 @@ struct TableModalView : View {
                 onEditTap: { showEditMultipleRowsSheetView = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
+                    .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {

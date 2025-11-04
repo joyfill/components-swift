@@ -15,7 +15,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var shouldShowAddRowButton: Bool = false
     @Published var showRowSelector: Bool = false
     private var requiredColumnIds: [String] = []
-
+    @Published var isBulkLoading: Bool = false
+    let dispatchQueue = DispatchQueue(label: "TableViewModel", qos: .userInitiated)
     @Published var uuid = UUID()
     
     init(tableDataModel: TableDataModel) {
@@ -394,49 +395,71 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    func bulkEdit(changes: [Int: ValueUnion]) {
-        var columnIDChanges = [String: ValueUnion]()
-        changes.forEach { (colIndex: Int, value: ValueUnion) in
-            guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
-            columnIDChanges[cellDataModelId] = value
-        }
+    @MainActor
+    func bulkEdit(changes: [Int: ValueUnion]) async {
+        isBulkLoading = true
         
-        var newChanges: [String: [String: ValueUnion]] = [:]
-        makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
-        
-        tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
-        for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0
-            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
-                var cellDataModel = tableDataModel.cellModels[rowIndex].cells[colIndex].data
-                guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
-                
-                switch cellDataModel.type {
-                case .dropdown:
-                    cellDataModel.selectedOptionText =  cellDataModel.options?.filter { $0.id == change.text }.first?.value ?? ""
-                    cellDataModel.defaultDropdownSelectedId = change.text
-                case .text:
-                    cellDataModel.title = change.text ?? ""
-                case .date:
-                    cellDataModel.date = change.number
-                case .number:
-                    cellDataModel.number = change.number
-                case .multiSelect:
-                    cellDataModel.multiSelectValues = change.stringArray
-                case .barcode:
-                    cellDataModel.title = change.text ?? ""
-                case .image:
-                    cellDataModel.valueElements = change.valueElements ?? []
-                case .signature:
-                    cellDataModel.title = change.text ?? ""
-                default:
-                    break
+        // Perform heavy processing on background thread
+        let updatedCellModels: [RowDataModel] = await withCheckedContinuation { cont in
+            dispatchQueue.async { [tableDataModel] in
+                var columnIDChanges = [String: ValueUnion]()
+                changes.forEach { (colIndex: Int, value: ValueUnion) in
+                    guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+                    columnIDChanges[cellDataModelId] = value
                 }
                 
-                tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: true)
+                var newChanges: [String: [String: ValueUnion]] = [:]
+                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
+                
+                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+                
+                var updatedModels = tableDataModel.cellModels
+                for rowId in tableDataModel.selectedRows {
+                    guard let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) else { continue }
+                    guard rowIndex < updatedModels.count else { continue }
+                    
+                    tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
+                        guard colIndex < updatedModels[rowIndex].cells.count else { return }
+                        var cellDataModel = updatedModels[rowIndex].cells[colIndex].data
+                        guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
+                        
+                        switch cellDataModel.type {
+                        case .dropdown:
+                            cellDataModel.selectedOptionText = cellDataModel.options?.filter { $0.id == change.text }.first?.value ?? ""
+                            cellDataModel.defaultDropdownSelectedId = change.text
+                        case .text:
+                            cellDataModel.title = change.text ?? ""
+                        case .date:
+                            cellDataModel.date = change.number
+                        case .number:
+                            cellDataModel.number = change.number
+                        case .multiSelect:
+                            cellDataModel.multiSelectValues = change.stringArray
+                        case .barcode:
+                            cellDataModel.title = change.text ?? ""
+                        case .image:
+                            cellDataModel.valueElements = change.valueElements ?? []
+                        case .signature:
+                            cellDataModel.title = change.text ?? ""
+                        default:
+                            break
+                        }
+                        
+                        // Update the cell in the copied array
+                        var cellModel = updatedModels[rowIndex].cells[colIndex]
+                        cellModel.data = cellDataModel
+                        cellModel.id = UUID()
+                        updatedModels[rowIndex].cells[colIndex] = cellModel
+                    }
+                }
+                
+                cont.resume(returning: updatedModels)
             }
         }
+        
+        tableDataModel.cellModels = updatedCellModels
         tableDataModel.filterRowsIfNeeded()
+        isBulkLoading = false
     }
     
     func sendEventsIfNeeded() {

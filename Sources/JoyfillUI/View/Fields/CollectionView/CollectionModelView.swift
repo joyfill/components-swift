@@ -60,6 +60,7 @@ struct CollectionModalView : View {
                 onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
+                    .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .sheet(isPresented: $showFilterModal) {
                 CollectionFilterModal(viewModel: viewModel)
