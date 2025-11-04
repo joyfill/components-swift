@@ -9,7 +9,7 @@ struct TableRowView : View {
     var isSelected: Bool = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
