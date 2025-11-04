@@ -193,6 +193,14 @@ struct CollectionModalView : View {
                         cellProxy.scrollTo(0, anchor: .leading)
                     })
                 }
+                .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
+                    // Scroll to keep selected row in view when navigating with arrows
+                    if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                        }
+                    }
+                }
                 .simultaneousGesture(DragGesture().onChanged({ _ in
                     dismissKeyboard()
                 }))
