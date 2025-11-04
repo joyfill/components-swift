@@ -481,61 +481,71 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellModels
     }
     
-    func setupAllCellModels(targetSchema: String) {
+    @MainActor
+    func setupAllCellModels(targetSchema: String) async {
+        isSearching = true
         tableDataModel.emptySelection()
         tableDataModel.filteredcellModels = []
-        var cellModels = [RowDataModel]()
-        let rowDataMap = setupRows()
-        let rowToChildrenMap = setupRowsChildrens()
         
-        let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
-        var displayIndex = 1
-        for valueElement in rootRows {
-            guard let rowID = valueElement.id else {
-                Log("Could not find rowID for valueElement", type: .error)
-                continue
-            }
-            var rowCellModels = [TableCellModel]()
-            let childrens = rowToChildrenMap[rowID] ?? [:]
-            tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
-                let columnModel = rowDataMap[rowID]?[colIndex]
-                if let columnModel = columnModel {
-                    
-                    let cellModel = TableCellModel(rowID: rowID,
-                                                   timezoneId: valueElement.tz,
-                                                   data: columnModel,
-                                                   documentEditor: tableDataModel.documentEditor,
-                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                   viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+        let cellModels: [RowDataModel] = await withCheckedContinuation { cont in
+            dispatchQueue.async { [tableDataModel, rootSchemaKey] in
+                var result = [RowDataModel]()
+                let rowDataMap = self.setupRows()
+                let rowToChildrenMap = self.setupRowsChildrens()
+                
+                let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
+                var displayIndex = 1
+                for valueElement in rootRows {
+                    guard let rowID = valueElement.id else {
+                        Log("Could not find rowID for valueElement", type: .error)
+                        continue
                     }
-                    rowCellModels.append(cellModel)
+                    var rowCellModels = [TableCellModel]()
+                    let childrens = rowToChildrenMap[rowID] ?? [:]
+                    tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
+                        let columnModel = rowDataMap[rowID]?[colIndex]
+                        if let columnModel = columnModel {
+                            
+                            let cellModel = TableCellModel(rowID: rowID,
+                                                           timezoneId: valueElement.tz,
+                                                           data: columnModel,
+                                                           documentEditor: tableDataModel.documentEditor,
+                                                           fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                           viewMode: .modalView,
+                                                           editMode: tableDataModel.mode) { cellDataModel in
+                                self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                            }
+                            rowCellModels.append(cellModel)
+                        }
+                    }
+                    
+                    let rootRowModel = RowDataModel(rowID: rowID,
+                                                    cells: rowCellModels,
+                                                    rowType: .row(index: displayIndex),
+                                                    isExpanded: targetSchema != rootSchemaKey ? true : false,
+                                                    childrens: childrens,
+                                                    rowWidth: self.rowWidth(tableDataModel.tableColumns, 0))
+                    if self.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
+                        result.append(rootRowModel)
+                        displayIndex += 1
+                        // Add all nested rows for this root row
+                        if targetSchema != rootSchemaKey {
+                            self.addAllSchemasRecursively(to: &result,
+                                                     parentRowID: rowID,
+                                                     level: 0,
+                                                     parentSchemaKey: rootSchemaKey,
+                                                     parentID: ("", rowID),
+                                                     targetSchema: targetSchema)
+                        }
+                    }
                 }
-            }
-            
-            let rootRowModel = RowDataModel(rowID: rowID,
-                                          cells: rowCellModels,
-                                          rowType: .row(index: displayIndex),
-                                            isExpanded: targetSchema != rootSchemaKey ? true : false,
-                                          childrens: childrens,
-                                          rowWidth: rowWidth(tableDataModel.tableColumns, 0))
-            if shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
-                cellModels.append(rootRowModel)
-                displayIndex += 1
-                // Add all nested rows for this root row
-                if targetSchema != rootSchemaKey {
-                    addAllSchemasRecursively(to: &cellModels,
-                                             parentRowID: rowID,
-                                             level: 0,
-                                             parentSchemaKey: rootSchemaKey,
-                                             parentID: ("", rowID),
-                                             targetSchema: targetSchema)
-                }
+                cont.resume(returning: result)
             }
         }
+        
         tableDataModel.filteredcellModels = cellModels
         updateCollectionWidth()
+        isSearching = false
     }
     
     fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel]) {

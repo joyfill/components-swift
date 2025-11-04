@@ -31,25 +31,18 @@ struct CollectionFilterModal: View {
                     
                     Button(action: {
                         Task {
-                            viewModel.isSearching = true
-                            // Give UI a chance to update
-                            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                            
                             viewModel.tableDataModel.filterModels = collectionFilterModels
                             viewModel.tableDataModel.sortModel.colID = selectedSortedColumnID
                             viewModel.tableDataModel.sortModel.schemaKey = selectedSchemaKey
                             viewModel.tableDataModel.sortModel.order = order
                             
-                            await MainActor.run {
-                                if viewModel.tableDataModel.filterModels.noFilterApplied && viewModel.tableDataModel.sortModel.order == .none {
-                                    viewModel.setupAllCellModels(targetSchema: viewModel.rootSchemaKey)
-                                } else {
-                                    viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
-                                }
-                                viewModel.sortRowsIfNeeded()
-                                viewModel.isSearching = false
-                                presentationMode.wrappedValue.dismiss()
+                            if viewModel.tableDataModel.filterModels.noFilterApplied && viewModel.tableDataModel.sortModel.order == .none {
+                                await viewModel.setupAllCellModels(targetSchema: viewModel.rootSchemaKey)
+                            } else {
+                                await viewModel.setupAllCellModels(targetSchema: selectedSchemaKey)
                             }
+                            viewModel.sortRowsIfNeeded()
+                            presentationMode.wrappedValue.dismiss()
                         }
                     }, label: {
                         ZStack {

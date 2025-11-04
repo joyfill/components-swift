@@ -63,6 +63,7 @@ struct CollectionModalView : View {
             }
             .sheet(isPresented: $showFilterModal) {
                 CollectionFilterModal(viewModel: viewModel)
+                    .interactiveDismissDisabled(viewModel.isSearching)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
 

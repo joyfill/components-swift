@@ -28,7 +28,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         self.requiredColumnIds = tableDataModel.tableColumns
             .filter { $0.required == true }
             .compactMap { $0.id }
-        tableDataModel.documentEditor?.registerDelegate(self, for: tableDataModel.fieldIdentifier.fieldID)
+        self.tableDataModel.documentEditor?.registerDelegate(self, for: self.tableDataModel.fieldIdentifier.fieldID)
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
