@@ -578,39 +578,48 @@ struct OptionSelectionView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 32) {
-                    // Header Section
-                    VStack(spacing: 16) {
-                        Image(systemName: "app.badge")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
+            VStack(spacing: 0) {
+                // Scrollable content
+                ScrollView {
+                    VStack(spacing: 32) {
+                        // Header Section
+                        VStack(spacing: 16) {
+                            Image(systemName: "app.badge")
+                                .font(.system(size: 60))
+                                .foregroundColor(.blue)
+                            
+                            Text("Joyfill Example")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.primary)
+                            
+                            Text("Choose how you'd like to get started")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(.top, 32)
                         
-                        Text("Joyfill Example")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                        
-                        Text("Choose how you'd like to get started")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 32)
-                    
-                    // Options Section
-                    VStack(spacing: 16) {
-                        ForEach(OptionType.allCases, id: \.self) { option in
-                            OptionCard(
-                                option: option,
-                                isSelected: selectedOption == option
-                            ) {
-                                selectedOption = option
+                        // Options Section
+                        VStack(spacing: 16) {
+                            ForEach(OptionType.allCases, id: \.self) { option in
+                                OptionCard(
+                                    option: option,
+                                    isSelected: selectedOption == option
+                                ) {
+                                    selectedOption = option
+                                }
                             }
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 20)
                     }
-                    .padding(.horizontal, 20)
-                    // Continue Button
+                }
+                
+                // Fixed Continue Button at bottom (outside ScrollView)
+                VStack(spacing: 0) {
+                    Divider()
+                    
                     NavigationLink(
                         destination: destinationView(),
                         isActive: Binding(
@@ -652,8 +661,9 @@ struct OptionSelectionView: View {
                         .disabled(selectedOption == nil)
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 32)
+                    .padding(.vertical, 16)
                 }
+                .background(Color(UIColor.systemBackground))
             }
             .navigationBarHidden(true)
         }
