@@ -859,12 +859,9 @@ extension DocumentEditor {
                                   fieldIdentifier: FieldIdentifier,
                                   parentRowId: String,
                                   nestedKey: String,
-                                  rootSchemaKey: String ) async -> ([ValueElement], [String : ValueElement]) {
-        return await withCheckedContinuation { continuation in
-            backgroundQueue.async {
+                                  rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
                 guard var elements = self.field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-                    continuation.resume(returning: ([], [:]))
-                    return
+                    return ([], [:])
                 }
 
                 let parentPath = self.computeParentPath(targetParentId: parentRowId,
@@ -909,8 +906,7 @@ extension DocumentEditor {
                 
                 guard let currentField = self.fieldMap[fieldID] else {
                     Log("Failed to find field \(fieldID)", type: .error)
-                    continuation.resume(returning: ([], [:]))
-                    return
+                    return ([], [:])
                 }
 
                 self.handleRowCellOnChange(event: changeEvent,
@@ -919,9 +915,7 @@ extension DocumentEditor {
                                            parentPath: parentPath,
                                            schemaId: nestedKey)
                 let result = (elements, updatedElements)
-                continuation.resume(returning: result)
-            }
-        }
+                return result
     }
 
     private func updateCells(for rowId: String, with changes: [String: ValueUnion], in elements: inout [ValueElement]) -> ValueElement? {

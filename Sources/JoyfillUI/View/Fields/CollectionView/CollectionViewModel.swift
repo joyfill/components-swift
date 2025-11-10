@@ -16,7 +16,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var showRowSelector: Bool = false
     @Published var nestedTableCount: Int = 0
     @Published var collectionWidth: CGFloat = 0.0
-    @Published var rowToValueElementMap: [String: ValueElement] = [:]
+    var rowToValueElementMap: [String: ValueElement] = [:]
     @Published var columnsMap: [String: FieldTableColumn] = [:]
     @Published var isLoading: Bool = false
     @Published var isBulkLoading: Bool = false
@@ -1547,8 +1547,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         sortRowsIfNeeded()
     }
     
-    @MainActor
-    fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) async {
+    fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) {
         var parentRowID = ""
         var nestedSchemaKey = ""
         
@@ -1560,17 +1559,17 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             nestedSchemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
         }
         
-        // Await the async operation - main thread waits but stays free for UI
-        let result = await tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
+        let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
                                                                             selectedRows: tableDataModel.selectedRows,
                                                                             fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                             parentRowId: parentRowID,
                                                                             nestedKey: nestedSchemaKey,
-                                                                            rootSchemaKey: rootSchemaKey)
-        // Update UI - already on MainActor
-        tableDataModel.valueToValueElements = result?.0
-        for (key, value) in result?.1 ?? [:] {
-            rowToValueElementMap[key] = value
+                                                                rootSchemaKey: rootSchemaKey)
+        DispatchQueue.main.sync {
+            self.tableDataModel.valueToValueElements = result?.0
+            for (key, value) in result?.1 ?? [:] {
+                self.rowToValueElementMap[key] = value
+            }
         }
     }
     
@@ -1603,25 +1602,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    @MainActor
-    func bulkEdit(changes: [Int: ValueUnion]) async {
-        isBulkLoading = true
-        
-        let tableColumns = getTableColumnsForSelectedRows()
-        var columnIDChanges = [String: ValueUnion]()
-        changes.forEach { (colIndex: Int, value: ValueUnion) in
-            guard let cellDataModelId = tableColumns[colIndex].id else { return }
-            columnIDChanges[cellDataModelId] = value
-        }
-        
-        var newChanges: [String: [String: ValueUnion]] = [:]
-        makeChangeDict(&newChanges, columnIDChanges, tableColumns)
-        
-        await updateJSON(newChanges)
-
-        for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
-            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+    fileprivate func updateBulkLocalCellModels(_ tableColumns: [FieldTableColumn], _ newChanges: inout [String : [String : ValueUnion]], _ updatedCellModels: inout [RowDataModel]) {
+        for rowId in self.tableDataModel.selectedRows {
+            let rowIndex = self.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            var rowDataModel = self.tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
@@ -1648,16 +1632,58 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
                 rowDataModel.cells[colIndex].data = cellDataModel
                 rowDataModel.cells[colIndex].id = UUID()
-                                
-                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
-                if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
-                    refreshCollectionSchema(rowID: rowId)
-                }
+                updatedCellModels[rowIndex] = rowDataModel
+                
+                //Update conditional logic
+                self.tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: self.tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: self.rowToValueElementMap[rowId])
             }
-            tableDataModel.filteredcellModels[rowIndex] = rowDataModel
         }
+    }
+    
+    @MainActor
+    func bulkEdit(changes: [Int: ValueUnion]) async {
+        isBulkLoading = true
+        let tableColumns = self.getTableColumnsForSelectedRows()
+        let updatedCellModels: [RowDataModel] = await withCheckedContinuation { (cont: CheckedContinuation<[RowDataModel], Never>) in
+            dispatchQueue.async { [weak self] in
+                guard let self else {
+                    cont.resume(returning: [])
+                    return
+                }
+                
+                var columnIDChanges = [String: ValueUnion]()
+                changes.forEach { (colIndex: Int, value: ValueUnion) in
+                    guard let cellDataModelId = tableColumns[colIndex].id else { return }
+                    columnIDChanges[cellDataModelId] = value
+                }
+                
+                var newChanges: [String: [String: ValueUnion]] = [:]
+                self.makeChangeDict(&newChanges, columnIDChanges, tableColumns)
+                
+                self.updateJSON(newChanges)
+                
+                var updatedCellModels = self.tableDataModel.filteredcellModels
+                self.updateBulkLocalCellModels(tableColumns, &newChanges, &updatedCellModels)
+                cont.resume(returning: updatedCellModels)
+            }
+        }
+        
+        tableDataModel.filteredcellModels = updatedCellModels
+        refreshRowsOnLogic(tableColumns: tableColumns)
         isBulkLoading = false
         sortRowsIfNeeded()
+    }
+    
+    func refreshRowsOnLogic(tableColumns: [FieldTableColumn]) {
+        for row in tableDataModel.selectedRows {
+            let rowDataModel = tableDataModel.filteredcellModels.first { $0.rowID == row }
+            for tableColumn in tableColumns {
+                guard let columnID = tableColumn.id else { continue }
+                if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
+                    refreshCollectionSchema(rowID: row)
+                }
+            }
+        }
     }
     
     func sendEventsIfNeeded() {
