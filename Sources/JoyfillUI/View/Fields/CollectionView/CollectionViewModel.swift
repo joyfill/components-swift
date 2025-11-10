@@ -1573,9 +1573,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int]) {
         for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            guard let rowIndex = rowIndexMap[rowId] else { continue }
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
             for (key,value) in columnIDChanges {
@@ -1602,9 +1602,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    fileprivate func updateBulkLocalCellModels(_ tableColumns: [FieldTableColumn], _ newChanges: inout [String : [String : ValueUnion]], _ updatedCellModels: inout [RowDataModel]) {
+    fileprivate func updateBulkLocalCellModels(_ tableColumns: [FieldTableColumn], _ newChanges: inout [String : [String : ValueUnion]], _ updatedCellModels: inout [RowDataModel], rowIndexMap: [String: Int]) {
+
         for rowId in self.tableDataModel.selectedRows {
-            let rowIndex = self.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
+            guard let rowIndex = rowIndexMap[rowId] else { continue }
             var rowDataModel = self.tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = rowDataModel.cells[colIndex].data
@@ -1650,6 +1651,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     cont.resume(returning: [])
                     return
                 }
+               
+                let rowIndexMap = Dictionary(uniqueKeysWithValues:
+                    self.tableDataModel.filteredcellModels.enumerated().map { ($1.rowID, $0) }
+                )
                 
                 var columnIDChanges = [String: ValueUnion]()
                 changes.forEach { (colIndex: Int, value: ValueUnion) in
@@ -1658,12 +1663,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
                 
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableColumns)
+                self.makeChangeDict(&newChanges, columnIDChanges, tableColumns, rowIndexMap: rowIndexMap)
                 
                 self.updateJSON(newChanges)
                 
                 var updatedCellModels = self.tableDataModel.filteredcellModels
-                self.updateBulkLocalCellModels(tableColumns, &newChanges, &updatedCellModels)
+                self.updateBulkLocalCellModels(tableColumns, &newChanges, &updatedCellModels, rowIndexMap: rowIndexMap)
                 cont.resume(returning: updatedCellModels)
             }
         }
@@ -1675,8 +1680,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func refreshRowsOnLogic(tableColumns: [FieldTableColumn]) {
+        let rowMap = Dictionary(uniqueKeysWithValues:
+            tableDataModel.filteredcellModels.map { ($0.rowID, $0) }
+        )
+        
         for row in tableDataModel.selectedRows {
-            let rowDataModel = tableDataModel.filteredcellModels.first { $0.rowID == row }
+            guard let rowDataModel = rowMap[row] else { continue }
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
