@@ -229,12 +229,11 @@ struct CollectionExpanderView: View {
                 .accessibilityIdentifier("collectionSchemaAddRowButton")
             }
             let rowID = parentID.rowID
-            let children = viewModel.rowToValueElementMap[rowID]?.childrens
-
             let schemaID = schemaValue?.0 ?? ""
-            let childValueElements = children?[schemaID]?.valueToValueElements
-
-            if !viewModel.isOnlySchemaValid(schemaID: schemaValue?.0 ?? "", valueElements: childValueElements ?? []) {
+            let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
+            let childRows = viewModel.parentToChildRowMap[rowSchemaID] ?? []
+            
+            if !viewModel.isOnlySchemaValid(schemaID: schemaValue?.0 ?? "", rows: childRows) {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
