@@ -1767,7 +1767,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         if let schemaChain = tableDataModel.schemaChainMap[schemaKey], schemaChain.contains(activeSchema) {
             // Look up children from this row and recursively check them
             for childSchemaKey in schemaChain where childSchemaKey != schemaKey {
-                let rowSchemaID = RowSchemaID(rowID: row.rowID, schemaID: schemaKey)
+                let rowSchemaID = RowSchemaID(rowID: row.rowID, schemaID: childSchemaKey)
                 if let childRowIDs = parentToChildRowMap[rowSchemaID] {
                     let tableColumns = tableDataModel.filterTableColumns(key: childSchemaKey)
                     for (index, childID) in childRowIDs.enumerated() {
