@@ -919,6 +919,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
                 deleteRow(at: index, rowID: rowID, isNested: true)
             }
+            removeChild(rowID, to: parentRowId, schemaID: nestedKey)
         }
         
         if let level = deletedRowLevel, let schemaKey = deletedRowSchemaKey {
@@ -1122,7 +1123,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                            level: selectedRow.rowType.level,
                            rowType: .row(index: selecteRowIndex + 1),
                            schemaKey: rootSchemaKey)
-        
+        addNewRowInMap(newRowID: newRowID, schemaID: rootSchemaKey)
         reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[selecteRowIndex])
         return newRowID
     }
@@ -1161,7 +1162,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                index: selecteRowIndex + 1,
                                                parentID: selectedRow.rowType.parentID, parentSchemaKey: selectedRow.rowType.parentSchemaKey),
                            schemaKey: nestedKey)
-        
+        insertChild(newRowID, at: placeAtIndex, for: parentRowID, schemaID: nestedKey)
         reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[selecteRowIndex])
         return newRowID
     }
@@ -1205,6 +1206,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             return
         }
         moveNestedUP(at: lastRowIndex, rowID: firstSelectedRowID, isNested: isNested)
+        let rowSchemaID = RowSchemaID(rowID: parentRowId, schemaID: nestedKey)
+        let childrowIDs = parentToChildRowMap[rowSchemaID]
+        if let currentIndex = childrowIDs?.firstIndex(of: firstSelectedRowID) {
+            moveChild(firstSelectedRowID, to: currentIndex - 1, for: parentRowId, schemaID: nestedKey)
+        }
     }
 
     func moveDown(rowIDs: [String]? = nil, shouldSendEvent: Bool = true) {
@@ -1245,6 +1251,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         guard let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
             Log("Unable to find row with ID: \(firstSelectedRowID)", type: .error)
             return
+        }
+        let rowSchemaID = RowSchemaID(rowID: parentRowId, schemaID: nestedKey)
+        let childrowIDs = parentToChildRowMap[rowSchemaID]
+        if let currentIndex = childrowIDs?.firstIndex(of: firstSelectedRowID) {
+            moveChild(firstSelectedRowID, to: currentIndex + 1, for: parentRowId, schemaID: nestedKey)
         }
         moveNestedDown(at: lastRowIndex, rowID: firstSelectedRowID)
     }
@@ -1378,6 +1389,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                level: 0,
                                rowType: .row(index: rowIndex),
                                schemaKey: rootSchemaKey)
+            addNewRowInMap(newRowID: newRowID, schemaID: rootSchemaKey)
 //            self.tableDataModel.filterCollectionRowsIfNeeded()
             sortRowsIfNeeded()
         }
@@ -1474,7 +1486,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    parentID: parentID,
                                                    parentSchemaKey: schemaKey),
                                schemaKey: schemaKey)
-            
+            appendChild(newRowID, to: parentID.rowID, schemaID: schemaKey)
             let rowDataModelForIndexing = tableDataModel.filteredcellModels[startingIndex + 2]
             reIndexingRows(rowDataModel: rowDataModelForIndexing)
 //            self.tableDataModel.filterCollectionRowsIfNeeded()
@@ -2031,4 +2043,60 @@ extension CollectionViewModel: DocumentEditorDelegate {
 protocol TableDataViewModelProtocol {
     var tableDataModel: TableDataModel { get }
     func getParenthPath(rowId: String) -> (String, String)
+}
+
+extension CollectionViewModel {
+    //Helper Methods for parentToChildRowMap
+    func appendChild(_ childID: String, to parentRowID: String, schemaID: String) {
+        let key = RowSchemaID(rowID: parentRowID, schemaID: schemaID)
+        var list = parentToChildRowMap[key] ?? []
+        if !list.contains(childID) {
+            list.append(childID)
+            parentToChildRowMap[key] = list
+        }
+        addNewRowInMap(newRowID: childID, schemaID: schemaID)
+    }
+    
+    func removeChild(_ childID: String, to parentRowID: String, schemaID: String) {
+        let key = RowSchemaID(rowID: parentRowID, schemaID: schemaID)
+        var list = parentToChildRowMap[key] ?? []
+        if let idx = list.firstIndex(of: childID) {
+            list.remove(at: idx)
+            parentToChildRowMap[key] = list
+        }
+        removeRowFromMap(rowID: childID, schemaID: schemaID)
+    }
+    
+    func removeRowFromMap(rowID: String, schemaID: String) {
+        for id in tableDataModel.schema[schemaID]?.children ?? [] {
+            let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: id)
+            parentToChildRowMap[rowSchemaID] = nil
+        }
+    }
+    
+    func addNewRowInMap(newRowID: String, schemaID: String) {
+        for id in tableDataModel.schema[schemaID]?.children ?? [] {
+            let rowSchemaID = RowSchemaID(rowID: newRowID, schemaID: id)
+            parentToChildRowMap[rowSchemaID] = []
+        }
+    }
+    
+    /// Insert a child at a specific index (bounds are clamped)
+    func insertChild(_ childID: String, at index: Int, for parentRowID: String, schemaID: String) {
+        let key = RowSchemaID(rowID: parentRowID, schemaID: schemaID)
+        var list = parentToChildRowMap[key] ?? []
+        let clamped = max(0, min(index, list.count))
+        list.insert(childID, at: clamped)
+        parentToChildRowMap[key] = list
+    }
+
+    /// Move a child within its parent's list to a new index (bounds are clamped)
+    func moveChild(_ childID: String, to newIndex: Int, for parentRowID: String, schemaID: String) {
+        let key = RowSchemaID(rowID: parentRowID, schemaID: schemaID)
+        guard var list = parentToChildRowMap[key], let currentIndex = list.firstIndex(of: childID) else { return }
+        list.remove(at: currentIndex)
+        let clamped = max(0, min(newIndex, list.count))
+        list.insert(childID, at: clamped)
+        parentToChildRowMap[key] = list
+    }
 }
