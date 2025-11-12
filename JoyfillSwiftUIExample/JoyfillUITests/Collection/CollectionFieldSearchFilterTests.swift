@@ -3017,6 +3017,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let signatureText = app.staticTexts["Signature Column"].firstMatch
         XCTAssertTrue(signatureText.exists)
+         
+        XCTAssertTrue(signatureButton.waitForExistence(timeout: 3))
+        XCTAssertEqual(signatureButton.value as? String, "filled")
+        XCTAssertTrue(signatureButton.isSelected)
     }
     
     func testImageFieldSingleAndMultiUploadEvents() {
