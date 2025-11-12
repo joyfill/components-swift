@@ -70,7 +70,7 @@ struct CollectionQuickView : View {
                     collection
                         .cornerRadius(14, corners: [.bottomLeft, .bottomRight], borderColor: Color.tableCellBorderColor)
                 }
-                .frame(height: min(CGFloat(viewModel.tableDataModel.filteredcellModels.count), 3) * rowHeight + rowHeight)
+                .frame(height: CGFloat(viewModel.getThreeRowsForQuickView().count) * rowHeight + rowHeight)
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)

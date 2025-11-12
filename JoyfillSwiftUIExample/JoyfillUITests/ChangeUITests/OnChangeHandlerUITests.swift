@@ -2346,14 +2346,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let calendarImage = app.images.element(boundBy: 2)
         calendarImage.tap()
         let currentEpochMs = Int64(Date().timeIntervalSince1970 * 1000)
+         
+        let dateButton = getDateFieldButtonByIndexAndIdentifier(0)
+        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata", format: "MM/dd/YYYY hh:mma")?.normalizedSpaces
         
-        // Get initial label from button
-        let firstLabel = getDateFieldButtonLabel(16)
-        let secondLabel = getDateFieldButtonLabel(17)
-        let fullLabel = (firstLabel + " " + secondLabel).normalizedSpaces
-        let convertedTime = formatEpoch(currentEpochMs, timeZoneTitle: "Asia/Kolkata")?.normalizedSpaces
-        
-        XCTAssertEqual(fullLabel, convertedTime, "Datetime should be same after epoch convert")
+        XCTAssertEqual(dateButton.label, convertedTime, "Datetime should be same after epoch convert")
         
         pageSelectionButton.element(boundBy: 0).tap()
         pageSheetSelectionButton.element(boundBy: 0).tap()
@@ -2361,11 +2358,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         pageSelectionButton.element(boundBy: 1).tap()
         pageSheetSelectionButton.element(boundBy: 2).tap()
         
-        let lab1 = getDateFieldButtonLabel(16)
-        let lab2 = getDateFieldButtonLabel(17)
-        let fullLabel2 = (lab1 + " " + lab2).normalizedSpaces
-        
-        XCTAssertEqual(fullLabel2, convertedTime, "Datetime should be same after epoch convert")
+        let dateButton2 = getDateFieldButtonByIndexAndIdentifier(0)
+        XCTAssertEqual(dateButton2.label, convertedTime, "Datetime should be same after epoch convert")
     }
     
     func testSignatureField() throws {
@@ -2671,6 +2665,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     func clickOnFourthImage() {
         app.scrollViews.children(matching: .other).element(boundBy: 0).children(matching: .other).element.children(matching: .image).matching(identifier: "DetailPageImageSelectionIdentifier").element(boundBy: 6).tap()
+    }
+    
+    func getDateFieldButtonByIndexAndIdentifier(_ index: Int) -> XCUIElement {
+        return app.buttons.matching(identifier: "ChangeDateIdentifier").element(boundBy: index)
     }
 }
 
