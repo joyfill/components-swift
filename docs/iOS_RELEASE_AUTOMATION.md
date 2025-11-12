@@ -17,16 +17,12 @@ The release automation consists of four main GitHub Actions workflows:
 
 ### Required Secrets
 
-The following secrets must be configured in the GitHub repository:
+The following secret must be configured in the GitHub repository:
 
 - `API_REF_REPO_TOKEN`: GitHub Personal Access Token with access to:
   - `joyfill/api-references` repository
   - `joyfill/docs` repository
   - Requires `repo` scope for private repositories or `public_repo` for public ones
-
-- `COCOAPODS_TRUNK_TOKEN`: CocoaPods trunk token for publishing
-  - Obtain by running `pod trunk register EMAIL 'NAME'`
-  - Then retrieve token from `~/.netrc` or CocoaPods config
 
 ### Repository Structure
 
@@ -61,7 +57,7 @@ gh workflow run release-prepare.yml -f version=1.0.0
 ```
 
 **What Happens**:
-1. Updates `Joyfill.podspec` with new version
+1. Verifies version format
 2. Adds new version section to `CHANGELOG.md`
 3. Creates PR with branch `release/{version}`
 4. Triggers API references generation workflow
@@ -96,10 +92,9 @@ Edit the auto-generated sections:
 
 **Checklist before merging**:
 - [ ] CHANGELOG.md is complete and accurate
-- [ ] Version number is correct in `Joyfill.podspec`
+- [ ] Version number is correct
 - [ ] All tests pass
 - [ ] API reference generation succeeded
-- [ ] Podspec is valid (check CI or run `pod spec lint`)
 
 ### Step 4: Automatic Release (Triggered on Merge)
 
@@ -119,22 +114,18 @@ Edit the auto-generated sections:
    - Extracts changelog section for the version
    - Creates GitHub release with:
      - Release notes from CHANGELOG
-     - Installation instructions
+     - SPM installation instructions
      - Pre-release flag if version contains RC/beta/alpha
+   - Makes package automatically available via Swift Package Manager
 
-4. **Publish to CocoaPods**
-   - Validates podspec
-   - Publishes to CocoaPods trunk
-
-5. **Create Documentation PR**
+4. **Create Documentation PR**
    - Triggers `docs.yml` workflow
    - Generates `releases.mdx` from CHANGELOG
    - Creates PR in `joyfill/docs`
 
 **Outputs**:
-- Git tag `v{version}`
+- Git tag `v{version}` (SPM uses this automatically)
 - GitHub Release
-- CocoaPods published package
 - Documentation PR in `joyfill/docs`
 
 ### Step 5: Merge Documentation PRs
@@ -187,13 +178,7 @@ Two PRs need to be merged:
    - Runner: Ubuntu
    - Permissions: `contents:write`
 
-4. **publish-to-cocoapods**
-   - Validates podspec
-   - Publishes to CocoaPods trunk
-   - Runner: macOS 14
-   - Requires: `COCOAPODS_TRUNK_TOKEN` secret
-
-5. **create-docs-pr**
+4. **create-docs-pr**
    - Calls `docs.yml` workflow
    - Creates changelog documentation PR
 
@@ -313,50 +298,43 @@ GitHub releases are automatically marked as pre-release if the version contains:
 
 ### Version Storage
 
-Versions are managed in two places:
-1. **Joyfill.podspec**: For CocoaPods distribution
-   - Updated by automation: `spec.version = '{version}'`
-
-2. **Git Tags**: For Swift Package Manager
-   - SPM uses git tags for versioning
-   - Format: `v{version}` (e.g., `v1.0.0`)
+Versions are managed via **Git Tags**:
+- Swift Package Manager uses git tags for versioning
+- Format: `v{version}` (e.g., `v1.0.0`)
+- Tags are created automatically during the release process
+- No version file needed in the repository
 
 ## Publishing Targets
 
 ### 1. GitHub Releases
 
-**What**: Binary releases with changelog and installation instructions
+**What**: Official releases with changelog and installation instructions
 
 **Access**: Public, available at `https://github.com/joyfill/components-swift/releases`
 
 **Content**:
 - Release notes extracted from CHANGELOG
-- Installation instructions for SPM and CocoaPods
+- SPM installation instructions for both Package.swift and Xcode
+- Pre-release flag for RC/beta/alpha versions
 - Attached assets (if any)
 
-### 2. CocoaPods
+### 2. Swift Package Manager
 
-**What**: iOS package manager distribution
+**What**: Native Swift dependency manager (primary distribution method)
 
-**Registry**: CocoaPods Trunk
-
-**Installation**:
-```ruby
-pod 'Joyfill', '~> 1.0.0'
-```
-
-### 3. Swift Package Manager
-
-**What**: Native Swift dependency manager
-
-**Installation**:
+**Installation via Package.swift**:
 ```swift
 dependencies: [
     .package(url: "https://github.com/joyfill/components-swift.git", from: "1.0.0")
 ]
 ```
 
-**Note**: SPM automatically uses git tags, no additional publishing needed
+**Installation via Xcode**:
+1. File → Add Package Dependencies
+2. Enter repository URL
+3. Select version
+
+**Note**: SPM automatically uses git tags, no additional publishing step needed
 
 ## Documentation Publishing
 
@@ -412,16 +390,6 @@ dependencies: [
 3. Check for compilation errors in the code
 4. Ensure all modules have public APIs to document
 
-### CocoaPods Push Fails
-
-**Problem**: Publishing to CocoaPods fails
-
-**Solutions**:
-1. Verify `COCOAPODS_TRUNK_TOKEN` secret is set correctly
-2. Run `pod spec lint` locally to check for issues
-3. Check CocoaPods trunk status
-4. Ensure version doesn't already exist on trunk
-
 ### PR Creation in External Repos Fails
 
 **Problem**: Cannot create PRs in api-references or docs repos
@@ -436,11 +404,10 @@ dependencies: [
 
 If automation fails, here's the manual process:
 
-1. **Update Version**:
+1. **Update CHANGELOG**:
    ```bash
-   # Update Joyfill.podspec
    # Update CHANGELOG.md
-   git add Joyfill.podspec CHANGELOG.md
+   git add CHANGELOG.md
    git commit -m "chore: bump version to X.Y.Z"
    git push origin main
    ```
@@ -457,20 +424,14 @@ If automation fails, here's the manual process:
    - Copy changelog content
    - Publish release
 
-4. **Publish to CocoaPods**:
-   ```bash
-   pod spec lint Joyfill.podspec --allow-warnings
-   pod trunk push Joyfill.podspec --allow-warnings
-   ```
-
-5. **Generate DocC**:
+4. **Generate DocC**:
    ```bash
    xcodebuild docbuild -scheme Joyfill -destination 'generic/platform=iOS' -derivedDataPath ./DerivedData
    # Find .doccarchive and convert to static HTML
    xcrun docc process-archive transform-for-static-hosting ...
    ```
 
-6. **Update Documentation**:
+5. **Update Documentation**:
    - Manually create PRs in api-references and docs repos
 
 ## Comparison with Kotlin Release Process
@@ -487,33 +448,33 @@ If automation fails, here's the manual process:
 
 | Aspect | Kotlin | iOS |
 |--------|--------|-----|
-| **Package Registry** | Maven Central | CocoaPods + GitHub |
+| **Package Registry** | Maven Central | GitHub Releases |
 | **Doc Generator** | Dokka | DocC |
-| **Version File** | gradle/versions/joyfill.toml | Joyfill.podspec |
+| **Version File** | gradle/versions/joyfill.toml | Git tags only |
 | **Primary Package Manager** | Gradle/Maven | SPM (git tags) |
 | **Build Environment** | JVM (Ubuntu) | Xcode (macOS) |
-| **Artifact Signing** | GPG signing required | Code signing (Xcode) |
+| **Artifact Publishing** | Maven Central push | Git tag (automatic) |
 
 ### iOS-Specific Considerations
 
 1. **macOS runners required**: DocC generation requires Xcode on macOS
-2. **Multiple package managers**: Support for both SPM and CocoaPods
-3. **No version file for SPM**: SPM uses git tags exclusively
-4. **DocC output format**: Static HTML with specific hosting paths
-5. **Scheme sharing**: Xcode schemes must be shared for CI
+2. **Git tags as versions**: SPM uses git tags exclusively, no version file needed
+3. **DocC output format**: Static HTML with specific hosting paths for each module
+4. **Scheme sharing**: Xcode schemes must be shared for CI
+5. **Simplified publishing**: No package registry push needed, git tag is sufficient
 
 ## Best Practices
 
 1. **Test locally before releasing**:
    ```bash
-   # Validate podspec
-   pod spec lint Joyfill.podspec --allow-warnings
-   
    # Test SPM build
    swift build
    
    # Run tests
    swift test
+   
+   # Test DocC generation
+   xcodebuild docbuild -scheme Joyfill -destination 'generic/platform=iOS'
    ```
 
 2. **Use semantic versioning**: Follow semver.org guidelines
@@ -525,8 +486,6 @@ If automation fails, here's the manual process:
 5. **Test pre-releases**: Use RC/beta/alpha for testing before stable
 
 6. **Keep documentation in sync**: Merge docs PRs promptly after release
-
-7. **Monitor CocoaPods**: Check trunk for successful publication
 
 ## Future Enhancements
 

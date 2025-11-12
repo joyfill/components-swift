@@ -56,10 +56,9 @@ The release automation consists of these GitHub Actions workflows:
 
 ## Prerequisites
 
-### Required GitHub Secrets
+### Required GitHub Secret
 
 - `API_REF_REPO_TOKEN` - Access to api-references and docs repositories
-- `COCOAPODS_TRUNK_TOKEN` - CocoaPods publishing token
 
 See [iOS_RELEASE_AUTOMATION.md](./iOS_RELEASE_AUTOMATION.md#prerequisites) for detailed setup instructions.
 

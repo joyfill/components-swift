@@ -115,45 +115,16 @@ jobs:
             ]
             ```
             
-            ### CocoaPods
-            Add the following to your `Podfile`:
-            ```ruby
-            pod 'Joyfill', '~> ${{ needs.check-release-pr.outputs.version }}'
-            ```
+            Or add it via Xcode:
+            1. File → Add Package Dependencies
+            2. Enter repository URL: `https://github.com/${{ github.repository }}.git`
+            3. Select version: `${{ needs.check-release-pr.outputs.version }}`
             
             ---
             
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for full details.
           prerelease: ${{ contains(needs.check-release-pr.outputs.version, 'RC') || contains(needs.check-release-pr.outputs.version, 'beta') || contains(needs.check-release-pr.outputs.version, 'alpha') }}
           draft: false
-
-  publish-to-cocoapods:
-    name: 'Publish to CocoaPods'
-    needs: [check-release-pr, create-tag, create-release]
-    if: needs.check-release-pr.outputs.is_release == 'true'
-    runs-on: 'macos-14'
-    steps:
-      - name: 'Checkout main'
-        uses: 'actions/checkout@v5'
-        with:
-          ref: 'main'
-
-      - name: 'Setup Ruby'
-        uses: 'ruby/setup-ruby@v1'
-        with:
-          ruby-version: '3.2'
-
-      - name: 'Install CocoaPods'
-        run: gem install cocoapods
-
-      - name: 'Validate Podspec'
-        run: pod spec lint Joyfill.podspec --allow-warnings
-
-      - name: 'Publish to CocoaPods Trunk'
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: |
-          pod trunk push Joyfill.podspec --allow-warnings
 
   create-docs-pr:
     name: 'Create Docs PR'

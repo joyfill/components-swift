@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-Before using the release automation, ensure these secrets are configured:
+Before using the release automation, ensure this secret is configured:
 
-### 1. Configure API_REF_REPO_TOKEN
+### Configure API_REF_REPO_TOKEN
 
 ```bash
 # Create a GitHub Personal Access Token with 'repo' scope
@@ -16,18 +16,6 @@ Before using the release automation, ensure these secrets are configured:
 The token needs access to:
 - `joyfill/api-references` repository
 - `joyfill/docs` repository
-
-### 2. Configure COCOAPODS_TRUNK_TOKEN
-
-```bash
-# Register with CocoaPods trunk (if not already registered)
-pod trunk register YOUR_EMAIL 'YOUR_NAME'
-
-# Get your trunk token
-cat ~/.netrc | grep cocoapods.org -A 2
-
-# Add the token as a repository secret named 'COCOAPODS_TRUNK_TOKEN'
-```
 
 ## Releasing a New Version
 
@@ -94,8 +82,7 @@ Once everything looks good:
 
 After merging, the automation will:
 - ✅ Create git tag `v1.0.0`
-- ✅ Create GitHub Release
-- ✅ Publish to CocoaPods
+- ✅ Create GitHub Release (automatically available for SPM)
 - ✅ Create changelog docs PR
 
 Check the Actions tab to monitor progress.
@@ -140,13 +127,6 @@ gh run list --workflow=release-prepare.yml --limit 5
 gh run view <RUN_ID>
 ```
 
-### CocoaPods Push Failed
-
-Validate the podspec locally:
-```bash
-pod spec lint Joyfill.podspec --allow-warnings
-```
-
 ### DocC Generation Failed
 
 Test DocC locally:
@@ -187,14 +167,13 @@ gh release delete v0.0.1-test
 After a successful release:
 
 - **GitHub Releases**: https://github.com/joyfill/components-swift/releases
-- **CocoaPods**: https://cocoapods.org/pods/Joyfill
-- **Swift Package Manager**: Uses git tags automatically
-- **API Documentation**: https://docs.joyfill.com (or your docs domain)
-- **Changelog**: https://docs.joyfill.com/ios/changelogs/releases
+- **Swift Package Manager**: Automatically available via git tags
+- **API Documentation**: Published to api-references repository
+- **Changelog**: Published to docs repository
 
 ## Tips
 
-1. **Test locally first**: Always run tests and validate podspec before releasing
+1. **Test locally first**: Always run tests before releasing
 2. **Write clear changelog entries**: Focus on user-facing changes
 3. **Use semantic versioning**: Follow semver.org guidelines
 4. **Review API docs**: Check generated documentation before merging
@@ -223,10 +202,7 @@ gh run watch <RUN_ID>
 # 6. Check release
 gh release view v1.2.0
 
-# 7. Verify CocoaPods
-pod search Joyfill
-
-# 8. Merge docs PRs
+# 7. Merge docs PRs
 # (In api-references and docs repositories)
 
 # Done! 🎉

@@ -19,7 +19,7 @@ Four GitHub Actions workflows were created to automate the entire release proces
 - **Purpose**: Initiates the release process
 - **Trigger**: Manual workflow dispatch with version input
 - **Actions**:
-  - Updates `Joyfill.podspec` with new version
+  - Verifies version format
   - Adds new version section to `CHANGELOG.md`
   - Creates release PR with branch `release/{version}`
   - Triggers API reference generation
@@ -30,11 +30,10 @@ Four GitHub Actions workflows were created to automate the entire release proces
 - **Trigger**: PR merge to main (detects `release/*` branches)
 - **Jobs**:
   1. Check if PR is a release PR
-  2. Create and push git tag `v{version}`
-  3. Create GitHub Release with changelog
-  4. Publish to CocoaPods
-  5. Trigger documentation update workflow
-- **Runners**: Ubuntu (most jobs), macOS 14 (CocoaPods)
+  2. Create and push git tag `v{version}` (automatically available for SPM)
+  3. Create GitHub Release with changelog and installation instructions
+  4. Trigger documentation update workflow
+- **Runners**: Ubuntu
 
 #### `api-references.yml`
 - **Purpose**: Generate and publish API documentation
@@ -103,29 +102,21 @@ Three comprehensive documentation files were created:
 
 | Aspect | Kotlin | iOS |
 |--------|--------|-----|
-| **Package Registry** | Maven Central | CocoaPods + GitHub Releases |
+| **Package Registry** | Maven Central | GitHub Releases |
 | **Documentation Tool** | Dokka | DocC |
-| **Version File** | gradle/versions/joyfill.toml | Joyfill.podspec |
+| **Version File** | gradle/versions/joyfill.toml | Git tags only |
 | **Primary Package Manager** | Gradle | SPM (uses git tags) |
 | **Build Environment** | Java 17 on Ubuntu | Xcode on macOS 14 |
-| **CI Runner** | Ubuntu | macOS (for DocC) |
+| **Artifact Publishing** | Maven Central push | Git tag (automatic) |
 
 ## Required GitHub Secrets
 
-The following secrets need to be configured in the repository settings:
+The following secret needs to be configured in the repository settings:
 
 1. **API_REF_REPO_TOKEN**
    - Purpose: Access to `joyfill/api-references` and `joyfill/docs` repositories
    - Scope: `repo` (full repository access)
    - How to create: GitHub Settings → Developer settings → Personal access tokens
-
-2. **COCOAPODS_TRUNK_TOKEN**
-   - Purpose: Publish packages to CocoaPods
-   - How to get:
-     ```bash
-     pod trunk register EMAIL 'NAME'
-     # Token will be in ~/.netrc or CocoaPods config
-     ```
 
 ## Complete Release Flow
 
@@ -138,7 +129,7 @@ The following secrets need to be configured in the repository settings:
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 2. Automation updates files and creates release PR          │
-│    - Updates Joyfill.podspec                                │
+│    - Verifies version format                                │
 │    - Adds version to CHANGELOG.md                           │
 │    - Creates release/1.0.0 branch                           │
 └────────────────────┬────────────────────────────────────────┘
@@ -164,9 +155,8 @@ The following secrets need to be configured in the repository settings:
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 6. release.yml automatically triggers                       │
-│    - Creates git tag v1.0.0                                 │
+│    - Creates git tag v1.0.0 (available for SPM)             │
 │    - Creates GitHub Release                                 │
-│    - Publishes to CocoaPods                                 │
 │    - Creates changelog docs PR                              │
 └────────────────────┬────────────────────────────────────────┘
                      │
@@ -181,8 +171,7 @@ The following secrets need to be configured in the repository settings:
 ┌─────────────────────────────────────────────────────────────┐
 │ 8. Release complete!                                         │
 │    ✓ GitHub Release published                               │
-│    ✓ CocoaPods package available                            │
-│    ✓ SPM available via git tag                              │
+│    ✓ SPM automatically available via git tag                │
 │    ✓ API documentation updated                              │
 │    ✓ Changelog documentation updated                        │
 └─────────────────────────────────────────────────────────────┘
@@ -221,20 +210,19 @@ Before merging this PR, the following should be tested:
 
 - [ ] Manually trigger `release-prepare.yml` with a test version (e.g., `0.0.1-test`)
 - [ ] Verify release PR is created correctly
-- [ ] Check that `Joyfill.podspec` is updated with correct version
-- [ ] Verify `CHANGELOG.md` has new version section
+- [ ] Check that `CHANGELOG.md` has new version section
 - [ ] Test DocC generation locally:
   ```bash
   xcodebuild docbuild -scheme Joyfill -destination 'generic/platform=iOS'
   ```
 - [ ] Verify all secrets are configured in repository settings
-- [ ] Test podspec validation:
+- [ ] Test SPM build:
   ```bash
-  pod spec lint Joyfill.podspec --allow-warnings
+  swift build && swift test
   ```
 - [ ] Merge test release PR and verify full release flow
 - [ ] Check GitHub Release is created
-- [ ] Verify CocoaPods publication (or skip for test version)
+- [ ] Verify git tag is created and SPM can fetch it
 - [ ] Check documentation PRs are created in external repos
 
 ## Benefits
@@ -245,15 +233,14 @@ Before merging this PR, the following should be tested:
 4. **Documentation**: Automatic API reference and changelog updates
 5. **Visibility**: PRs for all changes ensure review and approval
 6. **Traceability**: Git tags and releases provide clear version history
-7. **Multi-platform**: Automatic publishing to both CocoaPods and SPM
+7. **Simplicity**: SPM uses git tags directly, no additional publishing step needed
 
 ## Next Steps
 
 After merging this PR:
 
-1. **Configure Secrets**: Add required secrets to repository
+1. **Configure Secret**: Add required secret to repository
    - `API_REF_REPO_TOKEN`
-   - `COCOAPODS_TRUNK_TOKEN`
 
 2. **Test Release**: Run a test release with version `0.0.1-test`
 
