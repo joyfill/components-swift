@@ -342,21 +342,21 @@ dependencies: [
 
 **Target**: `joyfill/api-references` repository
 
-**Location**: `reference/ios/{Module}/`
+**Location**: `ios/{Module}/`
 
 **Format**: Static HTML generated from DocC
 
 **Modules**:
-- `reference/ios/Joyfill/` - Main UI library
-- `reference/ios/JoyfillModel/` - Data models
-- `reference/ios/JoyfillFormulas/` - Formula engine
-- `reference/ios/JoyfillAPIService/` - API client
+- `ios/Joyfill/` - Main UI library
+- `ios/JoyfillModel/` - Data models
+- `ios/JoyfillFormulas/` - Formula engine
+- `ios/JoyfillAPIService/` - API client
 
 **Hosting**: Configured with base paths for static hosting:
-- `/reference/ios/Joyfill`
-- `/reference/ios/JoyfillModel`
-- `/reference/ios/JoyfillFormulas`
-- `/reference/ios/JoyfillAPIService`
+- `/api-references/ios/Joyfill`
+- `/api-references/ios/JoyfillModel`
+- `/api-references/ios/JoyfillFormulas`
+- `/api-references/ios/JoyfillAPIService`
 
 ### Changelog Documentation
 

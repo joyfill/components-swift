@@ -56,7 +56,7 @@ jobs:
           xcrun docc process-archive transform-for-static-hosting \
             "$DOCC_ARCHIVE" \
             --output-path ./docs-output/Joyfill \
-            --hosting-base-path /reference/ios/Joyfill
+            --hosting-base-path /api-references/ios/Joyfill
 
       - name: 'Generate DocC documentation for JoyfillModel'
         working-directory: src
@@ -71,7 +71,7 @@ jobs:
           xcrun docc process-archive transform-for-static-hosting \
             "$DOCC_ARCHIVE" \
             --output-path ./docs-output/JoyfillModel \
-            --hosting-base-path /reference/ios/JoyfillModel
+            --hosting-base-path /api-references/ios/JoyfillModel
 
       - name: 'Generate DocC documentation for JoyfillFormulas'
         working-directory: src
@@ -86,7 +86,7 @@ jobs:
           xcrun docc process-archive transform-for-static-hosting \
             "$DOCC_ARCHIVE" \
             --output-path ./docs-output/JoyfillFormulas \
-            --hosting-base-path /reference/ios/JoyfillFormulas
+            --hosting-base-path /api-references/ios/JoyfillFormulas
 
       - name: 'Generate DocC documentation for JoyfillAPIService'
         working-directory: src
@@ -101,16 +101,16 @@ jobs:
           xcrun docc process-archive transform-for-static-hosting \
             "$DOCC_ARCHIVE" \
             --output-path ./docs-output/JoyfillAPIService \
-            --hosting-base-path /reference/ios/JoyfillAPIService
+            --hosting-base-path /api-references/ios/JoyfillAPIService
 
       - name: 'Copy generated docs to api-references repository'
         run: |
           # Create ios directory if it doesn't exist
-          mkdir -p api-references/reference/ios
+          mkdir -p api-references/ios
           
           # Remove old docs and copy new ones
-          rm -rf api-references/reference/ios/*
-          cp -r src/docs-output/* api-references/reference/ios/
+          rm -rf api-references/ios/Joyfill api-references/ios/JoyfillModel api-references/ios/JoyfillFormulas api-references/ios/JoyfillAPIService
+          cp -r src/docs-output/* api-references/ios/
 
       - name: 'Check for changes'
         id: newFiles
