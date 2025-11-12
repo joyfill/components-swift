@@ -1,0 +1,166 @@
+name: 'iOS Release'
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  check-release-pr:
+    name: 'Check if Release PR'
+    runs-on: 'ubuntu-latest'
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    outputs:
+      is_release: ${{ steps.check.outputs.is_release }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - name: 'Check PR branch name'
+        id: check
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          if [[ "$BRANCH_NAME" =~ ^release/ ]]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            VERSION=$(echo "$BRANCH_NAME" | sed 's/release\///')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Detected release PR for version: $VERSION"
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+            echo "version=" >> $GITHUB_OUTPUT
+            echo "Not a release PR"
+          fi
+
+  create-tag:
+    name: 'Create Git Tag'
+    needs: check-release-pr
+    if: needs.check-release-pr.outputs.is_release == 'true'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout main'
+        uses: 'actions/checkout@v5'
+        with:
+          ref: 'main'
+          fetch-depth: 0
+
+      - name: 'Create and push tag'
+        run: |
+          VERSION="${{ needs.check-release-pr.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+
+  create-release:
+    name: 'Create GitHub Release'
+    needs: [check-release-pr, create-tag]
+    if: needs.check-release-pr.outputs.is_release == 'true'
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: write
+    steps:
+      - name: 'Checkout main'
+        uses: 'actions/checkout@v5'
+        with:
+          ref: 'main'
+
+      - name: 'Extract changelog for version'
+        id: changelog
+        run: |
+          VERSION="${{ needs.check-release-pr.outputs.version }}"
+          
+          # Extract the changelog section for this version
+          # This uses awk to extract everything between ## [VERSION] and the next ## heading
+          CHANGELOG_CONTENT=$(awk -v version="$VERSION" '
+            /^## \[.*\]/ {
+              if (found) exit
+              if ($0 ~ "\\[" version "\\]") {
+                found = 1
+                next
+              }
+            }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md)
+          
+          # Save to file and also to output
+          echo "$CHANGELOG_CONTENT" > /tmp/changelog_section.md
+          
+          # Create multiline output for GitHub Actions
+          {
+            echo 'content<<EOF'
+            echo "$CHANGELOG_CONTENT"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: 'Create GitHub Release'
+        uses: 'ncipollo/release-action@v1'
+        with:
+          tag: 'v${{ needs.check-release-pr.outputs.version }}'
+          name: 'Release ${{ needs.check-release-pr.outputs.version }}'
+          body: |
+            # Joyfill iOS SDK ${{ needs.check-release-pr.outputs.version }}
+            
+            ${{ steps.changelog.outputs.content }}
+            
+            ## Installation
+            
+            ### Swift Package Manager
+            Add the following to your `Package.swift` file:
+            ```swift
+            dependencies: [
+                .package(url: "https://github.com/${{ github.repository }}.git", from: "${{ needs.check-release-pr.outputs.version }}")
+            ]
+            ```
+            
+            ### CocoaPods
+            Add the following to your `Podfile`:
+            ```ruby
+            pod 'Joyfill', '~> ${{ needs.check-release-pr.outputs.version }}'
+            ```
+            
+            ---
+            
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for full details.
+          prerelease: ${{ contains(needs.check-release-pr.outputs.version, 'RC') || contains(needs.check-release-pr.outputs.version, 'beta') || contains(needs.check-release-pr.outputs.version, 'alpha') }}
+          draft: false
+
+  publish-to-cocoapods:
+    name: 'Publish to CocoaPods'
+    needs: [check-release-pr, create-tag, create-release]
+    if: needs.check-release-pr.outputs.is_release == 'true'
+    runs-on: 'macos-14'
+    steps:
+      - name: 'Checkout main'
+        uses: 'actions/checkout@v5'
+        with:
+          ref: 'main'
+
+      - name: 'Setup Ruby'
+        uses: 'ruby/setup-ruby@v1'
+        with:
+          ruby-version: '3.2'
+
+      - name: 'Install CocoaPods'
+        run: gem install cocoapods
+
+      - name: 'Validate Podspec'
+        run: pod spec lint Joyfill.podspec --allow-warnings
+
+      - name: 'Publish to CocoaPods Trunk'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          pod trunk push Joyfill.podspec --allow-warnings
+
+  create-docs-pr:
+    name: 'Create Docs PR'
+    needs: [check-release-pr, create-release]
+    if: needs.check-release-pr.outputs.is_release == 'true'
+    uses: ./.github/workflows/docs.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.check-release-pr.outputs.version }}
+
