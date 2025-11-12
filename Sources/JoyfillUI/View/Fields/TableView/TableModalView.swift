@@ -299,7 +299,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         LazyVStack(alignment: .leading, spacing: 0) {
-                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
+                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
                                     .frame(height: 60)
@@ -320,6 +320,14 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                    }
+                    .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
+                        // Scroll to keep selected row in view when navigating with arrows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                        }
                     }
                     .gesture(DragGesture().onChanged({ _ in
                         dismissKeyboard()
@@ -327,7 +335,7 @@ struct TableModalView : View {
                 } else {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
-                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.self) { $rowCellModels in
+                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
                                     .frame(height: 60)
@@ -348,6 +356,14 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                    }
+                    .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
+                        // Scroll to keep selected row in view when navigating with arrows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                        }
                     }
                 }
             }
