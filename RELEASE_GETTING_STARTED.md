@@ -168,7 +168,11 @@ After a successful release:
 
 - **GitHub Releases**: https://github.com/joyfill/components-swift/releases
 - **Swift Package Manager**: Automatically available via git tags
-- **API Documentation**: Published to api-references repository
+- **API Documentation**: Published to https://joyfill.github.io/api-references/ios/
+  - Joyfill: `/api-references/ios/Joyfill`
+  - JoyfillModel: `/api-references/ios/JoyfillModel`
+  - JoyfillFormulas: `/api-references/ios/JoyfillFormulas`
+  - JoyfillAPIService: `/api-references/ios/JoyfillAPIService`
 - **Changelog**: Published to docs repository
 
 ## Tips

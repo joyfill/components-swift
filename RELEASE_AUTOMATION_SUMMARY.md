@@ -44,8 +44,9 @@ Four GitHub Actions workflows were created to automate the entire release proces
     - JoyfillModel
     - JoyfillFormulas
     - JoyfillAPIService
-  - Converts to static HTML
+  - Converts to static HTML with GitHub Pages base paths (`/api-references/ios/*`)
   - Creates PR in `joyfill/api-references` repository
+- **Output**: Published to https://joyfill.github.io/api-references/ios/
 - **Runner**: macOS 14
 - **Requirements**: Xcode, access to api-references repo
 

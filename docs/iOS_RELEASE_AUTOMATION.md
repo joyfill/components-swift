@@ -203,10 +203,15 @@ Two PRs need to be merged:
 2. Converts DocC archives to static HTML using:
    ```bash
    xcodebuild docbuild -scheme {Module} -destination 'generic/platform=iOS'
-   xcrun docc process-archive transform-for-static-hosting
+   xcrun docc process-archive transform-for-static-hosting \
+     {archive} \
+     --output-path {output} \
+     --hosting-base-path /api-references/ios/{Module}
    ```
+   
+   **Note**: The `--hosting-base-path` must match the GitHub Pages URL structure (`/api-references/ios/*`) for navigation to work correctly.
 
-3. Copies generated docs to `joyfill/api-references` repository
+3. Copies generated docs to `joyfill/api-references` repository at `ios/{Module}/`
 4. Creates PR with the updated documentation
 
 **Runner**: macOS 14
@@ -352,11 +357,15 @@ dependencies: [
 - `ios/JoyfillFormulas/` - Formula engine
 - `ios/JoyfillAPIService/` - API client
 
-**Hosting**: Configured with base paths for static hosting:
-- `/api-references/ios/Joyfill`
-- `/api-references/ios/JoyfillModel`
-- `/api-references/ios/JoyfillFormulas`
-- `/api-references/ios/JoyfillAPIService`
+**Hosting**: Published via GitHub Pages at `https://joyfill.github.io/api-references/`
+
+**Base Paths** (configured for proper navigation):
+- `/api-references/ios/Joyfill` → https://joyfill.github.io/api-references/ios/Joyfill/
+- `/api-references/ios/JoyfillModel` → https://joyfill.github.io/api-references/ios/JoyfillModel/
+- `/api-references/ios/JoyfillFormulas` → https://joyfill.github.io/api-references/ios/JoyfillFormulas/
+- `/api-references/ios/JoyfillAPIService` → https://joyfill.github.io/api-references/ios/JoyfillAPIService/
+
+**Important**: The hosting base paths must match the GitHub Pages URL structure for internal navigation and links to work correctly.
 
 ### Changelog Documentation
 
@@ -389,6 +398,16 @@ dependencies: [
 2. Verify all schemes are shared (required for xcodebuild)
 3. Check for compilation errors in the code
 4. Ensure all modules have public APIs to document
+
+### Documentation Links Not Working
+
+**Problem**: Navigation and internal links broken in published documentation
+
+**Solution**:
+1. Verify hosting base paths match GitHub Pages structure
+2. Should be `/api-references/ios/{Module}` not `/reference/ios/{Module}`
+3. Check the `--hosting-base-path` parameter in `api-references.yml`
+4. Regenerate documentation if paths were incorrect
 
 ### PR Creation in External Repos Fails
 
@@ -460,8 +479,10 @@ If automation fails, here's the manual process:
 1. **macOS runners required**: DocC generation requires Xcode on macOS
 2. **Git tags as versions**: SPM uses git tags exclusively, no version file needed
 3. **DocC output format**: Static HTML with specific hosting paths for each module
-4. **Scheme sharing**: Xcode schemes must be shared for CI
-5. **Simplified publishing**: No package registry push needed, git tag is sufficient
+4. **GitHub Pages hosting**: Base paths must match deployment URL structure (`/api-references/ios/*`)
+5. **Scheme sharing**: Xcode schemes must be shared for CI
+6. **Simplified publishing**: No package registry push needed, git tag is sufficient
+7. **Navigation dependencies**: Internal doc links rely on correct hosting base paths
 
 ## Best Practices
 
@@ -473,19 +494,35 @@ If automation fails, here's the manual process:
    # Run tests
    swift test
    
-   # Test DocC generation
-   xcodebuild docbuild -scheme Joyfill -destination 'generic/platform=iOS'
+   # Test DocC generation with correct hosting paths
+   xcodebuild docbuild -scheme Joyfill -destination 'generic/platform=iOS' \
+     -derivedDataPath ./DerivedData
+   
+   # Test static HTML conversion (optional)
+   xcrun docc process-archive transform-for-static-hosting \
+     "DerivedData/Build/Products/Debug-iphoneos/Joyfill.doccarchive" \
+     --output-path ./test-output \
+     --hosting-base-path /api-references/ios/Joyfill
    ```
 
 2. **Use semantic versioning**: Follow semver.org guidelines
 
 3. **Write clear changelog entries**: Focus on user impact
 
-4. **Review API references**: Check generated docs before merging PR
+4. **Review API references**: Check generated documentation before merging PR
+   - Verify navigation works in the PR preview
+   - Check internal links
+   - Confirm hosting paths are correct
 
 5. **Test pre-releases**: Use RC/beta/alpha for testing before stable
 
 6. **Keep documentation in sync**: Merge docs PRs promptly after release
+
+7. **Verify GitHub Pages deployment**: After merging docs PR, check live URLs:
+   - https://joyfill.github.io/api-references/ios/Joyfill/
+   - https://joyfill.github.io/api-references/ios/JoyfillModel/
+   - https://joyfill.github.io/api-references/ios/JoyfillFormulas/
+   - https://joyfill.github.io/api-references/ios/JoyfillAPIService/
 
 ## Future Enhancements
 
