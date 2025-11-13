@@ -1,3 +1,14 @@
+## [3.0.0-rc6]
+
+### Added
+-
+
+### Changed
+-
+
+### Fixed
+-
+
 ---
 title: "Release Notes"
 description: "Complete changelog of Joyfill iOS SDK releases"
