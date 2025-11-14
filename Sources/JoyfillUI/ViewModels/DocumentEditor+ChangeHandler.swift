@@ -852,16 +852,12 @@ extension DocumentEditor {
     public func bulkEditForNested(changes: [String: [String : ValueUnion]],
                                   selectedRows: [String],
                                   fieldIdentifier: FieldIdentifier,
-                                  parentRowId: String,
                                   nestedKey: String,
-                                  rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
+                                  parentPath: String) -> ([ValueElement], [String : ValueElement]) {
                 guard var elements = self.field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
                     return ([], [:])
                 }
 
-                let parentPath = self.computeParentPath(targetParentId: parentRowId,
-                                                        nestedKey: nestedKey,
-                                                        in: [rootSchemaKey : elements]) ?? ""
                 let columns = self.field(fieldID: fieldIdentifier.fieldID)?.schema?[nestedKey]?.tableColumns ?? []
                 var isDateColumn = false
                 var updatedElements: [String : ValueElement] = [:]
