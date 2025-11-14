@@ -1544,7 +1544,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                   rootSchemaKey: rootSchemaKey,
                                                                         nestedKey: nestedKey,
                                                                         parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
-                                                                        callOnChange: callOnChange) ?? ([], nil)
+                                                                        callOnChange: callOnChange,
+                                                                        valueElements: tableDataModel.valueToValueElements ?? [],
+                                                                        isRootRow: currentRowModel?.rowType.isRow ?? false) ?? ([], nil)
         self.tableDataModel.valueToValueElements = result.0
         if let valueElement = result.1 {
             self.rowToValueElementMap[rowId] = valueElement

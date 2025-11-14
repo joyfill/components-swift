@@ -1112,11 +1112,9 @@ extension DocumentEditor {
         return newCell
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool) -> ([ValueElement], ValueElement?) {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool, valueElements: [ValueElement], isRootRow: Bool) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            return ([], nil)
-        }
+        var elements = valueElements
         var newCell: ValueUnion?
         var updatedElement: ValueElement? = nil
         switch cellDataModel.type {
@@ -1153,7 +1151,7 @@ extension DocumentEditor {
                 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         if callOnChange {
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
             let cells = [
                 cellDataModel.id : newCell?.dictionary
             ]
@@ -1168,7 +1166,7 @@ extension DocumentEditor {
                 Log("Failed to find field \(fieldId)", type: .error)
                 return ([], nil)
             }
-            let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+            let parentPath = isRootRow ? "" : computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
             handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: [row], parentPath: parentPath, schemaId: nestedKey)
         }
 
