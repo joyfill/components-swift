@@ -963,9 +963,8 @@ extension DocumentEditorChangeHandlerTests {
         let rowToDelete = initialNestedRows.last!.id!
         _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
-                                            rootSchemaKey: collectionFieldID,
                                             nestedKey: nestedKey,
-                                            parentRowId: parentRowId)
+                                            parentPath: "1.67ddc5c9910a394a1324bfbe")
         
         // Fetch the parent's nested rows again.
         guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),

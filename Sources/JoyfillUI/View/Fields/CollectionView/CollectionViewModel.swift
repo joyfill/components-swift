@@ -910,9 +910,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            deleteSelectedNestedRow(parentRowId: "", nestedKey: rootSchemaKey)
+            deleteSelectedNestedRow(parentRowId: "", nestedKey: rootSchemaKey, parentPath: firstSelectedRow.parentPath)
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            deleteSelectedNestedRow(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey)
+            deleteSelectedNestedRow(parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, parentPath: firstSelectedRow.parentPath)
         default:
             return
         }
@@ -920,13 +920,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
     
-    func deleteSelectedNestedRow(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, shouldSendEvent: Bool = true) {
+    func deleteSelectedNestedRow(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, shouldSendEvent: Bool = true, parentPath: String) {
         let selectedRows = rowIDs ?? tableDataModel.selectedRows
         let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: selectedRows,
                                                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                                   rootSchemaKey: rootSchemaKey,
                                                                                    nestedKey: nestedKey,
-                                                                                   parentRowId: parentRowId,
+                                                                                   parentPath: parentPath,
                                                                                    shouldSendEvent: shouldSendEvent)
         self.tableDataModel.valueToValueElements = valueToValueElements
         buildRowToValueElementMap()
@@ -2003,7 +2002,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
             Log("RowID not found or no cached ValueElement", type: .error)
             return
         }
-        deleteSelectedNestedRow(rowIDs: [rowID], parentRowId: "", nestedKey: "", shouldSendEvent: false)
+        deleteSelectedNestedRow(rowIDs: [rowID], parentRowId: "", nestedKey: "", shouldSendEvent: false, parentPath: "")
     }
     
     fileprivate func moveNestedRows(_ targetRowIndex: Int, _ rowIndex: inout Int, _ rowID: String, _ schemaID: String, _ parentID: String) {

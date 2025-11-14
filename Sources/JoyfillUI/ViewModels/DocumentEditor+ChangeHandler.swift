@@ -48,7 +48,7 @@ extension DocumentEditor {
         return elements
     }
     
-    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
+    public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, nestedKey: String, parentPath: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var field = fieldMap[fieldId] else {
             Log("Field not found: \(fieldId)", type: .error)
@@ -66,7 +66,6 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         guard shouldSendEvent else { return elements }
-        var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
         return elements
     }
