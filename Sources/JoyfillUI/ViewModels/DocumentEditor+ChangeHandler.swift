@@ -747,10 +747,8 @@ extension DocumentEditor {
                                     parentRowId: String? = nil,
                                     schemaKey: String? = nil,
                                     childrenKeys: [String]? = nil,
-                                    rootSchemaKey: String,
-                                    shouldSendEvent: Bool = true) -> (all: [ValueElement], inserted: ValueElement)? {
+                                    shouldSendEvent: Bool = true, parentPath: String) -> (all: [ValueElement], inserted: ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
-        var parentPath = ""
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
             newRow.cells = [:]
@@ -771,8 +769,6 @@ extension DocumentEditor {
         if let parentRowId = parentRowId, let nestedKey = schemaKey {
             // Attempt to insert recursively into the nested structure.
             insertedIndex = insertNestedRow(in: &elements, targetParentId: parentRowId, nestedKey: nestedKey, newRow: newRow)
-            
-            parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         } else {
             // Insert as a top-level row.
             elements.append(newRow)

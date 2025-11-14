@@ -1401,8 +1401,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                             fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                             schemaKey: rootSchemaKey,
                                                                             childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
-                                                                            rootSchemaKey: rootSchemaKey,
-                                                                            shouldSendEvent: shouldSendEvent) {
+                                                                            shouldSendEvent: shouldSendEvent,
+                                                                            parentPath: "") {
             let index = tableDataModel.filteredcellModels.count
             tableDataModel.valueToValueElements = rowData.all
             buildRowToValueElementMap()
@@ -1497,7 +1497,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                             parentRowId: parentID.rowID,
                                                                             schemaKey: schemaKey,
                                                                             childrenKeys: tableDataModel.schema[schemaKey]?.children,
-                                                                            rootSchemaKey: rootSchemaKey) {
+                                                                            parentPath: parentPath) {
             //Update valueToValueElements
             self.tableDataModel.valueToValueElements = rowData.all
             buildRowToValueElementMap()
