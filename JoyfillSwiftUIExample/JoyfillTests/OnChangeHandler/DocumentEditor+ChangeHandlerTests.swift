@@ -1049,9 +1049,8 @@ extension DocumentEditorChangeHandlerTests {
         let rowIdToMove = nestedRows.last!.id!
         _ = documentEditor.moveNestedRowUp(rowID: rowIdToMove,
                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
-                                           rootSchemaKey: collectionFieldID,
                                            nestedKey: nestedKey,
-                                           parentRowId: parentRowId)
+                                           parentPath: "")
         
         // Fetch updated nested rows.
         guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),

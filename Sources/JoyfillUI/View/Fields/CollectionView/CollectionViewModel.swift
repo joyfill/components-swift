@@ -1209,16 +1209,16 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         switch firstSelectedRow.rowType {
         case .row(index: let index):
-            moveNestedUP(rowIDs: selectedRows, parentRowId: "", nestedKey: rootSchemaKey, isNested: false, shouldSendEvent: shouldSendEvent)
+            moveNestedUP(rowIDs: selectedRows, parentRowId: "", nestedKey: rootSchemaKey, isNested: false, shouldSendEvent: shouldSendEvent, parentPath: "")
         case .nestedRow(level: let level, index: let index, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            moveNestedUP(rowIDs: selectedRows, parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, isNested: true, shouldSendEvent: shouldSendEvent)
+            moveNestedUP(rowIDs: selectedRows, parentRowId: parentID?.rowID ?? "", nestedKey: parentSchemaKey, isNested: true, shouldSendEvent: shouldSendEvent, parentPath: firstSelectedRow.parentPath)
         default:
             return
         }
         reIndexingRows(rowDataModel: firstSelectedRow)
     }
     
-    func moveNestedUP(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, isNested: Bool, shouldSendEvent: Bool = true) {
+    func moveNestedUP(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, isNested: Bool, shouldSendEvent: Bool = true, parentPath: String) {
         let selectedRows = rowIDs ?? tableDataModel.selectedRows
         guard let firstSelectedRowID = selectedRows.first else {
             Log("No row selected", type: .error)
@@ -1226,10 +1226,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: firstSelectedRowID,
                                                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                                                  rootSchemaKey: rootSchemaKey,
                                                                                                   nestedKey: nestedKey,
-                                                                                                  parentRowId: parentRowId,
-                                                                                                  shouldSendEvent: shouldSendEvent)
+                                                                                                  shouldSendEvent: shouldSendEvent,
+                                                                                                  parentPath: parentPath)
         buildRowToValueElementMap()
         guard let lastRowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) else {
             Log("Could not find the row", type: .error)
@@ -2026,10 +2025,9 @@ extension CollectionViewModel: DocumentEditorDelegate {
                 rowIndex -= 1
                 self.tableDataModel.valueToValueElements = tableDataModel.documentEditor?.moveNestedRowUp(rowID: rowID,
                                                                                                           fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                                                          rootSchemaKey: rootSchemaKey,
                                                                                                           nestedKey: schemaID,
-                                                                                                          parentRowId: parentID,
-                                                                                                          shouldSendEvent: false)
+                                                                                                          shouldSendEvent: false,
+                                                                                                          parentPath: "")
                 buildRowToValueElementMap()
                 if let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == parentID }) {
                     if rowDataModel.isExpanded {

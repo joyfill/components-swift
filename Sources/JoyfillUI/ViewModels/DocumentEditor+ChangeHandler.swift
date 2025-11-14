@@ -275,10 +275,9 @@ extension DocumentEditor {
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
-    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
+    public func moveNestedRowUp(rowID: String, fieldIdentifier: FieldIdentifier, nestedKey: String, shouldSendEvent: Bool = true, parentPath: String) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else { return [] }
-        var parentPath: String = ""
         var targetRows: [TargetRowModel] = []
         
         if let topIndex = elements.firstIndex(where: { $0.id == rowID }) {
@@ -293,7 +292,6 @@ extension DocumentEditor {
             }
         }
         guard shouldSendEvent else { return elements }
-        parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
         moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)
         return elements
