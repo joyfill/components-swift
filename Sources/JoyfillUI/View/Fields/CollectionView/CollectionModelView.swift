@@ -222,9 +222,8 @@ struct CollectionExpanderView: View {
         HStack {
             if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
                 Button(action: {
-//                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
-                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
+                    viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID, parentPath: rowDataModel.parentPath)
                 }) {
                     Text("+ Row")
                         .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)

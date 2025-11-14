@@ -36,13 +36,15 @@ struct RowDataModel: Equatable, Hashable {
         cells.filter { $0.data.isCellFilled }.count
     }
     var rowWidth: CGFloat
+    let parentPath: String
     
-    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, rowWidth: CGFloat = 0 ) {
+    init(rowID: String, cells: [TableCellModel], rowType: RowType, isExpanded: Bool = false, rowWidth: CGFloat = 0, parentPath: String = "") {
         self.rowID = rowID
         self.cells = cells
         self.rowType = rowType
         self.isExpanded = isExpanded
         self.rowWidth = rowWidth
+        self.parentPath = parentPath
     }
 }
 

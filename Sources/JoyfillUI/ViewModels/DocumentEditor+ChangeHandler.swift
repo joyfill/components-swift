@@ -1112,7 +1112,7 @@ extension DocumentEditor {
         return newCell
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool) -> ([ValueElement], ValueElement?) {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool, parentPath: String) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([], nil)
@@ -1168,7 +1168,6 @@ extension DocumentEditor {
                 Log("Failed to find field \(fieldId)", type: .error)
                 return ([], nil)
             }
-            let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
             handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: [row], parentPath: parentPath, schemaId: nestedKey)
         }
 
