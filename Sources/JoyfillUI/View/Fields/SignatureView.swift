@@ -312,9 +312,14 @@ struct CanvasSignatureView: View {
                         presentationMode.wrappedValue.dismiss()
                     }, label: {
                         Text("Save")
+                            .foregroundColor(.white)
                             .frame(minWidth: 100, maxWidth: .infinity)
+                            .frame(height: 40)
+                            .background(
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.accentColor)
+                            )
                     })
-                    .buttonStyle(.borderedProminent)
                     .accessibilityIdentifier("SaveSignatureIdentifier")
                     Spacer()
                 }
