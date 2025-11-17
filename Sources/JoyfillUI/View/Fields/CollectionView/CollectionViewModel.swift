@@ -1598,7 +1598,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                       parentRowId: parentRowID,
                                                                       nestedKey: nestedSchemaKey,
                                                                       rootSchemaKey: rootSchemaKey,
-                                                                      isRootRow: isRootRow)
+                                                                      isRootRow: isRootRow,
+                                                                      fieldvalue: tableDataModel.valueToValueElements ?? [])
         DispatchQueue.main.sync {
             self.tableDataModel.valueToValueElements = result?.0
             for (key, value) in result?.1 ?? [:] {
