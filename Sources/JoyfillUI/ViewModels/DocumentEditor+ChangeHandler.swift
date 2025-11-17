@@ -857,10 +857,10 @@ extension DocumentEditor {
                                   fieldIdentifier: FieldIdentifier,
                                   parentRowId: String,
                                   nestedKey: String,
-                                  rootSchemaKey: String, isRootRow: Bool) -> ([ValueElement], [String : ValueElement]) {
-                guard var elements = self.field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-                    return ([], [:])
-                }
+                                  rootSchemaKey: String,
+                                  isRootRow: Bool,
+                                  fieldvalue: [ValueElement]) -> ([ValueElement], [String : ValueElement]) {
+                var elements = fieldvalue
 
                 let parentPath = isRootRow ?  "" : self.computeParentPath(targetParentId: parentRowId,
                                                         nestedKey: nestedKey,
@@ -900,14 +900,8 @@ extension DocumentEditor {
                 
                 let fieldID = fieldIdentifier.fieldID
                 let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
-                
-                guard let currentField = self.fieldMap[fieldID] else {
-                    Log("Failed to find field \(fieldID)", type: .error)
-                    return ([], [:])
-                }
 
                 self.handleRowCellOnChange(event: changeEvent,
-                                           currentField: currentField,
                                            rows: rows,
                                            parentPath: parentPath,
                                            schemaId: nestedKey)
@@ -1164,7 +1158,7 @@ extension DocumentEditor {
                 return ([], nil)
             }
             let parentPath = isRootRow ? "" : computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-            handleRowCellOnChange(event: changeEvent, currentField: currentField, rows: [row], parentPath: parentPath, schemaId: nestedKey)
+            handleRowCellOnChange(event: changeEvent, rows: [row], parentPath: parentPath, schemaId: nestedKey)
         }
 
         return (elements, updatedElement)
@@ -1413,7 +1407,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
-    private func handleRowCellOnChange(event: FieldChangeData, currentField: JoyDocField, rows: [[String: Any]], parentPath: String, schemaId: String) {
+    private func handleRowCellOnChange(event: FieldChangeData, rows: [[String: Any]], parentPath: String, schemaId: String) {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
         var changes = [Change]()
         for row in rows {
