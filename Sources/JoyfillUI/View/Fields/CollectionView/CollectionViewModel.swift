@@ -1581,21 +1581,24 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) {
         var parentRowID = ""
         var nestedSchemaKey = ""
+        var isRootRow: Bool = false
         
         if let firstSelectedRowID = tableDataModel.selectedRows.first {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) ?? 0
             let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             
+            isRootRow = rowDataModel.rowType.isRow
             parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
             nestedSchemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
         }
         
         let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
-                                                                            selectedRows: tableDataModel.selectedRows,
-                                                                            fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                                            parentRowId: parentRowID,
-                                                                            nestedKey: nestedSchemaKey,
-                                                                rootSchemaKey: rootSchemaKey)
+                                                                      selectedRows: tableDataModel.selectedRows,
+                                                                      fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                                      parentRowId: parentRowID,
+                                                                      nestedKey: nestedSchemaKey,
+                                                                      rootSchemaKey: rootSchemaKey,
+                                                                      isRootRow: isRootRow)
         DispatchQueue.main.sync {
             self.tableDataModel.valueToValueElements = result?.0
             for (key, value) in result?.1 ?? [:] {

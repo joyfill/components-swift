@@ -857,12 +857,12 @@ extension DocumentEditor {
                                   fieldIdentifier: FieldIdentifier,
                                   parentRowId: String,
                                   nestedKey: String,
-                                  rootSchemaKey: String ) -> ([ValueElement], [String : ValueElement]) {
+                                  rootSchemaKey: String, isRootRow: Bool) -> ([ValueElement], [String : ValueElement]) {
                 guard var elements = self.field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
                     return ([], [:])
                 }
 
-                let parentPath = self.computeParentPath(targetParentId: parentRowId,
+                let parentPath = isRootRow ?  "" : self.computeParentPath(targetParentId: parentRowId,
                                                         nestedKey: nestedKey,
                                                         in: [rootSchemaKey : elements]) ?? ""
                 let columns = self.field(fieldID: fieldIdentifier.fieldID)?.schema?[nestedKey]?.tableColumns ?? []
