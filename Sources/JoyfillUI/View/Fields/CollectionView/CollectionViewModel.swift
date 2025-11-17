@@ -19,7 +19,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     var rowToValueElementMap: [String: ValueElement] = [:]
     @Published var columnsMap: [String: FieldTableColumn] = [:]
     var parentToChildRowMap: [RowSchemaID : [String]] = [:] // RowSchemaID(rowID, SchemaID) To Child row ids
-    var rowIDToRowDataModelMap: [String: RowDataModel] = [:] // Row to rowDataModel Map
+//    var rowIDToRowDataModelMap: [String: RowDataModel] = [:] // Row to rowDataModel Map
     @Published var isLoading: Bool = false
     @Published var isBulkLoading: Bool = false
     @Published var isSearching: Bool = false
@@ -45,8 +45,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowToValueElementMap = self.getBuildRowToValueElementMap(tableDataModel: tableDataModel)
             let cellModels = self.getCellModels(tableDataModel: tableDataModel)
             let collectionWidth = self.getCollectionWidth(tableDataModel: tableDataModel)
-            let lastSchema = self.getOrderedSchemaKeys().last
-            let allCellModels = self.getAllCellModels(lastSchema ?? "")
+//            let lastSchema = self.getOrderedSchemaKeys().last
+//            let allCellModels = self.getAllCellModels(lastSchema ?? "")
             self.getparentToChildRowMap()
 
             DispatchQueue.main.async {
@@ -63,9 +63,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 self.requiredColumnIds = self.tableDataModel.tableColumns
                     .filter { $0.required == true }
                     .compactMap { $0.id }
-                for rowDataModel in allCellModels {
-                    self.rowIDToRowDataModelMap[rowDataModel.rowID] = rowDataModel
-                }
+//                for rowDataModel in allCellModels {
+//                    self.rowIDToRowDataModelMap[rowDataModel.rowID] = rowDataModel
+//                }
                 
                 self.tableDataModel.documentEditor?.registerDelegate(self, for: self.tableDataModel.fieldIdentifier.fieldID)
                 

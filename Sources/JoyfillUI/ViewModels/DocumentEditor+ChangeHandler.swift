@@ -131,7 +131,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         return (changes, elements)
     }
@@ -163,7 +163,7 @@ extension DocumentEditor {
         }
         
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         
         addNestedRowOnChange(event: changeEvent,
@@ -245,7 +245,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         guard shouldSendEvent else { return elements }
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex-1)]
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         return elements
     }
@@ -295,7 +295,7 @@ extension DocumentEditor {
         }
         guard shouldSendEvent else { return elements }
         parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)
         return elements
     }
@@ -348,7 +348,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         guard shouldSendEvent else { return elements }
         let targetRows = [TargetRowModel(id: rowID, index: lastRowIndex+1)]
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         moveRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
         return elements
     }
@@ -372,7 +372,7 @@ extension DocumentEditor {
         }
         guard shouldSendEvent else { return elements }
         parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldId]?.value)
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         moveNestedRowOnChange(event: changeEvent, targetRowIndexes: targetRows, parentPath: parentPath, schemaId: nestedKey)
         return elements
     }
@@ -436,7 +436,7 @@ extension DocumentEditor {
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)])
         
         return (newRow, insertIndex)
@@ -475,8 +475,7 @@ extension DocumentEditor {
                                                                          newRow: newRow) {
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
 
-            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
-                                              updateValue: ValueUnion.valueElementArray(elements))
+            let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
             var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
             addNestedRowOnChange(event: changeEvent,
                                  targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)],
@@ -538,7 +537,7 @@ extension DocumentEditor {
         
         guard shouldSendEvent else { return (elements,newRow) }
         
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         let index = elements.filter({ $0.deleted != true }).count - 1
         addRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: index)])
         return (elements,newRow)
@@ -583,8 +582,7 @@ extension DocumentEditor {
         
         // Fire change event if needed
         guard shouldSendEvent else { return (elements, newRow) }
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
-                                          updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         addRowOnChange(event: changeEvent,
                        targetRowIndexes: [TargetRowModel(id: id, index: index)])
         
@@ -786,7 +784,7 @@ extension DocumentEditor {
         guard shouldSendEvent else { return (elements, newRow) }
         
         // Fire off a change event.
-        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: ValueUnion.valueElementArray(elements))
+        let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         
         addNestedRowOnChange(event: changeEvent, targetRowIndexes: [TargetRowModel(id: id, index: insertedIndex ?? 0)], valueElements: [newRow], parentPath: parentPath, schemaKey: schemaKey ?? "")
         
@@ -901,8 +899,7 @@ extension DocumentEditor {
                 self.fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
                 
                 let fieldID = fieldIdentifier.fieldID
-                let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier,
-                                                  updateValue: self.fieldMap[fieldID]?.value)
+                let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
                 
                 guard let currentField = self.fieldMap[fieldID] else {
                     Log("Failed to find field \(fieldID)", type: .error)
@@ -1285,7 +1282,7 @@ extension DocumentEditor {
     private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
-        let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldIdentifier.fieldID]?.value)
+        let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
         let targetRowIndexes = rowIDs.map { TargetRowModel(id: $0, index: 0)}
         var changes = [Change]()
         
@@ -1311,7 +1308,7 @@ extension DocumentEditor {
     private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
-        let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: fieldMap[fieldIdentifier.fieldID]?.value)
+        let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
         let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
         var changes = [Change]()
         
