@@ -9,13 +9,16 @@ import Foundation
 import JoyfillModel
 
 class ValidationHandler {
-    weak var documentEditor: DocumentEditor!
+    weak var documentEditor: DocumentEditor?
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
     }
 
     func validate() -> Validation {
+        guard let documentEditor = documentEditor else {
+            return Validation(status: .valid, fieldValidities: [])
+        }
         var fieldValidities = [FieldValidity]()
         var isValid = true
         var pageID: String?
@@ -70,13 +73,17 @@ class ValidationHandler {
     }
      
     func validateTableField(id: String, pageId: String?) -> FieldValidity {
+        guard let documentEditor = documentEditor,
+              let field = documentEditor.field(fieldID: id),
+              let fieldPosition = documentEditor.fieldPosition(fieldID: id) else {
+            return FieldValidity(field: JoyDocField(), status: .valid, pageId: pageId)
+        }
         var fieldValidities = [FieldValidity]()
-        let field = documentEditor.field(fieldID: id)
-        let fieldPosition = documentEditor.fieldPosition(fieldID: id)!
         var isTableValid = true
-        let rows = field?.valueToValueElements ?? []
-        let columns = (field?.tableColumns ?? []).filter { column in
-            let isHidden = fieldPosition.tableColumns?.first(where: { $0.id == column.id! })?.hidden ?? false
+        let rows = field.valueToValueElements ?? []
+        let columns = (field.tableColumns ?? []).filter { column in
+            guard let columnID = column.id else { return false }
+            let isHidden = fieldPosition.tableColumns?.first(where: { $0.id == columnID })?.hidden ?? false
             return !isHidden
         }
         var rowValidities = [RowValidity]()
@@ -129,11 +136,12 @@ class ValidationHandler {
         }
         
         let fieldStatus: ValidationStatus = isTableValid ? .valid : .invalid
-        return FieldValidity(field: field!, status: fieldStatus, pageId: pageId)
+        return FieldValidity(field: field, status: fieldStatus, pageId: pageId)
     }
 
     func validateCollectionField(id: String, pageId: String?) -> FieldValidity {
-        guard let field = documentEditor.field(fieldID: id),
+        guard let documentEditor = documentEditor,
+              let field = documentEditor.field(fieldID: id),
               let schema = field.schema else {
             return FieldValidity(field: JoyDocField(), status: .valid, pageId: pageId)
         }
@@ -232,6 +240,9 @@ class ValidationHandler {
     }
     
     private func validateCollectionFieldChild(fieldID: String, rows: [ValueElement], schema: Schema, pageId: String?) -> FieldValidity {
+        guard let documentEditor = documentEditor else {
+            return FieldValidity(field: JoyDocField(), status: .valid, pageId: pageId)
+        }
         var isValid = true
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
         let columns = schema.tableColumns ?? []
@@ -288,6 +299,9 @@ class ValidationHandler {
             columnValidities.append(ColumnValidity(status: colStatus, cellValidities: cellValidities))
         }
 
-        return FieldValidity(field: documentEditor.field(fieldID: fieldID)!, status: isValid ? .valid : .invalid, pageId: pageId)
+        guard let field = documentEditor.field(fieldID: fieldID) else {
+            return FieldValidity(field: JoyDocField(), status: .valid, pageId: pageId)
+        }
+        return FieldValidity(field: field, status: isValid ? .valid : .invalid, pageId: pageId)
     }
 }
