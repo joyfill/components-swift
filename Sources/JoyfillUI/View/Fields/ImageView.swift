@@ -101,8 +101,8 @@ struct ImageView: View {
                 }
             } else {
                 Button(action: {
-                    uploadAction()
                     eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
+                    uploadAction()
                 }, label: {
                     ZStack {
                         HStack(spacing: 8) {

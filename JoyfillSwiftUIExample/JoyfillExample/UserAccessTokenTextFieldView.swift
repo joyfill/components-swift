@@ -230,7 +230,6 @@ struct FormDestinationView: View {
     @ObservedObject var changeManager: ChangeManager
     @Binding var showChangelogView: Bool
     @Binding var showPublicApis: Bool
-    @State private var showValidationResults: Bool = false
     @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
@@ -326,10 +325,13 @@ struct FormDestinationView: View {
             if let editor = documentEditor {
                 Form(documentEditor: editor)
                 SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
-                    lastValidation = validation
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                        showValidationResults = true
+                    // Only show validation results if there are field validities
+                    guard !validation.fieldValidities.isEmpty else {
+                        return
                     }
+                    
+                    // Store the latest validation; sheet presentation is driven by this state
+                    self.lastValidation = validation
                 }
             } else {
                 // Loading state while the editor builds off-main
@@ -348,13 +350,18 @@ struct FormDestinationView: View {
         .sheet(isPresented: $showPublicApis) {
             PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, document: documentEditor?.document ?? JoyDoc())
         }
-        .sheet(isPresented: $showValidationResults) {
-            if let validation = lastValidation {
+        .sheet(
+            isPresented: Binding(
+                get: { self.lastValidation != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        self.lastValidation = nil
+                    }
+                }
+            )
+        ) {
+            if let validation = self.lastValidation {
                 ValidationResultsView(validation: validation)
-            } else {
-                Text("No validation result available.")
-                    .font(.footnote)
-                    .padding()
             }
         }
         // Kick off background creation once the view appears
