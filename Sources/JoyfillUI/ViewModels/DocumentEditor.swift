@@ -411,15 +411,16 @@ extension DocumentEditor {
     }
     
     public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
-        let fileID = field(fieldID: fieldID)?.file
-
+        let field = field(fieldID: fieldID)
+        let fileID = field?.file
+        let fieldIdentifier = field?.identifier
         for page in pagesForCurrentView {
             if let position = page.fieldPositions?.first(where: { $0.field == fieldID }) {
-                return FieldIdentifier(fieldID: fieldID, pageID: page.id, fileID: fileID, fieldPositionId: position.id)
+                return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, pageID: page.id, fileID: fileID, fieldPositionId: position.id)
             }
         }
 
-        return FieldIdentifier(fieldID: fieldID, fileID: fileID)
+        return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, fileID: fileID)
     }
 }
 
