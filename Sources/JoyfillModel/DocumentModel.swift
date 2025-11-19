@@ -251,6 +251,7 @@ public enum DateFormatType: String {
     
     // Time Only Formats
     case timeOnly = "hh:mma"
+    case timeOnly24 = "HH:mma"
     case timeOnly24Hour = "HH:mm"
     case timeOnlyWithSeconds = "hh:mm:ssa"
     case timeOnly24HourWithSeconds = "HH:mm:ss"
