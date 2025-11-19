@@ -261,7 +261,7 @@ public enum DateFormatType: String {
     /// Converts from JSON format pattern (YYYY, DD) to Swift DateFormatter pattern (yyyy, dd).
    public var dateFormat: String {
        if self == .empty {
-           return "MMMM d, yyyy h:mm a"
+           return "MM/dd/yyyy hh:mma"
        }
         // Convert JSON format to Swift DateFormatter pattern
         return self.rawValue
