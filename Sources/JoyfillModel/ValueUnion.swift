@@ -98,9 +98,17 @@ public enum ValueUnion: Codable, Hashable, Equatable {
     ///
     /// - Parameter value: The value that the `ValueUnion` should represent.
     public init?(value: Any) {
-        if let boolValue = value as? Bool {
-            self = .bool(boolValue)
-            return
+        if let number = value as? NSNumber {
+            if CFGetTypeID(number) == CFBooleanGetTypeID() {
+                self = .bool(number.boolValue)
+                return
+            } else if CFNumberIsFloatType(number) {
+                self = .double(number.doubleValue)
+                return
+            } else {
+                self = .int(number.int64Value)
+                return
+            }
         }
         
         if let doubleValue = value as? Double {
@@ -117,7 +125,12 @@ public enum ValueUnion: Codable, Hashable, Equatable {
             self = .int(Int64(intValue))
             return
         }
-
+        
+        if let boolValue = value as? Bool {
+            self = .bool(boolValue)
+            return
+        }
+        
         if let valueUnion = value as? ValueUnion {
             self = valueUnion
             return
