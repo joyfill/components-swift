@@ -314,6 +314,15 @@ public func timestampMillisecondsToDate(value: Int, format: DateFormatType, tzId
     dateFormatter.timeZone = timeZone
     dateFormatter.dateFormat = format.dateFormat
     
+    // Set locale based on format type
+    if format.rawValue.contains("HH") {
+        // Force 24-hour format
+        dateFormatter.locale = Locale(identifier: "en_GB")
+    } else if format == .empty || format.rawValue.contains("hh") {
+        // For 12-hour format, use en_US_POSIX to ensure consistent 12-hour display
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    }
+    
     let formattedDate = dateFormatter.string(from: date)
     return formattedDate
 }
