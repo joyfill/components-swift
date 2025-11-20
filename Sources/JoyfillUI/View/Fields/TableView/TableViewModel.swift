@@ -397,6 +397,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     @MainActor
     func bulkEdit(changes: [Int: ValueUnion]) async {
+        if changes.count == 0 { return }
         isBulkLoading = true
         
         // Perform heavy processing on background thread

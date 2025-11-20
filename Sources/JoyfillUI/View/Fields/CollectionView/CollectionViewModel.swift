@@ -1678,6 +1678,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     @MainActor
     func bulkEdit(changes: [Int: ValueUnion]) async {
+        if changes.count == 0 { return }
         isBulkLoading = true
         let tableColumns = self.getTableColumnsForSelectedRows()
         let updatedCellModels: [RowDataModel] = await withCheckedContinuation { (cont: CheckedContinuation<[RowDataModel], Never>) in
