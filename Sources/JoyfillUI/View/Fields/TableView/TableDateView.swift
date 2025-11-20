@@ -154,10 +154,11 @@ private final class _DatePopupViewController: UIViewController {
         picker.date = date
         picker.timeZone = timeZone
         
-        // Set 24-hour format if the format uses HH (24-hour) instead of hh (12-hour)
         if format.rawValue.contains("HH") {
             // Force 24-hour format by using a locale that prefers 24-hour time
             picker.locale = Locale(identifier: "en_GB")  // UK locale uses 24-hour format
+        } else {
+            picker.locale = Locale(identifier: "en_US_POSIX")
         }
 
         // Glass/Blur effect background

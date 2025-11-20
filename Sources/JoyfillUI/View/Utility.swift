@@ -86,6 +86,16 @@ class Utility {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = format.dateFormat
         dateFormatter.timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
+        
+        // Set locale based on format type to match timestampMillisecondsToDate
+        if format.rawValue.contains("HH") {
+            // Force 24-hour format
+            dateFormatter.locale = Locale(identifier: "en_GB")
+        } else if format == .empty || format.rawValue.contains("hh") {
+            // For 12-hour format, use en_US_POSIX to ensure consistent 12-hour display
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        }
+        
         return dateFormatter.date(from: dateString)
     }
     

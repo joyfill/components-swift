@@ -251,6 +251,7 @@ public enum DateFormatType: String {
     
     // Time Only Formats
     case timeOnly = "hh:mma"
+//    case timeOnly24 = "HH:mma"
     case timeOnly24Hour = "HH:mm"
     case timeOnlyWithSeconds = "hh:mm:ssa"
     case timeOnly24HourWithSeconds = "HH:mm:ss"
@@ -261,7 +262,7 @@ public enum DateFormatType: String {
     /// Converts from JSON format pattern (YYYY, DD) to Swift DateFormatter pattern (yyyy, dd).
    public var dateFormat: String {
        if self == .empty {
-           return "MMMM d, yyyy h:mm a"
+           return "MM/dd/yyyy hh:mma"
        }
         // Convert JSON format to Swift DateFormatter pattern
         return self.rawValue
@@ -312,6 +313,15 @@ public func timestampMillisecondsToDate(value: Int, format: DateFormatType, tzId
     let timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
     dateFormatter.timeZone = timeZone
     dateFormatter.dateFormat = format.dateFormat
+    
+    // Set locale based on format type
+    if format.rawValue.contains("HH") {
+        // Force 24-hour format
+        dateFormatter.locale = Locale(identifier: "en_GB")
+    } else if format == .empty || format.rawValue.contains("hh") {
+        // For 12-hour format, use en_US_POSIX to ensure consistent 12-hour display
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    }
     
     let formattedDate = dateFormatter.string(from: date)
     return formattedDate
