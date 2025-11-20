@@ -245,6 +245,7 @@ struct CollectionExpanderView: View {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .padding(.leading, 8)
             }
 
             ScrollView {
@@ -291,6 +292,7 @@ struct RootTitleRowView: View {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .padding(.leading, 8)
             }
 
             ScrollView {
