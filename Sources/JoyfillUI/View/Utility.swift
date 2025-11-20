@@ -69,7 +69,7 @@ class Utility {
             return [.date]
             
         // Time Only (all time-only formats)
-        case .timeOnly, .timeOnly24Hour, .timeOnlyWithSeconds, .timeOnly24HourWithSeconds, .timeOnly24:
+        case .timeOnly, .timeOnly24Hour, .timeOnlyWithSeconds, .timeOnly24HourWithSeconds:
             return [.hourAndMinute]
             
         // Date + Time (all combined formats)
