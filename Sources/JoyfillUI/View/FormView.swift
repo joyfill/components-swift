@@ -210,6 +210,18 @@ enum FieldListModelType: Equatable {
     case none
 }
 
+extension FieldListModelType {
+    var tableDataModel: TableDataModel? {
+        if case .table(let model) = self {
+            return model
+        }
+        if case .collection(let model) = self {
+            return model
+        }
+        return nil
+    }
+}
+
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
     @State var currentFocusedFieldsID: String = ""
