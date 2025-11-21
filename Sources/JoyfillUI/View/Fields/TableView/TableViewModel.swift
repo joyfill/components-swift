@@ -402,10 +402,14 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         
         // Perform heavy processing on background thread
         let updatedCellModels: [RowDataModel] = await withCheckedContinuation { cont in
-            dispatchQueue.async { [tableDataModel] in
+            dispatchQueue.async { [weak self] in
+                guard let self else {
+                    cont.resume(returning: [])
+                    return
+                }
                 var columnIDChanges = [String: ValueUnion]()
                 changes.forEach { (colIndex: Int, value: ValueUnion) in
-                    guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+                    guard let cellDataModelId = self.tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
                     columnIDChanges[cellDataModelId] = value
                 }
                 
