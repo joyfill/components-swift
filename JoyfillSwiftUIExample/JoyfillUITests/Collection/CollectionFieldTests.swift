@@ -1153,6 +1153,42 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         // Signature Field
         XCTAssertNotNil(onChangeResultValue().valueElements?[2].cells?["6805b7ac1325377829f4d92e"]?.text)
     }
+        
+    //it should not give any change logs
+    func testBulkEditWithNoChange() throws {
+        goToCollectionDetailField()
+
+        selectAllParentRows()
+        tapOnMoreButton()
+        editRowsButton().tap()
+    
+        
+        // Dropdown Field
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        
+        // Dropdown Field
+        let dropdownButton1 = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("High", dropdownButton1.label)
+        dropdownButton1.tap()
+        let dropdownOptions1 = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption1 = dropdownOptions1.element(boundBy: 0)
+        firstOption1.tap()
+        
+        // Tap on Apply All Button
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        if let valueElements = onChangeOptionalResult() {
+            XCTFail("Expected no change event, but got: \(valueElements)")
+        } else {
+            // No change event received, which is the expected behavior for this test.
+        }
+    }
     
     // Edit all Nested rows
     func testBulkEditNestedRows() throws {

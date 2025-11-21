@@ -570,45 +570,15 @@ struct CollectionEditMultipleRowsSheetView: View {
 
                         switch col.type {
                         case .text:
-                            var str = !isUsedForBulkEdit ? cellModel.data.title : ""
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
-                            let binding = Binding<String>(
-                                get: {
-                                    if isUsedForBulkEdit {
-                                        if case .string(let changedStr) = changes[colIndex] { return changedStr }
-                                        return ""
-                                    } else {
-                                        return str
-                                    }
-                                },
-                                set: { newValue in
-                                    str = newValue
-                                    if isUsedForBulkEdit {
-                                        if !str.isEmpty {
-                                            self.changes[colIndex] = ValueUnion.string(newValue)
-                                        } else {
-                                            self.changes.removeValue(forKey: colIndex)
-                                        }
-                                    } else {
-                                        self.changes[colIndex] = ValueUnion.string(newValue)
-                                    }
-                                    Task { @MainActor in
-                                        if !isUsedForBulkEdit {
-                                            await viewModel.bulkEdit(changes: changes)
-                                        }
-                                    }
-                                }
-                            )
-                            TextField("", text: binding)
-                                .font(.system(size: 15))
-                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                                .padding(.horizontal, 10)
-                                .frame(height: 40)
+                            TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
                                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                 )
                                 .cornerRadius(10)
+                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                         case .dropdown:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)

@@ -128,6 +128,36 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         }
     }
     
+    func testBulkEditWithNoChange() throws {
+        goToTableDetailPage()
+        tapOnMoreButton()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        
+        
+        let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Select Option", dropdownButton.label)
+        dropdownButton.tap()
+        let dropdownOptions = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption = dropdownOptions.element(boundBy: 0)
+        firstOption.tap()
+        
+        let dropdownButton1 = app.buttons["EditRowsDropdownFieldIdentifier"]
+        XCTAssertEqual("Yes", dropdownButton.label)
+        dropdownButton1.tap()
+        let dropdownOptions1 = app.buttons.matching(identifier: "TableDropdownOptionsIdentifier")
+        let firstOption1 = dropdownOptions1.element(boundBy: 0)
+        firstOption1.tap()
+        
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        
+        if let valueElements = onChangeOptionalResult() {
+            XCTFail("Expected no change event, but got: \(valueElements)")
+        } else {
+            // No change event received, which is the expected behavior for this test.
+        }
+        
+    }
     
     func testAddRowAfterSearchFilterVisibleAtLast() throws {
         goToTableDetailPage()
@@ -156,7 +186,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         // row
         guard let row = change["row"] as? [String: Any] else {
             return XCTFail("Missing or invalid 'row' dictionary")
-        } 
+        }
         
         // cells
         guard let cells = row["cells"] as? [String: Any] else {
@@ -710,7 +740,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertNotNil(eventDict2?["columnId"], "columnId should be present")
         // Verify rowIds array
         if let rowIds = eventDict2?["rowIds"] as? [String] {
-            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId") 
+            XCTAssertEqual(rowIds.count, 1, "Should have 1 rowId")
         } else {
             XCTFail("rowIds should be an array of strings")
         }
