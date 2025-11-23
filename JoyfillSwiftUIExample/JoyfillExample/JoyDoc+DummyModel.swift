@@ -1647,7 +1647,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = .dateOnly
+        fieldPosition.format = .custom("MM/DD/YYYY")
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1663,7 +1663,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 71
-        fieldPosition.format = .dateOnly
+        fieldPosition.format = .custom("MM/DD/YYYY")
         fieldPosition.id = "6629fb4451f3bf2eb2f46567"
         fieldPosition.type = .date
         var document = self
@@ -1679,7 +1679,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = .timeOnly
+        fieldPosition.format = .custom("hh:mma")
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1695,7 +1695,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 79
-        fieldPosition.format = .timeOnly
+        fieldPosition.format = .custom("hh:mma")
         fieldPosition.id = "6629fb66420b995d026e480b"
         fieldPosition.type = .date
         var document = self
@@ -1711,7 +1711,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = .dateTime
+        fieldPosition.format = .custom("MM/DD/YYYY hh:mma")
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self
@@ -1727,7 +1727,7 @@ extension JoyDoc {
         fieldPosition.height = 8
         fieldPosition.x = 0
         fieldPosition.y = 87
-        fieldPosition.format = .dateTime
+        fieldPosition.format = .custom("MM/DD/YYYY hh:mma")
         fieldPosition.id = "6629fb749d0c1af5e94dbac7"
         fieldPosition.type = .date
         var document = self

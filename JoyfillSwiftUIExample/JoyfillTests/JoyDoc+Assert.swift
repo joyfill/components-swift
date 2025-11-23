@@ -411,7 +411,7 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].height, 8)
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].x, 0)
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].y, 71)
-        XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].format, .dateOnly)
+        XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].format, .custom("MM/DD/YYYY"))
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].id, "6629fb4451f3bf2eb2f46567")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[7].type, FieldTypes.date)
     }
@@ -423,7 +423,7 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].height, 8)
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].x, 0)
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].y, 79)
-        XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].format, .timeOnly)
+        XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].format, .custom("hh:mma"))
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].id, "6629fb66420b995d026e480b")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[8].type, FieldTypes.date)
     }
@@ -435,7 +435,7 @@ extension JoyDoc {
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].height, 8)
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].x, 0)
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].y, 87)
-        XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].format, .dateTime)
+        XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].format, .custom("MM/DD/YYYY hh:mma"))
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].id, "6629fb749d0c1af5e94dbac7")
         XCTAssertEqual(files[0].pages?[0].fieldPositions?[9].type, FieldTypes.date)
     }
