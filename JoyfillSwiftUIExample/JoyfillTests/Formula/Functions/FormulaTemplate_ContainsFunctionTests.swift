@@ -2,261 +2,369 @@
 //  FormulaTemplate_ContainsFunctionTests.swift
 //  JoyfillTests
 //
-//  Unit tests for the contains() formula function
+//  Created on 26/11/25.
 //
 
 import XCTest
+import Foundation
 import JoyfillModel
 import Joyfill
 
+/// Tests for the `contains()` formula function
+/// The contains() function checks if a string contains a substring.
+/// Returns true if the substring is found, false otherwise.
+/// Syntax: contains(string, substring)
 class FormulaTemplate_ContainsFunctionTests: XCTestCase {
+
+    // MARK: - Setup & Teardown
     
     private var documentEditor: DocumentEditor!
-    
-    // MARK: - Setup and Teardown
-    
+
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_ContainsFunction")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
-    
+
     override func tearDown() {
         documentEditor = nil
         super.tearDown()
     }
     
-    // MARK: - Helper Methods
+    // MARK: - Static Evaluation Tests
     
-    private func getFieldValue(_ fieldId: String) -> String {
-        return documentEditor.value(ofFieldWithIdentifier: fieldId)?.text ?? ""
+    /// Test 1: Basic contains() returning true (case-insensitive)
+    /// Formula: contains("Joyfill Rocks", "rock")
+    /// Expected: true (case-insensitive match)
+    func testContainsBasicTrue() {
+        print("\n🔀 Test 1: contains() basic true case")
+        print("Formula: contains(\"Joyfill Rocks\", \"rock\")")
+        print("Expected: true")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "basic_example_true")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "contains(\"Joyfill Rocks\", \"rock\") should return 'true'")
     }
     
-    private func updateStringValue(_ fieldId: String, _ value: String) {
-        documentEditor.updateValue(for: fieldId, value: .string(value))
+    /// Test 2: Basic contains() returning false
+    /// Formula: contains("Joyfill Rocks", "test")
+    /// Expected: false
+    func testContainsBasicFalse() {
+        print("\n🔀 Test 2: contains() basic false case")
+        print("Formula: contains(\"Joyfill Rocks\", \"test\")")
+        print("Expected: false")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "basic_example_false")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "contains(\"Joyfill Rocks\", \"test\") should return 'false'")
     }
     
-    // MARK: - Static Tests: Basic contains() Function
-    
-    /// Test: contains("Joyfill Rocks", "rock") - case insensitive search
-    func testContainsWithMatchingSubstring() {
-        // contains("Joyfill Rocks", "rock") → true (case insensitive)
-        let result = getFieldValue("basic_example_true")
-        XCTAssertEqual(result, "true", "contains('Joyfill Rocks', 'rock') should return 'true' (case insensitive)")
+    /// Test 3: Intermediate contains() with field reference (product name)
+    /// Formula: contains(productName, "premium")
+    /// Initial: productName = "Premium Joyfill Subscription"
+    /// Expected: true (case-insensitive)
+    func testContainsProductName() {
+        print("\n🔀 Test 3: contains() with product name field")
+        print("Formula: contains(productName, \"premium\")")
+        print("Initial: productName = 'Premium Joyfill Subscription'")
+        print("Expected: true")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "contains() should find 'premium' in 'Premium Joyfill Subscription'")
     }
     
-    /// Test: contains("Joyfill Rocks", "test") - no match
-    func testContainsWithNoMatch() {
-        // contains("Joyfill Rocks", "test") → false
-        let result = getFieldValue("basic_example_false")
-        XCTAssertEqual(result, "false", "contains('Joyfill Rocks', 'test') should return 'false'")
+    /// Test 4: Intermediate contains() for email validation
+    /// Formula: if(contains(email, "@"), "Valid email format", "Invalid email format")
+    /// Initial: email = "user@example.com"
+    /// Expected: "Valid email format"
+    func testContainsEmailValidation() {
+        print("\n🔀 Test 4: contains() for email validation")
+        print("Formula: if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\")")
+        print("Initial: email = 'user@example.com'")
+        print("Expected: Valid email format")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Valid email format", "Email with @ should be valid")
     }
     
-    // MARK: - Static Tests: Initial Field Values
-    
-    /// Test: Verify initial field values are set correctly
+    /// Test 5: Verify initial field values
     func testInitialFieldValues() {
-        XCTAssertEqual(getFieldValue("productName"), "Premium Joyfill Subscription", "Initial productName")
-        XCTAssertEqual(getFieldValue("email"), "user@example.com", "Initial email")
-        XCTAssertEqual(getFieldValue("firstName"), "John", "Initial firstName")
-        XCTAssertEqual(getFieldValue("lastName"), "Doe", "Initial lastName")
-        XCTAssertEqual(getFieldValue("fullName"), "John Doe", "Initial fullName")
-        XCTAssertEqual(getFieldValue("userInput"), "Hello, my name is John", "Initial userInput")
-        XCTAssertEqual(getFieldValue("blockedWords"), "inappropriate,offensive,spam", "Initial blockedWords")
+        print("\n🔀 Test 5: Verify initial field values")
+        
+        let productName = documentEditor.value(ofFieldWithIdentifier: "productName")?.text ?? ""
+        let email = documentEditor.value(ofFieldWithIdentifier: "email")?.text ?? ""
+        let firstName = documentEditor.value(ofFieldWithIdentifier: "firstName")?.text ?? ""
+        let lastName = documentEditor.value(ofFieldWithIdentifier: "lastName")?.text ?? ""
+        let fullName = documentEditor.value(ofFieldWithIdentifier: "fullName")?.text ?? ""
+        
+        print("📊 productName = '\(productName)'")
+        print("📊 email = '\(email)'")
+        print("📊 firstName = '\(firstName)'")
+        print("📊 lastName = '\(lastName)'")
+        print("📊 fullName = '\(fullName)'")
+        
+        XCTAssertEqual(productName, "Premium Joyfill Subscription", "productName should be correct")
+        XCTAssertEqual(email, "user@example.com", "email should be correct")
+        XCTAssertEqual(firstName, "John", "firstName should be John")
+        XCTAssertEqual(lastName, "Doe", "lastName should be Doe")
+        XCTAssertEqual(fullName, "John Doe", "fullName should be John Doe")
     }
     
-    /// Test: contains(productName, "premium") with "Premium Joyfill Subscription"
-    func testIntermediateProductContainsPremium() {
-        // "Premium Joyfill Subscription" contains "premium" (case insensitive) → true
-        let result = getFieldValue("intermediate_example_product")
-        XCTAssertEqual(result, "true", "contains(productName, 'premium') should be 'true'")
+    /// Test 6: Advanced contains() with and(), not()
+    /// Formula: and(contains(fullName, firstName), contains(fullName, lastName), not(contains(blockedWords, userInput)))
+    /// Initial: fullName="John Doe", firstName="John", lastName="Doe", blockedWords="inappropriate,offensive,spam", userInput="Hello, my name is John"
+    /// Expected: true (all conditions pass)
+    func testAdvancedContainsWithAndNot() {
+        print("\n🔀 Test 6: Advanced contains() with and(), not()")
+        print("Formula: and(contains(fullName, firstName), contains(fullName, lastName), not(contains(blockedWords, userInput)))")
+        print("Expected: true (all conditions pass)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Advanced formula should return 'true'")
     }
     
-    /// Test: Email validation - initial state with valid email
-    func testIntermediateEmailValidation() {
-        // email = "user@example.com" contains "@" → "Valid email format"
-        let result = getFieldValue("intermediate_example_email")
-        XCTAssertEqual(result, "Valid email format", "Email with @ should show 'Valid email format'")
+    // MARK: - Dynamic Update Tests
+    
+    /// Test 7: Dynamic update - change productName to not contain "premium"
+    /// Formula: contains(productName, "premium")
+    /// Update: productName = "Basic Joyfill Plan"
+    /// Expected: false
+    func testDynamicUpdateProductNameNoMatch() {
+        print("\n🔀 Test 7: Dynamic update - productName without 'premium'")
+        print("Formula: contains(productName, \"premium\")")
+        
+        // Initial: true
+        var result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        XCTAssertEqual(result?.text ?? "", "true", "Initial should be true")
+        
+        // Update productName
+        documentEditor.updateValue(for: "productName", value: .string("Basic Joyfill Plan"))
+        print("Updated: productName = 'Basic Joyfill Plan'")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Should not contain 'premium'")
     }
     
-    /// Test: Advanced example - initial state
-    /// and(contains(fullName, firstName), contains(fullName, lastName), not(contains(blockedWords, userInput)))
-    func testAdvancedExampleInitialState() {
-        // fullName="John Doe" contains "John" → true
-        // fullName="John Doe" contains "Doe" → true
-        // blockedWords doesn't contain userInput → not(false) → true
-        // and(true, true, true) → true
-        let result = getFieldValue("advanced_example")
-        XCTAssertEqual(result, "true", "Advanced example initial state should be 'true'")
+    /// Test 8: Dynamic update - email without @
+    /// Formula: if(contains(email, "@"), "Valid email format", "Invalid email format")
+    /// Update: email = "invalid-email"
+    /// Expected: "Invalid email format"
+    func testDynamicUpdateInvalidEmail() {
+        print("\n🔀 Test 8: Dynamic update - invalid email")
+        print("Formula: if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\")")
+        
+        // Initial: Valid
+        var result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        XCTAssertEqual(result?.text ?? "", "Valid email format", "Initial should be valid")
+        
+        // Update email without @
+        documentEditor.updateValue(for: "email", value: .string("invalid-email"))
+        print("Updated: email = 'invalid-email'")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Invalid email format", "Email without @ should be invalid")
     }
     
-    // MARK: - Dynamic Tests: Product Name
-    
-    /// Test: Change product name to not contain "premium"
-    func testDynamicUpdateProductNameNoPremium() {
-        updateStringValue("productName", "Basic Joyfill Plan")
+    /// Test 9: Dynamic update - firstName not in fullName
+    /// Formula: and(contains(fullName, firstName), contains(fullName, lastName), ...)
+    /// Update: firstName = "Jane"
+    /// Expected: false (firstName not in fullName)
+    func testDynamicUpdateFirstNameMismatch() {
+        print("\n🔀 Test 9: Dynamic update - firstName mismatch")
+        print("Formula: and(contains(fullName, firstName), ...)")
         
-        let result = getFieldValue("intermediate_example_product")
-        XCTAssertEqual(result, "false", "Product without 'premium' should return 'false'")
+        // Initial: true
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "true", "Initial should be true")
+        
+        // Update firstName to something not in fullName
+        documentEditor.updateValue(for: "firstName", value: .string("Jane"))
+        print("Updated: firstName = 'Jane' (not in fullName 'John Doe')")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Should be false when firstName not in fullName")
     }
     
-    /// Test: Change product name with different casing
-    func testDynamicUpdateProductNameDifferentCase() {
-        updateStringValue("productName", "PREMIUM EDITION")
+    /// Test 10: Dynamic update - lastName not in fullName
+    /// Formula: and(contains(fullName, firstName), contains(fullName, lastName), ...)
+    /// Update: lastName = "Smith"
+    /// Expected: false (lastName not in fullName)
+    func testDynamicUpdateLastNameMismatch() {
+        print("\n🔀 Test 10: Dynamic update - lastName mismatch")
+        print("Formula: and(..., contains(fullName, lastName), ...)")
         
-        let result = getFieldValue("intermediate_example_product")
-        XCTAssertEqual(result, "true", "Product with 'PREMIUM' should return 'true' (case insensitive)")
+        // Update lastName to something not in fullName
+        documentEditor.updateValue(for: "lastName", value: .string("Smith"))
+        print("Updated: lastName = 'Smith' (not in fullName 'John Doe')")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Should be false when lastName not in fullName")
     }
     
-    // MARK: - Dynamic Tests: Email Validation
-    
-    /// Test: Remove @ from email
-    func testDynamicUpdateEmailNoAt() {
-        updateStringValue("email", "invalid-email.com")
+    /// Test 11: Dynamic update - userInput contains blocked word
+    /// Formula: and(..., not(contains(blockedWords, userInput)))
+    /// Update: userInput = "This is spam content"
+    /// Expected: false (blockedWords contains "spam")
+    func testDynamicUpdateBlockedWordDetected() {
+        print("\n🔀 Test 11: Dynamic update - blocked word detected")
+        print("Formula: and(..., not(contains(blockedWords, userInput)))")
         
-        let result = getFieldValue("intermediate_example_email")
-        XCTAssertEqual(result, "Invalid email format", "Email without @ should show 'Invalid email format'")
+        // Initial: true
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "true", "Initial should be true")
+        
+        // Update userInput to contain a blocked word
+        documentEditor.updateValue(for: "userInput", value: .string("This is spam content"))
+        print("Updated: userInput = 'This is spam content'")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Should be false when userInput contains blocked word")
     }
     
-    /// Test: Email with multiple @
-    func testDynamicUpdateEmailMultipleAt() {
-        updateStringValue("email", "user@@example.com")
+    /// Test 12: Dynamic update - update fullName to match names
+    /// Formula: and(contains(fullName, firstName), contains(fullName, lastName), ...)
+    /// Update: fullName = "Jane Smith", firstName = "Jane", lastName = "Smith"
+    /// Expected: true (all match again)
+    func testDynamicUpdateFullNameMatches() {
+        print("\n🔀 Test 12: Dynamic update - update fullName to match")
+        print("Formula: and(contains(fullName, firstName), contains(fullName, lastName), ...)")
         
-        let result = getFieldValue("intermediate_example_email")
-        XCTAssertEqual(result, "Valid email format", "Email with @ should show 'Valid email format'")
+        documentEditor.updateValue(for: "firstName", value: .string("Jane"))
+        documentEditor.updateValue(for: "lastName", value: .string("Smith"))
+        documentEditor.updateValue(for: "fullName", value: .string("Jane Smith"))
+        print("Updated: firstName='Jane', lastName='Smith', fullName='Jane Smith'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should be true when all names match")
     }
     
-    /// Test: Email with just @
-    func testDynamicUpdateEmailJustAt() {
-        updateStringValue("email", "@")
+    /// Test 13: Dynamic update - email validation sequence
+    func testDynamicEmailValidationSequence() {
+        print("\n🔀 Test 13: Email validation sequence")
+        print("Formula: if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\")")
         
-        let result = getFieldValue("intermediate_example_email")
-        XCTAssertEqual(result, "Valid email format", "Email with just @ should show 'Valid email format'")
+        var result: ValueUnion?
+        
+        // Step 1: Initial (valid)
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        XCTAssertEqual(result?.text ?? "", "Valid email format", "Step 1: Initial valid")
+        print("Step 1 - user@example.com: \(result?.text ?? "")")
+        
+        // Step 2: Remove @
+        documentEditor.updateValue(for: "email", value: .string("noemail"))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        XCTAssertEqual(result?.text ?? "", "Invalid email format", "Step 2: No @")
+        print("Step 2 - noemail: \(result?.text ?? "")")
+        
+        // Step 3: Add @ back
+        documentEditor.updateValue(for: "email", value: .string("test@domain.org"))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        XCTAssertEqual(result?.text ?? "", "Valid email format", "Step 3: Valid again")
+        print("Step 3 - test@domain.org: \(result?.text ?? "")")
+        
+        // Step 4: Empty email
+        documentEditor.updateValue(for: "email", value: .string(""))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        XCTAssertEqual(result?.text ?? "", "Invalid email format", "Step 4: Empty")
+        print("Step 4 - empty: \(result?.text ?? "")")
+        
+        // Step 5: Just @
+        documentEditor.updateValue(for: "email", value: .string("@"))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        XCTAssertEqual(result?.text ?? "", "Valid email format", "Step 5: Just @ is technically valid")
+        print("Step 5 - @: \(result?.text ?? "")")
+        
+        print("✅ Email validation sequence completed")
     }
     
-    // MARK: - Dynamic Tests: Full Name Validation
-    
-    /// Test: Change firstName - no longer in fullName
-    func testDynamicUpdateFirstNameNotInFullName() {
-        updateStringValue("firstName", "Jane")
+    /// Test 14: Dynamic update - product name variations
+    func testDynamicProductNameSequence() {
+        print("\n🔀 Test 14: Product name sequence")
+        print("Formula: contains(productName, \"premium\")")
         
-        let result = getFieldValue("advanced_example")
-        // fullName="John Doe" doesn't contain "Jane" → false
-        // and(false, true, true) → false
-        XCTAssertEqual(result, "false", "fullName not containing firstName should be 'false'")
+        var result: ValueUnion?
+        
+        // Step 1: Initial (Premium)
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        XCTAssertEqual(result?.text ?? "", "true", "Step 1: Contains Premium")
+        print("Step 1 - 'Premium Joyfill Subscription': \(result?.text ?? "")")
+        
+        // Step 2: All lowercase
+        documentEditor.updateValue(for: "productName", value: .string("premium plan"))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        XCTAssertEqual(result?.text ?? "", "true", "Step 2: lowercase premium")
+        print("Step 2 - 'premium plan': \(result?.text ?? "")")
+        
+        // Step 3: No premium
+        documentEditor.updateValue(for: "productName", value: .string("Basic Plan"))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        XCTAssertEqual(result?.text ?? "", "false", "Step 3: No premium")
+        print("Step 3 - 'Basic Plan': \(result?.text ?? "")")
+        
+        // Step 4: PREMIUM uppercase
+        documentEditor.updateValue(for: "productName", value: .string("PREMIUM GOLD"))
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        XCTAssertEqual(result?.text ?? "", "true", "Step 4: PREMIUM uppercase")
+        print("Step 4 - 'PREMIUM GOLD': \(result?.text ?? "")")
+        
+        print("✅ Product name sequence completed")
     }
     
-    /// Test: Change lastName - no longer in fullName
-    func testDynamicUpdateLastNameNotInFullName() {
-        updateStringValue("lastName", "Smith")
+    /// Test 15: Partial match test
+    func testContainsPartialMatch() {
+        print("\n🔀 Test 15: Partial match test")
+        print("Formula: contains(productName, \"premium\")")
         
-        let result = getFieldValue("advanced_example")
-        // fullName="John Doe" doesn't contain "Smith" → false
-        // and(true, false, true) → false
-        XCTAssertEqual(result, "false", "fullName not containing lastName should be 'false'")
+        // Test with substring in middle
+        documentEditor.updateValue(for: "productName", value: .string("Super Premium Plus"))
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result for 'Super Premium Plus': \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' in the middle of string")
     }
     
-    /// Test: Update fullName to match new names
-    func testDynamicUpdateFullNameToMatch() {
-        updateStringValue("firstName", "Jane")
-        updateStringValue("lastName", "Smith")
-        updateStringValue("fullName", "Jane Smith")
+    /// Test 16: Empty string tests
+    func testContainsEmptyString() {
+        print("\n🔀 Test 16: Empty string handling")
         
-        let result = getFieldValue("advanced_example")
-        XCTAssertEqual(result, "true", "Updated fullName matching names should be 'true'")
-    }
-    
-    // MARK: - Dynamic Tests: Blocked Words
-    // Note: The formula is contains(blockedWords, userInput) - checking if blockedWords contains the ENTIRE userInput
-    // Not checking if userInput contains any blocked word
-    
-    /// Test: User input is exactly a blocked word
-    func testDynamicUpdateUserInputIsBlockedWord() {
-        updateStringValue("userInput", "spam")
+        // Empty productName
+        documentEditor.updateValue(for: "productName", value: .string(""))
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result for empty productName: \(resultText)")
         
-        let result = getFieldValue("advanced_example")
-        // blockedWords="inappropriate,offensive,spam" contains "spam" → true
-        // not(true) → false
-        // and(true, true, false) → false
-        XCTAssertEqual(result, "false", "User input that is a blocked word should be 'false'")
-    }
-    
-    /// Test: User input is "inappropriate"
-    func testDynamicUpdateUserInputInappropriate() {
-        updateStringValue("userInput", "inappropriate")
-        
-        let result = getFieldValue("advanced_example")
-        // blockedWords contains "inappropriate" → true, not(true) → false
-        XCTAssertEqual(result, "false", "User input 'inappropriate' should be 'false'")
-    }
-    
-    /// Test: Clear user input
-    func testDynamicUpdateUserInputEmpty() {
-        updateStringValue("userInput", "")
-        
-        let result = getFieldValue("advanced_example")
-        // Empty string doesn't contain blocked words → not(false) → true
-        XCTAssertEqual(result, "true", "Empty user input should be 'true'")
-    }
-    
-    // MARK: - Sequence Test
-    
-    /// Test: Complex sequence of changes
-    func testDynamicUpdateSequence() {
-        // Initial state: true
-        XCTAssertEqual(getFieldValue("advanced_example"), "true", "Step 1: Initial state")
-        
-        // Set userInput to exact blocked word (blockedWords contains "spam")
-        updateStringValue("userInput", "spam")
-        XCTAssertEqual(getFieldValue("advanced_example"), "false", "Step 2: userInput is blocked word")
-        
-        // Change to non-blocked content
-        updateStringValue("userInput", "clean content")
-        XCTAssertEqual(getFieldValue("advanced_example"), "true", "Step 3: Clean content")
-        
-        // Change firstName to not match
-        updateStringValue("firstName", "Bob")
-        XCTAssertEqual(getFieldValue("advanced_example"), "false", "Step 4: firstName not in fullName")
-        
-        // Update fullName to include new firstName
-        updateStringValue("fullName", "Bob Doe")
-        XCTAssertEqual(getFieldValue("advanced_example"), "true", "Step 5: Updated fullName")
-    }
-    
-    // MARK: - Edge Cases
-    
-    /// Test: Empty string search
-    func testDynamicUpdateEmptySearchString() {
-        updateStringValue("firstName", "")
-        
-        // contains(fullName, "") - empty string is contained in everything
-        let result = getFieldValue("advanced_example")
-        // This depends on implementation - empty string might match everything
-        XCTAssertTrue(result == "true" || result == "false", "Empty search string should return valid result")
-    }
-    
-    /// Test: Special characters
-    func testDynamicUpdateSpecialCharacters() {
-        updateStringValue("productName", "Premium+ (Special) Edition!")
-        
-        let result = getFieldValue("intermediate_example_product")
-        XCTAssertEqual(result, "true", "Special characters should not affect contains")
-    }
-    
-    /// Test: Unicode characters
-    func testDynamicUpdateUnicodeCharacters() {
-        updateStringValue("productName", "プレミアム Premium 版")
-        
-        let result = getFieldValue("intermediate_example_product")
-        XCTAssertEqual(result, "true", "Unicode characters should not affect contains for 'premium'")
-    }
-    
-    /// Test: Partial word match
-    func testDynamicUpdatePartialWordMatch() {
-        updateStringValue("productName", "Premiumly Enhanced")
-        
-        let result = getFieldValue("intermediate_example_product")
-        XCTAssertEqual(result, "true", "Partial word containing 'premium' should match")
+        XCTAssertEqual(resultText, "false", "Empty string should not contain 'premium'")
     }
 }
-
