@@ -60,9 +60,11 @@ struct CollectionModalView : View {
                 onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
+                    .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .sheet(isPresented: $showFilterModal) {
                 CollectionFilterModal(viewModel: viewModel)
+                    .interactiveDismissDisabled(viewModel.isSearching)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
 
@@ -218,7 +220,7 @@ struct CollectionExpanderView: View {
 
     var body: some View {
         HStack {
-            if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
+            if viewModel.tableDataModel.mode != .readonly {
                 Button(action: {
 //                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
@@ -235,15 +237,15 @@ struct CollectionExpanderView: View {
                 .accessibilityIdentifier("collectionSchemaAddRowButton")
             }
             let rowID = parentID.rowID
-            let children = viewModel.rowToValueElementMap[rowID]?.childrens
-
             let schemaID = schemaValue?.0 ?? ""
-            let childValueElements = children?[schemaID]?.valueToValueElements
-
-            if !viewModel.isOnlySchemaValid(schemaID: schemaValue?.0 ?? "", valueElements: childValueElements ?? []) {
+            let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
+            let childRows = viewModel.parentToChildRowMap[rowSchemaID] ?? []
+            
+            if !viewModel.isOnlySchemaValid(schemaID: schemaValue?.0 ?? "", rows: childRows) {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .padding(.leading, 8)
             }
 
             ScrollView {
@@ -271,7 +273,7 @@ struct RootTitleRowView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            if viewModel.tableDataModel.mode != .readonly && !viewModel.tableDataModel.hasActiveFilters {
+            if viewModel.tableDataModel.mode != .readonly {
                 Button(action: {
                     viewModel.addRow()
                 }) {
@@ -290,6 +292,7 @@ struct RootTitleRowView: View {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .padding(.leading, 8)
             }
 
             ScrollView {

@@ -193,11 +193,14 @@ public class DocumentEditor: ObservableObject {
         }
         switch field.fieldType {
         case .table, .collection:
-            DispatchQueue.main.async(execute: {
-                self.delegateMap[fieldID]?.value?.applyRowEditChanges(change: change)
+            DispatchQueue.main.async {
+                guard let valueDelegate = self.valueDelegate(for: fieldID, fieldType: field.fieldType) else {
+                    return
+                }
+                valueDelegate.applyRowEditChanges(change: change)
                 self.refreshField(fieldId: fieldID)
                 self.refreshDependent(for: fieldID)
-            })
+            }
         default:
             break
         }
@@ -212,12 +215,42 @@ public class DocumentEditor: ObservableObject {
         }
         switch field.fieldType {
         case  .table, .collection:
-            delegateMap[fieldID]?.value?.insertRow(for: change)
-            refreshField(fieldId: fieldID)
-            refreshDependent(for: fieldID)
+            if let valueDelegate = valueDelegate(for: fieldID, fieldType: field.fieldType) {
+                valueDelegate.insertRow(for: change)
+                refreshField(fieldId: fieldID)
+                refreshDependent(for: fieldID)
+            }
         default:
             break
         }
+    }
+    
+    private func createViewModel(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
+        if let fieldPosition = fieldPosition(fieldID: fieldID) {
+            let fieldIdentifier = getFieldIdentifier(for: fieldID)
+            if let tableDataModel = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier).tableDataModel {
+                switch fieldType {
+                case .table:
+                    return TableViewModel(tableDataModel: tableDataModel)
+                case .collection:
+                    return CollectionViewModel(tableDataModel: tableDataModel)
+                default:
+                    break
+                }
+            }
+        }
+        return nil
+    }
+
+    private func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
+        if let delegate = delegateMap[fieldID]?.value {
+            return delegate
+        }
+        guard let newDelegate = createViewModel(for: fieldID, fieldType: fieldType) else {
+            return nil
+        }
+        delegateMap[fieldID] = WeakDocumentEditorDelegate(newDelegate)
+        return newDelegate
     }
 
     private func handleFieldValueRowDelete(for change: Change) {
@@ -229,9 +262,11 @@ public class DocumentEditor: ObservableObject {
         }
         switch field.fieldType {
         case .table, .collection:
-            delegateMap[fieldID]?.value?.deleteRow(for: change)
-            refreshField(fieldId: fieldID)
-            refreshDependent(for: fieldID)
+            if let valueDelegate = valueDelegate(for: fieldID, fieldType: field.fieldType) {
+                valueDelegate.deleteRow(for: change)
+                refreshField(fieldId: fieldID)
+                refreshDependent(for: fieldID)
+            }
         default:
             break
         }
@@ -245,9 +280,11 @@ public class DocumentEditor: ObservableObject {
         }
         switch field.fieldType {
         case .table, .collection:
-            delegateMap[fieldID]?.value?.moveRow(for: change)
-            refreshField(fieldId: fieldID)
-            refreshDependent(for: fieldID)
+            if let valueDelegate = valueDelegate(for: fieldID, fieldType: field.fieldType) {
+                valueDelegate.moveRow(for: change)
+                refreshField(fieldId: fieldID)
+                refreshDependent(for: fieldID)
+            }
         default:
             break
         }
@@ -411,15 +448,16 @@ extension DocumentEditor {
     }
     
     public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
-        let fileID = field(fieldID: fieldID)?.file
-
+        let field = field(fieldID: fieldID)
+        let fileID = field?.file
+        let fieldIdentifier = field?.identifier
         for page in pagesForCurrentView {
             if let position = page.fieldPositions?.first(where: { $0.field == fieldID }) {
-                return FieldIdentifier(fieldID: fieldID, pageID: page.id, fileID: fileID, fieldPositionId: position.id)
+                return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, pageID: page.id, fileID: fileID, fieldPositionId: position.id)
             }
         }
 
-        return FieldIdentifier(fieldID: fieldID, fileID: fileID)
+        return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, fileID: fileID)
     }
 }
 

@@ -315,18 +315,29 @@ struct EditMultipleRowsSheetView: View {
                     Spacer()
                     if viewModel.tableDataModel.selectedRows.count != 1 {
                         Button(action: {
-                            viewModel.bulkEdit(changes: changes)
-                            viewModel.tableDataModel.emptySelection()
-                            presentationMode.wrappedValue.dismiss()
+                            Task { @MainActor in
+                                await viewModel.bulkEdit(changes: changes)
+                                viewModel.tableDataModel.emptySelection()
+                                presentationMode.wrappedValue.dismiss()
+                            }
                         }, label: {
-                            Text("Apply All")
-                                .darkLightThemeColor()
-                                .font(.system(size: 14))
-                                .frame(width: 88, height: 27)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
+                            ZStack {
+                                if viewModel.isBulkLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .gray))
+                                        .frame(width: 88, height: 27)
+                                } else {
+                                    Text("Apply All")
+                                        .darkLightThemeColor()
+                                        .font(.system(size: 14))
+                                        .frame(width: 88, height: 27)
+                                        
+                                }
+                            }
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            )
                         })
                         .accessibilityIdentifier("ApplyAllButtonIdentifier")
                         
@@ -444,9 +455,10 @@ struct EditMultipleRowsSheetView: View {
                                 default:
                                     break
                                 }
-                                
-                                if !isUsedForBulkEdit {
-                                    viewModel.bulkEdit(changes: changes)
+                                Task { @MainActor in
+                                    if !isUsedForBulkEdit {
+                                        await viewModel.bulkEdit(changes: changes)
+                                    }
                                 }
                             }
                             switch cellModel.data.type {
@@ -477,9 +489,9 @@ struct EditMultipleRowsSheetView: View {
                                             self.changes[colIndex] = ValueUnion.string(newValue)
                                         }
                                         
-                                        Utility.debounceTextChange(debounceTask: &debounceTask) {
+                                        Task { @MainActor in
                                             if !isUsedForBulkEdit {
-                                                viewModel.bulkEdit(changes: changes)
+                                                await viewModel.bulkEdit(changes: changes)
                                             }
                                         }
                                     }

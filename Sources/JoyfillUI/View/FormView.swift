@@ -210,6 +210,18 @@ enum FieldListModelType: Equatable {
     case none
 }
 
+extension FieldListModelType {
+    var tableDataModel: TableDataModel? {
+        if case .table(let model) = self {
+            return model
+        }
+        if case .collection(let model) = self {
+            return model
+        }
+        return nil
+    }
+}
+
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
     @State var currentFocusedFieldsID: String = ""
@@ -277,7 +289,7 @@ struct FormView: View {
                 guard newValue != nil else { return }
                 guard lastFocusedFieldsID != newValue else { return }
                 if let lastFocusedFieldsID = lastFocusedFieldsID {
-                    let fieldEvent = FieldIdentifier(fieldID: lastFocusedFieldsID)
+                    let fieldEvent = documentEditor.getFieldIdentifier(for: lastFocusedFieldsID)
                     documentEditor.onBlur(event: fieldEvent)
                 }
                 self.lastFocusedFieldsID = currentFocusedFieldsID

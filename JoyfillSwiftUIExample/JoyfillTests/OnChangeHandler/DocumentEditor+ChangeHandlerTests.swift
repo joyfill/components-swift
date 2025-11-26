@@ -1203,7 +1203,9 @@ extension DocumentEditorChangeHandlerTests {
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
                                             parentRowId: parentRowId,
                                             nestedKey: nestedKey,
-                                            rootSchemaKey: collectionFieldID)
+                                            rootSchemaKey: collectionFieldID,
+                                                   isRootRow: false,
+                                                   fieldvalue: field.valueToValueElements ?? [])
         // Fetch the nested rows again.
         guard let updatedParent = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowId }),
               let updatedChildren = updatedParent.childrens?[nestedKey],
