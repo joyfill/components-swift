@@ -93,18 +93,20 @@ extension ChangeManager: FormChangeEvent {
     }
 
     func onFocus(event: FieldIdentifier) {
-        print(">>>>>>>>onFocus", event.fieldID)
+        let fieldDict = createFieldIdentifierDict(event)
+        print(">>>>>>>>onFocus", formatDictionary(fieldDict))
         let timestamp = DateFormatter.timestamp.string(from: Date())
         DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Focus: \(event.fieldID)")
+            self.displayedChangelogs.append("[\(timestamp)] Focus: \(self.formatDictionary(fieldDict))")
         }
     }
 
     func onBlur(event: FieldIdentifier) {
-        print(">>>>>>>>onBlur", event.fieldID)
+        let fieldDict = createFieldIdentifierDict(event)
+        print(">>>>>>>>onBlur", formatDictionary(fieldDict))
         let timestamp = DateFormatter.timestamp.string(from: Date())
         DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Blur: \(event.fieldID)")
+            self.displayedChangelogs.append("[\(timestamp)] Blur: \(self.formatDictionary(fieldDict))")
         }
     }
 
