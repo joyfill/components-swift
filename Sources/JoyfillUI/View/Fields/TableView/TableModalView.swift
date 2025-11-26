@@ -9,7 +9,7 @@ struct TableRowView : View {
     var isSelected: Bool = false
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
@@ -45,6 +45,7 @@ struct TableModalView : View {
                 onEditTap: { showEditMultipleRowsSheetView = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
+                    .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
