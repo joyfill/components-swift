@@ -77,6 +77,14 @@
 		363A33CE2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33CC2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json */; };
 		363A33CF2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33CC2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json */; };
 		363A33D12ED72ECA00B578B2 /* FormulaTemplate_OrFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363A33D02ED72ECA00B578B2 /* FormulaTemplate_OrFunctionTests.swift */; };
+		363A33D42ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363A33D32ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift */; };
+		363A33D52ED72FD200B578B2 /* FormulaTemplate_EmptyFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363A33D22ED72FD200B578B2 /* FormulaTemplate_EmptyFunctionTests.swift */; };
+		363A33D82ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */; };
+		363A33D92ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */; };
+		363A33DA2ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */; };
+		363A33DB2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */; };
+		363A33DC2ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */; };
+		363A33DD2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */; };
 		363AEF702C510DF00082359B /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363AEF6F2C510DF00082359B /* JoyfillAPIService */; };
 		363B43F62E29593D0027FFB9 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363B43F52E29593D0027FFB9 /* JoyfillAPIService */; };
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
@@ -523,6 +531,10 @@
 		363A33C72ED71B0D00B578B2 /* FormulaTemplate_AndFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_AndFunction.json; sourceTree = "<group>"; };
 		363A33CC2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_OrFunction.json; sourceTree = "<group>"; };
 		363A33D02ED72ECA00B578B2 /* FormulaTemplate_OrFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_OrFunctionTests.swift; sourceTree = "<group>"; };
+		363A33D22ED72FD200B578B2 /* FormulaTemplate_EmptyFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_EmptyFunctionTests.swift; sourceTree = "<group>"; };
+		363A33D32ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_NotFunctionTests.swift; sourceTree = "<group>"; };
+		363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_EmptyFunction.json; sourceTree = "<group>"; };
+		363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_NotFunction.json; sourceTree = "<group>"; };
 		364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeficiencyTableDemoView.swift; sourceTree = "<group>"; };
 		364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTest.swift; sourceTree = "<group>"; };
 		364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationExampleView.swift; sourceTree = "<group>"; };
@@ -952,6 +964,8 @@
 			isa = PBXGroup;
 			children = (
 				36AC58DB2ED70858006AE42F /* FormulaTemplate_IfFunctionTests.swift */,
+				363A33D22ED72FD200B578B2 /* FormulaTemplate_EmptyFunctionTests.swift */,
+				363A33D32ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift */,
 				363A33C52ED71AF800B578B2 /* FormulaTemplate_AndFunctionTests.swift */,
 				363A33D02ED72ECA00B578B2 /* FormulaTemplate_OrFunctionTests.swift */,
 			);
@@ -962,6 +976,8 @@
 			isa = PBXGroup;
 			children = (
 				36AC58DE2ED70D04006AE42F /* FormulaTemplate_IfFunction.json */,
+				363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */,
+				363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */,
 				363A33CC2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json */,
 				363A33C72ED71B0D00B578B2 /* FormulaTemplate_AndFunction.json */,
 			);
@@ -1632,6 +1648,8 @@
 				369D45472E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
 				369D45482E0E51AC00677280 /* FormulaTemplate_DateField.json in Resources */,
 				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
+				363A33DA2ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */,
+				363A33DB2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */,
 				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
 				363A33CD2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json in Resources */,
@@ -1713,6 +1731,8 @@
 				369D456D2E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				369D456E2E0E52CA00677280 /* JoyfillResolver_DirectSelfCircularReference.json in Resources */,
 				36A5EF3B2E29725B0059C2A6 /* TableNewColumns.json in Resources */,
+				363A33DC2ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */,
+				363A33DD2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */,
 				36A5EF3C2E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
 				36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */,
 				36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
@@ -1879,6 +1899,8 @@
 				3682A4CA2E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */,
 				369D45292E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D452B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
+				363A33D82ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */,
+				363A33D92ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */,
 				E2F568C12E2A4A6F005216A6 /* SingleChoiceFieldTestData.json in Resources */,
 				E2F568C32E2A4A7A005216A6 /* MultilineTestData.json in Resources */,
 				369D452C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
@@ -1970,6 +1992,8 @@
 				369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */,
 				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
 				E2B8E3C22E436F2D00AC6018 /* FormulaTemplate_TextareaFieldTests.swift in Sources */,
+				363A33D42ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift in Sources */,
+				363A33D52ED72FD200B578B2 /* FormulaTemplate_EmptyFunctionTests.swift in Sources */,
 				E27061CC2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift in Sources */,
 				E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,

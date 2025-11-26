@@ -1,0 +1,273 @@
+{
+  "_id": "691acd933d90ecfb16a51b65",
+  "identifier": "document-not-function-test",
+  "name": "Not Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f4",
+      "name": "Not Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903805",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312647",
+              "field": "basic_example_true",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312648",
+              "field": "basic_example_false",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf55",
+              "field": "age",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe505",
+              "field": "intermediate_example",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd93919358909216e965",
+              "field": "status",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e486a",
+              "field": "country",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d950",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903805"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_true",
+      "title": "Basic Example (True to False): not(true)",
+      "identifier": "field-basic-example-true",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b305a",
+          "formula": "691acd93bab5a640f289dd95",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f4"
+    },
+    {
+      "_id": "basic_example_false",
+      "title": "Basic Example (False to True): not(false)",
+      "identifier": "field-basic-example-false",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b305b",
+          "formula": "691acd93bab5a640f289dd96",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f4"
+    },
+    {
+      "_id": "age",
+      "title": "Age",
+      "identifier": "field_age",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45f4",
+      "value": 15.0
+    },
+    {
+      "_id": "intermediate_example",
+      "title": "Intermediate Example: not(age < 18)",
+      "identifier": "field-intermediate-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a17",
+          "formula": "691acd93f6346774b0b9d05b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f4"
+    },
+    {
+      "_id": "status",
+      "title": "Status",
+      "identifier": "field-status",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f4",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e2",
+          "value": "Active"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a78b",
+          "value": "Inactive"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a78c",
+          "value": "Pending"
+        }
+      ]
+    },
+    {
+      "_id": "country",
+      "title": "Country",
+      "identifier": "field-country",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f4",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e3",
+          "value": "USA"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a78d",
+          "value": "Canada"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a78e",
+          "value": "Other"
+        }
+      ]
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: not(and(status == 'Active', or(country == 'USA', country == 'Canada'), age >= 18))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad2",
+          "formula": "691acd93f033ed54812dc628",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f4"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243721,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd95",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "not(true)"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd96",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "not(false)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d05b",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "not(age < 18)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc628",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "not(and(status == 'Active', or(country == 'USA', country == 'Canada'), age >= 18))"
+    }
+  ]
+}
+
