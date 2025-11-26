@@ -14,8 +14,8 @@ struct FormulaFunctionTestsView: View {
     let formulaFunctions: [(name: String, fileName: String, description: String)] = [
         ("if()", "FormulaTemplate_IfFunction", "Conditional logic: if(condition, true_value, false_value)"),
         ("and()", "FormulaTemplate_AndFunction", "Logical AND: and(condition1, condition2, ...) - all must be true"),
+        ("or()", "FormulaTemplate_OrFunction", "Logical OR: or(condition1, condition2, ...) - any must be true"),
         // Add more formula functions here as JSON files are created
-        // ("or()", "FormulaTemplate_OrFunction", "Logical OR: any condition true"),
         // ("sum()", "FormulaTemplate_SumFunction", "Sum of numbers"),
     ]
     
