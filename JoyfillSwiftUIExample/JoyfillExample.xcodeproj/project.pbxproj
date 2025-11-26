@@ -85,6 +85,14 @@
 		363A33DB2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */; };
 		363A33DC2ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */; };
 		363A33DD2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */; };
+		363A33DF2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33DE2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json */; };
+		363A33E02ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33DE2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json */; };
+		363A33E12ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33DE2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json */; };
+		363A33E32ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33E22ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json */; };
+		363A33E42ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33E22ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json */; };
+		363A33E52ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = 363A33E22ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json */; };
+		363A33E82ED7315200B578B2 /* FormulaTemplate_ConcatFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363A33E62ED7315200B578B2 /* FormulaTemplate_ConcatFunctionTests.swift */; };
+		363A33E92ED7315200B578B2 /* FormulaTemplate_ContainsFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 363A33E72ED7315200B578B2 /* FormulaTemplate_ContainsFunctionTests.swift */; };
 		363AEF702C510DF00082359B /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363AEF6F2C510DF00082359B /* JoyfillAPIService */; };
 		363B43F62E29593D0027FFB9 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 363B43F52E29593D0027FFB9 /* JoyfillAPIService */; };
 		364300ED2C510BEC00BA870F /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 364300EC2C510BEC00BA870F /* JoyfillAPIService */; };
@@ -535,6 +543,10 @@
 		363A33D32ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_NotFunctionTests.swift; sourceTree = "<group>"; };
 		363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_EmptyFunction.json; sourceTree = "<group>"; };
 		363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_NotFunction.json; sourceTree = "<group>"; };
+		363A33DE2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ConcatFunction.json; sourceTree = "<group>"; };
+		363A33E22ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ContainsFunction.json; sourceTree = "<group>"; };
+		363A33E62ED7315200B578B2 /* FormulaTemplate_ConcatFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ConcatFunctionTests.swift; sourceTree = "<group>"; };
+		363A33E72ED7315200B578B2 /* FormulaTemplate_ContainsFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ContainsFunctionTests.swift; sourceTree = "<group>"; };
 		364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeficiencyTableDemoView.swift; sourceTree = "<group>"; };
 		364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerTest.swift; sourceTree = "<group>"; };
 		364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationExampleView.swift; sourceTree = "<group>"; };
@@ -968,6 +980,8 @@
 				363A33D32ED72FD200B578B2 /* FormulaTemplate_NotFunctionTests.swift */,
 				363A33C52ED71AF800B578B2 /* FormulaTemplate_AndFunctionTests.swift */,
 				363A33D02ED72ECA00B578B2 /* FormulaTemplate_OrFunctionTests.swift */,
+				363A33E62ED7315200B578B2 /* FormulaTemplate_ConcatFunctionTests.swift */,
+				363A33E72ED7315200B578B2 /* FormulaTemplate_ContainsFunctionTests.swift */,
 			);
 			path = Functions;
 			sourceTree = "<group>";
@@ -979,7 +993,9 @@
 				363A33D62ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json */,
 				363A33D72ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json */,
 				363A33CC2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json */,
+				363A33DE2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json */,
 				363A33C72ED71B0D00B578B2 /* FormulaTemplate_AndFunction.json */,
+				363A33E22ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json */,
 			);
 			path = Functions;
 			sourceTree = "<group>";
@@ -1604,6 +1620,7 @@
 				36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */,
 				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				E2C8BD2B2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */,
+				363A33DF2ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json in Resources */,
 				36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */,
 				36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */,
 				36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */,
@@ -1650,6 +1667,7 @@
 				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				363A33DA2ED72FEE00B578B2 /* FormulaTemplate_EmptyFunction.json in Resources */,
 				363A33DB2ED72FEE00B578B2 /* FormulaTemplate_NotFunction.json in Resources */,
+				363A33E42ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json in Resources */,
 				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
 				363A33CD2ED72EB300B578B2 /* FormulaTemplate_OrFunction.json in Resources */,
@@ -1751,6 +1769,7 @@
 				369D452E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				3682A4C22E153D43005B73C3 /* FormulaTemplate_Read_ChartField.json in Resources */,
 				369D45342E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */,
+				363A33E32ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json in Resources */,
 				369D45362E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */,
 				E274CA722E2E7FD600B35C09 /* defaultEmptyTemplate.json in Resources */,
 				369D45372E0E51AC00677280 /* FormulaTemplate_DropdownField.json in Resources */,
@@ -1766,6 +1785,7 @@
 				E2C8BD2E2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */,
 				3627464C2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
 				3627464D2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
+				363A33E12ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json in Resources */,
 				3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
 				E28D109E2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
 				362746712E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
@@ -1825,6 +1845,8 @@
 				E274CA6D2E2E7FCD00B35C09 /* conditionalLogicTemplate.json in Resources */,
 				36A5EF462E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */,
 				E2F568C02E2A4A6B005216A6 /* NumberFieldTestData.json in Resources */,
+				363A33E52ED7313B00B578B2 /* FormulaTemplate_ContainsFunction.json in Resources */,
+				363A33E02ED7311A00B578B2 /* FormulaTemplate_ConcatFunction.json in Resources */,
 				36A5EF472E29725B0059C2A6 /* testrow.json in Resources */,
 				E2F568C92E2A4A99005216A6 /* ChartFieldTestData.json in Resources */,
 				36A5EF482E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
@@ -1980,6 +2002,8 @@
 				E2B8E3E22E4378D200AC6018 /* FormulaTemplate_EqualityOperatorTests.swift in Sources */,
 				E2B8E3E32E4378D200AC6018 /* FormulaTemplate_GreaterThanOperatorTests.swift in Sources */,
 				E2B8E3E42E4378D200AC6018 /* FormulaTemplate_LessThanOrEqualOperatorTests.swift in Sources */,
+				363A33E82ED7315200B578B2 /* FormulaTemplate_ConcatFunctionTests.swift in Sources */,
+				363A33E92ED7315200B578B2 /* FormulaTemplate_ContainsFunctionTests.swift in Sources */,
 				E2B8E3E52E4378D200AC6018 /* FormulaTemplate_UnequalOperatorTests.swift in Sources */,
 				E2C8BD272E4628A900B93B9E /* MobileTitleDisplayTests.swift in Sources */,
 				E2B8E3E62E4378D200AC6018 /* FormulaTemplate_GreaterThanOrEqualOperatorTests.swift in Sources */,

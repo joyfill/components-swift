@@ -15,8 +15,10 @@ struct FormulaFunctionTestsView: View {
         ("if()", "FormulaTemplate_IfFunction", "Conditional logic: if(condition, true_value, false_value)"),
         ("and()", "FormulaTemplate_AndFunction", "Logical AND: and(condition1, condition2, ...) - all must be true"),
         ("or()", "FormulaTemplate_OrFunction", "Logical OR: or(condition1, condition2, ...) - any must be true"),
-        ("empty()", "FormulaTemplate_EmptyFunction", "Check if value is empty: empty(value) - strings, arrays, fields"),
         ("not()", "FormulaTemplate_NotFunction", "Logical NOT: not(condition) - negates boolean value"),
+        ("empty()", "FormulaTemplate_EmptyFunction", "Check if value is empty: empty(value) - strings, arrays, fields"),
+        ("contains()", "FormulaTemplate_ContainsFunction", "String search: contains(text, search) - case insensitive"),
+        ("concat()", "FormulaTemplate_ConcatFunction", "Concatenate: concat(a, b, ...) - joins strings/arrays"),
         // Add more formula functions here as JSON files are created
     ]
     
