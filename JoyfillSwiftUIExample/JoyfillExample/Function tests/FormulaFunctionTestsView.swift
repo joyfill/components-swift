@@ -19,6 +19,8 @@ struct FormulaFunctionTestsView: View {
         ("empty()", "FormulaTemplate_EmptyFunction", "Check if value is empty: empty(value) - strings, arrays, fields"),
         ("contains()", "FormulaTemplate_ContainsFunction", "String search: contains(text, search) - case insensitive"),
         ("concat()", "FormulaTemplate_ConcatFunction", "Concatenate: concat(a, b, ...) - joins strings/arrays"),
+        ("lower()", "FormulaTemplate_LowerFunction", "Lowercase: lower(text) - converts text to lowercase"),
+        ("upper()", "FormulaTemplate_UpperFunction", "Uppercase: upper(text) - converts text to uppercase"),
         // Add more formula functions here as JSON files are created
     ]
     
