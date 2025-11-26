@@ -23,7 +23,7 @@ extension DocumentEditor: JoyDocProvider {
         refreshField(fieldId: field.id!)
     }
 
-    func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
+    public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
         guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
         }
