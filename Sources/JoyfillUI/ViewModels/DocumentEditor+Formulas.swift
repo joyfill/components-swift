@@ -62,5 +62,9 @@ extension DocumentEditor: JoyDocProvider {
         if shouldCallOnChange {
             handleFieldsOnChange(fieldIdentifier: getFieldIdentifier(for: fieldID), currentField: field)
         }
+
+        if joyDocContext != nil {
+            self.joyDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
+        }
     }
 }
