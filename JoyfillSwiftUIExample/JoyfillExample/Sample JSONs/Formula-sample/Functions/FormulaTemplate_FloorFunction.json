@@ -1,0 +1,387 @@
+{
+  "_id": "691acd933d90ecfb16a51b70",
+  "identifier": "document-floor-function-test",
+  "name": "Floor Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45ff",
+      "name": "Floor Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903810",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312664",
+              "field": "basic_example_decimal",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312665",
+              "field": "basic_example_integer",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312666",
+              "field": "intermediate_example_negative",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf87",
+              "field": "totalAmount",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf88",
+              "field": "itemPrice",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe515",
+              "field": "intermediate_example_items",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf89",
+              "field": "inventoryType",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf8a",
+              "field": "daysRemaining",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf8b",
+              "field": "weeklyDiscount",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf8c",
+              "field": "monthsRemaining",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf8d",
+              "field": "monthlyDiscount",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d95b",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903810"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_decimal",
+      "title": "Basic Example (Decimal): floor(4.9)",
+      "identifier": "field-basic-example-decimal",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3077",
+          "formula": "691acd93bab5a640f289ddb2",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45ff"
+    },
+    {
+      "_id": "basic_example_integer",
+      "title": "Basic Example (Integer): floor(4)",
+      "identifier": "field-basic-example-integer",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3078",
+          "formula": "691acd93bab5a640f289ddb3",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45ff"
+    },
+    {
+      "_id": "intermediate_example_negative",
+      "title": "Intermediate Example (Negative): floor(-4.3)",
+      "identifier": "field-intermediate-example-negative",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3079",
+          "formula": "691acd93bab5a640f289ddb4",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45ff"
+    },
+    {
+      "_id": "totalAmount",
+      "title": "Total Amount",
+      "identifier": "field-total-amount",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "value": 50
+    },
+    {
+      "_id": "itemPrice",
+      "title": "Item Price",
+      "identifier": "field-item-price",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "value": 12.99
+    },
+    {
+      "_id": "intermediate_example_items",
+      "title": "Intermediate Example (Items): floor(totalAmount / itemPrice)",
+      "identifier": "field-intermediate-example-items",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a27",
+          "formula": "691acd93f6346774b0b9d06b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45ff"
+    },
+    {
+      "_id": "inventoryType",
+      "title": "Inventory Type",
+      "identifier": "field-inventory-type",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e8",
+          "value": "perishable"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a798",
+          "value": "seasonal"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a799",
+          "value": "other"
+        }
+      ],
+      "value": "perishable"
+    },
+    {
+      "_id": "daysRemaining",
+      "title": "Days Remaining",
+      "identifier": "field-days-remaining",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "value": 17
+    },
+    {
+      "_id": "weeklyDiscount",
+      "title": "Weekly Discount",
+      "identifier": "field-weekly-discount",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "value": 5
+    },
+    {
+      "_id": "monthsRemaining",
+      "title": "Months Remaining",
+      "identifier": "field-months-remaining",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "value": 2.7
+    },
+    {
+      "_id": "monthlyDiscount",
+      "title": "Monthly Discount",
+      "identifier": "field-monthly-discount",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45ff",
+      "value": 10
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Inventory Discount Calculation",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522add",
+          "formula": "691acd93f033ed54812dc633",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45ff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243732,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddb2",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "floor(4.9)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb3",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "floor(4)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb4",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "floor(-4.3)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d06b",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "floor(totalAmount / itemPrice)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc633",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(inventoryType == \"perishable\", floor(daysRemaining / 7) * weeklyDiscount, if(inventoryType == \"seasonal\", floor(monthsRemaining) * monthlyDiscount, 0))"
+    }
+  ]
+}

@@ -1,0 +1,477 @@
+{
+  "_id": "691acd933d90ecfb16a51b72",
+  "identifier": "document-max-function-test",
+  "name": "Max Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd47ff",
+      "name": "Max Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903812",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312669",
+              "field": "basic_example",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731266a",
+              "field": "intermediate_example_array",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731266b",
+              "field": "intermediate_example_mixed",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf95",
+              "field": "price1",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf96",
+              "field": "price2",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf97",
+              "field": "price3",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe517",
+              "field": "intermediate_example_fields",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf98",
+              "field": "score",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf99",
+              "field": "score1",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf9a",
+              "field": "score2",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf9b",
+              "field": "score3",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf9c",
+              "field": "score4",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf9d",
+              "field": "score5",
+              "x": 0.0,
+              "y": 1200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d95e",
+              "field": "advanced_example_grade",
+              "x": 0.0,
+              "y": 1300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf9e",
+              "field": "baseValue",
+              "x": 0.0,
+              "y": 1400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d95f",
+              "field": "advanced_example_dynamic",
+              "x": 0.0,
+              "y": 1500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903812"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example",
+      "title": "Basic Example: max(10, 14, 3)",
+      "identifier": "field-basic-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3082",
+          "formula": "691acd93bab5a640f289ddb7",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd47ff"
+    },
+    {
+      "_id": "intermediate_example_array",
+      "title": "Intermediate Example (Array): max([10, 14, 3])",
+      "identifier": "field-intermediate-example-array",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3083",
+          "formula": "691acd93bab5a640f289ddb8",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd47ff"
+    },
+    {
+      "_id": "intermediate_example_mixed",
+      "title": "Intermediate Example (Mixed): max(10, [14, 3])",
+      "identifier": "field-intermediate-example-mixed",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3084",
+          "formula": "691acd93bab5a640f289ddb9",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd47ff"
+    },
+    {
+      "_id": "price1",
+      "title": "Price 1",
+      "identifier": "field-price1",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 25
+    },
+    {
+      "_id": "price2",
+      "title": "Price 2",
+      "identifier": "field-price2",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 30
+    },
+    {
+      "_id": "price3",
+      "title": "Price 3",
+      "identifier": "field-price3",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 15
+    },
+    {
+      "_id": "intermediate_example_fields",
+      "title": "Intermediate Example (Fields): max(price1, price2, price3)",
+      "identifier": "field-intermediate-example-fields",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a29",
+          "formula": "691acd93f6346774b0b9d06d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd47ff"
+    },
+    {
+      "_id": "score",
+      "title": "Current Score",
+      "identifier": "field-score",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 85
+    },
+    {
+      "_id": "score1",
+      "title": "Score 1",
+      "identifier": "field-score1",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 78
+    },
+    {
+      "_id": "score2",
+      "title": "Score 2",
+      "identifier": "field-score2",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 92
+    },
+    {
+      "_id": "score3",
+      "title": "Score 3",
+      "identifier": "field-score3",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 88
+    },
+    {
+      "_id": "score4",
+      "title": "Score 4",
+      "identifier": "field-score4",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 65
+    },
+    {
+      "_id": "score5",
+      "title": "Score 5",
+      "identifier": "field-score5",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 82
+    },
+    {
+      "_id": "advanced_example_grade",
+      "title": "Advanced Example (Grade Curve)",
+      "identifier": "field-advanced-example-grade",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae0",
+          "formula": "691acd93f033ed54812dc636",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd47ff"
+    },
+    {
+      "_id": "baseValue",
+      "title": "Base Value",
+      "identifier": "field-base-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd47ff",
+      "value": 50
+    },
+    {
+      "_id": "advanced_example_dynamic",
+      "title": "Advanced Example (Dynamic Range)",
+      "identifier": "field-advanced-example-dynamic",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae1",
+          "formula": "691acd93f033ed54812dc637",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd47ff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243734,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddb7",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "max(10, 14, 3)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb8",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "max([10, 14, 3])"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb9",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "max(10, [14, 3])"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d06d",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "max(price1, price2, price3)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc636",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(score >= max([score1, score2, score3, score4, score5]) - 10, \"A\", if(score >= max([score1, score2, score3, score4, score5]) - 20, \"B\", if(score >= max([score1, score2, score3, score4, score5]) - 30, \"C\", if(score >= max([score1, score2, score3, score4, score5]) - 40, \"D\", \"F\"))))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc637",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "max(concat([baseValue], [price1, price2, price3]))"
+    }
+  ]
+}

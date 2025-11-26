@@ -1,0 +1,465 @@
+{
+  "_id": "691acd933d90ecfb16a51b6c",
+  "identifier": "document-sum-function-test",
+  "name": "Sum Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45fb",
+      "name": "Sum Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90380c",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312659",
+              "field": "basic_example_numbers",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731265a",
+              "field": "basic_example_array",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf6c",
+              "field": "subtotal",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf6d",
+              "field": "tax",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe510",
+              "field": "intermediate_example_fields",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf6e",
+              "field": "price1",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf6f",
+              "field": "price2",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf70",
+              "field": "price3",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf71",
+              "field": "shipping",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe511",
+              "field": "intermediate_example_array",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf72",
+              "field": "lineItems",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf73",
+              "field": "includeShipping",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "checkbox",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf74",
+              "field": "shippingCost",
+              "x": 0.0,
+              "y": 1200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf75",
+              "field": "includeInsurance",
+              "x": 0.0,
+              "y": 1300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "checkbox",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf76",
+              "field": "insuranceCost",
+              "x": 0.0,
+              "y": 1400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d957",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 1500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90380c"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_numbers",
+      "title": "Basic Example (Numbers): sum(10, 20, 30)",
+      "identifier": "field-basic-example-numbers",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b306c",
+          "formula": "691acd93bab5a640f289dda7",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fb"
+    },
+    {
+      "_id": "basic_example_array",
+      "title": "Basic Example (Array): sum([10, 20, 30])",
+      "identifier": "field-basic-example-array",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b306d",
+          "formula": "691acd93bab5a640f289dda8",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fb"
+    },
+    {
+      "_id": "subtotal",
+      "title": "Subtotal",
+      "identifier": "field-subtotal",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 100
+    },
+    {
+      "_id": "tax",
+      "title": "Tax",
+      "identifier": "field-tax",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 8
+    },
+    {
+      "_id": "intermediate_example_fields",
+      "title": "Intermediate Example (Fields): sum(subtotal, tax)",
+      "identifier": "field-intermediate-example-fields",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a22",
+          "formula": "691acd93f6346774b0b9d066",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fb"
+    },
+    {
+      "_id": "price1",
+      "title": "Price 1",
+      "identifier": "field-price1",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 25
+    },
+    {
+      "_id": "price2",
+      "title": "Price 2",
+      "identifier": "field-price2",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 30
+    },
+    {
+      "_id": "price3",
+      "title": "Price 3",
+      "identifier": "field-price3",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 15
+    },
+    {
+      "_id": "shipping",
+      "title": "Shipping",
+      "identifier": "field-shipping",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 10
+    },
+    {
+      "_id": "intermediate_example_array",
+      "title": "Intermediate Example (Array): sum([price1, price2, price3], shipping)",
+      "identifier": "field-intermediate-example-array",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a23",
+          "formula": "691acd93f6346774b0b9d067",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fb"
+    },
+    {
+      "_id": "lineItems",
+      "title": "Line Items (JSON)",
+      "identifier": "field-line-items",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": "[{\"quantity\": 2, \"price\": 25}, {\"quantity\": 1, \"price\": 30}, {\"quantity\": 3, \"price\": 15}]"
+    },
+    {
+      "_id": "includeShipping",
+      "title": "Include Shipping",
+      "identifier": "field-include-shipping",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "checkbox",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": true
+    },
+    {
+      "_id": "shippingCost",
+      "title": "Shipping Cost",
+      "identifier": "field-shipping-cost",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 15
+    },
+    {
+      "_id": "includeInsurance",
+      "title": "Include Insurance",
+      "identifier": "field-include-insurance",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "checkbox",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": false
+    },
+    {
+      "_id": "insuranceCost",
+      "title": "Insurance Cost",
+      "identifier": "field-insurance-cost",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fb",
+      "value": 5
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Order Total with Options",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad9",
+          "formula": "691acd93f033ed54812dc62f",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fb"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243728,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dda7",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sum(10, 20, 30)"
+    },
+    {
+      "_id": "691acd93bab5a640f289dda8",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sum([10, 20, 30])"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d066",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sum(subtotal, tax)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d067",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sum([price1, price2, price3], shipping)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc62f",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sum(map(lineItems, (item) -> item.quantity * item.price), if(includeShipping, shippingCost, 0), if(includeInsurance, insuranceCost, 0))"
+    }
+  ]
+}

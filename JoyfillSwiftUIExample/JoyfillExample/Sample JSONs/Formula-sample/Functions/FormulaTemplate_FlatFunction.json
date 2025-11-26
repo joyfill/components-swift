@@ -1,0 +1,339 @@
+{
+  "_id": "691acd933d90ecfb16a51b7d",
+  "identifier": "document-flat-function-test",
+  "name": "Flat Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd5002",
+      "name": "Flat Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90381d",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731267e",
+              "field": "basic_example_simple",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731267f",
+              "field": "basic_example_unchanged",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312680",
+              "field": "intermediate_example_depth",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc5",
+              "field": "nestedData",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc6",
+              "field": "flattenDepth",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe52e",
+              "field": "intermediate_example_dynamic",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc7",
+              "field": "responses",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d97c",
+              "field": "advanced_example_responses",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc8",
+              "field": "categories",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d97d",
+              "field": "advanced_example_categories",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90381d"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_simple",
+      "title": "Basic Example (Simple): flat([1, [2, 3]])",
+      "identifier": "field-basic-example-simple",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3097",
+          "formula": "691acd93bab5a640f289ddcc",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002"
+    },
+    {
+      "_id": "basic_example_unchanged",
+      "title": "Basic Example (Unchanged): flat([1, 2, 3])",
+      "identifier": "field-basic-example-unchanged",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3098",
+          "formula": "691acd93bab5a640f289ddcd",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002"
+    },
+    {
+      "_id": "intermediate_example_depth",
+      "title": "Intermediate Example (Depth): flat([0, 1, [2, [3, [4, 5]]]], 2)",
+      "identifier": "field-intermediate-example-depth",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3099",
+          "formula": "691acd93bab5a640f289ddce",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002"
+    },
+    {
+      "_id": "nestedData",
+      "title": "Nested Data",
+      "identifier": "field-nested-data",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002",
+      "value": "[[1, 2], [3, [4, 5]], 6]"
+    },
+    {
+      "_id": "flattenDepth",
+      "title": "Flatten Depth",
+      "identifier": "field-flatten-depth",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd5002",
+      "value": 2
+    },
+    {
+      "_id": "intermediate_example_dynamic",
+      "title": "Intermediate Example (Dynamic): flat(nestedData, flattenDepth)",
+      "identifier": "field-intermediate-example-dynamic",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a40",
+          "formula": "691acd93f6346774b0b9d084",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002"
+    },
+    {
+      "_id": "responses",
+      "title": "Responses",
+      "identifier": "field-responses",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002",
+      "value": "[[], [\"response1\"], []]"
+    },
+    {
+      "_id": "advanced_example_responses",
+      "title": "Advanced Example (Responses): if(length(flat(responses, 1)) > 0, \"At least one response received\", \"No responses yet\")",
+      "identifier": "field-advanced-example-responses",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522afe",
+          "formula": "691acd93f033ed54812dc654",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002"
+    },
+    {
+      "_id": "categories",
+      "title": "Categories",
+      "identifier": "field-categories",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002",
+      "value": "[[\"Electronics\", [\"Phones\", \"Computers\"]], [\"Clothing\", [\"Shirts\", \"Pants\"]]]"
+    },
+    {
+      "_id": "advanced_example_categories",
+      "title": "Advanced Example (Categories): concat(\"All categories: \", flat(categories, 2))",
+      "identifier": "field-advanced-example-categories",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aff",
+          "formula": "691acd93f033ed54812dc655",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5002"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243745,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddcc",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flat([1, [2, 3]])"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddcd",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flat([1, 2, 3])"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddce",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flat([0, 1, [2, [3, [4, 5]]]], 2)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d084",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flat(nestedData, flattenDepth)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc654",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(length(flat(responses, 1)) > 0, \"At least one response received\", \"No responses yet\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc655",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(\"All categories: \", flat(categories, 2))"
+    }
+  ]
+}
