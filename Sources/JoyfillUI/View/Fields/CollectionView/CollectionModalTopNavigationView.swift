@@ -76,7 +76,7 @@ struct CollectionModalTopNavigationView: View {
                 .popover(isPresented: $showingPopover) {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
-                            if viewModel.tableDataModel.selectedRows.count == 1 && !hasActiveFilters {
+                            if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.insertBelow()
@@ -89,35 +89,35 @@ struct CollectionModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
-                                
-                                Button(action: {
-                                    showingPopover = false
-                                    viewModel.moveUP()
-                                }) {
-                                    Text("Move Up")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
+                                if !hasActiveFilters {
+                                    Button(action: {
+                                        showingPopover = false
+                                        viewModel.moveUP()
+                                    }) {
+                                        Text("Move Up")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                                    .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("TableMoveUpRowIdentifier")
+                                    
+                                    Button(action: {
+                                        showingPopover = false
+                                        viewModel.moveDown()
+                                    }) {
+                                        Text("Move Down")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                                    .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("TableMoveDownRowIdentifier")
+                                    
                                 }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
-                                .padding(.horizontal, 16)
-                                .accessibilityIdentifier("TableMoveUpRowIdentifier")
-                                
-                                Button(action: {
-                                    showingPopover = false
-                                    viewModel.moveDown()
-                                }) {
-                                    Text("Move Down")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
-                                }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
-                                .padding(.horizontal, 16)
-                                .accessibilityIdentifier("TableMoveDownRowIdentifier")
-                                
                             }
-                            
                             Button(action: {
                                 showingPopover = false
                                 onEditTap?()
@@ -129,6 +129,7 @@ struct CollectionModalTopNavigationView: View {
                             }
                             .padding(.horizontal, 16)
                             .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
+                            .padding(.bottom, hasActiveFilters ? 8 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
                             if !hasActiveFilters {
                                 Button(action: {
@@ -175,35 +176,35 @@ struct CollectionModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
-
-                                Button(action: {
-                                    showingPopover = false
-                                    viewModel.moveUP()
-                                }) {
-                                    Text("Move Up")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
+                                if !hasActiveFilters {
+                                    Button(action: {
+                                        showingPopover = false
+                                        viewModel.moveUP()
+                                    }) {
+                                        Text("Move Up")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .accessibilityIdentifier("TableMoveUpRowIdentifier")
+                                    
+                                    Button(action: {
+                                        showingPopover = false
+                                        viewModel.moveDown()
+                                    }) {
+                                        Text("Move Down")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
-                                .padding(.horizontal, 16)
-                                .padding(.top, 16)
-                                .accessibilityIdentifier("TableMoveUpRowIdentifier")
-
-                                Button(action: {
-                                    showingPopover = false
-                                    viewModel.moveDown()
-                                }) {
-                                    Text("Move Down")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
-                                }
-                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
-                                .padding(.horizontal, 16)
-                                .padding(.top, 16)
-                                .accessibilityIdentifier("TableMoveDownRowIdentifier")
-
                             }
                             Button(action: {
                                 showingPopover = false
@@ -217,20 +218,20 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 16)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-
-                            Button(action: {
-                                viewModel.deleteSelectedRow()
-                                showingPopover = false
-                            }) {
-                                Text("Delete \(rowTitle)")
-                                    .foregroundStyle(.red)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
+                            if !hasActiveFilters {
+                                Button(action: {
+                                    viewModel.deleteSelectedRow()
+                                    showingPopover = false
+                                }) {
+                                    Text("Delete \(rowTitle)")
+                                        .foregroundStyle(.red)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 10)
+                                .accessibilityIdentifier("TableDeleteRowIdentifier")
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.bottom, 10)
-                            .accessibilityIdentifier("TableDeleteRowIdentifier")
-
 //                            Button(action: {
 //                                viewModel.duplicateRow()
 //                                showingPopover = false
@@ -339,7 +340,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         })
                         .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                         .accessibilityIdentifier("LowerRowButtonIdentifier")
-                        if !viewModel.tableDataModel.hasActiveFilters {
+//                        if !viewModel.tableDataModel.hasActiveFilters {
                             Button(action: {
                                 viewModel.insertBelowFromBulkEdit()
                             }, label: {
@@ -353,7 +354,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 }
                             })
                             .accessibilityIdentifier("PlusTheRowButtonIdentifier")
-                        }
+//                        }
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
