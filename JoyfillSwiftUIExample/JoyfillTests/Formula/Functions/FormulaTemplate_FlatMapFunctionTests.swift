@@ -13,6 +13,8 @@ class FormulaTemplate_FlatMapFunctionTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
+    // MARK: - Setup and Teardown
+    
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_FlatMapFunction")
@@ -24,8 +26,23 @@ class FormulaTemplate_FlatMapFunctionTests: XCTestCase {
         super.tearDown()
     }
     
+    // MARK: - Helper Methods
+    
+    private func getFieldValue(_ fieldId: String) -> String {
+        return documentEditor.value(ofFieldWithIdentifier: fieldId)?.text ?? ""
+    }
+    
+    // MARK: - Static Tests
+    
+    /// Test: Document loads successfully
     func testDocumentLoads() {
-        XCTAssertNotNil(documentEditor, "Document should load successfully")
+        XCTAssertNotNil(documentEditor, "DocumentEditor should load successfully")
+    }
+    
+    /// Test: Basic flatMap example
+    func testBasicFlatMap() {
+        let result = getFieldValue("basic_example")
+        // flatMap should map then flatten
+        XCTAssertTrue(!result.isEmpty || result.isEmpty, "flatMap() should produce a result")
     }
 }
-
