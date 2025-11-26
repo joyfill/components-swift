@@ -451,6 +451,7 @@ struct OptionSelectionView: View {
         case imageReplacementTest
         case liveViewTest
         case allFormulaJSONs
+        case formulaFunctionTests
         case tenKRowsCollection
         case schemaValidationExampleView
         case oChangeHandlerTest
@@ -474,6 +475,8 @@ struct OptionSelectionView: View {
                 return "Formulas"
             case .allFormulaJSONs:
                 return "All Formula JSONs"
+            case .formulaFunctionTests:
+                return "Formula Function Tests"
             case .tenKRowsCollection:
                 return "10k Rows Collection"
             case .schemaValidationExampleView:
@@ -505,6 +508,8 @@ struct OptionSelectionView: View {
                 return "Test formula calculations and expressions"
             case .allFormulaJSONs:
                 return "Test formula calculations and expressions"
+            case .formulaFunctionTests:
+                return "Test individual formula functions (if, sum, etc.)"
             case .tenKRowsCollection:
                 return "Open heavy sample JSON with 10k rows to stress test"
             case .schemaValidationExampleView:
@@ -536,6 +541,8 @@ struct OptionSelectionView: View {
                 return "function"
             case .allFormulaJSONs:
                 return "function"
+            case .formulaFunctionTests:
+                return "f.cursive"
             case .tenKRowsCollection:
                 return "square.grid.3x3"
             case .schemaValidationExampleView:
@@ -567,6 +574,8 @@ struct OptionSelectionView: View {
                 return .red
             case .allFormulaJSONs:
                 return .yellow
+            case .formulaFunctionTests:
+                return .indigo
             case .schemaValidationExampleView:
                 return .red
             case .manipulateDataOnChangeView:
@@ -721,6 +730,8 @@ struct OptionSelectionView: View {
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
             AllSampleJSONs()
+        case .some(.formulaFunctionTests):
+            FormulaFunctionTestsView()
         case .some(.tenKRowsCollection):
             AllSampleJSONs(initialFileName: "10kRowsCollection", lockToFileName: true)
         }
