@@ -1,0 +1,31 @@
+//
+//  FormulaTemplate_ToNumberFunctionTests.swift
+//  JoyfillTests
+//
+//  Unit tests for the toNumber() formula function
+//
+
+import XCTest
+import JoyfillModel
+import Joyfill
+
+class FormulaTemplate_ToNumberFunctionTests: XCTestCase {
+    
+    private var documentEditor: DocumentEditor!
+    
+    override func setUp() {
+        super.setUp()
+        let document = sampleJSONDocument(fileName: "FormulaTemplate_ToNumberFunction")
+        documentEditor = DocumentEditor(document: document, validateSchema: false)
+    }
+    
+    override func tearDown() {
+        documentEditor = nil
+        super.tearDown()
+    }
+    
+    func testDocumentLoads() {
+        XCTAssertNotNil(documentEditor, "Document should load successfully")
+    }
+}
+
