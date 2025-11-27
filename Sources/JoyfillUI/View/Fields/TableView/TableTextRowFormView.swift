@@ -35,6 +35,7 @@ struct TableTextRowFormView: View {
                 if #available(iOS 16.0, *) {
                     TextEditor(text: $text)
                         .font(.system(size: 15))
+                        .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                         .scrollContentBackground(.hidden)
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
@@ -42,6 +43,7 @@ struct TableTextRowFormView: View {
                 } else {
                     TextEditor(text: $text)
                         .font(.system(size: 15))
+                        .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
                         }

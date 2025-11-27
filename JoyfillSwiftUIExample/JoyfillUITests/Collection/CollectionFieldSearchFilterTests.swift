@@ -1723,7 +1723,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("A")
@@ -1936,7 +1936,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2052,7 +2052,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2168,7 +2168,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("qu")
@@ -2291,7 +2291,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2476,7 +2476,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2745,7 +2745,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.press(forDuration: 1.0)
@@ -2977,7 +2977,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         app.swipeLeft()
         let dateField = app.buttons["ChangeCellDateIdentifier"].firstMatch
         dateField.tap()
-        app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
+        app.pickerWheels.element(boundBy: 1).adjust(toPickerWheelValue: "10")
         dismissSheet()
         goBack()
         
