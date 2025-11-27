@@ -189,7 +189,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("field.value.rowCreate", fieldTarget)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(3, lastIndex)
@@ -241,7 +241,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.buttons["TableAddRowIdentifier"].tap()
         app.buttons["TableAddRowIdentifier"].tap()
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(6, lastIndex)
@@ -764,7 +764,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Select Option", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 2).label)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         // its count all row in table
@@ -786,7 +786,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 2).label)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         // its count all row in table
@@ -820,7 +820,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Yes", checkDataOnAddRowWithFiltersDropdownField.element(boundBy: 1).label)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         // its count all row in table
@@ -1244,7 +1244,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnInsertRowButton()
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(1, lastIndex)
@@ -1273,7 +1273,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         navigateToTableViewOnSecondPage()
         tapOnInsertRowButton()
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(1, lastIndex)
@@ -1376,7 +1376,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnInsertRowButton()
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(1, lastIndex)
@@ -1899,7 +1899,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual("app", checkDataOnAddRowWithFiltersTextField.value as! String)
         
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-        let lastIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+        let lastIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         XCTAssertNotNil(newRow["_id"])
         XCTAssertEqual(5, lastIndex)

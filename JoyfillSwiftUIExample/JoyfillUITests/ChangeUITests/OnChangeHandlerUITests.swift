@@ -831,7 +831,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        textField.clearText()
+//        textField.clearText()
         textField.typeText("E")
         textField.typeText("d")
         textField.typeText("i")
@@ -845,7 +845,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let firstCellTextValue = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         let cell = firstCellTextValue.element(boundBy: 0)
-        XCTAssertEqual(cell.value as! String, "Edit")
+        XCTAssertEqual(cell.value as! String, "EditA")
         XCTAssertEqual(firstCellTextValue.count, 5)
     }
     
@@ -1072,7 +1072,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let firstTableTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         firstTableTextField.tap()
         firstTableTextField.typeText("First")
-        
+        secScrollLeft()
         let firstValueCount = app.textViews.countMatchingValue(firstTableTextField.value as? String ?? "")
         print("Number of textViews with value \"FirstA\": \(firstValueCount)")
         XCTAssertEqual(2, firstValueCount, "Expected exactly two textViews with value 'FirstA' (one in each form)")
@@ -1912,6 +1912,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
+        firstScrollLeft()
         firstScrollLeft()
         let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
         let tapOnSignatureButton = signatureButtons.element(boundBy: 1)

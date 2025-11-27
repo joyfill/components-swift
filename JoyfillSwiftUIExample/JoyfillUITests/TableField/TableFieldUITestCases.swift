@@ -69,7 +69,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))

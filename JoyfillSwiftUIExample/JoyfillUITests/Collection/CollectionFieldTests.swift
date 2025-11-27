@@ -654,7 +654,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(0, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")

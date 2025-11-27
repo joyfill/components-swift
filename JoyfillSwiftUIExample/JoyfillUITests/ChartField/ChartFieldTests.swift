@@ -273,7 +273,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 
 
 /// Converts any numeric value to Double.
-private func asDouble(_ value: Any?) -> Double? {
+ func asDouble(_ value: Any?) -> Double? {
     if let doubleValue = value as? Double { return doubleValue }
     if let intValue = value as? Int64 { return Double(intValue) }
     if let intValue = value as? Int { return Double(intValue) }
