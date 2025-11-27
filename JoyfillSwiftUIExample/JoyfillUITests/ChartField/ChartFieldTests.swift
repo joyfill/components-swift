@@ -282,19 +282,31 @@ extension ValueUnion {
     }
 
     var yMin: Double? {
-        return (self.dictionary as! [String: Any])["yMin"] as? Double
+        let value = (self.dictionary as! [String: Any])["yMin"]
+        if let doubleValue = value as? Double { return doubleValue }
+        if let intValue = value as? Int64 { return Double(intValue) }
+        return nil
     }
 
     var yMax: Double? {
-        return (self.dictionary as! [String: Any])["yMax"] as? Double
+        let value = (self.dictionary as! [String: Any])["yMax"]
+        if let doubleValue = value as? Double { return doubleValue }
+        if let intValue = value as? Int64 { return Double(intValue) }
+        return nil
     }
 
     var xMin: Double? {
-        return (self.dictionary as! [String: Any])["xMin"] as? Double
+        let value = (self.dictionary as! [String: Any])["xMin"]
+        if let doubleValue = value as? Double { return doubleValue }
+        if let intValue = value as? Int64 { return Double(intValue) }
+        return nil
     }
 
     var xMax: Double? {
-        return (self.dictionary as! [String: Any])["xMax"] as? Double
+        let value = (self.dictionary as! [String: Any])["xMax"]
+        if let doubleValue = value as? Double { return doubleValue }
+        if let intValue = value as? Int64 { return Double(intValue) }
+        return nil
     }
 }
 
