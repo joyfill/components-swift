@@ -295,6 +295,10 @@ class ConditionalLogicHandler {
                     return selectedArray.contains { $0 == conditionText }
                 }
             }
+            // For number comparison
+            if fieldType == .number, let fieldNumber = fieldValue?.number, let conditionNumber = condition.value?.number {
+                return fieldNumber == conditionNumber
+            }
             // For text comparison
             if let fieldText = fieldValue?.text,
                let conditionText = condition.value?.text {
@@ -308,6 +312,10 @@ class ConditionalLogicHandler {
                    let conditionText = condition.value?.text {
                     return !selectedArray.contains { $0 == conditionText }
                 }
+            }
+            // For number comparison
+            if fieldType == .number, let fieldNumber = fieldValue?.number, let conditionNumber = condition.value?.number {
+                return fieldNumber != conditionNumber
             }
             // For text comparison
             if let fieldText = fieldValue?.text,
