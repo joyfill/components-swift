@@ -63,7 +63,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         dateButton.tap()
         
         // Interact with picker wheels to change date
-        let dayWheel = app.datePickers.pickerWheels.element(boundBy: 0)
+        let dayWheel = app.datePickers.pickerWheels.element(boundBy: 1)
         XCTAssertTrue(dayWheel.waitForExistence(timeout: 3), "Date picker wheel should exist")
         dayWheel.adjust(toPickerWheelValue: "17")
         
@@ -87,7 +87,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         dateButton.tap()
         
         // Adjust picker wheels to change date
-        let dayWheel = app.datePickers.pickerWheels.element(boundBy: 0)
+        let dayWheel = app.datePickers.pickerWheels.element(boundBy: 1)
         dayWheel.adjust(toPickerWheelValue: "17")
         
         // Tap outside the date picker to dismiss it
@@ -191,7 +191,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(dateButton.label, "07/15/2025")
         dateButton.tap()
         
-        let dayWheel = app.datePickers.pickerWheels.firstMatch
+        let dayWheel = app.datePickers.pickerWheels.element(boundBy: 1)
         dayWheel.adjust(toPickerWheelValue: "17")
         
         // Tap outside the date picker to dismiss it

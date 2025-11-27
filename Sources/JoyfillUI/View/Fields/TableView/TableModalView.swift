@@ -315,6 +315,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
+                    .accessibilityIdentifier("TableScrollView")
                     
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {

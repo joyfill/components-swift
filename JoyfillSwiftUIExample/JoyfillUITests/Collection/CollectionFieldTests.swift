@@ -807,7 +807,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit text field did not appear")
         textField.tap()
@@ -1019,7 +1019,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.typeText("A")
         app.dismissKeyboardIfVisible()
@@ -1204,7 +1204,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         textField.tap()
         waitForAppToSettle()
@@ -1324,7 +1324,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()

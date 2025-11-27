@@ -315,7 +315,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5),"‘Text Field’ menu didn’t show up")
         textField.tap()
         textField.typeText("Edit")
@@ -395,7 +395,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         editButton.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
         XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5),"‘Select All’ menu didn’t show up")
@@ -883,7 +883,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 //        app.buttons["TableMoreButtonIdentifier"].tap()
 //        app.buttons["TableEditRowsIdentifier"].tap()
 //        
-//        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+//        let textField = app.textViews["EditRowsTextFieldIdentifier"]
 //        XCTAssertTrue(textField.waitForExistence(timeout: 5))
 //        textField.tap()
 //        textField.clearText()
@@ -1283,7 +1283,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         app.buttons["TableEditRowsIdentifier"].tap()
         
         // Enter data for edit the field
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
         XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5), "‘Select All’ menu didn’t show up")
@@ -1914,7 +1914,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
         app.selectAllInTextField(in: textField, app: app)

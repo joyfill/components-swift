@@ -69,7 +69,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
@@ -469,7 +469,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeLeft()
         let dateField = app.buttons["10/17/2025"].firstMatch
         dateField.tap()
-        app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
+        app.pickerWheels.element(boundBy: 1).adjust(toPickerWheelValue: "10")
         dismissSheet()
         goBack()
         
