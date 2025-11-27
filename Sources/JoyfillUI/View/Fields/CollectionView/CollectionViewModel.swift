@@ -1416,6 +1416,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
                 refreshCollectionSchema(rowID: parentRowID)
+                appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {
                 let insertAtIndex = calculateIndexForInsertRow(index: index ?? (tableDataModel.valueToValueElements?.count ?? 0))
                 addNestedCellModel(rowID: newRowID,
@@ -1425,6 +1426,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    level: 0,
                                    rowType: .row(index: rowIndex),
                                    schemaKey: rootSchemaKey)
+                addNewRowInMap(newRowID: newRowID, schemaID: rootSchemaKey)
                 reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[insertAtIndex])
             }
             sortRowsIfNeeded()
