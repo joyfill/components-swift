@@ -1,4 +1,16 @@
 import Foundation
+
+/// Converts any numeric value to Double.
+/// Handles Double, Int64, and Int types.
+/// - Parameter value: The value to convert
+/// - Returns: Double if conversion is possible, nil otherwise
+func asDouble(_ value: Any?) -> Double? {
+    if let doubleValue = value as? Double { return doubleValue }
+    if let intValue = value as? Int64 { return Double(intValue) }
+    if let intValue = value as? Int { return Double(intValue) }
+    return nil
+}
+
 /// Represents a Joy document.
 ///
 /// Use the `JoyDoc` struct to create and manipulate Joy documents.
@@ -398,13 +410,13 @@ public struct JoyDocField: Equatable {
     
     /// The maximum value of the y-axis for the chart field.
     public var yMax: Double? {
-        get { dictionary["yMax"] as? Double }
+        get { asDouble(dictionary["yMax"]) }
         set { dictionary["yMax"] = newValue }
     }
     
     /// The minimum value of the y-axis for the chart field.
     public var yMin: Double? {
-        get { dictionary["yMin"] as? Double }
+        get { asDouble(dictionary["yMin"]) }
         set { dictionary["yMin"] = newValue }
     }
     
@@ -416,13 +428,13 @@ public struct JoyDocField: Equatable {
     
     /// The maximum value of the x-axis for the chart field.
     public var xMax: Double? {
-        get { dictionary["xMax"] as? Double }
+        get { asDouble(dictionary["xMax"]) }
         set { dictionary["xMax"] = newValue }
     }
     
     /// The minimum value of the x-axis for the chart field.
     public var xMin: Double? {
-        get { dictionary["xMin"] as? Double }
+        get { asDouble(dictionary["xMin"]) }
         set { dictionary["xMin"] = newValue }
     }
     
@@ -971,7 +983,7 @@ public struct FieldTableColumn {
     
     /// The number value of the column.
     public var number: Double {
-        get { dictionary["number"] as? Double ?? 0 }
+        get { asDouble(dictionary["number"]) ?? 0 }
         set { dictionary["number"] = newValue }
     }
 
@@ -1001,7 +1013,7 @@ public struct FieldTableColumn {
     
     /// The value of the date cell.
     public var date: Double? {
-        get {  dictionary["date"] as? Double}
+        get { asDouble(dictionary["date"]) }
         set { dictionary["date"] = newValue }
     }
     
@@ -1512,25 +1524,25 @@ public struct Page {
 
     /// The width of the page.
     public var width: Double? {
-        get { dictionary["width"] as? Double }
+        get { asDouble(dictionary["width"]) }
         set { dictionary["width"] = newValue }
     }
 
     /// The height of the page.
     public var height: Double? {
-        get { dictionary["height"] as? Double }
+        get { asDouble(dictionary["height"]) }
         set { dictionary["height"] = newValue }
     }
 
     /// The number of columns in the page.
     public var cols: Double? {
-        get { dictionary["cols"] as? Double }
+        get { asDouble(dictionary["cols"]) }
         set { dictionary["cols"] = newValue }
     }
 
     /// The height of each row in the page.
     public var rowHeight: Double? {
-        get { dictionary["rowHeight"] as? Double }
+        get { asDouble(dictionary["rowHeight"]) }
         set { dictionary["rowHeight"] = newValue }
     }
 
@@ -1548,19 +1560,19 @@ public struct Page {
 
     /// The margin of the page.
     public var margin: Double? {
-        get { dictionary["margin"] as? Double }
+        get { asDouble(dictionary["margin"]) }
         set { dictionary["margin"] = newValue }
     }
 
     /// The padding of the page.
     public var padding: Double? {
-        get { dictionary["padding"] as? Double }
+        get { asDouble(dictionary["padding"]) }
         set { dictionary["padding"] = newValue }
     }
 
     /// The border width of the page.
     public var borderWidth: Double? {
-        get { dictionary["borderWidth"] as? Double }
+        get { asDouble(dictionary["borderWidth"]) }
         set { dictionary["borderWidth"] = newValue }
     }
 
@@ -1618,31 +1630,31 @@ public struct FieldPosition {
 
     /// The width of the field.
     public var width: Double? {
-        get { dictionary["width"] as? Double }
+        get { asDouble(dictionary["width"]) }
         set { dictionary["width"] = newValue }
     }
 
     /// The height of the field.
     public var height: Double? {
-        get { dictionary["height"] as? Double }
+        get { asDouble(dictionary["height"]) }
         set { dictionary["height"] = newValue }
     }
 
     /// The x-coordinate of the field.
     public var x: Double? {
-        get { dictionary["x"] as? Double }
+        get { asDouble(dictionary["x"]) }
         set { dictionary["x"] = newValue }
     }
 
     /// The y-coordinate of the field.
     public var y: Double? {
-        get { dictionary["y"] as? Double }
+        get { asDouble(dictionary["y"]) }
         set { dictionary["y"] = newValue }
     }
 
     /// The line height of the field.
     public var lineHeight: Double? {
-        get { dictionary["lineHeight"] as? Double }
+        get { asDouble(dictionary["lineHeight"]) }
         set { dictionary["lineHeight"] = newValue }
     }
 
@@ -1689,7 +1701,7 @@ public struct FieldPosition {
 
     /// The font size of the field.
     public var fontSize: Double? {
-        get { dictionary["fontSize"] as? Double }
+        get { asDouble(dictionary["fontSize"]) }
         set { dictionary["fontSize"] = newValue }
     }
 
@@ -1768,19 +1780,19 @@ public struct FieldPosition {
     
     /// The border radius of the field.
     public var padding: Double? {
-        get { dictionary["padding"] as? Double }
+        get { asDouble(dictionary["padding"]) }
         set { dictionary["padding"] = newValue }
     }
 
     /// The border width of the field.
     public var borderWidth: Double? {
-        get { dictionary["borderWidth"] as? Double }
+        get { asDouble(dictionary["borderWidth"]) }
         set { dictionary["borderWidth"] = newValue }
     }
 
     /// The border radius of the field.
     public var borderRadius: Double? {
-        get { dictionary["borderRadius"] as? Double }
+        get { asDouble(dictionary["borderRadius"]) }
         set { dictionary["borderRadius"] = newValue }
     }
 
@@ -1891,7 +1903,7 @@ public struct TableColumn {
     
     /// The width of the column.
     public var width: Double? {
-        get { dictionary["width"] as? Double }
+        get { asDouble(dictionary["width"]) }
         set { dictionary["width"] = newValue }
     }
     
@@ -1903,13 +1915,13 @@ public struct TableColumn {
     
     /// The maximum width for images in this column.
     public var maxImageWidth: Double? {
-        get { dictionary["maxImageWidth"] as? Double }
+        get { asDouble(dictionary["maxImageWidth"]) }
         set { dictionary["maxImageWidth"] = newValue }
     }
     
     /// The maximum height for images in this column.
     public var maxImageHeight: Double? {
-        get { dictionary["maxImageHeight"] as? Double }
+        get { asDouble(dictionary["maxImageHeight"]) }
         set { dictionary["maxImageHeight"] = newValue }
     }
     

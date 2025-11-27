@@ -272,6 +272,14 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 }
 
 
+/// Converts any numeric value to Double.
+private func asDouble(_ value: Any?) -> Double? {
+    if let doubleValue = value as? Double { return doubleValue }
+    if let intValue = value as? Int64 { return Double(intValue) }
+    if let intValue = value as? Int { return Double(intValue) }
+    return nil
+}
+
 extension ValueUnion {
     var xTitle: String? {
         return (self.dictionary as! [String: Any])["xTitle"] as? String
@@ -282,31 +290,19 @@ extension ValueUnion {
     }
 
     var yMin: Double? {
-        let value = (self.dictionary as! [String: Any])["yMin"]
-        if let doubleValue = value as? Double { return doubleValue }
-        if let intValue = value as? Int64 { return Double(intValue) }
-        return nil
+        asDouble((self.dictionary as! [String: Any])["yMin"])
     }
 
     var yMax: Double? {
-        let value = (self.dictionary as! [String: Any])["yMax"]
-        if let doubleValue = value as? Double { return doubleValue }
-        if let intValue = value as? Int64 { return Double(intValue) }
-        return nil
+        asDouble((self.dictionary as! [String: Any])["yMax"])
     }
 
     var xMin: Double? {
-        let value = (self.dictionary as! [String: Any])["xMin"]
-        if let doubleValue = value as? Double { return doubleValue }
-        if let intValue = value as? Int64 { return Double(intValue) }
-        return nil
+        asDouble((self.dictionary as! [String: Any])["xMin"])
     }
 
     var xMax: Double? {
-        let value = (self.dictionary as! [String: Any])["xMax"]
-        if let doubleValue = value as? Double { return doubleValue }
-        if let intValue = value as? Int64 { return Double(intValue) }
-        return nil
+        asDouble((self.dictionary as! [String: Any])["xMax"])
     }
 }
 
