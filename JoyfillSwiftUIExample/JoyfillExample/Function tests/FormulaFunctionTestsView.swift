@@ -235,6 +235,7 @@ struct FormulaFunctionFormView: View {
     let functionName: String
     
     @State private var showDocumentation = false
+    @State private var showFormulas = false
     
     var body: some View {
         if let editor = documentEditor {
@@ -244,7 +245,16 @@ struct FormulaFunctionFormView: View {
             .navigationTitle(editor.document.name ?? "Formula Test")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    // Show all formulas in this document
+                    Button(action: {
+                        showFormulas = true
+                    }) {
+                        Image(systemName: "function")
+                            .foregroundColor(.orange)
+                    }
+                    
+                    // Show documentation
                     Button(action: {
                         showDocumentation = true
                     }) {
@@ -255,6 +265,9 @@ struct FormulaFunctionFormView: View {
             }
             .sheet(isPresented: $showDocumentation) {
                 MarkdownPreviewView(functionName: functionName)
+            }
+            .sheet(isPresented: $showFormulas) {
+                FormulasListView(document: editor.document)
             }
         } else {
             VStack(spacing: 16) {
@@ -355,6 +368,190 @@ struct MarkdownPreviewView: View {
             print("❌ Error loading \(functionName).md: \(error)")
         }
         isLoading = false
+    }
+}
+
+// MARK: - Formulas List View
+
+struct FormulasListView: View {
+    let document: JoyDoc
+    
+    @Environment(\.presentationMode) private var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                if document.formulas.isEmpty {
+                    VStack(spacing: 16) {
+                        Image(systemName: "function")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray.opacity(0.5))
+                        
+                        Text("No Formulas Found")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        
+                        Text("This document has no formulas defined")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 100)
+                } else {
+                    LazyVStack(spacing: 16) {
+                        ForEach(Array(document.formulas.enumerated()), id: \.offset) { index, formula in
+                            FormulaCard(
+                                formula: formula,
+                                index: index + 1,
+                                fieldName: findFieldUsingFormula(formulaId: formula.id)
+                            )
+                        }
+                    }
+                    .padding(20)
+                }
+            }
+            .background(Color(UIColor.systemBackground))
+            .navigationTitle("Formulas (\(document.formulas.count))")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .font(.body.weight(.semibold))
+                }
+            }
+        }
+    }
+    
+    private func findFieldUsingFormula(formulaId: String?) -> String? {
+        guard let id = formulaId else { return nil }
+        
+        for field in document.fields {
+            if let appliedFormulas = field.formulas {
+                for applied in appliedFormulas {
+                    if applied.formula == id {
+                        return field.title ?? field.identifier ?? field.id
+                    }
+                }
+            }
+        }
+        return nil
+    }
+}
+
+struct FormulaCard: View {
+    let formula: Formula
+    let index: Int
+    let fieldName: String?
+    
+    @State private var isExpanded = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                // Index badge
+                Text("\(index)")
+                    .font(.caption.bold())
+                    .foregroundColor(.white)
+                    .frame(width: 24, height: 24)
+                    .background(Circle().fill(Color.orange))
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(formula.desc ?? "Formula \(index)")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    
+                    if let fieldName = fieldName {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.caption)
+                            Text(fieldName)
+                                .font(.caption)
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                }
+                
+                Spacer()
+                
+                // Type badge
+                if let type = formula.type {
+                    Text(type.uppercased())
+                        .font(.caption2.bold())
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color.orange.opacity(0.15))
+                        )
+                }
+                
+                // Expand button
+                Button(action: { isExpanded.toggle() }) {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            // Expression (always visible)
+            if let expression = formula.expression {
+                Text(expression)
+                    .font(.system(.body, design: .monospaced))
+                    .foregroundColor(.primary)
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color(UIColor.secondarySystemBackground))
+                    )
+            }
+            
+            // Expanded details
+            if isExpanded {
+                VStack(alignment: .leading, spacing: 8) {
+                    if let id = formula.id {
+                        DetailRow(label: "ID", value: id)
+                    }
+                    if let scope = formula.scope {
+                        DetailRow(label: "Scope", value: scope)
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(UIColor.secondarySystemBackground).opacity(0.5))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                )
+        )
+    }
+}
+
+struct DetailRow: View {
+    let label: String
+    let value: String
+    
+    var body: some View {
+        HStack(alignment: .top) {
+            Text(label + ":")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .frame(width: 50, alignment: .leading)
+            
+            Text(value)
+                .font(.caption.monospaced())
+                .foregroundColor(.primary)
+                .textSelection(.enabled)
+            
+            Spacer()
+        }
     }
 }
 
