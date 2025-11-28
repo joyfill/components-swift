@@ -1,0 +1,232 @@
+{
+  "_id": "691acd933d90ecfb16a51b62",
+  "identifier": "document-if-function-test",
+  "name": "If Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f1",
+      "name": "If Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903802",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312642",
+              "field": "basic_example",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf52",
+              "field": "age",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe502",
+              "field": "intermediate_example",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e4865",
+              "field": "error_example",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd93919358909216e962",
+              "field": "gender",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d94d",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903802"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example",
+      "title": "Basic Example: if(true, 'It is true', 'It is false')",
+      "identifier": "field-basic-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3055",
+          "formula": "691acd93bab5a640f289dd90",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f1"
+    },
+    {
+      "_id": "age",
+      "title": "Age",
+      "identifier": "field_age",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45f1",
+      "value": 30.0
+    },
+    {
+      "_id": "intermediate_example",
+      "title": "Intermediate Example: if(age > 16, 'Can Vote', 'Cannot Vote')",
+      "identifier": "field-intermediate-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a14",
+          "formula": "691acd93f6346774b0b9d058",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f1"
+    },
+    {
+      "_id": "error_example",
+      "title": "Error Example: if(undefined_field, 'Yes', 'No')",
+      "identifier": "field-error-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93dfa13ff140e19669",
+          "formula": "691acd93f4c8cf1887bcfbb7",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f1"
+    },
+    {
+      "_id": "gender",
+      "title": "Gender",
+      "identifier": "field-gender",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f1",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184dd",
+          "value": "Male"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a782",
+          "value": "Female"
+        }
+      ]
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: if(gender=='Male','Boy',if(gender=='Female','Girl','Unknown'))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522acf",
+          "formula": "691acd93f033ed54812dc625",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f1"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243718,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd90",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(true, 'It is true', 'It is false')"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d058",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(age > 16, 'Can Vote', 'Cannot Vote')"
+    },
+    {
+      "_id": "691acd93f4c8cf1887bcfbb7",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(undefined_field, 'Yes', 'No')"
+    },
+    {
+      "_id": "691acd93f033ed54812dc625",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(gender=='Male','Boy',if(gender=='Female','Girl','Unknown'))"
+    }
+  ]
+}

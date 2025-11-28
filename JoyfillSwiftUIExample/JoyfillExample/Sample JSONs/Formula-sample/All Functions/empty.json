@@ -1,0 +1,329 @@
+{
+  "_id": "691acd933d90ecfb16a51b66",
+  "identifier": "document-empty-function-test",
+  "name": "Empty Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f5",
+      "name": "Empty Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903806",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312649",
+              "field": "basic_example_string",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731264a",
+              "field": "basic_example_number",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731264b",
+              "field": "basic_example_array",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf56",
+              "field": "name",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe506",
+              "field": "intermediate_example_name",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd93919358909216e966",
+              "field": "selectedOptions",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "multiselect",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe507",
+              "field": "intermediate_example_options",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e486b",
+              "field": "email",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d951",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903806"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_string",
+      "title": "Basic Example (Empty String): empty(\"\")",
+      "identifier": "field-basic-example-string",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b305c",
+          "formula": "691acd93bab5a640f289dd97",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5"
+    },
+    {
+      "_id": "basic_example_number",
+      "title": "Basic Example (Zero): empty(0)",
+      "identifier": "field-basic-example-number",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b305d",
+          "formula": "691acd93bab5a640f289dd98",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5"
+    },
+    {
+      "_id": "basic_example_array",
+      "title": "Basic Example (Empty Array): empty([])",
+      "identifier": "field-basic-example-array",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b305e",
+          "formula": "691acd93bab5a640f289dd99",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5"
+    },
+    {
+      "_id": "name",
+      "title": "Name",
+      "identifier": "field-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5",
+      "value": ""
+    },
+    {
+      "_id": "intermediate_example_name",
+      "title": "Intermediate Example (Field): empty(name)",
+      "identifier": "field-intermediate-example-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a18",
+          "formula": "691acd93f6346774b0b9d05c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5"
+    },
+    {
+      "_id": "selectedOptions",
+      "title": "Selected Options",
+      "identifier": "field-selected-options",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "multiselect",
+      "file": "691acd93a0d4b658f8cd45f5",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e4",
+          "value": "Option 1"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a78f",
+          "value": "Option 2"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a790",
+          "value": "Option 3"
+        }
+      ]
+    },
+    {
+      "_id": "intermediate_example_options",
+      "title": "Intermediate Example (Array): empty(selectedOptions)",
+      "identifier": "field-intermediate-example-options",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a19",
+          "formula": "691acd93f6346774b0b9d05d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5"
+    },
+    {
+      "_id": "email",
+      "title": "Email",
+      "identifier": "field-email",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5",
+      "value": ""
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: if(empty(email), \"Please enter your email\", if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\"))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad3",
+          "formula": "691acd93f033ed54812dc629",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f5"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243722,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd97",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "empty(\"\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd98",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "empty(0)"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd99",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "empty([])"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d05c",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "empty(name)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d05d",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "empty(selectedOptions)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc629",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(empty(email), \"Please enter your email\", if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\"))"
+    }
+  ]
+}

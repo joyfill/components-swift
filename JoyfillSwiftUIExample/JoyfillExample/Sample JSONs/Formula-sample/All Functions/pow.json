@@ -1,0 +1,345 @@
+{
+  "_id": "691acd933d90ecfb16a51b6d",
+  "identifier": "document-pow-function-test",
+  "name": "Pow Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45fc",
+      "name": "Pow Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90380d",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731265b",
+              "field": "basic_example_cube",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731265c",
+              "field": "basic_example_square",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf77",
+              "field": "baseValue",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf78",
+              "field": "exponentValue",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe512",
+              "field": "intermediate_example_fields",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf79",
+              "field": "length",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe513",
+              "field": "intermediate_example_circle",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf7a",
+              "field": "dimension",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf7b",
+              "field": "sideLength",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d958",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90380d"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_cube",
+      "title": "Basic Example (Cube): pow(2, 3)",
+      "identifier": "field-basic-example-cube",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b306e",
+          "formula": "691acd93bab5a640f289dda9",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fc"
+    },
+    {
+      "_id": "basic_example_square",
+      "title": "Basic Example (Square): pow(10, 2)",
+      "identifier": "field-basic-example-square",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b306f",
+          "formula": "691acd93bab5a640f289ddaa",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fc"
+    },
+    {
+      "_id": "baseValue",
+      "title": "Base Value",
+      "identifier": "field-base-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fc",
+      "value": 3
+    },
+    {
+      "_id": "exponentValue",
+      "title": "Exponent Value",
+      "identifier": "field-exponent-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fc",
+      "value": 4
+    },
+    {
+      "_id": "intermediate_example_fields",
+      "title": "Intermediate Example (Fields): pow(baseValue, exponentValue)",
+      "identifier": "field-intermediate-example-fields",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a24",
+          "formula": "691acd93f6346774b0b9d068",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fc"
+    },
+    {
+      "_id": "length",
+      "title": "Length (Radius)",
+      "identifier": "field-length",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fc",
+      "value": 5
+    },
+    {
+      "_id": "intermediate_example_circle",
+      "title": "Intermediate Example (Circle Area): pow(length, 2) * 3.14159",
+      "identifier": "field-intermediate-example-circle",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a25",
+          "formula": "691acd93f6346774b0b9d069",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fc"
+    },
+    {
+      "_id": "dimension",
+      "title": "Dimension",
+      "identifier": "field-dimension",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45fc",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e6",
+          "value": "area"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a793",
+          "value": "volume"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a794",
+          "value": "perimeter"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a795",
+          "value": "invalid"
+        }
+      ],
+      "value": "area"
+    },
+    {
+      "_id": "sideLength",
+      "title": "Side Length",
+      "identifier": "field-side-length",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fc",
+      "value": 4
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Geometric Calculator",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ada",
+          "formula": "691acd93f033ed54812dc630",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fc"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243729,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dda9",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "pow(2, 3)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddaa",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "pow(10, 2)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d068",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "pow(baseValue, exponentValue)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d069",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "pow(length, 2) * 3.14159"
+    },
+    {
+      "_id": "691acd93f033ed54812dc630",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(dimension == \"area\", pow(sideLength, 2), if(dimension == \"volume\", pow(sideLength, 3), if(dimension == \"perimeter\", sideLength * 4, \"Invalid dimension\")))"
+    }
+  ]
+}

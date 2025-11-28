@@ -1,0 +1,327 @@
+{
+  "_id": "691acd933d90ecfb16a51b71",
+  "identifier": "document-mod-function-test",
+  "name": "Mod Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd46ff",
+      "name": "Mod Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903811",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312667",
+              "field": "basic_example",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312668",
+              "field": "basic_example_negative",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf90",
+              "field": "totalAmount",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf91",
+              "field": "itemPrice",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe516",
+              "field": "intermediate_example",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf92",
+              "field": "dayNumber",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf93",
+              "field": "startingDay",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d95c",
+              "field": "advanced_example_day",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf94",
+              "field": "rowNumber",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d95d",
+              "field": "advanced_example_style",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903811"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example",
+      "title": "Basic Example: mod(19, 12)",
+      "identifier": "field-basic-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3080",
+          "formula": "691acd93bab5a640f289ddb5",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd46ff"
+    },
+    {
+      "_id": "basic_example_negative",
+      "title": "Basic Example (Negative): mod(-19, 12)",
+      "identifier": "field-basic-example-negative",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3081",
+          "formula": "691acd93bab5a640f289ddb6",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd46ff"
+    },
+    {
+      "_id": "totalAmount",
+      "title": "Total Amount",
+      "identifier": "field-total-amount",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd46ff",
+      "value": 50
+    },
+    {
+      "_id": "itemPrice",
+      "title": "Item Price",
+      "identifier": "field-item-price",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd46ff",
+      "value": 12
+    },
+    {
+      "_id": "intermediate_example",
+      "title": "Intermediate Example: mod(totalAmount, itemPrice)",
+      "identifier": "field-intermediate-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a28",
+          "formula": "691acd93f6346774b0b9d06c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd46ff"
+    },
+    {
+      "_id": "dayNumber",
+      "title": "Day Number",
+      "identifier": "field-day-number",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd46ff",
+      "value": 15
+    },
+    {
+      "_id": "startingDay",
+      "title": "Starting Day",
+      "identifier": "field-starting-day",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd46ff",
+      "value": 3
+    },
+    {
+      "_id": "advanced_example_day",
+      "title": "Advanced Example (Day of Week): mod(dayNumber + startingDay - 1, 7) + 1",
+      "identifier": "field-advanced-example-day",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ade",
+          "formula": "691acd93f033ed54812dc634",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd46ff"
+    },
+    {
+      "_id": "rowNumber",
+      "title": "Row Number",
+      "identifier": "field-row-number",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd46ff",
+      "value": 4
+    },
+    {
+      "_id": "advanced_example_style",
+      "title": "Advanced Example (Row Style): if(mod(rowNumber, 2) == 0, \"Even Row Style\", \"Odd Row Style\")",
+      "identifier": "field-advanced-example-style",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522adf",
+          "formula": "691acd93f033ed54812dc635",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd46ff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243733,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddb5",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "mod(19, 12)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb6",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "mod(-19, 12)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d06c",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "mod(totalAmount, itemPrice)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc634",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "mod(dayNumber + startingDay - 1, 7) + 1"
+    },
+    {
+      "_id": "691acd93f033ed54812dc635",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(mod(rowNumber, 2) == 0, \"Even Row Style\", \"Odd Row Style\")"
+    }
+  ]
+}
