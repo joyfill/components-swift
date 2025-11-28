@@ -10,48 +10,48 @@ import Joyfill
 import JoyfillModel
 
 struct FormulaFunctionTestsView: View {
-    // List of formula function JSON files (add more as they are created)
+    // List of formula function JSON files - uses simple names from "All Functions" folder
     let formulaFunctions: [(name: String, fileName: String, description: String)] = [
         // Logical
-        ("if()", "FormulaTemplate_IfFunction", "Conditional logic: if(condition, true_value, false_value)"),
-        ("and()", "FormulaTemplate_AndFunction", "Logical AND: and(condition1, condition2, ...) - all must be true"),
-        ("or()", "FormulaTemplate_OrFunction", "Logical OR: or(condition1, condition2, ...) - any must be true"),
-        ("not()", "FormulaTemplate_NotFunction", "Logical NOT: not(condition) - negates boolean value"),
+        ("if()", "if", "Conditional logic: if(condition, true_value, false_value)"),
+        ("and()", "and", "Logical AND: and(condition1, condition2, ...) - all must be true"),
+        ("or()", "or", "Logical OR: or(condition1, condition2, ...) - any must be true"),
+        ("not()", "not", "Logical NOT: not(condition) - negates boolean value"),
         // String
-        ("empty()", "FormulaTemplate_EmptyFunction", "Check if value is empty: empty(value) - strings, arrays, fields"),
-        ("contains()", "FormulaTemplate_ContainsFunction", "String search: contains(text, search) - case insensitive"),
-        ("concat()", "FormulaTemplate_ConcatFunction", "Concatenate: concat(a, b, ...) - joins strings/arrays"),
-        ("lower()", "FormulaTemplate_LowerFunction", "Lowercase: lower(text) - converts text to lowercase"),
-        ("upper()", "FormulaTemplate_UpperFunction", "Uppercase: upper(text) - converts text to uppercase"),
-        ("length()", "FormulaTemplate_LengthFunction", "Length: length(value) - string length or array count"),
-        ("toNumber()", "FormulaTemplate_ToNumberFunction", "Convert: toNumber(value) - converts string to number"),
+        ("empty()", "empty", "Check if value is empty: empty(value) - strings, arrays, fields"),
+        ("contains()", "contains", "String search: contains(text, search) - case insensitive"),
+        ("concat()", "concat", "Concatenate: concat(a, b, ...) - joins strings/arrays"),
+        ("lower()", "lower", "Lowercase: lower(text) - converts text to lowercase"),
+        ("upper()", "upper", "Uppercase: upper(text) - converts text to uppercase"),
+        ("length()", "length", "Length: length(value) - string length or array count"),
+        ("toNumber()", "toNumber", "Convert: toNumber(value) - converts string to number"),
         // Math
-        ("sum()", "FormulaTemplate_SumFunction", "Sum: sum(a, b, ...) - adds numbers or array elements"),
-        ("max()", "FormulaTemplate_MaxFunction", "Maximum: max(a, b, ...) - returns largest value"),
-        ("round()", "FormulaTemplate_RoundFunction", "Round: round(value, places) - rounds to decimal places"),
-        ("ceil()", "FormulaTemplate_CeilFunction", "Ceiling: ceil(value) - rounds up to nearest integer"),
-        ("floor()", "FormulaTemplate_FloorFunction", "Floor: floor(value) - rounds down to nearest integer"),
-        ("sqrt()", "FormulaTemplate_SqrtFunction", "Square root: sqrt(value) - returns square root"),
-        ("pow()", "FormulaTemplate_PowFunction", "Power: pow(base, exponent) - raises base to power"),
-        ("mod()", "FormulaTemplate_ModFunction", "Modulo: mod(a, b) - returns remainder of division"),
+        ("sum()", "sum", "Sum: sum(a, b, ...) - adds numbers or array elements"),
+        ("max()", "max", "Maximum: max(a, b, ...) - returns largest value"),
+        ("round()", "round", "Round: round(value, places) - rounds to decimal places"),
+        ("ceil()", "ceil", "Ceiling: ceil(value) - rounds up to nearest integer"),
+        ("floor()", "floor", "Floor: floor(value) - rounds down to nearest integer"),
+        ("sqrt()", "sqrt", "Square root: sqrt(value) - returns square root"),
+        ("pow()", "pow", "Power: pow(base, exponent) - raises base to power"),
+        ("mod()", "mod", "Modulo: mod(a, b) - returns remainder of division"),
         // Date
-        ("date()", "FormulaTemplate_DateFunction", "Date: date(year, month, day) - creates a date"),
-        ("day()", "FormulaTemplate_DayFunction", "Day: day(date) - extracts day from date"),
-        ("month()", "FormulaTemplate_MonthFunction", "Month: month(date) - extracts month from date"),
-        ("year()", "FormulaTemplate_YearFunction", "Year: year(date) - extracts year from date"),
-        ("now()", "FormulaTemplate_NowFunction", "Now: now() - returns current date/time"),
-        ("dateAdd()", "FormulaTemplate_DateAddFunction", "Add: dateAdd(date, amount, unit) - adds to date"),
-        ("dateSubtract()", "FormulaTemplate_DateSubtractFunction", "Subtract: dateSubtract(date, amount, unit)"),
+        ("date()", "date", "Date: date(year, month, day) - creates a date"),
+        ("day()", "day", "Day: day(date) - extracts day from date"),
+        ("month()", "month", "Month: month(date) - extracts month from date"),
+        ("year()", "year", "Year: year(date) - extracts year from date"),
+        ("now()", "now", "Now: now() - returns current date/time"),
+        ("dateAdd()", "dateAdd", "Add: dateAdd(date, amount, unit) - adds to date"),
+        ("dateSubtract()", "dateSubtract", "Subtract: dateSubtract(date, amount, unit)"),
         // Array
-        ("map()", "FormulaTemplate_MapFunction", "Map: map(array, fn) - transforms each element"),
-        ("filter()", "FormulaTemplate_FilterFunction", "Filter: filter(array, fn) - filters elements"),
-        ("find()", "FormulaTemplate_FindFunction", "Find: find(array, fn) - finds first matching element"),
-        ("reduce()", "FormulaTemplate_ReduceFunction", "Reduce: reduce(array, fn, initial) - reduces to value"),
-        ("flat()", "FormulaTemplate_FlatFunction", "Flat: flat(array) - flattens nested arrays"),
-        ("flatMap()", "FormulaTemplate_FlatMapFunction", "FlatMap: flatMap(array, fn) - map then flatten"),
-        ("every()", "FormulaTemplate_EveryFunction", "Every: every(array, fn) - all elements match"),
-        ("some()", "FormulaTemplate_SomeFunction", "Some: some(array, fn) - any element matches"),
-        ("countIf()", "FormulaTemplate_CountIfFunction", "CountIf: countIf(array, fn) - counts matching"),
+        ("map()", "map", "Map: map(array, fn) - transforms each element"),
+        ("filter()", "filter", "Filter: filter(array, fn) - filters elements"),
+        ("find()", "find", "Find: find(array, fn) - finds first matching element"),
+        ("reduce()", "reduce", "Reduce: reduce(array, fn, initial) - reduces to value"),
+        ("flat()", "flat", "Flat: flat(array) - flattens nested arrays"),
+        ("flatMap()", "flatMap", "FlatMap: flatMap(array, fn) - map then flatten"),
+        ("every()", "every", "Every: every(array, fn) - all elements match"),
+        ("some()", "some", "Some: some(array, fn) - any element matches"),
+        ("countIf()", "countIf", "CountIf: countIf(array, fn) - counts matching"),
     ]
     
     @State private var selectedFunction: String? = nil
@@ -129,7 +129,10 @@ struct FormulaFunctionTestsView: View {
             
             // Navigation to form view
             NavigationLink(
-                destination: FormulaFunctionFormView(documentEditor: documentEditor),
+                destination: FormulaFunctionFormView(
+                    documentEditor: documentEditor,
+                    functionName: selectedFunction ?? ""
+                ),
                 isActive: $showForm
             ) {
                 EmptyView()
@@ -229,6 +232,10 @@ struct FormulaFunctionCard: View {
 
 struct FormulaFunctionFormView: View {
     let documentEditor: DocumentEditor?
+    let functionName: String
+    
+    @State private var showDocumentation = false
+    @State private var markdownContent: String? = nil
     
     var body: some View {
         if let editor = documentEditor {
@@ -237,6 +244,23 @@ struct FormulaFunctionFormView: View {
             }
             .navigationTitle(editor.document.name ?? "Formula Test")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        loadMarkdown()
+                        showDocumentation = true
+                    }) {
+                        Image(systemName: "book.fill")
+                            .foregroundColor(.indigo)
+                    }
+                }
+            }
+            .sheet(isPresented: $showDocumentation) {
+                MarkdownPreviewView(
+                    functionName: functionName,
+                    content: markdownContent
+                )
+            }
         } else {
             VStack(spacing: 16) {
                 Image(systemName: "exclamationmark.triangle")
@@ -249,6 +273,209 @@ struct FormulaFunctionFormView: View {
             }
         }
     }
+    
+    private func loadMarkdown() {
+        guard let path = Bundle.main.path(forResource: functionName, ofType: "md") else {
+            markdownContent = nil
+            return
+        }
+        
+        do {
+            markdownContent = try String(contentsOfFile: path, encoding: .utf8)
+        } catch {
+            markdownContent = nil
+        }
+    }
+}
+
+// MARK: - Markdown Preview View
+
+struct MarkdownPreviewView: View {
+    let functionName: String
+    let content: String?
+    
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                if let content = content {
+                    MarkdownRenderer(markdown: content)
+                        .padding(20)
+                } else {
+                    VStack(spacing: 16) {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray.opacity(0.5))
+                        
+                        Text("Documentation Not Available")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        
+                        Text("No .md file found for \(functionName)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.top, 100)
+                }
+            }
+            .background(Color(UIColor.systemBackground))
+            .navigationTitle("\(functionName)() Documentation")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Simple Markdown Renderer
+
+struct MarkdownRenderer: View {
+    let markdown: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(parseMarkdown(), id: \.id) { block in
+                renderBlock(block)
+            }
+        }
+    }
+    
+    private func parseMarkdown() -> [MarkdownBlock] {
+        var blocks: [MarkdownBlock] = []
+        var currentCodeBlock: [String] = []
+        var inCodeBlock = false
+        
+        let lines = markdown.components(separatedBy: "\n")
+        
+        for line in lines {
+            // Handle code blocks
+            if line.hasPrefix("```") {
+                if inCodeBlock {
+                    blocks.append(MarkdownBlock(type: .code, content: currentCodeBlock.joined(separator: "\n")))
+                    currentCodeBlock = []
+                    inCodeBlock = false
+                } else {
+                    inCodeBlock = true
+                }
+                continue
+            }
+            
+            if inCodeBlock {
+                currentCodeBlock.append(line)
+                continue
+            }
+            
+            // Parse other elements
+            if line.hasPrefix("# ") {
+                blocks.append(MarkdownBlock(type: .h1, content: String(line.dropFirst(2))))
+            } else if line.hasPrefix("## ") {
+                blocks.append(MarkdownBlock(type: .h2, content: String(line.dropFirst(3))))
+            } else if line.hasPrefix("### ") {
+                blocks.append(MarkdownBlock(type: .h3, content: String(line.dropFirst(4))))
+            } else if line.hasPrefix("- ") {
+                blocks.append(MarkdownBlock(type: .bullet, content: String(line.dropFirst(2))))
+            } else if !line.trimmingCharacters(in: .whitespaces).isEmpty {
+                blocks.append(MarkdownBlock(type: .paragraph, content: line))
+            }
+        }
+        
+        return blocks
+    }
+    
+    @ViewBuilder
+    private func renderBlock(_ block: MarkdownBlock) -> some View {
+        switch block.type {
+        case .h1:
+            Text(block.content)
+                .font(.system(size: 28, weight: .bold))
+                .foregroundColor(.primary)
+                .padding(.top, 8)
+            
+        case .h2:
+            Text(block.content)
+                .font(.system(size: 22, weight: .bold))
+                .foregroundColor(.primary)
+                .padding(.top, 16)
+            
+        case .h3:
+            Text(block.content)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.primary)
+                .padding(.top, 12)
+            
+        case .paragraph:
+            Text(formatInlineCode(block.content))
+                .font(.body)
+                .foregroundColor(.primary)
+            
+        case .bullet:
+            HStack(alignment: .top, spacing: 8) {
+                Text("•")
+                    .foregroundColor(.indigo)
+                    .fontWeight(.bold)
+                Text(formatInlineCode(block.content))
+                    .font(.body)
+                    .foregroundColor(.primary)
+            }
+            .padding(.leading, 8)
+            
+        case .code:
+            Text(block.content)
+                .font(.system(.body, design: .monospaced))
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color(UIColor.secondarySystemBackground))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                )
+        }
+    }
+    
+    private func formatInlineCode(_ text: String) -> AttributedString {
+        var result = AttributedString(text)
+        
+        // Simple inline code formatting (text between backticks)
+        let pattern = "`([^`]+)`"
+        if let regex = try? NSRegularExpression(pattern: pattern) {
+            let nsString = text as NSString
+            let matches = regex.matches(in: text, range: NSRange(location: 0, length: nsString.length))
+            
+            for match in matches.reversed() {
+                if let codeRange = Range(match.range(at: 1), in: text),
+                   let fullRange = Range(match.range, in: text),
+                   let attrCodeRange = result.range(of: String(text[fullRange])) {
+                    var codeAttr = AttributedString(String(text[codeRange]))
+                    codeAttr.font = .system(.body, design: .monospaced)
+                    codeAttr.backgroundColor = Color(UIColor.secondarySystemBackground)
+                    result.replaceSubrange(attrCodeRange, with: codeAttr)
+                }
+            }
+        }
+        
+        return result
+    }
+}
+
+struct MarkdownBlock: Identifiable {
+    let id = UUID()
+    let type: MarkdownBlockType
+    let content: String
+}
+
+enum MarkdownBlockType {
+    case h1, h2, h3, paragraph, bullet, code
 }
 
 #Preview {
@@ -256,4 +483,3 @@ struct FormulaFunctionFormView: View {
         FormulaFunctionTestsView()
     }
 }
-
