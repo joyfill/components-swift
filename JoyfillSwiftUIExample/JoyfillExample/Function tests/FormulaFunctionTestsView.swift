@@ -275,15 +275,34 @@ struct FormulaFunctionFormView: View {
     }
     
     private func loadMarkdown() {
-        guard let path = Bundle.main.path(forResource: functionName, ofType: "md") else {
+        // Try multiple ways to find the markdown file
+        var path: String? = nil
+        
+        // Try direct lookup
+        path = Bundle.main.path(forResource: functionName, ofType: "md")
+        
+        // Try with subdirectory
+        if path == nil {
+            path = Bundle.main.path(forResource: functionName, ofType: "md", inDirectory: "All Functions")
+        }
+        
+        // Try URL-based lookup
+        if path == nil, let url = Bundle.main.url(forResource: functionName, withExtension: "md") {
+            path = url.path
+        }
+        
+        guard let finalPath = path else {
             markdownContent = nil
+            print("⚠️ Could not find \(functionName).md in bundle")
             return
         }
         
         do {
-            markdownContent = try String(contentsOfFile: path, encoding: .utf8)
+            markdownContent = try String(contentsOfFile: finalPath, encoding: .utf8)
+            print("✅ Loaded \(functionName).md successfully")
         } catch {
             markdownContent = nil
+            print("❌ Error loading \(functionName).md: \(error)")
         }
     }
 }
@@ -328,7 +347,7 @@ struct MarkdownPreviewView: View {
                     Button("Done") {
                         presentationMode.wrappedValue.dismiss()
                     }
-                    .fontWeight(.semibold)
+                    .font(.body.weight(.semibold))
                 }
             }
         }
