@@ -235,7 +235,6 @@ struct FormulaFunctionFormView: View {
     let functionName: String
     
     @State private var showDocumentation = false
-    @State private var markdownContent: String? = nil
     
     var body: some View {
         if let editor = documentEditor {
@@ -247,7 +246,6 @@ struct FormulaFunctionFormView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        loadMarkdown()
                         showDocumentation = true
                     }) {
                         Image(systemName: "book.fill")
@@ -256,10 +254,7 @@ struct FormulaFunctionFormView: View {
                 }
             }
             .sheet(isPresented: $showDocumentation) {
-                MarkdownPreviewView(
-                    functionName: functionName,
-                    content: markdownContent
-                )
+                MarkdownPreviewView(functionName: functionName)
             }
         } else {
             VStack(spacing: 16) {
@@ -273,52 +268,24 @@ struct FormulaFunctionFormView: View {
             }
         }
     }
-    
-    private func loadMarkdown() {
-        // Try multiple ways to find the markdown file
-        var path: String? = nil
-        
-        // Try direct lookup
-        path = Bundle.main.path(forResource: functionName, ofType: "md")
-        
-        // Try with subdirectory
-        if path == nil {
-            path = Bundle.main.path(forResource: functionName, ofType: "md", inDirectory: "All Functions")
-        }
-        
-        // Try URL-based lookup
-        if path == nil, let url = Bundle.main.url(forResource: functionName, withExtension: "md") {
-            path = url.path
-        }
-        
-        guard let finalPath = path else {
-            markdownContent = nil
-            print("⚠️ Could not find \(functionName).md in bundle")
-            return
-        }
-        
-        do {
-            markdownContent = try String(contentsOfFile: finalPath, encoding: .utf8)
-            print("✅ Loaded \(functionName).md successfully")
-        } catch {
-            markdownContent = nil
-            print("❌ Error loading \(functionName).md: \(error)")
-        }
-    }
 }
 
 // MARK: - Markdown Preview View
 
 struct MarkdownPreviewView: View {
     let functionName: String
-    let content: String?
     
     @Environment(\.presentationMode) private var presentationMode
+    @State private var content: String? = nil
+    @State private var isLoading = true
     
     var body: some View {
         NavigationView {
             ScrollView {
-                if let content = content {
+                if isLoading {
+                    ProgressView()
+                        .padding(.top, 100)
+                } else if let content = content {
                     MarkdownRenderer(markdown: content)
                         .padding(20)
                 } else {
@@ -350,7 +317,44 @@ struct MarkdownPreviewView: View {
                     .font(.body.weight(.semibold))
                 }
             }
+            .onAppear {
+                loadMarkdown()
+            }
         }
+    }
+    
+    private func loadMarkdown() {
+        // Try multiple ways to find the markdown file
+        var path: String? = nil
+        
+        // Try direct lookup
+        path = Bundle.main.path(forResource: functionName, ofType: "md")
+        
+        // Try with subdirectory
+        if path == nil {
+            path = Bundle.main.path(forResource: functionName, ofType: "md", inDirectory: "All Functions")
+        }
+        
+        // Try URL-based lookup
+        if path == nil, let url = Bundle.main.url(forResource: functionName, withExtension: "md") {
+            path = url.path
+        }
+        
+        guard let finalPath = path else {
+            content = nil
+            isLoading = false
+            print("⚠️ Could not find \(functionName).md in bundle")
+            return
+        }
+        
+        do {
+            content = try String(contentsOfFile: finalPath, encoding: .utf8)
+            print("✅ Loaded \(functionName).md successfully")
+        } catch {
+            content = nil
+            print("❌ Error loading \(functionName).md: \(error)")
+        }
+        isLoading = false
     }
 }
 
