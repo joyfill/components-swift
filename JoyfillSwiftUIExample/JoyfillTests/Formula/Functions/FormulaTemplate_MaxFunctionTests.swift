@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_MaxFunctionTests.swift
+//  maxTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the max() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_MaxFunctionTests: XCTestCase {
+class maxTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_MaxFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_MaxFunction")
+        let document = sampleJSONDocument(fileName: "max")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

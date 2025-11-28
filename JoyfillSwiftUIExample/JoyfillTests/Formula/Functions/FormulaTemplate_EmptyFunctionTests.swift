@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_EmptyFunctionTests.swift
+//  emptyTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the empty() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_EmptyFunctionTests: XCTestCase {
+class emptyTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_EmptyFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_EmptyFunction")
+        let document = sampleJSONDocument(fileName: "empty")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

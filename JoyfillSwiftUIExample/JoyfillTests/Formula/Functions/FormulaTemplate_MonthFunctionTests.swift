@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_MonthFunctionTests.swift
+//  monthTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the month() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_MonthFunctionTests: XCTestCase {
+class monthTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_MonthFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_MonthFunction")
+        let document = sampleJSONDocument(fileName: "month")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

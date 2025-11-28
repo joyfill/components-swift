@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_ContainsFunctionTests.swift
+//  containsTests.swift
 //  JoyfillTests
 //
 //  Created on 26/11/25.
@@ -14,7 +14,7 @@ import Joyfill
 /// The contains() function checks if a string contains a substring.
 /// Returns true if the substring is found, false otherwise.
 /// Syntax: contains(string, substring)
-class FormulaTemplate_ContainsFunctionTests: XCTestCase {
+class containsTests: XCTestCase {
 
     // MARK: - Setup & Teardown
     
@@ -22,7 +22,7 @@ class FormulaTemplate_ContainsFunctionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_ContainsFunction")
+        let document = sampleJSONDocument(fileName: "contains")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 

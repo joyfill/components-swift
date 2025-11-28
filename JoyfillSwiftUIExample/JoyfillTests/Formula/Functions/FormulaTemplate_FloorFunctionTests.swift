@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_FloorFunctionTests.swift
+//  floorTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the floor() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_FloorFunctionTests: XCTestCase {
+class floorTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_FloorFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_FloorFunction")
+        let document = sampleJSONDocument(fileName: "floor")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

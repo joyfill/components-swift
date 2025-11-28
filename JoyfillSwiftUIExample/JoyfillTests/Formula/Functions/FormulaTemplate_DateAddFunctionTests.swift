@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_DateAddFunctionTests.swift
+//  dateAddTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the dateAdd() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_DateAddFunctionTests: XCTestCase {
+class dateAddTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_DateAddFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_DateAddFunction")
+        let document = sampleJSONDocument(fileName: "dateAdd")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

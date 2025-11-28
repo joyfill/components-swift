@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_SumFunctionTests.swift
+//  sumTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the sum() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_SumFunctionTests: XCTestCase {
+class sumTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_SumFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_SumFunction")
+        let document = sampleJSONDocument(fileName: "sum")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

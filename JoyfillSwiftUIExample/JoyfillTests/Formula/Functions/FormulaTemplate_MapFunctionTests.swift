@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_MapFunctionTests.swift
+//  mapTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the map() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_MapFunctionTests: XCTestCase {
+class mapTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_MapFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_MapFunction")
+        let document = sampleJSONDocument(fileName: "map")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

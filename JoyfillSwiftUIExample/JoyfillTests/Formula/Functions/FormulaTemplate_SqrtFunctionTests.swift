@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_SqrtFunctionTests.swift
+//  sqrtTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the sqrt() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_SqrtFunctionTests: XCTestCase {
+class sqrtTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_SqrtFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_SqrtFunction")
+        let document = sampleJSONDocument(fileName: "sqrt")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

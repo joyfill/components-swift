@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_NowFunctionTests.swift
+//  nowTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the now() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_NowFunctionTests: XCTestCase {
+class nowTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_NowFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_NowFunction")
+        let document = sampleJSONDocument(fileName: "now")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

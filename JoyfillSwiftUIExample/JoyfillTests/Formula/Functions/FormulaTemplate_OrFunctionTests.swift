@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_OrFunctionTests.swift
+//  orTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the or() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_OrFunctionTests: XCTestCase {
+class orTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_OrFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_OrFunction")
+        let document = sampleJSONDocument(fileName: "or")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

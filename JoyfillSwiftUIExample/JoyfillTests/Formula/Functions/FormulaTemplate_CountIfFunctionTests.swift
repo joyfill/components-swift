@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_CountIfFunctionTests.swift
+//  countIfTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the countIf() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_CountIfFunctionTests: XCTestCase {
+class countIfTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_CountIfFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_CountIfFunction")
+        let document = sampleJSONDocument(fileName: "countIf")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

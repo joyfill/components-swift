@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_PowFunctionTests.swift
+//  powTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the pow() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_PowFunctionTests: XCTestCase {
+class powTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_PowFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_PowFunction")
+        let document = sampleJSONDocument(fileName: "pow")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_ModFunctionTests.swift
+//  modTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the mod() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_ModFunctionTests: XCTestCase {
+class modTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_ModFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_ModFunction")
+        let document = sampleJSONDocument(fileName: "mod")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

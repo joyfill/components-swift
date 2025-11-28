@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_FlatFunctionTests.swift
+//  flatTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the flat() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_FlatFunctionTests: XCTestCase {
+class flatTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_FlatFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_FlatFunction")
+        let document = sampleJSONDocument(fileName: "flat")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

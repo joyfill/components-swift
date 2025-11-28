@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_FilterFunctionTests.swift
+//  filterTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the filter() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_FilterFunctionTests: XCTestCase {
+class filterTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_FilterFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_FilterFunction")
+        let document = sampleJSONDocument(fileName: "filter")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

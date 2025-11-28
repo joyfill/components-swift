@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_DayFunctionTests.swift
+//  dayTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the day() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_DayFunctionTests: XCTestCase {
+class dayTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_DayFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_DayFunction")
+        let document = sampleJSONDocument(fileName: "day")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

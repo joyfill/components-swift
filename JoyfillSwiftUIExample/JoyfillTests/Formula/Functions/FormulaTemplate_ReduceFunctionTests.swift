@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_ReduceFunctionTests.swift
+//  reduceTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the reduce() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_ReduceFunctionTests: XCTestCase {
+class reduceTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_ReduceFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_ReduceFunction")
+        let document = sampleJSONDocument(fileName: "reduce")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

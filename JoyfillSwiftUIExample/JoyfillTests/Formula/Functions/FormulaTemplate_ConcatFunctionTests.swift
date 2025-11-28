@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_ConcatFunctionTests.swift
+//  concatTests.swift
 //  JoyfillTests
 //
 //  Created on 26/11/25.
@@ -13,7 +13,7 @@ import Joyfill
 /// Tests for the `concat()` formula function
 /// The concat() function concatenates strings, arrays, or field values together.
 /// Syntax: concat(value1, value2, ...)
-class FormulaTemplate_ConcatFunctionTests: XCTestCase {
+class concatTests: XCTestCase {
 
     // MARK: - Setup & Teardown
     
@@ -21,7 +21,7 @@ class FormulaTemplate_ConcatFunctionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_ConcatFunction")
+        let document = sampleJSONDocument(fileName: "concat")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 

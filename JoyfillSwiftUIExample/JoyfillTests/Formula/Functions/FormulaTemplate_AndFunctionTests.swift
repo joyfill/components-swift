@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_AndFunctionTests.swift
+//  andTests.swift
 //  JoyfillTests
 //
 //  Created on 26/11/25.
@@ -13,7 +13,7 @@ import Joyfill
 /// Tests for the `and()` formula function
 /// The and() function returns true only if ALL conditions are true.
 /// Syntax: and(condition1, condition2, ...)
-class FormulaTemplate_AndFunctionTests: XCTestCase {
+class andTests: XCTestCase {
 
     // MARK: - Setup & Teardown
     
@@ -21,7 +21,7 @@ class FormulaTemplate_AndFunctionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_AndFunction")
+        let document = sampleJSONDocument(fileName: "and")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 

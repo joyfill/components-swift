@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_LengthFunctionTests.swift
+//  lengthTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the length() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_LengthFunctionTests: XCTestCase {
+class lengthTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_LengthFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_LengthFunction")
+        let document = sampleJSONDocument(fileName: "length")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

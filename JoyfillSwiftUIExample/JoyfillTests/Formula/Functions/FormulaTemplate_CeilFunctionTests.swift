@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_CeilFunctionTests.swift
+//  ceilTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the ceil() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_CeilFunctionTests: XCTestCase {
+class ceilTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_CeilFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_CeilFunction")
+        let document = sampleJSONDocument(fileName: "ceil")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

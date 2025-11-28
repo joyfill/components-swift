@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_IfFunctionTests.swift
+//  ifTests.swift
 //  JoyfillTests
 //
 //  Created on 26/11/25.
@@ -13,7 +13,7 @@ import Joyfill
 /// Tests for the `if()` formula function
 /// The if() function evaluates a condition and returns one of two values based on the result.
 /// Syntax: if(condition, value_if_true, value_if_false)
-class FormulaTemplate_IfFunctionTests: XCTestCase {
+class ifTests: XCTestCase {
 
     // MARK: - Setup & Teardown
     
@@ -21,7 +21,7 @@ class FormulaTemplate_IfFunctionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_IfFunction")
+        let document = sampleJSONDocument(fileName: "if")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 

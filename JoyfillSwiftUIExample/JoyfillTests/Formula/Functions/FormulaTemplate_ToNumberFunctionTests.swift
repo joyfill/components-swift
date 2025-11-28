@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_ToNumberFunctionTests.swift
+//  toNumberTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the toNumber() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_ToNumberFunctionTests: XCTestCase {
+class toNumberTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_ToNumberFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_ToNumberFunction")
+        let document = sampleJSONDocument(fileName: "toNumber")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

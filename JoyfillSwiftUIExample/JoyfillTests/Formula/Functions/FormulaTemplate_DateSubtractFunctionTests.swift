@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_DateSubtractFunctionTests.swift
+//  dateSubtractTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the dateSubtract() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_DateSubtractFunctionTests: XCTestCase {
+class dateSubtractTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_DateSubtractFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_DateSubtractFunction")
+        let document = sampleJSONDocument(fileName: "dateSubtract")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

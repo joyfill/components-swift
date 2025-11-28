@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_UpperFunctionTests.swift
+//  upperTests.swift
 //  JoyfillTests
 //
 //  Created on 26/11/25.
@@ -13,7 +13,7 @@ import Joyfill
 /// Tests for the `upper()` formula function
 /// The upper() function converts a string to uppercase.
 /// Syntax: upper(string)
-class FormulaTemplate_UpperFunctionTests: XCTestCase {
+class upperTests: XCTestCase {
 
     // MARK: - Setup & Teardown
     
@@ -21,7 +21,7 @@ class FormulaTemplate_UpperFunctionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_UpperFunction")
+        let document = sampleJSONDocument(fileName: "upper")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 

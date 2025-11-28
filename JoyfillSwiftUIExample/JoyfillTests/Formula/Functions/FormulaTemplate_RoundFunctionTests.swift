@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_RoundFunctionTests.swift
+//  roundTests.swift
 //  JoyfillTests
 //
 //  Unit tests for the round() formula function
@@ -9,7 +9,7 @@ import XCTest
 import JoyfillModel
 import Joyfill
 
-class FormulaTemplate_RoundFunctionTests: XCTestCase {
+class roundTests: XCTestCase {
     
     private var documentEditor: DocumentEditor!
     
@@ -17,7 +17,7 @@ class FormulaTemplate_RoundFunctionTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_RoundFunction")
+        let document = sampleJSONDocument(fileName: "round")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
     

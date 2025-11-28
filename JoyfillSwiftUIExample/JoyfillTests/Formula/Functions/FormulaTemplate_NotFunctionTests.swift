@@ -1,5 +1,5 @@
 //
-//  FormulaTemplate_NotFunctionTests.swift
+//  notTests.swift
 //  JoyfillTests
 //
 //  Created on 26/11/25.
@@ -15,7 +15,7 @@ import Joyfill
 /// - not(true) returns false
 /// - not(false) returns true
 /// Syntax: not(condition)
-class FormulaTemplate_NotFunctionTests: XCTestCase {
+class notTests: XCTestCase {
 
     // MARK: - Setup & Teardown
     
@@ -23,7 +23,7 @@ class FormulaTemplate_NotFunctionTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        let document = sampleJSONDocument(fileName: "FormulaTemplate_NotFunction")
+        let document = sampleJSONDocument(fileName: "not")
         documentEditor = DocumentEditor(document: document, validateSchema: false)
     }
 
