@@ -294,7 +294,7 @@ struct MarkdownPreviewView: View {
     let functionName: String
     let content: String?
     
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     
     var body: some View {
         NavigationView {
@@ -326,7 +326,7 @@ struct MarkdownPreviewView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }
                     .fontWeight(.semibold)
                 }
