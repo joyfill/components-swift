@@ -1630,6 +1630,61 @@ extension DocumentEditor {
         )
         events?.onChange(changes: newFieldsArray, document: document)
     }
+    
+    /// Fires change events for page deletion
+    /// - Parameters:
+    ///   - pageID: The ID of the deleted page
+    ///   - fieldIDs: Array of field IDs that were deleted with the page
+    ///   - fileId: The file ID
+    ///   - viewId: Optional view ID if views exist
+    func onChangeDeletePage(pageID: String, fieldIDs: [String], fileId: String, viewId: String = "") {
+        var changes: [Change] = []
+        
+        guard let documentID = documentID else {
+            Log("DocumentID is missing for delete page on change", type: .error)
+            return
+        }
+        guard let documentIdentifier = documentIdentifier else {
+            Log("DocumentIdentifier is missing for delete page on change", type: .error)
+            return
+        }
+        
+        // Generate field.delete events for all deleted fields
+        for fieldID in fieldIDs {
+            let fieldPositionId: String = fieldPosition(fieldID: fieldID)?.id ?? ""
+            if let field = field(fieldID: fieldID) {
+                changes.append(Change(
+                    v: 1,
+                    sdk: "swift",
+                    target: "field.delete",
+                    _id: documentID,
+                    identifier: documentIdentifier,
+                    fileId: fileId,
+                    pageId: pageID,
+                    fieldId: fieldID,
+                    fieldIdentifier: field.identifier ?? "",
+                    fieldPositionId: fieldPositionId,
+                    change: ["fieldId": fieldID],
+                    createdOn: Date().timeIntervalSince1970
+                ))
+            }
+        }
+        
+        // Generate page.delete event for the main page
+        changes.append(Change(
+            v: 1,
+            sdk: "swift",
+            id: documentID,
+            identifier: documentIdentifier,
+            target: "page.delete",
+            fileId: fileId,
+            viewType: viewId.isEmpty ? "web" : "mobile",
+            pageId: pageID,
+            createdOn: Date().timeIntervalSince1970
+        ))
+        
+        events?.onChange(changes: changes, document: document)
+    }
 }
 extension DocumentEditor {
     func makeFieldChangeContext(for fieldIdentifier: FieldIdentifier) -> FieldChangeContext? {
