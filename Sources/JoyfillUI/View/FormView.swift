@@ -481,108 +481,90 @@ struct PageRowView: View {
     }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Page Number Badge
-            ZStack {
-                Circle()
-                    .fill(isSelected ? Color.blue : Color.gray.opacity(0.2))
-                    .frame(width: 44, height: 44)
-                
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(.white)
-                } else {
-                    Text("\(pageNumber)")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color.gray)
-                }
-            }
-            
-            // Page Info
-            VStack(alignment: .leading, spacing: 4) {
-                Text(page.name ?? "Untitled Page")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(isSelected ? .blue : .primary)
-                    .lineLimit(1)
-                
-                HStack(spacing: 8) {
-                    if let fieldCount = page.fieldPositions?.count, fieldCount > 0 {
-                        HStack(spacing: 4) {
-                            Image(systemName: "square.stack.3d.up.fill")
-                                .font(.system(size: 10))
-                            Text("\(fieldCount) field\(fieldCount == 1 ? "" : "s")")
-                                .font(.system(size: 12))
-                        }
-                        .foregroundStyle(.gray)
-                    }
-                }
-            }
-            
-            Spacer(minLength: 8)
-            
-            // Action Buttons
-            HStack(spacing: 8) {
-                // Duplicate Button
-                if documentEditor.isPageDuplicateEnabled {
-                    Button(action: {
-                        onDuplicate()
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.blue.opacity(0.1))
-                                .frame(width: 40, height: 40)
-                            
-                            Image(systemName: "doc.on.doc")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(.blue)
-                        }
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                    .accessibilityIdentifier("PageDuplicateIdentifier")
-                }
-                
-                // Delete Button
-                if documentEditor.isPageDeleteEnabled {
-                    Button(action: {
-                        onDelete()
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(canDelete ? Color.red.opacity(0.1) : Color.gray.opacity(0.1))
-                                .frame(width: 40, height: 40)
-                            
-                            Image(systemName: "trash.fill")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(canDelete ? .red : .gray)
-                        }
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-                    .disabled(!canDelete)
-                    .accessibilityIdentifier("PageDeleteIdentifier")
-                }
-            }
-        }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(UIColor.secondarySystemGroupedBackground))
-                .shadow(color: isSelected ? Color.blue.opacity(0.2) : Color.black.opacity(0.05), 
-                       radius: isSelected ? 8 : 4, x: 0, y: 2)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-        )
-        .contentShape(RoundedRectangle(cornerRadius: 12))
-        .onTapGesture {
+        Button(action: {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 onSelect()
             }
+        }) {
+            HStack(spacing: 16) {
+                // Page Info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(page.name ?? "Untitled Page")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(isSelected ? .blue : .primary)
+                        .lineLimit(1)
+                    
+                    HStack(spacing: 8) {
+                        if let fieldCount = page.fieldPositions?.count, fieldCount > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "square.stack.3d.up.fill")
+                                    .font(.system(size: 10))
+                                Text("\(fieldCount) field\(fieldCount == 1 ? "" : "s")")
+                                    .font(.system(size: 12))
+                            }
+                            .foregroundStyle(.gray)
+                        }
+                    }
+                }
+                
+                Spacer(minLength: 8)
+                
+                // Action Buttons
+                HStack(spacing: 8) {
+                    // Duplicate Button
+                    if documentEditor.isPageDuplicateEnabled {
+                        Button(action: {
+                            onDuplicate()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.blue.opacity(0.1))
+                                    .frame(width: 40, height: 40)
+                                
+                                Image(systemName: "doc.on.doc")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .accessibilityIdentifier("PageDuplicateIdentifier")
+                    }
+                    
+                    // Delete Button
+                    if documentEditor.isPageDeleteEnabled {
+                        Button(action: {
+                            onDelete()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(canDelete ? Color.red.opacity(0.1) : Color.gray.opacity(0.1))
+                                    .frame(width: 40, height: 40)
+                                
+                                Image(systemName: "trash.fill")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(canDelete ? .red : .gray)
+                            }
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .disabled(!canDelete)
+                        .accessibilityIdentifier("PageDeleteIdentifier")
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    .shadow(color: isSelected ? Color.blue.opacity(0.2) : Color.black.opacity(0.05), 
+                           radius: isSelected ? 8 : 4, x: 0, y: 2)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+            )
         }
+        .buttonStyle(PlainButtonStyle())
         .accessibilityIdentifier("PageSelectionIdentifier")
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
     }
 }
 
