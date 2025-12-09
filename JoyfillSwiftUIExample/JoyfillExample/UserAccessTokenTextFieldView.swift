@@ -235,6 +235,7 @@ struct FormDestinationView: View {
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = false
+    @State var isPageDelete: Bool = false
     @State var document = JoyDoc()
     @State var license: String
 
@@ -271,6 +272,7 @@ struct FormDestinationView: View {
                 pageID: "",
                 navigation: true,
                 isPageDuplicateEnabled: isPageDuplicated,
+                isPageDeleteEnabled: isPageDelete,
                 validateSchema: validateSchema,
                 license: license
             )
@@ -348,7 +350,7 @@ struct FormDestinationView: View {
             ChangelogView(changeManager: changeManager)
         }
         .sheet(isPresented: $showPublicApis) {
-            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, document: documentEditor?.document ?? JoyDoc())
+            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, isPageDelete: $isPageDelete, document: documentEditor?.document ?? JoyDoc())
         }
         .sheet(
             isPresented: Binding(
