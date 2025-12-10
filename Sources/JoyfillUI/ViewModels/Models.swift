@@ -886,11 +886,7 @@ struct TableDataModel {
         if let index = selectedRows.firstIndex(of: rowID) {
             selectedRows.remove(at: index)
         } else {
-            if !hasActiveFilters {
-                selectedRows.append(rowID)
-            } else {
-                selectedRows = [rowID]
-            }
+            selectedRows.append(rowID)
         }
     }
     
