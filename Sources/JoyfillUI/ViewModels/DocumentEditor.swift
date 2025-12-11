@@ -985,7 +985,7 @@ extension DocumentEditor {
             return (false, "No file found in document")
         }
         
-        // 2. Find page and collect field IDs
+        // 2. Find page and collect field IDs and data BEFORE deletion
         guard let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }),
               let page = firstFile.pages?[pageIndex] else {
             Log("Page with id \(pageID) not found", type: .error)
@@ -993,6 +993,12 @@ extension DocumentEditor {
         }
         
         let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
+        
+        // Collect field data BEFORE deletion (while fields still exist)
+        let fieldsData = fieldsToDelete.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
+            guard let field = field(fieldID: fieldID) else { return nil }
+            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
+        }
         
         // 3. Handle navigation before deletion
         let shouldNavigate = currentPageID == pageID
@@ -1050,8 +1056,8 @@ extension DocumentEditor {
             self.currentPageID = nextPageID
         }
         
-        // 13. Fire change events
-        onChangeDeletePage(pageID: pageID, fieldIDs: fieldsToDelete, fileId: firstFile.id ?? "", viewId: "")
+        // 13. Fire change events with pre-collected field data
+        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
 
         return (true, "Page deleted successfully")
     }

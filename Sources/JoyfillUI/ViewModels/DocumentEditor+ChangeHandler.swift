@@ -1637,7 +1637,7 @@ extension DocumentEditor {
     ///   - fieldIDs: Array of field IDs that were deleted with the page
     ///   - fileId: The file ID
     ///   - viewId: Optional view ID if views exist
-    func onChangeDeletePage(pageID: String, fieldIDs: [String], fileId: String, viewId: String = "") {
+    func onChangeDeletePage(pageID: String, fieldsData: [(id: String, identifier: String?, positionId: String?)], fileId: String, viewId: String = "") {
         var changes: [Change] = []
         
         guard let documentID = documentID else {
@@ -1649,25 +1649,22 @@ extension DocumentEditor {
             return
         }
         
-        // Generate field.delete events for all deleted fields
-        for fieldID in fieldIDs {
-            let fieldPositionId: String = fieldPosition(fieldID: fieldID)?.id ?? ""
-            if let field = field(fieldID: fieldID) {
-                changes.append(Change(
-                    v: 1,
-                    sdk: "swift",
-                    target: "field.delete",
-                    _id: documentID,
-                    identifier: documentIdentifier,
-                    fileId: fileId,
-                    pageId: pageID,
-                    fieldId: fieldID,
-                    fieldIdentifier: field.identifier ?? "",
-                    fieldPositionId: fieldPositionId,
-                    change: ["fieldId": fieldID],
-                    createdOn: Date().timeIntervalSince1970
-                ))
-            }
+        // Generate field.delete events for all deleted fields using pre-collected data
+        for fieldData in fieldsData {
+            changes.append(Change(
+                v: 1,
+                sdk: "swift",
+                target: "field.delete",
+                _id: documentID,
+                identifier: documentIdentifier,
+                fileId: fileId,
+                pageId: pageID,
+                fieldId: fieldData.id,
+                fieldIdentifier: fieldData.identifier ?? "",
+                fieldPositionId: fieldData.positionId ?? "",
+                change: ["fieldId": fieldData.id],
+                createdOn: Date().timeIntervalSince1970
+            ))
         }
         
         // Generate page.delete event for the main page
