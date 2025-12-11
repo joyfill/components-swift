@@ -152,7 +152,7 @@ struct AllSampleJSONs: View, FormChangeEvent {
     }
 
     func onChange(changes: [Change], document: JoyDoc) {
-        print("->>>>>>>>", changes)
+//        print("->>>>>>>>", changes)
     }
     func onFocus(event: FieldIdentifier) { }
     func onBlur(event: FieldIdentifier) { }
