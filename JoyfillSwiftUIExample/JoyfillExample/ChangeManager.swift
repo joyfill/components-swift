@@ -85,10 +85,8 @@ extension ChangeManager: FormChangeEvent {
         
         let changeLogs = ["changelogs": changes.map { $0.dictionary }]
 
-        if let identifier = document.identifier {
+        if let identifier = document.identifier, let apiService = apiService, apiService.hasValidToken {
             updateDocument(identifier: identifier, changeLogs: changeLogs)
-        } else {
-            print(">>>>>>>>onChange: document has no identifier")
         }
     }
 
