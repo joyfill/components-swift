@@ -406,7 +406,6 @@ struct PageDuplicateListView: View {
                                 PageRowView(
                                     page: page,
                                     pageID: pageID,
-                                    pageNumber: index + 1,
                                     isSelected: currentPageID == pageID,
                                     documentEditor: documentEditor,
                                     onSelect: {
@@ -467,7 +466,6 @@ struct PageDuplicateListView: View {
 struct PageRowView: View {
     let page: Page
     let pageID: String
-    let pageNumber: Int
     let isSelected: Bool
     let documentEditor: DocumentEditor
     let onSelect: () -> Void
