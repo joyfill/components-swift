@@ -144,9 +144,13 @@ struct PagesView: View {
                     get: { pageFieldModels[documentEditor.currentPageID] ?? firstPage },
                     set: { pageFieldModels[documentEditor.currentPageID] = $0 }
                 )
-                PageView(page: pageBinding, documentEditor: documentEditor)
+                if documentEditor.shouldShow(pageID: pageBinding.wrappedValue.id) {
+                    PageView(page: pageBinding, documentEditor: documentEditor)
+                } else {
+                    Text("No pages available")
+                }
             } else {
-                Text("No pages available") 
+                Text("No pages available")
             }
         }
     }
@@ -349,6 +353,10 @@ struct PageDuplicateListView: View {
     @Environment(\.presentationMode) var presentationMode
     @State var documentEditor: DocumentEditor
     @Binding var pageFieldModels: [String: PageModel]
+    
+    @State private var showDeleteConfirmation = false
+    @State private var pageToDelete: String?
+    @State private var deleteWarningMessage: String = ""
 
     private var pageIDs: [String] {
         if !documentEditor.currentPageOrder.isEmpty {
@@ -358,63 +366,212 @@ struct PageDuplicateListView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(spacing: 0) {
+            // Header
             HStack {
-                Text("Pages")
-                    .foregroundStyle(.gray)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Pages")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .darkLightThemeColor()
+                    Text("\(pageIDs.count) page\(pageIDs.count == 1 ? "" : "s")")
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                }
+                
                 Spacer()
 
                 Button(action: {
                     presentationMode.wrappedValue.dismiss()
                 }, label: {
-                    Text("Close")
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .foregroundStyle(.gray)
+                        .symbolRenderingMode(.hierarchical)
                 })
                 .accessibilityIdentifier("ClosePageSelectionSheetIdentifier")
             }
+            .padding(.horizontal, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 16)
+            
+            Divider()
+            
+            // Pages List
             ScrollView {
-                ForEach(pageIDs, id: \.self) { pageID in
-                    if documentEditor.shouldShow(pageID: pageID) {
-                        if let page = documentEditor.firstPageFor(currentPageID: pageID) {
-                            VStack(alignment: .leading) {
-                                HStack {
-                                    Button(action: {
-                                        currentPageID = pageID ?? ""
+                LazyVStack(spacing: 12) {
+                    ForEach(Array(pageIDs.enumerated()), id: \.element) { index, pageID in
+                        if documentEditor.shouldShow(pageID: pageID) {
+                            if let page = documentEditor.firstPageFor(currentPageID: pageID) {
+                                PageRowView(
+                                    page: page,
+                                    pageID: pageID,
+                                    isSelected: currentPageID == pageID,
+                                    documentEditor: documentEditor,
+                                    onSelect: {
+                                        currentPageID = pageID
                                         presentationMode.wrappedValue.dismiss()
-                                    }, label: {
-                                        HStack {
-                                            Image(systemName: currentPageID == pageID ? "checkmark.circle.fill" : "circle")
-                                            Text(page.name ?? "")
-                                                .multilineTextAlignment(.leading)
-                                                .darkLightThemeColor()
-                                        }
-                                    })
-                                    .accessibilityIdentifier("PageSelectionIdentifier")
-                                    
-                                    Spacer()
-                                    if documentEditor.isPageDuplicateEnabled {
-                                        Button(action: {
-                                            documentEditor.duplicatePage(pageID: pageID)
-                                        }, label: {
-                                            Image(systemName: "doc.on.doc")
-                                                .foregroundStyle(.blue)
-                                        })
-                                        .accessibilityIdentifier("PageDuplicateIdentifier")
+                                    },
+                                    onDuplicate: {
+                                        documentEditor.duplicatePage(pageID: pageID)
+                                    },
+                                    onDelete: {
+                                        let (canDelete, warnings) = documentEditor.canDeletePage(pageID: pageID)
+                                        handleDeletePage(pageID: pageID, canDelete: canDelete, warnings: warnings)
                                     }
-                                }
+                                )
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
                         }
                     }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 16)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    .padding(.vertical, -10)
-            )
-            .padding(.vertical, 10)
         }
-        .padding(.all, 16)
+        .background(Color(UIColor.systemGroupedBackground))
+        .alert(isPresented: $showDeleteConfirmation) {
+            Alert(
+                title: Text("Delete Page?"),
+                message: Text(deleteWarningMessage.isEmpty ? 
+                    "Are you sure you want to delete this page? This action cannot be undone." : 
+                    "⚠️ Warning\n\n\(deleteWarningMessage)\n\nThis action cannot be undone."),
+                primaryButton: .destructive(Text("Delete")) {
+                    if let pageID = pageToDelete {
+                        let result = documentEditor.deletePage(pageID: pageID, force: true)
+                        if result.success {
+                            // Close the sheet if we deleted the current page
+                            if currentPageID == pageID {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
+    }
+    
+    private func handleDeletePage(pageID: String, canDelete: Bool, warnings: [String]) {
+        guard canDelete else {
+            return
+        }
+        
+        pageToDelete = pageID
+        deleteWarningMessage = warnings.joined(separator: "\n• ")
+        showDeleteConfirmation = true
     }
 }
+
+// MARK: - Page Row View
+struct PageRowView: View {
+    let page: Page
+    let pageID: String
+    let isSelected: Bool
+    let documentEditor: DocumentEditor
+    let onSelect: () -> Void
+    let onDuplicate: () -> Void
+    let onDelete: () -> Void
+    
+    @State private var isPressed = false
+    
+    private var canDelete: Bool {
+        documentEditor.canDeletePage(pageID: pageID).canDelete
+    }
+    
+    var body: some View {
+        Button(action: {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                onSelect()
+            }
+        }) {
+            HStack(spacing: 16) {
+                // Page Info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(page.name ?? "Untitled Page")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(isSelected ? .blue : .primary)
+                        .lineLimit(1)
+                    
+                    HStack(spacing: 8) {
+                        if let fieldCount = page.fieldPositions?.count, fieldCount > 0 {
+                            HStack(spacing: 4) {
+                                Image(systemName: "square.stack.3d.up.fill")
+                                    .font(.system(size: 10))
+                                Text("\(fieldCount) field\(fieldCount == 1 ? "" : "s")")
+                                    .font(.system(size: 12))
+                            }
+                            .foregroundStyle(.gray)
+                        }
+                    }
+                }
+                
+                Spacer(minLength: 8)
+                
+                // Action Buttons
+                HStack(spacing: 8) {
+                    // Duplicate Button
+                    if documentEditor.isPageDuplicateEnabled {
+                        Button(action: {
+                            onDuplicate()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.blue.opacity(0.1))
+                                    .frame(width: 40, height: 40)
+                                
+                                Image(systemName: "doc.on.doc")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(.blue)
+                            }
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .accessibilityIdentifier("PageDuplicateIdentifier")
+                    }
+                    
+                    // Delete Button
+                    if documentEditor.isPageDeleteEnabled {
+                        Button(action: {
+                            onDelete()
+                        }) {
+                            ZStack {
+                                Circle()
+                                    .fill(canDelete ? Color.red.opacity(0.1) : Color.gray.opacity(0.1))
+                                    .frame(width: 40, height: 40)
+                                
+                                Image(systemName: "trash.fill")
+                                    .font(.system(size: 16, weight: .medium))
+                                    .foregroundStyle(canDelete ? .red : .gray)
+                            }
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                        .disabled(!canDelete)
+                        .accessibilityIdentifier("PageDeleteIdentifier")
+                    }
+                }
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(UIColor.secondarySystemGroupedBackground))
+                    .shadow(color: isSelected ? Color.blue.opacity(0.2) : Color.black.opacity(0.05), 
+                           radius: isSelected ? 8 : 4, x: 0, y: 2)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .accessibilityIdentifier("PageSelectionIdentifier")
+    }
+}
+
+// MARK: - Scale Button Style
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.92 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
+    }
+}
+

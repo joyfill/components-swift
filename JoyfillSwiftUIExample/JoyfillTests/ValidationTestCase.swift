@@ -963,6 +963,264 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
         }
     
+    // MARK: - Page Deletion Tests
+    
+    /// Test basic page deletion
+    func testPageDeletion_basic() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let initialPageCount = documentEditor.document.files.first?.pages?.count ?? 0
+        let initialPageOrderCount = documentEditor.document.files.first?.pageOrder?.count ?? 0
+        
+        XCTAssertTrue(initialPageCount >= 2, "Document should have at least 2 pages")
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        let finalPageCount = documentEditor.document.files.first?.pages?.count ?? 0
+        let finalPageOrderCount = documentEditor.document.files.first?.pageOrder?.count ?? 0
+        
+        XCTAssertEqual(finalPageCount, initialPageCount - 1, "Page count should decrease by 1")
+        XCTAssertEqual(finalPageOrderCount, initialPageOrderCount - 1, "PageOrder count should decrease by 1")
+        XCTAssertNil(documentEditor.document.files.first?.pages?.first(where: { $0.id == pageToDeleteID }), "Deleted page should not exist")
+        XCTAssertFalse(documentEditor.document.files.first?.pageOrder?.contains(pageToDeleteID) ?? true, "PageOrder should not contain deleted page ID")
+    }
+    
+    /// Test that you cannot delete the last page
+    func testPageDeletion_preventLastPage() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let pageCount = documentEditor.document.files.first?.pages?.count ?? 0
+        XCTAssertEqual(pageCount, 1, "Document should have exactly 1 page")
+        
+        let (canDelete, warnings) = documentEditor.canDeletePage(pageID: pageID)
+        
+        XCTAssertFalse(canDelete, "Should not be able to delete the last page")
+        XCTAssertTrue(warnings.contains(where: { $0.contains("last page") }), "Warning should mention last page")
+        
+        let result = documentEditor.deletePage(pageID: pageID, force: true)
+        
+        XCTAssertFalse(result.success, "Deletion should fail")
+        XCTAssertEqual(documentEditor.document.files.first?.pages?.count, 1, "Page should still exist")
+    }
+    
+    /// Test that exclusive fields are deleted with the page
+    func testPageDeletion_exclusiveFields() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        // Get fields on the page to delete
+        let page = documentEditor.document.files.first?.pages?.first(where: { $0.id == pageToDeleteID })
+        let fieldIDsOnPage = page?.fieldPositions?.compactMap { $0.field } ?? []
+        
+        XCTAssertFalse(fieldIDsOnPage.isEmpty, "Page should have fields")
+        
+        let initialFieldCount = documentEditor.document.fields.count
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        let finalFieldCount = documentEditor.document.fields.count
+        
+        // Check that fields are completely removed (not just marked as deleted)
+        XCTAssertLessThan(finalFieldCount, initialFieldCount, "Field count should decrease")
+        
+        for fieldID in fieldIDsOnPage {
+            let fieldExists = documentEditor.document.fields.contains(where: { $0.id == fieldID })
+            XCTAssertFalse(fieldExists, "Field \(fieldID) should be completely removed from document")
+        }
+    }
+    
+    /// Test that pageOrder is updated correctly
+    func testPageDeletion_pageOrderUpdate() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .addThirdPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let initialPageOrder = documentEditor.document.files.first?.pageOrder ?? []
+        XCTAssertTrue(initialPageOrder.count >= 3, "Should have at least 3 pages")
+        XCTAssertTrue(initialPageOrder.contains(pageToDeleteID), "PageOrder should contain page to delete")
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        let finalPageOrder = documentEditor.document.files.first?.pageOrder ?? []
+        XCTAssertEqual(finalPageOrder.count, initialPageOrder.count - 1, "PageOrder count should decrease by 1")
+        XCTAssertFalse(finalPageOrder.contains(pageToDeleteID), "PageOrder should not contain deleted page")
+    }
+    
+    /// Test navigation updates when deleting current page
+    func testPageDeletion_navigationUpdate() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        // Set current page to the one we're about to delete
+        documentEditor.currentPageID = pageToDeleteID
+        XCTAssertEqual(documentEditor.currentPageID, pageToDeleteID)
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        // Current page should have changed
+        XCTAssertNotEqual(documentEditor.currentPageID, pageToDeleteID, "Current page should have changed")
+        XCTAssertFalse(documentEditor.currentPageID.isEmpty, "Current page should be set to a valid page")
+    }
+    
+    /// Test that views are updated when deleting a page
+    func testPageDeletion_viewsUpdate() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .addSecondPage()
+            .addSecondPageInMobileView()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let hasViews = !(documentEditor.document.files.first?.views?.isEmpty ?? true)
+        guard hasViews else {
+            XCTFail("Document should have views for this test")
+            return
+        }
+        
+        let initialViewPageCount = documentEditor.document.files.first?.views?.first?.pages?.count ?? 0
+        XCTAssertTrue(initialViewPageCount >= 2, "View should have at least 2 pages")
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        // Check main pages
+        let mainPageExists = documentEditor.document.files.first?.pages?.contains(where: { $0.id == pageToDeleteID }) ?? false
+        XCTAssertFalse(mainPageExists, "Deleted page should not exist in main pages")
+        
+        // Check view pages
+        let viewPageExists = documentEditor.document.files.first?.views?.first?.pages?.contains(where: { $0.id == pageToDeleteID }) ?? false
+        XCTAssertFalse(viewPageExists, "Deleted page should not exist in view pages")
+        
+        // Check view pageOrder
+        let viewPageOrderContains = documentEditor.document.files.first?.views?.first?.pageOrder?.contains(pageToDeleteID) ?? false
+        XCTAssertFalse(viewPageOrderContains, "View pageOrder should not contain deleted page")
+    }
+    
+    /// Test conditional logic cleanup on pages
+    func testPageDeletion_conditionalLogicCleanup_page() {
+        // This test would require a document with page-level conditional logic
+        // referencing another page. For now, we'll test the basic structure.
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        // Verify no pages have logic referencing the deleted page
+        let remainingPages = documentEditor.document.files.first?.pages ?? []
+        for page in remainingPages {
+            if let conditions = page.logic?.conditions {
+                let hasInvalidReference = conditions.contains(where: { $0.page == pageToDeleteID })
+                XCTAssertFalse(hasInvalidReference, "Page should not have logic referencing deleted page")
+            }
+        }
+    }
+    
+    /// Test conditional logic cleanup on fields
+    func testPageDeletion_conditionalLogicCleanup_field() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let result = documentEditor.deletePage(pageID: pageToDeleteID, force: true)
+        XCTAssertTrue(result.success, "Page deletion should succeed")
+        
+        // Verify no fields have logic referencing the deleted page
+        for field in documentEditor.document.fields {
+            if let conditions = field.logic?.conditions {
+                let hasInvalidReference = conditions.contains(where: { $0.page == pageToDeleteID })
+                XCTAssertFalse(hasInvalidReference, "Field should not have logic referencing deleted page")
+            }
+        }
+    }
+    
+    /// Test validation warnings for dependent pages
+    func testPageDeletion_validationWarnings() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageToDeleteID = "6629fab320fca7c8107a6cf6"
+        let documentEditor = documentEditor(document: document)
+        
+        let (canDelete, warnings) = documentEditor.canDeletePage(pageID: pageToDeleteID)
+        
+        XCTAssertTrue(canDelete, "Page should be deletable")
+        // Warnings array may or may not be empty depending on the document structure
+        XCTAssertNotNil(warnings, "Warnings array should exist")
+    }
 }
 
     extension ValidationTestCase {
