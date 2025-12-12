@@ -678,7 +678,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(1, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -704,7 +704,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(0, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -733,7 +733,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(2, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -1333,7 +1333,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
         textField.typeText("o")
-        app.dismissKeyboardIfVisible()
+//        app.dismissKeyboardIfVisible()
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Select Option", dropdownButton.label)
