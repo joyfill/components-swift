@@ -129,22 +129,21 @@ struct CollectionModalTopNavigationView: View {
                             }
                             .padding(.horizontal, 16)
                             .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
-                            .padding(.bottom, hasActiveFilters ? 8 : 0)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-                            if !hasActiveFilters {
-                                Button(action: {
-                                    showingPopover = false
-                                    viewModel.deleteSelectedRow()
-                                }) {
-                                    Text("Delete \(rowTitle)")
-                                        .foregroundStyle(.red)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.bottom, 10)
-                                .accessibilityIdentifier("TableDeleteRowIdentifier")
+
+                            Button(action: {
+                                showingPopover = false
+                                viewModel.deleteSelectedRow()
+                            }) {
+                                Text("Delete \(rowTitle)")
+                                    .foregroundStyle(.red)
+                                    .font(.system(size: 14))
+                                    .frame(height: 27)
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                            .accessibilityIdentifier("TableDeleteRowIdentifier")
+
 //                            Button(action: {
 //                                showingPopover = false
 //                                viewModel.duplicateRow()
@@ -206,6 +205,7 @@ struct CollectionModalTopNavigationView: View {
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 }
                             }
+                            
                             Button(action: {
                                 showingPopover = false
                                 onEditTap?()
@@ -218,20 +218,20 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.top, 16)
                             .accessibilityIdentifier("TableEditRowsIdentifier")
-                            if !hasActiveFilters {
-                                Button(action: {
-                                    viewModel.deleteSelectedRow()
-                                    showingPopover = false
-                                }) {
-                                    Text("Delete \(rowTitle)")
-                                        .foregroundStyle(.red)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.bottom, 10)
-                                .accessibilityIdentifier("TableDeleteRowIdentifier")
+
+                            Button(action: {
+                                viewModel.deleteSelectedRow()
+                                showingPopover = false
+                            }) {
+                                Text("Delete \(rowTitle)")
+                                    .foregroundStyle(.red)
+                                    .font(.system(size: 14))
+                                    .frame(height: 27)
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 10)
+                            .accessibilityIdentifier("TableDeleteRowIdentifier")
+                            
 //                            Button(action: {
 //                                viewModel.duplicateRow()
 //                                showingPopover = false
