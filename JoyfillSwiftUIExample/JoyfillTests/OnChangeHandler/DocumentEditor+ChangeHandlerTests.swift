@@ -822,8 +822,9 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         for rowId in rowIds {
             newChanges[rowId] = changes
         }
+        let field2 = documentEditor.field(fieldID: tableFieldID)
         
-        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
+        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier, fieldData: field2?.valueToValueElements ?? [])
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -875,7 +876,9 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         for rowId in rowIds {
             newChanges[rowId] = changes
         }
-        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier)
+        let field2 = documentEditor.field(fieldID: tableFieldID)
+        
+        documentEditor.bulkEdit(changes: newChanges, selectedRows: rowIds, fieldIdentifier: fieldIdentifier, fieldData: field2?.valueToValueElements ?? [])
         
         let field = documentEditor.field(fieldID: tableFieldID)
         
@@ -921,7 +924,8 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793c76286eb2763c366": ValueUnion.double(1712385780000)
         ]
         // Pass different row id - when row id not match for bulk edit
-        documentEditor.bulkEdit(changes: ["rowIds" : changes], selectedRows: ["rowIds"], fieldIdentifier: fieldIdentifier)
+        let field2 = documentEditor.field(fieldID: tableFieldID)
+        documentEditor.bulkEdit(changes: ["rowIds" : changes], selectedRows: ["rowIds"], fieldIdentifier: fieldIdentifier, fieldData: field2?.valueToValueElements ?? [])
         
         let field = documentEditor.field(fieldID: tableFieldID)
         

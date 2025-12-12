@@ -791,23 +791,18 @@ extension DocumentEditor {
         return (elements, newRow)
     }
 
-    fileprivate func updateValueElementsForBulk(_ changes: [String: [String : ValueUnion]], _ elements: inout [ValueElement], _ rowID: String) {
+    fileprivate func updateValueElementsForBulk(_ changes: [String: [String : ValueUnion]], _ elements: inout [ValueElement], _ rowID: String, _ indexMap: [String: Int]) {
         let change = changes[rowID] ?? [:]
-        for cellDataModelId in change.keys {
-            if let change = change[cellDataModelId] {
-                guard let index = elements.firstIndex(where: { $0.id == rowID }) else {
-                    return
-                }
-                if var cells = elements[index].cells {
-                    cells[cellDataModelId] = change
-                    elements[index].cells = cells
-                    updateTimeZoneIfNeeded(&elements[index])
-                } else {
-                    elements[index].cells = [cellDataModelId : change]
-                    updateTimeZoneIfNeeded(&elements[index])
-                }
-            }
+        guard let index = indexMap[rowID] else {
+            return
         }
+        
+        var cells = elements[index].cells ?? [:]
+        for (cellDataModelId, changeValue) in change {
+            cells[cellDataModelId] = changeValue
+        }
+        elements[index].cells = cells
+        updateTimeZoneIfNeeded(&elements[index])
     }
     
     /// Performs bulk editing on specified rows in a table field.
@@ -815,14 +810,19 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
-        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
-            return
-        }
+    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) {
+        var elements = fieldData
         let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
         var isDateColumn: Bool = false
         var rows: [[String : Any]] = []
+        
+        var indexMap: [String: Int] = [:]
+        indexMap.reserveCapacity(elements.count)
+        for (idx, element) in elements.enumerated() {
+            if let id = element.id {
+                indexMap[id] = idx
+            }
+        }
         
         for rowID in selectedRows {
             var changeToSend: [String: Any] = [:]
@@ -839,10 +839,12 @@ extension DocumentEditor {
                 "cells" : changeToSend
             ]
             
-            updateValueElementsForBulk(changes, &elements, rowID)
+            updateValueElementsForBulk(changes, &elements, rowID, indexMap)
             
             if isDateColumn {
-                row["tz"] = elements.first(where: {$0.id == rowID})?.tz
+                if let idx = indexMap[rowID] {
+                    row["tz"] = elements[idx].tz
+                }
             }
             rows.append(row)
         }
