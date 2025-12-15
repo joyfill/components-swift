@@ -491,18 +491,6 @@ struct PageRowView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(isSelected ? .blue : .primary)
                         .lineLimit(1)
-                    
-                    HStack(spacing: 8) {
-                        if let fieldCount = page.fieldPositions?.count, fieldCount > 0 {
-                            HStack(spacing: 4) {
-                                Image(systemName: "square.stack.3d.up.fill")
-                                    .font(.system(size: 10))
-                                Text("\(fieldCount) field\(fieldCount == 1 ? "" : "s")")
-                                    .font(.system(size: 12))
-                            }
-                            .foregroundStyle(.gray)
-                        }
-                    }
                 }
                 
                 Spacer(minLength: 8)

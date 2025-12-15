@@ -109,7 +109,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeUp()
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        app.buttons["Page 16, 2 fields"].tap()
+        app.buttons["Page 16"].tap()
         
         let goToTableDetailView = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
         let tapOnSecondTableView = goToTableDetailView.element(boundBy: 0)
