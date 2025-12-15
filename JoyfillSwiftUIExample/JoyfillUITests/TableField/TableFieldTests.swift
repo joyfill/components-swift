@@ -1287,7 +1287,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
         XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5), "‘Select All’ menu didn’t show up")
-        textField.typeText("qu")
+        textField.typeText("q")
+        textField.typeText("u")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("No", dropdownButton.label)
