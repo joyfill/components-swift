@@ -106,7 +106,7 @@ struct CollectionModalView : View {
             if viewModel.showRowSelector  {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
-                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 || viewModel.tableDataModel.hasActiveFilters ? Color.gray.opacity(0.4) : nil)
+                    .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
                     .onTapGesture {
                         if !viewModel.tableDataModel.allRowSelected {
                             viewModel.tableDataModel.selectAllRows()
@@ -114,7 +114,7 @@ struct CollectionModalView : View {
                             viewModel.tableDataModel.emptySelection()
                         }
                     }
-                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0 || viewModel.tableDataModel.hasActiveFilters)
+                    .disabled(viewModel.tableDataModel.filteredcellModels.count == 0)
                     .accessibilityIdentifier("SelectParentAllRowSelectorButton")
             }
 
@@ -472,7 +472,7 @@ struct CollectionRowsHeaderView: View {
                 if viewModel.showRowSelector {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
-                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || viewModel.tableDataModel.hasActiveFilters ? Color.gray.opacity(0.4) : nil)
+                        .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 ? Color.gray.opacity(0.4) : nil)
                         .border(Color.tableCellBorderColor)
                         .onTapGesture {
                             if !viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) {
@@ -481,7 +481,7 @@ struct CollectionRowsHeaderView: View {
                                 viewModel.tableDataModel.emptySelection()
                             }
                         }
-                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 || viewModel.tableDataModel.hasActiveFilters)
+                        .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
                         .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):

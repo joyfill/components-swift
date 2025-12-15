@@ -3087,5 +3087,143 @@ extension JoyDoc {
             }
             return document
         }
+    
+    // Add second page for testing
+    func addSecondPage() -> JoyDoc {
+        let position1 = FieldPosition(dictionary: [
+            "field": "second_page_field_1",
+            "displayType": "original",
+            "width": 4,
+            "height": 8,
+            "x": 0,
+            "y": 0,
+            "titleDisplay": "inline",
+            "_id": "second_page_position_1",
+            "type": "text"
+        ])
+        
+        var page = Page()
+        page.name = "Page 2"
+        page.hidden = false
+        page.width = 816
+        page.height = 1056
+        page.cols = 24
+        page.rowHeight = 8
+        page.layout = "grid"
+        page.presentation = "normal"
+        page.margin = 0
+        page.padding = 0
+        page.borderWidth = 0
+        page.id = "second_page_id_12345"
+        page.fieldPositions = [position1]
+        
+        var document = self
+        if var pages = document.files[0].pages {
+            pages.append(page)
+            document.files[0].pages = pages
+        } else {
+            document.files[0].pages = [page]
+        }
+        
+        // Add to pageOrder
+        if var pageOrder = document.files[0].pageOrder {
+            pageOrder.append(page.id ?? "")
+            document.files[0].pageOrder = pageOrder
+        } else {
+            document.files[0].pageOrder = [page.id ?? ""]
+        }
+        
+        return document
+    }
+    
+    // Add third page for testing
+    func addThirdPage() -> JoyDoc {
+        var page = Page()
+        page.name = "Page 3"
+        page.hidden = false
+        page.width = 816
+        page.height = 1056
+        page.cols = 24
+        page.rowHeight = 8
+        page.layout = "grid"
+        page.presentation = "normal"
+        page.margin = 0
+        page.padding = 0
+        page.borderWidth = 0
+        page.id = "third_page_id_67890"
+        page.fieldPositions = []
+        
+        var document = self
+        if var pages = document.files[0].pages {
+            pages.append(page)
+            document.files[0].pages = pages
+        } else {
+            document.files[0].pages = [page]
+        }
+        
+        // Add to pageOrder
+        if var pageOrder = document.files[0].pageOrder {
+            pageOrder.append(page.id ?? "")
+            document.files[0].pageOrder = pageOrder
+        } else {
+            document.files[0].pageOrder = [page.id ?? ""]
+        }
+        
+        return document
+    }
+    
+    // Add second page in mobile view
+    func addSecondPageInMobileView() -> JoyDoc {
+        var document = self
+        
+        guard var views = document.files[0].views, !views.isEmpty else {
+            return document
+        }
+        
+        let position1 = FieldPosition(dictionary: [
+            "field": "second_page_field_1",
+            "displayType": "original",
+            "width": 1,
+            "height": 64,
+            "x": 0,
+            "y": 0,
+            "titleDisplay": "inline",
+            "_id": "second_page_position_1_mobile",
+            "type": "text"
+        ])
+        
+        var page = Page()
+        page.name = "Page 2"
+        page.hidden = false
+        page.width = 816
+        page.height = 1056
+        page.cols = 1
+        page.rowHeight = 1
+        page.layout = "grid"
+        page.presentation = "normal"
+        page.margin = 0
+        page.padding = 12
+        page.borderWidth = 0
+        page.id = "second_page_id_12345"
+        page.fieldPositions = [position1]
+        
+        if var pages = views[0].pages {
+            pages.append(page)
+            views[0].pages = pages
+        } else {
+            views[0].pages = [page]
+        }
+        
+        // Add to pageOrder
+        if var pageOrder = views[0].pageOrder {
+            pageOrder.append(page.id ?? "")
+            views[0].pageOrder = pageOrder
+        } else {
+            views[0].pageOrder = [page.id ?? ""]
+        }
+        
+        document.files[0].views = views
+        return document
+    }
 
 }
