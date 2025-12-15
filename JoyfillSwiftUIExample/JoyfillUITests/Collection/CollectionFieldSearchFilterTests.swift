@@ -2920,7 +2920,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
         pageSelectionButton.tap()
         
-        let pageSheetSelectionButton = app.buttons["Quick View"].firstMatch
+        let pageSheetSelectionButton = app.buttons["Quick View, 3 fields"].firstMatch
         let originalPageButton = pageSheetSelectionButton
         originalPageButton.tap()
         goToCollectionDetailField(index: 0)

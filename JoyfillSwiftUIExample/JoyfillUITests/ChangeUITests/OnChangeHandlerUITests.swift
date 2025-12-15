@@ -1093,7 +1093,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
         XCTAssertTrue(app.selectAllInTextField(in: textField, app: app, timeout: 5), "‘Select All’ menu didn’t show up")
-        textField.typeText("qu")
+        textField.typeText("q")
+        textField.typeText("u")
         
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("No D1", dropdownButton.label)
@@ -1111,6 +1112,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableMoveDownRowIdentifier"].firstMatch.tap()
         goBack()
         goToTableDetailPage(index: 1)
+        firstScrollLeft()
         firstScrollLeft()
         let checkEditDataOnTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("qu", checkEditDataOnTextField.value as! String)
@@ -1179,6 +1181,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         goToTableDetailPage()
         goToTableDetailPage(index: 0)
         firstScrollLeft()
+        firstScrollLeft()
         let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("Select Option", dropdownButtons.element(boundBy: 0).label)
         let firstdropdownButton = dropdownButtons.element(boundBy: 0)
@@ -1188,7 +1191,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let firstOption = dropdownOptions.element(boundBy: 1)
         firstOption.tap()
         goBack()
-        
+        firstScrollLeft()
+        firstScrollLeft()
         let secdropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier")
         XCTAssertEqual("No D1", secdropdownButtons.element(boundBy: 0).label)
     }
@@ -1726,7 +1730,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         let addedCellBlockValue = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 4)
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
-        
+        firstScrollLeft()
         let addedCellNumberValue = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").element(boundBy: 6)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
         
@@ -1973,6 +1977,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         tapOnMoveUpRowButton()
+        secScrollLeft()
+        secScrollLeft()
         checkMovedRowDataOfSecondRow()
         
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
@@ -2007,7 +2013,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         tapOnMoveDownRowButton()
-        firstScrollLeft()
+        secScrollLeft()
+        secScrollLeft()
         checkMovedRowDataOfLastSecondRow()
         
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 4).tap()
@@ -2048,7 +2055,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         firstOption.tap()
         
         tapOnMoveDownRowButton()
-        firstScrollLeft()
+        secScrollLeft()
+        secScrollLeft()
         checkMovedRowDataOfLastSecondRow()
         
         goBack()
