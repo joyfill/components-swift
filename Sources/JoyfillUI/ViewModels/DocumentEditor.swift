@@ -72,7 +72,7 @@ public class DocumentEditor: ObservableObject {
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
                 license: String? = nil,
-                singleClickRowEdit: Bool = false) {
+                singleClickRowEdit: Bool = true) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -644,8 +644,9 @@ extension DocumentEditor {
                                            fieldHeaderModel: fieldHeaderModel)
             dataModelType = .textarea(model)
         case .date:
+            let normalizedDateValue = fieldData?.value?.normalizedNumericValue
             let model = DateTimeDataModel(fieldIdentifier: fieldIdentifier,
-                                          value: fieldData?.value,
+                                          value: normalizedDateValue,
                                           format: fieldPosition.format,
                                           timezoneId: fieldData?.tz,
                                           fieldHeaderModel: fieldHeaderModel)
@@ -709,7 +710,33 @@ extension DocumentEditor {
         return dataModelType
     }
 }
+extension ValueUnion {
+    /// Returns a `Double` representation for numeric-backed values.
+    /// Useful when backend may send numbers as either `Int` or `Double`.
+    var doubleValue: Double? {
+        switch self {
+        case .double(let value):
+            return value
+        case .int(let value):
+            return Double(value)
+        case .string(let value):
+            return Double(value)
+        default:
+            return nil
+        }
+    }
 
+    /// Normalizes numeric values so callers can rely on `Double`-backed numbers.
+    /// - Converts `.int` -> `.double`
+    /// - Converts numeric `.string` -> `.double`
+    /// - Leaves non-numeric values unchanged
+    var normalizedNumericValue: ValueUnion {
+        if let d = doubleValue {
+            return .double(d)
+        }
+        return self
+    }
+}
 extension DocumentEditor {
     fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
         var fieldListModels = [FieldListModel]()
