@@ -236,6 +236,7 @@ struct FormDestinationView: View {
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = false
     @State var isPageDelete: Bool = false
+    @State var singleClickRowEdit: Bool = false
     @State var document = JoyDoc()
     @State var license: String
 
@@ -274,7 +275,8 @@ struct FormDestinationView: View {
                 isPageDuplicateEnabled: isPageDuplicated,
                 isPageDeleteEnabled: isPageDelete,
                 validateSchema: validateSchema,
-                license: license
+                license: license,
+                singleClickRowEdit: singleClickRowEdit
             )
 
             // Publish to UI on the main actor
@@ -350,7 +352,7 @@ struct FormDestinationView: View {
             ChangelogView(changeManager: changeManager)
         }
         .sheet(isPresented: $showPublicApis) {
-            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, isPageDelete: $isPageDelete, document: documentEditor?.document ?? JoyDoc())
+            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, isPageDelete: $isPageDelete, singleClickRowEdit: $singleClickRowEdit, document: documentEditor?.document ?? JoyDoc())
         }
         .sheet(
             isPresented: Binding(

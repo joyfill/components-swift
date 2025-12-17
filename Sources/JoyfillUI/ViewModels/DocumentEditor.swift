@@ -44,6 +44,7 @@ public class DocumentEditor: ObservableObject {
     public var isPageDuplicateEnabled: Bool = true
     public var isPageDeleteEnabled: Bool = true
     public var showPageNavigationView: Bool = true
+    public var singleClickRowEdit: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -70,7 +71,8 @@ public class DocumentEditor: ObservableObject {
                 isPageDuplicateEnabled: Bool = false,
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
-                license: String? = nil) {
+                license: String? = nil,
+                singleClickRowEdit: Bool = false) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -84,6 +86,7 @@ public class DocumentEditor: ObservableObject {
                 self.isPageDuplicateEnabled = isPageDuplicateEnabled
                 self.isPageDeleteEnabled = isPageDeleteEnabled
                 self.showPageNavigationView = navigation
+                self.singleClickRowEdit = singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
                 
@@ -99,6 +102,7 @@ public class DocumentEditor: ObservableObject {
         self.isPageDuplicateEnabled = mode == .readonly ? false : isPageDuplicateEnabled
         self.isPageDeleteEnabled = mode == .readonly ? false : isPageDeleteEnabled
         self.showPageNavigationView = navigation
+        self.singleClickRowEdit = singleClickRowEdit
         self.currentPageID = ""
         self.events = events
         // Set feature flags from license
