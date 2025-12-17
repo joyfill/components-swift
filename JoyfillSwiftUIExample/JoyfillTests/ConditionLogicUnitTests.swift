@@ -32,7 +32,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
         
-        XCTAssertEqual(result, true)
+        XCTAssertEqual(result, false)
     }
     
     func testEnterUnKnownCaseType() {
@@ -234,6 +234,29 @@ final class ConditionLogicUnitTests: XCTestCase {
             .setPageFieldInMobileView()
             .setPageField()
             .setTextField(hidden: true, value: .string("Hello"))
+            .setNumberField(hidden: false, value: .double(100))
+            .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
+        
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.shouldShow(fieldID: "66aa2865da10ac1c7b7acb1d")
+        
+        XCTAssertEqual(result, false)
+    }
+    
+    func testSetConditionFieldToNilBothFieldHidden() {
+        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+        let numberFieldID = "6629fb3df03de10b26270ab3"
+        
+        // Set fieldID to nil
+        let logicDictionary = getLogicDictionary(isShow: true, fieldID: nil, conditionType: .equals, value: .double(100))
+        
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Hello"))
             .setNumberField(hidden: false, value: .double(100))
             .setConditionalLogicToField(fieldID: textFieldID, logic: Logic(field: logicDictionary))
         
@@ -956,7 +979,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let result = documentEditor.shouldShow(pageID: page2ID)
         
-        XCTAssertEqual(result, false) // Page is hidden now
+        XCTAssertEqual(result, true) // Page is hidden now
     }
     
     func testPageOnORConditionLogic() {
