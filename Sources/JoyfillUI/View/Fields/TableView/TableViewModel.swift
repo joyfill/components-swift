@@ -19,6 +19,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     let dispatchQueue = DispatchQueue(label: "TableViewModel", qos: .userInitiated)
     @Published var uuid = UUID()
     
+    var showSingleClickEditButton: Bool {
+        return tableDataModel.singleClickRowEdit
+    }
+    
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
