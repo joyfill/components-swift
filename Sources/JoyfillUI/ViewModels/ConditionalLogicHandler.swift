@@ -152,8 +152,8 @@ class ConditionalLogicHandler {
         guard let page = page else { return true }
         let model = conditionalLogicModel(page: page)
         let lastHiddenState = page.hidden
-        guard let model = model else {
-            return !(lastHiddenState ?? false)
+        guard let model = model, model.itemCount > 1 else {
+            return true
         }
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
@@ -175,7 +175,7 @@ class ConditionalLogicHandler {
     private func conditionalLogicModel(page: Page?) -> ConditionalLogicModel? {
         guard let page = page else { return nil }
         guard let logic = page.logic else { return nil }
-        guard let conditions = logic.conditions, !conditions.isEmpty else { return nil }
+        guard let conditions = logic.conditions else { return nil }
 
         let conditionModels = conditions.compactMap { condition ->  ConditionModel? in
             guard let conditionFieldID = condition.field else { return nil }
@@ -396,7 +396,9 @@ class ConditionalLogicHandler {
             let isValueMatching = compareValue(fieldValue: condition.fieldValue, condition: condition, fieldType: condition.fieldType)
             conditionsResults.append(isValueMatching)
         }
-
+        if conditionsResults.isEmpty {
+            return false
+        }
         if logic.eval == "and" {
             return conditionsResults.allSatisfy { $0 }
         } else {
