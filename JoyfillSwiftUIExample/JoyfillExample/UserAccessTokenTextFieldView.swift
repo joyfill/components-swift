@@ -254,6 +254,9 @@ struct FormDestinationView: View {
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
         self.enableChangelogs = enableChangelogs
+        if !enableChangelogs {
+            editor.events = nil
+        }
         self._documentEditor = State(initialValue: editor)
         self._showPublicApis = showPublicApis
         self._document = State(initialValue: editor.document)
@@ -410,14 +413,13 @@ extension UIViewController {
 // Wrapper class to handle ChangeManager initialization and scan functionality
 class ChangeManagerWrapper: ObservableObject {
     @Published var changeManager: ChangeManager
+    
     private var scanHandler: ((@escaping (ValueUnion) -> Void) -> Void)?
     
     init() {
         let imagePicker = ImagePicker()
-        
         // Initialize ChangeManager with a simple closure first
         self.changeManager = ChangeManager(
-            apiService: APIService(accessToken: "", baseURL: ""),
             showImagePicker: imagePicker.showPickerOptions,
             showScan: { captureHandler in
                 // Provide default implementation
@@ -432,7 +434,6 @@ class ChangeManagerWrapper: ObservableObject {
         // Recreate the ChangeManager with the proper scan handler
         let imagePicker = ImagePicker()
         self.changeManager = ChangeManager(
-            apiService: APIService(accessToken: "", baseURL: ""),
             showImagePicker: imagePicker.showPickerOptions,
             showScan: { [weak self] captureHandler in
                 self?.scanHandler?(captureHandler) ?? captureHandler(.string("default"))
