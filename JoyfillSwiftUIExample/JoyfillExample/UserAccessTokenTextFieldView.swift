@@ -331,6 +331,7 @@ struct FormDestinationView: View {
 
             if let editor = documentEditor {
                 Form(documentEditor: editor)
+                    .id("\(editor.singleClickRowEdit)\(editor.mode)")
                 SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
                     // Only show validation results if there are field validities
                     guard !validation.fieldValidities.isEmpty else {
