@@ -29,7 +29,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var uuid = UUID()
     
     var showSingleClickEditButton: Bool {
-        return tableDataModel.singleClickRowEdit
+        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
     
     init(tableDataModel: TableDataModel) {
