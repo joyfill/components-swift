@@ -1762,7 +1762,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         newTextField.tap()
         newTextField.typeText("Hello ji")
         applyTextFilter(schema: "Depth 3", column: "Text D3", text: "Hello ji")
-        
+        let expandButton = app.images["CollectionExpandCollapseNestedButton1"].firstMatch
+        XCTAssertTrue(expandButton.exists, "Expand/collapse button should exist")
+        expandButton.tap()
+        sleep(1)
+        expandButton.tap()
         let rootRowCount = getVisibleRowCount()
         XCTAssertEqual(rootRowCount, 1, "Filtered count should be 1")
         
