@@ -1406,6 +1406,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
     }
     
+    func addRootRow() {
+        let TableAddRowIdentifier = app.buttons.matching(identifier: "TableAddRowIdentifier").element(boundBy: 0)
+        TableAddRowIdentifier.tap()
+    }
+    
     func testCollectionPageDuplicate() throws {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
         pageSelectionButton.tap()
@@ -1692,6 +1697,59 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
     }
     
+    //Apply filter and then add row to Root and Depth 3(Check the default and filter text applied on new added row)
+    func testApplyFiltersThenAddRows() {
+        goToCollectionDetailField()
+        
+        applyTextFilter(column: "Text D1", text: "a B c")
+        
+        let rootRowCount = getVisibleRowCount()
+        XCTAssertEqual(rootRowCount, 1, "Filtered count should be 1")
+        //Add 2 rows
+        addRootRow()
+        addRootRow()
+        
+        let filteredCount = getVisibleRowCount()
+        XCTAssertEqual(filteredCount, 3, "Filtered count should be 3 after adding 2 rows")
+        //Try Insert below by selecting the row
+        selectRow(number: 1)
+        tapOnMoreButton()
+        inserRowBelowButton().tap()
+        
+        let rowCountAfterInsertBelow = getVisibleRowCount()
+        XCTAssertEqual(rowCountAfterInsertBelow, 4, "Filtered count should be 4 after adding 1 row below")
+        
+        let predicate = NSPredicate(
+            format: "identifier == %@ AND value == %@",
+            "TabelTextFieldIdentifier",
+            "a B c"
+        )
+
+        let abcTextCount = app.textViews.matching(predicate).count
+        
+        XCTAssertEqual(abcTextCount, 4)
+        
+        selectAllParentRows()
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        textField.tap()
+        textField.clearText()
+        textField.typeText("Hello ji")
+        app.dismissKeyboardIfVisible()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        let predicate2 = NSPredicate(
+            format: "identifier == %@ AND value == %@",
+            "TabelTextFieldIdentifier",
+            "Hello ji"
+        )
+        let textCountAfterBulkEdit = app.textViews.matching(predicate2).count
+        
+        XCTAssertEqual(textCountAfterBulkEdit, 4)
+        
+    }
     
     func testApplyFilterThenUpdateSingleRow() throws {
         goToCollectionDetailField()
