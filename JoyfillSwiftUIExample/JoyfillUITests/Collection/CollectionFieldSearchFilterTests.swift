@@ -288,6 +288,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         moreButton.tap()
     }
     
+    func tapOnDeleteButton() {
+        app.buttons["TableDeleteRowIdentifier"].firstMatch.tap()
+    }
+    
     func applyDropdownFilter(schema: String = "Root Table", column: String, option: String) {
         openFilterModal()
         
@@ -1815,7 +1819,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let textCountAfterBulkEdit = app.textViews.matching(predicate2).count
         
         XCTAssertEqual(textCountAfterBulkEdit, 4)
-        
+        selectNestedRow(number: 2)
+        selectNestedRow(number: 3)
+        tapOnMoreButton()
+        tapOnDeleteButton()
+        let textCountAfterDelete = app.textViews.matching(predicate2).count
+        XCTAssertEqual(textCountAfterDelete, 2)
     }
     
     func selectAllNestedRows(boundBy: Int) {
