@@ -1751,6 +1751,74 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
     }
     
+    //Apply filter and then add row to Root and Depth 3(Check the default and filter text applied on new added row)
+    func testApplyFiltersThenAddNestedRows() {
+        goToCollectionDetailField()
+        expandRow(number: 1)
+        expandNestedRow(number: 1)
+        tapSchemaAddRowButton(number: 1)
+        
+        let newTextField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 5)
+        newTextField.tap()
+        newTextField.typeText("Hello ji")
+        applyTextFilter(schema: "Depth 3", column: "Text D3", text: "Hello ji")
+        
+        let rootRowCount = getVisibleRowCount()
+        XCTAssertEqual(rootRowCount, 1, "Filtered count should be 1")
+        
+        let nestedRowsCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(nestedRowsCount, 2, "Filtered count should be 2")
+        //Add 2 rows
+        tapSchemaAddRowButton(number: 1)
+        tapSchemaAddRowButton(number: 1)
+        
+        let filteredCount = getVisibleNestexRowsCount()
+        XCTAssertEqual(filteredCount, 4, "Filtered count should be 3 after adding 2 rows")
+        //Try Insert below by selecting the row
+        selectNestedRow(number: 2)
+        tapOnMoreButton()
+        inserRowBelowButton().tap()
+        
+        let rowCountAfterInsertBelow = getVisibleNestexRowsCount()
+        XCTAssertEqual(rowCountAfterInsertBelow, 5, "Filtered count should be 4 after adding 1 row below")
+        
+        let predicate = NSPredicate(
+            format: "identifier == %@ AND value == %@",
+            "TabelTextFieldIdentifier",
+            "Hello ji"
+        )
+
+        let abcTextCount = app.textViews.matching(predicate).count
+        
+        XCTAssertEqual(abcTextCount, 4)
+        
+        selectAllNestedRows(boundBy: 1)
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        textField.tap()
+        textField.clearText()
+        textField.typeText("Joyfill")
+        app.dismissKeyboardIfVisible()
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        
+        let predicate2 = NSPredicate(
+            format: "identifier == %@ AND value == %@",
+            "TabelTextFieldIdentifier",
+            "Joyfill"
+        )
+        let textCountAfterBulkEdit = app.textViews.matching(predicate2).count
+        
+        XCTAssertEqual(textCountAfterBulkEdit, 4)
+        
+    }
+    
+    func selectAllNestedRows(boundBy: Int) {
+        let newTextField = app.images.matching(identifier: "selectAllNestedRows").element(boundBy: boundBy)
+        newTextField.tap()
+    }
+    
     func testApplyFilterThenUpdateSingleRow() throws {
         goToCollectionDetailField()
         applyTextFilter(column: "Text D1", text: "a")
