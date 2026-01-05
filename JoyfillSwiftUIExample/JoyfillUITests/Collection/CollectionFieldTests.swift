@@ -1155,6 +1155,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
         
     //it should not give any change logs
+    //Bulk edit unwanted changelogs when no change
     func testBulkEditWithNoChange() throws {
         goToCollectionDetailField()
 
