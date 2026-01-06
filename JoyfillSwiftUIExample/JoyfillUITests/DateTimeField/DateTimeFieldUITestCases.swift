@@ -151,12 +151,6 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         if timeButton.waitForExistence(timeout: 3) {
             timeButton.tap()
             
-            // For time-only, use picker wheels if available
-            if app.pickerWheels.count > 1 {
-                app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
-                app.pickerWheels.element(boundBy: 1).adjust(toPickerWheelValue: "March")
-            }
-            
             // Close picker
             let timeCloseButton = app.buttons.matching(identifier: "xmark.circle.fill").firstMatch
             if timeCloseButton.waitForExistence(timeout: 3) {
@@ -321,5 +315,13 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         }
         app.swipeDown()
         app.swipeDown()
+    }
+    
+    func testDefaultFormat() {
+        app.swipeUp()
+        app.swipeUp()
+        let label = "01/01/2026 12:50PM"
+        let button = app.buttons[label]
+        XCTAssertTrue(button.waitForExistence(timeout: 3), "Button with label \(label) should exist in UI")
     }
 }

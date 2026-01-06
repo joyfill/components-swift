@@ -456,4 +456,24 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
         topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
+    
+    func testPageDeletion_lastPageProtection() throws {
+        // This test verifies that the last page cannot be deleted
+        // It requires a document with exactly 1 page
+        
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        pageSelectionButton.tap()
+        
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let pageCount = pageSheetSelectionButton.count
+        
+        let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
+        if pageDeleteButtons.count > 0 {
+            let deleteButton = pageDeleteButtons.element(boundBy: 0)
+            XCTAssertFalse(deleteButton.isEnabled, "Delete button should be disabled for last page")
+        } else {
+            XCTAssertEqual(1, pageDeleteButtons.count, "Count should be 1 for this number json")
+        }
+        
+    }
 }
