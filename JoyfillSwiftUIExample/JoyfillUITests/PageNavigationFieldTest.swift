@@ -3,6 +3,73 @@ import JoyfillModel
 
 final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
     
+    override func getJSONFileNameForTest() -> String {
+        // Use a multi-page JSON for page navigation tests
+        return "Joydocjson"
+    }
+    
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+        
+        // Force cleanup
+        forceCleanupExistingApp()
+        
+        // Create app instance
+        self.app = XCUIApplication()
+        
+        // Add all standard launch arguments (from base class)
+        let testIdentifier = UUID().uuidString
+        app.launchArguments.append("JoyfillUITests")
+        app.launchArguments.append("--test-id")
+        app.launchArguments.append(testIdentifier)
+        app.launchArguments.append("--test-specific-id")
+        app.launchArguments.append("\(self.name)-\(testIdentifier)")
+        app.launchArguments.append("--json-file")
+        app.launchArguments.append(getJSONFileNameForTest())
+        app.launchArguments.append("--test-name")
+        app.launchArguments.append(self.name)
+        app.launchArguments.append("--test-run-id")
+        app.launchArguments.append(UUID().uuidString)
+        
+        // 🎯 ADD CUSTOM ARGUMENTS FOR PAGE TESTS
+        app.launchArguments.append("--page-delete-enabled")
+        app.launchArguments.append("true")
+        app.launchArguments.append("--page-duplicate-enabled")
+        app.launchArguments.append("true")
+        
+        // Disable hardware keyboard
+        disableHardwareKeyboardForAllTests()
+        
+        // Crash prevention
+        app.launchArguments.append("--safe-mode")
+        app.launchArguments.append("--disable-crash-on-error")
+        app.launchArguments.append("--fresh-instance")
+        
+        // Alert handler
+        addUIInterruptionMonitor(withDescription: "System Alerts") { alert in
+            for btn in ["Allow", "OK", "Continue", "Don't Allow", "Remind Me Later", "While Using the App"] {
+                if alert.buttons[btn].exists {
+                    alert.buttons[btn].tap()
+                    return true
+                }
+            }
+            return false
+        }
+        
+        // Launch app
+        do {
+            app.launch()
+            XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15), "App did not launch")
+            app.activate()
+            XCTAssertTrue(waitForAppStability(timeout: 15), "App not stable")
+            verifyHardwareKeyboardDisabled()
+            ensureAppStability()
+        } catch {
+            print("❌ Launch failed: \(error)")
+            throw error
+        }
+    }
+    
     func testPageNavigation() throws {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
         pageSelectionButton.tap()
@@ -127,63 +194,84 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
     
     // MARK: - Page Deletion UI Tests
     
-    func testPageDeletion_buttonVisibility() throws {
-        // This test requires the app to be launched with isPageDeleteEnabled=true
-        // For now, we'll skip the actual UI test and just verify the test structure
-        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
-        pageSelectionButton.tap()
-        
-        // Check if delete buttons exist (they should only exist if isPageDeleteEnabled is true)
-        let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
-        
-        // Note: This will only pass if the app was launched with isPageDeleteEnabled=true
-        // In production, this would be controlled by launch arguments
-    }
-    
     func testPageDeletion_deleteSecondPage() throws {
-        // This test would require:
-        // 1. Launch app with isPageDeleteEnabled=true
-        // 2. Open page navigation
-        // 3. Verify at least 2 pages exist
-        // 4. Tap delete button on second page
-        // 5. Confirm deletion in alert
-        // 6. Verify page is removed
+        // This test verifies that page 2 is actually deleted by checking its title is gone
         
+        // 1. Open page navigation
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        XCTAssertTrue(pageSelectionButton.waitForExistence(timeout: 5))
         pageSelectionButton.tap()
         
-        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let initialPageCount = pageSheetSelectionButton.count
+        // 2. Wait for page buttons to appear
+        let pageButtons = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        XCTAssertTrue(pageButtons.firstMatch.waitForExistence(timeout: 3), "Page buttons should appear")
         
-        guard initialPageCount >= 2 else {
-            XCTFail("Need at least 2 pages for deletion test")
-            return
+        // 3. Small delay for all pages to render
+        Thread.sleep(forTimeInterval: 0.5)
+        
+        // 4. Get the title of the second page before deletion
+        let secondPageButton = pageButtons.element(boundBy: 1)
+        XCTAssertTrue(secondPageButton.exists, "Second page should exist")
+        
+        // Get all text labels in the second page button to find the page name
+        let secondPageTexts = secondPageButton.staticTexts.allElementsBoundByIndex
+        var deletedPageTitle: String = ""
+        if let pageNameLabel = secondPageTexts.first {
+            deletedPageTitle = pageNameLabel.label
+            print("📄 Page 2 title before deletion: '\(deletedPageTitle)'")
         }
         
-        // Tap delete button on second page
+        XCTAssertFalse(deletedPageTitle.isEmpty, "Should be able to read page 2 title")
+        
+        // 5. Count initial pages
+        let initialPageCount = pageButtons.count
+        print("📄 Initial page count: \(initialPageCount)")
+        XCTAssertGreaterThan(initialPageCount, 1, "Need at least 2 pages for deletion test")
+        
+        // 6. Tap delete button on second page
         let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
-        if pageDeleteButtons.count > 1 {
-            pageDeleteButtons.element(boundBy: 1).tap()
-            
-            // Handle confirmation alert
-            let deleteButton = app.alerts.buttons["Delete"]
-            if deleteButton.exists {
-                deleteButton.tap()
+        print("📄 Delete buttons found: \(pageDeleteButtons.count)")
+        
+        XCTAssertTrue(pageDeleteButtons.element(boundBy: 1).waitForExistence(timeout: 2), "Second page delete button should exist")
+        
+        let deleteButton = pageDeleteButtons.element(boundBy: 1)
+        print("📄 Delete button enabled: \(deleteButton.isEnabled)")
+        
+        XCTAssertTrue(deleteButton.isEnabled, "Delete button should be enabled")
+        deleteButton.tap()
+        
+        // 7. Handle confirmation alert
+        let deleteAlertButton = app.alerts.buttons["Delete"]
+        XCTAssertTrue(deleteAlertButton.waitForExistence(timeout: 3), "Delete confirmation alert should appear")
+        deleteAlertButton.tap()
+        
+        // 8. Wait for deletion to complete
+        Thread.sleep(forTimeInterval: 1)
+        
+        // 9. Verify page count decreased
+        let updatedPageButtons = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let finalPageCount = updatedPageButtons.count
+        print("📄 Final page count: \(finalPageCount)")
+                
+        // 10. 🎯 NEW: Verify the deleted page title is no longer present
+        var foundDeletedPage = false
+        for i in 0..<finalPageCount {
+            let pageButton = updatedPageButtons.element(boundBy: i)
+            if pageButton.exists {
+                let pageTexts = pageButton.staticTexts.allElementsBoundByIndex
+                if let pageNameLabel = pageTexts.first {
+                    let currentPageTitle = pageNameLabel.label
+                    print("📄 Remaining page \(i): '\(currentPageTitle)'")
+                    
+                    if currentPageTitle == deletedPageTitle {
+                        foundDeletedPage = true
+                    }
+                }
             }
-            
-            // Wait a moment for deletion to complete
-            sleep(1)
-            
-            // Reopen page navigation and verify page count decreased
-            if !pageSelectionButton.exists {
-                // Sheet closed, reopen it
-                let navButton = app.buttons["PageNavigationIdentifier"]
-                navButton.tap()
-            }
-            
-            let updatedPageButtons = app.buttons.matching(identifier: "PageSelectionIdentifier")
-            XCTAssertEqual(updatedPageButtons.count, initialPageCount - 1, "Page count should decrease by 1")
         }
+        
+        XCTAssertFalse(foundDeletedPage, "Page with title '\(deletedPageTitle)' should not exist after deletion")
+        print("✅ Confirmed: Page '\(deletedPageTitle)' was successfully deleted")
     }
     
     func testPageDeletion_lastPageProtection() throws {
