@@ -1,0 +1,316 @@
+{
+  "_id": "691acd933d90ecfb16a51b7e",
+  "identifier": "document-flatmap-function-test",
+  "name": "FlatMap Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd5003",
+      "name": "FlatMap Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90381e",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312681",
+              "field": "basic_example_duplicate",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312682",
+              "field": "basic_example_multiply",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312683",
+              "field": "intermediate_example_split",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc9",
+              "field": "products",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe52f",
+              "field": "intermediate_example_filter",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfca",
+              "field": "orders",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d97e",
+              "field": "advanced_example_orders",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfcb",
+              "field": "sentences",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d97f",
+              "field": "advanced_example_words",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90381e"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_duplicate",
+      "title": "Basic Example (Duplicate): flatMap([1, 2, 3], (item) -> [item, item])",
+      "identifier": "field-basic-example-duplicate",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b309a",
+          "formula": "691acd93bab5a640f289ddcf",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003"
+    },
+    {
+      "_id": "basic_example_multiply",
+      "title": "Basic Example (Multiply): flatMap([1, 2, 3], (item) -> item * 2)",
+      "identifier": "field-basic-example-multiply",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b309b",
+          "formula": "691acd93bab5a640f289ddd0",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003"
+    },
+    {
+      "_id": "intermediate_example_split",
+      "title": "Intermediate Example (Split): flatMap([\"Hello\", \"world\"], (word) -> word.split(\"\"))",
+      "identifier": "field-intermediate-example-split",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b309c",
+          "formula": "691acd93bab5a640f289ddd1",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003"
+    },
+    {
+      "_id": "products",
+      "title": "Products",
+      "identifier": "field-products",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003",
+      "value": "[{\"name\": \"Laptop\", \"inStock\": true}, {\"name\": \"Phone\", \"inStock\": true}, {\"name\": \"Tablet\", \"inStock\": false}]"
+    },
+    {
+      "_id": "intermediate_example_filter",
+      "title": "Intermediate Example (Filter): flatMap(products, (product) -> if(product.inStock, [product.name], []))",
+      "identifier": "field-intermediate-example-filter",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a41",
+          "formula": "691acd93f6346774b0b9d085",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003"
+    },
+    {
+      "_id": "orders",
+      "title": "Orders",
+      "identifier": "field-orders",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003",
+      "value": "[{\"id\": \"A123\", \"status\": \"shipped\", \"items\": [{\"name\": \"Book\", \"quantity\": 2}, {\"name\": \"Pen\", \"quantity\": 1}]}, {\"id\": \"B456\", \"status\": \"pending\", \"items\": [{\"name\": \"Notebook\", \"quantity\": 1}]}, {\"id\": \"C789\", \"status\": \"shipped\", \"items\": [{\"name\": \"Pencil\", \"quantity\": 3}]}]"
+    },
+    {
+      "_id": "advanced_example_orders",
+      "title": "Advanced Example (Orders): flatMap(orders, (order) -> if(order.status == \"shipped\", map(order.items, (item) -> concat(order.id, \": \", item.name, \" (\", item.quantity, \")\")), []))",
+      "identifier": "field-advanced-example-orders",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b00",
+          "formula": "691acd93f033ed54812dc656",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003"
+    },
+    {
+      "_id": "sentences",
+      "title": "Sentences",
+      "identifier": "field-sentences",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003",
+      "value": "[\"Hello world\", \"This is a test\", \"Joyfill rocks\"]"
+    },
+    {
+      "_id": "advanced_example_words",
+      "title": "Advanced Example (Words): flatMap(sentences, (sentence) -> filter(sentence.split(\" \"), (word) -> length(word) > 3))",
+      "identifier": "field-advanced-example-words",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b01",
+          "formula": "691acd93f033ed54812dc657",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5003"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243746,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddcf",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flatMap([1, 2, 3], (item) -> [item, item])"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddd0",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flatMap([1, 2, 3], (item) -> item * 2)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddd1",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flatMap([\"Hello\", \"world\"], (word) -> word.split(\"\"))"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d085",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flatMap(products, (product) -> if(product.inStock, [product.name], []))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc656",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flatMap(orders, (order) -> if(order.status == \"shipped\", map(order.items, (item) -> concat(order.id, \": \", item.name, \" (\", item.quantity, \")\")), []))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc657",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "flatMap(sentences, (sentence) -> filter(sentence.split(\" \"), (word) -> length(word) > 3))"
+    }
+  ]
+}

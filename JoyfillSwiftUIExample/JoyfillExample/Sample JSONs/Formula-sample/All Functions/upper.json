@@ -1,0 +1,304 @@
+{
+  "_id": "691acd933d90ecfb16a51b69",
+  "identifier": "document-upper-function-test",
+  "name": "Upper Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f8",
+      "name": "Upper Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903809",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312651",
+              "field": "basic_example_simple",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312652",
+              "field": "basic_example_mixed",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf60",
+              "field": "firstName",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe50b",
+              "field": "intermediate_example_field",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf61",
+              "field": "lastName",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe50c",
+              "field": "intermediate_example_concat",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf62",
+              "field": "userInput",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf63",
+              "field": "searchTerm",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d954",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903809"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_simple",
+      "title": "Basic Example (Simple): upper(\"joy\")",
+      "identifier": "field-basic-example-simple",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3064",
+          "formula": "691acd93bab5a640f289dd9f",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8"
+    },
+    {
+      "_id": "basic_example_mixed",
+      "title": "Basic Example (Mixed Case): upper(\"Joyfill\")",
+      "identifier": "field-basic-example-mixed",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3065",
+          "formula": "691acd93bab5a640f289dda0",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8"
+    },
+    {
+      "_id": "firstName",
+      "title": "First Name",
+      "identifier": "field-first-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8",
+      "value": "John"
+    },
+    {
+      "_id": "intermediate_example_field",
+      "title": "Intermediate Example (Field): upper(firstName)",
+      "identifier": "field-intermediate-example-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a1d",
+          "formula": "691acd93f6346774b0b9d061",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8"
+    },
+    {
+      "_id": "lastName",
+      "title": "Last Name",
+      "identifier": "field-last-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8",
+      "value": "Doe"
+    },
+    {
+      "_id": "intermediate_example_concat",
+      "title": "Intermediate Example (Concat): concat(upper(firstName), \" \", upper(lastName))",
+      "identifier": "field-intermediate-example-concat",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a1e",
+          "formula": "691acd93f6346774b0b9d062",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8"
+    },
+    {
+      "_id": "userInput",
+      "title": "User Input",
+      "identifier": "field-user-input",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8",
+      "value": "This is a sample text with Joy in it"
+    },
+    {
+      "_id": "searchTerm",
+      "title": "Search Term",
+      "identifier": "field-search-term",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8",
+      "value": "joy"
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: if(contains(upper(userInput), upper(searchTerm)), concat(\"Found match for: \", searchTerm), \"No match found\")",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad6",
+          "formula": "691acd93f033ed54812dc62c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f8"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243725,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd9f",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "upper(\"joy\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dda0",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "upper(\"Joyfill\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d061",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "upper(firstName)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d062",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(upper(firstName), \" \", upper(lastName))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc62c",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(contains(upper(userInput), upper(searchTerm)), concat(\"Found match for: \", searchTerm), \"No match found\")"
+    }
+  ]
+}

@@ -1,0 +1,304 @@
+{
+  "_id": "691acd933d90ecfb16a51b6e",
+  "identifier": "document-round-function-test",
+  "name": "Round Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45fd",
+      "name": "Round Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90380e",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731265d",
+              "field": "basic_example_down",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731265e",
+              "field": "basic_example_up",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731265f",
+              "field": "intermediate_example_zero",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312660",
+              "field": "intermediate_example_decimal",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf7c",
+              "field": "prices",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf7d",
+              "field": "quantity",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf7e",
+              "field": "shipping",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf7f",
+              "field": "taxRate",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d959",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90380e"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_down",
+      "title": "Basic Example (Round Down): round(10.3)",
+      "identifier": "field-basic-example-down",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3070",
+          "formula": "691acd93bab5a640f289ddab",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fd"
+    },
+    {
+      "_id": "basic_example_up",
+      "title": "Basic Example (Round Up): round(10.7)",
+      "identifier": "field-basic-example-up",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3071",
+          "formula": "691acd93bab5a640f289ddac",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fd"
+    },
+    {
+      "_id": "intermediate_example_zero",
+      "title": "Intermediate Example (Zero Places): round(10.7, 0)",
+      "identifier": "field-intermediate-example-zero",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3072",
+          "formula": "691acd93bab5a640f289ddad",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fd"
+    },
+    {
+      "_id": "intermediate_example_decimal",
+      "title": "Intermediate Example (Decimal Places): round(10.71123, 2)",
+      "identifier": "field-intermediate-example-decimal",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3073",
+          "formula": "691acd93bab5a640f289ddae",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fd"
+    },
+    {
+      "_id": "prices",
+      "title": "Prices (JSON Array)",
+      "identifier": "field-prices",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fd",
+      "value": "[24.99, 19.95, 35.50]"
+    },
+    {
+      "_id": "quantity",
+      "title": "Quantity",
+      "identifier": "field-quantity",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fd",
+      "value": 2
+    },
+    {
+      "_id": "shipping",
+      "title": "Shipping",
+      "identifier": "field-shipping",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fd",
+      "value": 5.99
+    },
+    {
+      "_id": "taxRate",
+      "title": "Tax Rate (%)",
+      "identifier": "field-tax-rate",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fd",
+      "value": 8.25
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Financial Calculation with Rounding",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522adb",
+          "formula": "691acd93f033ed54812dc631",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fd"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243730,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddab",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "round(10.3)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddac",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "round(10.7)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddad",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "round(10.7, 0)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddae",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "round(10.71123, 2)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc631",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "round(sum(map(prices, (price) -> price * quantity), shipping) * (1 + taxRate / 100), 2)"
+    }
+  ]
+}

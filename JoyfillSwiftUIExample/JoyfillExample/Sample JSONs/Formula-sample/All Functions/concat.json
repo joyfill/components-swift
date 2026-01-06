@@ -1,0 +1,294 @@
+{
+  "_id": "691acd933d90ecfb16a51b67",
+  "identifier": "document-concat-function-test",
+  "name": "Concat Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f6",
+      "name": "Concat Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903807",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731264c",
+              "field": "basic_example_strings",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731264d",
+              "field": "basic_example_multiple",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731264e",
+              "field": "intermediate_example_arrays",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf57",
+              "field": "userName",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf58",
+              "field": "userRole",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe508",
+              "field": "intermediate_example_fields",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd93919358909216e967",
+              "field": "selectedItems",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "multiselect",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d952",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903807"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_strings",
+      "title": "Basic Example (Strings): concat(\"joy\", \"fill\")",
+      "identifier": "field-basic-example-strings",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b305f",
+          "formula": "691acd93bab5a640f289dd9a",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6"
+    },
+    {
+      "_id": "basic_example_multiple",
+      "title": "Basic Example (Multiple): concat(\"joy\", \" \", \"fill\", \" \", \"rocks\")",
+      "identifier": "field-basic-example-multiple",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3060",
+          "formula": "691acd93bab5a640f289dd9b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6"
+    },
+    {
+      "_id": "intermediate_example_arrays",
+      "title": "Intermediate Example (Arrays): concat([1, 2], [3, 4])",
+      "identifier": "field-intermediate-example-arrays",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3061",
+          "formula": "691acd93bab5a640f289dd9c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6"
+    },
+    {
+      "_id": "userName",
+      "title": "User Name",
+      "identifier": "field-user-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6",
+      "value": "John"
+    },
+    {
+      "_id": "userRole",
+      "title": "User Role",
+      "identifier": "field-user-role",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6",
+      "value": "Admin"
+    },
+    {
+      "_id": "intermediate_example_fields",
+      "title": "Intermediate Example (Fields): concat(\"User: \", userName, \" (\", userRole, \")\")",
+      "identifier": "field-intermediate-example-fields",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a1a",
+          "formula": "691acd93f6346774b0b9d05e",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6"
+    },
+    {
+      "_id": "selectedItems",
+      "title": "Selected Items",
+      "identifier": "field-selected-items",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "multiselect",
+      "file": "691acd93a0d4b658f8cd45f6",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e5",
+          "value": "Item1"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a791",
+          "value": "Item2"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a792",
+          "value": "Item3"
+        }
+      ]
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Complex Concatenation with Date and Conditionals",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad4",
+          "formula": "691acd93f033ed54812dc62a",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f6"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243723,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd9a",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(\"joy\", \"fill\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd9b",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(\"joy\", \" \", \"fill\", \" \", \"rocks\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd9c",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat([1, 2], [3, 4])"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d05e",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(\"User: \", userName, \" (\", userRole, \")\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc62a",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(\"Report for \", date(year(now()), month(now()), day(now())), \": \", if(empty(selectedItems), \"No items selected\", concat(\"Selected \", length(selectedItems), \" items: \", concat(selectedItems))))"
+    }
+  ]
+}

@@ -1,0 +1,351 @@
+{
+  "_id": "691acd933d90ecfb16a51b78",
+  "identifier": "document-day-function-test",
+  "name": "Day Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd4dff",
+      "name": "Day Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903818",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312674",
+              "field": "basic_example_specific",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312675",
+              "field": "basic_example_current",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb0",
+              "field": "invoiceDate",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe522",
+              "field": "intermediate_example_field",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb1",
+              "field": "sampleDate",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe523",
+              "field": "intermediate_example_half",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb2",
+              "field": "dueDate",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d96e",
+              "field": "advanced_example_due",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d96f",
+              "field": "advanced_example_position",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d970",
+              "field": "advanced_example_recurring",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903818"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_specific",
+      "title": "Basic Example (Specific Date): day(date(2023, 5, 15))",
+      "identifier": "field-basic-example-specific",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b308d",
+          "formula": "691acd93bab5a640f289ddc2",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    },
+    {
+      "_id": "basic_example_current",
+      "title": "Basic Example (Current Date): day(now())",
+      "identifier": "field-basic-example-current",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b308e",
+          "formula": "691acd93bab5a640f289ddc3",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    },
+    {
+      "_id": "invoiceDate",
+      "title": "Invoice Date",
+      "identifier": "field-invoice-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff",
+      "value": "2023-03-15T00:00:00.000Z"
+    },
+    {
+      "_id": "intermediate_example_field",
+      "title": "Intermediate Example (Field): day(invoiceDate)",
+      "identifier": "field-intermediate-example-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a34",
+          "formula": "691acd93f6346774b0b9d078",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    },
+    {
+      "_id": "sampleDate",
+      "title": "Sample Date",
+      "identifier": "field-sample-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff",
+      "value": "2023-02-20T00:00:00.000Z"
+    },
+    {
+      "_id": "intermediate_example_half",
+      "title": "Intermediate Example (Half Month): if(day(sampleDate) <= 15, \"First half of month\", \"Second half of month\")",
+      "identifier": "field-intermediate-example-half",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a35",
+          "formula": "691acd93f6346774b0b9d079",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    },
+    {
+      "_id": "dueDate",
+      "title": "Due Date",
+      "identifier": "field-due-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff",
+      "value": "2023-07-15T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_due",
+      "title": "Advanced Example (Due Today): if(day(dueDate) == day(now()) && month(dueDate) == month(now()) && year(dueDate) == year(now()), \"Due today!\", \"Not due today\")",
+      "identifier": "field-advanced-example-due",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af0",
+          "formula": "691acd93f033ed54812dc646",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    },
+    {
+      "_id": "advanced_example_position",
+      "title": "Advanced Example (Position): if(day(sampleDate) == 1, \"First day of month\", if(day(sampleDate) > 25, \"Last week of month\", \"Middle of month\"))",
+      "identifier": "field-advanced-example-position",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af1",
+          "formula": "691acd93f033ed54812dc647",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    },
+    {
+      "_id": "advanced_example_recurring",
+      "title": "Advanced Example (Recurring): if(day(now()) % 7 == 0, \"Weekly task due today\", \"No weekly task today\")",
+      "identifier": "field-advanced-example-recurring",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af2",
+          "formula": "691acd93f033ed54812dc648",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4dff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243740,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddc2",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "day(date(2023, 5, 15))"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddc3",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "day(now())"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d078",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "day(invoiceDate)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d079",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(day(sampleDate) <= 15, \"First half of month\", \"Second half of month\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc646",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(day(dueDate) == day(now()) && month(dueDate) == month(now()) && year(dueDate) == year(now()), \"Due today!\", \"Not due today\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc647",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(day(sampleDate) == 1, \"First day of month\", if(day(sampleDate) > 25, \"Last week of month\", \"Middle of month\"))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc648",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(day(now()) % 7 == 0, \"Weekly task due today\", \"No weekly task today\")"
+    }
+  ]
+}

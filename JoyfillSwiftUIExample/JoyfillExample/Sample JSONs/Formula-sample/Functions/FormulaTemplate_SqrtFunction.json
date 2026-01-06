@@ -1,0 +1,362 @@
+{
+  "_id": "691acd933d90ecfb16a51b7c",
+  "identifier": "document-sqrt-function-test",
+  "name": "Sqrt Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd5001",
+      "name": "Sqrt Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90381c",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731267c",
+              "field": "basic_example_16",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731267d",
+              "field": "basic_example_100",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc0",
+              "field": "area",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe52c",
+              "field": "intermediate_example_area",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc1",
+              "field": "x",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc2",
+              "field": "y",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe52d",
+              "field": "intermediate_example_hypotenuse",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc3",
+              "field": "number",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d97a",
+              "field": "advanced_example_error_handling",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfc4",
+              "field": "radius",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d97b",
+              "field": "advanced_example_circle",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90381c"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_16",
+      "title": "Basic Example (16): sqrt(16)",
+      "identifier": "field-basic-example-16",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3095",
+          "formula": "691acd93bab5a640f289ddca",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5001"
+    },
+    {
+      "_id": "basic_example_100",
+      "title": "Basic Example (100): sqrt(100)",
+      "identifier": "field-basic-example-100",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3096",
+          "formula": "691acd93bab5a640f289ddcb",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5001"
+    },
+    {
+      "_id": "area",
+      "title": "Area",
+      "identifier": "field-area",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd5001",
+      "value": 25
+    },
+    {
+      "_id": "intermediate_example_area",
+      "title": "Intermediate Example (Area): sqrt(area)",
+      "identifier": "field-intermediate-example-area",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a3e",
+          "formula": "691acd93f6346774b0b9d082",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5001"
+    },
+    {
+      "_id": "x",
+      "title": "X (Triangle Side)",
+      "identifier": "field-x",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd5001",
+      "value": 3
+    },
+    {
+      "_id": "y",
+      "title": "Y (Triangle Side)",
+      "identifier": "field-y",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd5001",
+      "value": 4
+    },
+    {
+      "_id": "intermediate_example_hypotenuse",
+      "title": "Intermediate Example (Hypotenuse): sqrt(pow(x, 2) + pow(y, 2))",
+      "identifier": "field-intermediate-example-hypotenuse",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a3f",
+          "formula": "691acd93f6346774b0b9d083",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5001"
+    },
+    {
+      "_id": "number",
+      "title": "Number",
+      "identifier": "field-number",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd5001",
+      "value": -4
+    },
+    {
+      "_id": "advanced_example_error_handling",
+      "title": "Advanced Example (Error Handling): if(number < 0, \"Cannot calculate square root of negative number\", concat(\"The square root of \", number, \" is \", sqrt(number)))",
+      "identifier": "field-advanced-example-error-handling",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522afc",
+          "formula": "691acd93f033ed54812dc652",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5001"
+    },
+    {
+      "_id": "radius",
+      "title": "Circle Radius",
+      "identifier": "field-radius",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd5001",
+      "value": 10
+    },
+    {
+      "_id": "advanced_example_circle",
+      "title": "Advanced Example (Circle): concat(\"A circle with radius \", radius, \" has area \", round(3.14159 * pow(radius, 2), 2), \" and circumference \", round(2 * 3.14159 * radius, 2))",
+      "identifier": "field-advanced-example-circle",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522afd",
+          "formula": "691acd93f033ed54812dc653",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5001"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243744,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddca",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sqrt(16)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddcb",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sqrt(100)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d082",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sqrt(area)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d083",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "sqrt(pow(x, 2) + pow(y, 2))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc652",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(number < 0, \"Cannot calculate square root of negative number\", concat(\"The square root of \", number, \" is \", sqrt(number)))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc653",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(\"A circle with radius \", radius, \" has area \", round(3.14159 * pow(radius, 2), 2), \" and circumference \", round(2 * 3.14159 * radius, 2))"
+    }
+  ]
+}

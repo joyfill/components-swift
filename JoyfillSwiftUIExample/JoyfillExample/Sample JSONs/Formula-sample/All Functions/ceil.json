@@ -1,0 +1,387 @@
+{
+  "_id": "691acd933d90ecfb16a51b6f",
+  "identifier": "document-ceil-function-test",
+  "name": "Ceil Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45fe",
+      "name": "Ceil Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90380f",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312661",
+              "field": "basic_example_decimal",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312662",
+              "field": "basic_example_integer",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312663",
+              "field": "intermediate_example_negative",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf80",
+              "field": "itemPrice",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf81",
+              "field": "quantity",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf82",
+              "field": "taxRate",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe514",
+              "field": "intermediate_example_price",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf83",
+              "field": "shippingMethod",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf84",
+              "field": "packageWeight",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf85",
+              "field": "expressRate",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf86",
+              "field": "standardRate",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d95a",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90380f"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_decimal",
+      "title": "Basic Example (Decimal): ceil(4.2)",
+      "identifier": "field-basic-example-decimal",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3074",
+          "formula": "691acd93bab5a640f289ddaf",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fe"
+    },
+    {
+      "_id": "basic_example_integer",
+      "title": "Basic Example (Integer): ceil(4)",
+      "identifier": "field-basic-example-integer",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3075",
+          "formula": "691acd93bab5a640f289ddb0",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fe"
+    },
+    {
+      "_id": "intermediate_example_negative",
+      "title": "Intermediate Example (Negative): ceil(-4.7)",
+      "identifier": "field-intermediate-example-negative",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3076",
+          "formula": "691acd93bab5a640f289ddb1",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fe"
+    },
+    {
+      "_id": "itemPrice",
+      "title": "Item Price",
+      "identifier": "field-item-price",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "value": 19.99
+    },
+    {
+      "_id": "quantity",
+      "title": "Quantity",
+      "identifier": "field-quantity",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "value": 2
+    },
+    {
+      "_id": "taxRate",
+      "title": "Tax Rate (%)",
+      "identifier": "field-tax-rate",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "value": 8.25
+    },
+    {
+      "_id": "intermediate_example_price",
+      "title": "Intermediate Example (Price): ceil(itemPrice * quantity * (1 + taxRate / 100))",
+      "identifier": "field-intermediate-example-price",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a26",
+          "formula": "691acd93f6346774b0b9d06a",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fe"
+    },
+    {
+      "_id": "shippingMethod",
+      "title": "Shipping Method",
+      "identifier": "field-shipping-method",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e7",
+          "value": "express"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a796",
+          "value": "standard"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a797",
+          "value": "invalid"
+        }
+      ],
+      "value": "express"
+    },
+    {
+      "_id": "packageWeight",
+      "title": "Package Weight",
+      "identifier": "field-package-weight",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "value": 3.7
+    },
+    {
+      "_id": "expressRate",
+      "title": "Express Rate",
+      "identifier": "field-express-rate",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "value": 5
+    },
+    {
+      "_id": "standardRate",
+      "title": "Standard Rate",
+      "identifier": "field-standard-rate",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fe",
+      "value": 3
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Shipping Cost Calculation",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522adc",
+          "formula": "691acd93f033ed54812dc632",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fe"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243731,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddaf",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "ceil(4.2)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb0",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "ceil(4)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddb1",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "ceil(-4.7)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d06a",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "ceil(itemPrice * quantity * (1 + taxRate / 100))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc632",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(shippingMethod == \"express\", ceil(packageWeight) * expressRate, if(shippingMethod == \"standard\", ceil(packageWeight / 2) * standardRate, \"Invalid shipping method\"))"
+    }
+  ]
+}

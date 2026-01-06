@@ -1,0 +1,420 @@
+{
+  "_id": "691acd933d90ecfb16a51b82",
+  "identifier": "document-find-function-test",
+  "name": "Find Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd5007",
+      "name": "Find Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90381c",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731268a",
+              "field": "basic_example_number",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfd9",
+              "field": "numbers",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfda",
+              "field": "users",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731268b",
+              "field": "basic_example_user",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfdb",
+              "field": "products",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe536",
+              "field": "intermediate_example_product",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe537",
+              "field": "intermediate_example_index",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfdc",
+              "field": "inventory",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d988",
+              "field": "advanced_example_complex",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfdd",
+              "field": "departments",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d989",
+              "field": "advanced_example_nested",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfde",
+              "field": "tasks",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d98a",
+              "field": "advanced_example_date",
+              "x": 0.0,
+              "y": 1200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90381c"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_number",
+      "title": "Basic Example (Number): find([5, 12, 8, 130, 44], (num) -> num > 10)",
+      "identifier": "field-basic-example-number",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b30a3",
+          "formula": "691acd93bab5a640f289ddd8",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    },
+    {
+      "_id": "numbers",
+      "title": "Numbers",
+      "identifier": "field-numbers",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007",
+      "value": "[5, 12, 8, 130, 44]"
+    },
+    {
+      "_id": "users",
+      "title": "Users",
+      "identifier": "field-users",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007",
+      "value": "[{\"id\": \"user123\", \"name\": \"Alice\"}, {\"id\": \"user456\", \"name\": \"Bob\"}, {\"id\": \"user789\", \"name\": \"Charlie\"}]"
+    },
+    {
+      "_id": "basic_example_user",
+      "title": "Basic Example (User): find(users, (user) -> user.id == \"user123\")",
+      "identifier": "field-basic-example-user",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b30a4",
+          "formula": "691acd93bab5a640f289ddd9",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    },
+    {
+      "_id": "products",
+      "title": "Products",
+      "identifier": "field-products",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007",
+      "value": "[{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Phone\", \"price\": 699}, {\"name\": \"Mouse\", \"price\": 25}, {\"name\": \"Keyboard\", \"price\": 45}]"
+    },
+    {
+      "_id": "intermediate_example_product",
+      "title": "Intermediate Example (Product): find(products, (product) -> product.price < 50)",
+      "identifier": "field-intermediate-example-product",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a48",
+          "formula": "691acd93f6346774b0b9d08c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    },
+    {
+      "_id": "intermediate_example_index",
+      "title": "Intermediate Example (Index): find([10, 20, 30, 40, 50], (num, index) -> num > 25 && mod(index, 2) == 0)",
+      "identifier": "field-intermediate-example-index",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a49",
+          "formula": "691acd93f6346774b0b9d08d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    },
+    {
+      "_id": "inventory",
+      "title": "Inventory",
+      "identifier": "field-inventory",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007",
+      "value": "[{\"name\": \"Laptop\", \"price\": 999, \"inStock\": true, \"onSale\": false}, {\"name\": \"Phone\", \"price\": 699, \"inStock\": true, \"onSale\": true}, {\"name\": \"Mouse\", \"price\": 25, \"inStock\": true, \"onSale\": true}, {\"name\": \"Keyboard\", \"price\": 45, \"inStock\": false, \"onSale\": true}]"
+    },
+    {
+      "_id": "advanced_example_complex",
+      "title": "Advanced Example (Complex): find(inventory, (product) -> product.inStock && product.onSale && product.price < 100)",
+      "identifier": "field-advanced-example-complex",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b0a",
+          "formula": "691acd93f033ed54812dc660",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    },
+    {
+      "_id": "departments",
+      "title": "Departments",
+      "identifier": "field-departments",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007",
+      "value": "[{\"name\": \"Engineering\", \"employees\": [{\"name\": \"Alice\", \"salary\": 75000}, {\"name\": \"Bob\", \"salary\": 45000}]}, {\"name\": \"Marketing\", \"employees\": [{\"name\": \"Charlie\", \"salary\": 40000}, {\"name\": \"Diana\", \"salary\": 60000}]}, {\"name\": \"Sales\", \"employees\": [{\"name\": \"Eve\", \"salary\": 35000}, {\"name\": \"Frank\", \"salary\": 30000}]}]"
+    },
+    {
+      "_id": "advanced_example_nested",
+      "title": "Advanced Example (Nested): find(departments, (dept) -> !empty(find(dept.employees, (emp) -> emp.salary > 50000)))",
+      "identifier": "field-advanced-example-nested",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b0b",
+          "formula": "691acd93f033ed54812dc661",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    },
+    {
+      "_id": "tasks",
+      "title": "Tasks",
+      "identifier": "field-tasks",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007",
+      "value": "[{\"title\": \"Complete project\", \"dueDate\": \"2023-12-15\"}, {\"title\": \"Review code\", \"dueDate\": \"2023-12-05\"}, {\"title\": \"Update documentation\", \"dueDate\": \"2023-12-20\"}]"
+    },
+    {
+      "_id": "advanced_example_date",
+      "title": "Advanced Example (Date): Find task due within a week",
+      "identifier": "field-advanced-example-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b0c",
+          "formula": "691acd93f033ed54812dc662",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5007"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243747,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddd8",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "find([5, 12, 8, 130, 44], (num) -> num > 10)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddd9",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "find(users, (user) -> user.id == \"user123\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d08c",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "find(products, (product) -> product.price < 50)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d08d",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "find([10, 20, 30, 40, 50], (num, index) -> num > 25 && mod(index, 2) == 0)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc660",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "find(inventory, (product) -> product.inStock && product.onSale && product.price < 100)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc661",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "find(departments, (dept) -> !empty(find(dept.employees, (emp) -> emp.salary > 50000)))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc662",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "// This is a simplified example since we can't use actual dates in the test\nfind(tasks, (task) -> task.dueDate == \"2023-12-05\")"
+    }
+  ]
+}
