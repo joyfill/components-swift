@@ -108,6 +108,15 @@
       "title": "DD/MM/YYYY HH:mm",
       "identifier": "field_68fa17894241da0d2fdbfb25",
       "value": 1761220380000
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "695cb7ba2bb03caceb8ae978",
+      "type": "date",
+      "title": "Default date Time",
+      "identifier": "field_695cb7ba2bb03caceb8ae978",
+      "value": 1767252026000,
+      "tz": "Asia/Calcutta"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -254,6 +263,16 @@
               "y": 80,
               "width": 4,
               "height": 8
+            },
+            {
+              "_id": "695cb7ba4e582889324c5393",
+              "type": "date",
+              "displayType": "original",
+              "x": 1,
+              "y": 88,
+              "width": 4,
+              "height": 8,
+              "field": "695cb7ba2bb03caceb8ae978"
             }
           ],
           "hidden": false,
