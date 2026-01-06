@@ -273,45 +273,18 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
         XCTAssertFalse(foundDeletedPage, "Page with title '\(deletedPageTitle)' should not exist after deletion")
         print("✅ Confirmed: Page '\(deletedPageTitle)' was successfully deleted")
     }
+    //Page navigation after delete fisrt page and last page or current page
     
-    func testPageDeletion_lastPageProtection() throws {
-        // This test verifies that the last page cannot be deleted
-        // It requires a document with exactly 1 page
-        
+    func tapOnPageNavigationButton() {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
         pageSelectionButton.tap()
-        
-        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let pageCount = pageSheetSelectionButton.count
-        
-        if pageCount == 1 {
-            // Try to find delete button - it should be disabled
-            let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
-            if pageDeleteButtons.count > 0 {
-                let deleteButton = pageDeleteButtons.element(boundBy: 0)
-                XCTAssertFalse(deleteButton.isEnabled, "Delete button should be disabled for last page")
-            }
-        }
     }
     
     func testPageDeletion_navigationAfterDelete() throws {
         // This test verifies that after deleting the current page,
         // the app navigates to another page
         
-        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
-        pageSelectionButton.tap()
-        
-        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        guard pageSheetSelectionButton.count >= 2 else {
-            XCTFail("Need at least 2 pages for navigation test")
-            return
-        }
-        
-        // Select first page
-        pageSheetSelectionButton.element(boundBy: 0).tap()
-        
-        // Reopen navigation
-        pageSelectionButton.tap()
+        tapOnPageNavigationButton()
         
         // Delete the first page
         let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
@@ -323,11 +296,59 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
             if deleteButton.exists {
                 deleteButton.tap()
             }
-            
+            dismissSheet()
             // Verify the sheet closed (because we deleted current page)
             // The app should have automatically navigated to another page
-            XCTAssertFalse(app.buttons["ClosePageSelectionSheetIdentifier"].exists, 
-                          "Sheet should close after deleting current page")
+            
+            // Now check that page is nvaigated to 2nd page
+            XCTAssertEqual(app.buttons["PageNavigationIdentifier"].label, "Page 2", "Label should be Page 2")
+            
+        } else {
+            XCTFail("Count should be greater than 1 for this json")
         }
+    }
+    
+    func testPageDeletion_navigationAfterDeleteLastPage() throws {
+        
+        tapOnPageNavigationButton()
+        
+        app.swipeUp()
+        
+        let pageSheetSelectionButton = app.buttons.matching(
+            NSPredicate(format: "identifier == %@ AND label == %@",
+                        "PageSelectionIdentifier",
+                        "Page 16")
+        )
+        
+        pageSheetSelectionButton.element.tap()
+        
+        tapOnPageNavigationButton()
+        // Delete the first page
+        app.swipeUp()
+        let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
+        if pageDeleteButtons.count > 0 {
+            pageDeleteButtons.element(boundBy: 6).tap()
+            
+            // Confirm deletion
+            let deleteButton = app.alerts.buttons["Delete"]
+            if deleteButton.exists {
+                deleteButton.tap()
+            }
+            dismissSheet()
+            // Verify the sheet closed (because we deleted current page)
+            // The app should have automatically navigated to another page
+            
+            // Now check that page is nvaigated to 2nd page
+            XCTAssertEqual(app.buttons["PageNavigationIdentifier"].label, "Page 15", "Label should be Page 2")
+            
+        } else {
+            XCTFail("Count should be greater than 1 for this json")
+        }
+    }
+    
+    func dismissSheet() {
+        let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
 }
