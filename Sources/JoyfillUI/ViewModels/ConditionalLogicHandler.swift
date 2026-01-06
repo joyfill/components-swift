@@ -153,7 +153,7 @@ class ConditionalLogicHandler {
         let model = conditionalLogicModel(page: page)
         let lastHiddenState = page.hidden
         guard let model = model, model.itemCount > 1 else {
-            return !(lastHiddenState ?? false)
+            return true
         }
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
@@ -295,6 +295,10 @@ class ConditionalLogicHandler {
                     return selectedArray.contains { $0 == conditionText }
                 }
             }
+            // For number comparison
+            if fieldType == .number, let fieldNumber = fieldValue?.number, let conditionNumber = condition.value?.number {
+                return fieldNumber == conditionNumber
+            }
             // For text comparison
             if let fieldText = fieldValue?.text,
                let conditionText = condition.value?.text {
@@ -308,6 +312,10 @@ class ConditionalLogicHandler {
                    let conditionText = condition.value?.text {
                     return !selectedArray.contains { $0 == conditionText }
                 }
+            }
+            // For number comparison
+            if fieldType == .number, let fieldNumber = fieldValue?.number, let conditionNumber = condition.value?.number {
+                return fieldNumber != conditionNumber
             }
             // For text comparison
             if let fieldText = fieldValue?.text,
@@ -388,7 +396,9 @@ class ConditionalLogicHandler {
             let isValueMatching = compareValue(fieldValue: condition.fieldValue, condition: condition, fieldType: condition.fieldType)
             conditionsResults.append(isValueMatching)
         }
-
+        if conditionsResults.isEmpty {
+            return false
+        }
         if logic.eval == "and" {
             return conditionsResults.allSatisfy { $0 }
         } else {

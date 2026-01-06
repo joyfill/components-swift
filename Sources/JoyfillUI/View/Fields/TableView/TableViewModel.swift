@@ -19,6 +19,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     let dispatchQueue = DispatchQueue(label: "TableViewModel", qos: .userInitiated)
     @Published var uuid = UUID()
     
+    var showSingleClickEditButton: Bool {
+        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
+    }
+    
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
@@ -416,7 +420,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                 var newChanges: [String: [String: ValueUnion]] = [:]
                 self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
                 
-                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier)
+                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
                 
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {

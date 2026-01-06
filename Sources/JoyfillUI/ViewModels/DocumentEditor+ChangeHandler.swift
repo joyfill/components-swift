@@ -791,23 +791,18 @@ extension DocumentEditor {
         return (elements, newRow)
     }
 
-    fileprivate func updateValueElementsForBulk(_ changes: [String: [String : ValueUnion]], _ elements: inout [ValueElement], _ rowID: String) {
+    fileprivate func updateValueElementsForBulk(_ changes: [String: [String : ValueUnion]], _ elements: inout [ValueElement], _ rowID: String, _ indexMap: [String: Int]) {
         let change = changes[rowID] ?? [:]
-        for cellDataModelId in change.keys {
-            if let change = change[cellDataModelId] {
-                guard let index = elements.firstIndex(where: { $0.id == rowID }) else {
-                    return
-                }
-                if var cells = elements[index].cells {
-                    cells[cellDataModelId] = change
-                    elements[index].cells = cells
-                    updateTimeZoneIfNeeded(&elements[index])
-                } else {
-                    elements[index].cells = [cellDataModelId : change]
-                    updateTimeZoneIfNeeded(&elements[index])
-                }
-            }
+        guard let index = indexMap[rowID] else {
+            return
         }
+        
+        var cells = elements[index].cells ?? [:]
+        for (cellDataModelId, changeValue) in change {
+            cells[cellDataModelId] = changeValue
+        }
+        elements[index].cells = cells
+        updateTimeZoneIfNeeded(&elements[index])
     }
     
     /// Performs bulk editing on specified rows in a table field.
@@ -815,14 +810,19 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier) {
-        guard var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements else {
-            Log("No elements found for field: \(fieldIdentifier.fieldID)", type: .error)
-            return
-        }
+    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) {
+        var elements = fieldData
         let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
         var isDateColumn: Bool = false
         var rows: [[String : Any]] = []
+        
+        var indexMap: [String: Int] = [:]
+        indexMap.reserveCapacity(elements.count)
+        for (idx, element) in elements.enumerated() {
+            if let id = element.id {
+                indexMap[id] = idx
+            }
+        }
         
         for rowID in selectedRows {
             var changeToSend: [String: Any] = [:]
@@ -839,10 +839,12 @@ extension DocumentEditor {
                 "cells" : changeToSend
             ]
             
-            updateValueElementsForBulk(changes, &elements, rowID)
+            updateValueElementsForBulk(changes, &elements, rowID, indexMap)
             
             if isDateColumn {
-                row["tz"] = elements.first(where: {$0.id == rowID})?.tz
+                if let idx = indexMap[rowID] {
+                    row["tz"] = elements[idx].tz
+                }
             }
             rows.append(row)
         }
@@ -1629,6 +1631,58 @@ extension DocumentEditor {
                                      createdOn: Date().timeIntervalSince1970)
         )
         events?.onChange(changes: newFieldsArray, document: document)
+    }
+    
+    /// Fires change events for page deletion
+    /// - Parameters:
+    ///   - pageID: The ID of the deleted page
+    ///   - fieldIDs: Array of field IDs that were deleted with the page
+    ///   - fileId: The file ID
+    ///   - viewId: Optional view ID if views exist
+    func onChangeDeletePage(pageID: String, fieldsData: [(id: String, identifier: String?, positionId: String?)], fileId: String, viewId: String = "") {
+        var changes: [Change] = []
+        
+        guard let documentID = documentID else {
+            Log("DocumentID is missing for delete page on change", type: .error)
+            return
+        }
+        guard let documentIdentifier = documentIdentifier else {
+            Log("DocumentIdentifier is missing for delete page on change", type: .error)
+            return
+        }
+        
+        // Generate field.delete events for all deleted fields using pre-collected data
+        for fieldData in fieldsData {
+            changes.append(Change(
+                v: 1,
+                sdk: "swift",
+                target: "field.delete",
+                _id: documentID,
+                identifier: documentIdentifier,
+                fileId: fileId,
+                pageId: pageID,
+                fieldId: fieldData.id,
+                fieldIdentifier: fieldData.identifier ?? "",
+                fieldPositionId: fieldData.positionId ?? "",
+                change: ["fieldId": fieldData.id],
+                createdOn: Date().timeIntervalSince1970
+            ))
+        }
+        
+        // Generate page.delete event for the main page
+        changes.append(Change(
+            v: 1,
+            sdk: "swift",
+            id: documentID,
+            identifier: documentIdentifier,
+            target: "page.delete",
+            fileId: fileId,
+            viewType: viewId.isEmpty ? "web" : "mobile",
+            pageId: pageID,
+            createdOn: Date().timeIntervalSince1970
+        ))
+        
+        events?.onChange(changes: changes, document: document)
     }
 }
 extension DocumentEditor {

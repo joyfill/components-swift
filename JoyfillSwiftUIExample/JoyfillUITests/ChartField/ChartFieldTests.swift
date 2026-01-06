@@ -272,6 +272,14 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 }
 
 
+/// Converts any numeric value to Double.
+ func asDouble(_ value: Any?) -> Double? {
+    if let doubleValue = value as? Double { return doubleValue }
+    if let intValue = value as? Int64 { return Double(intValue) }
+    if let intValue = value as? Int { return Double(intValue) }
+    return nil
+}
+
 extension ValueUnion {
     var xTitle: String? {
         return (self.dictionary as! [String: Any])["xTitle"] as? String
@@ -282,19 +290,19 @@ extension ValueUnion {
     }
 
     var yMin: Double? {
-        return (self.dictionary as! [String: Any])["yMin"] as? Double
+        asDouble((self.dictionary as! [String: Any])["yMin"])
     }
 
     var yMax: Double? {
-        return (self.dictionary as! [String: Any])["yMax"] as? Double
+        asDouble((self.dictionary as! [String: Any])["yMax"])
     }
 
     var xMin: Double? {
-        return (self.dictionary as! [String: Any])["xMin"] as? Double
+        asDouble((self.dictionary as! [String: Any])["xMin"])
     }
 
     var xMax: Double? {
-        return (self.dictionary as! [String: Any])["xMax"] as? Double
+        asDouble((self.dictionary as! [String: Any])["xMax"])
     }
 }
 

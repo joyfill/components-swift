@@ -235,6 +235,8 @@ struct FormDestinationView: View {
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = false
+    @State var isPageDelete: Bool = false
+    @State var singleClickRowEdit: Bool = false
     @State var document = JoyDoc()
     @State var license: String
 
@@ -252,6 +254,9 @@ struct FormDestinationView: View {
         self.changeManager = changeManager
         self._showChangelogView = showChangelogView
         self.enableChangelogs = enableChangelogs
+        if !enableChangelogs {
+            editor.events = nil
+        }
         self._documentEditor = State(initialValue: editor)
         self._showPublicApis = showPublicApis
         self._document = State(initialValue: editor.document)
@@ -271,8 +276,10 @@ struct FormDestinationView: View {
                 pageID: "",
                 navigation: true,
                 isPageDuplicateEnabled: isPageDuplicated,
+                isPageDeleteEnabled: isPageDelete,
                 validateSchema: validateSchema,
-                license: license
+                license: license,
+                singleClickRowEdit: singleClickRowEdit
             )
 
             // Publish to UI on the main actor
@@ -324,6 +331,7 @@ struct FormDestinationView: View {
 
             if let editor = documentEditor {
                 Form(documentEditor: editor)
+                    .id("\(editor.singleClickRowEdit)\(editor.mode)")
                 SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
                     // Only show validation results if there are field validities
                     guard !validation.fieldValidities.isEmpty else {
@@ -348,7 +356,7 @@ struct FormDestinationView: View {
             ChangelogView(changeManager: changeManager)
         }
         .sheet(isPresented: $showPublicApis) {
-            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, document: documentEditor?.document ?? JoyDoc())
+            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, isPageDelete: $isPageDelete, singleClickRowEdit: $singleClickRowEdit, document: documentEditor?.document ?? JoyDoc())
         }
         .sheet(
             isPresented: Binding(
@@ -406,14 +414,13 @@ extension UIViewController {
 // Wrapper class to handle ChangeManager initialization and scan functionality
 class ChangeManagerWrapper: ObservableObject {
     @Published var changeManager: ChangeManager
+    
     private var scanHandler: ((@escaping (ValueUnion) -> Void) -> Void)?
     
     init() {
         let imagePicker = ImagePicker()
-        
         // Initialize ChangeManager with a simple closure first
         self.changeManager = ChangeManager(
-            apiService: APIService(accessToken: "", baseURL: ""),
             showImagePicker: imagePicker.showPickerOptions,
             showScan: { captureHandler in
                 // Provide default implementation
@@ -428,7 +435,6 @@ class ChangeManagerWrapper: ObservableObject {
         // Recreate the ChangeManager with the proper scan handler
         let imagePicker = ImagePicker()
         self.changeManager = ChangeManager(
-            apiService: APIService(accessToken: "", baseURL: ""),
             showImagePicker: imagePicker.showPickerOptions,
             showScan: { [weak self] captureHandler in
                 self?.scanHandler?(captureHandler) ?? captureHandler(.string("default"))

@@ -171,9 +171,15 @@ struct TableModalView : View {
                     Text("#")
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
+                    if viewModel.showSingleClickEditButton {
+                        Image(systemName: "square.and.pencil")
+                            .frame(width: 40, height: 60)
+                            .foregroundColor(Color.gray.opacity(0.4))
+                            .border(Color.tableCellBorderColor)
+                    }
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? 80 : 40, height: 60)
+                .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40), height: 60)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
@@ -181,7 +187,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? 80 : 40)
+                            .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40))
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -189,7 +195,7 @@ struct TableModalView : View {
                 } else {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? 80 : 40)
+                            .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40))
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -288,6 +294,20 @@ struct TableModalView : View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
+                    
+                    if viewModel.showSingleClickEditButton {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(.blue)
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                            .onTapGesture {
+                                viewModel.tableDataModel.emptySelection()
+                                viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
+                                showEditMultipleRowsSheetView = true
+                            }
+                            .accessibilityIdentifier("SingleClickEditButton\(index)")
+                    }
                 }
             }
         }
@@ -315,6 +335,7 @@ struct TableModalView : View {
                             offset = value
                         }
                     }
+                    .accessibilityIdentifier("TableScrollView")
                     
                     .onAppear {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {

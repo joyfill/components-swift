@@ -42,7 +42,9 @@ public class DocumentEditor: ObservableObject {
 
     public var mode: Mode = .fill
     public var isPageDuplicateEnabled: Bool = true
+    public var isPageDeleteEnabled: Bool = true
     public var showPageNavigationView: Bool = true
+    public var singleClickRowEdit: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -67,8 +69,10 @@ public class DocumentEditor: ObservableObject {
                 pageID: String? = nil,
                 navigation: Bool = true,
                 isPageDuplicateEnabled: Bool = false,
+                isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
-                license: String? = nil) {
+                license: String? = nil,
+                singleClickRowEdit: Bool = false) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -80,7 +84,9 @@ public class DocumentEditor: ObservableObject {
                 self.document = JoyDoc()
                 self.mode = mode
                 self.isPageDuplicateEnabled = isPageDuplicateEnabled
+                self.isPageDeleteEnabled = isPageDeleteEnabled
                 self.showPageNavigationView = navigation
+                self.singleClickRowEdit = singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
                 
@@ -94,7 +100,9 @@ public class DocumentEditor: ObservableObject {
         self.document = document
         self.mode = mode
         self.isPageDuplicateEnabled = mode == .readonly ? false : isPageDuplicateEnabled
+        self.isPageDeleteEnabled = mode == .readonly ? false : isPageDeleteEnabled
         self.showPageNavigationView = navigation
+        self.singleClickRowEdit = singleClickRowEdit
         self.currentPageID = ""
         self.events = events
         // Set feature flags from license
@@ -636,8 +644,9 @@ extension DocumentEditor {
                                            fieldHeaderModel: fieldHeaderModel)
             dataModelType = .textarea(model)
         case .date:
+            let normalizedDateValue = fieldData?.value?.normalizedNumericValue
             let model = DateTimeDataModel(fieldIdentifier: fieldIdentifier,
-                                          value: fieldData?.value,
+                                          value: normalizedDateValue,
                                           format: fieldPosition.format,
                                           timezoneId: fieldData?.tz,
                                           fieldHeaderModel: fieldHeaderModel)
@@ -699,6 +708,34 @@ extension DocumentEditor {
             dataModelType = .none
         }
         return dataModelType
+    }
+}
+
+extension ValueUnion {
+    /// Returns a `Double` representation for numeric-backed values.
+    /// Useful when backend may send numbers as either `Int` or `Double`.
+    var doubleValue: Double? {
+        switch self {
+        case .double(let value):
+            return value
+        case .int(let value):
+            return Double(value)
+        case .string(let value):
+            return Double(value)
+        default:
+            return nil
+        }
+    }
+
+    /// Normalizes numeric values so callers can rely on `Double`-backed numbers.
+    /// - Converts `.int` -> `.double`
+    /// - Converts numeric `.string` -> `.double`
+    /// - Leaves non-numeric values unchanged
+    var normalizedNumericValue: ValueUnion {
+        if let d = doubleValue {
+            return .double(d)
+        }
+        return self
     }
 }
 
@@ -906,5 +943,155 @@ extension DocumentEditor {
             }
             onChangeDuplicatePage(viewId: "", page: duplicatedPage, fields: document.fields, fileId: document.files[0].id ?? "", targetIndex: targetIdnex, newFields: newFields)
         }
+    }
+    
+    // MARK: - Page Deletion
+    
+    /// Validates if a page can be deleted and returns warnings about dependencies
+    /// - Parameter pageID: The ID of the page to validate
+    /// - Returns: Tuple with canDelete flag and array of warning messages
+    public func canDeletePage(pageID: String) -> (canDelete: Bool, warnings: [String]) {
+        var warnings: [String] = []
+        
+        guard let firstFile = document.files.first else {
+            return (false, ["No file found in document"])
+        }
+        
+        // Check 1: Must have at least 2 pages (cannot delete the last page)
+        let totalPages = firstFile.pages?.count ?? 0
+        guard totalPages > 1 else {
+            return (false, ["Cannot delete the last page. A document must have at least one page."])
+        }
+        
+        // Check 2: Page must exist
+        guard firstFile.pages?.contains(where: { $0.id == pageID }) == true else {
+            return (false, ["Page with ID \(pageID) not found"])
+        }
+        
+        return (true, warnings)
+    }
+    /// Determines the next page to navigate to after deleting a page
+    private func determineNextPage(after deletedPageID: String) -> String {
+        guard let firstFile = document.files.first,
+              let pageOrder = firstFile.pageOrder,
+              let deletedIndex = pageOrder.firstIndex(of: deletedPageID) else {
+            return ""
+        }
+        
+        // Try next page first
+        if deletedIndex < pageOrder.count - 1 {
+            return pageOrder[deletedIndex + 1]
+        }
+        
+        // Otherwise, go to previous page
+        if deletedIndex > 0 {
+            return pageOrder[deletedIndex - 1]
+        }
+        
+        // Fallback: return first valid page
+        return document.firstValidPageID(for: nil, conditionalLogicHandler: conditionalLogicHandler)
+    }
+    
+    /// Deletes a page from the document
+    /// - Parameters:
+    ///   - pageID: The ID of the page to delete
+    ///   - force: If true, bypasses warnings and deletes anyway
+    /// - Returns: Tuple with success flag and message
+    public func deletePage(pageID: String, force: Bool = false) -> (success: Bool, message: String) {
+        // 1. Validate
+        let (canDelete, warnings) = canDeletePage(pageID: pageID)
+        
+        guard canDelete else {
+            let message = warnings.first ?? "Cannot delete page"
+            Log(message, type: .error)
+            return (false, message)
+        }
+        
+        if !warnings.isEmpty && !force {
+            let message = warnings.joined(separator: "\n")
+            Log("Page deletion requires confirmation: \(message)", type: .warning)
+            return (false, message)
+        }
+        
+        guard var firstFile = document.files.first else {
+            Log("No file found in document", type: .error)
+            return (false, "No file found in document")
+        }
+        
+        // 2. Find page and collect field IDs and data BEFORE deletion
+        guard let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }),
+              let page = firstFile.pages?[pageIndex] else {
+            Log("Page with id \(pageID) not found", type: .error)
+            return (false, "Page not found")
+        }
+        
+        let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
+        
+        // Collect field data BEFORE deletion (while fields still exist)
+        let fieldsData = fieldsToDelete.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
+            guard let field = field(fieldID: fieldID) else { return nil }
+            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
+        }
+        
+        // 3. Handle navigation before deletion
+        let shouldNavigate = currentPageID == pageID
+        let nextPageID = shouldNavigate ? determineNextPage(after: pageID) : currentPageID
+        
+        // 4. Remove from pageOrder
+        firstFile.pageOrder?.removeAll(where: { $0 == pageID })
+        self.currentPageOrder.removeAll(where: { $0 == pageID })
+        
+        // 5. Remove page from pages array
+        firstFile.pages?.remove(at: pageIndex)
+        
+        // 6. Handle views
+        if var views = firstFile.views, !views.isEmpty {
+            for i in views.indices {
+                views[i].pageOrder?.removeAll(where: { $0 == pageID })
+                if let viewPageIndex = views[i].pages?.firstIndex(where: { $0.id == pageID }) {
+                    views[i].pages?.remove(at: viewPageIndex)
+                }
+            }
+            firstFile.views = views
+        }
+        
+        // 7. Remove fields completely
+        if !fieldsToDelete.isEmpty {
+            // Remove from document.fields
+            document.fields.removeAll { field in
+                guard let fieldID = field.id else { return false }
+                let shouldRemove = fieldsToDelete.contains(fieldID)
+                return shouldRemove
+            }
+            
+            // Remove from fieldMap (important: prevents didSet from restoring them)
+            for fieldID in fieldsToDelete {
+                fieldMap.removeValue(forKey: fieldID)
+            }
+        }
+        
+        // 8. Update document state
+        var files = document.files
+        if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
+            files[fileIndex] = firstFile
+        }
+        document.files = files
+        
+        // 10. Update internal state
+        updateFieldPositionMap()
+        pageFieldModels.removeValue(forKey: pageID)
+        
+        // 11. Reinitialize conditional logic handler
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        
+        // 12. Handle navigation
+        if shouldNavigate && !nextPageID.isEmpty {
+            self.currentPageID = nextPageID
+        }
+        
+        // 13. Fire change events with pre-collected field data
+        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
+
+        return (true, "Page deleted successfully")
     }
 }

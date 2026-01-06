@@ -17,13 +17,15 @@ struct PublicApiExamples: View {
     @State var mode: Mode = .fill
     @Binding var license: String
     @Binding var isPageDuplicate: Bool
+    @Binding var isPageDelete: Bool
+    @Binding var singleClickRowEdit: Bool
     @Environment(\.dismiss) var dismiss
     @State private var selectedPageOption: String = "custom"
     @State private var showCustomPageInput: Bool = false
     @State private var showMoreSheet: Bool = false
     @State var document: JoyDoc
     
-    init(documentEditor: Binding<DocumentEditor?>, licenseKey: Binding<String>, validateSchema: Binding<Bool>, isPageDuplicate: Binding<Bool>, document: JoyDoc) {
+    init(documentEditor: Binding<DocumentEditor?>, licenseKey: Binding<String>, validateSchema: Binding<Bool>, isPageDuplicate: Binding<Bool>, isPageDelete: Binding<Bool>, singleClickRowEdit: Binding<Bool>, document: JoyDoc) {
         self._documentEditor = documentEditor
         let editor = documentEditor.wrappedValue
         _pageID = State(initialValue: editor?.currentPageID ?? "")
@@ -32,6 +34,8 @@ struct PublicApiExamples: View {
         _selectedPageOption = State(initialValue: editor?.currentPageID ?? "")
         self._validateSchema = validateSchema
         self._isPageDuplicate = isPageDuplicate
+        self._isPageDelete = isPageDelete
+        self._singleClickRowEdit = singleClickRowEdit
         self.document = document
         self._license = licenseKey
     }
@@ -203,6 +207,26 @@ struct PublicApiExamples: View {
                                 .tint(.orange)
                         }
                         
+                        SettingCard(
+                            icon: "trash",
+                            iconColor: .orange,
+                            title: "Page Deletion"
+                        ) {
+                            Toggle("", isOn: $isPageDelete)
+                                .labelsHidden()
+                                .tint(.orange)
+                        }
+                        
+                        SettingCard(
+                            icon: "square.and.pencil",
+                            iconColor: .blue,
+                            title: "Single-Click Row Edit"
+                        ) {
+                            Toggle("", isOn: $singleClickRowEdit)
+                                .labelsHidden()
+                                .tint(.blue)
+                        }
+                        
                         // Mode Selection Card
                         SettingCard(
                             icon: "pencil.and.list.clipboard",
@@ -330,8 +354,10 @@ struct PublicApiExamples: View {
                     pageID: editor.currentPageID,
                     navigation: editor.showPageNavigationView,
                     isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    isPageDeleteEnabled: isPageDelete,
                     validateSchema: newValue,
-                    license: self.license
+                    license: self.license,
+                    singleClickRowEdit: editor.singleClickRowEdit
                 )
             }
         }
@@ -344,8 +370,10 @@ struct PublicApiExamples: View {
                     pageID: editor.currentPageID,
                     navigation: newValue,
                     isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
-                    license: license
+                    license: license,
+                    singleClickRowEdit: editor.singleClickRowEdit
                 )
             }
         }
@@ -358,8 +386,26 @@ struct PublicApiExamples: View {
                     pageID: editor.currentPageID,
                     navigation: editor.showPageNavigationView,
                     isPageDuplicateEnabled: newValue,
+                    isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
-                    license: license
+                    license: license,
+                    singleClickRowEdit: editor.singleClickRowEdit
+                )
+            }
+        }
+        .onChange(of: isPageDelete) { newValue in
+            if let editor = documentEditor {
+                documentEditor = DocumentEditor(
+                    document: editor.document,
+                    mode: editor.mode,
+                    events: editor.events,
+                    pageID: editor.currentPageID,
+                    navigation: editor.showPageNavigationView,
+                    isPageDuplicateEnabled: isPageDuplicate,
+                    isPageDeleteEnabled: newValue,
+                    validateSchema: validateSchema,
+                    license: license,
+                    singleClickRowEdit: editor.singleClickRowEdit
                 )
             }
         }
@@ -372,8 +418,10 @@ struct PublicApiExamples: View {
                     pageID: editor.currentPageID,
                     navigation: editor.showPageNavigationView,
                     isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
-                    license: license
+                    license: license,
+                    singleClickRowEdit: editor.singleClickRowEdit
                 )
             }
         }
@@ -386,8 +434,26 @@ struct PublicApiExamples: View {
                     pageID: editor.currentPageID,
                     navigation: editor.showPageNavigationView,
                     isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
-                    license: newValue
+                    license: newValue,
+                    singleClickRowEdit: editor.singleClickRowEdit
+                )
+            }
+        }
+        .onChange(of: singleClickRowEdit) { newValue in
+            if let editor = documentEditor {
+                documentEditor = DocumentEditor(
+                    document: editor.document,
+                    mode: editor.mode,
+                    events: editor.events,
+                    pageID: editor.currentPageID,
+                    navigation: editor.showPageNavigationView,
+                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    isPageDeleteEnabled: isPageDelete,
+                    validateSchema: validateSchema,
+                    license: license,
+                    singleClickRowEdit: newValue
                 )
             }
         }

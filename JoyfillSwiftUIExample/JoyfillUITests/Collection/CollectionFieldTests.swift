@@ -107,9 +107,9 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
         pageSelectionButton.tap()
         app.swipeUp()
+        app.swipeUp()
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 10)
-        tapOnSecondPage.tap()
+        app.buttons["Page 16"].tap()
         
         let goToTableDetailView = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
         let tapOnSecondTableView = goToTableDetailView.element(boundBy: 0)
@@ -654,7 +654,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(0, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -678,7 +678,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(1, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -704,7 +704,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(0, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -733,7 +733,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         do {
             let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
-            let rowIndex = try Int(XCTUnwrap(value["targetRowIndex"] as? Double))
+            let rowIndex = try Int(XCTUnwrap(asDouble(value["targetRowIndex"])))
             XCTAssertEqual(2, rowIndex)
         } catch {
             XCTFail("Unexpected error: \(error).")
@@ -807,7 +807,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit text field did not appear")
         textField.tap()
@@ -1019,7 +1019,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.typeText("A")
         app.dismissKeyboardIfVisible()
@@ -1204,7 +1204,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         textField.tap()
         waitForAppToSettle()
@@ -1324,7 +1324,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
@@ -1333,7 +1333,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(selectAll.waitForExistence(timeout: 5),"‘Select All’ menu didn’t show up")
         selectAll.tap()
         textField.typeText("o")
-        app.dismissKeyboardIfVisible()
+//        app.dismissKeyboardIfVisible()
         // Dropdown Field
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertEqual("Select Option", dropdownButton.label)

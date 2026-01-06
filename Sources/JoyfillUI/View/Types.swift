@@ -219,6 +219,18 @@ public struct Change {
         dictionary["change"] = change
         dictionary["createdOn"] = createdOn
     }
+    // instance for the page.delete
+    public init(v: Int, sdk: String, id: String, identifier: String, target: String, fileId: String, viewType: String, pageId: String, createdOn: Double) {
+        dictionary["v"] = v
+        dictionary["sdk"] = sdk
+        dictionary["view"] = viewType
+        dictionary["target"] = target
+        dictionary["_id"] = id
+        dictionary["identifier"] = identifier
+        dictionary["fileId"] = fileId
+        dictionary["pageId"] = pageId
+        dictionary["createdOn"] = createdOn
+    }
 }
 
 /// `FormChangeEvent` is a protocol that defines methods for listening to form change events.

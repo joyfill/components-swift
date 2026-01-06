@@ -469,7 +469,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeLeft()
         let dateField = app.buttons["10/17/2025"].firstMatch
         dateField.tap()
-        app.pickerWheels.element(boundBy: 0).adjust(toPickerWheelValue: "10")
+        app.pickerWheels.element(boundBy: 1).adjust(toPickerWheelValue: "10")
         dismissSheet()
         goBack()
         

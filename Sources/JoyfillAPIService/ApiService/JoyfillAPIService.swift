@@ -64,6 +64,11 @@ public class APIService {
         self.baseURL = baseURL
     }
     
+    /// Returns true if a valid access token is configured
+    public var hasValidToken: Bool {
+        return !accessToken.isEmpty
+    }
+    
     private func urlRequest(type: JoyfillAPI, method: String? = nil, httpBody: Data? = nil) -> URLRequest {
         var request = URLRequest(url: type.endPoint(baseURL: self.baseURL))
         request.httpMethod = method ?? "GET"

@@ -28,6 +28,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     let dispatchQueue = DispatchQueue(label: "Collection", qos: .userInitiated)
     @Published var uuid = UUID()
     
+    var showSingleClickEditButton: Bool {
+        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
+    }
+    
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.tableDataModel.schema.forEach { key, value in
@@ -400,7 +404,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, showSingleClickEdit: showSingleClickEditButton) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
@@ -671,7 +675,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, showSingleClickEdit: showSingleClickEditButton)),
                                                    isExpanded: true, // Mark as expanded since we're showing content
                                                    rowWidth: rowWidth(filteredTableColumns, level))
                     cellModels.append(expanderRow)
@@ -854,7 +858,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector)),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, showSingleClickEdit: showSingleClickEditButton)),
                                                             rowWidth: rowWidth(filteredTableColumns, level)
                             )
                             rowDataModel.isExpanded = false
@@ -871,7 +875,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             }
             tableDataModel.filteredcellModels[index].isExpanded.toggle()
         }
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
         updateCollectionWidth()
     }
     
@@ -1018,7 +1022,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    schemaKey: parentSchemaKey)
             }
 //            tableDataModel.filterCollectionRowsIfNeeded()
-            sortRowsIfNeeded()
+//            sortRowsIfNeeded()
         }
         
         guard let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
@@ -1070,7 +1074,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.filteredcellModels[i] = model
         }
 //        tableDataModel.filterCollectionRowsIfNeeded()
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
     }
     
     func insertBelow() -> String? {
@@ -1091,7 +1095,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             return nil
         }
 //        tableDataModel.filterCollectionRowsIfNeeded()
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     
@@ -1267,7 +1271,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
 //        tableDataModel.filterCollectionRowsIfNeeded()
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
     }
     
     func getUpperRowIndex(startingIndex: Int) -> Int {
@@ -1328,7 +1332,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             self.tableDataModel.filteredcellModels.moveItems(from: [index], to: upperRowIndicesToMove.sorted())
         }
 //        tableDataModel.filterCollectionRowsIfNeeded()
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
     }
     
     fileprivate func moveNestedDown(at index: Int, rowID: String) {
@@ -1349,7 +1353,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             self.tableDataModel.filteredcellModels.moveItems(from: lowerRowIndicesToMove.sorted(), to: [index])
         }
 //        tableDataModel.filterCollectionRowsIfNeeded()
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
     }
 
     fileprivate func getChildrensBy(_ schemaKey: String) -> [String : Children] {
@@ -1391,7 +1395,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                schemaKey: rootSchemaKey)
             addNewRowInMap(newRowID: newRowID, schemaID: rootSchemaKey)
 //            self.tableDataModel.filterCollectionRowsIfNeeded()
-            sortRowsIfNeeded()
+//            sortRowsIfNeeded()
         }
     }
     
@@ -1416,6 +1420,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
                 refreshCollectionSchema(rowID: parentRowID)
+                appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {
                 let insertAtIndex = calculateIndexForInsertRow(index: index ?? (tableDataModel.valueToValueElements?.count ?? 0))
                 addNestedCellModel(rowID: newRowID,
@@ -1425,9 +1430,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    level: 0,
                                    rowType: .row(index: rowIndex),
                                    schemaKey: rootSchemaKey)
+                addNewRowInMap(newRowID: newRowID, schemaID: rootSchemaKey)
                 reIndexingRows(rowDataModel: tableDataModel.filteredcellModels[insertAtIndex])
             }
-            sortRowsIfNeeded()
+//            sortRowsIfNeeded()
         }
     }
     
@@ -1490,7 +1496,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowDataModelForIndexing = tableDataModel.filteredcellModels[startingIndex + 2]
             reIndexingRows(rowDataModel: rowDataModelForIndexing)
 //            self.tableDataModel.filterCollectionRowsIfNeeded()
-            sortRowsIfNeeded()
+//            sortRowsIfNeeded()
         }
     }
     
@@ -1575,7 +1581,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.filteredcellModels[index] = rowDataModel
         }
 //        tableDataModel.filterCollectionRowsIfNeeded()
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
     }
     
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) {
@@ -1712,7 +1718,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.filteredcellModels = updatedCellModels
         refreshRowsOnLogic(tableColumns: tableColumns)
         isBulkLoading = false
-        sortRowsIfNeeded()
+//        sortRowsIfNeeded()
     }
     
     func refreshRowsOnLogic(tableColumns: [FieldTableColumn]) {

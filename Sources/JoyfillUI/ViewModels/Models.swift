@@ -165,6 +165,7 @@ struct TableDataModel {
     var sortModel = SortModel()
     var id = UUID()
     var showResetSelectionAlert: Bool = false
+    var singleClickRowEdit: Bool = false
     private var pendingRowID: [String]?
     
     var viewMoreText: String {
@@ -205,6 +206,7 @@ struct TableDataModel {
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
+        self.singleClickRowEdit = documentEditor.singleClickRowEdit
                 
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
@@ -886,11 +888,7 @@ struct TableDataModel {
         if let index = selectedRows.firstIndex(of: rowID) {
             selectedRows.remove(at: index)
         } else {
-            if !hasActiveFilters {
-                selectedRows.append(rowID)
-            } else {
-                selectedRows = [rowID]
-            }
+            selectedRows.append(rowID)
         }
     }
     
