@@ -1,0 +1,80 @@
+name: Update Docs on Release
+
+on:
+  release:
+    types: [published]
+  # 👇 Allows you to test manually
+  workflow_dispatch:
+    inputs:
+      test_tag:
+        description: 'Test Version (must exist in CHANGELOG)'
+        default: '1.0.0'
+        required: true
+
+jobs:
+  create-docs-pr:
+    name: 'Create Docs PR'
+    runs-on: 'ubuntu-latest'
+    steps:
+      # 1. Checkout iOS SDK (Source)
+      - name: Checkout SDK
+        uses: actions/checkout@v4
+        with:
+          path: ios-sdk
+          # If manual test, use main. If real release, use the tag.
+          ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
+
+      # 2. Checkout Docs Repo (Destination)
+      - name: Checkout Docs Repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'joyfill/docs'
+          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          path: 'docs'
+
+      # 3. Extract Latest Entry
+      - name: Extract Latest Changelog Entry
+        run: |
+          # Determine which version to look for (Real Tag vs Test Input)
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TARGET_VER="${{ inputs.test_tag }}"
+          else
+            TARGET_VER="${{ github.event.release.tag_name }}"
+          fi
+          
+          echo "Processing version: $TARGET_VER"
+          echo "VERSION=$TARGET_VER" >> $GITHUB_ENV
+
+          cd ios-sdk
+          # Extract the specific block for this version
+          awk -v ver="$TARGET_VER" '$0 ~ "## " ver {found=1} found && /^## / && $0 !~ "## " ver {exit} found {print}' CHANGELOG.md > ../latest_release_note.md
+          
+          echo "--- Extracted Content ---"
+          cat ../latest_release_note.md
+
+      # 4. Run the Insert Script
+      - name: Insert into Docs
+        run: |
+          # Ensure the folder exists in docs repo to prevent errors
+          mkdir -p docs/ios/changelogs
+
+          chmod +x ios-sdk/scripts/update_release_mdx.sh
+          
+          # Run the script
+          ./ios-sdk/scripts/update_release_mdx.sh latest_release_note.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
+
+      # 5. Create Pull Request
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          path: 'docs'
+          commit-message: 'docs: add release notes for ${{ env.VERSION }}'
+          title: 'docs: add release notes for ${{ env.VERSION }}'
+          body: |
+            Automated PR adding release notes for **${{ env.VERSION }}**.
+            
+            Generated from iOS SDK Changelog.
+          branch: 'docs-update-${{ env.VERSION }}'
+          base: 'main'
+          delete-branch: true
