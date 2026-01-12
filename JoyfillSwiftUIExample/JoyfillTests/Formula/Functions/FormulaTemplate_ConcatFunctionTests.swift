@@ -342,5 +342,222 @@ class concatTests: XCTestCase {
         
         XCTAssertEqual(resultText, "User: 12345 (Admin)", "Numeric strings should concatenate correctly")
     }
+    
+    // MARK: - MultiSelect Field Tests (Advanced Formula)
+    
+    /// Test 17: Select one item from multiSelect
+    /// Formula: concat("Report for ", date(...), ": ", if(empty(selectedItems), "No items selected", ...))
+    /// Expected: Should show "Selected 1 items: Item1"
+    func testDynamicUpdateSelectOneItem() {
+        print("\n🔀 Test 17: Select one item from multiSelect")
+        print("Formula: Advanced concat with multiSelect")
+        
+        // Initial: No items selected
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertTrue(result?.text?.hasSuffix("No items selected") ?? false, "Should show 'No items selected' initially")
+        print("Initial: \(result?.text ?? "")")
+        
+        // Select one item
+        documentEditor.updateValue(for: "selectedItems", value: .array(["691acd93f9c467ef178184e5"]))  // Item1
+        print("Updated: selectedItems = [Item1]")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertTrue(resultText.contains("Selected 1 items") || resultText.contains("Item1"), "Should show selected item info")
+    }
+    
+    /// Test 18: Select multiple items from multiSelect
+    /// Expected: Should show "Selected 2 items: Item1, Item2"
+    func testDynamicUpdateSelectMultipleItems() {
+        print("\n🔀 Test 18: Select multiple items from multiSelect")
+        print("Formula: Advanced concat with multiSelect")
+        
+        // Select multiple items
+        documentEditor.updateValue(for: "selectedItems", value: .array([
+            "691acd93f9c467ef178184e5",  // Item1
+            "691acd93e21a5122c7a1a791"   // Item2
+        ]))
+        print("Updated: selectedItems = [Item1, Item2]")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertTrue(resultText.contains("Selected 2 items") || (resultText.contains("Item1") && resultText.contains("Item2")), 
+                      "Should show selected items info")
+    }
+    
+    /// Test 19: Select all items from multiSelect
+    /// Expected: Should show "Selected 3 items: Item1, Item2, Item3"
+    func testDynamicUpdateSelectAllItems() {
+        print("\n🔀 Test 19: Select all items from multiSelect")
+        print("Formula: Advanced concat with multiSelect")
+        
+        // Select all three items
+        documentEditor.updateValue(for: "selectedItems", value: .array([
+            "691acd93f9c467ef178184e5",  // Item1
+            "691acd93e21a5122c7a1a791",  // Item2
+            "691acd93e21a5122c7a1a792"   // Item3
+        ]))
+        print("Updated: selectedItems = [Item1, Item2, Item3]")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertTrue(resultText.contains("Selected 3 items") || 
+                      (resultText.contains("Item1") && resultText.contains("Item2") && resultText.contains("Item3")), 
+                      "Should show all selected items")
+    }
+    
+    /// Test 20: Clear multiSelect after selection
+    /// Expected: Should return to "No items selected"
+    func testDynamicUpdateClearSelectedItems() {
+        print("\n🔀 Test 20: Clear multiSelect after selection")
+        print("Formula: Advanced concat with multiSelect")
+        
+        // First select items
+        documentEditor.updateValue(for: "selectedItems", value: .array(["691acd93f9c467ef178184e5"]))
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertFalse(result?.text?.hasSuffix("No items selected") ?? true, "Should show selected items")
+        print("After selection: \(result?.text ?? "")")
+        
+        // Clear selection
+        documentEditor.updateValue(for: "selectedItems", value: .array([]))
+        print("Updated: selectedItems = [] (cleared)")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertTrue(resultText.hasSuffix("No items selected"), "Should show 'No items selected' after clearing")
+    }
+    
+    // MARK: - Additional Edge Case Tests
+    
+    /// Test 21: Both fields empty
+    func testDynamicUpdateBothFieldsEmpty() {
+        print("\n🔀 Test 21: Both userName and userRole empty")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userName", value: .string(""))
+        documentEditor.updateValue(for: "userRole", value: .string(""))
+        print("Updated: userName = '', userRole = ''")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User:  ()", "Both empty should produce 'User:  ()'")
+    }
+    
+    /// Test 22: Newline characters in userName
+    func testDynamicUpdateNewlineInUserName() {
+        print("\n🔀 Test 22: Newline character in userName")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userName", value: .string("John\nDoe"))
+        print("Updated: userName = 'John\\nDoe'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User: John\nDoe (Admin)", "Newline characters should be preserved")
+    }
+    
+    /// Test 23: Tab characters in userRole
+    func testDynamicUpdateTabInUserRole() {
+        print("\n🔀 Test 23: Tab character in userRole")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userRole", value: .string("Admin\tUser"))
+        print("Updated: userRole = 'Admin\\tUser'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User: John (Admin\tUser)", "Tab characters should be preserved")
+    }
+    
+    /// Test 24: Emoji in userName
+    func testDynamicUpdateEmojiInUserName() {
+        print("\n🔀 Test 24: Emoji in userName")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userName", value: .string("John 😊"))
+        print("Updated: userName = 'John 😊'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User: John 😊 (Admin)", "Emoji should be preserved")
+    }
+    
+    /// Test 25: Single space userName
+    func testDynamicUpdateSingleSpaceUserName() {
+        print("\n🔀 Test 25: Single space userName")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userName", value: .string(" "))
+        print("Updated: userName = ' ' (single space)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User:   (Admin)", "Single space should be preserved")
+    }
+    
+    /// Test 26: Very long single word (no spaces)
+    func testDynamicUpdateVeryLongSingleWord() {
+        print("\n🔀 Test 26: Very long single word")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        let longWord = String(repeating: "a", count: 500)
+        documentEditor.updateValue(for: "userName", value: .string(longWord))
+        print("Updated: userName = 500 'a' characters")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result length: \(resultText.count)")
+        
+        let expected = "User: \(longWord) (Admin)"
+        XCTAssertEqual(resultText, expected, "Very long single word should concatenate correctly")
+    }
+    
+    /// Test 27: HTML/XML tags in userName
+    func testDynamicUpdateHTMLTagsInUserName() {
+        print("\n🔀 Test 27: HTML/XML tags in userName")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userName", value: .string("<script>alert('XSS')</script>"))
+        print("Updated: userName = '<script>alert('XSS')</script>'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User: <script>alert('XSS')</script> (Admin)", "HTML tags should be preserved as-is")
+    }
+    
+    /// Test 28: Quotes and backslashes in userRole
+    func testDynamicUpdateQuotesAndBackslashes() {
+        print("\n🔀 Test 28: Quotes and backslashes in userRole")
+        print("Formula: concat(\"User: \", userName, \" (\", userRole, \")\")")
+        
+        documentEditor.updateValue(for: "userRole", value: .string("Admin \"Super\" \\User\\"))
+        print("Updated: userRole = 'Admin \"Super\" \\User\\'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_fields")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "User: John (Admin \"Super\" \\User\\)", "Quotes and backslashes should be preserved")
+    }
 }
 

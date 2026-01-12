@@ -91,7 +91,7 @@
               "y": 600.0,
               "width": 800.0,
               "height": 100.0,
-              "type": "multiselect",
+              "type": "multiSelect",
               "tableColumns": {},
               "displayType": "original"
             },
@@ -216,7 +216,7 @@
       "disabled": false,
       "required": false,
       "formulas": [],
-      "type": "multiselect",
+      "type": "multiSelect",
       "file": "691acd93a0d4b658f8cd45f6",
       "options": [
         {
