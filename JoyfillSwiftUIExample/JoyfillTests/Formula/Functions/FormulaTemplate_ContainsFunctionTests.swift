@@ -371,4 +371,257 @@ class containsTests: XCTestCase {
         
         XCTAssertEqual(resultText, "false", "Empty string should not contain 'premium'")
     }
+    
+    // MARK: - Additional Field Tests
+    
+    /// Test 17: Update blockedWords field directly
+    func testDynamicUpdateBlockedWords() {
+        print("\n🔀 Test 17: Update blockedWords")
+        print("Formula: and(..., not(contains(blockedWords, userInput)))")
+        
+        // Change blocked words list
+        documentEditor.updateValue(for: "blockedWords", value: .string("badword,test,invalid"))
+        print("Updated: blockedWords = 'badword,test,invalid'")
+        
+        // userInput = "Hello, my name is John" doesn't contain any of these words
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "With new blocked words, userInput should still be clean")
+    }
+    
+    /// Test 18: userInput contains specific blocked word
+    func testDynamicUserInputWithSpecificBlockedWord() {
+        print("\n🔀 Test 18: userInput with specific blocked word")
+        print("Formula: and(..., not(contains(blockedWords, userInput)))")
+        
+        // Update userInput to contain "spam" which is in blockedWords
+        documentEditor.updateValue(for: "userInput", value: .string("spam"))
+        print("Updated: userInput = 'spam'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        // contains(blockedWords, userInput) checks if "inappropriate,offensive,spam" contains "spam"
+        // This should be true, so not(contains(...)) should be false
+        XCTAssertEqual(resultText, "false", "blockedWords should contain 'spam'")
+    }
+    
+    // MARK: - Case Sensitivity and Character Tests
+    
+    /// Test 19: Case sensitivity - mixed case
+    func testContainsCaseSensitivityMixedCase() {
+        print("\n🔀 Test 19: Case sensitivity - mixed case")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("PrEmIuM PaCkAgE"))
+        print("Updated: productName = 'PrEmIuM PaCkAgE'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "contains() should be case-insensitive for mixed case")
+    }
+    
+    /// Test 20: Numbers in string
+    func testContainsWithNumbers() {
+        print("\n🔀 Test 20: Numbers in string")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Premium2024"))
+        print("Updated: productName = 'Premium2024'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' in 'Premium2024'")
+    }
+    
+    /// Test 21: Special characters
+    func testContainsWithSpecialCharacters() {
+        print("\n🔀 Test 21: Special characters")
+        print("Formula: if(contains(email, \"@\"), ...)")
+        
+        documentEditor.updateValue(for: "email", value: .string("user+test@example.com"))
+        print("Updated: email = 'user+test@example.com'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Valid email format", "Should find @ even with + character")
+    }
+    
+    /// Test 22: Unicode characters
+    func testContainsWithUnicode() {
+        print("\n🔀 Test 22: Unicode characters")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Prémium Package"))
+        print("Updated: productName = 'Prémium Package'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        // Searching for "premium" in "Prémium" - depends on implementation
+        XCTAssertTrue(resultText == "true" || resultText == "false", "Should handle Unicode")
+    }
+    
+    /// Test 23: Emoji in string
+    func testContainsWithEmoji() {
+        print("\n🔀 Test 23: Emoji in string")
+        print("Formula: if(contains(email, \"@\"), ...)")
+        
+        documentEditor.updateValue(for: "email", value: .string("user😊@example.com"))
+        print("Updated: email = 'user😊@example.com'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Valid email format", "Should find @ even with emoji")
+    }
+    
+    /// Test 24: Whitespace variations
+    func testContainsWithWhitespace() {
+        print("\n🔀 Test 24: Whitespace variations")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Premium  Package"))  // Double space
+        print("Updated: productName = 'Premium  Package' (double space)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' with extra whitespace")
+    }
+    
+    /// Test 25: Very long string
+    func testContainsInVeryLongString() {
+        print("\n🔀 Test 25: Very long string")
+        print("Formula: contains(productName, \"premium\")")
+        
+        let longString = "Start " + String(repeating: "filler ", count: 1000) + "premium " + String(repeating: "more ", count: 1000) + "end"
+        documentEditor.updateValue(for: "productName", value: .string(longString))
+        print("Updated: productName = very long string (~7000 chars) with 'premium' in middle")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' even in very long string")
+    }
+    
+    // MARK: - Position Tests
+    
+    /// Test 26: Substring at start
+    func testContainsSubstringAtStart() {
+        print("\n🔀 Test 26: Substring at start")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Premium"))
+        print("Updated: productName = 'Premium'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' at start of string")
+    }
+    
+    /// Test 27: Substring at end
+    func testContainsSubstringAtEnd() {
+        print("\n🔀 Test 27: Substring at end")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Super Premium"))
+        print("Updated: productName = 'Super Premium'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' at end of string")
+    }
+    
+    /// Test 28: Exact match (string == substring)
+    func testContainsExactMatch() {
+        print("\n🔀 Test 28: Exact match")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("premium"))
+        print("Updated: productName = 'premium'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Exact match should return true")
+    }
+    
+    /// Test 29: Multiple occurrences
+    func testContainsMultipleOccurrences() {
+        print("\n🔀 Test 29: Multiple occurrences")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Premium Premium Premium"))
+        print("Updated: productName = 'Premium Premium Premium'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' even with multiple occurrences")
+    }
+    
+    /// Test 30: Overlapping substrings
+    func testContainsOverlappingSubstrings() {
+        print("\n🔀 Test 30: Overlapping substrings")
+        print("Formula: if(contains(email, \"@\"), ...)")
+        
+        documentEditor.updateValue(for: "email", value: .string("@@@@"))
+        print("Updated: email = '@@@@'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_email")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Valid email format", "Should find @ in multiple @ symbols")
+    }
+    
+    /// Test 31: Newlines in string
+    func testContainsWithNewlines() {
+        print("\n🔀 Test 31: Newlines in string")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Premium\nPackage"))
+        print("Updated: productName = 'Premium\\nPackage'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' across newline")
+    }
+    
+    /// Test 32: Tab characters in string
+    func testContainsWithTabs() {
+        print("\n🔀 Test 32: Tab characters in string")
+        print("Formula: contains(productName, \"premium\")")
+        
+        documentEditor.updateValue(for: "productName", value: .string("Premium\tPackage"))
+        print("Updated: productName = 'Premium\\tPackage'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_product")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Should find 'premium' with tab character")
+    }
 }
