@@ -105,4 +105,93 @@ class ceilTests: XCTestCase {
         // ceil(0.01) = 1
         XCTAssertEqual(result, "1", "ceil(0.01) should return '1'")
     }
+    
+    /// Test: Update tax rate
+    func testDynamicUpdateTaxRate() {
+        updateNumberValue("taxRate", 15.0)
+        let result = getFieldValue("intermediate_example_price")
+        // ceil(19.99 * 2 * 1.15) = ceil(45.98) = 46
+        XCTAssertEqual(result, "46", "ceil(19.99 * 2 * 1.15) should return '46'")
+    }
+    
+    /// Test: Update package weight for advanced example
+    func testDynamicUpdatePackageWeight() {
+        updateNumberValue("packageWeight", 5.5)
+        let result = getFieldValue("advanced_example")
+        // ceil(5.5) * 5 = 6 * 5 = 30 (assuming express shipping is selected)
+        XCTAssertEqual(result, "30", "ceil(5.5) * 5 should return '30' for express shipping")
+    }
+    
+    /// Test: Change shipping method to standard
+    func testDynamicChangeShippingMethodToStandard() {
+        // Change shipping method to standard
+        documentEditor.updateValue(for: "shippingMethod", value: .string("691acd93e21a5122c7a1a796"))
+        let result = getFieldValue("advanced_example")
+        // ceil(3.7 / 2) * 3 = ceil(1.85) * 3 = 2 * 3 = 6
+        XCTAssertEqual(result, "6", "Standard shipping with weight 3.7 should return '6'")
+    }
+    
+    /// Test: Update express rate
+    func testDynamicUpdateExpressRate() {
+        updateNumberValue("expressRate", 10)
+        let result = getFieldValue("advanced_example")
+        // ceil(3.7) * 10 = 4 * 10 = 40
+        XCTAssertEqual(result, "40", "ceil(3.7) * 10 should return '40'")
+    }
+    
+    /// Test: Update standard rate with standard shipping
+    func testDynamicUpdateStandardRate() {
+        // First change to standard shipping
+        documentEditor.updateValue(for: "shippingMethod", value: .string("691acd93e21a5122c7a1a796"))
+        
+        // Update standard rate
+        updateNumberValue("standardRate", 5)
+        
+        let result = getFieldValue("advanced_example")
+        // ceil(3.7 / 2) * 5 = ceil(1.85) * 5 = 2 * 5 = 10
+        XCTAssertEqual(result, "10", "Standard shipping with updated rate should return '10'")
+    }
+    
+    /// Test: Negative number with small decimal
+    func testCeilNegativeSmallDecimal() {
+        updateNumberValue("itemPrice", -0.1)
+        updateNumberValue("quantity", 1)
+        updateNumberValue("taxRate", 0)
+        let result = getFieldValue("intermediate_example_price")
+        // ceil(-0.1) = 0
+        XCTAssertEqual(result, "0", "ceil(-0.1) should return '0'")
+    }
+    
+    /// Test: Very large number
+    func testCeilLargeNumber() {
+        updateNumberValue("itemPrice", 999999.99)
+        updateNumberValue("quantity", 10)
+        updateNumberValue("taxRate", 10)
+        let result = getFieldValue("intermediate_example_price")
+        // ceil(999999.99 * 10 * 1.10) = ceil(10999999.89) = 11000000
+        XCTAssertEqual(result, "11000000", "ceil of very large number should work correctly")
+    }
+    
+    /// Test: Invalid shipping method
+    func testDynamicInvalidShippingMethod() {
+        documentEditor.updateValue(for: "shippingMethod", value: .string("691acd93e21a5122c7a1a797"))
+        let result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "Invalid shipping method", "Invalid shipping method should return error message")
+    }
+    
+    /// Test: Zero package weight
+    func testDynamicZeroPackageWeight() {
+        updateNumberValue("packageWeight", 0)
+        let result = getFieldValue("advanced_example")
+        // ceil(0) * 5 = 0
+        XCTAssertEqual(result, "0", "Zero package weight should return '0'")
+    }
+    
+    /// Test: Negative tax rate (discount scenario)
+    func testDynamicNegativeTaxRate() {
+        updateNumberValue("taxRate", -10)
+        let result = getFieldValue("intermediate_example_price")
+        // ceil(19.99 * 2 * 0.90) = ceil(35.98) = 36
+        XCTAssertEqual(result, "36", "Negative tax rate should apply discount correctly")
+    }
 }
