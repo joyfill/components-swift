@@ -391,5 +391,212 @@ class andTests: XCTestCase {
         
         print("✅ Sequence test completed")
     }
+    
+    // MARK: - Additional Edge Case Tests
+    
+    /// Test 19: Single character name
+    /// Formula: and(length(name) > 0, ...)
+    /// Expected: true (length("A") = 1 > 0)
+    func testDynamicUpdateSingleCharacterName() {
+        print("\n🔀 Test 19: Single character name")
+        print("Formula: and(length(name) > 0, ...)")
+        
+        documentEditor.updateValue(for: "country", value: .string("USA"))
+        documentEditor.updateValue(for: "name", value: .string("A"))
+        print("Updated: name = 'A'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Single character name should satisfy length(name) > 0")
+    }
+    
+    /// Test 20: Negative age
+    /// Formula: and(age > 18, gender === 'Female')
+    /// Expected: false
+    func testDynamicUpdateNegativeAge() {
+        print("\n🔀 Test 20: Negative age")
+        print("Formula: and(age > 18, gender === 'Female')")
+        
+        documentEditor.updateValue(for: "gender", value: .string("Female"))
+        documentEditor.updateValue(for: "age", value: .int(-5))
+        print("Updated: age = -5, gender = Female")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Negative age should fail age > 18 check")
+    }
+    
+    /// Test 21: Very large age
+    /// Formula: and(age > 18, gender === 'Female')
+    /// Expected: true
+    func testDynamicUpdateVeryLargeAge() {
+        print("\n🔀 Test 21: Very large age")
+        print("Formula: and(age > 18, gender === 'Female')")
+        
+        documentEditor.updateValue(for: "gender", value: .string("Female"))
+        documentEditor.updateValue(for: "age", value: .int(150))
+        print("Updated: age = 150, gender = Female")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Very large age should still pass age > 18")
+    }
+    
+    /// Test 22: Whitespace-only name
+    /// Formula: and(length(name) > 0, ...)
+    /// Expected: true (length("   ") = 3 > 0)
+    func testDynamicUpdateWhitespaceName() {
+        print("\n🔀 Test 22: Whitespace-only name")
+        print("Formula: and(length(name) > 0, ...)")
+        
+        documentEditor.updateValue(for: "country", value: .string("USA"))
+        documentEditor.updateValue(for: "name", value: .string("   "))
+        print("Updated: name = '   ' (3 spaces)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "true", "Whitespace name has length > 0")
+    }
+    
+    /// Test 23: Clear gender after selection
+    /// Formula: and(age > 18, gender === 'Female')
+    /// Expected: false after clearing
+    func testDynamicClearGenderAfterSelection() {
+        print("\n🔀 Test 23: Clear gender after selection")
+        print("Formula: and(age > 18, gender === 'Female')")
+        
+        // First select Female (makes formula true)
+        documentEditor.updateValue(for: "gender", value: .string("Female"))
+        var result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example")
+        XCTAssertEqual(result?.text ?? "", "true", "Should be true with Female selected")
+        print("Step 1 - gender=Female: \(result?.text ?? "")")
+        
+        // Now clear the selection
+        documentEditor.updateValue(for: "gender", value: .string(""))
+        print("Step 2 - Cleared gender")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Should be false when gender is cleared")
+    }
+    
+    /// Test 24: Clear country after selection
+    /// Formula: and(..., or(country === 'USA', country === 'Canada'), ...)
+    /// Expected: false after clearing
+    func testDynamicClearCountryAfterSelection() {
+        print("\n🔀 Test 24: Clear country after selection")
+        print("Formula: and(..., or(country === 'USA', country === 'Canada'), ...)")
+        
+        documentEditor.updateValue(for: "country", value: .string("USA"))
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "true", "Should be true with USA selected")
+        print("Step 1 - country=USA: \(result?.text ?? "")")
+        
+        // Clear country selection
+        documentEditor.updateValue(for: "country", value: .string(""))
+        print("Step 2 - Cleared country")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Should be false when country is cleared")
+    }
+    
+    /// Test 25: Toggle hasVoted multiple times
+    /// Formula: and(..., not(hasVoted))
+    /// Expected: formula changes as hasVoted toggles
+    func testDynamicToggleHasVotedMultipleTimes() {
+        print("\n🔀 Test 25: Toggle hasVoted multiple times")
+        print("Formula: and(..., not(hasVoted))")
+        
+        documentEditor.updateValue(for: "country", value: .string("USA"))
+        
+        // Step 1: hasVoted = false (initial) → formula = true
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "true", "Step 1: hasVoted=false, formula=true")
+        print("Step 1 - hasVoted=false: \(result?.text ?? "")")
+        
+        // Step 2: hasVoted = true → formula = false
+        documentEditor.updateValue(for: "hasVoted", value: .bool(true))
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "false", "Step 2: hasVoted=true, formula=false")
+        print("Step 2 - hasVoted=true: \(result?.text ?? "")")
+        
+        // Step 3: hasVoted = false again → formula = true
+        documentEditor.updateValue(for: "hasVoted", value: .bool(false))
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "true", "Step 3: hasVoted=false again, formula=true")
+        print("Step 3 - hasVoted=false: \(result?.text ?? "")")
+        
+        print("✅ Toggle test completed")
+    }
+    
+    /// Test 26: All conditions fail simultaneously
+    /// Formula: and(length(name) > 0, age >= 18, or(country === 'USA', country === 'Canada'), not(hasVoted))
+    /// Expected: false
+    func testDynamicAllConditionsFail() {
+        print("\n🔀 Test 26: All conditions fail simultaneously")
+        print("Formula: and(length(name) > 0, age >= 18, or(country === 'USA', country === 'Canada'), not(hasVoted))")
+        
+        documentEditor.updateValue(for: "name", value: .string(""))            // length = 0
+        documentEditor.updateValue(for: "age", value: .int(10))                // age < 18
+        documentEditor.updateValue(for: "country", value: .string("Other"))    // not USA/Canada
+        documentEditor.updateValue(for: "hasVoted", value: .bool(true))        // not(true) = false
+        print("Updated: name='', age=10, country=Other, hasVoted=true")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "All conditions failing should return false")
+    }
+    
+    /// Test 27: Age exactly at boundary for advanced (>= 18)
+    /// Already covered in Test 16, but testing with all other conditions false
+    /// Formula: and(..., age >= 18, ...)
+    /// Expected: false (other conditions fail)
+    func testDynamicAgeBoundaryWithOtherFailures() {
+        print("\n🔀 Test 27: Age at boundary with other failures")
+        print("Formula: and(..., age >= 18, ...)")
+        
+        documentEditor.updateValue(for: "age", value: .int(18))
+        documentEditor.updateValue(for: "country", value: .string("Other"))  // Fails or condition
+        print("Updated: age=18, country=Other")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Even with age >= 18, other conditions can make it fail")
+    }
+    
+    /// Test 28: Zero age
+    /// Formula: and(age > 18, gender === 'Female')
+    /// Expected: false
+    func testDynamicUpdateZeroAge() {
+        print("\n🔀 Test 28: Zero age")
+        print("Formula: and(age > 18, gender === 'Female')")
+        
+        documentEditor.updateValue(for: "gender", value: .string("Female"))
+        documentEditor.updateValue(for: "age", value: .int(0))
+        print("Updated: age = 0, gender = Female")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "false", "Zero age should fail age > 18 check")
+    }
 }
 
