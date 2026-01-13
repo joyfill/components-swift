@@ -49,6 +49,9 @@ struct JoyfillExampleApp: App {
         // Get isPageDuplicateEnabled from launch arguments
         let isPageDuplicateEnabled = Self.getPageDuplicateEnabledFromLaunchArguments()
         
+        // Get isPageDeleteEnabled from launch arguments
+        let isPageDeleteEnabled = Self.getPageDeleteEnabledFromLaunchArguments()
+        
         // Create document editor with error handling
         do {
             self.documentEditor = DocumentEditor(
@@ -56,6 +59,7 @@ struct JoyfillExampleApp: App {
                 mode: mode,
                 events: eventHandler,
                 isPageDuplicateEnabled: isPageDuplicateEnabled,
+                isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
                 license: licenseKey
             )
@@ -68,6 +72,7 @@ struct JoyfillExampleApp: App {
                 mode: mode,
                 events: eventHandler,
                 isPageDuplicateEnabled: isPageDuplicateEnabled,
+                isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
                 license: licenseKey
             )
@@ -159,6 +164,20 @@ struct JoyfillExampleApp: App {
             return isEnabled
         }
         // Default to true for backward compatibility
+        return true
+    }
+    
+    /// Get isPageDeleteEnabled from launch arguments
+    /// Usage: --page-delete-enabled true OR --page-delete-enabled false
+    private static func getPageDeleteEnabledFromLaunchArguments() -> Bool {
+        let arguments = CommandLine.arguments
+        if let deleteIndex = arguments.firstIndex(of: "--page-delete-enabled"),
+           deleteIndex + 1 < arguments.count {
+            let enabledString = arguments[deleteIndex + 1].lowercased()
+            let isEnabled = enabledString == "true"
+            return isEnabled
+        }
+        // Default to false for backward compatibility
         return true
     }
     
