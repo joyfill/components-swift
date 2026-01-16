@@ -1,0 +1,327 @@
+{
+  "_id": "691acd933d90ecfb16a51b6a",
+  "identifier": "document-lower-function-test",
+  "name": "Lower Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f9",
+      "name": "Lower Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90380a",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312653",
+              "field": "basic_example_simple",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312654",
+              "field": "basic_example_mixed",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf64",
+              "field": "productName",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe50d",
+              "field": "intermediate_example_field",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf65",
+              "field": "firstName",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf66",
+              "field": "lastName",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe50e",
+              "field": "intermediate_example_concat",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf67",
+              "field": "userInput",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf68",
+              "field": "expectedValue",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d955",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90380a"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_simple",
+      "title": "Basic Example (Simple): lower(\"JOY\")",
+      "identifier": "field-basic-example-simple",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3066",
+          "formula": "691acd93bab5a640f289dda1",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9"
+    },
+    {
+      "_id": "basic_example_mixed",
+      "title": "Basic Example (Mixed Case): lower(\"Joyfill\")",
+      "identifier": "field-basic-example-mixed",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3067",
+          "formula": "691acd93bab5a640f289dda2",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9"
+    },
+    {
+      "_id": "productName",
+      "title": "Product Name",
+      "identifier": "field-product-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9",
+      "value": "Premium SUBSCRIPTION"
+    },
+    {
+      "_id": "intermediate_example_field",
+      "title": "Intermediate Example (Field): lower(productName)",
+      "identifier": "field-intermediate-example-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a1f",
+          "formula": "691acd93f6346774b0b9d063",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9"
+    },
+    {
+      "_id": "firstName",
+      "title": "First Name",
+      "identifier": "field-first-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9",
+      "value": "John"
+    },
+    {
+      "_id": "lastName",
+      "title": "Last Name",
+      "identifier": "field-last-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9",
+      "value": "DOE"
+    },
+    {
+      "_id": "intermediate_example_concat",
+      "title": "Intermediate Example (Concat): concat(firstName, \" \", lower(lastName))",
+      "identifier": "field-intermediate-example-concat",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a20",
+          "formula": "691acd93f6346774b0b9d064",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9"
+    },
+    {
+      "_id": "userInput",
+      "title": "User Input",
+      "identifier": "field-user-input",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9",
+      "value": "Hello"
+    },
+    {
+      "_id": "expectedValue",
+      "title": "Expected Value",
+      "identifier": "field-expected-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9",
+      "value": "HELLO"
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: if(equals(lower(userInput), lower(expectedValue)), \"Input matches expected value (case-insensitive)\", concat(\"Input does not match. Expected: \", expectedValue))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad7",
+          "formula": "691acd93f033ed54812dc62d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f9"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243726,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dda1",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "lower(\"JOY\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dda2",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "lower(\"Joyfill\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d063",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "lower(productName)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d064",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "concat(firstName, \" \", lower(lastName))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc62d",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(equals(lower(userInput), lower(expectedValue)), \"Input matches expected value (case-insensitive)\", concat(\"Input does not match. Expected: \", expectedValue))"
+    }
+  ]
+}

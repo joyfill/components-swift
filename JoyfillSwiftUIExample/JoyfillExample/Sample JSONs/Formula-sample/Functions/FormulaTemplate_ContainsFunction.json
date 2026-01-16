@@ -1,0 +1,373 @@
+{
+  "_id": "691acd933d90ecfb16a51b68",
+  "identifier": "document-contains-function-test",
+  "name": "Contains Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f7",
+      "name": "Contains Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903808",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731264f",
+              "field": "basic_example_true",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312650",
+              "field": "basic_example_false",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf59",
+              "field": "productName",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe509",
+              "field": "intermediate_example_product",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf5a",
+              "field": "email",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe50a",
+              "field": "intermediate_example_email",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf5b",
+              "field": "firstName",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf5c",
+              "field": "lastName",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf5d",
+              "field": "fullName",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf5e",
+              "field": "userInput",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf5f",
+              "field": "blockedWords",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d953",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903808"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_true",
+      "title": "Basic Example (True): contains(\"Joyfill Rocks\", \"rock\")",
+      "identifier": "field-basic-example-true",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3062",
+          "formula": "691acd93bab5a640f289dd9d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7"
+    },
+    {
+      "_id": "basic_example_false",
+      "title": "Basic Example (False): contains(\"Joyfill Rocks\", \"test\")",
+      "identifier": "field-basic-example-false",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3063",
+          "formula": "691acd93bab5a640f289dd9e",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7"
+    },
+    {
+      "_id": "productName",
+      "title": "Product Name",
+      "identifier": "field-product-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "Premium Joyfill Subscription"
+    },
+    {
+      "_id": "intermediate_example_product",
+      "title": "Intermediate Example (Product): contains(productName, \"premium\")",
+      "identifier": "field-intermediate-example-product",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a1b",
+          "formula": "691acd93f6346774b0b9d05f",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7"
+    },
+    {
+      "_id": "email",
+      "title": "Email",
+      "identifier": "field-email",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "user@example.com"
+    },
+    {
+      "_id": "intermediate_example_email",
+      "title": "Intermediate Example (Email): if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\")",
+      "identifier": "field-intermediate-example-email",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a1c",
+          "formula": "691acd93f6346774b0b9d060",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7"
+    },
+    {
+      "_id": "firstName",
+      "title": "First Name",
+      "identifier": "field-first-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "John"
+    },
+    {
+      "_id": "lastName",
+      "title": "Last Name",
+      "identifier": "field-last-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "Doe"
+    },
+    {
+      "_id": "fullName",
+      "title": "Full Name",
+      "identifier": "field-full-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "John Doe"
+    },
+    {
+      "_id": "userInput",
+      "title": "User Input",
+      "identifier": "field-user-input",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "Hello, my name is John"
+    },
+    {
+      "_id": "blockedWords",
+      "title": "Blocked Words",
+      "identifier": "field-blocked-words",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7",
+      "value": "inappropriate,offensive,spam"
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: and(contains(fullName, firstName), contains(fullName, lastName), not(contains(blockedWords, userInput)))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad5",
+          "formula": "691acd93f033ed54812dc62b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f7"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243724,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd9d",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "contains(\"Joyfill Rocks\", \"rock\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd9e",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "contains(\"Joyfill Rocks\", \"test\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d05f",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "contains(productName, \"premium\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d060",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(contains(email, \"@\"), \"Valid email format\", \"Invalid email format\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc62b",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "and(contains(fullName, firstName), contains(fullName, lastName), not(contains(blockedWords, userInput)))"
+    }
+  ]
+}
