@@ -334,5 +334,209 @@ class upperTests: XCTestCase {
         
         XCTAssertEqual(resultText, "O'BRIEN", "upper(\"o'brien\") should return \"O'BRIEN\"")
     }
+    
+    // MARK: - NEW DYNAMIC TESTS: userInput Field (CRITICAL GAP)
+    
+    /// Test 17: Dynamic update - userInput field
+    func testDynamicUpdate_UserInput() {
+        print("\n🔀 Test 17: Dynamic update - userInput field")
+        print("Formula: if(contains(upper(userInput), upper(searchTerm)), ...)")
+        
+        // Initial state: "joy" found in "This is a sample text with Joy in it"
+        var result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        XCTAssertEqual(result?.text ?? "", "Found match for: joy", "Initial should find match")
+        
+        // Update userInput to new text with SAMPLE
+        documentEditor.updateValue(for: "userInput", value: .string("New text with SAMPLE word"))
+        documentEditor.updateValue(for: "searchTerm", value: .string("sample"))
+        print("Updated: userInput = 'New text with SAMPLE word', searchTerm = 'sample'")
+        
+        result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Found match for: sample", "Should find 'sample' in 'SAMPLE'")
+    }
+    
+    /// Test 18: Dynamic update - userInput no match
+    func testDynamicUpdate_UserInputNoMatch() {
+        print("\n🔀 Test 18: Dynamic update - userInput no match")
+        print("Formula: if(contains(upper(userInput), upper(searchTerm)), ...)")
+        
+        // Update userInput to text without "sample"
+        documentEditor.updateValue(for: "userInput", value: .string("No joy here"))
+        documentEditor.updateValue(for: "searchTerm", value: .string("sample"))
+        print("Updated: userInput = 'No joy here', searchTerm = 'sample'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "No match found", "Should not find 'sample' in 'No joy here'")
+    }
+    
+    /// Test 19: Dynamic update - both userInput and searchTerm
+    func testDynamicUpdate_UserInputAndSearchTerm() {
+        print("\n🔀 Test 19: Dynamic update - both userInput and searchTerm")
+        print("Formula: if(contains(upper(userInput), upper(searchTerm)), ...)")
+        
+        // Update both fields
+        documentEditor.updateValue(for: "userInput", value: .string("Hello WORLD"))
+        documentEditor.updateValue(for: "searchTerm", value: .string("world"))
+        print("Updated: userInput = 'Hello WORLD', searchTerm = 'world'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "advanced_example")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: \(resultText)")
+        
+        XCTAssertEqual(resultText, "Found match for: world", "Should find 'world' in 'WORLD' (case-insensitive)")
+    }
+    
+    // MARK: - NEW EDGE CASES: Whitespace & Special
+    
+    /// Test 20: Whitespace only
+    func testEdgeCase_WhitespaceOnly() {
+        print("\n🔀 Test 20: Whitespace only")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("   "))
+        print("Updated: firstName = '   ' (only spaces)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "   ", "upper('   ') should preserve spaces")
+    }
+    
+    /// Test 21: Tabs and newlines
+    func testEdgeCase_TabsAndNewlines() {
+        print("\n🔀 Test 21: Tabs and newlines")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("hello\tworld\n"))
+        print("Updated: firstName = 'hello\\tworld\\n'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "HELLO\tWORLD\n", "upper() should preserve tabs and newlines")
+    }
+    
+    /// Test 22: Multiple consecutive spaces
+    func testEdgeCase_MultipleConsecutiveSpaces() {
+        print("\n🔀 Test 22: Multiple consecutive spaces")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("john    doe"))
+        print("Updated: firstName = 'john    doe' (4 spaces)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "JOHN    DOE", "upper() should preserve multiple spaces")
+    }
+    
+    /// Test 23: Leading and trailing whitespace
+    func testEdgeCase_LeadingTrailingWhitespace() {
+        print("\n🔀 Test 23: Leading and trailing whitespace")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("  mary  "))
+        print("Updated: firstName = '  mary  '")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "  MARY  ", "upper() should preserve leading/trailing whitespace")
+    }
+    
+    // MARK: - NEW EDGE CASES: Unicode & Emoji
+    
+    /// Test 24: Emoji handling
+    func testEdgeCase_Emoji() {
+        print("\n🔀 Test 24: Emoji handling")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("hello 😀 world"))
+        print("Updated: firstName = 'hello 😀 world'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "HELLO 😀 WORLD", "upper() should preserve emoji")
+    }
+    
+    /// Test 25: Mixed Unicode characters
+    func testEdgeCase_MixedUnicode() {
+        print("\n🔀 Test 25: Mixed Unicode characters")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("café naïve"))
+        print("Updated: firstName = 'café naïve'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "CAFÉ NAÏVE", "upper() should handle accented characters")
+    }
+    
+    /// Test 26: Non-Latin characters
+    func testEdgeCase_NonLatinCharacters() {
+        print("\n🔀 Test 26: Non-Latin characters")
+        print("Formula: upper(firstName)")
+        
+        // Using Arabic text
+        documentEditor.updateValue(for: "firstName", value: .string("مرحبا"))
+        print("Updated: firstName = 'مرحبا' (Arabic)")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        // Arabic doesn't have uppercase, so it should remain the same
+        XCTAssertEqual(resultText, "مرحبا", "upper() should handle non-Latin characters")
+    }
+    
+    // MARK: - NEW EDGE CASES: Numbers & Performance
+    
+    /// Test 27: Numeric only
+    func testEdgeCase_NumericOnly() {
+        print("\n🔀 Test 27: Numeric only")
+        print("Formula: upper(firstName)")
+        
+        documentEditor.updateValue(for: "firstName", value: .string("12345"))
+        print("Updated: firstName = '12345'")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result: '\(resultText)'")
+        
+        XCTAssertEqual(resultText, "12345", "upper('12345') should return '12345' (numbers unchanged)")
+    }
+    
+    /// Test 28: Very long string (performance)
+    func testEdgeCase_VeryLongString() {
+        print("\n🔀 Test 28: Very long string (performance)")
+        print("Formula: upper(firstName)")
+        
+        // Create a 1000+ character string
+        let longString = String(repeating: "abcdefghijklmnopqrstuvwxyz", count: 40) // 1040 chars
+        documentEditor.updateValue(for: "firstName", value: .string(longString))
+        print("Updated: firstName = \(longString.count) characters")
+        
+        let result = documentEditor.value(ofFieldWithIdentifier: "intermediate_example_field")
+        let resultText = result?.text ?? ""
+        print("🎯 Result length: \(resultText.count)")
+        
+        let expectedLongString = longString.uppercased()
+        XCTAssertEqual(resultText, expectedLongString, "upper() should handle very long strings")
+        XCTAssertEqual(resultText.count, 1040, "Length should be 1040 characters")
+    }
 }
 
