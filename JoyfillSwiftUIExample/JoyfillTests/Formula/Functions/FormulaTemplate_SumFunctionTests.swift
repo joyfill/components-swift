@@ -230,4 +230,205 @@ class sumTests: XCTestCase {
         let result = getFieldValue("intermediate_example_array")
         XCTAssertEqual(result, "81", "sum with decimals should return '81'")
     }
+    
+    // MARK: - NEW DYNAMIC TESTS: Missing Field Updates
+    
+    /// Test: Update price3 (was missing!)
+    func testDynamicUpdate_Price3() {
+        updateNumberValue("price3", 50)
+        let result = getFieldValue("intermediate_example_array")
+        // 25 + 30 + 50 + 10 = 115
+        XCTAssertEqual(result, "115", "sum([25, 30, 50], 10) should return '115', got '\(result)'")
+    }
+    
+    /// Test: Update all prices at once
+    func testDynamicUpdate_AllPrices() {
+        updateNumberValue("price1", 10)
+        updateNumberValue("price2", 20)
+        updateNumberValue("price3", 30)
+        let result = getFieldValue("intermediate_example_array")
+        // 10 + 20 + 30 + 10 = 70
+        XCTAssertEqual(result, "70", "sum([10, 20, 30], 10) should return '70', got '\(result)'")
+    }
+    
+    /// Test: Update insurance cost
+    func testDynamicUpdate_InsuranceCost() {
+        updateBoolValue("includeInsurance", true)
+        updateNumberValue("insuranceCost", 20)
+        let result = getFieldValue("advanced_example")
+        // 125 + 15 + 20 = 160
+        XCTAssertEqual(result, "160", "With updated insurance cost, total should be '160', got '\(result)'")
+    }
+    
+    /// Test: Both options disabled
+    func testDynamicUpdate_BothOptionsDisabled() {
+        updateBoolValue("includeShipping", false)
+        updateBoolValue("includeInsurance", false)
+        let result = getFieldValue("advanced_example")
+        // Only lineItems: 125
+        XCTAssertEqual(result, "125", "With no options, total should be '125', got '\(result)'")
+    }
+    
+    // MARK: - NEW EDGE CASES: Empty & Single Values
+    
+    /// Test: Sum of single value
+    func testEdgeCase_SingleValue() {
+        // Set all prices to 0 except price1
+        updateNumberValue("price1", 42)
+        updateNumberValue("price2", 0)
+        updateNumberValue("price3", 0)
+        updateNumberValue("shipping", 0)
+        let result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "42", "sum with single non-zero value should return '42', got '\(result)'")
+    }
+    
+    /// Test: Sum with all zeros
+    func testEdgeCase_AllZeros() {
+        updateNumberValue("price1", 0)
+        updateNumberValue("price2", 0)
+        updateNumberValue("price3", 0)
+        updateNumberValue("shipping", 0)
+        let result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "0", "sum of all zeros should return '0', got '\(result)'")
+    }
+    
+    // MARK: - NEW EDGE CASES: Negative Values
+    
+    /// Test: All negative values
+    func testEdgeCase_AllNegativeValues() {
+        updateNumberValue("subtotal", -50)
+        updateNumberValue("tax", -10)
+        let result = getFieldValue("intermediate_example_fields")
+        XCTAssertEqual(result, "-60", "sum(-50, -10) should return '-60', got '\(result)'")
+    }
+    
+    /// Test: Mixed positive and negative in array
+    func testEdgeCase_MixedSignsInArray() {
+        updateNumberValue("price1", 100)
+        updateNumberValue("price2", -50)
+        updateNumberValue("price3", -20)
+        updateNumberValue("shipping", 10)
+        let result = getFieldValue("intermediate_example_array")
+        // 100 + (-50) + (-20) + 10 = 40
+        XCTAssertEqual(result, "40", "sum([100, -50, -20], 10) should return '40', got '\(result)'")
+    }
+    
+    // MARK: - NEW EDGE CASES: Large Numbers & Precision
+    
+    /// Test: Very large numbers
+    func testEdgeCase_VeryLargeNumbers() {
+        updateNumberValue("subtotal", 999999999)
+        updateNumberValue("tax", 1)
+        let result = getFieldValue("intermediate_example_fields")
+        XCTAssertEqual(result, "1000000000", "sum of large numbers should return '1000000000', got '\(result)'")
+    }
+    
+    /// Test: Floating point precision with small decimals
+    func testEdgeCase_FloatingPointPrecision() {
+        updateNumberValue("price1", 0.1)
+        updateNumberValue("price2", 0.2)
+        updateNumberValue("price3", 0.3)
+        updateNumberValue("shipping", 0)
+        let result = getFieldValue("intermediate_example_array")
+        // 0.1 + 0.2 + 0.3 may have floating point issues
+        XCTAssertTrue(result.hasPrefix("0.6"), "sum([0.1, 0.2, 0.3], 0) should start with '0.6', got '\(result)'")
+    }
+    
+    // MARK: - NEW SEQUENCE TESTS
+    
+    /// Test: Sequence of price updates
+    func testSequence_PriceUpdates() {
+        var result: String
+        
+        // Step 1: Initial state (25 + 30 + 15 + 10 = 80)
+        result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "80", "Step 1: Initial should be '80', got '\(result)'")
+        
+        // Step 2: Update price1 to 50 (50 + 30 + 15 + 10 = 105)
+        updateNumberValue("price1", 50)
+        result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "105", "Step 2: Should be '105', got '\(result)'")
+        
+        // Step 3: Set price1 to 0 (0 + 30 + 15 + 10 = 55)
+        updateNumberValue("price1", 0)
+        result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "55", "Step 3: Should be '55', got '\(result)'")
+        
+        // Step 4: Update price1 to 100 (100 + 30 + 15 + 10 = 155)
+        updateNumberValue("price1", 100)
+        result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "155", "Step 4: Should be '155', got '\(result)'")
+        
+        // Step 5: Update all prices (10 + 20 + 30 + 10 = 70)
+        updateNumberValue("price1", 10)
+        updateNumberValue("price2", 20)
+        updateNumberValue("price3", 30)
+        result = getFieldValue("intermediate_example_array")
+        XCTAssertEqual(result, "70", "Step 5: Should be '70', got '\(result)'")
+    }
+    
+    /// Test: Toggle options multiple times
+    func testSequence_ToggleOptionsMultipleTimes() {
+        var result: String
+        
+        // Initial: shipping=true, insurance=false (125 + 15 + 0 = 140)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "140", "Step 1: Initial should be '140', got '\(result)'")
+        
+        // Toggle shipping OFF (125 + 0 + 0 = 125)
+        updateBoolValue("includeShipping", false)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "125", "Step 2: Should be '125', got '\(result)'")
+        
+        // Toggle insurance ON (125 + 0 + 5 = 130)
+        updateBoolValue("includeInsurance", true)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "130", "Step 3: Should be '130', got '\(result)'")
+        
+        // Toggle shipping ON (125 + 15 + 5 = 145)
+        updateBoolValue("includeShipping", true)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "145", "Step 4: Should be '145', got '\(result)'")
+        
+        // Toggle insurance OFF (125 + 15 + 0 = 140)
+        updateBoolValue("includeInsurance", false)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "140", "Step 5: Should be '140', got '\(result)'")
+        
+        // Toggle both OFF (125 + 0 + 0 = 125)
+        updateBoolValue("includeShipping", false)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "125", "Step 6: Should be '125', got '\(result)'")
+        
+        // Toggle both ON (125 + 15 + 5 = 145)
+        updateBoolValue("includeShipping", true)
+        updateBoolValue("includeInsurance", true)
+        result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "145", "Step 7: Should be '145', got '\(result)'")
+    }
+    
+    // MARK: - NEW ADVANCED TESTS: LineItems
+    
+    /// Test: Update lineItems JSON with different quantities
+    func testAdvanced_UpdateLineItemsJSON() {
+        // New lineItems: [{quantity: 1, price: 50}, {quantity: 2, price: 25}]
+        // Expected: 1*50 + 2*25 = 50 + 50 = 100
+        let newLineItems = "[{\"quantity\": 1, \"price\": 50}, {\"quantity\": 2, \"price\": 25}]"
+        documentEditor.updateValue(for: "lineItems", value: .string(newLineItems))
+        
+        let result = getFieldValue("advanced_example")
+        // 100 + 15 + 0 = 115
+        XCTAssertEqual(result, "115", "With updated lineItems, total should be '115', got '\(result)'")
+    }
+    
+    /// Test: Zero quantity in all line items
+    func testAdvanced_ZeroQuantityInLineItems() {
+        // All quantities set to 0
+        let newLineItems = "[{\"quantity\": 0, \"price\": 25}, {\"quantity\": 0, \"price\": 30}, {\"quantity\": 0, \"price\": 15}]"
+        documentEditor.updateValue(for: "lineItems", value: .string(newLineItems))
+        
+        let result = getFieldValue("advanced_example")
+        // 0 + 15 + 0 = 15 (only shipping)
+        XCTAssertEqual(result, "15", "With zero quantities, total should be '15' (shipping only), got '\(result)'")
+    }
 }
