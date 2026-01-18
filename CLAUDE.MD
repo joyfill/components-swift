@@ -24,6 +24,8 @@ The project is organized into four main Swift Package Manager targets:
    - No external dependencies
    - Defines JoyDoc structure and field types
    - Foundation for all other modules
+   - Contains `FieldTypes`, `ColumnTypes`, `ValidationStatus` enums
+   - Defines conditional logic models
 
 2. **JoyfillFormulas** - Formula evaluation engine
    - Depends on: JoyfillModel
@@ -38,6 +40,8 @@ The project is organized into four main Swift Package Manager targets:
    - Depends on: All above modules + JSONSchema.swift
    - SwiftUI and UIKit components
    - DocumentEditor for form rendering and validation
+   - Contains Form view hierarchy and field-specific views
+   - Includes ValidationHandler and ConditionalLogicHandler
 
 ### Key Source Directories
 
@@ -208,6 +212,404 @@ The JoyfillFormulas module provides:
 - **Evaluator** - Evaluates AST to produce FormulaValue
 - **FunctionRegistry** - Manages built-in and custom functions
 - **Built-in Functions**: ArrayFunctions, DateFunctions, MathFunctions, StringFunctions, LogicalFunctions, HigherOrderFunctions
+
+## Form View Architecture
+
+### View Hierarchy
+
+The Form view follows a hierarchical structure:
+
+```
+Form (Entry point)
+└── FilesView (Container for files)
+    └── FileView (Single file wrapper)
+        └── PagesView (Page navigation & management)
+            └── PageView (Single page wrapper)
+                └── FormView (List of fields)
+                    └── Individual Field Views
+```
+
+### Form View Components
+
+**Form** (`Sources/JoyfillUI/View/FormView.swift:5-25`)
+- Entry point for rendering JoyDoc documents
+- Takes `DocumentEditor` as initialization parameter
+- Displays `SchemaErrorView` if schema validation fails
+- Otherwise renders `FilesView` with document files
+
+**FilesView**
+- Container for document files
+- Currently renders the first file in the document
+
+**FileView**
+- Wrapper for a single file
+- Passes file's `pageOrder` and `pageFieldModels` to PagesView
+
+**PagesView**
+- Manages page navigation and selection
+- Shows page navigation dropdown when `documentEditor.showPageNavigationView` is true
+- Handles page duplication and deletion
+- Filters pages based on conditional logic (`shouldShow(pageID:)`)
+- Displays current page using `PageView`
+
+**PageView**
+- Wrapper for rendering a single page
+- Passes page's field list to `FormView`
+
+**FormView** (`Sources/JoyfillUI/View/FormView.swift:229-311`)
+- Core field rendering component
+- Uses SwiftUI `List` to display fields
+- Implements `FieldChangeEvents` protocol for event handling
+- Filters fields based on conditional logic (`shouldShow(fieldID:)`)
+- Manages focus tracking with `currentFocusedFieldsID` and `lastFocusedFieldsID`
+- Handles keyboard dismissal on scroll
+- Provides `fieldView(listModelBinding:)` method that switches on field type
+
+### Schema Error Handling
+
+**SchemaErrorView** (`Sources/JoyfillUI/View/FormView.swift:27-80`)
+- Displayed when schema validation fails
+- Shows error code, SDK version, and schema version
+- Handles two error types:
+  - `ERROR_SCHEMA_VERSION`: Unsupported document version
+  - `ERROR_SCHEMA_VALIDATION`: Invalid document structure
+
+## Field Types and Organization
+
+### Supported Field Types
+
+The SDK supports 14 field types defined in `FieldTypes` enum:
+
+1. **text** - Single-line text input
+2. **textarea** - Multi-line text input
+3. **number** - Numeric input with formatting
+4. **dropdown** - Single selection from options
+5. **multiSelect** - Multiple selection from options
+6. **date** - Date/time picker
+7. **signature** - Signature capture
+8. **image** - Image upload and display
+9. **block** - Display-only text block
+10. **richText** - Rich text editor
+11. **table** - Table with rows and columns
+12. **collection** - Hierarchical nested table with schemas
+13. **chart** - Data visualization
+14. **unknown** - Fallback type
+
+### Field Data Models
+
+Each field type has a corresponding data model in `Sources/JoyfillUI/ViewModels/Models.swift`:
+
+- `TextDataModel` - Single-line text
+- `MultiLineDataModel` - Multi-line text (textarea)
+- `NumberDataModel` - Numeric fields
+- `DropdownDataModel` - Dropdown selections
+- `MultiSelectionDataModel` - Multi-select fields
+- `DateTimeDataModel` - Date/time fields
+- `SignatureDataModel` - Signature fields
+- `ImageDataModel` - Image fields
+- `DisplayTextDataModel` - Block (display-only) fields
+- `RichTextDataModel` - Rich text fields
+- `TableDataModel` - Table and collection fields
+- `ChartDataModel` - Chart fields
+
+### Field List Model Structure
+
+**FieldListModel** (`Sources/JoyfillUI/ViewModels/Models.swift:16-20`)
+```swift
+struct FieldListModel: Equatable {
+    let fieldIdentifier: FieldIdentifier
+    let fieldEditMode: Mode
+    var model: FieldListModelType
+}
+```
+
+**FieldListModelType** (`Sources/JoyfillUI/View/FormView.swift:168-215`)
+- Enum wrapping all field data models
+- Used for type-safe field rendering
+- Provides `tableDataModel` computed property for table/collection access
+
+**PageModel** (`Sources/JoyfillUI/ViewModels/Models.swift:11-14`)
+```swift
+struct PageModel {
+    let id: String
+    var fields: [FieldListModel]
+}
+```
+
+### Table and Collection Fields
+
+**RowDataModel** (`Sources/JoyfillUI/ViewModels/Models.swift:22-47`)
+```swift
+struct RowDataModel: Equatable, Hashable {
+    let rowID: String
+    var cells: [TableCellModel]
+    var rowType: RowType
+    var isExpanded: Bool
+    var filledCellCount: Int
+    var rowWidth: CGFloat
+}
+```
+
+**RowType** - Enum defining row hierarchy:
+- `.row(index:)` - Regular table row
+- `.header(level:tableColumns:)` - Header row at specific level
+- `.nestedRow(level:index:parentID:parentSchemaKey:)` - Nested row in collection
+- `.tableExpander(schemaValue:level:parentID:rowWidth:)` - Row expander for nested content
+
+**Column Types** - For table/collection columns:
+- `text`, `dropdown`, `image`, `block`, `date`, `number`, `multiSelect`, `signature`
+
+## DocumentEditor Deep Dive
+
+### Core Architecture
+
+**DocumentEditor** (`Sources/JoyfillUI/ViewModels/DocumentEditor.swift`) is an `ObservableObject` that:
+- Manages the JoyDoc and all field state
+- Coordinates between validation, formulas, and conditional logic
+- Provides programmatic API for field updates
+- Handles schema validation on initialization
+
+### Internal State Management
+
+**Key Properties:**
+```swift
+private(set) public var document: JoyDoc
+@Published public var currentPageID: String
+@Published var pageFieldModels: [String: PageModel]
+var fieldMap: [String: JoyDocField]
+private var fieldPositionMap: [String: FieldPosition]
+public var events: FormChangeEvent?
+```
+
+**Handler Components:**
+- `validationHandler: ValidationHandler` - Manages field validation
+- `conditionalLogicHandler: ConditionalLogicHandler` - Controls field/page visibility
+- `joyDocContext: JoyfillDocContext` - Provides context for formula evaluation
+
+### Field Access Methods
+
+```swift
+// Get field by ID
+public func field(fieldID: String?) -> JoyDocField?
+
+// Get field position metadata
+public func fieldPosition(fieldID: String?) -> FieldPosition?
+
+// Get complete field context for Change API
+public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier
+```
+
+### Change API Targets
+
+The Change API supports these target types (`Sources/JoyfillUI/ViewModels/DocumentEditor.swift:12-21`):
+
+- `field.update` - Update field value
+- `field.value.rowCreate` - Create table/collection row
+- `field.value.rowUpdate` - Update table/collection row
+- `field.value.rowDelete` - Delete table/collection row
+- `field.value.rowMove` - Reorder table/collection rows
+
+**Change Processing Flow:**
+1. `change(changes:)` receives array of changes
+2. Validates target type and field existence
+3. Delegates to specific handler methods
+4. For table/collection: uses `DocumentEditorDelegate` pattern
+5. Refreshes field and dependent fields
+6. Triggers formula re-evaluation
+
+### Delegate Pattern for Tables
+
+**DocumentEditorDelegate** protocol:
+```swift
+protocol DocumentEditorDelegate: AnyObject {
+    func applyRowEditChanges(change: Change)
+    func insertRow(for change: Change)
+    func deleteRow(for change: Change)
+    func moveRow(for change: Change)
+}
+```
+
+Table and Collection ViewModels implement this protocol and register with DocumentEditor.
+
+## Validation System
+
+### ValidationHandler
+
+**Location:** `Sources/JoyfillUI/ViewModels/ValidationHandler.swift`
+
+**Core Method:**
+```swift
+func validate() -> Validation
+```
+
+### Validation Logic
+
+**Field-Level Validation:**
+1. Iterates through all pages in current view
+2. For each page, checks if page is visible (`shouldShow(page:)`)
+3. For each field, checks if field is visible (`shouldShow(fieldID:)`)
+4. Hidden pages/fields are automatically considered valid
+5. Only validates fields where `required = true`
+
+**Non-Empty Check:**
+- Text fields: checks `value.text` is not empty
+- Number fields: checks `value.number` exists
+- Multi-select/dropdown: checks array has selected values
+- Tables/Collections: special validation logic
+
+**Table Validation** (`validateTableField`):
+1. Gets non-deleted rows
+2. Gets visible columns (filters hidden columns)
+3. For each row:
+   - Validates each required column has a value
+   - Builds `CellValidity` for each cell
+   - Builds `RowValidity` aggregating cell validities
+4. Builds `ColumnValidity` for each column
+5. Returns `FieldValidity` with overall status
+
+**Collection Validation** (`validateCollectionField`):
+1. Validates root schema rows and columns
+2. Recursively validates nested child schemas
+3. Checks schema visibility using `shouldShowSchema(for:rowSchemaID:)`
+4. Validates required nested children exist
+5. Returns hierarchical `FieldValidity`
+
+### Validation Result Structure
+
+```swift
+Validation {
+    status: ValidationStatus  // .valid or .invalid
+    fieldValidities: [FieldValidity]
+}
+
+FieldValidity {
+    field: JoyDocField
+    status: ValidationStatus
+    pageId: String?
+    rowValidities: [RowValidity]?
+    columnValidities: [ColumnValidity]?
+}
+
+RowValidity {
+    status: ValidationStatus
+    cellValidities: [CellValidity]
+}
+
+ColumnValidity {
+    status: ValidationStatus
+    cellValidities: [CellValidity]
+}
+
+CellValidity {
+    status: ValidationStatus
+    row: ValueElement
+    column: FieldTableColumn
+    reasons: [String]?
+}
+```
+
+## Conditional Logic System
+
+### ConditionalLogicHandler
+
+**Location:** `Sources/JoyfillUI/ViewModels/ConditionalLogicHandler.swift`
+
+**Purpose:** Controls field and page visibility based on conditions and logic rules.
+
+### Core Data Structures
+
+**Cache Maps:**
+```swift
+var showFieldMap: [String: Bool]  // fieldID -> visibility
+var showCollectionSchemaMap: [String: CollectionSchemaLogic]  // collectionFieldID -> schema visibility
+var fieldConditionalDependencyMap: [String: Set<String>]  // fieldID -> dependent fieldIDs
+var collectionDependencyMap: [String: CollectionDependency]  // collectionFieldID -> column dependencies
+```
+
+**CollectionSchemaLogic:**
+```swift
+struct CollectionSchemaLogic {
+    var showSchemaMap: [RowSchemaID: Bool]  // Per-row schema visibility
+}
+
+struct RowSchemaID: Hashable {
+    let rowID: String
+    let schemaID: String
+}
+```
+
+### Initialization
+
+On initialization, ConditionalLogicHandler:
+1. Evaluates initial visibility for all fields
+2. Builds dependency maps for field conditions
+3. For collection fields:
+   - Builds column dependency map
+   - Builds initial schema visibility map for all rows
+
+### Conditional Logic Evaluation
+
+**shouldShow Methods:**
+```swift
+func shouldShow(fieldID: String?) -> Bool
+func shouldShow(pageID: String?) -> Bool
+func shouldShow(page: Page?) -> Bool
+func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool
+```
+
+**Condition Evaluation Flow:**
+1. Extracts logic and conditions from field/page
+2. Builds `ConditionalLogicModel` with:
+   - Logic (id, action, eval)
+   - Conditions array
+   - Item hidden state
+3. Evaluates each condition using `compareValue`
+4. Combines results based on eval type ("and" or "or")
+5. Applies action ("show" or "hide")
+
+**Supported Condition Operators:**
+- `=` - Equals (case-insensitive for text)
+- `!=` - Not equals
+- `?=` - Contains (text only)
+- `>` - Greater than (numbers only)
+- `<` - Less than (numbers only)
+- `null=` - Is empty/null
+- `*=` - Is not empty/null
+
+**Logic Actions:**
+- `show` - Show if conditions match
+- `hide` - Hide if conditions match
+
+**Logic Eval:**
+- `and` - All conditions must match
+- `or` - Any condition must match
+
+### Dependency Tracking and Refresh
+
+**Field Dependencies:**
+When field A's value changes:
+1. `fieldsNeedsToBeRefreshed(fieldID:)` finds dependent fields
+2. Re-evaluates visibility for each dependent
+3. Updates `showFieldMap` cache
+4. Returns list of fields that need UI refresh
+
+**Collection Schema Dependencies:**
+When collection cell changes:
+1. `updateSchemaVisibility` checks if column affects any schemas
+2. Re-evaluates affected schema visibility
+3. Updates `showCollectionSchemaMap` cache
+
+### Collection-Specific Logic
+
+**Schema Conditions:**
+- Reference column values within the same row
+- Use `columnID` instead of `fieldID`
+- Evaluated per-row, per-schema
+
+**Nested Hierarchies:**
+- Supports multi-level nested schemas
+- Each level can have its own conditional logic
+- Visibility cascades: parent hidden = children hidden
 
 ## Important Files
 
@@ -462,6 +864,197 @@ When asking for help with this codebase:
 - For formula issues: provide the formula expression and expected behavior
 - For UI issues: mention if using SwiftUI or UIKit
 - Include relevant test files when debugging
+
+## Practical Implementation Patterns
+
+### Working with Field Visibility
+
+**Check if a field should be displayed:**
+```swift
+if documentEditor.shouldShow(fieldID: "myFieldId") {
+    // Render field
+}
+```
+
+**Check if a page should be displayed:**
+```swift
+if documentEditor.shouldShow(pageID: "pageId") {
+    // Render page
+}
+```
+
+**Check if a collection schema should be shown:**
+```swift
+let rowSchemaID = RowSchemaID(rowID: "row123", schemaID: "schema456")
+if documentEditor.shouldShowSchema(for: "collectionFieldId", rowSchemaID: rowSchemaID) {
+    // Show nested schema
+}
+```
+
+### Working with Table/Collection Rows
+
+**Insert a new row:**
+```swift
+let change = Change(
+    v: 1,
+    sdk: "swift",
+    target: "field.value.rowCreate",
+    _id: editor.documentID ?? "",
+    identifier: editor.documentIdentifier,
+    fileId: id.fileID ?? "",
+    pageId: id.pageID ?? "",
+    fieldId: id.fieldID,
+    fieldIdentifier: nil,
+    fieldPositionId: id.fieldPositionId ?? "",
+    change: [
+        "row": [
+            "_id": UUID().uuidString,
+            "cells": [:],  // Empty cells or pre-filled values
+            "deleted": false
+        ],
+        "targetRowIndex": 0  // Insert at index 0
+    ],
+    createdOn: Date().timeIntervalSince1970
+)
+editor.change(changes: [change])
+```
+
+**Update a row's cell:**
+```swift
+let change = Change(
+    v: 1,
+    sdk: "swift",
+    target: "field.value.rowUpdate",
+    // ... other required fields
+    change: [
+        "rowId": "row123",
+        "columnId": "column456",
+        "value": ["text": "Updated value"]
+    ],
+    createdOn: Date().timeIntervalSince1970
+)
+```
+
+**Delete a row:**
+```swift
+let change = Change(
+    v: 1,
+    sdk: "swift",
+    target: "field.value.rowDelete",
+    // ... other required fields
+    change: [
+        "rowId": "row123"
+    ],
+    createdOn: Date().timeIntervalSince1970
+)
+```
+
+### Implementing Conditional Logic
+
+**Field with conditional logic:**
+```json
+{
+  "_id": "field123",
+  "type": "text",
+  "hidden": false,
+  "logic": {
+    "id": "logic1",
+    "action": "show",
+    "eval": "and",
+    "conditions": [
+      {
+        "field": "otherFieldId",
+        "condition": "=",
+        "value": { "text": "Yes" }
+      }
+    ]
+  }
+}
+```
+
+**Collection schema with conditional logic:**
+```json
+{
+  "schemaKey": {
+    "hidden": false,
+    "logic": {
+      "action": "show",
+      "eval": "or",
+      "schemaConditions": [
+        {
+          "columnID": "statusColumn",
+          "schema": "parentSchemaKey",
+          "condition": "=",
+          "value": { "text": "Active" }
+        }
+      ]
+    }
+  }
+}
+```
+
+### Custom Field Rendering
+
+**Extend FormView for custom field types:**
+```swift
+extension FormView {
+    @ViewBuilder
+    func customFieldView(for model: FieldListModel) -> some View {
+        switch model.model {
+        case .text(let textModel):
+            CustomTextView(model: textModel)
+        default:
+            fieldView(listModelBinding: .constant(model))
+        }
+    }
+}
+```
+
+### Validation Workflow
+
+**Validate before submission:**
+```swift
+let validation = documentEditor.validate()
+
+if validation.status == .valid {
+    // Submit form
+    submitDocument(documentEditor.document)
+} else {
+    // Show validation errors
+    for fieldValidity in validation.fieldValidities where fieldValidity.status == .invalid {
+        print("Invalid field: \(fieldValidity.field.id ?? "unknown")")
+
+        // For tables, check row/column validities
+        if let rowValidities = fieldValidity.rowValidities {
+            for (index, rowValidity) in rowValidities.enumerated() where rowValidity.status == .invalid {
+                print("  Row \(index) has invalid cells")
+            }
+        }
+    }
+}
+```
+
+**Display field-specific errors:**
+```swift
+ForEach(validation.fieldValidities, id: \.field.id) { fieldValidity in
+    if fieldValidity.status == .invalid {
+        VStack {
+            Text("Field: \(fieldValidity.field.title ?? "Untitled")")
+            Text("Status: Invalid")
+                .foregroundColor(.red)
+
+            // Show cell-level errors for tables
+            if let rowValidities = fieldValidity.rowValidities {
+                ForEach(rowValidities.indices, id: \.self) { rowIndex in
+                    if rowValidities[rowIndex].status == .invalid {
+                        Text("Row \(rowIndex + 1) has errors")
+                    }
+                }
+            }
+        }
+    }
+}
+```
 
 ### Common Development Patterns
 
