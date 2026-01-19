@@ -1,0 +1,314 @@
+{
+  "_id": "691acd933d90ecfb16a51b63",
+  "identifier": "document-and-function-test",
+  "name": "And Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f2",
+      "name": "And Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903803",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312643",
+              "field": "basic_example_true",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312644",
+              "field": "basic_example_false",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf53",
+              "field": "age",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd93919358909216e963",
+              "field": "gender",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe503",
+              "field": "intermediate_example",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e4866",
+              "field": "name",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e4867",
+              "field": "country",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e4868",
+              "field": "hasVoted",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "checkbox",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d94e",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903803"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_true",
+      "title": "Basic Example (True): and(true, true)",
+      "identifier": "field-basic-example-true",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3056",
+          "formula": "691acd93bab5a640f289dd91",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f2"
+    },
+    {
+      "_id": "basic_example_false",
+      "title": "Basic Example (False): and(true, false)",
+      "identifier": "field-basic-example-false",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3057",
+          "formula": "691acd93bab5a640f289dd92",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f2"
+    },
+    {
+      "_id": "age",
+      "title": "Age",
+      "identifier": "field_age",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45f2",
+      "value": 20.0
+    },
+    {
+      "_id": "gender",
+      "title": "Gender",
+      "identifier": "field-gender",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f2",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184de",
+          "value": "Male"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a783",
+          "value": "Female"
+        }
+      ]
+    },
+    {
+      "_id": "intermediate_example",
+      "title": "Intermediate Example: and(age > 18, gender == 'Female')",
+      "identifier": "field-intermediate-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a15",
+          "formula": "691acd93f6346774b0b9d059",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f2"
+    },
+    {
+      "_id": "name",
+      "title": "Name",
+      "identifier": "field-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f2",
+      "value": "John Doe"
+    },
+    {
+      "_id": "country",
+      "title": "Country",
+      "identifier": "field-country",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f2",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184df",
+          "value": "USA"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a784",
+          "value": "Canada"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a785",
+          "value": "Other"
+        }
+      ]
+    },
+    {
+      "_id": "hasVoted",
+      "title": "Has Voted",
+      "identifier": "field-has-voted",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "checkbox",
+      "file": "691acd93a0d4b658f8cd45f2",
+      "value": false
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: and(length(name) > 0, age >= 18, or(country == 'USA', country == 'Canada'), not(hasVoted))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad0",
+          "formula": "691acd93f033ed54812dc626",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f2"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243719,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd91",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "and(true, true)"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd92",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "and(true, false)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d059",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "and(age > 18, gender == 'Female')"
+    },
+    {
+      "_id": "691acd93f033ed54812dc626",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "and(length(name) > 0, age >= 18, or(country == 'USA', country == 'Canada'), not(hasVoted))"
+    }
+  ]
+}

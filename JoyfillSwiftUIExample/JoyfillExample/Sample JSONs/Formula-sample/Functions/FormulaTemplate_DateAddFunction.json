@@ -1,0 +1,397 @@
+{
+  "_id": "691acd933d90ecfb16a51b7a",
+  "identifier": "document-dateadd-function-test",
+  "name": "DateAdd Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd4fff",
+      "name": "DateAdd Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90381a",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312678",
+              "field": "basic_example_years",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312679",
+              "field": "basic_example_months",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb6",
+              "field": "startDate",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb7",
+              "field": "durationValue",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb8",
+              "field": "durationUnit",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe528",
+              "field": "intermediate_example_field",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe529",
+              "field": "intermediate_example_chain",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb9",
+              "field": "dueDate",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d974",
+              "field": "advanced_example_payment",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d975",
+              "field": "advanced_example_planning",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfba",
+              "field": "subscriptionStartDate",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d976",
+              "field": "advanced_example_subscription",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90381a"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_years",
+      "title": "Basic Example (Years): dateAdd(date(2023, 1, 1), 3, \"years\")",
+      "identifier": "field-basic-example-years",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3091",
+          "formula": "691acd93bab5a640f289ddc6",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    },
+    {
+      "_id": "basic_example_months",
+      "title": "Basic Example (Months): dateAdd(now(), 2, \"months\")",
+      "identifier": "field-basic-example-months",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3092",
+          "formula": "691acd93bab5a640f289ddc7",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    },
+    {
+      "_id": "startDate",
+      "title": "Start Date",
+      "identifier": "field-start-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff",
+      "value": "2023-05-15T00:00:00.000Z"
+    },
+    {
+      "_id": "durationValue",
+      "title": "Duration Value",
+      "identifier": "field-duration-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd4fff",
+      "value": 14
+    },
+    {
+      "_id": "durationUnit",
+      "title": "Duration Unit",
+      "identifier": "field-duration-unit",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff",
+      "value": "days"
+    },
+    {
+      "_id": "intermediate_example_field",
+      "title": "Intermediate Example (Field): dateAdd(startDate, durationValue, durationUnit)",
+      "identifier": "field-intermediate-example-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a3a",
+          "formula": "691acd93f6346774b0b9d07e",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    },
+    {
+      "_id": "intermediate_example_chain",
+      "title": "Intermediate Example (Chain): dateAdd(dateAdd(date(2023, 1, 1), 6, \"months\"), 15, \"days\")",
+      "identifier": "field-intermediate-example-chain",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a3b",
+          "formula": "691acd93f6346774b0b9d07f",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    },
+    {
+      "_id": "dueDate",
+      "title": "Due Date",
+      "identifier": "field-due-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff",
+      "value": "2023-08-15T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_payment",
+      "title": "Advanced Example (Payment): if(dateAdd(now(), 30, \"days\") > dueDate, \"Payment due soon!\", \"Payment due in more than 30 days\")",
+      "identifier": "field-advanced-example-payment",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af6",
+          "formula": "691acd93f033ed54812dc64c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    },
+    {
+      "_id": "advanced_example_planning",
+      "title": "Advanced Example (Planning): if(month(dateAdd(now(), 3, \"months\")) == 12, \"Q4 planning needed\", \"Not time for Q4 planning yet\")",
+      "identifier": "field-advanced-example-planning",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af7",
+          "formula": "691acd93f033ed54812dc64d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    },
+    {
+      "_id": "subscriptionStartDate",
+      "title": "Subscription Start Date",
+      "identifier": "field-subscription-start-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff",
+      "value": "2023-01-01T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_subscription",
+      "title": "Advanced Example (Subscription): \"Your subscription expires on \" + dateAdd(subscriptionStartDate, 1, \"years\")",
+      "identifier": "field-advanced-example-subscription",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af8",
+          "formula": "691acd93f033ed54812dc64e",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4fff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243742,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddc6",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "dateAdd(date(2023, 1, 1), 3, \"years\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddc7",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "dateAdd(now(), 2, \"months\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d07e",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "dateAdd(startDate, durationValue, durationUnit)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d07f",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "dateAdd(dateAdd(date(2023, 1, 1), 6, \"months\"), 15, \"days\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc64c",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(dateAdd(now(), 30, \"days\") > dueDate, \"Payment due soon!\", \"Payment due in more than 30 days\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc64d",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(month(dateAdd(now(), 3, \"months\")) == 12, \"Q4 planning needed\", \"Not time for Q4 planning yet\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc64e",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "\"Your subscription expires on \" + dateAdd(subscriptionStartDate, 1, \"years\")"
+    }
+  ]
+}

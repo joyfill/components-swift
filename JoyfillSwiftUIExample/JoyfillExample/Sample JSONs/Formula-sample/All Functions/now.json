@@ -1,0 +1,305 @@
+{
+  "_id": "691acd933d90ecfb16a51b75",
+  "identifier": "document-now-function-test",
+  "name": "Now Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd4aff",
+      "name": "Now Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903815",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731266f",
+              "field": "basic_example",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe51b",
+              "field": "intermediate_example_timestamp",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe51c",
+              "field": "intermediate_example_year",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe51d",
+              "field": "intermediate_example_month",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d965",
+              "field": "advanced_example_subtract",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d966",
+              "field": "advanced_example_greeting",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfa9",
+              "field": "startDate",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d967",
+              "field": "advanced_example_duration",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903815"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example",
+      "title": "Basic Example: now()",
+      "identifier": "field-basic-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3088",
+          "formula": "691acd93bab5a640f289ddbd",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    },
+    {
+      "_id": "intermediate_example_timestamp",
+      "title": "Intermediate Example (Timestamp): \"Document created on: \" + now()",
+      "identifier": "field-intermediate-example-timestamp",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a2d",
+          "formula": "691acd93f6346774b0b9d071",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    },
+    {
+      "_id": "intermediate_example_year",
+      "title": "Intermediate Example (Year): year(now())",
+      "identifier": "field-intermediate-example-year",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a2e",
+          "formula": "691acd93f6346774b0b9d072",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    },
+    {
+      "_id": "intermediate_example_month",
+      "title": "Intermediate Example (Month): month(now())",
+      "identifier": "field-intermediate-example-month",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a2f",
+          "formula": "691acd93f6346774b0b9d073",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    },
+    {
+      "_id": "advanced_example_subtract",
+      "title": "Advanced Example (Subtract): dateSubtract(now(), 7, \"days\")",
+      "identifier": "field-advanced-example-subtract",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae7",
+          "formula": "691acd93f033ed54812dc63d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    },
+    {
+      "_id": "advanced_example_greeting",
+      "title": "Advanced Example (Greeting): if(hour(now()) < 12, \"Good morning!\", if(hour(now()) < 18, \"Good afternoon!\", \"Good evening!\"))",
+      "identifier": "field-advanced-example-greeting",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae8",
+          "formula": "691acd93f033ed54812dc63e",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    },
+    {
+      "_id": "startDate",
+      "title": "Start Date",
+      "identifier": "field-start-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff",
+      "value": "2023-01-01T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_duration",
+      "title": "Advanced Example (Duration): (now() - startDate) / (1000 * 60 * 60 * 24)",
+      "identifier": "field-advanced-example-duration",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae9",
+          "formula": "691acd93f033ed54812dc63f",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4aff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243737,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddbd",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "now()"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d071",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "\"Document created on: \" + now()"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d072",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "year(now())"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d073",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "month(now())"
+    },
+    {
+      "_id": "691acd93f033ed54812dc63d",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "dateSubtract(now(), 7, \"days\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc63e",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(hour(now()) < 12, \"Good morning!\", if(hour(now()) < 18, \"Good afternoon!\", \"Good evening!\"))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc63f",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "(now() - startDate) / (1000 * 60 * 60 * 24)"
+    }
+  ]
+}

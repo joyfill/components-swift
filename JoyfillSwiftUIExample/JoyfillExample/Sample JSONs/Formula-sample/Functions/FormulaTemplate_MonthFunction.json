@@ -1,0 +1,351 @@
+{
+  "_id": "691acd933d90ecfb16a51b77",
+  "identifier": "document-month-function-test",
+  "name": "Month Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd4cff",
+      "name": "Month Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903817",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312672",
+              "field": "basic_example_specific",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312673",
+              "field": "basic_example_current",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfad",
+              "field": "orderDate",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe520",
+              "field": "intermediate_example_field",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfae",
+              "field": "sampleDate",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe521",
+              "field": "intermediate_example_name",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d96b",
+              "field": "advanced_example_season",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d96c",
+              "field": "advanced_example_quarter",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfaf",
+              "field": "eventDate",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d96d",
+              "field": "advanced_example_current_month",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903817"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_specific",
+      "title": "Basic Example (Specific Date): month(date(2023, 5, 15))",
+      "identifier": "field-basic-example-specific",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b308b",
+          "formula": "691acd93bab5a640f289ddc0",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    },
+    {
+      "_id": "basic_example_current",
+      "title": "Basic Example (Current Date): month(now())",
+      "identifier": "field-basic-example-current",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b308c",
+          "formula": "691acd93bab5a640f289ddc1",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    },
+    {
+      "_id": "orderDate",
+      "title": "Order Date",
+      "identifier": "field-order-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff",
+      "value": "2023-03-15T00:00:00.000Z"
+    },
+    {
+      "_id": "intermediate_example_field",
+      "title": "Intermediate Example (Field): month(orderDate)",
+      "identifier": "field-intermediate-example-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a32",
+          "formula": "691acd93f6346774b0b9d076",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    },
+    {
+      "_id": "sampleDate",
+      "title": "Sample Date",
+      "identifier": "field-sample-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff",
+      "value": "2023-02-15T00:00:00.000Z"
+    },
+    {
+      "_id": "intermediate_example_name",
+      "title": "Intermediate Example (Month Name)",
+      "identifier": "field-intermediate-example-name",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a33",
+          "formula": "691acd93f6346774b0b9d077",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    },
+    {
+      "_id": "advanced_example_season",
+      "title": "Advanced Example (Season)",
+      "identifier": "field-advanced-example-season",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aed",
+          "formula": "691acd93f033ed54812dc643",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    },
+    {
+      "_id": "advanced_example_quarter",
+      "title": "Advanced Example (Quarter): \"Q\" + ceil(month(sampleDate) / 3) + \" \" + year(sampleDate)",
+      "identifier": "field-advanced-example-quarter",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aee",
+          "formula": "691acd93f033ed54812dc644",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    },
+    {
+      "_id": "eventDate",
+      "title": "Event Date",
+      "identifier": "field-event-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff",
+      "value": "2023-07-15T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_current_month",
+      "title": "Advanced Example (Current Month): if(month(eventDate) == month(now()) && year(eventDate) == year(now()), \"This month\", \"Different month\")",
+      "identifier": "field-advanced-example-current-month",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aef",
+          "formula": "691acd93f033ed54812dc645",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4cff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243739,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddc0",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "month(date(2023, 5, 15))"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddc1",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "month(now())"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d076",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "month(orderDate)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d077",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(month(sampleDate) == 1, \"January\", if(month(sampleDate) == 2, \"February\", if(month(sampleDate) == 3, \"March\", if(month(sampleDate) == 4, \"April\", if(month(sampleDate) == 5, \"May\", if(month(sampleDate) == 6, \"June\", if(month(sampleDate) == 7, \"July\", if(month(sampleDate) == 8, \"August\", if(month(sampleDate) == 9, \"September\", if(month(sampleDate) == 10, \"October\", if(month(sampleDate) == 11, \"November\", \"December\"))))))))))))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc643",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(month(now()) >= 3 && month(now()) <= 5, \"Spring\", if(month(now()) >= 6 && month(now()) <= 8, \"Summer\", if(month(now()) >= 9 && month(now()) <= 11, \"Fall\", \"Winter\")))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc644",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "\"Q\" + ceil(month(sampleDate) / 3) + \" \" + year(sampleDate)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc645",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(month(eventDate) == month(now()) && year(eventDate) == year(now()), \"This month\", \"Different month\")"
+    }
+  ]
+}

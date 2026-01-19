@@ -1,0 +1,277 @@
+{
+  "_id": "691acd933d90ecfb16a51b64",
+  "identifier": "document-or-function-test",
+  "name": "Or Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45f3",
+      "name": "Or Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903804",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312645",
+              "field": "basic_example_true",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312646",
+              "field": "basic_example_false",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf54",
+              "field": "age",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd93919358909216e964",
+              "field": "status",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe504",
+              "field": "intermediate_example",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd936c50729e899e4869",
+              "field": "country",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "dropdown",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d94f",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903804"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_true",
+      "title": "Basic Example (True): or(true, false)",
+      "identifier": "field-basic-example-true",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3058",
+          "formula": "691acd93bab5a640f289dd93",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f3"
+    },
+    {
+      "_id": "basic_example_false",
+      "title": "Basic Example (False): or(false, false)",
+      "identifier": "field-basic-example-false",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3059",
+          "formula": "691acd93bab5a640f289dd94",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f3"
+    },
+    {
+      "_id": "age",
+      "title": "Age",
+      "identifier": "field_age",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45f3",
+      "value": 25.0
+    },
+    {
+      "_id": "status",
+      "title": "Status",
+      "identifier": "field-status",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f3",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e0",
+          "value": "Student"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a786",
+          "value": "Employed"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a787",
+          "value": "Disabled"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a788",
+          "value": "Retired"
+        }
+      ]
+    },
+    {
+      "_id": "intermediate_example",
+      "title": "Intermediate Example: or(age < 18, status == 'Student')",
+      "identifier": "field-intermediate-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a16",
+          "formula": "691acd93f6346774b0b9d05a",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f3"
+    },
+    {
+      "_id": "country",
+      "title": "Country",
+      "identifier": "field-country",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "dropdown",
+      "file": "691acd93a0d4b658f8cd45f3",
+      "options": [
+        {
+          "_id": "691acd93f9c467ef178184e1",
+          "value": "USA"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a789",
+          "value": "Canada"
+        },
+        {
+          "_id": "691acd93e21a5122c7a1a78a",
+          "value": "Other"
+        }
+      ]
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: or(and(age >= 65, country == 'USA'), and(age >= 60, country == 'Canada'), and(status == 'Disabled', age >= 18))",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad1",
+          "formula": "691acd93f033ed54812dc627",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45f3"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243720,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dd93",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "or(true, false)"
+    },
+    {
+      "_id": "691acd93bab5a640f289dd94",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "or(false, false)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d05a",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "or(age < 18, status == 'Student')"
+    },
+    {
+      "_id": "691acd93f033ed54812dc627",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "or(and(age >= 65, country == 'USA'), and(age >= 60, country == 'Canada'), and(status == 'Disabled', age >= 18))"
+    }
+  ]
+}
+

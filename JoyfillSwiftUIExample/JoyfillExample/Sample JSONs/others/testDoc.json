@@ -1,0 +1,283 @@
+{
+    "_id": "696a3ce9385fed27e1a106f3",
+    "identifier": "doc_696a3ce9385fed27e1a106f3",
+    "name": "New Doc",
+    "files": [
+        {
+            "_id": "696a3ce9b41419a4dd18e24d",
+            "name": "New File",
+            "pageOrder": [
+                "696a3ce9f4404df8c26b497a"
+            ],
+            "pages": [
+                {
+                    "_id": "696a3ce9f4404df8c26b497a",
+                    "name": "New Page",
+                    "width": 816,
+                    "height": 1056,
+                    "rowHeight": 8,
+                    "cols": 8,
+                    "fieldPositions": [
+                        {
+                            "_id": "696a3d30116a2835e88c2c68",
+                            "type": "dropdown",
+                            "displayType": "original",
+                            "targetValue": "696a3c7d15189dce4417b1e2",
+                            "x": 0,
+                            "y": 0,
+                            "width": 8,
+                            "height": 9,
+                            "field": "696a3d3010ee38c2e11a076c"
+                        },
+                        {
+                            "_id": "696a3d43394041a5b7e77e12",
+                            "type": "table",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 9,
+                            "width": 8,
+                            "height": 20,
+                            "field": "696a3d43ce6f940e51e3a20c"
+                        },
+                        {
+                            "_id": "696a3dd88febd777a440c87c",
+                            "type": "collection",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 29,
+                            "width": 8,
+                            "height": 22,
+                            "field": "696a3dd893c5c20da6fdd490"
+                        },
+                        {
+                            "_id": "696a3e4618a6ec574fe7f606",
+                            "type": "table",
+                            "displayType": "original",
+                            "x": 0,
+                            "y": 51,
+                            "width": 8,
+                            "height": 19,
+                            "field": "696a3e467c2e4e03e3c841d8"
+                        }
+                    ],
+                    "layout": "grid",
+                    "presentation": "normal",
+                    "padding": 24
+                }
+            ],
+            "styles": {
+                "margin": 4
+            }
+        }
+    ],
+    "fields": [
+        {
+            "file": "696a3ce9b41419a4dd18e24d",
+            "_id": "696a3d3010ee38c2e11a076c",
+            "type": "dropdown",
+            "title": "Capture Deficiency",
+            "options": [
+                {
+                    "_id": "696a3c7d15189dce4417b1e2",
+                    "value": "Yes",
+                    "deleted": false
+                },
+                {
+                    "_id": "696a3c7d08076a445edf0358",
+                    "value": "No",
+                    "deleted": false,
+                    "metadata": {
+                        "failure": true
+                    }
+                },
+                {
+                    "_id": "696a3c7d16e6ba06230e1a40",
+                    "value": "N/A",
+                    "deleted": false
+                }
+            ],
+            "identifier": "field_696a3d3010ee38c2e11a076c"
+        },
+        {
+            "file": "696a3ce9b41419a4dd18e24d",
+            "_id": "696a3d43ce6f940e51e3a20c",
+            "type": "table",
+            "title": "Capture Deficiency",
+            "tableColumns": [
+                {
+                    "_id": "696a3c7d9cf610000cce3342",
+                    "type": "text",
+                    "title": "Text",
+                    "width": 0,
+                    "deleted": false,
+                    "identifier": "696a3d43ce6f940e51e3a20c_column_696a3c7d9cf610000cce3342"
+                },
+                {
+                    "_id": "696a3c7d373a3f1372fc0598",
+                    "type": "dropdown",
+                    "title": "Dropdown",
+                    "deleted": false,
+                    "width": 0,
+                    "options": [
+                        {
+                            "_id": "696a3c7d01858b2dbf718053",
+                            "value": "Yes",
+                            "deleted": false
+                        },
+                        {
+                            "_id": "696a3c7de90e74c9735908dc",
+                            "value": "No",
+                            "deleted": false,
+                            "metadata": {
+                                "failure": true
+                            }
+                        },
+                        {
+                            "_id": "696a3c7dbf5055b1e8be36e3",
+                            "value": "N/A",
+                            "deleted": false
+                        }
+                    ],
+                    "identifier": "696a3d43ce6f940e51e3a20c_column_696a3c7d373a3f1372fc0598"
+                }
+            ],
+            "value": [
+                {
+                    "_id": "696a3c7d994fb8e9c03050b8",
+                    "deleted": false,
+                    "cells": {}
+                },
+                {
+                    "_id": "696a3c7ddd21bf9f3f274c67",
+                    "deleted": false,
+                    "cells": {}
+                },
+                {
+                    "_id": "696a3c7d43c3910ae73e3201",
+                    "deleted": false,
+                    "cells": {}
+                }
+            ],
+            "identifier": "field_696a3d43ce6f940e51e3a20c",
+            "tableColumnOrder": [
+                "696a3c7d9cf610000cce3342",
+                "696a3c7d373a3f1372fc0598"
+            ],
+            "rowOrder": [
+                "696a3c7d994fb8e9c03050b8",
+                "696a3c7ddd21bf9f3f274c67",
+                "696a3c7d43c3910ae73e3201"
+            ]
+        },
+        {
+            "file": "696a3ce9b41419a4dd18e24d",
+            "_id": "696a3dd893c5c20da6fdd490",
+            "type": "collection",
+            "title": "Capture Deficiency",
+            "value": [
+                {
+                    "_id": "696a3ddc118b31876606fc4f",
+                    "cells": {},
+                    "children": {}
+                },
+                {
+                    "_id": "696a3dddc9c0299be3de173f",
+                    "cells": {},
+                    "children": {}
+                },
+                {
+                    "_id": "696a3ddeafbee92387fb7b5b",
+                    "cells": {},
+                    "children": {}
+                }
+            ],
+            "schema": {
+                "collectionSchemaId": {
+                    "title": "Main Collection",
+                    "root": true,
+                    "children": [],
+                    "tableColumns": [
+                        {
+                            "_id": "696a3c7dbff908c3e3f8ffe9",
+                            "type": "text",
+                            "title": "Text",
+                            "identifier": "696a3dd893c5c20da6fdd490_column_696a3c7dbff908c3e3f8ffe9",
+                            "width": 0
+                        },
+                        {
+                            "_id": "696a3c7d8b5b4706053a23a4",
+                            "type": "dropdown",
+                            "title": "Dropdown",
+                            "options": [
+                                {
+                                    "_id": "696a3c7d5d388f58ecd09613",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "_id": "696a3c7d56f37b5ad651573d",
+                                    "value": "No",
+                                    "metadata": {
+                                        "failure": true
+                                    }
+                                },
+                                {
+                                    "_id": "696a3c7d778d2fe5b951995c",
+                                    "value": "Other Fail",
+                                    "metadata": {
+                                        "failure": true
+                                    }
+                                }
+                            ],
+                            "identifier": "696a3dd893c5c20da6fdd490_column_696a3c7d8b5b4706053a23a4",
+                            "width": 0
+                        }
+                    ]
+                }
+            },
+            "identifier": "field_696a3dd893c5c20da6fdd490"
+        },
+        {
+            "file": "696a3ce9b41419a4dd18e24d",
+            "_id": "696a3e467c2e4e03e3c841d8",
+            "type": "table",
+            "title": "Deficiencies Summary",
+            "tableColumns": [
+                {
+                    "_id": "696a3d9f3738386c70a1c0ca",
+                    "type": "text",
+                    "title": "Text",
+                    "width": 0,
+                    "deleted": false,
+                    "identifier": "696a3e467c2e4e03e3c841d8_column_696a3d9f3738386c70a1c0ca"
+                }
+            ],
+            "value": [
+                {
+                    "_id": "696a3d9f11126c6a59c3089c",
+                    "deleted": false,
+                    "cells": {}
+                },
+                {
+                    "_id": "696a3d9fcf8c2ab2ad103f02",
+                    "deleted": false,
+                    "cells": {}
+                },
+                {
+                    "_id": "696a3d9f954ca31ca0b83cf4",
+                    "deleted": false,
+                    "cells": {}
+                }
+            ],
+            "identifier": "field_696a3e467c2e4e03e3c841d8",
+            "tableColumnOrder": [
+                "696a3d9f3738386c70a1c0ca"
+            ],
+            "rowOrder": [
+                "696a3d9f11126c6a59c3089c",
+                "696a3d9fcf8c2ab2ad103f02",
+                "696a3d9f954ca31ca0b83cf4"
+            ]
+        }
+    ],
+    "type": "document"
+}
