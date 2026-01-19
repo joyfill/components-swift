@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'joyfill/docs'
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'
 
       # 3. Extract Latest Entry
@@ -67,7 +67,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'
           commit-message: 'docs: add release notes for ${{ env.VERSION }}'
           title: 'docs: add release notes for ${{ env.VERSION }}'
