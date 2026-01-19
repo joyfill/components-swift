@@ -463,6 +463,7 @@ struct OptionSelectionView: View {
         case oChangeHandlerTest
         case manipulateDataOnChangeView
         case createRowUISample
+        case failureCaptureDemo
         case simpleForm
 
         var title: String {
@@ -493,6 +494,8 @@ struct OptionSelectionView: View {
                 return "Change Handler Test"
             case .createRowUISample:
                 return "Create Row UI Sample"
+            case .failureCaptureDemo:
+                return "Failure Capture Demo"
             case .simpleForm:
                 return "Simple example Form"
             }
@@ -526,6 +529,8 @@ struct OptionSelectionView: View {
                 return "Test change event handling and validation workflows"
             case .createRowUISample:
                 return "Create a row UI sample"
+            case .failureCaptureDemo:
+                return "Capture deficiency details when failure options are selected"
             case .simpleForm:
                 return "Simple example Form"
             }
@@ -559,6 +564,8 @@ struct OptionSelectionView: View {
                 return "arrow.triangle.2.circlepath"
             case .createRowUISample:
                 return "slider.horizontal.3"
+            case .failureCaptureDemo:
+                return "exclamationmark.triangle.fill"
             case .simpleForm:
                 return "slider.horizontal.3"
             }
@@ -592,6 +599,8 @@ struct OptionSelectionView: View {
                 return .green
             case .createRowUISample:
                 return .red
+            case .failureCaptureDemo:
+                return .orange
             case .simpleForm:
                 return .blue
             }
@@ -730,6 +739,8 @@ struct OptionSelectionView: View {
             OnChangeHandlerTest()
         case .createRowUISample:
             CreateRowUISample()
+        case .failureCaptureDemo:
+            FailureCaptureDemoView()
         case .simpleForm:
             SimpleFormExampleView()
         case .none:
