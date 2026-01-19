@@ -8,6 +8,70 @@ icon: "notes"
 
 ---
 
+## 3.0.0-rc8
+
+**Release Date:** December 19, 2025
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #10b981', borderRadius: '6px', color: '#10b981', fontWeight: '600', fontSize: '13px', marginBottom: '12px'}}>ADDED</span>
+
+* Single-click option to open a row form for Collection and Table fields.
+* “Select All” rows functionality for filtered collections and tables.
+* Ability to delete rows while filters are active in Collection fields.
+* Page deletion support.
+* Enhanced Page List UI.
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #f97316', borderRadius: '6px', color: '#f97316', fontWeight: '600', fontSize: '13px', marginBottom: '12px', marginTop: '16px'}}>CHANGED</span>
+
+* Color handling updated to support RGBA color format.
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #f97316', borderRadius: '6px', color: '#f97316', fontWeight: '600', fontSize: '13px', marginBottom: '12px', marginTop: '16px'}}>FIXED</span>
+
+* Issue where the Date field did not update on the first change due to double parsing.
+* Ensured the last page always remains visible, regardless of hidden state or conditional logic.
+
+***
+
+## 3.0.0-rc7
+
+**Release Date:** November 28, 2025
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #10b981', borderRadius: '6px', color: '#10b981', fontWeight: '600', fontSize: '13px', marginBottom: '12px'}}>ADDED</span>
+
+* Support for inserting a row while filters or sorting are active — both Insert Below and Add Row now behave intuitively.
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #f97316', borderRadius: '6px', color: '#f97316', fontWeight: '600', fontSize: '13px', marginBottom: '12px', marginTop: '16px'}}>CHANGED</span>
+
+* Updated the default format for date fields and corrected 24-hour format handling.
+* Signature field layout — Clear and Save buttons are now aligned to the same height for a more consistent UI.
+* Performance optimizations for Table/Collection.
+* Added space between the Add button and the required field indicator in Collection fields for improved clarity.
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #f97316', borderRadius: '6px', color: '#f97316', fontWeight: '600', fontSize: '13px', marginBottom: '12px', marginTop: '16px'}}>FIXED</span>
+
+* Crash caused by on-change handler when side-by-side form changes were misaligned.
+* SDK crash when selecting a date due to device-level 24-hour format settings.
+* Bulk edit creating unwanted empty changelog entries.
+* Field parsing issue where “deleted” property was interpreted as a double instead of a boolean.
+* Various issues found in the example project.
+
+***
+
+## 3.0.0-rc6
+
+**Release Date:** November 13, 2025
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #10b981', borderRadius: '6px', color: '#10b981', fontWeight: '600', fontSize: '13px', marginBottom: '12px'}}>ADDED</span>
+
+* Row navigation now keeps the target row in view when closing the row form in Collection and Table fields.
+
+<span style={{display: 'inline-block', padding: '4px 12px', border: '1.5px solid #f97316', borderRadius: '6px', color: '#f97316', fontWeight: '600', fontSize: '13px', marginBottom: '12px', marginTop: '16px'}}>FIXED</span>
+
+* Fixed UI empty space in collection quick view after expanding a single row and navigating back.
+* Fixed the date field clear (X) button by increasing its tap area for more reliable interaction.
+* Fixed the validation helper bug for required collection fields.
+
+***
+
 ## 3.0.0-rc5
 
 **Release Date:** October 30, 2024
