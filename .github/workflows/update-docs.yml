@@ -3,25 +3,28 @@ name: Update Docs on Release
 on:
   release:
     types: [published]
-  # 👇 Allows you to test manually
+  # 👇 Manual Trigger with Custom Inputs for Testing
   workflow_dispatch:
     inputs:
       test_tag:
-        description: 'Test Version (must exist in CHANGELOG)'
-        default: '1.0.0'
+        description: 'Test Version (e.g. 3.0.0-beta)'
+        default: '3.0.0-test'
         required: true
+      test_body:
+        description: 'Release Notes (Paste your content here)'
+        required: true
+        default: "### Added\n- Custom test feature 1\n- Custom test feature 2"
 
 jobs:
   create-docs-pr:
     name: 'Create Docs PR'
     runs-on: 'ubuntu-latest'
     steps:
-      # 1. Checkout iOS SDK (Source)
+      # 1. Checkout iOS SDK (Source) - Needed to get the script
       - name: Checkout SDK
         uses: actions/checkout@v4
         with:
           path: ios-sdk
-          # If manual test, use main. If real release, use the tag.
           ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
 
       # 2. Checkout Docs Repo (Destination)
@@ -32,36 +35,39 @@ jobs:
           token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'
 
-      # 3. Extract Latest Entry
-      - name: Extract Latest Changelog Entry
+      # 3. Get Release Notes (From Release UI or Manual Input)
+      - name: Get Release Notes
         run: |
-          # Determine which version to look for (Real Tag vs Test Input)
+          # A. Determine Version and Content
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             TARGET_VER="${{ inputs.test_tag }}"
+            RELEASE_BODY="${{ inputs.test_body }}"
           else
             TARGET_VER="${{ github.event.release.tag_name }}"
+            RELEASE_BODY="${{ github.event.release.body }}"
           fi
           
           echo "Processing version: $TARGET_VER"
           echo "VERSION=$TARGET_VER" >> $GITHUB_ENV
-
-          cd ios-sdk
-          # Extract the specific block for this version
-          awk -v ver="$TARGET_VER" '$0 ~ "## " ver {found=1} found && /^## / && $0 !~ "## " ver {exit} found {print}' CHANGELOG.md > ../latest_release_note.md
           
-          echo "--- Extracted Content ---"
-          cat ../latest_release_note.md
+          # B. Create the input file manually
+          # We add the header "## Version" so the script knows what to do
+          echo "## $TARGET_VER" > release_notes_input.md
+          echo "" >> release_notes_input.md
+          echo -e "$RELEASE_BODY" >> release_notes_input.md
+          
+          echo "--- Content to be inserted ---"
+          cat release_notes_input.md
 
       # 4. Run the Insert Script
       - name: Insert into Docs
         run: |
-          # Ensure the folder exists in docs repo to prevent errors
+          # Ensure the folder exists
           mkdir -p docs/ios/changelogs
-
           chmod +x ios-sdk/scripts/update_release_mdx.sh
           
-          # Run the script
-          ./ios-sdk/scripts/update_release_mdx.sh latest_release_note.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
+          # Run script with the file we created in Step 3
+          ./ios-sdk/scripts/update_release_mdx.sh release_notes_input.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
 
       # 5. Create Pull Request
       - name: Create Pull Request
@@ -74,7 +80,7 @@ jobs:
           body: |
             Automated PR adding release notes for **${{ env.VERSION }}**.
             
-            Generated from iOS SDK Changelog.
+            Generated from GitHub Release description.
           branch: 'docs-update-${{ env.VERSION }}'
           base: 'main'
           delete-branch: true
