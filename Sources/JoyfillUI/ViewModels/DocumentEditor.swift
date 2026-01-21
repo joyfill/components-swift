@@ -33,11 +33,28 @@ public protocol DocumentEditorDelegate: AnyObject {
     func moveRow(for change: Change)
 }
 
+public enum NavigationStatus: String {
+    case success
+    case failure
+}
+
+/// Navigation target for auto-scrolling to pages and fields
+public struct NavigationTarget: Equatable {
+    public let pageId: String
+    public let fieldPositionId: String?
+    
+    public init(pageId: String, fieldPositionId: String? = nil) {
+        self.pageId = pageId
+        self.fieldPositionId = fieldPositionId
+    }
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
+    @Published var navigationTarget: NavigationTarget? = nil
     private var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
@@ -1093,5 +1110,91 @@ extension DocumentEditor {
         onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
 
         return (true, "Page deleted successfully")
+    }
+}
+
+// MARK: - Navigation
+extension DocumentEditor {
+    /// Navigates to a specific page or field position
+    /// - Parameter path: Navigation path in format "pageId" or "pageId/fieldPositionId"
+    public func goto(_ path: String) -> NavigationStatus {
+        let components = path.split(separator: "/", maxSplits: 1).map(String.init)
+        
+        guard !components.isEmpty else {
+            Log("Navigation path is empty", type: .error)
+            return .failure
+        }
+        
+        let pageId = components[0]
+        let fieldPositionId = components.count > 1 ? components[1] : nil
+        
+        // Check if page exists
+        guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
+            Log("Page with id \(pageId) not found", type: .warning)
+            return .failure
+        }
+        
+        // Check if page is visible (not hidden by conditional logic)
+        guard shouldShow(pageID: pageId) else {
+            Log("Page with id \(pageId) is hidden by conditional logic", type: .warning)
+            return .failure
+        }
+        
+        // If we have a field position, validate it
+        if let fieldPositionId = fieldPositionId {
+            // Find the field position on the page
+            let page = pagesForCurrentView.first(where: { $0.id == pageId })
+            let fieldPosition = page?.fieldPositions?.first(where: { $0.id == fieldPositionId })
+            
+            guard let fieldPosition = fieldPosition else {
+                Log("Field position with id \(fieldPositionId) not found on page \(pageId), navigating to page top", type: .warning)
+                // Field doesn't exist - navigate to top of page
+                navigateToPage(pageId: pageId)
+                return .failure
+            }
+            
+            // Check if field is visible (not hidden by conditional logic)
+            guard let fieldID = fieldPosition.field, shouldShow(fieldID: fieldID) else {
+                Log("Field position \(fieldPositionId) is hidden by conditional logic, navigating to page top", type: .warning)
+                // Field is hidden - navigate to top of page
+                navigateToPage(pageId: pageId)
+                return .failure
+            }
+            
+            // Both page and field are valid and visible - navigate to field
+            navigateToField(pageId: pageId, fieldPositionId: fieldPositionId)
+            return .success
+        } else {
+            // Only page specified - navigate to top of page
+            navigateToPage(pageId: pageId)
+            return .success
+        }
+    }
+    
+    /// Navigate to the top of a specific page
+    private func navigateToPage(pageId: String) {
+        // Just change the page - FormView already handles scrolling to top on page change
+        currentPageID = pageId
+    }
+    
+    /// Navigate to a specific field on a page
+    private func navigateToField(pageId: String, fieldPositionId: String) {
+        if currentPageID != pageId {
+            currentPageID = pageId
+        }
+        
+        navigationTarget = NavigationTarget(pageId: pageId, fieldPositionId: fieldPositionId)
+    }
+    
+    /// Helper method to get field ID from field position ID
+    /// - Parameter fieldPositionId: The field position ID
+    /// - Returns: The field ID if found, nil otherwise
+    public func fieldIDFromFieldPositionId(_ fieldPositionId: String) -> String? {
+        for page in pagesForCurrentView {
+            if let fieldPosition = page.fieldPositions?.first(where: { $0.id == fieldPositionId }) {
+                return fieldPosition.field
+            }
+        }
+        return nil
     }
 }

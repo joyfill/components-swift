@@ -306,6 +306,27 @@ struct FormView: View {
                     }
                 }
             }
+            .onChange(of: documentEditor.navigationTarget) { navigationTarget in
+                // Handle navigation requests from DocumentEditor
+                guard let navigationTarget = navigationTarget else { return }
+                
+                // Only handle navigation for the current page
+                guard navigationTarget.pageId == documentEditor.currentPageID else { return }
+                
+                if let fieldPositionId = navigationTarget.fieldPositionId {
+                    // Navigate to specific field
+                    if let fieldID = documentEditor.fieldIDFromFieldPositionId(fieldPositionId) {
+                        withAnimation {
+                            proxy.scrollTo(fieldID, anchor: .top)
+                        }
+                        
+                        // Clear navigation target after scroll completes
+                        DispatchQueue.main.async {
+                            documentEditor.navigationTarget = nil
+                        }
+                    }
+                }
+            }
         }
     }
 }
