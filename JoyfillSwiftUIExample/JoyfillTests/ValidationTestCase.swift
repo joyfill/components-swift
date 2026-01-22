@@ -29,6 +29,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
     }
     //
     func testInvalidWebViewWithValidMobileView_resultShouldBeValid() {
@@ -50,6 +51,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
     }
     //
     func testValidWebViewWithInValidMobileView_resultShouldBeValid() {
@@ -71,6 +73,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
     }
 
     func testValidWebViewWithValidMobileView_resultShouldBeValid() {
@@ -92,6 +95,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
     }
 
     // Test Case for All fields one by one
@@ -116,6 +120,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
     }
 
     // Valid image field - result - valid
@@ -138,6 +143,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fab36e8925135f0cdd4f")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
     }
 
     // Invalid Text Field - Result - InValid
@@ -160,6 +166,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb1d92a76d06750ca4a1")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
     }
 
     // Valid Text Field - Result - Valid
@@ -182,6 +189,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb1d92a76d06750ca4a1")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
     }
 
     // Invalid Multiline Field - Result - InValid
@@ -204,6 +212,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb2b9a487ce1c1f35f6c")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb2fca14b3e2ef978349")
     }
 
     // Valid Multiline Field - Result - Valid
@@ -226,6 +235,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb2b9a487ce1c1f35f6c")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb2fca14b3e2ef978349")
     }
 
     // Invalid Number Field - Result - InValid
