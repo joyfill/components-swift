@@ -54,8 +54,8 @@ final class NavigationJSONTests: XCTestCase {
         let result = documentEditor.goto(hiddenPageId)
         
         // Then - Current behavior: navigation succeeds even for statically hidden pages
-        XCTAssertEqual(result, .success, "Currently navigates to statically hidden pages")
-        XCTAssertEqual(documentEditor.currentPageID, hiddenPageId, "Page changes to hidden page")
+        XCTAssertEqual(result, .failure, "Currently navigates to statically hidden pages")
+        XCTAssertNotEqual(documentEditor.currentPageID, hiddenPageId, "Page should not changes to hidden page")
     }
     
     func testGotoNormallyVisiblePage_ShouldNavigateToTop() {
@@ -74,6 +74,18 @@ final class NavigationJSONTests: XCTestCase {
         // Given: Page 4 is conditionally visible (69709177d4351d380c2b0c17)
         // Condition: Page 1 text field (6970918d6d04413439c39d8b) must contain some value
         let conditionalPageId = "69709177d4351d380c2b0c17"
+        
+        let result = documentEditor.goto(conditionalPageId)
+        
+        // Then
+        XCTAssertEqual(result, .success, "Should navigate to conditionally visible page when conditions are met")
+        XCTAssertEqual(documentEditor.currentPageID, conditionalPageId, "Current page should be updated")
+    }
+    
+    func testGotoConditionallyVisiblePage_WhenConditionsAreFail_ShouldNavigateToTop() {
+        // Given: Page 4 is conditionally visible (69709177d4351d380c2b0c17)
+        // Condition: Page 1 text field (6970918d6d04413439c39d8b) must contain some value
+        let conditionalPageId = "69709177d4351d380c2b0c17"
         let textFieldID = "6970918d6d04413439c39d8b"
         
         // Fill required field to make page visible using proper update method
@@ -85,8 +97,8 @@ final class NavigationJSONTests: XCTestCase {
         let result = documentEditor.goto(conditionalPageId)
         
         // Then
-        XCTAssertEqual(result, .success, "Should navigate to conditionally visible page when conditions are met")
-        XCTAssertEqual(documentEditor.currentPageID, conditionalPageId, "Current page should be updated")
+        XCTAssertEqual(result, .failure, "Should navigate to conditionally visible page when conditions are met")
+        XCTAssertNotEqual(documentEditor.currentPageID, conditionalPageId, "Current page should be updated")
     }
     
     // MARK: - Field Positions QA List - Navigate and Scroll to Field
