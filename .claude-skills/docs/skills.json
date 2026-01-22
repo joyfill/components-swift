@@ -1,0 +1,176 @@
+[
+  {
+    "name": "app-store-changelog",
+    "folder": "app-store-changelog",
+    "description": "Create user-facing App Store release notes by collecting and summarizing all user-impacting changes since the last git tag (or a specified ref). Use when asked to generate a comprehensive release changelog, App Store \"What's New\" text, or release notes based on git history or tags.",
+    "references": [
+      {
+        "title": "App Store Release Notes Guidelines",
+        "file": "references/release-notes-guidelines.md"
+      }
+    ]
+  },
+  {
+    "name": "gh-issue-fix-flow",
+    "folder": "gh-issue-fix-flow",
+    "description": "End-to-end GitHub issue fix workflow using gh, local code changes, builds/tests, and git push. Use when asked to take an issue number, inspect the issue via gh, implement a fix, run XcodeBuildMCP builds/tests, commit with a closing message, and push.",
+    "references": []
+  },
+  {
+    "name": "ios-debugger-agent",
+    "folder": "ios-debugger-agent",
+    "description": "Use XcodeBuildMCP to build, run, launch, and debug the current iOS project on a booted simulator. Trigger when asked to run an iOS app, interact with the simulator UI, inspect on-screen state, capture logs/console output, or diagnose runtime behavior using XcodeBuildMCP tools.",
+    "references": []
+  },
+  {
+    "name": "swift-concurrency-expert",
+    "folder": "swift-concurrency-expert",
+    "description": "Swift Concurrency review and remediation for Swift 6.2+. Use when asked to review Swift Concurrency usage, improve concurrency compliance, or fix Swift concurrency compiler errors in a feature or file.",
+    "references": [
+      {
+        "title": "Swift 6 2 Concurrency",
+        "file": "references/swift-6-2-concurrency.md"
+      },
+      {
+        "title": "SwiftUI Concurrency Tour (Summary)",
+        "file": "references/swiftui-concurrency-tour-wwdc.md"
+      }
+    ]
+  },
+  {
+    "name": "swiftui-liquid-glass",
+    "folder": "swiftui-liquid-glass",
+    "description": "Implement, review, or improve SwiftUI features using the iOS 26+ Liquid Glass API. Use when asked to adopt Liquid Glass in new SwiftUI UI, refactor an existing feature to Liquid Glass, or review Liquid Glass usage for correctness, performance, and design alignment.",
+    "references": [
+      {
+        "title": "Implementing Liquid Glass Design in SwiftUI",
+        "file": "references/liquid-glass.md"
+      }
+    ]
+  },
+  {
+    "name": "swiftui-performance-audit",
+    "folder": "swiftui-performance-audit",
+    "description": "Audit and improve SwiftUI runtime performance from code review and architecture. Use for requests to diagnose slow rendering, janky scrolling, high CPU/memory usage, excessive view updates, or layout thrash in SwiftUI apps, and to provide guidance for user-run Instruments profiling when code review alone is insufficient.",
+    "references": [
+      {
+        "title": "Demystify SwiftUI Performance (WWDC23) (Summary)",
+        "file": "references/demystify-swiftui-performance-wwdc23.md"
+      },
+      {
+        "title": "Optimizing SwiftUI Performance with Instruments (Summary)",
+        "file": "references/optimizing-swiftui-performance-instruments.md"
+      },
+      {
+        "title": "Understanding Hangs in Your App (Summary)",
+        "file": "references/understanding-hangs-in-your-app.md"
+      },
+      {
+        "title": "Understanding and Improving SwiftUI Performance (Summary)",
+        "file": "references/understanding-improving-swiftui-performance.md"
+      }
+    ]
+  },
+  {
+    "name": "swiftui-ui-patterns",
+    "folder": "swiftui-ui-patterns",
+    "description": "Best practices and example-driven guidance for building SwiftUI views and components. Use when creating or refactoring SwiftUI UI, designing tab architecture with TabView, composing screens, or needing component-specific patterns and examples.",
+    "references": [
+      {
+        "title": "App scaffolding wiring",
+        "file": "references/app-scaffolding-wiring.md"
+      },
+      {
+        "title": "Components Index",
+        "file": "references/components-index.md"
+      },
+      {
+        "title": "Controls (Toggle, Slider, Picker)",
+        "file": "references/controls.md"
+      },
+      {
+        "title": "Deep links and navigation",
+        "file": "references/deeplinks.md"
+      },
+      {
+        "title": "Focus handling and field chaining",
+        "file": "references/focus.md"
+      },
+      {
+        "title": "Form",
+        "file": "references/form.md"
+      },
+      {
+        "title": "Grids",
+        "file": "references/grids.md"
+      },
+      {
+        "title": "Haptics",
+        "file": "references/haptics.md"
+      },
+      {
+        "title": "Input toolbar (bottom anchored)",
+        "file": "references/input-toolbar.md"
+      },
+      {
+        "title": "List and Section",
+        "file": "references/list.md"
+      },
+      {
+        "title": "Matched transitions",
+        "file": "references/matched-transitions.md"
+      },
+      {
+        "title": "Media (images, video, viewer)",
+        "file": "references/media.md"
+      },
+      {
+        "title": "NavigationStack",
+        "file": "references/navigationstack.md"
+      },
+      {
+        "title": "Overlay and toasts",
+        "file": "references/overlay.md"
+      },
+      {
+        "title": "ScrollView and Lazy stacks",
+        "file": "references/scrollview.md"
+      },
+      {
+        "title": "Searchable",
+        "file": "references/searchable.md"
+      },
+      {
+        "title": "Sheets",
+        "file": "references/sheets.md"
+      },
+      {
+        "title": "Split views and columns",
+        "file": "references/split-views.md"
+      },
+      {
+        "title": "TabView",
+        "file": "references/tabview.md"
+      },
+      {
+        "title": "Theming and dynamic type",
+        "file": "references/theming.md"
+      },
+      {
+        "title": "Top bar overlays (iOS 26+ and fallback)",
+        "file": "references/top-bar.md"
+      }
+    ]
+  },
+  {
+    "name": "swiftui-view-refactor",
+    "folder": "swiftui-view-refactor",
+    "description": "Refactor and review SwiftUI view files for consistent structure, dependency injection, and Observation usage. Use when asked to clean up a SwiftUI view\u2019s layout/ordering, handle view models safely (non-optional when possible), or standardize how dependencies and @Observable state are initialized and passed.",
+    "references": [
+      {
+        "title": "MV Patterns Reference",
+        "file": "references/mv-patterns.md"
+      }
+    ]
+  }
+]
