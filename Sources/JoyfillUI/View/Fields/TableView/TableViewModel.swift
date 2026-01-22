@@ -113,7 +113,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count)))
+            if !rowCellModels.isEmpty {
+                cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count)))
+            }
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
