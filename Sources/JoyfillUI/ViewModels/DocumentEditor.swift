@@ -997,32 +997,26 @@ extension DocumentEditor {
     ///   - pageID: The ID of the page to delete
     ///   - force: If true, bypasses warnings and deletes anyway
     /// - Returns: Tuple with success flag and message
-    public func deletePage(pageID: String, force: Bool = false) -> (success: Bool, message: String) {
+    public func deletePage(pageID: String) -> Bool {
         // 1. Validate
         let (canDelete, warnings) = canDeletePage(pageID: pageID)
         
         guard canDelete else {
             let message = warnings.first ?? "Cannot delete page"
             Log(message, type: .error)
-            return (false, message)
-        }
-        
-        if !warnings.isEmpty && !force {
-            let message = warnings.joined(separator: "\n")
-            Log("Page deletion requires confirmation: \(message)", type: .warning)
-            return (false, message)
+            return false
         }
         
         guard var firstFile = document.files.first else {
             Log("No file found in document", type: .error)
-            return (false, "No file found in document")
+            return false
         }
         
         // 2. Find page and collect field IDs and data BEFORE deletion
         guard let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }),
               let page = firstFile.pages?[pageIndex] else {
             Log("Page with id \(pageID) not found", type: .error)
-            return (false, "Page not found")
+            return false
         }
         
         let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
@@ -1120,6 +1114,6 @@ extension DocumentEditor {
         // 13. Fire change events with pre-collected field data
         onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
 
-        return (true, "Page deleted successfully")
+        return true
     }
 }
