@@ -22,10 +22,6 @@ final class ValidationTestCase: XCTestCase {
         func onUpload(event: UploadEvent) {}
         func onError(error: JoyfillError) {}
         
-        /// Reset captured changes between tests
-        func reset() {
-            capturedChanges.removeAll()
-        }
     }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
@@ -1307,8 +1303,6 @@ final class ValidationTestCase: XCTestCase {
         let pageToDeleteID = "second_page_id_12345" // ✅ Fixed: Using correct page ID
         let documentEditor = documentEditor(document: document)
         
-        // Verify shared field exists before deletion
-        let initialFieldCount = documentEditor.document.fields.count
         XCTAssertTrue(documentEditor.document.fields.contains(where: { $0.id == sharedFieldID }), 
                      "Shared field should exist before deletion")
         
