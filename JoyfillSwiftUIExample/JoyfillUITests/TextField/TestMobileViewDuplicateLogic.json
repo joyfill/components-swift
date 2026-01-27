@@ -1,0 +1,265 @@
+{
+  "fields": [
+    {
+      "rowOrder": [
+        "6972214034507075a03f4538",
+        "69722140c3599f9965167824",
+        "6972214026a5529c556c5085"
+      ],
+      "value": [
+        {
+          "_id": "6972214034507075a03f4538",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "69722140c3599f9965167824",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6972214026a5529c556c5085",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "tableColumns": [
+        {
+          "deleted": false,
+          "_id": "69722140bca0ac741fb4242b",
+          "title": "Text Column",
+          "type": "text",
+          "width": 0,
+          "identifier": "6973775bb51adf823281f48f_column_69722140bca0ac741fb4242b"
+        },
+        {
+          "_id": "697221402fd59f3b4acec998",
+          "deleted": false,
+          "title": "Dropdown Column",
+          "width": 0,
+          "identifier": "6973775bb51adf823281f48f_column_697221402fd59f3b4acec998",
+          "type": "dropdown",
+          "options": [
+            {
+              "_id": "6972214049a1ecc69d4724a3",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "697221401302f628a75ba39e",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6972214023d8b4669ebc0cb6",
+              "value": "N/A",
+              "deleted": false
+            }
+          ]
+        },
+        {
+          "deleted": false,
+          "_id": "697221402f8132c1326ac4b1",
+          "title": "Text Column",
+          "type": "text",
+          "width": 0,
+          "identifier": "6973775bb51adf823281f48f_column_697221402f8132c1326ac4b1"
+        }
+      ],
+      "identifier": "field_6973775bb51adf823281f48f",
+      "title": "Table",
+      "type": "table",
+      "_id": "6973775bb51adf823281f48f",
+      "tableColumnOrder": [
+        "69722140bca0ac741fb4242b",
+        "697221402fd59f3b4acec998",
+        "697221402f8132c1326ac4b1"
+      ],
+      "file": "67ad80c3a75f4648fb495481",
+      "logic": {
+        "action": "show",
+        "eval": "and",
+        "conditions": [
+          {
+            "file": "67ad80c3a75f4648fb495481",
+            "page": "67ad80e5063c0626e9c2d789",
+            "field": "6974ead090640b3bbe264785",
+            "condition": "=",
+            "value": 100
+          }
+        ]
+      },
+      "hidden": true
+    },
+    {
+      "file": "67ad80c3a75f4648fb495481",
+      "_id": "6974ead090640b3bbe264785",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_6974ead090640b3bbe264785"
+    },
+    {
+      "file": "67ad80c3a75f4648fb495481",
+      "_id": "6974ef957b5a6a28952830f0",
+      "type": "textarea",
+      "title": "Multiline Text",
+      "identifier": "field_6974ef957b5a6a28952830f0"
+    },
+    {
+      "file": "67ad80c3a75f4648fb495481",
+      "_id": "6974ef96bf7345b495222839",
+      "type": "date",
+      "title": "Date Time",
+      "identifier": "field_6974ef96bf7345b495222839"
+    },
+    {
+      "file": "67ad80c3a75f4648fb495481",
+      "_id": "6974ef976e802c16dbb6419f",
+      "type": "dropdown",
+      "title": "Dropdown",
+      "options": [
+        {
+          "_id": "69722140241a2ae6b2dcca8d",
+          "value": "Yes",
+          "deleted": false
+        },
+        {
+          "_id": "69722140328896af7d67c974",
+          "value": "No",
+          "deleted": false
+        },
+        {
+          "_id": "697221406ac405acdb4cce5a",
+          "value": "N/A",
+          "deleted": false
+        }
+      ],
+      "identifier": "field_6974ef976e802c16dbb6419f"
+    }
+  ],
+  "_id": "67ad812e4cb748d7fa5ff17a",
+  "deleted": false,
+  "createdOn": 1739424046649,
+  "source": "template_67ad80c3ac77805ed95fc898",
+  "files": [
+    {
+      "name": "Test Hidden First Page",
+      "pages": [
+        {
+          "presentation": "normal",
+          "layout": "grid",
+          "borderWidth": 0,
+          "hidden": false,
+          "width": 816,
+          "name": "Page 2 ",
+          "_id": "67ad80e5063c0626e9c2d789",
+          "cols": 8,
+          "metadata": {},
+          "fieldPositions": [
+            {
+              "_id": "6974ef954265d1fe4c11c36c",
+              "type": "textarea",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 23,
+              "field": "6974ef957b5a6a28952830f0"
+            },
+            {
+              "_id": "6974ef96a6c8d70c6d260d8c",
+              "type": "date",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 1,
+              "y": 23,
+              "width": 4,
+              "height": 8,
+              "field": "6974ef96bf7345b495222839"
+            },
+            {
+              "_id": "6974ef97a16ea1986f9c4cf2",
+              "type": "dropdown",
+              "displayType": "original",
+              "targetValue": "69722140241a2ae6b2dcca8d",
+              "x": 3,
+              "y": 31,
+              "width": 4,
+              "height": 8,
+              "field": "6974ef976e802c16dbb6419f"
+            }
+          ],
+          "padding": 24,
+          "margin": 0,
+          "rowHeight": 8,
+          "height": 1056
+        }
+      ],
+      "views": [
+        {
+          "pages": [
+            {
+              "hidden": false,
+              "metadata": {},
+              "padding": 12,
+              "name": "Page 2 ",
+              "margin": 0,
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "fileName": "",
+              "borderWidth": 0,
+              "presentation": "normal",
+              "cols": 1,
+              "layout": "grid",
+              "filePath": "",
+              "backgroundImage": "",
+              "fieldPositions": [
+                {
+                  "_id": "6973775b1b7ca3cc94f959cc",
+                  "x": 0,
+                  "height": 116,
+                  "y": 64,
+                  "width": 1,
+                  "field": "6973775bb51adf823281f48f",
+                  "type": "table",
+                  "displayType": "original"
+                },
+                {
+                  "_id": "6974ead0ea8a3e7db49566b2",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 64,
+                  "field": "6974ead090640b3bbe264785"
+                }
+              ],
+              "_id": "67ad80e5063c0626e9c2d789"
+            }
+          ],
+          "pageOrder": [
+            "67ad80e5063c0626e9c2d789"
+          ],
+          "type": "mobile",
+          "_id": "69737752bfe554fc7738e76b"
+        }
+      ],
+      "_id": "67ad80c3a75f4648fb495481",
+      "styles": {
+        "margin": 4
+      },
+      "metadata": {},
+      "version": 1,
+      "pageOrder": [
+        "67ad80e5063c0626e9c2d789"
+      ]
+    }
+  ],
+  "metadata": {},
+  "type": "template",
+  "identifier": "doc_67ad812e4cb748d7fa5ff17a",
+  "stage": "published",
+  "name": "Test Hidden Page"
+}
