@@ -1020,13 +1020,7 @@ extension DocumentEditor {
         }
         
         let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
-        
-        // Collect field data BEFORE deletion (while fields still exist)
-        let fieldsData = fieldsToDelete.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
-            guard let field = field(fieldID: fieldID) else { return nil }
-            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
-        }
-        
+                
         // 3. Handle navigation before deletion
         let shouldNavigate = currentPageID == pageID
         let nextPageID = shouldNavigate ? determineNextPage(after: pageID) : currentPageID
@@ -1088,6 +1082,12 @@ extension DocumentEditor {
             !remainingFieldIDs.contains(id)
         }
 
+        // Collect field data BEFORE deletion (while fields still exist)
+        let fieldsData = fieldsToRemove.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
+            guard let field = field(fieldID: fieldID) else { return nil }
+            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
+        }
+        
         // 10. Remove fields completely
         if !fieldsToRemove.isEmpty {
             // Remove from document.fields
