@@ -53,7 +53,7 @@ final class NavigationJSONTests: XCTestCase {
         // When
         let result = documentEditor.goto(hiddenPageId)
         
-        // Then - Current behavior: navigation succeeds even for statically hidden pages
+        // Then - Current behavior: navigation fails for statically hidden pages
         XCTAssertEqual(result, .failure, "Currently navigates to statically hidden pages")
         XCTAssertNotEqual(documentEditor.currentPageID, hiddenPageId, "Page should not changes to hidden page")
     }
@@ -97,8 +97,8 @@ final class NavigationJSONTests: XCTestCase {
         let result = documentEditor.goto(conditionalPageId)
         
         // Then
-        XCTAssertEqual(result, .failure, "Should navigate to conditionally visible page when conditions are met")
-        XCTAssertNotEqual(documentEditor.currentPageID, conditionalPageId, "Current page should be updated")
+        XCTAssertEqual(result, .failure, "Should not navigate to conditionally hidden page when conditions are met")
+        XCTAssertNotEqual(documentEditor.currentPageID, conditionalPageId, "Current page should not be updated")
     }
     
     // MARK: - Field Positions QA List - Navigate and Scroll to Field
