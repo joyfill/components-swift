@@ -1088,19 +1088,9 @@ extension DocumentEditor {
             return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
         }
         
-        // 10. Remove fields completely
-        if !fieldsToRemove.isEmpty {
-            // Remove from document.fields
-            document.fields.removeAll { field in
-                guard let fieldID = field.id else { return false }
-                let shouldRemove = fieldsToRemove.contains(fieldID)
-                return shouldRemove
-            }
-
-            // Remove from fieldMap (important: prevents didSet from restoring them)
-            for fieldID in fieldsToRemove {
-                fieldMap.removeValue(forKey: fieldID)
-            }
+        // 10. Remove fields from fieldMap (didSet will automatically update document.fields)
+        for fieldID in fieldsToRemove {
+            fieldMap.removeValue(forKey: fieldID)
         }
         
         // 11. Reinitialize conditional logic handler
