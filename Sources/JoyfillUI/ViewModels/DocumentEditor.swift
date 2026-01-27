@@ -1029,14 +1029,29 @@ extension DocumentEditor {
             return false
         }
         
-        // 2. Find page and collect field IDs and data BEFORE deletion
-        guard let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }),
-              let page = firstFile.pages?[pageIndex] else {
-            Log("Page with id \(pageID) not found", type: .error)
-            return false
+        // 2. Find page in either views or main pages (check both locations)
+        var fieldsToDelete = Set<String>()
+        var viewId: String? = nil
+
+        // 1) Collect from view page (if exists)
+        if let view = firstFile.views?.first,
+           let viewPage = view.pages?.first(where: { $0.id == pageID }) {
+            viewId = view.id
+            let fPositions = viewPage.fieldPositions ?? []
+            for fPosition in fPositions {
+                guard let fieldID = fPosition.field else { continue }
+                fieldsToDelete.insert(fieldID)
+            }
         }
-        
-        let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
+
+        // 2) Collect from main page (if exists)
+        if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+            let fPositions = mainPage.fieldPositions ?? []
+            for fPosition in fPositions {
+                guard let fieldID = fPosition.field else { continue }
+                fieldsToDelete.insert(fieldID)
+            }
+        }
                 
         // 3. Handle navigation before deletion
         let shouldNavigate = currentPageID == pageID
@@ -1047,7 +1062,9 @@ extension DocumentEditor {
         self.currentPageOrder.removeAll(where: { $0 == pageID })
         
         // 5. Remove page from pages array
-        firstFile.pages?.remove(at: pageIndex)
+        if let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) {
+            firstFile.pages?.remove(at: pageIndex)
+        }
         
         // 6. Handle views
         if var views = firstFile.views, !views.isEmpty {
@@ -1119,7 +1136,7 @@ extension DocumentEditor {
         }
         
         // 13. Fire change events with pre-collected field data
-        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
+        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: viewId ?? "")
 
         return true
     }
