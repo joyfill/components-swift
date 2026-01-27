@@ -65,13 +65,14 @@ struct TableValidity {
 public struct FieldValidity {
     public let status: ValidationStatus
     public let pageId: String?
+    public let fieldPositionId: String?
     public let field: JoyDocField
 //    public let children: [FieldValidity]? // For fields with nested structures
 //    public let rowValidities: [RowValidity]? // Only available if field is a table
 //    public let columnValidities: [ColumnValidity]? // Only available if field is a table
 //    public let reasons: [String]? // Available only if status is invalid
     
-    public init(field: JoyDocField, status: ValidationStatus, pageId: String?) {
+    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldPositionId: String? = nil) {
         self.field = field
         self.status = status
 //        self.children = children
@@ -79,5 +80,6 @@ public struct FieldValidity {
 //        self.columnValidities = columnValidities
 //        self.reasons = reasons
         self.pageId = pageId
+        self.fieldPositionId = fieldPositionId
     }
 }

@@ -463,6 +463,7 @@ struct OptionSelectionView: View {
         case manipulateDataOnChangeView
         case createRowUISample
         case simpleForm
+        case simpleNavigationTest
 
         var title: String {
             switch self {
@@ -492,6 +493,8 @@ struct OptionSelectionView: View {
                 return "Create Row UI Sample"
             case .simpleForm:
                 return "Simple example Form"
+            case .simpleNavigationTest:
+                return "Navigation Test"
             }
         }
         
@@ -523,6 +526,8 @@ struct OptionSelectionView: View {
                 return "Create a row UI sample"
             case .simpleForm:
                 return "Simple example Form"
+            case .simpleNavigationTest:
+                return "Navigate to any page or field in the form"
             }
         }
         
@@ -554,6 +559,8 @@ struct OptionSelectionView: View {
                 return "slider.horizontal.3"
             case .simpleForm:
                 return "slider.horizontal.3"
+            case .simpleNavigationTest:
+                return "location.circle.fill"
             }
         }
         
@@ -585,6 +592,8 @@ struct OptionSelectionView: View {
                 return .red
             case .simpleForm:
                 return .blue
+            case .simpleNavigationTest:
+                return .indigo
             }
         }
     }
@@ -723,6 +732,8 @@ struct OptionSelectionView: View {
             CreateRowUISample()
         case .simpleForm:
             SimpleFormExampleView()
+        case .simpleNavigationTest:
+            SimpleNavigationTestView()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):

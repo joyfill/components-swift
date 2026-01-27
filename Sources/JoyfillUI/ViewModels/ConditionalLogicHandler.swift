@@ -153,7 +153,11 @@ class ConditionalLogicHandler {
         let model = conditionalLogicModel(page: page)
         let lastHiddenState = page.hidden
         guard let model = model, model.itemCount > 1 else {
-            return true
+            if documentEditor.pagesForCurrentView.count > 1 {
+                return !(lastHiddenState ?? false)
+            } else {
+                return true
+            }
         }
         return shouldShowItem(model: model, lastHiddenState: lastHiddenState)
     }
