@@ -265,13 +265,20 @@ struct TableDataModel {
     }
     
     mutating func cleanUpRowOrder() {
-        // Keep only ids that still exist in valueToValueElements (non-deleted)
-        let existingRowIds = Set(
-            (valueToValueElements ?? [])
-                .filter { ($0.deleted ?? false) == false }
-                .compactMap { $0.id }
-        )
-
+        guard let elements = valueToValueElements, !elements.isEmpty else {
+            rowOrder.removeAll()
+            return
+        }
+        
+        var existingRowIds = Set<String>()
+        existingRowIds.reserveCapacity(elements.count)
+        
+        for element in elements {
+            if element.deleted != true, let id = element.id {
+                existingRowIds.insert(id)
+            }
+        }
+        
         rowOrder = rowOrder.filter { existingRowIds.contains($0) }
     }
     
