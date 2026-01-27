@@ -207,7 +207,7 @@ struct TableDataModel {
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
-                
+        self.cleanUpRowOrder()
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
             buildFullSchemaChainMap()
@@ -262,6 +262,24 @@ struct TableDataModel {
         for (key, value) in schema where value.root == true {
             dfs(currentKey: key, currentPath: [], map: &schemaChainMap)
         }
+    }
+    
+    mutating func cleanUpRowOrder() {
+        guard let elements = valueToValueElements, !elements.isEmpty else {
+            rowOrder.removeAll()
+            return
+        }
+        
+        var existingRowIds = Set<String>()
+        existingRowIds.reserveCapacity(elements.count)
+        
+        for element in elements {
+            if element.deleted != true, let id = element.id {
+                existingRowIds.insert(id)
+            }
+        }
+        
+        rowOrder = rowOrder.filter { existingRowIds.contains($0) }
     }
     
     func shouldShowSchemaAccToFilters(schemaID: String) -> Bool {
@@ -773,16 +791,29 @@ struct TableDataModel {
     }
     
     func getDummyNestedCell(col: Int, isBulkEdit: Bool, rowID: String) -> CellDataModel? {
-        let selectedRow = filteredcellModels.first(where: { $0.rowID == rowID })
-        var cell = selectedRow?.cells[col].data
-        if isBulkEdit {
-            cell?.title = ""
-            cell?.defaultDropdownSelectedId = nil
-            cell?.valueElements = []
-            cell?.number = nil
-            cell?.date = nil
-            cell?.multiSelectValues = nil
+        // Find the selected row
+        guard let selectedRow = filteredcellModels.first(where: { $0.rowID == rowID }) else {
+            Log("getDummyNestedCell: Row not found with ID \(rowID)", type: .warning)
+            return nil
         }
+        
+        // Validate column index to prevent crash
+        guard col >= 0, col < selectedRow.cells.count else {
+            Log("getDummyNestedCell: Invalid column index \(col) for row \(rowID). Row has \(selectedRow.cells.count) cells but tried to access index \(col)", type: .error)
+            return nil
+        }
+        
+        var cell = selectedRow.cells[col].data
+        
+        if isBulkEdit {
+            cell.title = ""
+            cell.defaultDropdownSelectedId = nil
+            cell.valueElements = []
+            cell.number = nil
+            cell.date = nil
+            cell.multiSelectValues = nil
+        }
+        
         return cell
     }
     
