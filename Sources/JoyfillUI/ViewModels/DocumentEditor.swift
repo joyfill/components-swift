@@ -803,16 +803,16 @@ extension DocumentEditor {
             Log("No file found in document.", type: .error)
             return
         }
-        
-        guard let originalPageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) else {
-            Log("Page with id \(pageID) not found in file.pages.", type: .error)
+        let originalPage: Page
+        if let viewPage = firstFile.views?.first?.pages?.first(where: { $0.id == pageID }) {
+            originalPage = viewPage
+        } else if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+            originalPage = mainPage
+        } else {
+            Log("Page with id \(pageID) not found in views or pages.", type: .error)
             return
         }
-        guard let pages = firstFile.pages else {
-            Log("No pages found in file", type: .error)
-            return
-        }
-        let originalPage = pages[originalPageIndex]
+
         let newPageID = generateObjectId()
         
         var duplicatedPage = originalPage
