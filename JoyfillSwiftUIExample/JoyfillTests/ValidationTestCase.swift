@@ -5,6 +5,28 @@ import JoyfillModel
 import Joyfill
 
 final class ValidationTestCase: XCTestCase {
+    
+    // MARK: - Test Helpers
+    
+    /// Mock event handler to capture onChange events for testing
+    class ChangeCapture: FormChangeEvent {
+        var capturedChanges: [Change] = []
+        
+        func onChange(changes: [Change], document: JoyDoc) {
+            capturedChanges.append(contentsOf: changes)
+        }
+        
+        func onFocus(event: FieldIdentifier) {}
+        func onBlur(event: FieldIdentifier) {}
+        func onCapture(event: CaptureEvent) {}
+        func onUpload(event: UploadEvent) {}
+        func onError(error: JoyfillError) {}
+        
+        /// Reset captured changes between tests
+        func reset() {
+            capturedChanges.removeAll()
+        }
+    }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
     }
@@ -1671,6 +1693,326 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertFalse(documentEditor.document.fields.contains(where: { $0.id == exclusiveFieldID }),
                       "Exclusive field should be deleted (no references remain)")
     }
+    
+    // MARK: - Changelog Tests for Page Deletion
+    
+    /// Test that changelogs are only generated for orphaned fields, not shared fields
+    func testPageDeletion_changelogsOnlyForOrphanedFields() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        // Create two fields:
+        // - Orphaned field: Only on page 2
+        // - Shared field: On both page 1 and page 2
+        let orphanedFieldID = "orphaned_changelog_field"
+        let sharedFieldID = "shared_changelog_field"
+        
+        var orphanedField = JoyDocField(field: [:])
+        orphanedField.id = orphanedFieldID
+        orphanedField.identifier = "orphanedField"
+        orphanedField.type = "text"
+        document.fields.append(orphanedField)
+        
+        var sharedField = JoyDocField(field: [:])
+        sharedField.id = sharedFieldID
+        sharedField.identifier = "sharedField"
+        sharedField.type = "text"
+        document.fields.append(sharedField)
+        
+        guard var file = document.files.first, var pages = file.pages, pages.count >= 2 else {
+            XCTFail("Document should have at least 2 pages")
+            return
+        }
+        
+        // Add shared field to page 1
+        var page1 = pages[0]
+        var page1Positions = page1.fieldPositions ?? []
+        page1Positions.append(FieldPosition(dictionary: [
+            "field": sharedFieldID,
+            "_id": "shared_pos_1",
+            "x": 0, "y": 16, "width": 4, "height": 8
+        ]))
+        page1.fieldPositions = page1Positions
+        pages[0] = page1
+        
+        // Add both fields to page 2
+        var page2 = pages[1]
+        var page2Positions = page2.fieldPositions ?? []
+        page2Positions.append(FieldPosition(dictionary: [
+            "field": orphanedFieldID,
+            "_id": "orphaned_pos",
+            "x": 0, "y": 0, "width": 4, "height": 8
+        ]))
+        page2Positions.append(FieldPosition(dictionary: [
+            "field": sharedFieldID,
+            "_id": "shared_pos_2",
+            "x": 0, "y": 8, "width": 4, "height": 8
+        ]))
+        page2.fieldPositions = page2Positions
+        pages[1] = page2
+        
+        file.pages = pages
+        document.files[0] = file
+        
+        let changeCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        
+        let pageToDeleteID = "second_page_id_12345"
+        
+        // Delete page 2
+        let result = documentEditor.deletePage(pageID: pageToDeleteID)
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        // Verify changelogs
+        let changes = changeCapture.capturedChanges
+        
+        // Should have: 1 page.delete + 1 field.delete (for orphaned field only)
+        // Page 2's default field "second_page_field_1" is also orphaned, so total field.delete = 2
+        let pageDeleteChanges = changes.filter { $0.target == "page.delete" }
+        let fieldDeleteChanges = changes.filter { $0.target == "field.delete" }
+        
+        XCTAssertEqual(pageDeleteChanges.count, 1, "Should have exactly 1 page.delete changelog")
+        XCTAssertEqual(pageDeleteChanges.first?.pageId, pageToDeleteID, "Page delete should reference correct page ID")
+        
+        // Verify orphaned field has changelog
+        let orphanedFieldChangelog = fieldDeleteChanges.first(where: { $0.fieldId == orphanedFieldID })
+        XCTAssertNotNil(orphanedFieldChangelog, "Orphaned field should have field.delete changelog")
+        
+        // Verify shared field does NOT have changelog
+        let sharedFieldChangelog = fieldDeleteChanges.first(where: { $0.fieldId == sharedFieldID })
+        XCTAssertNil(sharedFieldChangelog, "Shared field should NOT have field.delete changelog")
+        
+        // Verify changelog structure for orphaned field
+        if let changelog = orphanedFieldChangelog {
+            XCTAssertEqual(changelog.target, "field.delete")
+            XCTAssertEqual(changelog.fieldId, orphanedFieldID)
+            XCTAssertEqual(changelog.fieldIdentifier, "orphanedField")
+            XCTAssertEqual(changelog.pageId, pageToDeleteID)
+        }
+    }
+    
+    /// Test that multiple orphaned fields generate correct number of changelogs
+    func testPageDeletion_changelogsForMultipleOrphanedFields() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .addThirdPage()
+            .setHeadingText()
+            .setTextField()
+        
+        // Create scenario:
+        // - Field A: Only on page 2 (ORPHANED)
+        // - Field B: Only on page 2 (ORPHANED)
+        // - Field C: On page 2 and page 3 (NOT ORPHANED)
+        
+        let fieldA_ID = "orphaned_a"
+        let fieldB_ID = "orphaned_b"
+        let fieldC_ID = "shared_c"
+        
+        for (id, identifier) in [(fieldA_ID, "fieldA"), (fieldB_ID, "fieldB"), (fieldC_ID, "fieldC")] {
+            var field = JoyDocField(field: [:])
+            field.id = id
+            field.identifier = identifier
+            field.type = "text"
+            document.fields.append(field)
+        }
+        
+        guard var file = document.files.first, var pages = file.pages, pages.count >= 3 else {
+            XCTFail("Document should have at least 3 pages")
+            return
+        }
+        
+        // Add all three fields to page 2
+        var page2 = pages[1]
+        var page2Positions = page2.fieldPositions ?? []
+        for (id, posId) in [(fieldA_ID, "pos_a"), (fieldB_ID, "pos_b"), (fieldC_ID, "pos_c")] {
+            page2Positions.append(FieldPosition(dictionary: [
+                "field": id,
+                "_id": posId,
+                "x": 0, "y": 0, "width": 4, "height": 8
+            ]))
+        }
+        page2.fieldPositions = page2Positions
+        pages[1] = page2
+        
+        // Add field C to page 3
+        var page3 = pages[2]
+        var page3Positions = page3.fieldPositions ?? []
+        page3Positions.append(FieldPosition(dictionary: [
+            "field": fieldC_ID,
+            "_id": "pos_c_page3",
+            "x": 0, "y": 0, "width": 4, "height": 8
+        ]))
+        page3.fieldPositions = page3Positions
+        pages[2] = page3
+        
+        file.pages = pages
+        document.files[0] = file
+        
+        let changeCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        
+        let pageToDeleteID = "second_page_id_12345"
+        let result = documentEditor.deletePage(pageID: pageToDeleteID)
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        let changes = changeCapture.capturedChanges
+        let fieldDeleteChanges = changes.filter { $0.target == "field.delete" }
+        
+        // Verify Field A has changelog (orphaned)
+        XCTAssertTrue(fieldDeleteChanges.contains(where: { $0.fieldId == fieldA_ID }),
+                     "Field A should have changelog (orphaned)")
+        
+        // Verify Field B has changelog (orphaned)
+        XCTAssertTrue(fieldDeleteChanges.contains(where: { $0.fieldId == fieldB_ID }),
+                     "Field B should have changelog (orphaned)")
+        
+        // Verify Field C does NOT have changelog (shared with page 3)
+        XCTAssertFalse(fieldDeleteChanges.contains(where: { $0.fieldId == fieldC_ID }),
+                      "Field C should NOT have changelog (still on page 3)")
+        
+        // Note: "second_page_field_1" is also orphaned, so total orphaned = 3
+        XCTAssertGreaterThanOrEqual(fieldDeleteChanges.count, 2,
+                                    "Should have at least 2 field.delete changelogs (for Field A and B)")
+    }
+    
+    /// Test changelog generation with mobile view shared fields
+    func testPageDeletion_changelogsMobileViewSharedFields() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .addSecondPage()
+            .addSecondPageInMobileView()
+            .setHeadingText()
+            .setTextField()
+        
+        // Field on desktop page 2 AND mobile page 1 - should NOT generate changelog
+        let crossViewFieldID = "cross_view_field"
+        var crossViewField = JoyDocField(field: [:])
+        crossViewField.id = crossViewFieldID
+        crossViewField.identifier = "crossViewField"
+        crossViewField.type = "text"
+        document.fields.append(crossViewField)
+        
+        guard var file = document.files.first else {
+            XCTFail("Document should have a file")
+            return
+        }
+        
+        // Add to desktop page 2
+        if var pages = file.pages, pages.count >= 2 {
+            var page2 = pages[1]
+            var page2Positions = page2.fieldPositions ?? []
+            page2Positions.append(FieldPosition(dictionary: [
+                "field": crossViewFieldID,
+                "_id": "cross_desktop_pos",
+                "x": 0, "y": 0, "width": 4, "height": 8
+            ]))
+            page2.fieldPositions = page2Positions
+            pages[1] = page2
+            file.pages = pages
+        }
+        
+        // Add to mobile page 1
+        if var views = file.views, !views.isEmpty {
+            var view = views[0]
+            if var mobilePages = view.pages, !mobilePages.isEmpty {
+                var mobilePage1 = mobilePages[0]
+                var mobilePositions = mobilePage1.fieldPositions ?? []
+                mobilePositions.append(FieldPosition(dictionary: [
+                    "field": crossViewFieldID,
+                    "_id": "cross_mobile_pos",
+                    "x": 0, "y": 0, "width": 1, "height": 64
+                ]))
+                mobilePage1.fieldPositions = mobilePositions
+                mobilePages[0] = mobilePage1
+                view.pages = mobilePages
+                views[0] = view
+            }
+            file.views = views
+        }
+        
+        document.files[0] = file
+        
+        let changeCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        
+        let pageToDeleteID = "second_page_id_12345"
+        let result = documentEditor.deletePage(pageID: pageToDeleteID)
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        let changes = changeCapture.capturedChanges
+        let fieldDeleteChanges = changes.filter { $0.target == "field.delete" }
+        
+        // Verify cross-view field does NOT have changelog
+        let crossViewChangelog = fieldDeleteChanges.first(where: { $0.fieldId == crossViewFieldID })
+        XCTAssertNil(crossViewChangelog,
+                    "Cross-view field should NOT have changelog (still in mobile view)")
+    }
+    
+    /// Test that page.delete changelog is always generated regardless of fields
+    func testPageDeletion_pageDeleteChangelogAlwaysGenerated() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        // Make all fields on page 2 shared with page 1 (no orphaned fields)
+        guard var file = document.files.first, var pages = file.pages, pages.count >= 2 else {
+            XCTFail("Document should have at least 2 pages")
+            return
+        }
+        
+        // Get page 2's field and add it to page 1
+        if let page2Field = pages[1].fieldPositions?.first?.field {
+            var page1 = pages[0]
+            var page1Positions = page1.fieldPositions ?? []
+            page1Positions.append(FieldPosition(dictionary: [
+                "field": page2Field,
+                "_id": "shared_field_pos",
+                "x": 0, "y": 16, "width": 4, "height": 8
+            ]))
+            page1.fieldPositions = page1Positions
+            pages[0] = page1
+            file.pages = pages
+            document.files[0] = file
+        }
+        
+        let changeCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        
+        let pageToDeleteID = "second_page_id_12345"
+        let result = documentEditor.deletePage(pageID: pageToDeleteID)
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        let changes = changeCapture.capturedChanges
+        let pageDeleteChanges = changes.filter { $0.target == "page.delete" }
+        
+        // page.delete changelog should ALWAYS be generated
+        XCTAssertEqual(pageDeleteChanges.count, 1,
+                      "page.delete changelog should always be generated")
+        XCTAssertEqual(pageDeleteChanges.first?.pageId, pageToDeleteID,
+                      "page.delete should reference correct page ID")
+        
+        // Verify no field.delete changelogs (all fields are shared)
+        let fieldDeleteChanges = changes.filter { $0.target == "field.delete" }
+        XCTAssertEqual(fieldDeleteChanges.count, 0,
+                      "No field.delete changelogs should be generated (all fields shared)")
+    }
+
 }
 
     extension ValidationTestCase {
