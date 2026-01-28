@@ -1791,12 +1791,20 @@ final class ValidationTestCase: XCTestCase {
         let sharedFieldChangelog = fieldDeleteChanges.first(where: { $0.fieldId == sharedFieldID })
         XCTAssertNil(sharedFieldChangelog, "Shared field should NOT have field.delete changelog")
         
-        // Verify changelog structure for orphaned field
+        // Verify ALL changelog properties for orphaned field
         if let changelog = orphanedFieldChangelog {
-            XCTAssertEqual(changelog.target, "field.delete")
-            XCTAssertEqual(changelog.fieldId, orphanedFieldID)
-            XCTAssertEqual(changelog.fieldIdentifier, "orphanedField")
-            XCTAssertEqual(changelog.pageId, pageToDeleteID)
+            XCTAssertEqual(changelog.v, 1, "Version should be 1")
+            XCTAssertEqual(changelog.sdk, "swift", "SDK should be 'swift'")
+            XCTAssertEqual(changelog.target, "field.delete", "Target should be 'field.delete'")
+            XCTAssertEqual(changelog.id, "6629fc6367b3a40644096182", "Document ID should match")
+            XCTAssertEqual(changelog.identifier, "doc_6629fc6367b3a40644096182", "Document identifier should match")
+            XCTAssertEqual(changelog.fileId, "6629fab3c0ba3fb775b4a55c", "File ID should match")
+            XCTAssertEqual(changelog.pageId, pageToDeleteID, "Page ID should match deleted page")
+            XCTAssertEqual(changelog.fieldId, orphanedFieldID, "Field ID should match orphaned field")
+            XCTAssertEqual(changelog.fieldIdentifier, "orphanedField", "Field identifier should match")
+            XCTAssertEqual(changelog.fieldPositionId, "orphaned_pos", "Field position ID should be captured correctly")
+            XCTAssertNotNil(changelog.createdOn, "CreatedOn should be set")
+            XCTAssertGreaterThan(changelog.createdOn ?? 0, 0, "CreatedOn should be a valid timestamp")
         }
     }
     
@@ -1957,11 +1965,27 @@ final class ValidationTestCase: XCTestCase {
         
         let changes = changeCapture.capturedChanges
         let fieldDeleteChanges = changes.filter { $0.target == "field.delete" }
+        let pageDeleteChanges = changes.filter { $0.target == "page.delete" }
         
         // Verify cross-view field does NOT have changelog
         let crossViewChangelog = fieldDeleteChanges.first(where: { $0.fieldId == crossViewFieldID })
         XCTAssertNil(crossViewChangelog,
                     "Cross-view field should NOT have changelog (still in mobile view)")
+        
+        // Verify page.delete changelog properties
+        XCTAssertEqual(pageDeleteChanges.count, 2, "Should have 2 page.delete event")
+        if let pageDelete = pageDeleteChanges.first {
+            XCTAssertEqual(pageDelete.v, 1)
+            XCTAssertEqual(pageDelete.sdk, "swift")
+            XCTAssertEqual(pageDelete.target, "page.delete")
+            XCTAssertEqual(pageDelete.id, "6629fc6367b3a40644096182")
+            XCTAssertEqual(pageDelete.identifier, "doc_6629fc6367b3a40644096182")
+            XCTAssertEqual(pageDelete.fileId, "6629fab3c0ba3fb775b4a55c")
+            XCTAssertEqual(pageDelete.pageId, pageToDeleteID)
+            XCTAssertNotNil(pageDelete.view, "Mobile page delete should have view")
+            XCTAssertNotNil(pageDelete.createdOn)
+            XCTAssertGreaterThan(pageDelete.createdOn ?? 0, 0)
+        }
     }
     
     /// Test that page.delete changelog is always generated regardless of fields
