@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Joyfill iOS Development Agents",
+  "version": "1.0.0",
+  "description": "Specialized subagents for Joyfill iOS SDK development",
+  "agents": {
+    "swiftui": {
+      "name": "SwiftUI Components Agent",
+      "description": "Creates and modifies SwiftUI views, handles @State/@Binding, implements field components. Use for UI work.",
+      "promptFile": "prompts/swiftui.md",
+      "tools": ["Read", "Edit", "Write", "Glob", "Grep"],
+      "model": "sonnet"
+    },
+    "formula": {
+      "name": "Formula Engine Agent",
+      "description": "Works on formula parsing, evaluation, and function implementations. Use for formula-related tasks.",
+      "promptFile": "prompts/formula.md",
+      "tools": ["Read", "Edit", "Write", "Glob", "Grep"],
+      "model": "sonnet"
+    },
+    "viewmodel": {
+      "name": "ViewModel Logic Agent",
+      "description": "Handles DocumentEditor, handlers (Validation, Formula, ConditionalLogic), and state management.",
+      "promptFile": "prompts/viewmodel.md",
+      "tools": ["Read", "Edit", "Write", "Glob", "Grep"],
+      "model": "sonnet"
+    },
+    "tests": {
+      "name": "Unit Test Agent",
+      "description": "Writes and runs XCTest unit tests following project conventions. Use after implementing features.",
+      "promptFile": "prompts/tests.md",
+      "tools": ["Read", "Edit", "Write", "Bash", "Glob", "Grep"],
+      "model": "sonnet"
+    },
+    "models": {
+      "name": "Data Model Agent",
+      "description": "Works on Codable structs, JoyDoc structure, and ValueUnion types. Use for data modeling.",
+      "promptFile": "prompts/models.md",
+      "tools": ["Read", "Edit", "Write", "Glob", "Grep"],
+      "model": "haiku"
+    },
+    "build": {
+      "name": "Build & CI Agent",
+      "description": "Runs builds, tests, handles SPM, and CI/CD workflows. Use for build and CI tasks.",
+      "promptFile": "prompts/build.md",
+      "tools": ["Bash", "Read", "Glob", "Grep"],
+      "model": "haiku"
+    },
+    "review": {
+      "name": "Code Review Agent",
+      "description": "Reviews Swift code for quality, performance, memory leaks, and conventions. Read-only analysis.",
+      "promptFile": "prompts/review.md",
+      "tools": ["Read", "Glob", "Grep"],
+      "model": "sonnet"
+    },
+    "docs": {
+      "name": "Documentation Agent",
+      "description": "Writes Swift doc comments and updates markdown documentation.",
+      "promptFile": "prompts/docs.md",
+      "tools": ["Read", "Edit", "Write", "Glob"],
+      "model": "haiku"
+    }
+  }
+}
