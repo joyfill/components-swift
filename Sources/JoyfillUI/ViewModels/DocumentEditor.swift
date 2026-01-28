@@ -1032,22 +1032,22 @@ extension DocumentEditor {
         // 2. Find page in either views or main pages (check both locations)
         var fieldsToDelete = Set<String>()
         var viewId: String? = nil
-
+        var mobileViewFieldPositions: [FieldPosition] = []
         // 1) Collect from view page (if exists)
         if let view = firstFile.views?.first,
            let viewPage = view.pages?.first(where: { $0.id == pageID }) {
             viewId = view.id
-            let fPositions = viewPage.fieldPositions ?? []
-            for fPosition in fPositions {
+            mobileViewFieldPositions = viewPage.fieldPositions ?? []
+            for fPosition in mobileViewFieldPositions {
                 guard let fieldID = fPosition.field else { continue }
                 fieldsToDelete.insert(fieldID)
             }
         }
-
+        var webFieldPositions: [FieldPosition] = []
         // 2) Collect from main page (if exists)
         if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
-            let fPositions = mainPage.fieldPositions ?? []
-            for fPosition in fPositions {
+            webFieldPositions = mainPage.fieldPositions ?? []
+            for fPosition in webFieldPositions {
                 guard let fieldID = fPosition.field else { continue }
                 fieldsToDelete.insert(fieldID)
             }
@@ -1083,11 +1083,7 @@ extension DocumentEditor {
             files[fileIndex] = firstFile
         }
         document.files = files
-        
-        // 8. Update internal state
-        updateFieldPositionMap()
-        pageFieldModels.removeValue(forKey: pageID)
-        
+                
         // 9. Filter out orphaned fields (fields that are still referenced by other fieldPositions)
         let remainingFieldIDs: Set<String> = {
             var ids = Set<String>()
@@ -1119,8 +1115,16 @@ extension DocumentEditor {
         // Collect field data BEFORE deletion (while fields still exist)
         let fieldsData = fieldsToRemove.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
             guard let field = field(fieldID: fieldID) else { return nil }
-            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
+            let fieldPositionID =
+                    webFieldPositions.first { $0.field == fieldID }?.id ??
+                    mobileViewFieldPositions.first { $0.field == fieldID }?.id
+            
+            return (fieldID, field.identifier, fieldPositionID)
         }
+        
+        // 8. Update internal state
+        updateFieldPositionMap()
+        pageFieldModels.removeValue(forKey: pageID)
         
         // 10. Remove fields from fieldMap (didSet will automatically update document.fields)
         for fieldID in fieldsToRemove {
