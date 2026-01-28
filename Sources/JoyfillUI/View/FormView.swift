@@ -458,8 +458,8 @@ struct PageDuplicateListView: View {
                     "⚠️ Warning\n\n\(deleteWarningMessage)\n\nThis action cannot be undone."),
                 primaryButton: .destructive(Text("Delete")) {
                     if let pageID = pageToDelete {
-                        let result = documentEditor.deletePage(pageID: pageID, force: true)
-                        if result.success {
+                        let result = documentEditor.deletePage(pageID: pageID)
+                        if result {
                             // Close the sheet if we deleted the current page
                             if currentPageID == pageID {
                                 presentationMode.wrappedValue.dismiss()

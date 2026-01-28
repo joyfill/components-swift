@@ -220,10 +220,12 @@ public struct Change {
         dictionary["createdOn"] = createdOn
     }
     // instance for the page.delete
-    public init(v: Int, sdk: String, id: String, identifier: String, target: String, fileId: String, viewType: String, pageId: String, createdOn: Double) {
+    public init(v: Int, sdk: String, id: String, identifier: String, target: String, fileId: String, viewType: String? = nil, pageId: String, createdOn: Double) {
         dictionary["v"] = v
         dictionary["sdk"] = sdk
-        dictionary["view"] = viewType
+        if viewType != nil {
+            dictionary["view"] = viewType
+        }
         dictionary["target"] = target
         dictionary["_id"] = id
         dictionary["identifier"] = identifier

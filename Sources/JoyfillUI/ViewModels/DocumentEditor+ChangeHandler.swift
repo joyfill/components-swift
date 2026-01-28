@@ -1670,6 +1670,22 @@ extension DocumentEditor {
         }
         
         // Generate page.delete event for the main page
+        if !viewId.isEmpty {
+            // Delete mobile view page
+            changes.append(Change(
+                v: 1,
+                sdk: "swift",
+                id: documentID,
+                identifier: documentIdentifier,
+                target: "page.delete",
+                fileId: fileId,
+                viewType: "mobile",
+                pageId: pageID,
+                createdOn: Date().timeIntervalSince1970
+            ))
+        }
+        
+        // Delete main page on change
         changes.append(Change(
             v: 1,
             sdk: "swift",
@@ -1677,7 +1693,6 @@ extension DocumentEditor {
             identifier: documentIdentifier,
             target: "page.delete",
             fileId: fileId,
-            viewType: viewId.isEmpty ? "web" : "mobile",
             pageId: pageID,
             createdOn: Date().timeIntervalSince1970
         ))
