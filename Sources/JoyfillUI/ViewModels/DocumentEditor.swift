@@ -1014,42 +1014,45 @@ extension DocumentEditor {
     ///   - pageID: The ID of the page to delete
     ///   - force: If true, bypasses warnings and deletes anyway
     /// - Returns: Tuple with success flag and message
-    public func deletePage(pageID: String, force: Bool = false) -> (success: Bool, message: String) {
+    public func deletePage(pageID: String) -> Bool {
         // 1. Validate
         let (canDelete, warnings) = canDeletePage(pageID: pageID)
         
         guard canDelete else {
             let message = warnings.first ?? "Cannot delete page"
             Log(message, type: .error)
-            return (false, message)
-        }
-        
-        if !warnings.isEmpty && !force {
-            let message = warnings.joined(separator: "\n")
-            Log("Page deletion requires confirmation: \(message)", type: .warning)
-            return (false, message)
+            return false
         }
         
         guard var firstFile = document.files.first else {
             Log("No file found in document", type: .error)
-            return (false, "No file found in document")
+            return false
         }
         
-        // 2. Find page and collect field IDs and data BEFORE deletion
-        guard let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }),
-              let page = firstFile.pages?[pageIndex] else {
-            Log("Page with id \(pageID) not found", type: .error)
-            return (false, "Page not found")
+        // 2. Find page in either views or main pages (check both locations)
+        var fieldsToDelete = Set<String>()
+        var viewId: String? = nil
+        var mobileViewFieldPositions: [FieldPosition] = []
+        // 1) Collect from view page (if exists)
+        if let view = firstFile.views?.first,
+           let viewPage = view.pages?.first(where: { $0.id == pageID }) {
+            viewId = view.id
+            mobileViewFieldPositions = viewPage.fieldPositions ?? []
+            for fPosition in mobileViewFieldPositions {
+                guard let fieldID = fPosition.field else { continue }
+                fieldsToDelete.insert(fieldID)
+            }
         }
-        
-        let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
-        
-        // Collect field data BEFORE deletion (while fields still exist)
-        let fieldsData = fieldsToDelete.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
-            guard let field = field(fieldID: fieldID) else { return nil }
-            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
+        var webFieldPositions: [FieldPosition] = []
+        // 2) Collect from main page (if exists)
+        if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+            webFieldPositions = mainPage.fieldPositions ?? []
+            for fPosition in webFieldPositions {
+                guard let fieldID = fPosition.field else { continue }
+                fieldsToDelete.insert(fieldID)
+            }
         }
-        
+                
         // 3. Handle navigation before deletion
         let shouldNavigate = currentPageID == pageID
         let nextPageID = shouldNavigate ? determineNextPage(after: pageID) : currentPageID
@@ -1059,7 +1062,9 @@ extension DocumentEditor {
         self.currentPageOrder.removeAll(where: { $0 == pageID })
         
         // 5. Remove page from pages array
-        firstFile.pages?.remove(at: pageIndex)
+        if let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) {
+            firstFile.pages?.remove(at: pageIndex)
+        }
         
         // 6. Handle views
         if var views = firstFile.views, !views.isEmpty {
@@ -1071,32 +1076,60 @@ extension DocumentEditor {
             }
             firstFile.views = views
         }
-        
-        // 7. Remove fields completely
-        if !fieldsToDelete.isEmpty {
-            // Remove from document.fields
-            document.fields.removeAll { field in
-                guard let fieldID = field.id else { return false }
-                let shouldRemove = fieldsToDelete.contains(fieldID)
-                return shouldRemove
-            }
-            
-            // Remove from fieldMap (important: prevents didSet from restoring them)
-            for fieldID in fieldsToDelete {
-                fieldMap.removeValue(forKey: fieldID)
-            }
-        }
-        
-        // 8. Update document state
+                
+        // 7. Update document state
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
         }
         document.files = files
+                
+        // 9. Filter out orphaned fields (fields that are still referenced by other fieldPositions)
+        let remainingFieldIDs: Set<String> = {
+            var ids = Set<String>()
+            // Remaining pages
+            for page in firstFile.pages ?? [] {
+                for fp in page.fieldPositions ?? [] {
+                    if let fid = fp.field {
+                        ids.insert(fid)
+                    }
+                }
+            }
+            // Remaining view pages
+            for view in firstFile.views ?? [] {
+                for page in view.pages ?? [] {
+                    for fp in page.fieldPositions ?? [] {
+                        if let fid = fp.field {
+                            ids.insert(fid)
+                        }
+                    }
+                }
+            }
+            return ids
+        }()
+
+        let fieldsToRemove = fieldsToDelete.filter { id in
+            !remainingFieldIDs.contains(id)
+        }
+
+        // Collect field data BEFORE deletion (while fields still exist)
+        let fieldsData = fieldsToRemove.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
+            guard let field = field(fieldID: fieldID) else { return nil }
+            let fieldPositionID =
+                    webFieldPositions.first { $0.field == fieldID }?.id ??
+                    mobileViewFieldPositions.first { $0.field == fieldID }?.id
+            
+            return (fieldID, field.identifier, fieldPositionID)
+        }
         
-        // 10. Update internal state
+        // 8. Update internal state
         updateFieldPositionMap()
         pageFieldModels.removeValue(forKey: pageID)
+        
+        // 10. Remove fields from fieldMap (didSet will automatically update document.fields)
+        for fieldID in fieldsToRemove {
+            fieldMap.removeValue(forKey: fieldID)
+        }
         
         // 11. Reinitialize conditional logic handler
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -1107,9 +1140,9 @@ extension DocumentEditor {
         }
         
         // 13. Fire change events with pre-collected field data
-        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
+        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: viewId ?? "")
 
-        return (true, "Page deleted successfully")
+        return true
     }
 }
 
