@@ -41,11 +41,11 @@ public enum NavigationStatus: String {
 /// Navigation target for auto-scrolling to pages and fields
 public struct NavigationTarget: Equatable {
     public let pageId: String
-    public let fieldPositionId: String?
+    public let fieldID: String?
     
-    public init(pageId: String, fieldPositionId: String? = nil) {
+    public init(pageId: String, fieldID: String? = nil) {
         self.pageId = pageId
-        self.fieldPositionId = fieldPositionId
+        self.fieldID = fieldID
     }
 }
 
@@ -1162,7 +1162,7 @@ extension DocumentEditor {
             }
             
             // Both page and field are valid and visible - navigate to field
-            navigateToField(pageId: pageId, fieldPositionId: fieldPositionId)
+            navigateToField(pageId: pageId, fieldID: fieldID)
             return .success
         } else {
             // Only page specified - navigate to top of page
@@ -1178,23 +1178,11 @@ extension DocumentEditor {
     }
     
     /// Navigate to a specific field on a page
-    private func navigateToField(pageId: String, fieldPositionId: String) {
+    private func navigateToField(pageId: String, fieldID: String) {
         if currentPageID != pageId {
             currentPageID = pageId
         }
         
-        navigationTarget = NavigationTarget(pageId: pageId, fieldPositionId: fieldPositionId)
-    }
-    
-    /// Helper method to get field ID from field position ID
-    /// - Parameter fieldPositionId: The field position ID
-    /// - Returns: The field ID if found, nil otherwise
-    public func fieldIDFromFieldPositionId(_ fieldPositionId: String) -> String? {
-        for page in pagesForCurrentView {
-            if let fieldPosition = page.fieldPositions?.first(where: { $0.id == fieldPositionId }) {
-                return fieldPosition.field
-            }
-        }
-        return nil
+        navigationTarget = NavigationTarget(pageId: pageId, fieldID: fieldID)
     }
 }

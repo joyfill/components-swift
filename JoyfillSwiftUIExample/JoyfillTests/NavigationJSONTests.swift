@@ -443,26 +443,4 @@ final class NavigationJSONTests: XCTestCase {
         // Then
         XCTAssertEqual(actualPageCount, expectedPageCount, "Navigation.json should have 6 pages")
     }
-    
-    func testFieldIDFromFieldPositionId_ValidFieldPosition_ShouldReturnFieldId() {
-        // Given: Valid field position ID from Page 2
-        let fieldPositionId = "6970918d350238d0738dd5c9"
-        
-        // When
-        let fieldId = documentEditor.fieldIDFromFieldPositionId(fieldPositionId)
-        
-        // Then
-        XCTAssertNotNil(fieldId, "Should return a field ID")
-    }
-    
-    func testFieldIDFromFieldPositionId_InvalidFieldPosition_ShouldReturnNil() {
-        // Given: Invalid field position ID
-        let invalidFieldPositionId = "invalid_field_position_12345"
-        
-        // When
-        let fieldId = documentEditor.fieldIDFromFieldPositionId(invalidFieldPositionId)
-        
-        // Then
-        XCTAssertNil(fieldId, "Should return nil for invalid field position ID")
-    }
 }

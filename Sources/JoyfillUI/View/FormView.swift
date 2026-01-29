@@ -313,17 +313,15 @@ struct FormView: View {
                 // Only handle navigation for the current page
                 guard navigationTarget.pageId == documentEditor.currentPageID else { return }
                 
-                if let fieldPositionId = navigationTarget.fieldPositionId {
+                if let fieldID = navigationTarget.fieldID {
                     // Navigate to specific field
-                    if let fieldID = documentEditor.fieldIDFromFieldPositionId(fieldPositionId) {
-                        withAnimation {
-                            proxy.scrollTo(fieldID, anchor: .top)
-                        }
-                        
-                        // Clear navigation target after scroll completes
-                        DispatchQueue.main.async {
-                            documentEditor.navigationTarget = nil
-                        }
+                    withAnimation {
+                        proxy.scrollTo(fieldID, anchor: .top)
+                    }
+                    
+                    // Clear navigation target after scroll completes
+                    DispatchQueue.main.async {
+                        documentEditor.navigationTarget = nil
                     }
                 }
             }
