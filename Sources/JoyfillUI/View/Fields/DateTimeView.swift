@@ -23,6 +23,7 @@ struct DateTimeView: View {
     }
     
     var body: some View {
+        VStack(spacing: 8) {
         FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil)
         Group {
             if !dateString.isEmpty {
@@ -85,6 +86,7 @@ struct DateTimeView: View {
                     convertDateAccToTimezone()
                 }
             }
+        }
         }
         .datePopup(
             date: $selectedDate,
