@@ -820,11 +820,13 @@ extension DocumentEditor {
             Log("No file found in document.", type: .error)
             return
         }
-        let originalPage: Page
+        let mobilePage: Page
         if let viewPage = firstFile.views?.first?.pages?.first(where: { $0.id == pageID }) {
-            originalPage = viewPage
-        } else if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
-            originalPage = mainPage
+            mobilePage = viewPage
+        }
+        let webPage: Page
+        if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+            webPage = mainPage
         } else {
             Log("Page with id \(pageID) not found in views or pages.", type: .error)
             return
@@ -832,14 +834,14 @@ extension DocumentEditor {
 
         let newPageID = generateObjectId()
         
-        var duplicatedPage = originalPage
+        var duplicatedPage = webPage
         duplicatedPage.id = newPageID
         
         var fieldMapping: [String: String] = [:]
         var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
         
-        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
+        addFieldAndFieldPositionForWeb(webPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
         
         document.fields = newFields
         duplicatedPage.fieldPositions = newFieldPositions
@@ -864,7 +866,7 @@ extension DocumentEditor {
             var altView = altViews[0]
             if let originalAlternatePageIndex = altView.pages?.firstIndex(where: { $0.id == pageID }) {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
-                originalAltPage.id = duplicatedPage.id
+                originalAltPage.id = newPageID
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
@@ -935,7 +937,10 @@ extension DocumentEditor {
         document.files = files
         updateFieldMap()
         updateFieldPositionMap()
-        updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        if !isMobileViewActive {
+            updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        }
+        
         if let views = document.files.first?.views, !views.isEmpty {
             if let page = views.first?.pages?.first(where: { $0.id == newPageID }) {
                 updatePageFieldModels(page, newPageID, firstFile.id ?? "")
