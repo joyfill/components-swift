@@ -821,9 +821,7 @@ extension DocumentEditor {
             return
         }
         let originalPage: Page
-        if let viewPage = firstFile.views?.first?.pages?.first(where: { $0.id == pageID }) {
-            originalPage = viewPage
-        } else if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+        if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
             originalPage = mainPage
         } else {
             Log("Page with id \(pageID) not found in views or pages.", type: .error)
@@ -872,9 +870,6 @@ extension DocumentEditor {
                 
                 for var fieldPos in originalAltPage.fieldPositions ?? [] {
                     guard let origFieldID = fieldPos.field else { continue }
-                    if let newField = fieldMapping[origFieldID] {
-                        fieldPos.field = newField
-                    }else {
                         if let origField = field(fieldID: origFieldID) {
                             var duplicateField = origField
                             let newFieldID = generateObjectId()
@@ -884,7 +879,6 @@ extension DocumentEditor {
                             alternateNewFields.append(duplicateField)
                             fieldPos.field = newFieldID
                         }
-                    }
                     alternateNewFieldPositions.append(fieldPos)
                 }
                 // apply conditional logic here
@@ -935,7 +929,9 @@ extension DocumentEditor {
         document.files = files
         updateFieldMap()
         updateFieldPositionMap()
-        updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        if !isMobileViewActive {
+            updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        }
         if let views = document.files.first?.views, !views.isEmpty {
             if let page = views.first?.pages?.first(where: { $0.id == newPageID }) {
                 updatePageFieldModels(page, newPageID, firstFile.id ?? "")
