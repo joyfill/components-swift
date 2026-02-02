@@ -10,6 +10,7 @@ import JoyfillModel
 
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
+    @State var showEditMultipleRowsSheetView: Bool = false
     private let screenWidth = UIScreen.main.bounds.width
     @StateObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
@@ -24,6 +25,14 @@ struct TableQuickView : View {
         self.eventHandler = eventHandler
     }
         
+    fileprivate func openTable() {
+        isTableModalViewPresented = true
+        
+        if tableDataModel.mode == .fill {
+            eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
@@ -46,10 +55,7 @@ struct TableQuickView : View {
             )
             
             Button(action: {
-                isTableModalViewPresented.toggle()
-                if tableDataModel.mode == .fill {
-                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
-                }
+                openTable()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Table View")
@@ -77,11 +83,28 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
             .hidden()
+        }
+        .onChange(of: viewModel.tableDataModel.documentEditor?.navigationTarget) { newValue in
+            // Check if this navigation is for THIS table field
+            guard let fieldID = newValue?.fieldID,
+                  fieldID == tableDataModel.fieldIdentifier.fieldID,
+                  let rowId = newValue?.rowId,
+                  !rowId.isEmpty else {
+                return
+            }
+            
+            // This navigation is for this table - open modal with selected row
+            viewModel.tableDataModel.selectedRows = [rowId]
+            if let open = newValue?.openRowForm {
+                showEditMultipleRowsSheetView = open
+            }
+            
+            openTable()
         }
     }
     

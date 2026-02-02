@@ -301,9 +301,7 @@ struct FormView: View {
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
                 if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
-                    withAnimation {
-                        proxy.scrollTo(firstFieldID, anchor: .top)
-                    }
+                    proxy.scrollTo(firstFieldID, anchor: .top)
                 }
             }
             .onChange(of: documentEditor.navigationTarget) { navigationTarget in
@@ -315,14 +313,7 @@ struct FormView: View {
                 
                 if let fieldID = navigationTarget.fieldID {
                     // Navigate to specific field
-                    withAnimation {
-                        proxy.scrollTo(fieldID, anchor: .top)
-                    }
-                    
-                    // Clear navigation target after scroll completes
-                    DispatchQueue.main.async {
-                        documentEditor.navigationTarget = nil
-                    }
+                    proxy.scrollTo(fieldID, anchor: .top)
                 }
             }
         }

@@ -42,10 +42,14 @@ public enum NavigationStatus: String {
 public struct NavigationTarget: Equatable {
     public let pageId: String
     public let fieldID: String?
+    public let rowId: String?
+    public let openRowForm: Bool
     
-    public init(pageId: String, fieldID: String? = nil) {
+    public init(pageId: String, fieldID: String? = nil, rowId: String? = nil, openRowForm: Bool = false) {
         self.pageId = pageId
         self.fieldID = fieldID
+        self.rowId = rowId
+        self.openRowForm = openRowForm
     }
 }
 
@@ -1144,10 +1148,13 @@ extension DocumentEditor {
 
 // MARK: - Navigation
 extension DocumentEditor {
-    /// Navigates to a specific page or field position
-    /// - Parameter path: Navigation path in format "pageId" or "pageId/fieldPositionId"
-    public func goto(_ path: String) -> NavigationStatus {
-        let components = path.split(separator: "/", maxSplits: 1).map(String.init)
+    /// Navigates to a specific page, field, or row
+    /// - Parameters:
+    ///   - path: Navigation path in format "pageId" or "pageId/fieldPositionId" or "pageId/fieldPositionId/rowId"
+    ///   - open: Whether to open the row modal for table/collection fields (default: false)
+    public func goto(_ path: String, open: Bool = false) -> NavigationStatus {
+        self.navigationTarget = nil
+        let components = path.split(separator: "/").map(String.init)
         
         guard !components.isEmpty else {
             Log("Navigation path is empty", type: .error)
@@ -1156,6 +1163,7 @@ extension DocumentEditor {
         
         let pageId = components[0]
         let fieldPositionId = components.count > 1 ? components[1] : nil
+        let rowId = components.count > 2 ? components[2] : nil
         
         // Check if page exists
         guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
@@ -1190,9 +1198,40 @@ extension DocumentEditor {
                 return .failure
             }
             
-            // Both page and field are valid and visible - navigate to field
-            navigateToField(pageId: pageId, fieldID: fieldID)
-            return .success
+            // If we have a rowId, validate it's a table/collection field and navigate to the row
+            if let rowId = rowId {
+                // Verify this is a table or collection field
+                guard let field = field(fieldID: fieldID) else {
+                    Log("Field with id \(fieldID) not found", type: .warning)
+                    navigateToField(pageId: pageId, fieldID: fieldID)
+                    return .failure
+                }
+                
+                guard field.fieldType == .table || field.fieldType == .collection else {
+                    Log("Field \(fieldID) is not a table or collection field, cannot navigate to row", type: .warning)
+                    navigateToField(pageId: pageId, fieldID: fieldID)
+                    return .failure
+                }
+                
+                // Check if row exists in the field's value elements
+                let rowExists = field.value?.valueElements?.contains(where: { 
+                    $0.id == rowId && $0.deleted != true 
+                }) ?? false
+                
+                guard rowExists else {
+                    Log("Row with id \(rowId) not found in field \(fieldID), navigating to field", type: .warning)
+                    navigateToField(pageId: pageId, fieldID: fieldID)
+                    return .failure
+                }
+                
+                // All validations passed - navigate to the specific row
+                navigateToRow(pageId: pageId, fieldID: fieldID, rowId: rowId, open: open)
+                return .success
+            } else {
+                // Both page and field are valid and visible - navigate to field
+                navigateToField(pageId: pageId, fieldID: fieldID)
+                return .success
+            }
         } else {
             // Only page specified - navigate to top of page
             navigateToPage(pageId: pageId)
@@ -1212,6 +1251,19 @@ extension DocumentEditor {
             currentPageID = pageId
         }
         
-        navigationTarget = NavigationTarget(pageId: pageId, fieldID: fieldID)
+        DispatchQueue.main.async {
+            self.navigationTarget = NavigationTarget(pageId: pageId, fieldID: fieldID)
+        }
+    }
+    
+    /// Navigate to a specific row on a table/collection
+    private func navigateToRow(pageId: String, fieldID: String, rowId: String, open: Bool = true) {
+        if currentPageID != pageId {
+            currentPageID = pageId
+        }
+        
+        DispatchQueue.main.async {
+            self.navigationTarget = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: open)
+        }
     }
 }

@@ -27,15 +27,16 @@ struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.colorScheme) var colorScheme
-    @State private var showEditMultipleRowsSheetView: Bool = false
+    @State var showEditMultipleRowsSheetView: Bool
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     var longestBlockText: String = ""
 
-    init(viewModel: TableViewModel) {
+    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
+        self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
     
     var body: some View {
@@ -341,6 +342,12 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                        }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                         // Scroll to keep selected row in view when navigating with arrows
@@ -377,6 +384,12 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                        }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                         // Scroll to keep selected row in view when navigating with arrows
