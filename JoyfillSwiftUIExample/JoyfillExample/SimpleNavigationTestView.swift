@@ -13,7 +13,9 @@ struct SimpleNavigationTestView: View {
     @StateObject var documentEditor: DocumentEditor
     @State private var selectedPageId: String = ""
     @State private var selectedFieldPositionId: String = ""
+    @State private var selectedRowId: String = ""
     @State private var manualPath: String = ""
+    @State private var openModal: Bool = true
     @State private var showAlert = false
     @State private var alertMessage = ""
     
@@ -26,6 +28,27 @@ struct SimpleNavigationTestView: View {
             return []
         }
         return page.fieldPositions ?? []
+    }
+    
+    var rowsForSelectedField: [ValueElement] {
+        guard let fieldPosition = fieldPositionsForSelectedPage.first(where: { $0.id == selectedFieldPositionId }),
+              let fieldId = fieldPosition.field,
+              let field = documentEditor.field(fieldID: fieldId),
+              (field.fieldType == .table || field.fieldType == .collection),
+              let valueElements = field.value?.valueElements else {
+            return []
+        }
+        // Return all rows including deleted ones
+        return valueElements
+    }
+    
+    var selectedFieldIsTableOrCollection: Bool {
+        guard let fieldPosition = fieldPositionsForSelectedPage.first(where: { $0.id == selectedFieldPositionId }),
+              let fieldId = fieldPosition.field,
+              let field = documentEditor.field(fieldID: fieldId) else {
+            return false
+        }
+        return field.fieldType == .table || field.fieldType == .collection
     }
     
     init() {
@@ -48,14 +71,14 @@ struct SimpleNavigationTestView: View {
                     .foregroundColor(.secondary)
                 
                 HStack(spacing: 8) {
-                    TextField("pageId/fieldPositionId", text: $manualPath)
+                    TextField("pageId/fieldPositionId/rowId", text: $manualPath)
                         .textFieldStyle(.roundedBorder)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                     
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
-                        let status = documentEditor.goto(manualPath)
+                        let status = documentEditor.goto(manualPath, open: openModal)
                         
                         if status == .failure {
                             alertMessage = "Navigation failed for path: \(manualPath)"
@@ -71,6 +94,11 @@ struct SimpleNavigationTestView: View {
                     .cornerRadius(8)
                     .disabled(manualPath.isEmpty)
                 }
+                
+                // Open Modal Toggle
+                Toggle("Open Modal", isOn: $openModal)
+                    .font(.caption)
+                    .padding(.horizontal, 4)
             }
             .padding(12)
             .background(Color(UIColor.systemGroupedBackground))
@@ -79,7 +107,7 @@ struct SimpleNavigationTestView: View {
             
             // Dropdown Navigation Section
             VStack(spacing: 8) {
-                Text("Select Page & Field")
+                Text("Select Page, Field & Row")
                     .font(.caption)
                     .foregroundColor(.secondary)
                 
@@ -102,6 +130,7 @@ struct SimpleNavigationTestView: View {
                     .cornerRadius(8)
                     .onChange(of: selectedPageId) { _ in
                         selectedFieldPositionId = ""
+                        selectedRowId = ""
                     }
                     
                     // Field Position Dropdown
@@ -126,12 +155,50 @@ struct SimpleNavigationTestView: View {
                     .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(8)
                     .disabled(selectedPageId.isEmpty)
+                    .onChange(of: selectedFieldPositionId) { _ in
+                        selectedRowId = ""
+                    }
+                    
+                    // Row Dropdown (only shown for table/collection fields)
+                    if selectedFieldIsTableOrCollection {
+                        Picker("Row", selection: $selectedRowId) {
+                            Text("Select row...").tag("")
+                            ForEach(Array(rowsForSelectedField.enumerated()), id: \.offset) { index, row in
+                                if let id = row.id {
+                                    let isDeleted = row.deleted == true
+                                    let label = isDeleted 
+                                        ? "Row \(index + 1) - \(id.prefix(8)) [DELETED]"
+                                        : "Row \(index + 1) - \(id.prefix(8))"
+                                    
+                                    if isDeleted {
+                                        Text(label)
+                                            .foregroundStyle(.red)
+                                            .tag(id)
+                                    } else {
+                                        Text(label)
+                                            .tag(id)
+                                    }
+                                }
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.horizontal, 12)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(8)
+                        .disabled(selectedFieldPositionId.isEmpty)
+                        
+                    }
                     
                     // Navigate Button
                     Button(action: {
                         if !selectedPageId.isEmpty {
                             let status: NavigationStatus
-                            if !selectedFieldPositionId.isEmpty {
+                            if !selectedRowId.isEmpty {
+                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)", open: openModal)
+                            } else if !selectedFieldPositionId.isEmpty {
                                 status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)")
                             } else {
                                 status = documentEditor.goto(selectedPageId)
@@ -143,10 +210,13 @@ struct SimpleNavigationTestView: View {
                             }
                         }
                     }) {
-                        Image(systemName: "arrow.right.circle.fill")
-                            .font(.title2)
+                        HStack {
+                            Image(systemName: "arrow.right.circle.fill")
+                            Text("Navigate")
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 44)
                     }
-                    .frame(width: 44, height: 44)
                     .foregroundColor(.white)
                     .background(selectedPageId.isEmpty ? Color.gray : Color.blue)
                     .cornerRadius(8)
