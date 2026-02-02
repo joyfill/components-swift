@@ -57,7 +57,8 @@ struct SimpleNavigationTestView: View {
             document: sampleDoc,
             mode: .fill,
             validateSchema: false,
-            license: licenseKey
+            license: licenseKey,
+            singleClickRowEdit: true
         )
         _documentEditor = StateObject(wrappedValue: editor)
     }

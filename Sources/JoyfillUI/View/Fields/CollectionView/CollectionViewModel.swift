@@ -356,6 +356,24 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
+    /// Find schema ID for a given row ID
+    func getSchemaForRow(rowId: String) -> String? {
+        // Check if it's a root row
+        let rootRows = tableDataModel.valueToValueElements ?? []
+        if rootRows.contains(where: { $0.id == rowId }) {
+            return rootSchemaKey
+        }
+        
+        // Search in parentToChildRowMap for nested rows
+        for (rowSchemaID, childRowIds) in parentToChildRowMap {
+            if childRowIds.contains(rowId) {
+                return rowSchemaID.schemaID
+            }
+        }
+        
+        return nil
+    }
+    
     func isRowValid(for rowID: String, parentSchemaID: String) -> Bool {
         var childsvalidities: [Bool] = []
         let schema = tableDataModel.schema[parentSchemaID]
@@ -515,7 +533,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellModels
     }
     
-    fileprivate func getAllCellModels(_ targetSchema: String) -> [RowDataModel] {
+    func getAllCellModels(_ targetSchema: String) -> [RowDataModel] {
         var result = [RowDataModel]()
         let rowDataMap = self.setupRows()
         let rowToChildrenMap = self.setupRowsChildrens()

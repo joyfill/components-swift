@@ -100,9 +100,14 @@ struct TableQuickView : View {
             }
             
             // This navigation is for this table - open modal with selected row
-            viewModel.tableDataModel.selectedRows = [rowId]
-            if let open = newValue?.openRowForm {
-                showEditMultipleRowsSheetView = open
+            let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
+            if rowIdExists {
+                viewModel.tableDataModel.selectedRows = [rowId]
+                if let open = newValue?.openRowForm {
+                    showEditMultipleRowsSheetView = open
+                }
+            } else {
+                showEditMultipleRowsSheetView = false
             }
             
             openTable()

@@ -1213,17 +1213,6 @@ extension DocumentEditor {
                     return .failure
                 }
                 
-                // Check if row exists in the field's value elements
-                let rowExists = field.value?.valueElements?.contains(where: { 
-                    $0.id == rowId && $0.deleted != true 
-                }) ?? false
-                
-                guard rowExists else {
-                    Log("Row with id \(rowId) not found in field \(fieldID), navigating to field", type: .warning)
-                    navigateToField(pageId: pageId, fieldID: fieldID)
-                    return .failure
-                }
-                
                 // All validations passed - navigate to the specific row
                 navigateToRow(pageId: pageId, fieldID: fieldID, rowId: rowId, open: open)
                 return .success

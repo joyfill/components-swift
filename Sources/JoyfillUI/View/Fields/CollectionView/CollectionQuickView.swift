@@ -45,15 +45,17 @@ struct CollectionQuickView : View {
             }
             
             // This navigation is for this collection - open modal with selected row
-            viewModel.tableDataModel.selectedRows = [rowId]
-            if let open = newValue?.openRowForm {
-                showEditMultipleRowsSheetView = open
+            let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
+            if rowIdExists {
+                viewModel.tableDataModel.selectedRows = [rowId]
+                if let open = newValue?.openRowForm {
+                    showEditMultipleRowsSheetView = open
+                }
+            } else {
+                showEditMultipleRowsSheetView = false
             }
-            isTableModalViewPresented = true
             
-            if tableDataModel.mode == .fill {
-                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
-            }
+            openCollection()
         }
     }
     
@@ -78,7 +80,14 @@ struct CollectionQuickView : View {
         )
     }
     
-    private var collectionContent: some View {
+    func openCollection() {
+        isTableModalViewPresented = true
+        if tableDataModel.mode == .fill {
+            eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+        }
+    }
+    
+    var collectionContent: some View {
         VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
@@ -100,10 +109,7 @@ struct CollectionQuickView : View {
             
             Button(action: {
                 showEditMultipleRowsSheetView = false
-                isTableModalViewPresented = true
-                if tableDataModel.mode == .fill {
-                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
-                }
+                openCollection()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Collection View")
