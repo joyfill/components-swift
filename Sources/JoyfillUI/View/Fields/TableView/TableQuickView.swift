@@ -55,6 +55,7 @@ struct TableQuickView : View {
             )
             
             Button(action: {
+                self.showEditMultipleRowsSheetView = false
                 openTable()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {

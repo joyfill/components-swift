@@ -99,6 +99,7 @@ struct CollectionQuickView : View {
             )
             
             Button(action: {
+                showEditMultipleRowsSheetView = false
                 isTableModalViewPresented = true
                 if tableDataModel.mode == .fill {
                     eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
