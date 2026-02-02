@@ -14,6 +14,7 @@ struct CollectionQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
+    @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
@@ -32,6 +33,26 @@ struct CollectionQuickView : View {
                 loadingView
             } else {
                 collectionContent
+            }
+        }
+        .onChange(of: viewModel.tableDataModel.documentEditor?.navigationTarget) { newValue in
+            // Check if this navigation is for THIS collection field
+            guard let fieldID = newValue?.fieldID,
+                  fieldID == tableDataModel.fieldIdentifier.fieldID,
+                  let rowId = newValue?.rowId,
+                  !rowId.isEmpty else {
+                return
+            }
+            
+            // This navigation is for this collection - open modal with selected row
+            viewModel.tableDataModel.selectedRows = [rowId]
+            if let open = newValue?.openRowForm {
+                showEditMultipleRowsSheetView = open
+            }
+            isTableModalViewPresented = true
+            
+            if tableDataModel.mode == .fill {
+                eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
             }
         }
     }
@@ -109,7 +130,7 @@ struct CollectionQuickView : View {
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

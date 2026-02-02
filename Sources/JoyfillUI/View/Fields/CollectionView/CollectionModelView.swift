@@ -43,13 +43,14 @@ struct CollectionRowView: View {
 struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
-    @State private var showEditMultipleRowsSheetView: Bool = false
+    @State var showEditMultipleRowsSheetView: Bool
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-
-    init(viewModel: CollectionViewModel) {
+    
+    init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
+        self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
 
     var body: some View {
@@ -201,6 +202,12 @@ struct CollectionModalView : View {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                         cellProxy.scrollTo(0, anchor: .leading)
                     })
+                    let selectedRows = viewModel.tableDataModel.selectedRows
+                    if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                        }
+                    }
                 }
                 .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                     // Scroll to keep selected row in view when navigating with arrows
