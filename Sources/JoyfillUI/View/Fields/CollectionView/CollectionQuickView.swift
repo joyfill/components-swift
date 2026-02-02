@@ -47,6 +47,7 @@ struct CollectionQuickView : View {
             // This navigation is for this collection - open modal with selected row
             let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
             if rowIdExists {
+                _ = viewModel.expandToRow(rowId: rowId)
                 viewModel.tableDataModel.selectedRows = [rowId]
                 if let open = newValue?.openRowForm {
                     showEditMultipleRowsSheetView = open
