@@ -991,6 +991,235 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
         }
     
+    // Test formula duplication when duplicating a page
+    func testPageDuplication_withFormulas() {
+        // Create a test document with formulas
+        var document = JoyDoc()
+        document.id = "test_doc_1"
+        document.identifier = "doc_test_1"
+        
+        // Create file and page
+        var file = File()
+        file.id = "file_1"
+        file.pageOrder = ["page_1"]
+        
+        var page = Page()
+        page.id = "page_1"
+        
+        // Create fields: text1, text2 (references text1), text3 (uses concat/upper), number1, number11 (similar ID)
+        var field1 = JoyDocField()
+        field1.id = "text1"
+        field1.identifier = "field_text1"
+        field1.fieldType = .text
+        field1.title = "Text 1"
+        field1.value = ValueUnion.string("test value")
+        field1.file = "file_1"
+        
+        var field2 = JoyDocField()
+        field2.id = "text2"
+        field2.identifier = "field_text2"
+        field2.fieldType = .text
+        field2.title = "Copy of text1"
+        field2.file = "file_1"
+        var appliedFormula1 = AppliedFormula()
+        appliedFormula1.id = "AF_text2"
+        appliedFormula1.formula = "formula_text1Reference"
+        appliedFormula1.key = "value"
+        field2.formulas = [appliedFormula1]
+        
+        var field3 = JoyDocField()
+        field3.id = "text3"
+        field3.identifier = "field_text3"
+        field3.fieldType = .text
+        field3.title = "Uppercased with prefix"
+        field3.file = "file_1"
+        var appliedFormula2 = AppliedFormula()
+        appliedFormula2.id = "AF_text3"
+        appliedFormula2.formula = "formula_concatUpperCase"
+        appliedFormula2.key = "value"
+        field3.formulas = [appliedFormula2]
+        
+        var field4 = JoyDocField()
+        field4.id = "number1"
+        field4.identifier = "field_number1"
+        field4.fieldType = .number
+        field4.title = "Number 1"
+        field4.value = ValueUnion.double(10)
+        field4.file = "file_1"
+        
+        var field5 = JoyDocField()
+        field5.id = "number11"
+        field5.identifier = "field_number11"
+        field5.fieldType = .number
+        field5.title = "Number 11"
+        field5.value = ValueUnion.double(20)
+        field5.file = "file_1"
+        
+        var field6 = JoyDocField()
+        field6.id = "sum_field"
+        field6.identifier = "field_sum"
+        field6.fieldType = .number
+        field6.title = "Sum"
+        field6.file = "file_1"
+        var appliedFormula3 = AppliedFormula()
+        appliedFormula3.id = "AF_sum"
+        appliedFormula3.formula = "formula_sum"
+        appliedFormula3.key = "value"
+        field6.formulas = [appliedFormula3]
+        
+        // Create field positions
+        var fp1 = FieldPosition()
+        fp1.id = "fp_1"
+        fp1.field = "text1"
+        fp1.type = .text
+        
+        var fp2 = FieldPosition()
+        fp2.id = "fp_2"
+        fp2.field = "text2"
+        fp2.type = .text
+        
+        var fp3 = FieldPosition()
+        fp3.id = "fp_3"
+        fp3.field = "text3"
+        fp3.type = .text
+        
+        var fp4 = FieldPosition()
+        fp4.id = "fp_4"
+        fp4.field = "number1"
+        fp4.type = .number
+        
+        var fp5 = FieldPosition()
+        fp5.id = "fp_5"
+        fp5.field = "number11"
+        fp5.type = .number
+        
+        var fp6 = FieldPosition()
+        fp6.id = "fp_6"
+        fp6.field = "sum_field"
+        fp6.type = .number
+        
+        page.fieldPositions = [fp1, fp2, fp3, fp4, fp5, fp6]
+        file.pages = [page]
+        document.files = [file]
+        document.fields = [field1, field2, field3, field4, field5, field6]
+        
+        // Create document-level formulas
+        var formula1 = Formula()
+        formula1.id = "formula_text1Reference"
+        formula1.desc = "Echo text1"
+        formula1.type = "calc"
+        formula1.scope = "private"
+        formula1.expression = "text1"
+        
+        var formula2 = Formula()
+        formula2.id = "formula_concatUpperCase"
+        formula2.desc = "Uppercase + Prefix"
+        formula2.type = "calc"
+        formula2.scope = "private"
+        formula2.expression = "concat(\"Current entry: \", upper(text1))"
+        
+        var formula3 = Formula()
+        formula3.id = "formula_sum"
+        formula3.desc = "Sum number1 and number11"
+        formula3.type = "calc"
+        formula3.scope = "private"
+        formula3.expression = "number1 + number11"
+        
+        document.formulas = [formula1, formula2, formula3]
+        
+        // Create document editor and duplicate page
+        let documentEditor = documentEditor(document: document)
+        let originalFormulaCount = documentEditor.document.formulas.count
+        let originalFieldCount = documentEditor.document.fields.count
+        
+        documentEditor.duplicatePage(pageID: "page_1")
+        
+        // Verify page duplication
+        let firstFile = documentEditor.document.files.first
+        let pageOrder = firstFile?.pageOrder
+        XCTAssertEqual(pageOrder?.count, 2, "Should have 2 pages after duplication")
+        
+        guard let duplicatedPageID = pageOrder?[1] else {
+            XCTFail("Could not find duplicated page ID")
+            return
+        }
+        
+        // Verify field duplication
+        XCTAssertEqual(documentEditor.document.fields.count, originalFieldCount * 2, "Should have double the fields")
+        
+        // Verify formula duplication
+        XCTAssertEqual(documentEditor.document.formulas.count, originalFormulaCount * 2, "Should have double the formulas")
+        
+        // Get duplicated fields
+        let duplicatedPage = firstFile?.pages?.first(where: { $0.id == duplicatedPageID })
+        let duplicatedFieldIDs = duplicatedPage?.fieldPositions?.compactMap { $0.field } ?? []
+        XCTAssertEqual(duplicatedFieldIDs.count, 6, "Duplicated page should have 6 fields")
+        
+        // Find duplicated fields by their positions
+        let dupText1ID = duplicatedFieldIDs[0]
+        let dupText2ID = duplicatedFieldIDs[1]
+        let dupText3ID = duplicatedFieldIDs[2]
+        let dupNumber1ID = duplicatedFieldIDs[3]
+        let dupNumber11ID = duplicatedFieldIDs[4]
+        let dupSumFieldID = duplicatedFieldIDs[5]
+        
+        // Verify field IDs are different
+        XCTAssertNotEqual(dupText1ID, "text1", "Duplicated field should have new ID")
+        XCTAssertNotEqual(dupText2ID, "text2", "Duplicated field should have new ID")
+        XCTAssertNotEqual(dupNumber1ID, "number1", "Duplicated field should have new ID")
+        XCTAssertNotEqual(dupNumber11ID, "number11", "Duplicated field should have new ID")
+        
+        // Find duplicated fields
+        guard let dupText2 = documentEditor.document.fields.first(where: { $0.id == dupText2ID }),
+              let dupText3 = documentEditor.document.fields.first(where: { $0.id == dupText3ID }),
+              let dupSumField = documentEditor.document.fields.first(where: { $0.id == dupSumFieldID }) else {
+            XCTFail("Could not find duplicated fields")
+            return
+        }
+        
+        // Verify field formulas are updated to reference new formula IDs
+        XCTAssertNotNil(dupText2.formulas, "Duplicated field should have formulas")
+        XCTAssertEqual(dupText2.formulas?.count, 1, "Should have 1 formula")
+        let dupText2FormulaRef = dupText2.formulas?[0].formula
+        XCTAssertNotNil(dupText2FormulaRef, "Formula reference should exist")
+        XCTAssertNotEqual(dupText2FormulaRef, "formula_text1Reference", "Should reference new formula ID")
+        
+        XCTAssertNotNil(dupText3.formulas, "Duplicated field should have formulas")
+        let dupText3FormulaRef = dupText3.formulas?[0].formula
+        XCTAssertNotEqual(dupText3FormulaRef, "formula_concatUpperCase", "Should reference new formula ID")
+        
+        XCTAssertNotNil(dupSumField.formulas, "Duplicated field should have formulas")
+        let dupSumFormulaRef = dupSumField.formulas?[0].formula
+        XCTAssertNotEqual(dupSumFormulaRef, "formula_sum", "Should reference new formula ID")
+        
+        // Verify new formulas exist with updated expressions
+        guard let newFormula1 = documentEditor.document.formulas.first(where: { $0.id == dupText2FormulaRef }),
+              let newFormula2 = documentEditor.document.formulas.first(where: { $0.id == dupText3FormulaRef }),
+              let newFormula3 = documentEditor.document.formulas.first(where: { $0.id == dupSumFormulaRef }) else {
+            XCTFail("Could not find duplicated formulas")
+            return
+        }
+        
+        // Verify expressions are updated with new field IDs - using exact string matching
+        XCTAssertEqual(newFormula1.expression, dupText1ID, "Expression should be exactly the new text1 field ID")
+        
+        // Build expected expression for formula 2
+        let expectedFormula2Expression = "concat(\"Current entry: \", upper(\(dupText1ID)))"
+        XCTAssertEqual(newFormula2.expression, expectedFormula2Expression, "Expression should be exactly: concat(\"Current entry: \", upper(\(dupText1ID)))")
+        
+        // Verify that number1 is replaced but number11 is NOT affected (word boundary test)
+        let expectedFormula3Expression = "\(dupNumber1ID) + \(dupNumber11ID)"
+        XCTAssertEqual(newFormula3.expression, expectedFormula3Expression, "Expression should be exactly: \(dupNumber1ID) + \(dupNumber11ID)")
+        
+        // Verify original formulas are unchanged
+        let origFormula1 = documentEditor.document.formulas.first(where: { $0.id == "formula_text1Reference" })
+        let origFormula3 = documentEditor.document.formulas.first(where: { $0.id == "formula_sum" })
+        XCTAssertEqual(origFormula1?.expression, "text1", "Original formula should be unchanged")
+        XCTAssertEqual(origFormula3?.expression, "number1 + number11", "Original formula should be unchanged")
+        
+        print("✅ Formula duplication test passed!")
+    }
+    
     // MARK: - Page Deletion Tests
     
     /// Test basic page deletion
