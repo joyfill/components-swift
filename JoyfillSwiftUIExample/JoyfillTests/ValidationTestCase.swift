@@ -16,8 +16,8 @@ final class ValidationTestCase: XCTestCase {
             capturedChanges.append(contentsOf: changes)
         }
         
-        func onFocus(event: FieldIdentifier) {}
-        func onBlur(event: FieldIdentifier) {}
+        func onFocus(event: Event) {}
+        func onBlur(event: Event) {}
         func onCapture(event: CaptureEvent) {}
         func onUpload(event: UploadEvent) {}
         func onError(error: JoyfillError) {}

@@ -52,7 +52,11 @@ public struct NavigationTarget: Equatable {
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
-    @Published public var currentPageID: String
+    @Published public var currentPageID: String {
+        didSet {
+            handlePageChange(from: oldValue, to: currentPageID)
+        }
+    }
     @Published var currentPageOrder: [String] = []
     @Published var navigationTarget: NavigationTarget? = nil
     private var isCollectionFieldEnabled: Bool = false
@@ -1048,6 +1052,11 @@ extension DocumentEditor {
                 fieldsToDelete.insert(fieldID)
             }
         }
+        
+        // Fire blur event for page to delete
+        if let previousPage = firstPageFor(currentPageID: pageID) {
+            onPageBlur(page: previousPage)
+        }
                 
         // 3. Handle navigation before deletion
         let shouldNavigate = currentPageID == pageID
@@ -1213,5 +1222,35 @@ extension DocumentEditor {
         }
         
         navigationTarget = NavigationTarget(pageId: pageId, fieldID: fieldID)
+    }
+    
+    /// Handles page change events, firing page.blur and page.focus callbacks
+    private func handlePageChange(from previousPageId: String, to newPageId: String) {
+        // Don't fire events if pages are the same or if this is initial setup
+        guard previousPageId != newPageId, !previousPageId.isEmpty else {
+            return
+        }
+        
+        // Fire blur event for previous page
+        if let previousPage = firstPageFor(currentPageID: previousPageId) {
+            onPageBlur(page: previousPage)
+        }
+        
+        // Fire focus event for new page
+        if let newPage = firstPageFor(currentPageID: newPageId) {
+            onPageFocus(page: newPage)
+        }
+    }
+    
+    /// Fires page focus event
+    private func onPageFocus(page: Page) {
+        let pageEvent = PageEvent(type: "page.focus", page: page)
+        self.onFocus(event: pageEvent)
+    }
+    
+    /// Fires page blur event
+    private func onPageBlur(page: Page) {
+        let pageEvent = PageEvent(type: "page.blur", page: page)
+        self.onBlur(event: pageEvent)
     }
 }

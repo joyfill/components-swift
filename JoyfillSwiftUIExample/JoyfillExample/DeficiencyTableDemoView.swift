@@ -34,8 +34,8 @@ extension DeficiencyTableDemoView {
         deficiencyDemoDocumentEditor.change(changes: updatedChanges)
     }
     
-    func onFocus(event: FieldIdentifier) { }
-    func onBlur(event: FieldIdentifier) { }
+    func onFocus(event: Event) { }
+    func onBlur(event: Event) { }
     func onCapture(event: CaptureEvent) { }
     func onUpload(event: UploadEvent) { }
     func onError(error: Joyfill.JoyfillError) { }

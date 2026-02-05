@@ -100,11 +100,11 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         }
     }
     
-    func onFocus(event: FieldIdentifier) {
+    func onFocus(event: Event) {
         
     }
     
-    func onBlur(event: FieldIdentifier) {
+    func onBlur(event: Event) {
         
     }
     
