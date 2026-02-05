@@ -79,7 +79,7 @@ struct SimpleNavigationTestView: View {
                     
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
-                        let status = documentEditor.goto(manualPath, open: openModal)
+                        let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal))
                         
                         if status == .failure {
                             alertMessage = "Navigation failed for path: \(manualPath)"
@@ -198,7 +198,7 @@ struct SimpleNavigationTestView: View {
                         if !selectedPageId.isEmpty {
                             let status: NavigationStatus
                             if !selectedRowId.isEmpty {
-                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)", open: openModal)
+                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)", gotoConfig: GotoConfig(open: openModal))
                             } else if !selectedFieldPositionId.isEmpty {
                                 status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)")
                             } else {

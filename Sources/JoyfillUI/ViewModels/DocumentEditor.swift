@@ -53,6 +53,16 @@ public struct NavigationTarget: Equatable {
     }
 }
 
+/// Configuration options for the goto navigation method
+public struct GotoConfig {
+    /// Whether to automatically open the row form modal for table/collection rows
+    public let open: Bool
+    
+    public init(open: Bool = false) {
+        self.open = open
+    }
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
@@ -1151,8 +1161,8 @@ extension DocumentEditor {
     /// Navigates to a specific page, field, or row
     /// - Parameters:
     ///   - path: Navigation path in format "pageId" or "pageId/fieldPositionId" or "pageId/fieldPositionId/rowId"
-    ///   - open: Whether to open the row modal for table/collection fields (default: false)
-    public func goto(_ path: String, open: Bool = false) -> NavigationStatus {
+    ///   - gotoConfig: Configuration for navigation behavior
+    public func goto(_ path: String, gotoConfig: GotoConfig = GotoConfig()) -> NavigationStatus {
         self.navigationTarget = nil
         let components = path.split(separator: "/").map(String.init)
         
@@ -1214,7 +1224,7 @@ extension DocumentEditor {
                 }
                 
                 // All validations passed - navigate to the specific row
-                navigateToRow(pageId: pageId, fieldID: fieldID, rowId: rowId, open: open)
+                navigateToRow(pageId: pageId, fieldID: fieldID, rowId: rowId, open: gotoConfig.open)
                 return .success
             } else {
                 // Both page and field are valid and visible - navigate to field
