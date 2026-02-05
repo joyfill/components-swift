@@ -91,22 +91,25 @@ extension ChangeManager: FormChangeEvent {
     }
 
     func onFocus(event: Event) {
-        if let event = event.fieldEvent {
-            let fieldDict = createFieldIdentifierDict(event)
+        let timestamp = DateFormatter.timestamp.string(from: Date())
+        
+        if let fieldEvent = event.fieldEvent {
+            let fieldDict = createFieldIdentifierDict(fieldEvent)
             print(">>>>>>>>onFocus", formatDictionary(fieldDict))
-            let timestamp = DateFormatter.timestamp.string(from: Date())
-            DispatchQueue.main.async {
-                self.displayedChangelogs.append("[\(timestamp)] Focus: \(self.formatDictionary(fieldDict))")
+            
+            if let jsonData = try? JSONSerialization.data(withJSONObject: fieldDict, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    self.displayedChangelogs.append("[\(timestamp)] Focus: \(jsonString)")
+                }
             }
-        }
-        if let event = event.pageEvent {
-            print(">>>>>>>>onPageEvent", event.type, event.page.id ?? "unknown", event.page.name ?? "Untitled")
-            let timestamp = DateFormatter.timestamp.string(from: Date())
+        } else if let pageEvent = event.pageEvent {
+            print(">>>>>>>>onPageFocus", pageEvent.type, pageEvent.page.id ?? "unknown", pageEvent.page.name ?? "Untitled")
             
             // Create proper JSON string for the viewer
             var eventDict: [String: Any] = [:]
-            eventDict["type"] = event.type
-            eventDict["page"] = event.page.dictionary
+            eventDict["type"] = pageEvent.type
+            eventDict["page"] = pageEvent.page.dictionary
             
             if let jsonData = try? JSONSerialization.data(withJSONObject: eventDict, options: .prettyPrinted),
                let jsonString = String(data: jsonData, encoding: .utf8) {
@@ -118,22 +121,25 @@ extension ChangeManager: FormChangeEvent {
     }
 
     func onBlur(event: Event) {
-        if let event = event.fieldEvent {
-            let fieldDict = createFieldIdentifierDict(event)
+        let timestamp = DateFormatter.timestamp.string(from: Date())
+        
+        if let fieldEvent = event.fieldEvent {
+            let fieldDict = createFieldIdentifierDict(fieldEvent)
             print(">>>>>>>>onBlur", formatDictionary(fieldDict))
-            let timestamp = DateFormatter.timestamp.string(from: Date())
-            DispatchQueue.main.async {
-                self.displayedChangelogs.append("[\(timestamp)] Blur: \(self.formatDictionary(fieldDict))")
+            
+            if let jsonData = try? JSONSerialization.data(withJSONObject: fieldDict, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    self.displayedChangelogs.append("[\(timestamp)] Blur: \(jsonString)")
+                }
             }
-        }
-        if let event = event.pageEvent {
-            print(">>>>>>>>onPageEvent", event.type, event.page.id ?? "unknown", event.page.name ?? "Untitled")
-            let timestamp = DateFormatter.timestamp.string(from: Date())
+        } else if let pageEvent = event.pageEvent {
+            print(">>>>>>>>onPageBlur", pageEvent.type, pageEvent.page.id ?? "unknown", pageEvent.page.name ?? "Untitled")
             
             // Create proper JSON string for the viewer
             var eventDict: [String: Any] = [:]
-            eventDict["type"] = event.type
-            eventDict["page"] = event.page.dictionary
+            eventDict["type"] = pageEvent.type
+            eventDict["page"] = pageEvent.page.dictionary
             
             if let jsonData = try? JSONSerialization.data(withJSONObject: eventDict, options: .prettyPrinted),
                let jsonString = String(data: jsonData, encoding: .utf8) {

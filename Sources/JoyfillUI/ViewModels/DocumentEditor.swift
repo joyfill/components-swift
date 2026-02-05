@@ -1053,9 +1053,11 @@ extension DocumentEditor {
             }
         }
         
-        // Fire blur event for page to delete
-        if let previousPage = firstPageFor(currentPageID: pageID) {
-            onPageBlur(page: previousPage)
+        // Fire blur event for page to delete only if current page == pageID
+        if currentPageID == pageID {
+            if let previousPage = firstPageFor(currentPageID: pageID) {
+                onPageBlur(page: previousPage)
+            }
         }
                 
         // 3. Handle navigation before deletion

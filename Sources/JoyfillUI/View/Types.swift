@@ -33,7 +33,7 @@ public struct Event {
     public var fieldEvent: FieldIdentifier?
     public var pageEvent: PageEvent?
     
-    init(fieldEvent: FieldIdentifier? = nil, pageEvent: PageEvent? = nil) {
+    public init(fieldEvent: FieldIdentifier? = nil, pageEvent: PageEvent? = nil) {
         self.fieldEvent = fieldEvent
         self.pageEvent = pageEvent
     }
