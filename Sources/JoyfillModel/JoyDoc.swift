@@ -1,5 +1,13 @@
 import Foundation
 
+// MARK: - ViewType
+/// View type for view-based hiding (e.g. hiddenViews). Used to force-hide fields/columns per view.
+public enum ViewType: String, CaseIterable {
+    case mobile
+    case desktop
+    case pdf
+}
+
 /// Converts any numeric value to Double.
 /// Handles Double, Int64, and Int types.
 /// - Parameter value: The value to convert
@@ -373,6 +381,13 @@ public struct JoyDocField: Equatable {
     public var hidden: Bool? {
         get { dictionary["hidden"] as? Bool }
         set { dictionary["hidden"] = newValue }
+    }
+    
+    /// View types in which this field is force-hidden. Takes precedence over conditional logic.
+    /// e.g. ["mobile"] = never render on mobile; ["desktop","mobile","pdf"] = hidden in all views.
+    public var hiddenViews: [String]? {
+        get { dictionary["hiddenViews"] as? [String] }
+        set { dictionary["hiddenViews"] = newValue }
     }
     
     /// The timezone of the date field.
@@ -1053,6 +1068,13 @@ public struct FieldTableColumn {
     public var multiSelectValues: [String]? {
         get { dictionary["multiSelectValues"] as? [String] }
         set { dictionary["multiSelectValues"] = newValue }
+    }
+    
+    /// View types in which this column is force-hidden. Takes precedence over conditional logic.
+    /// e.g. ["mobile"] = never show this column on mobile.
+    public var hiddenViews: [String]? {
+        get { dictionary["hiddenViews"] as? [String] }
+        set { dictionary["hiddenViews"] = newValue }
     }
 }
 
@@ -1846,8 +1868,32 @@ public struct FieldPositionSchema {
     }
     
     public var tableColumns: [TableColumn]? {
-        get { (dictionary["tableColumns"] as? [[String: Any]])?.compactMap(TableColumn.init) ?? [] }
-        set { dictionary["tableColumns"] = newValue?.compactMap{ $0.dictionary } }
+        get {
+            if let arr = dictionary["tableColumns"] as? [[String: Any]] {
+                return arr.compactMap(TableColumn.init)
+            }
+            if let dict = dictionary["tableColumns"] as? [String: [String: Any]] {
+                return dict.map { (id, payload) in
+                    var merged = payload
+                    if merged["_id"] == nil { merged["_id"] = id }
+                    return TableColumn(dictionary: merged)
+                }
+            }
+            return nil
+        }
+        set {
+            guard let newValue = newValue else {
+                dictionary["tableColumns"] = nil
+                return
+            }
+            var dict = [String: [String: Any]]()
+            for col in newValue {
+                if let id = col.id {
+                    dict[id] = col.dictionary
+                }
+            }
+            dictionary["tableColumns"] = dict
+        }
     }
 }
 

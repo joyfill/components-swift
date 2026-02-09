@@ -413,6 +413,9 @@ class ConditionalLogicHandler {
     func shouldShowLocal(fieldID: String?) -> Bool {
         guard let fieldID = fieldID else { return true }
         guard let field = documentEditor.field(fieldID: fieldID) else { return true }
+        if documentEditor.isFieldForceHiddenByView(field: field) {
+            return false
+        }
         let model = conditionalLogicModel(field: field)
         let lastHiddenState = field.hidden
         guard let model = model, model.itemCount > 1 else {
