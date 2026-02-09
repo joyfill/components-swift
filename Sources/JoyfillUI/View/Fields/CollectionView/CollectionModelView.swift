@@ -44,7 +44,6 @@ struct CollectionRowView: View {
 struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.presentationMode) var presentationMode
     @State var showEditMultipleRowsSheetView: Bool
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
