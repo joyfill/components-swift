@@ -574,7 +574,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellModels
     }
     
-    func getAllCellModels(_ targetSchema: String) -> [RowDataModel] {
+    fileprivate func getAllCellModels(_ targetSchema: String) -> [RowDataModel] {
         var result = [RowDataModel]()
         let rowDataMap = self.setupRows()
         let rowToChildrenMap = self.setupRowsChildrens()
