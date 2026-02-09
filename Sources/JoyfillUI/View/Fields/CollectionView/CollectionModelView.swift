@@ -44,6 +44,7 @@ struct CollectionRowView: View {
 struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) private var dismiss
     @State var showEditMultipleRowsSheetView: Bool
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
@@ -79,6 +80,7 @@ struct CollectionModalView : View {
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
+                dismiss()
                 return
             }
             
