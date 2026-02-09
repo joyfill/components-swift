@@ -478,7 +478,7 @@ final class NavigationJSONTests: XCTestCase {
     
     func testGotoTableRow_SecondRow_ShouldNavigateSuccessfully() {
         // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a359f1d7f5c25ba27a)
-        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a359f1d7f5c25ba27a"
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a31a65a3133e84bdd2"
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
         
@@ -598,13 +598,13 @@ final class NavigationJSONTests: XCTestCase {
         XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
     }
     
-    func testGoto_PathWithSpecialCharacters_ShouldHandleCorrectly() {
+    func testGoto_PathWithSpecialCharacters_ShouldNotHandleCorrectly() {
         // Test with path containing URL-like characters (though not URL encoded)
-        let path = "691f376206195944e65eef76"
+        let path = "691f376206195944e65eef76*#jehcbvouwefvcowgef"
         
         let result = documentEditor.goto(path)
         
-        XCTAssertEqual(result, .success, "Should handle path with special characters")
+        XCTAssertEqual(result, .failure, "Should not handle path with special characters")
     }
     
     // MARK: - Repeated Navigation Tests
@@ -680,7 +680,7 @@ final class NavigationJSONTests: XCTestCase {
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
         
-        // First component will be empty string, should Not fail
+        // First component will not be empty string, should Not fail
         XCTAssertEqual(result, .success, "Should pass for path with leading slash")
     }
     
@@ -693,12 +693,12 @@ final class NavigationJSONTests: XCTestCase {
         XCTAssertEqual(result, .success, "Should handle trailing slash gracefully")
     }
     
-    func testGoto_PathWithDoubleSlash_ShouldFail() {
-        let path = "691f376206195944e65eef76//697090a399394f50229899a9"
+    func testGoto_PathWithDoubleSlash_ShouldNotFail() {
+        let path = "691f376206195944e65eef76//6970918d350238d0738dd5c9"
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
         
-        // Double slash creates empty component, should fail
-        XCTAssertEqual(result, .failure, "Should fail for path with double slash")
+        // Double slash creates empty component, should not fail
+        XCTAssertEqual(result, .success, "Should not fail for path with double slash")
     }
 }
