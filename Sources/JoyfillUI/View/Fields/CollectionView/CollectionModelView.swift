@@ -88,7 +88,7 @@ struct CollectionModalView : View {
                 let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
                 if rowIdExists {
                     let rowFound = viewModel.expandToRow(rowId: rowId)
-                    if !rowFound {
+                    if rowFound {
                         viewModel.tableDataModel.selectedRows = [rowId]
                         viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
                         showEditMultipleRowsSheetView = event.openRowForm
