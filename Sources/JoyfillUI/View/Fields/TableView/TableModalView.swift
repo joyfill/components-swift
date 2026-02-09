@@ -44,7 +44,10 @@ struct TableModalView : View {
         VStack {
             TableModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true })
+                onEditTap: {
+                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                showEditMultipleRowsSheetView = true
+            })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
@@ -77,6 +80,7 @@ struct TableModalView : View {
                 let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
                 if rowIdExists {
                     viewModel.tableDataModel.selectedRows = [rowId]
+                    viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
                     showEditMultipleRowsSheetView = event.openRowForm
                 } else {
                     showEditMultipleRowsSheetView = false
@@ -323,6 +327,7 @@ struct TableModalView : View {
                             .onTapGesture {
                                 viewModel.tableDataModel.emptySelection()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
+                                viewModel.tableDataModel.rowFormOpenedViaGoto = false
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")

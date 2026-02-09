@@ -236,53 +236,57 @@ struct EditMultipleRowsSheetView: View {
             VStack(alignment: .leading, spacing: 16) {
                     if viewModel.tableDataModel.selectedRows.count == 1 {
                         HStack(alignment: .top) {
-                            Button(action: {
-                                viewModel.selectUpperRow()
-                                changes = [:]
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "chevron.left")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
-                                }
-                            })
-                            .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
-                            .accessibilityIdentifier("UpperRowButtonIdentifier")
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                viewModel.selectBelowRow()
-                                changes = [:]
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
-                                }
-                            })
-                            .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
-                            .accessibilityIdentifier("LowerRowButtonIdentifier")
-                            
-                            Button(action: {
-                                viewModel.insertBelowFromBulkEdit()
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(.blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "plus")
-                                        .foregroundStyle(.blue)
-                                }
-                            })
-                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            if !viewModel.tableDataModel.rowFormOpenedViaGoto {
+                                Button(action: {
+                                    viewModel.selectUpperRow()
+                                    changes = [:]
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+                                        
+                                        Image(systemName: "chevron.left")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                    }
+                                })
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                                .accessibilityIdentifier("UpperRowButtonIdentifier")
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    viewModel.selectBelowRow()
+                                    changes = [:]
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                    }
+                                })
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                                .accessibilityIdentifier("LowerRowButtonIdentifier")
+                                
+                                Button(action: {
+                                    viewModel.insertBelowFromBulkEdit()
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(.blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+                                        
+                                        Image(systemName: "plus")
+                                            .foregroundStyle(.blue)
+                                    }
+                                })
+                                .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            } else {
+                                Spacer()
+                            }
                             
                             Button(action: {
                                 presentationMode.wrappedValue.dismiss()

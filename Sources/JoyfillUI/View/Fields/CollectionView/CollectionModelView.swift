@@ -59,7 +59,10 @@ struct CollectionModalView : View {
         VStack {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true },
+                onEditTap: {
+                    viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                    showEditMultipleRowsSheetView = true
+                },
                 onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
@@ -84,9 +87,12 @@ struct CollectionModalView : View {
             if let rowId = event.rowId, !rowId.isEmpty {
                 let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
                 if rowIdExists {
-                    _ = viewModel.expandToRow(rowId: rowId)
-                    viewModel.tableDataModel.selectedRows = [rowId]
-                    showEditMultipleRowsSheetView = event.openRowForm
+                    let rowFound = viewModel.expandToRow(rowId: rowId)
+                    if !rowFound {
+                        viewModel.tableDataModel.selectedRows = [rowId]
+                        viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                        showEditMultipleRowsSheetView = event.openRowForm
+                    }
                 } else {
                     showEditMultipleRowsSheetView = false
                 }
@@ -573,6 +579,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
@@ -602,6 +609,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
