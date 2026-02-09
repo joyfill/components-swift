@@ -1,5 +1,6 @@
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct TableRowView : View {
     @Environment(\.colorScheme) var colorScheme
@@ -62,6 +63,23 @@ struct TableModalView : View {
                 Spacer()
                 Button("Done") {
                     dismissKeyboard()
+                }
+            }
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
+                return
+            }
+            
+            // Same table, handle row change
+            if let rowId = event.rowId, !rowId.isEmpty {
+                let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
+                if rowIdExists {
+                    viewModel.tableDataModel.selectedRows = [rowId]
+                    showEditMultipleRowsSheetView = event.openRowForm
+                } else {
+                    showEditMultipleRowsSheetView = false
                 }
             }
         }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
@@ -90,22 +91,19 @@ struct TableQuickView : View {
             .frame(width: 0, height: 0)
             .hidden()
         }
-        .onChange(of: viewModel.tableDataModel.documentEditor?.navigationTarget) { newValue in
-            // Check if this navigation is for THIS table field
-            guard let fieldID = newValue?.fieldID,
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
                   fieldID == tableDataModel.fieldIdentifier.fieldID,
-                  let rowId = newValue?.rowId,
+                  let rowId = event.rowId,
                   !rowId.isEmpty else {
                 return
             }
             
-            // This navigation is for this table - open modal with selected row
+            // This navigation is for this table
             let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
             if rowIdExists {
                 viewModel.tableDataModel.selectedRows = [rowId]
-                if let open = newValue?.openRowForm {
-                    showEditMultipleRowsSheetView = open
-                }
+                showEditMultipleRowsSheetView = event.openRowForm
             } else {
                 showEditMultipleRowsSheetView = false
             }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct CollectionRowView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -43,6 +44,7 @@ struct CollectionRowView: View {
 struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.presentationMode) var presentationMode
     @State var showEditMultipleRowsSheetView: Bool
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
@@ -71,6 +73,24 @@ struct CollectionModalView : View {
 
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
+                return
+            }
+            
+            // Same collection, handle row change
+            if let rowId = event.rowId, !rowId.isEmpty {
+                let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
+                if rowIdExists {
+                    _ = viewModel.expandToRow(rowId: rowId)
+                    viewModel.tableDataModel.selectedRows = [rowId]
+                    showEditMultipleRowsSheetView = event.openRowForm
+                } else {
+                    showEditMultipleRowsSheetView = false
+                }
+            }
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()

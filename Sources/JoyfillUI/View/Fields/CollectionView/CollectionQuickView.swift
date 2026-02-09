@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
@@ -35,11 +36,10 @@ struct CollectionQuickView : View {
                 collectionContent
             }
         }
-        .onChange(of: viewModel.tableDataModel.documentEditor?.navigationTarget) { newValue in
-            // Check if this navigation is for THIS collection field
-            guard let fieldID = newValue?.fieldID,
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
                   fieldID == tableDataModel.fieldIdentifier.fieldID,
-                  let rowId = newValue?.rowId,
+                  let rowId = event.rowId,
                   !rowId.isEmpty else {
                 return
             }
@@ -49,9 +49,7 @@ struct CollectionQuickView : View {
             if rowIdExists {
                 _ = viewModel.expandToRow(rowId: rowId)
                 viewModel.tableDataModel.selectedRows = [rowId]
-                if let open = newValue?.openRowForm {
-                    showEditMultipleRowsSheetView = open
-                }
+                showEditMultipleRowsSheetView = event.openRowForm
             } else {
                 showEditMultipleRowsSheetView = false
             }
