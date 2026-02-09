@@ -1194,6 +1194,16 @@ extension DocumentEditor {
         }
     }
     
+    /// Runs navigation (page change + event or event only) and returns status.
+    private func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
+        if pageChanged {
+            changePageAndNavigate(pageId: pageId, event: event)
+        } else {
+            sendNavigation(event)
+        }
+        return status
+    }
+    
     /// Navigates to a specific page, field, or row
     /// - Parameters:
     ///   - path: Navigation path in format "pageId" or "pageId/fieldPositionId" or "pageId/fieldPositionId/rowId"
@@ -1210,21 +1220,17 @@ extension DocumentEditor {
         let fieldPositionId = components.count > 1 ? components[1] : nil
         let rowId = components.count > 2 ? components[2] : nil
         
-        // Check if page exists
         guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
             Log("Page with id \(pageId) not found", type: .warning)
             return .failure
         }
         
-        // Check if page is visible (not hidden by conditional logic)
         guard shouldShow(pageID: pageId) else {
             Log("Page with id \(pageId) is hidden by conditional logic", type: .warning)
             return .failure
         }
         
         let pageChanged = currentPageID != pageId
-        
-        // Build the navigation event based on validation
         let event: NavigationTarget
         var status: NavigationStatus = .success
         
@@ -1234,35 +1240,23 @@ extension DocumentEditor {
             
             guard let fieldPosition = fieldPosition else {
                 Log("Field position with id \(fieldPositionId) not found on page \(pageId)", type: .warning)
-                event = NavigationTarget(pageId: pageId)
-                status = .failure
-                if pageChanged { changePageAndNavigate(pageId: pageId, event: event) } else { sendNavigation(event) }
-                return status
+                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId), status: .failure, pageChanged: pageChanged)
             }
             
             guard let fieldID = fieldPosition.field, shouldShow(fieldID: fieldID) else {
                 Log("Field position \(fieldPositionId) is hidden by conditional logic", type: .warning)
-                event = NavigationTarget(pageId: pageId)
-                status = .failure
-                if pageChanged { changePageAndNavigate(pageId: pageId, event: event) } else { sendNavigation(event) }
-                return status
+                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId), status: .failure, pageChanged: pageChanged)
             }
             
             if let rowId = rowId {
                 guard let field = field(fieldID: fieldID) else {
                     Log("Field with id \(fieldID) not found", type: .warning)
-                    event = NavigationTarget(pageId: pageId, fieldID: fieldID)
-                    status = .failure
-                    if pageChanged { changePageAndNavigate(pageId: pageId, event: event) } else { sendNavigation(event) }
-                    return status
+                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
                 }
                 
                 guard field.fieldType == .table || field.fieldType == .collection else {
                     Log("Field \(fieldID) is not a table or collection field", type: .warning)
-                    event = NavigationTarget(pageId: pageId, fieldID: fieldID)
-                    status = .failure
-                    if pageChanged { changePageAndNavigate(pageId: pageId, event: event) } else { sendNavigation(event) }
-                    return status
+                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
                 }
                 
                 event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open)
@@ -1273,13 +1267,6 @@ extension DocumentEditor {
             event = NavigationTarget(pageId: pageId)
         }
         
-        // Execute navigation
-        if pageChanged {
-            changePageAndNavigate(pageId: pageId, event: event)
-        } else {
-            sendNavigation(event)
-        }
-        
-        return status
+        return executeNavigation(pageId: pageId, event: event, status: status, pageChanged: pageChanged)
     }
 }
