@@ -446,6 +446,278 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         return doc
     }
 
+    // MARK: - Empty metadata (field and table/collection rows)
+
+    func testApplyEmptyFieldMetadataFromFieldUpdateChange() {
+        let document = createTestDocument()
+        let editor = documentEditor(document: document)
+        XCTAssertNil(editor.field(fieldID: tableFieldID)?.metadata?.dictionary["linkedPageId"])
+
+        let change = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.update",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: tableFieldID,
+            fieldIdentifier: editor.field(fieldID: tableFieldID)?.identifier,
+            fieldPositionId: tableFieldPositionId,
+            change: ["metadata": [String: Any]()],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [change])
+
+        let meta = editor.field(fieldID: tableFieldID)?.metadata
+        XCTAssertNotNil(meta, "Field should accept empty metadata dict")
+        XCTAssertTrue(meta?.dictionary.isEmpty == true, "Field metadata should be empty")
+    }
+
+    func testFieldMetadataCanBeReplacedWithEmptyMetadata() {
+        let document = createTestDocument()
+        let editor = documentEditor(document: document)
+        let setMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.update",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: tableFieldID,
+            fieldIdentifier: editor.field(fieldID: tableFieldID)?.identifier,
+            fieldPositionId: tableFieldPositionId,
+            change: [
+                "metadata": [
+                    "linkedPageId": "page_old",
+                    "linkedFieldId": "field_old"
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [setMetaChange])
+        XCTAssertEqual(editor.field(fieldID: tableFieldID)?.metadata?.dictionary["linkedPageId"] as? String, "page_old")
+
+        let emptyMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.update",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: tableFieldID,
+            fieldIdentifier: editor.field(fieldID: tableFieldID)?.identifier,
+            fieldPositionId: tableFieldPositionId,
+            change: ["metadata": [String: Any]()],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [emptyMetaChange])
+
+        let meta = editor.field(fieldID: tableFieldID)?.metadata
+        XCTAssertNotNil(meta)
+        XCTAssertTrue(meta?.dictionary.isEmpty == true, "Field metadata should be replaced with empty")
+    }
+
+    func testApplyEmptyRowMetadataFromTableRowUpdateChange() {
+        let document = createTestDocument()
+        let editor = documentEditor(document: document)
+        waitForMainQueue()
+        XCTAssertNil(editor.field(fieldID: tableFieldID)?.valueToValueElements?.first(where: { $0.id == existingRowId })?.metadata)
+
+        let change = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.value.rowUpdate",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: tableFieldID,
+            fieldIdentifier: editor.field(fieldID: tableFieldID)?.identifier,
+            fieldPositionId: tableFieldPositionId,
+            change: [
+                "rowId": existingRowId,
+                "row": [
+                    "_id": existingRowId,
+                    "cells": [textColumnID: "Cell value"],
+                    "metadata": [String: Any]()
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [change])
+        waitForMainQueue()
+
+        let row = editor.field(fieldID: tableFieldID)?.valueToValueElements?.first(where: { $0.id == existingRowId })
+        XCTAssertNotNil(row?.metadata, "Table row should accept empty metadata dict")
+        XCTAssertTrue(row?.metadata?.dictionary.isEmpty == true, "Table row metadata should be empty")
+    }
+
+    func testTableRowMetadataCanBeReplacedWithEmptyMetadata() {
+        let document = createTestDocument()
+        let editor = documentEditor(document: document)
+        waitForMainQueue()
+
+        let setMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.value.rowUpdate",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: tableFieldID,
+            fieldIdentifier: editor.field(fieldID: tableFieldID)?.identifier,
+            fieldPositionId: tableFieldPositionId,
+            change: [
+                "rowId": existingRowId,
+                "row": [
+                    "_id": existingRowId,
+                    "cells": [textColumnID: "Cell"],
+                    "metadata": [
+                        "linkedPageId": "page_old",
+                        "linkedRowId": "row_old"
+                    ]
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [setMetaChange])
+        waitForMainQueue()
+        XCTAssertEqual(editor.field(fieldID: tableFieldID)?.valueToValueElements?.first(where: { $0.id == existingRowId })?.metadata?.dictionary["linkedPageId"] as? String, "page_old")
+
+        let emptyMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.value.rowUpdate",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: tableFieldID,
+            fieldIdentifier: editor.field(fieldID: tableFieldID)?.identifier,
+            fieldPositionId: tableFieldPositionId,
+            change: [
+                "rowId": existingRowId,
+                "row": [
+                    "_id": existingRowId,
+                    "metadata": [String: Any]()
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [emptyMetaChange])
+        waitForMainQueue()
+
+        let row = editor.field(fieldID: tableFieldID)?.valueToValueElements?.first(where: { $0.id == existingRowId })
+        XCTAssertNotNil(row?.metadata)
+        XCTAssertTrue(row?.metadata?.dictionary.isEmpty == true, "Table row metadata should be replaced with empty")
+    }
+
+    func testApplyEmptyRowMetadataFromCollectionRowUpdateChange() async throws {
+        let document = createTestDocument()
+        let editor = documentEditor(document: document)
+        _ = try await createCollectionViewModel(documentEditor: editor)
+        sleep(2)
+
+        let change = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.value.rowUpdate",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: collectionFieldID,
+            fieldIdentifier: editor.field(fieldID: collectionFieldID)?.identifier,
+            fieldPositionId: collectionFieldPositionId,
+            change: [
+                "rowId": collectionExistingRowId,
+                "schemaId": collectionSchemaId,
+                "parentPath": "",
+                "row": [
+                    "_id": collectionExistingRowId,
+                    "cells": [collectionTextColumnID: "Cell value"],
+                    "metadata": [String: Any]()
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [change])
+        waitForMainQueue()
+
+        let row = editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == collectionExistingRowId })
+        XCTAssertNotNil(row?.metadata, "Collection row should accept empty metadata dict")
+        XCTAssertTrue(row?.metadata?.dictionary.isEmpty == true, "Collection row metadata should be empty")
+    }
+
+    func testCollectionRowMetadataCanBeReplacedWithEmptyMetadata() async throws {
+        let document = createTestDocument()
+        let editor = documentEditor(document: document)
+        _ = try await createCollectionViewModel(documentEditor: editor)
+        sleep(2)
+        let setMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.value.rowUpdate",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: collectionFieldID,
+            fieldIdentifier: editor.field(fieldID: collectionFieldID)?.identifier,
+            fieldPositionId: collectionFieldPositionId,
+            change: [
+                "rowId": collectionExistingRowId,
+                "schemaId": collectionSchemaId,
+                "parentPath": "",
+                "row": [
+                    "_id": collectionExistingRowId,
+                    "cells": [collectionTextColumnID: "Cell"],
+                    "metadata": [
+                        "linkedPageId": "page_old",
+                        "linkedRowId": "row_old"
+                    ]
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [setMetaChange])
+        waitForMainQueue()
+        XCTAssertEqual(editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == collectionExistingRowId })?.metadata?.dictionary["linkedPageId"] as? String, "page_old")
+
+        let emptyMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.value.rowUpdate",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: pageID,
+            fieldId: collectionFieldID,
+            fieldIdentifier: editor.field(fieldID: collectionFieldID)?.identifier,
+            fieldPositionId: collectionFieldPositionId,
+            change: [
+                "rowId": collectionExistingRowId,
+                "schemaId": collectionSchemaId,
+                "parentPath": "",
+                "row": [
+                    "_id": collectionExistingRowId,
+                    "metadata": [String: Any]()
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [emptyMetaChange])
+        waitForMainQueue()
+
+        let row = editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == collectionExistingRowId })
+        XCTAssertNotNil(row?.metadata)
+        XCTAssertTrue(row?.metadata?.dictionary.isEmpty == true, "Collection row metadata should be replaced with empty")
+    }
+
     // MARK: - Row payload includes metadata (ValueElement.anyDictionary used in addRowChanges)
 
     func testValueElementAnyDictionaryIncludesMetadata() {
