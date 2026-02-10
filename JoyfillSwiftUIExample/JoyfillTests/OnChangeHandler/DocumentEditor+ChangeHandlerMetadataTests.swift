@@ -286,7 +286,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         let document = createTestDocument()
         let editor = documentEditor(document: document)
         _ = try await createCollectionViewModel(documentEditor: editor)
-        sleep(10)
+        sleep(2)
         XCTAssertNil(editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == collectionExistingRowId })?.metadata)
 
         let change = Change(
