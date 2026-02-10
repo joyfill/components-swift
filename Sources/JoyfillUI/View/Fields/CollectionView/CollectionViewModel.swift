@@ -1399,11 +1399,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    func addRowWithIndex(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true, index: Int?, nestedKey: String? = nil, parentRowID: String? = nil) {
+    func addRowWithIndex(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, metadata: Metadata? = nil, shouldSendEvent: Bool = true, index: Int?, nestedKey: String? = nil, parentRowID: String? = nil) {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilterWithAnyIndex(id: id,
                                                                              cellValues: cellValues,
+                                                                             metaData: metadata,
                                                                              fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                              parentRowId: parentRowID,
                                                                              schemaKey: nestedKey,
@@ -1539,11 +1540,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metaData: Metadata? = nil) {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
         let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
+        let rowMeta = metaData ?? rowToValueElementMap[rowId]?.metadata
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1552,7 +1554,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                         parentRowId: currentRowModel?.rowType.parentID?.rowID ?? "",
                                                                         callOnChange: callOnChange,
                                                                         valueElements: tableDataModel.valueToValueElements ?? [],
-                                                                        isRootRow: currentRowModel?.rowType.isRow ?? false) ?? ([], nil)
+                                                                        isRootRow: currentRowModel?.rowType.isRow ?? false,
+                                                                        metaData: rowMeta) ?? ([], nil)
         self.tableDataModel.valueToValueElements = result.0
         if let valueElement = result.1 {
             self.rowToValueElementMap[rowId] = valueElement
@@ -1859,12 +1862,17 @@ extension CollectionViewModel {
     /// Merges the change payload into a cached ValueElement, returning the updated row.
     private func mergedRow(from change: Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
-        guard let rowDict = change.change?["row"] as? [String: Any],
-              let cellsDict = rowDict["cells"] as? [String: Any] else {
+        guard let rowDict = change.change?["row"] as? [String: Any] else {
             return updatedRow
         }
-        for (key, value) in cellsDict {
-            updatedRow.cells?[key] = ValueUnion(value: value)
+        if let cellsDict = rowDict["cells"] as? [String: Any] {
+            for (key, value) in cellsDict {
+                if updatedRow.cells == nil { updatedRow.cells = [:] }
+                updatedRow.cells?[key] = ValueUnion(value: value)
+            }
+        }
+        if let metadataDict = rowDict["metadata"] as? [String: Any] {
+            updatedRow.metadata = Metadata(dictionary: metadataDict)
         }
         return updatedRow
     }
@@ -1886,7 +1894,8 @@ extension CollectionViewModel {
                 colIndex: colIndex,
                 cellDataModel: cell,
                 isNestedCell: true,
-                callOnChange: false
+                callOnChange: false,
+                metaData: row.metadata
             )
             
         }
@@ -1951,20 +1960,19 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
     
     func insertRow(for change: Change) {
-        var cellValues: [String: ValueUnion] = [:]
-        var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
+        let newRowDict = change.change?["row"] as? [String: Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
-        cellValues = newRow.cells ?? [:]
+        let cellValues = newRow.cells ?? [:]
+        let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
         if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
             let parentPath = change.change?["parentPath"] as? String ?? ""
             let parentID = decodeParentPath(parentPath: parentPath)
-            
             let targetRowIndex = change.change?["targetRowIndex"] as? Int
-            addRowWithIndex(with: newRowID, and: cellValues, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
+            addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
             let targetRowIndex = change.change?["targetRowIndex"] as? Int
-            addRowWithIndex(with: newRowID, and: cellValues, shouldSendEvent: false, index: targetRowIndex)
+            addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }
     }
 

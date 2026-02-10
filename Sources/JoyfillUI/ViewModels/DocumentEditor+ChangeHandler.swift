@@ -634,6 +634,7 @@ extension DocumentEditor {
     
     func insertRowWithFilterWithAnyIndex(id: String,
                                                 cellValues: [String: ValueUnion],
+                                                metaData: Metadata? = nil,
                                                 fieldIdentifier: FieldIdentifier,
                                                 parentRowId: String? = nil,
                                                 schemaKey: String? = nil,
@@ -645,7 +646,9 @@ extension DocumentEditor {
         if newRow.cells == nil {
             newRow.cells = [:]
         }
-        
+        if let metaData = metaData {
+            newRow.metadata = metaData
+        }
         for (key, value) in cellValues {
             newRow.cells![key] = value
         }
@@ -1111,7 +1114,7 @@ extension DocumentEditor {
         return newCell
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool, valueElements: [ValueElement], isRootRow: Bool) -> ([ValueElement], ValueElement?) {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool, valueElements: [ValueElement], isRootRow: Bool, metaData: Metadata? = nil) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
         var elements = valueElements
         var newCell: ValueUnion?
@@ -1119,31 +1122,31 @@ extension DocumentEditor {
         switch cellDataModel.type {
         case .text:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .dropdown:
             newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .image:
             newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .date:
             newCell = cellDataModel.date.map(ValueUnion.double)
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .number:
             newCell = cellDataModel.number.map(ValueUnion.double)
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .multiSelect:
             newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .barcode:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .signature:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         case .block:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metaData: metaData)
         default:
             return ([], nil)
         }
@@ -1548,7 +1551,7 @@ extension DocumentEditor {
         }
     }
     
-    private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?) -> ValueElement? {
+    private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?, metaData: Metadata? = nil) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
                 if var cells = elements[i].cells {
@@ -1561,13 +1564,16 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
+                if let metaData = metaData {
+                    elements[i].metadata = metaData
+                }
                 updateTimeZoneIfNeeded(&elements[i])
                 return elements[i]
             }
             if var childrenDict = elements[i].childrens {
                 for (key, var child) in childrenDict {
                     if var nestedElements = child.valueToValueElements {
-                        if let updated = recursiveChangeCell(in: &nestedElements, rowId: rowId, cellDataModelId: cellDataModelId, newCell: newCell) {
+                        if let updated = recursiveChangeCell(in: &nestedElements, rowId: rowId, cellDataModelId: cellDataModelId, newCell: newCell, metaData: metaData) {
                             child.value = ValueUnion.valueElementArray(nestedElements)
                             childrenDict[key] = child
                             elements[i].childrens = childrenDict
