@@ -320,12 +320,18 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        guard let value = change.change?["value"] as? Any,
-              let valueUnion = ValueUnion(value: value) else {
-            logChangeError(for: change)
-            return
+        if let value = change.change?["value"] as? Any,
+           let valueUnion = ValueUnion(value: value) {
+            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
         }
-        updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
+        if let metadataDict = change.change?["metadata"] as? [String: Any],
+           let meta = Metadata(dictionary: metadataDict),
+           var field = fieldMap[fieldID] {
+            field.metadata = meta
+            updatefield(field: field)
+            refreshField(fieldId: fieldID)
+            refreshDependent(for: fieldID)
+        }
     }
     
     private func logChangeError(for change: Change) {
