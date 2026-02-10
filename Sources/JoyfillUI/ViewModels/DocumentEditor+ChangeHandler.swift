@@ -520,12 +520,15 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
-    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement) {
+    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], metaData: Metadata? = nil, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement) {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
             newRow.cells = [:]
+        }
+        if let metaData = metaData {
+            newRow.metadata = metaData
         }
         for cellValue in cellValues {
             newRow.cells![cellValue.key] = cellValue.value
@@ -547,6 +550,7 @@ extension DocumentEditor {
     public func insertRow(at index: Int,
                           id: String,
                           cellValues: [String: ValueUnion],
+                          metaData: Metadata? = nil,
                           fieldIdentifier: FieldIdentifier,
                           shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
@@ -564,7 +568,9 @@ extension DocumentEditor {
         for (key, value) in cellValues {
             newRow.cells?[key] = value
         }
-        
+        if let metaData = metaData {
+            newRow.metadata = metaData
+        }
         // Insert into the elements array
         elements.insert(newRow, at: index)
         
@@ -1038,7 +1044,7 @@ extension DocumentEditor {
         ])
     }
 
-    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, callOnChange: Bool = true) -> [ValueElement] {
+    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, callOnChange: Bool = true, metaData: Metadata? = nil) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
@@ -1050,25 +1056,25 @@ extension DocumentEditor {
         
         switch cellDataModel.type {
         case .text:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metaData: metaData)
         case .dropdown:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId, metaData: metaData)
         case .image:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId, metaData: metaData)
         case .date:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId, metaData: metaData)
         case .number:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId, metaData: metaData)
         case .multiSelect:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId, metaData: metaData)
         case .barcode:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metaData: metaData)
         case .table:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId, metaData: metaData)
         case .signature:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metaData: metaData)
         case .block:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metaData: metaData)
         default:
             return []
         }
@@ -1510,7 +1516,7 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String) -> [ValueElement] {
+    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String, metaData: Metadata? = nil) -> [ValueElement] {
         var elements = elements
         
         if var cells = elements[index].cells {
@@ -1520,9 +1526,11 @@ extension DocumentEditor {
                 cells.removeValue(forKey: cellDataModelId)
             }
             updateTimeZoneIfNeeded(&elements[index])
+            elements[index].metadata = metaData
             elements[index].cells = cells
         } else if let newCell = newCell {
             updateTimeZoneIfNeeded(&elements[index])
+            elements[index].metadata = metaData
             elements[index].cells = [cellDataModelId: newCell]
         }
         
