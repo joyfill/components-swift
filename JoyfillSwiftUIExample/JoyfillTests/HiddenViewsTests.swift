@@ -92,7 +92,7 @@ final class HiddenViewsTests: XCTestCase {
         XCTAssertTrue(result)
     }
     
-    func testShouldShow_WhenHiddenViewsContainsDesktop_AndNoMobileView_Returnsfalse() {
+    func testShouldShow_WhenHiddenViewsContainsDesktop_AndNoMobileView_ReturnsFalse() {
         var document = JoyDoc()
             .setDocument()
             .setFile()
