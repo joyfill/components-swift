@@ -548,15 +548,17 @@ extension TableViewModel: DocumentEditorDelegate {
     
     private func mergedRow(from change: Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
-        guard let rowDict = change.change?["row"] as? [String: Any],
-              let cellsDict = rowDict["cells"] as? [String: Any] else {
+        guard let rowDict = change.change?["row"] as? [String: Any] else {
             return updatedRow
+        }
+        if let cellsDict = rowDict["cells"] as? [String: Any] {
+            for (key, value) in cellsDict {
+                if updatedRow.cells == nil { updatedRow.cells = [:] }
+                updatedRow.cells?[key] = ValueUnion(value: value)
+            }
         }
         if let metadataDict = rowDict["metadata"] as? [String: Any] {
             updatedRow.metadata = Metadata(dictionary: metadataDict)
-        }
-        for (key, value) in cellsDict {
-            updatedRow.cells?[key] = ValueUnion(value: value)
         }
         return updatedRow
     }
