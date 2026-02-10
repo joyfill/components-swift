@@ -375,6 +375,41 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         XCTAssertEqual(field?.metadata?.dictionary["linkedFieldId"] as? String, "field_def")
     }
 
+    /// Metadata is preserved when updating in response to an onChange event (user edit); assert via editor.field.
+    func testFieldMetadataPreservedWhenUpdatingInResponseToOnChangeEvent() {
+        let document = makeMinimalDocWithTextField()
+        let textFieldID = "field_text_1"
+        let fpID = "fp_1"
+        let editor = DocumentEditor(document: document, mode: .fill, validateSchema: false)
+        let setMetaChange = Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.update",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: "file_1",
+            pageId: "page_1",
+            fieldId: textFieldID,
+            fieldIdentifier: editor.field(fieldID: textFieldID)?.identifier,
+            fieldPositionId: fpID,
+            change: [
+                "metadata": [
+                    "linkedPageId": "page_retain",
+                    "linkedFieldId": "field_retain"
+                ]
+            ],
+            createdOn: Date().timeIntervalSince1970
+        )
+        editor.change(changes: [setMetaChange])
+        let fieldId = editor.getFieldIdentifier(for: textFieldID)
+        editor.onChange(event: FieldChangeData(fieldIdentifier: fieldId, updateValue: .string("New value")))
+        let field = editor.field(fieldID: textFieldID)
+        XCTAssertEqual(field?.value?.text, "New value")
+        XCTAssertNotNil(field?.metadata, "Field metadata should be preserved when updating in response to onChange")
+        XCTAssertEqual(field?.metadata?.dictionary["linkedPageId"] as? String, "page_retain")
+        XCTAssertEqual(field?.metadata?.dictionary["linkedFieldId"] as? String, "field_retain")
+    }
+
     private func makeMinimalDocWithTextField() -> JoyDoc {
         var doc = JoyDoc(dictionary: [:])
         doc.id = "doc_1"
