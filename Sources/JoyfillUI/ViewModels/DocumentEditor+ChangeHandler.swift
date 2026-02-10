@@ -273,6 +273,9 @@ extension DocumentEditor {
         if cellDataModel.type == .date {
             row["tz"] = valueElement?.tz
         }
+        if valueElement?.metadata != nil {
+            row["metadata"] = valueElement?.metadata?.dictionary
+        }
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
     
@@ -853,6 +856,9 @@ extension DocumentEditor {
             if isDateColumn {
                 if let idx = indexMap[rowID] {
                     row["tz"] = elements[idx].tz
+                    if elements[idx].metadata != nil {
+                        row["metadata"] = elements[idx].metadata?.dictionary
+                    }
                 }
             }
             rows.append(row)
@@ -902,6 +908,9 @@ extension DocumentEditor {
                         var row: [String: Any] = ["_id": rowId, "cells": changeToSend]
                         if isDateColumn {
                             row["tz"] = updated.tz
+                        }
+                        if updated.metadata != nil {
+                            row["metadata"] = updated.metadata?.dictionary
                         }
                         rows.append(row)
                     }
@@ -1163,6 +1172,9 @@ extension DocumentEditor {
             ]
             if cellDataModel.type == .date {
                 row["tz"] = updatedElement?.tz
+            }
+            if updatedElement?.metadata != nil {
+                row["metadata"] = updatedElement?.metadata?.dictionary
             }
             guard let currentField = fieldMap[fieldId] else {
                 Log("Failed to find field \(fieldId)", type: .error)
@@ -1468,17 +1480,22 @@ extension DocumentEditor {
     }
 
     private func changes(fieldData: JoyDocField) -> [String: Any] {
+        var base: [String: Any]
         switch fieldData.type {
         case "chart":
             return chartChanges(fieldData: fieldData)
         case "date":
-            return [
+            base = [
                 "value": fieldData.value?.dictionary,
                 "tz": fieldData.tz
             ]
         default:
-            return ["value": fieldData.value?.dictionary]
+            base = ["value": fieldData.value?.dictionary]
         }
+        if let meta = fieldData.metadata?.dictionary {
+            base["metadata"] = meta
+        }
+        return base
     }
 
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
@@ -1494,6 +1511,9 @@ extension DocumentEditor {
         valueDict["xTitle"] = fieldData.xTitle
         valueDict["xMin"] = fieldData.xMin
         valueDict["xMax"] = fieldData.xMax
+        if let meta = fieldData.metadata?.dictionary {
+            valueDict["metadata"] = meta
+        }
         return valueDict
     }
 
