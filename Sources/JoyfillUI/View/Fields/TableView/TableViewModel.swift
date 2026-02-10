@@ -291,12 +291,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
 
-    func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, metaData: Metadata? = nil, shouldSendEvent: Bool = true) {
+    func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, metadata: Metadata? = nil, shouldSendEvent: Bool = true) {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues()
         
         if let result = tableDataModel.documentEditor?.insertRowWithFilter(
-            id: id, cellValues: cellValues, metaData: metaData,
+            id: id, cellValues: cellValues, metadata: metadata,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent
         ) {
@@ -312,7 +312,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues()
         
-        if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, metaData: metadata, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
+        if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, metadata: metadata, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
             tableDataModel.valueToValueElements = result.0
             updateRow(valueElement: result.1, at: index)
         } else {
@@ -360,14 +360,14 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metaData: Metadata? = nil) -> [ValueElement] {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil) -> [ValueElement] {
         if isNestedCell {
             tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         }
         
-        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metaData: metaData) ?? []
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
     }
 
     fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
@@ -490,12 +490,12 @@ extension TableViewModel: DocumentEditorDelegate {
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
         cellValues = newRow.cells ?? [:]
-        let metaData = newRow.metadata
+        let metadata = newRow.metadata
         guard let newRowID = newRow.id else { return }
         if let targetRowIndex = change.change?["targetRowIndex"] as? Int {
-            addRowAtIndex(with: newRowID, and: cellValues, metadata: metaData, shouldSendEvent: false,  index: targetRowIndex)
+            addRowAtIndex(with: newRowID, and: cellValues, metadata: metadata, shouldSendEvent: false,  index: targetRowIndex)
         } else {
-            addRow(with: newRowID, and: newRow.cells, metaData: metaData, shouldSendEvent: false)
+            addRow(with: newRowID, and: newRow.cells, metadata: metadata, shouldSendEvent: false)
         }
     }
 
@@ -580,7 +580,7 @@ extension TableViewModel: DocumentEditorDelegate {
                 cellDataModel: cell,
                 isNestedCell: false,
                 callOnChange: false,
-                metaData: row.metadata
+                metadata: row.metadata
             )
         }
     }

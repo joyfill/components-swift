@@ -1404,7 +1404,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
         if let rowData = tableDataModel.documentEditor?.insertRowWithFilterWithAnyIndex(id: id,
                                                                              cellValues: cellValues,
-                                                                             metaData: metadata,
+                                                                             metadata: metadata,
                                                                              fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                              parentRowId: parentRowID,
                                                                              schemaKey: nestedKey,
@@ -1540,12 +1540,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metaData: Metadata? = nil) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil) {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
         let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
-        let rowMeta = metaData ?? rowToValueElementMap[rowId]?.metadata
+        let rowMeta = metadata ?? rowToValueElementMap[rowId]?.metadata
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
                                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1555,7 +1555,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                         callOnChange: callOnChange,
                                                                         valueElements: tableDataModel.valueToValueElements ?? [],
                                                                         isRootRow: currentRowModel?.rowType.isRow ?? false,
-                                                                        metaData: rowMeta) ?? ([], nil)
+                                                                        metadata: rowMeta) ?? ([], nil)
         self.tableDataModel.valueToValueElements = result.0
         if let valueElement = result.1 {
             self.rowToValueElementMap[rowId] = valueElement
@@ -1895,7 +1895,7 @@ extension CollectionViewModel {
                 cellDataModel: cell,
                 isNestedCell: true,
                 callOnChange: false,
-                metaData: row.metadata
+                metadata: row.metadata
             )
             
         }
