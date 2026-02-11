@@ -1475,8 +1475,8 @@ extension DocumentEditor {
     
     /// Handles page change events, firing page.blur and page.focus callbacks
     private func handlePageChange(from previousPageId: String, to newPageId: String) {
-        // Don't fire events if pages are the same or if this is initial setup
-        guard previousPageId != newPageId, !previousPageId.isEmpty else {
+        // Don't fire if the page didn't actually change
+        guard previousPageId != newPageId else {
             return
         }
         
