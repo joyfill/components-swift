@@ -1219,7 +1219,196 @@ final class ValidationTestCase: XCTestCase {
         
         print("✅ Formula duplication test passed!")
     }
-    
+
+    // MARK: - Duplicate Page Additional Tests
+    /// Duplicate when document has no files should not mutate document.
+    func testPageDuplication_noFile_doesNotMutateDocument() {
+        var document = JoyDoc().setDocument()
+        // setDocument() sets files = []; do not call setFile()
+        XCTAssertTrue(document.files.isEmpty, "Test setup should have no files.")
+
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: "any_page_id")
+
+        XCTAssertTrue(documentEditor.document.files.isEmpty, "Document should still have no files after duplicate with no file.")
+    }
+
+    /// Duplicating a page should fire onChange with field.create and page.create changes.
+    func testPageDuplication_onChangeDuplicatePage_firesChangeEvents() {
+        let changeCapture = ChangeCapture()
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+
+        let documentEditor = DocumentEditor(document: document, events: changeCapture, isPageDuplicateEnabled: true, validateSchema: false)
+        let originalPageID = "6629fab320fca7c8107a6cf6"
+        let initialChangeCount = changeCapture.capturedChanges.count
+
+        documentEditor.duplicatePage(pageID: originalPageID)
+
+        let changes = changeCapture.capturedChanges
+        XCTAssertGreaterThan(changes.count, initialChangeCount, "Duplicate page should produce onChange events.")
+
+        let fieldCreates = changes.filter { $0.target == "field.create" }
+        let pageCreates = changes.filter { $0.target == "page.create" }
+        XCTAssertEqual(fieldCreates.count, 2, "Should have 2 field.create events (heading + text field).")
+        XCTAssertGreaterThanOrEqual(pageCreates.count, 1, "Should have at least 1 page.create event.")
+
+        let pageCreate = pageCreates.first
+        XCTAssertNotNil(pageCreate?.fileId, "page.create should include fileId.")
+        if let changeDict = pageCreate?.dictionary["change"] as? [String: Any] {
+            XCTAssertNotNil(changeDict["page"], "page.create change should include page.")
+            XCTAssertNotNil(changeDict["targetIndex"], "page.create change should include targetIndex.")
+        }
+    }
+
+    /// isPageDuplicateEnabled is false in readonly mode; true when explicitly enabled in fill mode.
+    func testPageDuplicate_isPageDuplicateEnabled_respected() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+
+        let editorFillEnabled = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        XCTAssertTrue(editorFillEnabled.isPageDuplicateEnabled, "Fill mode with isPageDuplicateEnabled true should have it true.")
+
+        let editorReadonly = DocumentEditor(document: document, mode: .readonly, isPageDuplicateEnabled: true, validateSchema: false)
+        XCTAssertFalse(editorReadonly.isPageDuplicateEnabled, "Readonly mode should force isPageDuplicateEnabled to false.")
+    }
+    /// Duplicate page with zero field positions still creates a new page and updates pageOrder.
+    func testPageDuplication_emptyPage_createsPageAndUpdatesOrder() {
+        var document = JoyDoc().setDocument().setFile()
+        var page = Page()
+        page.id = "empty_page_1"
+        page.name = "Empty"
+        page.fieldPositions = []
+        document.files[0].pages = [page]
+        document.files[0].pageOrder = ["empty_page_1"]
+
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: "empty_page_1")
+
+        let firstFile = documentEditor.document.files.first
+        XCTAssertEqual(firstFile?.pages?.count, 2, "Should have 2 pages.")
+        XCTAssertEqual(firstFile?.pageOrder?.count, 2, "Page order should have 2 entries.")
+        let duplicatedPage = firstFile?.pages?.first(where: { $0.id != "empty_page_1" })
+        XCTAssertNotNil(duplicatedPage, "Duplicated page should exist.")
+        XCTAssertEqual(duplicatedPage?.fieldPositions?.count ?? 0, 0, "Duplicated page should have no field positions.")
+    }
+
+    /// Desktop has 1 page with 2 fields; mobile view has the same page with 2 fields + 1 extra (3 total).
+    /// Duplicate the mobile page and assert exactly 3 new fields appear in document.fields (one per mobile field).
+    func testPageDuplication_mobilePageWithExtraField_addsThreeNewFieldsToFieldsArray() {
+        let fileID = "file_dup_mobile_1"
+        let pageID = "page_dup_mobile_1"
+        let fieldA = "field_a"
+        let fieldB = "field_b"
+        let fieldC = "field_mobile_only"
+
+        // Fields: A and B on both desktop and mobile; C only on mobile
+        var field1 = JoyDocField()
+        field1.id = fieldA
+        field1.identifier = "ident_a"
+        field1.fieldType = .text
+        field1.title = "Field A"
+        field1.file = fileID
+
+        var field2 = JoyDocField()
+        field2.id = fieldB
+        field2.identifier = "ident_b"
+        field2.fieldType = .text
+        field2.title = "Field B"
+        field2.file = fileID
+
+        var field3 = JoyDocField()
+        field3.id = fieldC
+        field3.identifier = "ident_c"
+        field3.fieldType = .text
+        field3.title = "Field C (mobile only)"
+        field3.file = fileID
+
+        // Desktop page: 2 field positions (A, B)
+        var fpDesktop1 = FieldPosition()
+        fpDesktop1.id = "fp_d_1"
+        fpDesktop1.field = fieldA
+        fpDesktop1.type = .text
+        var fpDesktop2 = FieldPosition()
+        fpDesktop2.id = "fp_d_2"
+        fpDesktop2.field = fieldB
+        fpDesktop2.type = .text
+
+        var desktopPage = Page()
+        desktopPage.id = pageID
+        desktopPage.name = "Page 1"
+        desktopPage.fieldPositions = [fpDesktop1, fpDesktop2]
+
+        // Mobile page: same page ID, 3 field positions (A, B, C) — extra field on mobile
+        var fpMobile1 = FieldPosition()
+        fpMobile1.id = "fp_m_1"
+        fpMobile1.field = fieldA
+        fpMobile1.type = .text
+        var fpMobile2 = FieldPosition()
+        fpMobile2.id = "fp_m_2"
+        fpMobile2.field = fieldB
+        fpMobile2.type = .text
+        var fpMobile3 = FieldPosition()
+        fpMobile3.id = "fp_m_3"
+        fpMobile3.field = fieldC
+        fpMobile3.type = .text
+
+        var mobilePage = Page()
+        mobilePage.id = pageID
+        mobilePage.name = "Page 1 (mobile)"
+        mobilePage.fieldPositions = [fpMobile1, fpMobile2, fpMobile3]
+
+        var mobileView = ModelView()
+        mobileView.id = "view_mobile_1"
+        mobileView.type = "mobile"
+        mobileView.pages = [mobilePage]
+        mobileView.pageOrder = [pageID]
+
+        var file = File()
+        file.id = fileID
+        file.pageOrder = [pageID]
+        file.pages = [desktopPage]
+        file.views = [mobileView]
+
+        var document = JoyDoc()
+        document.id = "doc_dup_mobile_1"
+        document.identifier = "ident_doc_1"
+        document.files = [file]
+        document.fields = [field1, field2, field3]
+
+        let originalFieldIDs = Set(document.fields.compactMap { $0.id })
+        XCTAssertEqual(originalFieldIDs.count, 3, "Initial document should have 3 fields (A, B, C).")
+
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: pageID)
+
+        let fieldsAfter = documentEditor.document.fields
+        let afterFieldIDs = Set(fieldsAfter.compactMap { $0.id })
+        let newFieldIDs = afterFieldIDs.subtracting(originalFieldIDs)
+
+        // Duplicating the mobile page should create exactly 3 new fields (one per field on the mobile page).
+        XCTAssertEqual(newFieldIDs.count, 3, "Duplicating the mobile page (3 fields) should add exactly 3 new fields to the fields array.")
+        XCTAssertEqual(fieldsAfter.count, 6, "After duplicate, document.fields should contain the 3 new fields (implementation replaces with duplicated set).")
+
+        // Duplicated page should exist in mobile view with 3 field positions pointing to new field IDs
+        let firstFile = documentEditor.document.files.first
+        let viewPage = firstFile?.views?.first?.pages?.first(where: { $0.id != pageID })
+        XCTAssertNotNil(viewPage, "Duplicated page should exist in mobile view.")
+        let dupPositionFieldIDs = viewPage?.fieldPositions?.compactMap { $0.field } ?? []
+        XCTAssertEqual(dupPositionFieldIDs.count, 3, "Duplicated mobile page should have 3 field positions.")
+        dupPositionFieldIDs.forEach { id in
+            XCTAssertTrue(newFieldIDs.contains(id), "Each duplicated position should reference one of the new field IDs.")
+        }
+    }
+
     // MARK: - Page Deletion Tests
     
     /// Test basic page deletion
