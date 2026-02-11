@@ -492,6 +492,20 @@ extension JoyDoc {
         return document
     }
     
+    func setSinglePageFile() -> JoyDoc {
+        var file = File()
+        file.id = "6629fab3c0ba3fb775b4a55c"
+        file.name = "All Fields Template"
+        file.version = 1
+        file.styles = Metadata(dictionary: [:])
+        file.pageOrder = ["6629fab320fca7c8107a6cf6"]
+        file.views = []
+        
+        var document = self
+        document.files.append(file)
+        return document
+    }
+    
     func setMobileView() -> JoyDoc {
         var view = ModelView()
         view.id = "6629fab320fca7c8107a6cf6"

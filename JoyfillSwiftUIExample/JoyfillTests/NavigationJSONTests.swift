@@ -443,4 +443,262 @@ final class NavigationJSONTests: XCTestCase {
         // Then
         XCTAssertEqual(actualPageCount, expectedPageCount, "Navigation.json should have 6 pages")
     }
+    
+    // MARK: - Table Row Navigation Tests (goto(pageId/fieldPositionId/rowId))
+    
+    func testGotoTableRow_WithOpenTrue_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9, open: true)
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to table row with open true")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoTableRow_WithOpenFalse_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9, open: false)
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig())
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to table row with open false")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoTableRow_DefaultOpenParameter_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a359f1d7f5c25ba27a)
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a359f1d7f5c25ba27a"
+        
+        let result = documentEditor.goto(path)
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to table row")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoTableRow_SecondRow_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a359f1d7f5c25ba27a)
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a31a65a3133e84bdd2"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to second table row")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoTableRow_ThirdRow_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a31a65a3133e84bdd2)
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a31a65a3133e84bdd2"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to third table row")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoTableRow_NonExistentRow_ShouldNavigateToFieldSuccessfully() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/invalidRowId123)
+        // Note: goto() validates field exists but delegates row validation to UI layer
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/invalidRowId123"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        // goto() returns success if it can navigate to the field; UI handles non-existent rows
+        XCTAssertEqual(result, .success, "Should navigate to field successfully; UI validates row existence")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to page")
+        // The UI (TableQuickView/CollectionQuickView) will check rowOrder.contains(rowId) and handle gracefully
+    }
+    
+    func testGotoRow_OnNonTableField_ShouldFail() {
+        // Try to navigate to a row on a text field (not a table/collection)
+        // goto(691f376206195944e65eef76/6970918d350238d0738dd5c9/someRowId)
+        let path = "691f376206195944e65eef76/6970918d350238d0738dd5c9/someRowId"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail when trying to navigate to row on non-table/collection field")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to page")
+    }
+    
+    func testGotoTableRow_InvalidFieldPosition_ShouldFail() {
+        // goto(691f376206195944e65eef76/invalidFieldPos123/697090a399394f50229899a9)
+        let path = "691f376206195944e65eef76/invalidFieldPos123/697090a399394f50229899a9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid field position ID")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to page")
+    }
+    
+    func testGotoTableRow_InvalidPage_ShouldFail() {
+        // goto(invalidPage123/69709462236416126c166efe/697090a399394f50229899a9)
+        let path = "invalidPage123/69709462236416126c166efe/697090a399394f50229899a9"
+        let originalPageId = documentEditor.currentPageID
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid page ID")
+        XCTAssertEqual(documentEditor.currentPageID, originalPageId, "Current page should not change")
+    }
+    
+    // MARK: - Collection Row Navigation Tests
+    
+    func testGotoCollectionRow_WithOpenTrue_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81, open: true)
+        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to collection row with open true")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoCollectionRow_WithOpenFalse_ShouldNavigateSuccessfully() {
+        // goto(691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81, open: false)
+        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig())
+        
+        XCTAssertEqual(result, .success, "Should successfully navigate to collection row with open false")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGotoCollectionRow_NonExistentRow_ShouldNavigateToFieldSuccessfully() {
+        // goto(691f376206195944e65eef76/6970a485380c41d6c06005aa/invalidCollectionRowId)
+        // Note: goto() validates field exists but delegates row validation to UI layer
+        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/invalidCollectionRowId"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        // goto() returns success if it can navigate to the field; UI handles non-existent rows
+        XCTAssertEqual(result, .success, "Should navigate to field successfully; UI validates row existence")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to page")
+        // The UI (CollectionQuickView) will check if row exists and handle gracefully
+    }
+    
+    // MARK: - Navigation Path Format Tests
+    
+    func testGoto_EmptyPath_ShouldFail() {
+        let originalPageId = documentEditor.currentPageID
+        
+        let result = documentEditor.goto("")
+        
+        XCTAssertEqual(result, .failure, "Should fail for empty path")
+        XCTAssertEqual(documentEditor.currentPageID, originalPageId, "Current page should not change")
+    }
+    
+    func testGoto_PathWithTooManyComponents_ShouldIgnoreExtra() {
+        // goto(691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/extraComponent)
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/extraComponent"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        // Should navigate successfully, ignoring the extra component
+        XCTAssertEqual(result, .success, "Should navigate successfully, ignoring extra path components")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+    }
+    
+    func testGoto_PathWithSpecialCharacters_ShouldNotHandleCorrectly() {
+        // Test with path containing URL-like characters (though not URL encoded)
+        let path = "691f376206195944e65eef76*#jehcbvouwefvcowgef"
+        
+        let result = documentEditor.goto(path)
+        
+        XCTAssertEqual(result, .failure, "Should not handle path with special characters")
+    }
+    
+    // MARK: - Repeated Navigation Tests
+    
+    func testGoto_SameRowTwice_ShouldNavigateBothTimes() {
+        // First navigation
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        let result1 = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result1, .success, "First navigation should succeed")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to Page 2")
+        
+        // Second navigation to same row
+        let result2 = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        XCTAssertEqual(result2, .success, "Second navigation to same row should succeed")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should still be on Page 2")
+    }
+    
+    func testGoto_DifferentRowsSequentially_ShouldNavigateToEach() {
+        // Navigate to first row
+        let path1 = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        let result1 = documentEditor.goto(path1, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result1, .success, "First navigation should succeed")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+        
+        // Navigate to second row
+        let path2 = "691f376206195944e65eef76/69709462236416126c166efe/697090a359f1d7f5c25ba27a"
+        let result2 = documentEditor.goto(path2, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result2, .success, "Second navigation should succeed")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+        
+        // Navigate to third row
+        let path3 = "691f376206195944e65eef76/69709462236416126c166efe/697090a31a65a3133e84bdd2"
+        let result3 = documentEditor.goto(path3, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result3, .success, "Third navigation should succeed")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    // MARK: - Multiple Table/Collection Fields on Same Page
+    
+    func testGoto_DifferentTableFieldsOnSamePage_ShouldNavigateToEach() {
+        // Navigate to first table field (original display type)
+        let path1 = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        let result1 = documentEditor.goto(path1, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result1, .success, "Should navigate to first table field")
+        
+        // Navigate to input group table field on same page
+        let path2 = "691f376206195944e65eef76/6970a47a1f698a20b09578f7/697090a399394f50229899a9"
+        let result2 = documentEditor.goto(path2, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result2, .success, "Should navigate to input group table field")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should remain on same page")
+    }
+    
+    func testGoto_DifferentFieldTypesOnSamePage_ShouldNavigateToEach() {
+        // Navigate to table field
+        let path1 = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        let result1 = documentEditor.goto(path1, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result1, .success, "Should navigate to table field")
+        
+        // Navigate to collection field on same page
+        let path2 = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81"
+        let result2 = documentEditor.goto(path2, gotoConfig: GotoConfig(open: true))
+        XCTAssertEqual(result2, .success, "Should navigate to collection field")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should remain on same page")
+    }
+    
+    // MARK: - Edge Cases
+    
+    func testGoto_PathWithLeadingSlash_ShouldHandleGracefully() {
+        // Paths shouldn't have leading slash, but test handling
+        let path = "/691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        // First component will not be empty string, should Not fail
+        XCTAssertEqual(result, .success, "Should pass for path with leading slash")
+    }
+    
+    func testGoto_PathWithTrailingSlash_ShouldIgnoreIt() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        // Trailing slash creates empty component, should be ignored
+        XCTAssertEqual(result, .success, "Should handle trailing slash gracefully")
+    }
+    
+    func testGoto_PathWithDoubleSlash_ShouldNotFail() {
+        let path = "691f376206195944e65eef76//6970918d350238d0738dd5c9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
+        
+        // Double slash creates empty component, should not fail
+        XCTAssertEqual(result, .success, "Should not fail for path with double slash")
+    }
 }

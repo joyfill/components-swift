@@ -182,6 +182,47 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return Array(tableDataModel.filteredcellModels.filter { $0.rowType.isRow }.prefix(3))
     }
     
+    /// Find parent chain and expand all parents to make the target row visible
+    func expandToRow(rowId: String) -> Bool {
+        // Step 1: Build parent chain from target row to root
+        var parentChain: [(parentRowId: String, schemaId: String)] = []
+        var currentRowId = rowId
+        
+        // Traverse up to find all parents
+        while true {
+            var foundParent = false
+            
+            for (rowSchemaID, childRowIds) in parentToChildRowMap {
+                if childRowIds.contains(currentRowId) {
+                    // Found parent
+                    parentChain.insert((rowSchemaID.rowID, rowSchemaID.schemaID), at: 0)
+                    currentRowId = rowSchemaID.rowID
+                    foundParent = true
+                    break
+                }
+            }
+            
+            if !foundParent {
+                // Reached root or row not found
+                break
+            }
+        }
+        
+        // Step 2: Expand each parent in the chain
+        for (parentRowId, _) in parentChain {
+            // Find parent in filteredcellModels
+            if let parentRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == parentRowId }) {
+                if !parentRow.isExpanded {
+                    // Expand this parent - this will add its children to filteredcellModels
+                    expandTables(rowDataModel: parentRow, level: parentRow.rowType.level)
+                }
+            }
+        }
+        
+        // Check if target row is now visible in filteredcellModels
+        return tableDataModel.filteredcellModels.contains(where: { $0.rowID == rowId })
+    }
+    
     func getTableColumnsForSelectedRows() -> [FieldTableColumn] {
         guard let firstSelectedRow = tableDataModel.selectedRows.first else {
             Log("No row selected", type: .error)
@@ -354,6 +395,24 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
             }
         }
+    }
+    
+    /// Find schema ID for a given row ID
+    func getSchemaForRow(rowId: String) -> String? {
+        // Check if it's a root row
+        let rootRows = tableDataModel.valueToValueElements ?? []
+        if rootRows.contains(where: { $0.id == rowId }) {
+            return rootSchemaKey
+        }
+        
+        // Search in parentToChildRowMap for nested rows
+        for (rowSchemaID, childRowIds) in parentToChildRowMap {
+            if childRowIds.contains(rowId) {
+                return rowSchemaID.schemaID
+            }
+        }
+        
+        return nil
     }
     
     func isRowValid(for rowID: String, parentSchemaID: String) -> Bool {

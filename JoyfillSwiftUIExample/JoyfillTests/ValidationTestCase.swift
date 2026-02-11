@@ -11,17 +11,30 @@ final class ValidationTestCase: XCTestCase {
     /// Mock event handler to capture onChange events for testing
     class ChangeCapture: FormChangeEvent {
         var capturedChanges: [Change] = []
+        var capturedFocusEvents: [Event] = []
+        var capturedBlurEvents: [Event] = []
         
         func onChange(changes: [Change], document: JoyDoc) {
             capturedChanges.append(contentsOf: changes)
         }
         
-        func onFocus(event: FieldIdentifier) {}
-        func onBlur(event: FieldIdentifier) {}
+        func onFocus(event: Event) {
+            capturedFocusEvents.append(event)
+        }
+        
+        func onBlur(event: Event) {
+            capturedBlurEvents.append(event)
+        }
+        
         func onCapture(event: CaptureEvent) {}
         func onUpload(event: UploadEvent) {}
         func onError(error: JoyfillError) {}
         
+        func reset() {
+            capturedChanges.removeAll()
+            capturedFocusEvents.removeAll()
+            capturedBlurEvents.removeAll()
+        }
     }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
@@ -991,6 +1004,424 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
         }
     
+    // Test formula duplication when duplicating a page
+    func testPageDuplication_withFormulas() {
+        // Create a test document with formulas
+        var document = JoyDoc()
+        document.id = "test_doc_1"
+        document.identifier = "doc_test_1"
+        
+        // Create file and page
+        var file = File()
+        file.id = "file_1"
+        file.pageOrder = ["page_1"]
+        
+        var page = Page()
+        page.id = "page_1"
+        
+        // Create fields: text1, text2 (references text1), text3 (uses concat/upper), number1, number11 (similar ID)
+        var field1 = JoyDocField()
+        field1.id = "text1"
+        field1.identifier = "field_text1"
+        field1.fieldType = .text
+        field1.title = "Text 1"
+        field1.value = ValueUnion.string("test value")
+        field1.file = "file_1"
+        
+        var field2 = JoyDocField()
+        field2.id = "text2"
+        field2.identifier = "field_text2"
+        field2.fieldType = .text
+        field2.title = "Copy of text1"
+        field2.file = "file_1"
+        var appliedFormula1 = AppliedFormula()
+        appliedFormula1.id = "AF_text2"
+        appliedFormula1.formula = "formula_text1Reference"
+        appliedFormula1.key = "value"
+        field2.formulas = [appliedFormula1]
+        
+        var field3 = JoyDocField()
+        field3.id = "text3"
+        field3.identifier = "field_text3"
+        field3.fieldType = .text
+        field3.title = "Uppercased with prefix"
+        field3.file = "file_1"
+        var appliedFormula2 = AppliedFormula()
+        appliedFormula2.id = "AF_text3"
+        appliedFormula2.formula = "formula_concatUpperCase"
+        appliedFormula2.key = "value"
+        field3.formulas = [appliedFormula2]
+        
+        var field4 = JoyDocField()
+        field4.id = "number1"
+        field4.identifier = "field_number1"
+        field4.fieldType = .number
+        field4.title = "Number 1"
+        field4.value = ValueUnion.double(10)
+        field4.file = "file_1"
+        
+        var field5 = JoyDocField()
+        field5.id = "number11"
+        field5.identifier = "field_number11"
+        field5.fieldType = .number
+        field5.title = "Number 11"
+        field5.value = ValueUnion.double(20)
+        field5.file = "file_1"
+        
+        var field6 = JoyDocField()
+        field6.id = "sum_field"
+        field6.identifier = "field_sum"
+        field6.fieldType = .number
+        field6.title = "Sum"
+        field6.file = "file_1"
+        var appliedFormula3 = AppliedFormula()
+        appliedFormula3.id = "AF_sum"
+        appliedFormula3.formula = "formula_sum"
+        appliedFormula3.key = "value"
+        field6.formulas = [appliedFormula3]
+        
+        // Create field positions
+        var fp1 = FieldPosition()
+        fp1.id = "fp_1"
+        fp1.field = "text1"
+        fp1.type = .text
+        
+        var fp2 = FieldPosition()
+        fp2.id = "fp_2"
+        fp2.field = "text2"
+        fp2.type = .text
+        
+        var fp3 = FieldPosition()
+        fp3.id = "fp_3"
+        fp3.field = "text3"
+        fp3.type = .text
+        
+        var fp4 = FieldPosition()
+        fp4.id = "fp_4"
+        fp4.field = "number1"
+        fp4.type = .number
+        
+        var fp5 = FieldPosition()
+        fp5.id = "fp_5"
+        fp5.field = "number11"
+        fp5.type = .number
+        
+        var fp6 = FieldPosition()
+        fp6.id = "fp_6"
+        fp6.field = "sum_field"
+        fp6.type = .number
+        
+        page.fieldPositions = [fp1, fp2, fp3, fp4, fp5, fp6]
+        file.pages = [page]
+        document.files = [file]
+        document.fields = [field1, field2, field3, field4, field5, field6]
+        
+        // Create document-level formulas
+        var formula1 = Formula()
+        formula1.id = "formula_text1Reference"
+        formula1.desc = "Echo text1"
+        formula1.type = "calc"
+        formula1.scope = "private"
+        formula1.expression = "text1"
+        
+        var formula2 = Formula()
+        formula2.id = "formula_concatUpperCase"
+        formula2.desc = "Uppercase + Prefix"
+        formula2.type = "calc"
+        formula2.scope = "private"
+        formula2.expression = "concat(\"Current entry: \", upper(text1))"
+        
+        var formula3 = Formula()
+        formula3.id = "formula_sum"
+        formula3.desc = "Sum number1 and number11"
+        formula3.type = "calc"
+        formula3.scope = "private"
+        formula3.expression = "number1 + number11"
+        
+        document.formulas = [formula1, formula2, formula3]
+        
+        // Create document editor and duplicate page
+        let documentEditor = documentEditor(document: document)
+        let originalFormulaCount = documentEditor.document.formulas.count
+        let originalFieldCount = documentEditor.document.fields.count
+        
+        documentEditor.duplicatePage(pageID: "page_1")
+        
+        // Verify page duplication
+        let firstFile = documentEditor.document.files.first
+        let pageOrder = firstFile?.pageOrder
+        XCTAssertEqual(pageOrder?.count, 2, "Should have 2 pages after duplication")
+        
+        guard let duplicatedPageID = pageOrder?[1] else {
+            XCTFail("Could not find duplicated page ID")
+            return
+        }
+        
+        // Verify field duplication
+        XCTAssertEqual(documentEditor.document.fields.count, originalFieldCount * 2, "Should have double the fields")
+        
+        // Verify formula duplication
+        XCTAssertEqual(documentEditor.document.formulas.count, originalFormulaCount * 2, "Should have double the formulas")
+        
+        // Get duplicated fields
+        let duplicatedPage = firstFile?.pages?.first(where: { $0.id == duplicatedPageID })
+        let duplicatedFieldIDs = duplicatedPage?.fieldPositions?.compactMap { $0.field } ?? []
+        XCTAssertEqual(duplicatedFieldIDs.count, 6, "Duplicated page should have 6 fields")
+        
+        // Find duplicated fields by their positions
+        let dupText1ID = duplicatedFieldIDs[0]
+        let dupText2ID = duplicatedFieldIDs[1]
+        let dupText3ID = duplicatedFieldIDs[2]
+        let dupNumber1ID = duplicatedFieldIDs[3]
+        let dupNumber11ID = duplicatedFieldIDs[4]
+        let dupSumFieldID = duplicatedFieldIDs[5]
+        
+        // Verify field IDs are different
+        XCTAssertNotEqual(dupText1ID, "text1", "Duplicated field should have new ID")
+        XCTAssertNotEqual(dupText2ID, "text2", "Duplicated field should have new ID")
+        XCTAssertNotEqual(dupNumber1ID, "number1", "Duplicated field should have new ID")
+        XCTAssertNotEqual(dupNumber11ID, "number11", "Duplicated field should have new ID")
+        
+        // Find duplicated fields
+        guard let dupText2 = documentEditor.document.fields.first(where: { $0.id == dupText2ID }),
+              let dupText3 = documentEditor.document.fields.first(where: { $0.id == dupText3ID }),
+              let dupSumField = documentEditor.document.fields.first(where: { $0.id == dupSumFieldID }) else {
+            XCTFail("Could not find duplicated fields")
+            return
+        }
+        
+        // Verify field formulas are updated to reference new formula IDs
+        XCTAssertNotNil(dupText2.formulas, "Duplicated field should have formulas")
+        XCTAssertEqual(dupText2.formulas?.count, 1, "Should have 1 formula")
+        let dupText2FormulaRef = dupText2.formulas?[0].formula
+        XCTAssertNotNil(dupText2FormulaRef, "Formula reference should exist")
+        XCTAssertNotEqual(dupText2FormulaRef, "formula_text1Reference", "Should reference new formula ID")
+        
+        XCTAssertNotNil(dupText3.formulas, "Duplicated field should have formulas")
+        let dupText3FormulaRef = dupText3.formulas?[0].formula
+        XCTAssertNotEqual(dupText3FormulaRef, "formula_concatUpperCase", "Should reference new formula ID")
+        
+        XCTAssertNotNil(dupSumField.formulas, "Duplicated field should have formulas")
+        let dupSumFormulaRef = dupSumField.formulas?[0].formula
+        XCTAssertNotEqual(dupSumFormulaRef, "formula_sum", "Should reference new formula ID")
+        
+        // Verify new formulas exist with updated expressions
+        guard let newFormula1 = documentEditor.document.formulas.first(where: { $0.id == dupText2FormulaRef }),
+              let newFormula2 = documentEditor.document.formulas.first(where: { $0.id == dupText3FormulaRef }),
+              let newFormula3 = documentEditor.document.formulas.first(where: { $0.id == dupSumFormulaRef }) else {
+            XCTFail("Could not find duplicated formulas")
+            return
+        }
+        
+        // Verify expressions are updated with new field IDs - using exact string matching
+        XCTAssertEqual(newFormula1.expression, dupText1ID, "Expression should be exactly the new text1 field ID")
+        
+        // Build expected expression for formula 2
+        let expectedFormula2Expression = "concat(\"Current entry: \", upper(\(dupText1ID)))"
+        XCTAssertEqual(newFormula2.expression, expectedFormula2Expression, "Expression should be exactly: concat(\"Current entry: \", upper(\(dupText1ID)))")
+        
+        // Verify that number1 is replaced but number11 is NOT affected (word boundary test)
+        let expectedFormula3Expression = "\(dupNumber1ID) + \(dupNumber11ID)"
+        XCTAssertEqual(newFormula3.expression, expectedFormula3Expression, "Expression should be exactly: \(dupNumber1ID) + \(dupNumber11ID)")
+        
+        // Verify original formulas are unchanged
+        let origFormula1 = documentEditor.document.formulas.first(where: { $0.id == "formula_text1Reference" })
+        let origFormula3 = documentEditor.document.formulas.first(where: { $0.id == "formula_sum" })
+        XCTAssertEqual(origFormula1?.expression, "text1", "Original formula should be unchanged")
+        XCTAssertEqual(origFormula3?.expression, "number1 + number11", "Original formula should be unchanged")
+        
+        print("✅ Formula duplication test passed!")
+    }
+
+    // MARK: - Duplicate Page Additional Tests
+    /// Duplicate when document has no files should not mutate document.
+    func testPageDuplication_noFile_doesNotMutateDocument() {
+        var document = JoyDoc().setDocument()
+        // setDocument() sets files = []; do not call setFile()
+        XCTAssertTrue(document.files.isEmpty, "Test setup should have no files.")
+
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: "any_page_id")
+
+        XCTAssertTrue(documentEditor.document.files.isEmpty, "Document should still have no files after duplicate with no file.")
+    }
+
+    /// Duplicating a page should fire onChange with field.create and page.create changes.
+    func testPageDuplication_onChangeDuplicatePage_firesChangeEvents() {
+        let changeCapture = ChangeCapture()
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+
+        let documentEditor = DocumentEditor(document: document, events: changeCapture, isPageDuplicateEnabled: true, validateSchema: false)
+        let originalPageID = "6629fab320fca7c8107a6cf6"
+        let initialChangeCount = changeCapture.capturedChanges.count
+
+        documentEditor.duplicatePage(pageID: originalPageID)
+
+        let changes = changeCapture.capturedChanges
+        XCTAssertGreaterThan(changes.count, initialChangeCount, "Duplicate page should produce onChange events.")
+
+        let fieldCreates = changes.filter { $0.target == "field.create" }
+        let pageCreates = changes.filter { $0.target == "page.create" }
+        XCTAssertEqual(fieldCreates.count, 2, "Should have 2 field.create events (heading + text field).")
+        XCTAssertGreaterThanOrEqual(pageCreates.count, 1, "Should have at least 1 page.create event.")
+
+        let pageCreate = pageCreates.first
+        XCTAssertNotNil(pageCreate?.fileId, "page.create should include fileId.")
+        if let changeDict = pageCreate?.dictionary["change"] as? [String: Any] {
+            XCTAssertNotNil(changeDict["page"], "page.create change should include page.")
+            XCTAssertNotNil(changeDict["targetIndex"], "page.create change should include targetIndex.")
+        }
+    }
+
+    /// isPageDuplicateEnabled is false in readonly mode; true when explicitly enabled in fill mode.
+    func testPageDuplicate_isPageDuplicateEnabled_respected() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+
+        let editorFillEnabled = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        XCTAssertTrue(editorFillEnabled.isPageDuplicateEnabled, "Fill mode with isPageDuplicateEnabled true should have it true.")
+
+        let editorReadonly = DocumentEditor(document: document, mode: .readonly, isPageDuplicateEnabled: true, validateSchema: false)
+        XCTAssertFalse(editorReadonly.isPageDuplicateEnabled, "Readonly mode should force isPageDuplicateEnabled to false.")
+    }
+    /// Duplicate page with zero field positions still creates a new page and updates pageOrder.
+    func testPageDuplication_emptyPage_createsPageAndUpdatesOrder() {
+        var document = JoyDoc().setDocument().setFile()
+        var page = Page()
+        page.id = "empty_page_1"
+        page.name = "Empty"
+        page.fieldPositions = []
+        document.files[0].pages = [page]
+        document.files[0].pageOrder = ["empty_page_1"]
+
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: "empty_page_1")
+
+        let firstFile = documentEditor.document.files.first
+        XCTAssertEqual(firstFile?.pages?.count, 2, "Should have 2 pages.")
+        XCTAssertEqual(firstFile?.pageOrder?.count, 2, "Page order should have 2 entries.")
+        let duplicatedPage = firstFile?.pages?.first(where: { $0.id != "empty_page_1" })
+        XCTAssertNotNil(duplicatedPage, "Duplicated page should exist.")
+        XCTAssertEqual(duplicatedPage?.fieldPositions?.count ?? 0, 0, "Duplicated page should have no field positions.")
+    }
+
+    /// Desktop has 1 page with 2 fields; mobile view has the same page with 2 fields + 1 extra (3 total).
+    /// Duplicate the mobile page and assert exactly 3 new fields appear in document.fields (one per mobile field).
+    func testPageDuplication_mobilePageWithExtraField_addsThreeNewFieldsToFieldsArray() {
+        let fileID = "file_dup_mobile_1"
+        let pageID = "page_dup_mobile_1"
+        let fieldA = "field_a"
+        let fieldB = "field_b"
+        let fieldC = "field_mobile_only"
+
+        // Fields: A and B on both desktop and mobile; C only on mobile
+        var field1 = JoyDocField()
+        field1.id = fieldA
+        field1.identifier = "ident_a"
+        field1.fieldType = .text
+        field1.title = "Field A"
+        field1.file = fileID
+
+        var field2 = JoyDocField()
+        field2.id = fieldB
+        field2.identifier = "ident_b"
+        field2.fieldType = .text
+        field2.title = "Field B"
+        field2.file = fileID
+
+        var field3 = JoyDocField()
+        field3.id = fieldC
+        field3.identifier = "ident_c"
+        field3.fieldType = .text
+        field3.title = "Field C (mobile only)"
+        field3.file = fileID
+
+        // Desktop page: 2 field positions (A, B)
+        var fpDesktop1 = FieldPosition()
+        fpDesktop1.id = "fp_d_1"
+        fpDesktop1.field = fieldA
+        fpDesktop1.type = .text
+        var fpDesktop2 = FieldPosition()
+        fpDesktop2.id = "fp_d_2"
+        fpDesktop2.field = fieldB
+        fpDesktop2.type = .text
+
+        var desktopPage = Page()
+        desktopPage.id = pageID
+        desktopPage.name = "Page 1"
+        desktopPage.fieldPositions = [fpDesktop1, fpDesktop2]
+
+        // Mobile page: same page ID, 3 field positions (A, B, C) — extra field on mobile
+        var fpMobile1 = FieldPosition()
+        fpMobile1.id = "fp_m_1"
+        fpMobile1.field = fieldA
+        fpMobile1.type = .text
+        var fpMobile2 = FieldPosition()
+        fpMobile2.id = "fp_m_2"
+        fpMobile2.field = fieldB
+        fpMobile2.type = .text
+        var fpMobile3 = FieldPosition()
+        fpMobile3.id = "fp_m_3"
+        fpMobile3.field = fieldC
+        fpMobile3.type = .text
+
+        var mobilePage = Page()
+        mobilePage.id = pageID
+        mobilePage.name = "Page 1 (mobile)"
+        mobilePage.fieldPositions = [fpMobile1, fpMobile2, fpMobile3]
+
+        var mobileView = ModelView()
+        mobileView.id = "view_mobile_1"
+        mobileView.type = "mobile"
+        mobileView.pages = [mobilePage]
+        mobileView.pageOrder = [pageID]
+
+        var file = File()
+        file.id = fileID
+        file.pageOrder = [pageID]
+        file.pages = [desktopPage]
+        file.views = [mobileView]
+
+        var document = JoyDoc()
+        document.id = "doc_dup_mobile_1"
+        document.identifier = "ident_doc_1"
+        document.files = [file]
+        document.fields = [field1, field2, field3]
+
+        let originalFieldIDs = Set(document.fields.compactMap { $0.id })
+        XCTAssertEqual(originalFieldIDs.count, 3, "Initial document should have 3 fields (A, B, C).")
+
+        let documentEditor = documentEditor(document: document)
+        documentEditor.duplicatePage(pageID: pageID)
+
+        let fieldsAfter = documentEditor.document.fields
+        let afterFieldIDs = Set(fieldsAfter.compactMap { $0.id })
+        let newFieldIDs = afterFieldIDs.subtracting(originalFieldIDs)
+
+        // Duplicating the mobile page should create exactly 3 new fields (one per field on the mobile page).
+        XCTAssertEqual(newFieldIDs.count, 3, "Duplicating the mobile page (3 fields) should add exactly 3 new fields to the fields array.")
+        XCTAssertEqual(fieldsAfter.count, 6, "After duplicate, document.fields should contain the 3 new fields (implementation replaces with duplicated set).")
+
+        // Duplicated page should exist in mobile view with 3 field positions pointing to new field IDs
+        let firstFile = documentEditor.document.files.first
+        let viewPage = firstFile?.views?.first?.pages?.first(where: { $0.id != pageID })
+        XCTAssertNotNil(viewPage, "Duplicated page should exist in mobile view.")
+        let dupPositionFieldIDs = viewPage?.fieldPositions?.compactMap { $0.field } ?? []
+        XCTAssertEqual(dupPositionFieldIDs.count, 3, "Duplicated mobile page should have 3 field positions.")
+        dupPositionFieldIDs.forEach { id in
+            XCTAssertTrue(newFieldIDs.contains(id), "Each duplicated position should reference one of the new field IDs.")
+        }
+    }
+
     // MARK: - Page Deletion Tests
     
     /// Test basic page deletion
@@ -2311,4 +2742,321 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
             XCTAssertEqual(validationResult.fieldValidities[1].pageId, "66600801dc1d8b4f72f54917")
         }
+    
+    // MARK: - Page Focus/Blur Event Tests
+    
+    /// Test that jumping to the current page does NOT fire blur or focus events
+    func testPageFocusBlur_jumpToCurrentPage_noEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageID = "6629fab320fca7c8107a6cf6"
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: pageID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Jump to the same page
+        documentEditor.currentPageID = pageID
+        
+        // Should NOT fire any events
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "No focus events should fire when jumping to current page")
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "No blur events should fire when jumping to current page")
+    }
+    
+    /// Test that jumping to a different page via UI fires blur and focus events
+    func testPageFocusBlur_jumpToDifferentPage_firesEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Jump to different page
+        documentEditor.goto(page2ID)
+        
+        // Should fire blur for page1 and focus for page2
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire")
+        
+        // Verify blur event
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertNotNil(blurEvent?.pageEvent, "Blur event should be a page event")
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1ID)
+        
+        // Verify focus event
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertNotNil(focusEvent?.pageEvent, "Focus event should be a page event")
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2ID)
+    }
+    
+    /// Test that programmatic navigation using goto() fires blur and focus events
+    func testPageFocusBlur_programmaticNavigation_firesEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Navigate programmatically using goto
+        let result = documentEditor.goto(page2ID)
+        
+        XCTAssertEqual(result, .success, "Navigation should succeed")
+        
+        // Should fire blur for page1 and focus for page2
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire")
+        
+        // Verify blur event
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertNotNil(blurEvent?.pageEvent, "Blur event should be a page event")
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1ID)
+        
+        // Verify focus event
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertNotNil(focusEvent?.pageEvent, "Focus event should be a page event")
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2ID)
+    }
+    
+    /// Test that page duplication doesn't cause unexpected focus/blur events
+    func testPageFocusBlur_pageDuplication_noUnexpectedEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+        
+        let originalPageID = "6629fab320fca7c8107a6cf6"
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: originalPageID,
+            navigation: true,
+            isPageDuplicateEnabled: true,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Duplicate the page
+        documentEditor.duplicatePage(pageID: originalPageID)
+        
+        // Duplication should not fire focus/blur events on current page
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "Page duplication should not fire focus events")
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "Page duplication should not fire blur events")
+        
+        // Current page should still be the original
+        XCTAssertEqual(documentEditor.currentPageID, originalPageID, "Current page should remain unchanged after duplication")
+    }
+    
+    /// Test that deleting the currently focused page fires proper blur and focus events
+    func testPageFocusBlur_deleteCurrentPage_firesEventsForNewPage() {
+        let document = JoyDoc()
+            .setDocument()
+            .setSinglePageFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: true,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Delete the currently focused page
+        let result = documentEditor.deletePage(pageID: page1ID)
+        
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        // Should fire blur for deleted page and focus for new current page
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire for deleted page")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire for new current page")
+        
+        // Verify blur event for deleted page
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertNotNil(blurEvent?.pageEvent, "Blur event should be a page event")
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1ID)
+        
+        // Verify focus event for new page
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertNotNil(focusEvent?.pageEvent, "Focus event should be a page event")
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        
+        // New current page should be page2
+        XCTAssertEqual(documentEditor.currentPageID, page2ID, "Current page should switch to remaining page")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2ID, "Focus event should be for page2")
+    }
+    
+    /// Test that deleting a non-current page doesn't fire focus/blur events
+    func testPageFocusBlur_deleteNonCurrentPage_noEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setSinglePageFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: true,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Delete a different page (not the current one)
+        let result = documentEditor.deletePage(pageID: page2ID)
+        
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        // Should NOT fire any focus/blur events
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "No blur events should fire when deleting non-current page")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "No focus events should fire when deleting non-current page")
+        
+        // Current page should remain unchanged
+        XCTAssertEqual(documentEditor.currentPageID, page1ID, "Current page should remain unchanged")
+    }
+    
+    /// Test multiple page navigations fire correct sequence of events
+    func testPageFocusBlur_multipleNavigations_correctSequence() {
+        let document = JoyDoc()
+            .setDocument()
+            .setSinglePageFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Navigate page1 -> page2
+        documentEditor.currentPageID = page2ID
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1)
+        XCTAssertEqual(eventCapture.capturedBlurEvents.first?.pageEvent?.page.id, page1ID)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.first?.pageEvent?.page.id, page2ID)
+        
+        // Navigate page2 -> page1
+        documentEditor.currentPageID = page1ID
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 2)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 2)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[1].pageEvent?.page.id, page2ID)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[1].pageEvent?.page.id, page1ID)
+        
+        // Navigate page1 -> page2 again
+        documentEditor.currentPageID = page2ID
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 3)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 3)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[2].pageEvent?.page.id, page1ID)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[2].pageEvent?.page.id, page2ID)
+    }
 }

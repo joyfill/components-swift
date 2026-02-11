@@ -166,6 +166,8 @@ struct TableDataModel {
     var id = UUID()
     var showResetSelectionAlert: Bool = false
     var singleClickRowEdit: Bool = false
+    /// When true, row form was opened via goto(open: true); hide arrow and insert-below buttons.
+    var rowFormOpenedViaGoto: Bool = false
     private var pendingRowID: [String]?
     
     var viewMoreText: String {
@@ -227,7 +229,7 @@ struct TableDataModel {
         } else {
             fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
                 let column = fieldData.tableColumns?.first { $0.id == colID }
-                if fieldPositionTableColumns?.first(where: { $0.id == colID })?.hidden == true { return }
+                guard documentEditor.shouldShowColumn(columnID: colID, fieldID: fieldIdentifier.fieldID, schemaKey: nil) else { return }
                 guard let column = column else { return }
                 let filterModel = FilterModel(colIndex: colIndex, colID: colID, type: column.type ?? .unknown)
                 self.filterModels.append(filterModel)
@@ -303,19 +305,16 @@ struct TableDataModel {
     }
     
     func filterTableColumns(key: String) -> [FieldTableColumn] {
-        // filter TableColumns Based On Supported TableColumn And Hidden property
+        // filter TableColumns Based On Supported TableColumn and shouldShowColumn (position hidden + hiddenViews)
         guard let columns = schema[key]?.tableColumns else { return [] }
 
         return columns.filter { column in
             guard let columnType = column.type,
-                  collectionSupportedColumnTypes.contains(columnType) else {
+                  collectionSupportedColumnTypes.contains(columnType),
+                  let columnID = column.id else {
                 return false
             }
-
-            let fieldPositionColumns = fieldPositionSchema[key]?.tableColumns
-            let isHidden = fieldPositionColumns?.first(where: { $0.id == column.id })?.hidden ?? false
-
-            return !isHidden
+            return documentEditor?.shouldShowColumn(columnID: columnID, fieldID: fieldIdentifier.fieldID, schemaKey: key) ?? true
         }
     }
         

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct CollectionRowView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -43,20 +44,25 @@ struct CollectionRowView: View {
 struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
-    @State private var showEditMultipleRowsSheetView: Bool = false
+    @Environment(\.dismiss) private var dismiss
+    @State var showEditMultipleRowsSheetView: Bool
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-
-    init(viewModel: CollectionViewModel) {
+    
+    init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
+        self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
 
     var body: some View {
         VStack {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true },
+                onEditTap: {
+                    viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                    showEditMultipleRowsSheetView = true
+                },
                 onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
@@ -70,6 +76,28 @@ struct CollectionModalView : View {
 
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
+                dismiss()
+                return
+            }
+            
+            // Same collection, handle row change
+            if let rowId = event.rowId, !rowId.isEmpty {
+                let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
+                if rowIdExists {
+                    let rowFound = viewModel.expandToRow(rowId: rowId)
+                    if rowFound {
+                        viewModel.tableDataModel.selectedRows = [rowId]
+                        viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                        showEditMultipleRowsSheetView = event.openRowForm
+                    }
+                } else {
+                    showEditMultipleRowsSheetView = false
+                }
+            }
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
@@ -201,6 +229,12 @@ struct CollectionModalView : View {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                         cellProxy.scrollTo(0, anchor: .leading)
                     })
+                    let selectedRows = viewModel.tableDataModel.selectedRows
+                    if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                        }
+                    }
                 }
                 .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                     // Scroll to keep selected row in view when navigating with arrows
@@ -546,6 +580,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
@@ -575,6 +610,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
