@@ -7,6 +7,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct CollectionQuickView : View {
     @State private var offset = CGPoint.zero
@@ -14,6 +15,7 @@ struct CollectionQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @State var isTableModalViewPresented = false
+    @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
     @State private var refreshID = UUID()
@@ -33,6 +35,29 @@ struct CollectionQuickView : View {
             } else {
                 collectionContent
             }
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == tableDataModel.fieldIdentifier.fieldID,
+                  let rowId = event.rowId,
+                  !rowId.isEmpty else {
+                return
+            }
+            
+            // This navigation is for this collection - open modal with selected row
+            let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
+            if rowIdExists {
+                let rowFound = viewModel.expandToRow(rowId: rowId)
+                if rowFound {
+                    viewModel.tableDataModel.selectedRows = [rowId]
+                    viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                    showEditMultipleRowsSheetView = event.openRowForm
+                }
+            } else {
+                showEditMultipleRowsSheetView = false
+            }
+            
+            openCollection()
         }
     }
     
@@ -57,7 +82,14 @@ struct CollectionQuickView : View {
         )
     }
     
-    private var collectionContent: some View {
+    func openCollection() {
+        isTableModalViewPresented = true
+        if tableDataModel.mode == .fill {
+            eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+        }
+    }
+    
+    var collectionContent: some View {
         VStack(alignment: .leading) {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
@@ -78,10 +110,9 @@ struct CollectionQuickView : View {
             )
             
             Button(action: {
-                isTableModalViewPresented = true
-                if tableDataModel.mode == .fill {
-                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
-                }
+                showEditMultipleRowsSheetView = false
+                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                openCollection()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Collection View")
@@ -109,7 +140,7 @@ struct CollectionQuickView : View {
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

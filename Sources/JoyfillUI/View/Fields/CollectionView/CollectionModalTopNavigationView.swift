@@ -307,40 +307,41 @@ struct CollectionEditMultipleRowsSheetView: View {
             VStack(alignment: .leading, spacing: 16) {
                 if viewModel.tableDataModel.selectedRows.count == 1 {
                     HStack(alignment: .top) {
-                        Button(action: {
-                            viewModel.selectUpperRow()
-                            changes = [:]
-                        }, label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue, lineWidth: 1)
-                                    .frame(width: 27, height: 27)
-                                
-                                Image(systemName: "chevron.left")
-                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue)
-                            }
-                        })
-                        .disabled(viewModel.tableDataModel.shouldDisableMoveUpFilterActive)
-                        .accessibilityIdentifier("UpperRowButtonIdentifier")
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            viewModel.selectBelowRow()
-                            changes = [:]
-                        }, label: {
-                            ZStack {
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue, lineWidth: 1)
-                                    .frame(width: 27, height: 27)
-                                
-                                Image(systemName: "chevron.right")
-                                    .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue)
-                            }
-                        })
-                        .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
-                        .accessibilityIdentifier("LowerRowButtonIdentifier")
-//                        if !viewModel.tableDataModel.hasActiveFilters {
+                        if !viewModel.tableDataModel.rowFormOpenedViaGoto {
+                            Button(action: {
+                                viewModel.selectUpperRow()
+                                changes = [:]
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "chevron.left")
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUpFilterActive ? .gray : .blue)
+                                }
+                            })
+                            .disabled(viewModel.tableDataModel.shouldDisableMoveUpFilterActive)
+                            .accessibilityIdentifier("UpperRowButtonIdentifier")
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                viewModel.selectBelowRow()
+                                changes = [:]
+                            }, label: {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .stroke(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue, lineWidth: 1)
+                                        .frame(width: 27, height: 27)
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDownFilterActive ? .gray : .blue)
+                                }
+                            })
+                            .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
+                            .accessibilityIdentifier("LowerRowButtonIdentifier")
+                            
                             Button(action: {
                                 viewModel.insertBelowFromBulkEdit()
                             }, label: {
@@ -354,7 +355,9 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 }
                             })
                             .accessibilityIdentifier("PlusTheRowButtonIdentifier")
-//                        }
+                        } else {
+                            Spacer()
+                        }
                         
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()

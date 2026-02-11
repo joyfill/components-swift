@@ -8,6 +8,7 @@
 import Foundation
 import JoyfillModel
 import JSONSchema
+import Combine
 
 private enum ChangeTargetType: String {
     case fieldUpdate = "field.update"
@@ -42,10 +43,24 @@ public enum NavigationStatus: String {
 public struct NavigationTarget: Equatable {
     public let pageId: String
     public let fieldID: String?
+    public let rowId: String?
+    public let openRowForm: Bool
     
-    public init(pageId: String, fieldID: String? = nil) {
+    public init(pageId: String, fieldID: String? = nil, rowId: String? = nil, openRowForm: Bool = false) {
         self.pageId = pageId
         self.fieldID = fieldID
+        self.rowId = rowId
+        self.openRowForm = openRowForm
+    }
+}
+
+/// Configuration options for the goto navigation method
+public struct GotoConfig {
+    /// Whether to automatically open the row form modal for table/collection rows
+    public let open: Bool
+    
+    public init(open: Bool = false) {
+        self.open = open
     }
 }
 
@@ -54,7 +69,7 @@ public class DocumentEditor: ObservableObject {
     public var schemaError: SchemaValidationError?
     @Published public var currentPageID: String
     @Published var currentPageOrder: [String] = []
-    @Published var navigationTarget: NavigationTarget? = nil
+    let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
     private var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
@@ -1144,10 +1159,57 @@ extension DocumentEditor {
 
 // MARK: - Navigation
 extension DocumentEditor {
-    /// Navigates to a specific page or field position
-    /// - Parameter path: Navigation path in format "pageId" or "pageId/fieldPositionId"
-    public func goto(_ path: String) -> NavigationStatus {
-        let components = path.split(separator: "/", maxSplits: 1).map(String.init)
+    /// Sends a navigation event, always on the main thread.
+    /// When a page change is needed, both the page change and the navigation event
+    /// are sequenced together on main so the delay is relative to the actual page change.
+    private func sendNavigation(_ event: NavigationTarget) {
+        if Thread.isMainThread {
+            navigationPublisher.send(event)
+        } else {
+            DispatchQueue.main.async {
+                self.navigationPublisher.send(event)
+            }
+        }
+    }
+    
+    /// Changes the page and then sends a navigation event, handling modal dismissal.
+    /// Phase 1: Change page so new page loads (tables/collections)
+    /// Phase 2: Send full event to open target table/collection and row
+    private func changePageAndNavigate(pageId: String, event: NavigationTarget) {
+        let execute = { [self] in
+            self.currentPageID = pageId
+            
+            // After new page renders, open table/collection and row
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.navigationPublisher.send(event)
+            }
+        }
+
+        if Thread.isMainThread {
+            execute()
+        } else {
+            DispatchQueue.main.async {
+                execute()
+            }
+        }
+    }
+    
+    /// Runs navigation (page change + event or event only) and returns status.
+    private func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
+        if pageChanged {
+            changePageAndNavigate(pageId: pageId, event: event)
+        } else {
+            sendNavigation(event)
+        }
+        return status
+    }
+    
+    /// Navigates to a specific page, field, or row
+    /// - Parameters:
+    ///   - path: Navigation path in format "pageId" or "pageId/fieldPositionId" or "pageId/fieldPositionId/rowId"
+    ///   - gotoConfig: Configuration for navigation behavior
+    public func goto(_ path: String, gotoConfig: GotoConfig = GotoConfig()) -> NavigationStatus {
+        let components = path.split(separator: "/").map(String.init)
         
         guard !components.isEmpty else {
             Log("Navigation path is empty", type: .error)
@@ -1156,62 +1218,55 @@ extension DocumentEditor {
         
         let pageId = components[0]
         let fieldPositionId = components.count > 1 ? components[1] : nil
+        let rowId = components.count > 2 ? components[2] : nil
         
-        // Check if page exists
         guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
             Log("Page with id \(pageId) not found", type: .warning)
             return .failure
         }
         
-        // Check if page is visible (not hidden by conditional logic)
         guard shouldShow(pageID: pageId) else {
             Log("Page with id \(pageId) is hidden by conditional logic", type: .warning)
             return .failure
         }
         
-        // If we have a field position, validate it
+        let pageChanged = currentPageID != pageId
+        let event: NavigationTarget
+        var status: NavigationStatus = .success
+        
         if let fieldPositionId = fieldPositionId {
-            // Find the field position on the page
             let page = pagesForCurrentView.first(where: { $0.id == pageId })
             let fieldPosition = page?.fieldPositions?.first(where: { $0.id == fieldPositionId })
             
             guard let fieldPosition = fieldPosition else {
-                Log("Field position with id \(fieldPositionId) not found on page \(pageId), navigating to page top", type: .warning)
-                // Field doesn't exist - navigate to top of page
-                navigateToPage(pageId: pageId)
-                return .failure
+                Log("Field position with id \(fieldPositionId) not found on page \(pageId)", type: .warning)
+                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId), status: .failure, pageChanged: pageChanged)
             }
             
-            // Check if field is visible (not hidden by conditional logic)
             guard let fieldID = fieldPosition.field, shouldShow(fieldID: fieldID) else {
-                Log("Field position \(fieldPositionId) is hidden by conditional logic, navigating to page top", type: .warning)
-                // Field is hidden - navigate to top of page
-                navigateToPage(pageId: pageId)
-                return .failure
+                Log("Field position \(fieldPositionId) is hidden by conditional logic", type: .warning)
+                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId), status: .failure, pageChanged: pageChanged)
             }
             
-            // Both page and field are valid and visible - navigate to field
-            navigateToField(pageId: pageId, fieldID: fieldID)
-            return .success
+            if let rowId = rowId {
+                guard let field = field(fieldID: fieldID) else {
+                    Log("Field with id \(fieldID) not found", type: .warning)
+                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
+                }
+                
+                guard field.fieldType == .table || field.fieldType == .collection else {
+                    Log("Field \(fieldID) is not a table or collection field", type: .warning)
+                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
+                }
+                
+                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open)
+            } else {
+                event = NavigationTarget(pageId: pageId, fieldID: fieldID)
+            }
         } else {
-            // Only page specified - navigate to top of page
-            navigateToPage(pageId: pageId)
-            return .success
-        }
-    }
-    
-    /// Navigate to the top of a specific page
-    private func navigateToPage(pageId: String) {
-        // Just change the page - FormView already handles scrolling to top on page change
-        currentPageID = pageId
-    }
-    
-    /// Navigate to a specific field on a page
-    private func navigateToField(pageId: String, fieldID: String) {
-        if currentPageID != pageId {
-            currentPageID = pageId
+            event = NavigationTarget(pageId: pageId)
         }
         
-        navigationTarget = NavigationTarget(pageId: pageId, fieldID: fieldID)
+        return executeNavigation(pageId: pageId, event: event, status: status, pageChanged: pageChanged)
     }
 }

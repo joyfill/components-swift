@@ -7,9 +7,11 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct TableQuickView : View {
     @State private var offset = CGPoint.zero
+    @State var showEditMultipleRowsSheetView: Bool = false
     private let screenWidth = UIScreen.main.bounds.width
     @StateObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
@@ -24,6 +26,14 @@ struct TableQuickView : View {
         self.eventHandler = eventHandler
     }
         
+    fileprivate func openTable() {
+        isTableModalViewPresented = true
+        
+        if tableDataModel.mode == .fill {
+            eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
@@ -46,10 +56,9 @@ struct TableQuickView : View {
             )
             
             Button(action: {
-                isTableModalViewPresented.toggle()
-                if tableDataModel.mode == .fill {
-                    eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
-                }
+                self.showEditMultipleRowsSheetView = false
+                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                openTable()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
                     Text("Table View")
@@ -77,11 +86,31 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
             .hidden()
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == tableDataModel.fieldIdentifier.fieldID,
+                  let rowId = event.rowId,
+                  !rowId.isEmpty else {
+                return
+            }
+            
+            // This navigation is for this table
+            let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
+            if rowIdExists {
+                viewModel.tableDataModel.selectedRows = [rowId]
+                viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                showEditMultipleRowsSheetView = event.openRowForm
+            } else {
+                showEditMultipleRowsSheetView = false
+            }
+            
+            openTable()
         }
     }
     

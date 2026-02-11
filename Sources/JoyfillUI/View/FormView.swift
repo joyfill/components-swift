@@ -1,6 +1,7 @@
 import SwiftUI
 import JoyfillModel
 import JoyfillFormulas
+import Combine
 
 public struct Form: View {
     let documentEditor: DocumentEditor
@@ -301,28 +302,15 @@ struct FormView: View {
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
                 if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
-                    withAnimation {
-                        proxy.scrollTo(firstFieldID, anchor: .top)
-                    }
+                    proxy.scrollTo(firstFieldID, anchor: .top)
                 }
             }
-            .onChange(of: documentEditor.navigationTarget) { navigationTarget in
-                // Handle navigation requests from DocumentEditor
-                guard let navigationTarget = navigationTarget else { return }
-                
+            .onReceive(documentEditor.navigationPublisher) { event in
                 // Only handle navigation for the current page
-                guard navigationTarget.pageId == documentEditor.currentPageID else { return }
+                guard event.pageId == documentEditor.currentPageID else { return }
                 
-                if let fieldID = navigationTarget.fieldID {
-                    // Navigate to specific field
-                    withAnimation {
-                        proxy.scrollTo(fieldID, anchor: .top)
-                    }
-                    
-                    // Clear navigation target after scroll completes
-                    DispatchQueue.main.async {
-                        documentEditor.navigationTarget = nil
-                    }
+                if let fieldID = event.fieldID {
+                    proxy.scrollTo(fieldID, anchor: .top)
                 }
             }
         }

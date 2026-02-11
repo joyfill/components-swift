@@ -1,5 +1,6 @@
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct TableRowView : View {
     @Environment(\.colorScheme) var colorScheme
@@ -27,22 +28,27 @@ struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.colorScheme) var colorScheme
-    @State private var showEditMultipleRowsSheetView: Bool = false
+    @Environment(\.dismiss) private var dismiss
+    @State var showEditMultipleRowsSheetView: Bool
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     var longestBlockText: String = ""
 
-    init(viewModel: TableViewModel) {
+    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
+        self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
     
     var body: some View {
         VStack {
             TableModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true })
+                onEditTap: {
+                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                showEditMultipleRowsSheetView = true
+            })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
@@ -61,6 +67,25 @@ struct TableModalView : View {
                 Spacer()
                 Button("Done") {
                     dismissKeyboard()
+                }
+            }
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
+                dismiss()
+                return
+            }
+            
+            // Same table, handle row change
+            if let rowId = event.rowId, !rowId.isEmpty {
+                let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
+                if rowIdExists {
+                    viewModel.tableDataModel.selectedRows = [rowId]
+                    viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                    showEditMultipleRowsSheetView = event.openRowForm
+                } else {
+                    showEditMultipleRowsSheetView = false
                 }
             }
         }
@@ -304,6 +329,7 @@ struct TableModalView : View {
                             .onTapGesture {
                                 viewModel.tableDataModel.emptySelection()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
+                                viewModel.tableDataModel.rowFormOpenedViaGoto = false
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
@@ -341,6 +367,12 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                        }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                         // Scroll to keep selected row in view when navigating with arrows
@@ -377,6 +409,12 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                        }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                         // Scroll to keep selected row in view when navigating with arrows
