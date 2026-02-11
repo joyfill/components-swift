@@ -751,8 +751,8 @@ private final class CaptureFormChangeEvent: FormChangeEvent {
         onChanges(changes, document)
     }
 
-    func onFocus(event: FieldIdentifier) {}
-    func onBlur(event: FieldIdentifier) {}
+    func onFocus(event: Joyfill.Event) {}
+    func onBlur(event: Joyfill.Event) {}
     func onUpload(event: UploadEvent) {}
     func onCapture(event: CaptureEvent) {}
     func onError(error: JoyfillError) {}
