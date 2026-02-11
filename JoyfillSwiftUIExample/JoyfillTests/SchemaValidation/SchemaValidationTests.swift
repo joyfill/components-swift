@@ -347,8 +347,8 @@ private class MockFormChangeEvent: FormChangeEvent {
     var capturedError: JoyfillError?
 
     func onChange(changes: [Change], document: JoyDoc) {}
-    func onFocus(event: FieldIdentifier) {}
-    func onBlur(event: FieldIdentifier) {}
+    func onFocus(event: Event) {}
+    func onBlur(event: Event) {}
     func onUpload(event: UploadEvent) {}
     func onCapture(event: CaptureEvent) {}
     func onError(error: JoyfillError) { capturedError = error }

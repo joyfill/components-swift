@@ -90,21 +90,63 @@ extension ChangeManager: FormChangeEvent {
         }
     }
 
-    func onFocus(event: FieldIdentifier) {
-        let fieldDict = createFieldIdentifierDict(event)
-        print(">>>>>>>>onFocus", formatDictionary(fieldDict))
+    func onFocus(event: Event) {
         let timestamp = DateFormatter.timestamp.string(from: Date())
-        DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Focus: \(self.formatDictionary(fieldDict))")
+        
+        if let fieldEvent = event.fieldEvent {
+            let fieldDict = createFieldIdentifierDict(fieldEvent)
+            print(">>>>>>>>onFocus", formatDictionary(fieldDict))
+            
+            if let jsonData = try? JSONSerialization.data(withJSONObject: fieldDict, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    self.displayedChangelogs.append("[\(timestamp)] Focus: \(jsonString)")
+                }
+            }
+        } else if let pageEvent = event.pageEvent {
+            print(">>>>>>>>onPageFocus", pageEvent.type, pageEvent.page.id ?? "unknown", pageEvent.page.name ?? "Untitled")
+            
+            // Create proper JSON string for the viewer
+            var eventDict: [String: Any] = [:]
+            eventDict["type"] = pageEvent.type
+            eventDict["page"] = pageEvent.page.dictionary
+            
+            if let jsonData = try? JSONSerialization.data(withJSONObject: eventDict, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    self.displayedChangelogs.append("[\(timestamp)] PageEvent: \(jsonString)")
+                }
+            }
         }
     }
 
-    func onBlur(event: FieldIdentifier) {
-        let fieldDict = createFieldIdentifierDict(event)
-        print(">>>>>>>>onBlur", formatDictionary(fieldDict))
+    func onBlur(event: Event) {
         let timestamp = DateFormatter.timestamp.string(from: Date())
-        DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Blur: \(self.formatDictionary(fieldDict))")
+        
+        if let fieldEvent = event.fieldEvent {
+            let fieldDict = createFieldIdentifierDict(fieldEvent)
+            print(">>>>>>>>onBlur", formatDictionary(fieldDict))
+            
+            if let jsonData = try? JSONSerialization.data(withJSONObject: fieldDict, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    self.displayedChangelogs.append("[\(timestamp)] Blur: \(jsonString)")
+                }
+            }
+        } else if let pageEvent = event.pageEvent {
+            print(">>>>>>>>onPageBlur", pageEvent.type, pageEvent.page.id ?? "unknown", pageEvent.page.name ?? "Untitled")
+            
+            // Create proper JSON string for the viewer
+            var eventDict: [String: Any] = [:]
+            eventDict["type"] = pageEvent.type
+            eventDict["page"] = pageEvent.page.dictionary
+            
+            if let jsonData = try? JSONSerialization.data(withJSONObject: eventDict, options: .prettyPrinted),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                DispatchQueue.main.async {
+                    self.displayedChangelogs.append("[\(timestamp)] PageEvent: \(jsonString)")
+                }
+            }
         }
     }
 

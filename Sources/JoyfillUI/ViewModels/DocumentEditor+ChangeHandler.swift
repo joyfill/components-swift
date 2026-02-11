@@ -1205,11 +1205,11 @@ extension DocumentEditor {
     }
 
     func onFocus(event: FieldIdentifier) {
-        events?.onFocus(event: event)
+        events?.onFocus(event: Event(fieldEvent: event))
     }
 
     func onBlur(event: FieldIdentifier) {
-        events?.onBlur(event: event)
+        events?.onBlur(event: Event(fieldEvent: event))
     }
 
     func onUpload(event: UploadEvent) {
@@ -1218,6 +1218,14 @@ extension DocumentEditor {
     
     func onCapture(event: CaptureEvent) {
         events?.onCapture(event: event)
+    }
+    
+    func onFocus(event: PageEvent) {
+        events?.onFocus(event: Event(pageEvent: event))
+    }
+    
+    func onBlur(event: PageEvent) {
+        events?.onBlur(event: Event(pageEvent: event))
     }
 }
 

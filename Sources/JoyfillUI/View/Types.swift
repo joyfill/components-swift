@@ -29,6 +29,16 @@ public struct FieldIdentifier: Equatable {
     }
 }
 
+public struct Event {
+    public var fieldEvent: FieldIdentifier?
+    public var pageEvent: PageEvent?
+    
+    public init(fieldEvent: FieldIdentifier? = nil, pageEvent: PageEvent? = nil) {
+        self.fieldEvent = fieldEvent
+        self.pageEvent = pageEvent
+    }
+}
+
 public struct UploadEvent {
     public var fieldEvent: FieldIdentifier
     public var target: String?
@@ -77,6 +87,16 @@ public struct CaptureEvent {
         self.parentPath = parentPath
         self.rowIds = rowIds
         self.columnId = columnId
+    }
+}
+
+public struct PageEvent {
+    public let type: String  // "page.focus" or "page.blur"
+    public let page: Page
+    
+    public init(type: String, page: Page) {
+        self.type = type
+        self.page = page
     }
 }
 
@@ -262,7 +282,7 @@ public protocol FormChangeEvent {
     ///     - Triggers the field blur event for the focused field.
     ///     - If there are pending changes in the field that have not triggered the `onChange` event yet then the `e.blur()` function will trigger both the change and blur events in the following order: 1) `onChange` 2) `onBlur`.
     ///     - If the focused field utilizes a modal for field modification, ie. signature, image, tables, etc. the `e.blur()` will close the modal.
-    func onFocus(event: FieldIdentifier)
+    func onFocus(event: Event)
 
     /// Used to listen to field focus events.
     ///
@@ -270,7 +290,7 @@ public protocol FormChangeEvent {
     ///
     ///  params: object :
     ///  - Specifies information about the blurred field.
-    func onBlur(event: FieldIdentifier)
+    func onBlur(event: Event)
 
     /// Used to listen to file upload events.
     ///
