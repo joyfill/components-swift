@@ -24,7 +24,12 @@ struct PublicApiExamples: View {
     @State private var showCustomPageInput: Bool = false
     @State private var showMoreSheet: Bool = false
     @State var document: JoyDoc
-    
+    // Page navigation (goto) test
+    @State private var gotoPath: String = ""
+    @State private var gotoOpenModal: Bool = true
+    @State private var showGotoAlert: Bool = false
+    @State private var gotoAlertMessage: String = ""
+
     init(documentEditor: Binding<DocumentEditor?>, licenseKey: Binding<String>, validateSchema: Binding<Bool>, isPageDuplicate: Binding<Bool>, isPageDelete: Binding<Bool>, singleClickRowEdit: Binding<Bool>, document: JoyDoc) {
         self._documentEditor = documentEditor
         let editor = documentEditor.wrappedValue
@@ -195,6 +200,49 @@ struct PublicApiExamples: View {
                             Toggle("", isOn: $showPageNavigationView)
                                 .labelsHidden()
                                 .tint(.orange)
+                        }
+
+                        // Page Navigation Test (goto path)
+                        SettingCard(
+                            icon: "location.fill",
+                            iconColor: .blue,
+                            title: "Go to Path"
+                        ) {
+                            VStack(spacing: 12) {
+                                TextField("pageId/fieldPositionId/rowId", text: $gotoPath)
+                                    .textFieldStyle(.plain)
+                                    .font(.system(.body, design: .rounded))
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+                                    .padding(12)
+                                    .background(Color(.systemGray6))
+                                    .cornerRadius(10)
+                                Toggle("Open Modal", isOn: $gotoOpenModal)
+                                    .tint(.blue)
+                                Button {
+                                    guard !gotoPath.isEmpty, let editor = documentEditor else { return }
+                                    let status = editor.goto(gotoPath, gotoConfig: GotoConfig(open: gotoOpenModal))
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
+                                        if status == .failure {
+                                            gotoAlertMessage = "Navigation failed for path: \(gotoPath)"
+                                            showGotoAlert = true
+                                        }
+                                    })
+                                    
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "arrow.right.circle.fill")
+                                        Text("Navigate")
+                                            .fontWeight(.semibold)
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(gotoPath.isEmpty ? Color.gray : Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                }
+                                .disabled(gotoPath.isEmpty)
+                            }
                         }
                         
                         SettingCard(
@@ -459,6 +507,11 @@ struct PublicApiExamples: View {
         }
         .sheet(isPresented: $showMoreSheet) {
             FieldVisibilitySheet(documentEditor: $documentEditor)
+        }
+        .alert("Navigation Error", isPresented: $showGotoAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(gotoAlertMessage)
         }
     }
 }
