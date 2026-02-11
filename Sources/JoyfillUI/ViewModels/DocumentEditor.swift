@@ -678,6 +678,7 @@ extension DocumentEditor {
                 if element.deleted == true { return false }
                 return true
             }
+            if element.deleted == true { continue }
             if let childrens = element.childrens {
                 for child in childrens.values {
                     if let nested = child.valueToValueElements, rowExistsInValueElements(nested, rowId: rowId) {
