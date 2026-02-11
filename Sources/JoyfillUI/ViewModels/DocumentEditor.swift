@@ -802,8 +802,13 @@ extension DocumentEditor {
         for var fieldPos in originalPage.fieldPositions ?? [] {
             guard let origFieldID = fieldPos.field else { continue }
             if let origField = field(fieldID: origFieldID) {
+                if fieldMapping[origFieldID] != nil {
+                    fieldPos.field = origFieldID
+                    newFieldPositions.append(fieldPos)
+                    continue
+                }
                 var duplicateField = origField
-                let newFieldID = generateObjectId()
+                let newFieldID = "field_\(generateObjectId())"
                 fieldMapping[origFieldID] = newFieldID
                 
                 duplicateField.id = newFieldID
@@ -830,6 +835,116 @@ extension DocumentEditor {
         }
     }
     
+    /// Duplicates formulas and updates field references for duplicated page
+    /// - Parameters:
+    ///   - newFields: Array of duplicated fields
+    ///   - fieldMapping: Mapping of old field IDs to new field IDs
+    /// - Returns: Mapping of old formula IDs to new formula IDs
+    fileprivate func duplicateFormulasForPage(_ newFields: inout [JoyDocField], fieldMapping: [String: String]) -> [String: String] {
+        var formulaMapping: [String: String] = [:]
+        var newFormulas: [Formula] = []
+        
+        // Step 1: Collect all formula IDs referenced by duplicated fields
+        var referencedFormulaIDs = Set<String>()
+        for field in newFields {
+            if let appliedFormulas = field.formulas {
+                for appliedFormula in appliedFormulas {
+                    if let formulaID = appliedFormula.formula {
+                        referencedFormulaIDs.insert(formulaID)
+                    }
+                }
+            }
+        }
+        
+        // Step 2: Duplicate each referenced formula
+        let existingFormulas = document.formulas
+        for originalFormulaID in referencedFormulaIDs {
+            guard let originalFormula = existingFormulas.first(where: { $0.id == originalFormulaID }) else {
+                continue
+            }
+            
+            // Create a copy of the formula
+            var duplicatedFormula = originalFormula
+            let newFormulaID = generateObjectId()
+            duplicatedFormula.id = newFormulaID
+            formulaMapping[originalFormulaID] = newFormulaID
+            
+            // Step 3: Update field IDs in the expression using regex
+            if let originalExpression = originalFormula.expression {
+                var updatedExpression = originalExpression
+                
+                Log("🔄 Duplicating formula \(originalFormulaID) -> \(newFormulaID)", type: .debug)
+                Log("   Original expression: \(originalExpression)", type: .debug)
+                
+                // Sort field IDs by length (longest first) to avoid partial replacements
+                // This ensures that "number11" is replaced before "number1" if both exist
+                let sortedFieldMappings = fieldMapping.sorted { $0.key.count > $1.key.count }
+                
+                // Replace each old field ID with new field ID using negative lookahead/lookbehind
+                // This ensures we only match complete identifiers, not partial matches
+                for (oldFieldID, newFieldID) in sortedFieldMappings {
+                    // Escape the field ID for use in regex
+                    let escapedFieldID = NSRegularExpression.escapedPattern(for: oldFieldID)
+                    
+                    // Escape the replacement field ID to prevent regex interpretation
+                    let escapedNewFieldID = newFieldID.replacingOccurrences(of: "\\", with: "\\\\")
+                                                       .replacingOccurrences(of: "$", with: "\\$")
+                    
+                    // Pattern explanation:
+                    // (?<![a-zA-Z0-9_]) = negative lookbehind: not preceded by alphanumeric or underscore
+                    // (fieldID) = the actual field ID
+                    // (?![a-zA-Z0-9_]) = negative lookahead: not followed by alphanumeric or underscore
+                    // This prevents "number1" from matching in "number11" or "thenumber1"
+                    let pattern = "(?<![a-zA-Z0-9_])\(escapedFieldID)(?![a-zA-Z0-9_])"
+                    
+                    if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
+                        let range = NSRange(updatedExpression.startIndex..., in: updatedExpression)
+                        let beforeReplace = updatedExpression
+                        updatedExpression = regex.stringByReplacingMatches(
+                            in: updatedExpression,
+                            options: [],
+                            range: range,
+                            withTemplate: escapedNewFieldID
+                        )
+                        
+                        if beforeReplace != updatedExpression {
+                            Log("   Replaced '\(oldFieldID)' with '\(newFieldID)'", type: .debug)
+                        }
+                    }
+                }
+                
+                Log("   Updated expression: \(updatedExpression)", type: .debug)
+                duplicatedFormula.expression = updatedExpression
+            }
+            
+            newFormulas.append(duplicatedFormula)
+        }
+        
+        // Step 4: Add new formulas to document
+        if !newFormulas.isEmpty {
+            var allFormulas = document.formulas
+            allFormulas.append(contentsOf: newFormulas)
+            document.formulas = allFormulas
+        }
+        
+        // Step 5: Update field.formulas references to point to new formula IDs
+        for i in 0..<newFields.count {
+            if var appliedFormulas = newFields[i].formulas {
+                for j in 0..<appliedFormulas.count {
+                    if let oldFormulaID = appliedFormulas[j].formula,
+                       let newFormulaID = formulaMapping[oldFormulaID] {
+                        appliedFormulas[j].formula = newFormulaID
+                        // Also update the applied formula's own ID
+                        appliedFormulas[j].id = generateObjectId()
+                    }
+                }
+                newFields[i].formulas = appliedFormulas
+            }
+        }
+        
+        return formulaMapping
+    }
+    
     public func duplicatePage(pageID: String) {
         guard var firstFile = document.files.first else {
             Log("No file found in document.", type: .error)
@@ -852,26 +967,6 @@ extension DocumentEditor {
         var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
         
-        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
-        
-        document.fields = newFields
-        duplicatedPage.fieldPositions = newFieldPositions
-        
-        if firstFile.pages == nil {
-            firstFile.pages = []
-        }
-        firstFile.pages!.append(duplicatedPage)
-        
-        if var pageOrder = firstFile.pageOrder {
-            if let index = pageOrder.firstIndex(of: pageID) {
-                pageOrder.insert(newPageID, at: index + 1)
-            } else {
-                pageOrder.append(newPageID)
-            }
-            firstFile.pageOrder = pageOrder
-            self.currentPageOrder = pageOrder
-        }
-        
         // duplicate views page
         if let altViews = firstFile.views, !altViews.isEmpty {
             var altView = altViews[0]
@@ -887,7 +982,7 @@ extension DocumentEditor {
                     guard let origFieldID = fieldPos.field else { continue }
                         if let origField = field(fieldID: origFieldID) {
                             var duplicateField = origField
-                            let newFieldID = generateObjectId()
+                            let newFieldID = "field_\(generateObjectId())"
                             alternateFieldMapping[origFieldID] = newFieldID
                             
                             duplicateField.id = newFieldID
@@ -912,6 +1007,9 @@ extension DocumentEditor {
                         alternateNewFields[i].logic = logic
                     }
                 }
+                fieldMapping = alternateFieldMapping
+                // Duplicate formulas for the alternate view fields
+                let _ = duplicateFormulasForPage(&alternateNewFields, fieldMapping: alternateFieldMapping)
                 
                 originalAltPage.fieldPositions = alternateNewFieldPositions
                 newFields.append(contentsOf: alternateNewFields)
@@ -937,6 +1035,28 @@ extension DocumentEditor {
             }
         }
         
+        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
+        
+        let _ = duplicateFormulasForPage(&newFields, fieldMapping: fieldMapping)
+        
+        document.fields = newFields
+        duplicatedPage.fieldPositions = newFieldPositions
+        
+        if firstFile.pages == nil {
+            firstFile.pages = []
+        }
+        firstFile.pages!.append(duplicatedPage)
+        
+        if var pageOrder = firstFile.pageOrder {
+            if let index = pageOrder.firstIndex(of: pageID) {
+                pageOrder.insert(newPageID, at: index + 1)
+            } else {
+                pageOrder.append(newPageID)
+            }
+            firstFile.pageOrder = pageOrder
+            self.currentPageOrder = pageOrder
+        }
+
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
@@ -953,6 +1073,7 @@ extension DocumentEditor {
             }
         }
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         
         if let views = document.files.first?.views, !views.isEmpty {
             guard let targetIndex = document.files.first?.pageOrder?.firstIndex(of: newPageID) else {
