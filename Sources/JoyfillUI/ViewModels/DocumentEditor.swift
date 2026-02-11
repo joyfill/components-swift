@@ -661,6 +661,41 @@ extension DocumentEditor {
         return field(fieldID: fieldID)?.valueToValueElements
     }
     
+    /// Returns true if the row exists and is visible for navigation.
+    /// Table: row must be in field.rowOrder (same as viewModel.tableDataModel.rowOrder.contains(rowId)).
+    /// Collection: row must exist in value tree and not be deleted (same idea as viewModel.getSchemaForRow(rowId:) != nil).
+    private func rowExistsInField(fieldID: String, rowId: String) -> Bool {
+        guard let field = field(fieldID: fieldID) else { return false }
+        switch field.fieldType {
+        case .table:
+            return field.rowOrder?.contains(rowId) == true
+        case .collection:
+            guard let elements = field.valueToValueElements else { return false }
+            return rowExistsInValueElements(elements, rowId: rowId)
+        default:
+            return false
+        }
+    }
+    
+    /// Recursively finds rowId in collection value elements (including nested); returns false if row is deleted.
+    private func rowExistsInValueElements(_ elements: [ValueElement], rowId: String) -> Bool {
+        for element in elements {
+            if element.id == rowId {
+                if element.deleted == true { return false }
+                return true
+            }
+            if element.deleted == true { continue }
+            if let childrens = element.childrens {
+                for child in childrens.values {
+                    if let nested = child.valueToValueElements, rowExistsInValueElements(nested, rowId: rowId) {
+                        return true
+                    }
+                }
+            }
+        }
+        return false
+    }
+    
     func refreshDependent(for fieldID: String) {
         let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
         for fieldId in refreshFields {
@@ -1433,7 +1468,7 @@ extension DocumentEditor {
                     Log("Field \(fieldID) is not a table or collection field", type: .warning)
                     return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
                 }
-                
+                status = rowExistsInField(fieldID: fieldID, rowId: rowId) ? .success : .failure
                 event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open)
             } else {
                 event = NavigationTarget(pageId: pageId, fieldID: fieldID)
@@ -1447,8 +1482,8 @@ extension DocumentEditor {
     
     /// Handles page change events, firing page.blur and page.focus callbacks
     private func handlePageChange(from previousPageId: String, to newPageId: String) {
-        // Don't fire events if pages are the same or if this is initial setup
-        guard previousPageId != newPageId, !previousPageId.isEmpty else {
+        // Don't fire if the page didn't actually change
+        guard previousPageId != newPageId else {
             return
         }
         

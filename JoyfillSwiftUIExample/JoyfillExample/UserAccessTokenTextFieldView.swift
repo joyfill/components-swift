@@ -448,7 +448,9 @@ class ChangeManagerWrapper: ObservableObject {
 struct OptionSelectionView: View {
     @State private var selectedOption: OptionType? = nil
     @State private var isNavigating: Bool = false
-    
+    @State private var showNavigationAlert: Bool = false
+    @State private var navigationAlertMessage: String = ""
+
     enum OptionType: CaseIterable {
         case token
         case jsonToForm
@@ -690,6 +692,11 @@ struct OptionSelectionView: View {
             .navigationBarHidden(true)
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+        .alert("Navigation Error", isPresented: $showNavigationAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(navigationAlertMessage)
+        }
     }
     
     @ViewBuilder
@@ -733,7 +740,7 @@ struct OptionSelectionView: View {
         case .simpleForm:
             SimpleFormExampleView()
         case .simpleNavigationTest:
-            SimpleNavigationTestView()
+            SimpleNavigationTestView(showAlert: $showNavigationAlert, alertMessage: $navigationAlertMessage)
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):

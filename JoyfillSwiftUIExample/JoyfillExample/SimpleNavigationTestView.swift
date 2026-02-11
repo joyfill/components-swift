@@ -16,9 +16,9 @@ struct SimpleNavigationTestView: View {
     @State private var selectedRowId: String = ""
     @State private var manualPath: String = ""
     @State private var openModal: Bool = true
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-    
+    @Binding var showAlert: Bool
+    @Binding var alertMessage: String
+
     var allPages: [Page] {
         documentEditor.pagesForCurrentView
     }
@@ -51,7 +51,7 @@ struct SimpleNavigationTestView: View {
         return field.fieldType == .table || field.fieldType == .collection
     }
     
-    init() {
+    init(showAlert: Binding<Bool>, alertMessage: Binding<String>) {
         let sampleDoc = sampleJSONDocument(fileName: "Navigation")
         let editor = DocumentEditor(
             document: sampleDoc,
@@ -61,6 +61,8 @@ struct SimpleNavigationTestView: View {
             singleClickRowEdit: true
         )
         _documentEditor = StateObject(wrappedValue: editor)
+        _showAlert = showAlert
+        _alertMessage = alertMessage
     }
     
     var body: some View {
@@ -80,11 +82,12 @@ struct SimpleNavigationTestView: View {
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
                         let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal))
-                        
-                        if status == .failure {
-                            alertMessage = "Navigation failed for path: \(manualPath)"
-                            showAlert = true
-                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
+                            if status == .failure {
+                                alertMessage = "Navigation failed for path: \(manualPath)"
+                                showAlert = true
+                            }
+                        })
                     }) {
                         Image(systemName: "arrow.right.circle.fill")
                             .font(.title2)
@@ -205,10 +208,12 @@ struct SimpleNavigationTestView: View {
                                 status = documentEditor.goto(selectedPageId)
                             }
                             
-                            if status == .failure {
-                                alertMessage = "Navigation failed"
-                                showAlert = true
-                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
+                                if status == .failure {
+                                    alertMessage = "Navigation failed"
+                                    showAlert = true
+                                }
+                            })
                         }
                     }) {
                         HStack {
@@ -234,11 +239,6 @@ struct SimpleNavigationTestView: View {
         }
         .navigationTitle("Navigation Test")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Navigation Error", isPresented: $showAlert) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text(alertMessage)
-        }
         .onAppear {
             // Auto-select first page
             if let firstPage = allPages.first, let firstPageId = firstPage.id {
@@ -250,10 +250,24 @@ struct SimpleNavigationTestView: View {
 
 // MARK: - Preview
 
+private struct SimpleNavigationTestViewPreviewWrapper: View {
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+
+    var body: some View {
+        SimpleNavigationTestView(showAlert: $showAlert, alertMessage: $alertMessage)
+            .alert("Navigation Error", isPresented: $showAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(alertMessage)
+            }
+    }
+}
+
 struct SimpleNavigationTestView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            SimpleNavigationTestView()
+            SimpleNavigationTestViewPreviewWrapper()
         }
     }
 }
