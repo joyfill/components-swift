@@ -187,6 +187,43 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
     }
     
+    /// Returns true if the column should be shown (not hidden by position or hiddenViews for current view).
+    /// - Parameters:
+    ///   - columnID: Column identifier.
+    ///   - fieldID: Parent field identifier (table or collection field).
+    ///   - schemaKey: For collection, the schema key; for table, pass `nil` (ignored).
+    public func shouldShowColumn(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        guard let field = field(fieldID: fieldID),
+              let fieldPosition = fieldPosition(fieldID: fieldID) else {
+            return true
+        }
+        
+        let columnHiddenViews: [String]?
+        let positionHidden: Bool
+        switch field.fieldType {
+        case .table:
+            columnHiddenViews = field.tableColumns?.first(where: { $0.id == columnID })?.hiddenViews
+            positionHidden = fieldPosition.tableColumns?.first(where: { $0.id == columnID })?.hidden ?? false
+        case .collection:
+            guard let key = schemaKey else { return true }
+            columnHiddenViews = field.schema?[key]?.tableColumns?.first(where: { $0.id == columnID })?.hiddenViews
+            let positionCol = fieldPosition.schema?[key]?.tableColumns?.first(where: { $0.id == columnID })
+            positionHidden = positionCol?.hidden ?? false
+        default:
+            return true
+        }
+        // hiddenViews has top priority: if current view is in hiddenViews, column must be hidden
+        if let views = columnHiddenViews, views.contains(ViewType.mobile.rawValue) { return false }
+        if positionHidden { return false }
+        return true
+    }
+    
+    /// Returns true if the field is force-hidden for the current view via hiddenViews. Takes precedence over conditional logic.
+    public func isFieldForceHiddenByView(field: JoyDocField) -> Bool {
+        guard let views = field.hiddenViews, !views.isEmpty else { return false }
+        return views.contains(ViewType.mobile.rawValue)
+    }
+    
     public func shouldShow(pageID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(pageID: pageID)
     }
