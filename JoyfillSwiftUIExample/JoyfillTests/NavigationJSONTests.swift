@@ -503,8 +503,8 @@ final class NavigationJSONTests: XCTestCase {
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
         
-        // goto() returns success if it can navigate to the field; UI handles non-existent rows
-        XCTAssertEqual(result, .success, "Should navigate to field successfully; UI validates row existence")
+        // goto() returns failure if it non-existent rows, but navigate to that field with no rows sleected
+        XCTAssertEqual(result, .failure, "Should navigate to field successfully; UI validates row existence")
         XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to page")
         // The UI (TableQuickView/CollectionQuickView) will check rowOrder.contains(rowId) and handle gracefully
     }
@@ -545,7 +545,7 @@ final class NavigationJSONTests: XCTestCase {
     
     func testGotoCollectionRow_WithOpenTrue_ShouldNavigateSuccessfully() {
         // goto(691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81, open: true)
-        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81"
+        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a4a3b830a02d7d3a3172"
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
         
@@ -555,7 +555,7 @@ final class NavigationJSONTests: XCTestCase {
     
     func testGotoCollectionRow_WithOpenFalse_ShouldNavigateSuccessfully() {
         // goto(691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81, open: false)
-        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81"
+        let path = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a4a3b830a02d7d3a3172"
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig())
         
@@ -570,8 +570,8 @@ final class NavigationJSONTests: XCTestCase {
         
         let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true))
         
-        // goto() returns success if it can navigate to the field; UI handles non-existent rows
-        XCTAssertEqual(result, .success, "Should navigate to field successfully; UI validates row existence")
+        // goto() returns failure if it can navigate to the field; UI handles non-existent rows
+        XCTAssertEqual(result, .failure, "Should navigate to field successfully, But return failure; UI validates row existence")
         XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should navigate to page")
         // The UI (CollectionQuickView) will check if row exists and handle gracefully
     }
@@ -666,7 +666,7 @@ final class NavigationJSONTests: XCTestCase {
         XCTAssertEqual(result1, .success, "Should navigate to table field")
         
         // Navigate to collection field on same page
-        let path2 = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a40230cef1a03fc19d81"
+        let path2 = "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a4a3b830a02d7d3a3172"
         let result2 = documentEditor.goto(path2, gotoConfig: GotoConfig(open: true))
         XCTAssertEqual(result2, .success, "Should navigate to collection field")
         XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76", "Should remain on same page")
