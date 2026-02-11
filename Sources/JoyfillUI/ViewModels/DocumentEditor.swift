@@ -328,7 +328,7 @@ public class DocumentEditor: ObservableObject {
            let meta = Metadata(dictionary: metadataDict),
            var field = fieldMap[fieldID] {
             field.metadata = meta
-            updatefield(field: field)
+            updateField(field: field)
             refreshField(fieldId: fieldID)
             refreshDependent(for: fieldID)
         }
@@ -423,7 +423,7 @@ extension DocumentEditor {
         document.pagesForCurrentView
     }
     
-    public func updatefield(field: JoyDocField?) {
+    public func updateField(field: JoyDocField?) {
         guard let fieldID = field?.id else { return }
         fieldMap[fieldID] = field
     }
@@ -529,7 +529,7 @@ extension DocumentEditor {
                 field.yTitle = chartData.yTitle
             }
             updateTimeZoneIfNeeded(&field)
-            updatefield(field: field)
+            updateField(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
             if let identifier = field.id {
