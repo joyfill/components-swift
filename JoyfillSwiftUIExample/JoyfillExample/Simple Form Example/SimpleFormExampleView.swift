@@ -25,8 +25,8 @@ struct SimpleFormExampleView: View {
 
 class ChangeHandler: FormChangeEvent {
     func onChange(changes: [Joyfill.Change], document: JoyfillModel.JoyDoc) {}
-    func onFocus(event: Joyfill.FieldIdentifier) {}
-    func onBlur(event: Joyfill.FieldIdentifier) {}
+    func onFocus(event: Joyfill.Event) {}
+    func onBlur(event: Joyfill.Event) {}
     func onUpload(event: Joyfill.UploadEvent) {}
     func onCapture(event: Joyfill.CaptureEvent) {}
     func onError(error: Joyfill.JoyfillError) {}

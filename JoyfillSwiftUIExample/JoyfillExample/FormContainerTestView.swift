@@ -47,12 +47,16 @@ class TestChangeManager: FormChangeEvent {
         }
     }
 
-    func onFocus(event: FieldIdentifier) {
-        print(">>>>>>>>onFocus", event.fieldID)
+    func onFocus(event: Event) {
+        if let event = event.fieldEvent {
+            print(">>>>>>>>onFocus", event.fieldID)
+        }
     }
 
-    func onBlur(event: FieldIdentifier) {
-        print(">>>>>>>>onBlur", event.fieldID)
+    func onBlur(event: Event) {
+        if let event = event.fieldEvent {
+            print(">>>>>>>>onBlur", event.fieldID)
+        }
     }
 
     func onUpload(event: UploadEvent) {

@@ -11,17 +11,30 @@ final class ValidationTestCase: XCTestCase {
     /// Mock event handler to capture onChange events for testing
     class ChangeCapture: FormChangeEvent {
         var capturedChanges: [Change] = []
+        var capturedFocusEvents: [Event] = []
+        var capturedBlurEvents: [Event] = []
         
         func onChange(changes: [Change], document: JoyDoc) {
             capturedChanges.append(contentsOf: changes)
         }
         
-        func onFocus(event: FieldIdentifier) {}
-        func onBlur(event: FieldIdentifier) {}
+        func onFocus(event: Event) {
+            capturedFocusEvents.append(event)
+        }
+        
+        func onBlur(event: Event) {
+            capturedBlurEvents.append(event)
+        }
+        
         func onCapture(event: CaptureEvent) {}
         func onUpload(event: UploadEvent) {}
         func onError(error: JoyfillError) {}
         
+        func reset() {
+            capturedChanges.removeAll()
+            capturedFocusEvents.removeAll()
+            capturedBlurEvents.removeAll()
+        }
     }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
@@ -2729,4 +2742,321 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
             XCTAssertEqual(validationResult.fieldValidities[1].pageId, "66600801dc1d8b4f72f54917")
         }
+    
+    // MARK: - Page Focus/Blur Event Tests
+    
+    /// Test that jumping to the current page does NOT fire blur or focus events
+    func testPageFocusBlur_jumpToCurrentPage_noEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let pageID = "6629fab320fca7c8107a6cf6"
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: pageID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Jump to the same page
+        documentEditor.currentPageID = pageID
+        
+        // Should NOT fire any events
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "No focus events should fire when jumping to current page")
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "No blur events should fire when jumping to current page")
+    }
+    
+    /// Test that jumping to a different page via UI fires blur and focus events
+    func testPageFocusBlur_jumpToDifferentPage_firesEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Jump to different page
+        documentEditor.goto(page2ID)
+        
+        // Should fire blur for page1 and focus for page2
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire")
+        
+        // Verify blur event
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertNotNil(blurEvent?.pageEvent, "Blur event should be a page event")
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1ID)
+        
+        // Verify focus event
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertNotNil(focusEvent?.pageEvent, "Focus event should be a page event")
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2ID)
+    }
+    
+    /// Test that programmatic navigation using goto() fires blur and focus events
+    func testPageFocusBlur_programmaticNavigation_firesEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Navigate programmatically using goto
+        let result = documentEditor.goto(page2ID)
+        
+        XCTAssertEqual(result, .success, "Navigation should succeed")
+        
+        // Should fire blur for page1 and focus for page2
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire")
+        
+        // Verify blur event
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertNotNil(blurEvent?.pageEvent, "Blur event should be a page event")
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1ID)
+        
+        // Verify focus event
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertNotNil(focusEvent?.pageEvent, "Focus event should be a page event")
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2ID)
+    }
+    
+    /// Test that page duplication doesn't cause unexpected focus/blur events
+    func testPageFocusBlur_pageDuplication_noUnexpectedEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setHeadingText()
+            .setTextField()
+        
+        let originalPageID = "6629fab320fca7c8107a6cf6"
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: originalPageID,
+            navigation: true,
+            isPageDuplicateEnabled: true,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Duplicate the page
+        documentEditor.duplicatePage(pageID: originalPageID)
+        
+        // Duplication should not fire focus/blur events on current page
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "Page duplication should not fire focus events")
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "Page duplication should not fire blur events")
+        
+        // Current page should still be the original
+        XCTAssertEqual(documentEditor.currentPageID, originalPageID, "Current page should remain unchanged after duplication")
+    }
+    
+    /// Test that deleting the currently focused page fires proper blur and focus events
+    func testPageFocusBlur_deleteCurrentPage_firesEventsForNewPage() {
+        let document = JoyDoc()
+            .setDocument()
+            .setSinglePageFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: true,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Delete the currently focused page
+        let result = documentEditor.deletePage(pageID: page1ID)
+        
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        // Should fire blur for deleted page and focus for new current page
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire for deleted page")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire for new current page")
+        
+        // Verify blur event for deleted page
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertNotNil(blurEvent?.pageEvent, "Blur event should be a page event")
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1ID)
+        
+        // Verify focus event for new page
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertNotNil(focusEvent?.pageEvent, "Focus event should be a page event")
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        
+        // New current page should be page2
+        XCTAssertEqual(documentEditor.currentPageID, page2ID, "Current page should switch to remaining page")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2ID, "Focus event should be for page2")
+    }
+    
+    /// Test that deleting a non-current page doesn't fire focus/blur events
+    func testPageFocusBlur_deleteNonCurrentPage_noEvents() {
+        let document = JoyDoc()
+            .setDocument()
+            .setSinglePageFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: true,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Delete a different page (not the current one)
+        let result = documentEditor.deletePage(pageID: page2ID)
+        
+        XCTAssertTrue(result, "Page deletion should succeed")
+        
+        // Should NOT fire any focus/blur events
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "No blur events should fire when deleting non-current page")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "No focus events should fire when deleting non-current page")
+        
+        // Current page should remain unchanged
+        XCTAssertEqual(documentEditor.currentPageID, page1ID, "Current page should remain unchanged")
+    }
+    
+    /// Test multiple page navigations fire correct sequence of events
+    func testPageFocusBlur_multipleNavigations_correctSequence() {
+        let document = JoyDoc()
+            .setDocument()
+            .setSinglePageFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        
+        let page1ID = "6629fab320fca7c8107a6cf6"
+        let page2ID = "second_page_id_12345"
+        
+        let eventCapture = ChangeCapture()
+        let documentEditor = DocumentEditor(
+            document: document,
+            mode: .fill,
+            events: eventCapture,
+            pageID: page1ID,
+            navigation: true,
+            isPageDuplicateEnabled: false,
+            isPageDeleteEnabled: false,
+            validateSchema: false
+        )
+        
+        // Clear any initial events
+        eventCapture.reset()
+        
+        // Navigate page1 -> page2
+        documentEditor.currentPageID = page2ID
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1)
+        XCTAssertEqual(eventCapture.capturedBlurEvents.first?.pageEvent?.page.id, page1ID)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.first?.pageEvent?.page.id, page2ID)
+        
+        // Navigate page2 -> page1
+        documentEditor.currentPageID = page1ID
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 2)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 2)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[1].pageEvent?.page.id, page2ID)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[1].pageEvent?.page.id, page1ID)
+        
+        // Navigate page1 -> page2 again
+        documentEditor.currentPageID = page2ID
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 3)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 3)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[2].pageEvent?.page.id, page1ID)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[2].pageEvent?.page.id, page2ID)
+    }
 }
