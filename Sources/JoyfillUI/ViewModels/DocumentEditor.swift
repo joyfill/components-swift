@@ -787,6 +787,11 @@ extension DocumentEditor {
         for var fieldPos in originalPage.fieldPositions ?? [] {
             guard let origFieldID = fieldPos.field else { continue }
             if let origField = field(fieldID: origFieldID) {
+                if fieldMapping[origFieldID] != nil {
+                    fieldPos.field = origFieldID
+                    newFieldPositions.append(fieldPos)
+                    continue
+                }
                 var duplicateField = origField
                 let newFieldID = "field_\(generateObjectId())"
                 fieldMapping[origFieldID] = newFieldID
@@ -947,28 +952,6 @@ extension DocumentEditor {
         var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
         
-        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
-        
-        let _ = duplicateFormulasForPage(&newFields, fieldMapping: fieldMapping)
-        
-        document.fields = newFields
-        duplicatedPage.fieldPositions = newFieldPositions
-        
-        if firstFile.pages == nil {
-            firstFile.pages = []
-        }
-        firstFile.pages!.append(duplicatedPage)
-        
-        if var pageOrder = firstFile.pageOrder {
-            if let index = pageOrder.firstIndex(of: pageID) {
-                pageOrder.insert(newPageID, at: index + 1)
-            } else {
-                pageOrder.append(newPageID)
-            }
-            firstFile.pageOrder = pageOrder
-            self.currentPageOrder = pageOrder
-        }
-        
         // duplicate views page
         if let altViews = firstFile.views, !altViews.isEmpty {
             var altView = altViews[0]
@@ -1009,7 +992,7 @@ extension DocumentEditor {
                         alternateNewFields[i].logic = logic
                     }
                 }
-                
+                fieldMapping = alternateFieldMapping
                 // Duplicate formulas for the alternate view fields
                 let _ = duplicateFormulasForPage(&alternateNewFields, fieldMapping: alternateFieldMapping)
                 
@@ -1037,6 +1020,28 @@ extension DocumentEditor {
             }
         }
         
+        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
+        
+        let _ = duplicateFormulasForPage(&newFields, fieldMapping: fieldMapping)
+        
+        document.fields = newFields
+        duplicatedPage.fieldPositions = newFieldPositions
+        
+        if firstFile.pages == nil {
+            firstFile.pages = []
+        }
+        firstFile.pages!.append(duplicatedPage)
+        
+        if var pageOrder = firstFile.pageOrder {
+            if let index = pageOrder.firstIndex(of: pageID) {
+                pageOrder.insert(newPageID, at: index + 1)
+            } else {
+                pageOrder.append(newPageID)
+            }
+            firstFile.pageOrder = pageOrder
+            self.currentPageOrder = pageOrder
+        }
+
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
