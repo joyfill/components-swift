@@ -376,12 +376,18 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        guard let value = change.change?["value"] as? Any,
-              let valueUnion = ValueUnion(value: value) else {
-            logChangeError(for: change)
-            return
+        if let value = change.change?["value"] as? Any,
+           let valueUnion = ValueUnion(value: value) {
+            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
         }
-        updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
+        if let metadataDict = change.change?["metadata"] as? [String: Any],
+           let meta = Metadata(dictionary: metadataDict),
+           var field = fieldMap[fieldID] {
+            field.metadata = meta
+            updateField(field: field)
+            refreshField(fieldId: fieldID)
+            refreshDependent(for: fieldID)
+        }
     }
     
     private func logChangeError(for change: Change) {
@@ -473,7 +479,7 @@ extension DocumentEditor {
         document.pagesForCurrentView
     }
     
-    public func updatefield(field: JoyDocField?) {
+    public func updateField(field: JoyDocField?) {
         guard let fieldID = field?.id else { return }
         fieldMap[fieldID] = field
     }
@@ -579,7 +585,7 @@ extension DocumentEditor {
                 field.yTitle = chartData.yTitle
             }
             updateTimeZoneIfNeeded(&field)
-            updatefield(field: field)
+            updateField(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
             if let identifier = field.id {

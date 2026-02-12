@@ -1201,7 +1201,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
 
     /// The coding keys used for encoding and decoding the value element.
     enum CodingKeys: String, CodingKey {
-        case _id, url, fileName, filePath, deleted, title, description, points, cells
+        case _id, url, fileName, filePath, deleted, title, description, points, cells, metadata
     }
 
     /// Initializes a value element with an ID, deleted flag, description, title, and points.
@@ -1335,6 +1335,23 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
         set {
             guard let value = newValue else { return }
             self.dictionary["cells"] = ValueUnion.dictionary(value)
+        }
+    }
+    
+    /// Optional metadata for the row (e.g. deficiency linkage: linkedPageId, linkedFieldId, linkedRowId).
+    /// Supports access and updating for workflows that reference a specific field or row.
+    public var metadata: Metadata? {
+        get {
+            guard let valueUnion = dictionary["metadata"] as? ValueUnion,
+                  let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
+            return Metadata(dictionary: anyDict)
+        }
+        set {
+            if let meta = newValue {
+                dictionary["metadata"] = ValueUnion(anyDictionary: meta.dictionary)
+            } else {
+                dictionary.removeValue(forKey: "metadata")
+            }
         }
     }
     
