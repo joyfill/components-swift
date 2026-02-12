@@ -306,7 +306,12 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
                 "parentPath": "",
                 "row": [
                     "_id": collectionExistingRowId,
-                    "cells": [collectionTextColumnID: "Updated collection cell"]
+                    "cells": [collectionTextColumnID: "Updated collection cell"],
+                    "metadata": [
+                        "linkType": "collectionRowToRow",
+                        "linkedPageId": "page_coll_src",
+                        "linkedRowId": "source_coll_row_1"
+                    ]
                 ]
             ],
             createdOn: Date().timeIntervalSince1970
@@ -315,9 +320,9 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         waitForMainQueue()
 
         let row = editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == collectionExistingRowId })
-//        XCTAssertNotNil(row?.metadata)
-//        XCTAssertEqual(row?.metadata?.dictionary["linkedPageId"] as? String, "page_coll_src")
-//        XCTAssertEqual(row?.metadata?.dictionary["linkedRowId"] as? String, "source_coll_row_1")
+        XCTAssertNotNil(row?.metadata)
+        XCTAssertEqual(row?.metadata?.dictionary["linkedPageId"] as? String, "page_coll_src")
+        XCTAssertEqual(row?.metadata?.dictionary["linkedRowId"] as? String, "source_coll_row_1")
     }
 
     private func createTableViewModel(documentEditor: DocumentEditor) -> TableViewModel {
