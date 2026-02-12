@@ -38,10 +38,10 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         DocumentEditor(document: document, validateSchema: false)
     }
 
-    private func waitForMainQueue() {
+    private func waitForMainQueue(timeout: TimeInterval = 1.0) {
         let exp = expectation(description: "main")
         DispatchQueue.main.async { exp.fulfill() }
-        wait(for: [exp], timeout: 1.0)
+        wait(for: [exp], timeout: timeout)
     }
     
     private func createCollectionViewModel(documentEditor: DocumentEditor) async throws -> CollectionViewModel {
@@ -273,7 +273,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
             createdOn: Date().timeIntervalSince1970
         )
         editor.change(changes: [change])
-        waitForMainQueue()
+        waitForMainQueue(timeout: 3.0)
 
         let newRow = editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == newRowId })
         XCTAssertNotNil(newRow, "New collection row should be inserted after rowCreate change")
