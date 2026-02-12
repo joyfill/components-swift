@@ -394,6 +394,7 @@
 		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
 		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
 		E2E27C882E7AF4E60041FF1F /* CreateRowUISample.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */; };
+		E2E27D022E8C10000041FF1F /* MetadataChangeAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */; };
 		E2E3E7632E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
 		E2E3E7642E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
 		E2E3E7652E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
@@ -662,6 +663,7 @@
 		E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTitleNotDisplayed.json; sourceTree = "<group>"; };
 		E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationTests.swift; sourceTree = "<group>"; };
 		E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRowUISample.swift; sourceTree = "<group>"; };
+		E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataChangeAPIDemoView.swift; sourceTree = "<group>"; };
 		E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = OnChangeHandler.json; sourceTree = "<group>"; };
 		E2E3E7752E855F1B002A10C2 /* SimpleFormExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleFormExampleView.swift; sourceTree = "<group>"; };
 		E2E3E7782E85611E002A10C2 /* first-form.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "first-form.json"; sourceTree = "<group>"; };
@@ -1341,6 +1343,7 @@
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
 				364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */,
 				E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */,
+				E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */,
 				364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */,
 				369D45032E0E4C2600677280 /* AllSampleJSONs.swift */,
 				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
@@ -1964,6 +1967,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E2E27C882E7AF4E60041FF1F /* CreateRowUISample.swift in Sources */,
+				E2E27D022E8C10000041FF1F /* MetadataChangeAPIDemoView.swift in Sources */,
 				13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */,
 				36CE14672DB6680000799B25 /* LiveViewTest.swift in Sources */,
 				E2A6843D2DCA41F000385FE1 /* JoyDoc+helper.swift in Sources */,

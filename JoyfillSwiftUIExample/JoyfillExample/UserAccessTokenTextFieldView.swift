@@ -464,6 +464,7 @@ struct OptionSelectionView: View {
         case oChangeHandlerTest
         case manipulateDataOnChangeView
         case createRowUISample
+        case metadataChangeAPIDemo
         case simpleForm
         case simpleNavigationTest
 
@@ -493,6 +494,8 @@ struct OptionSelectionView: View {
                 return "Change Handler Test"
             case .createRowUISample:
                 return "Create Row UI Sample"
+            case .metadataChangeAPIDemo:
+                return "Metadata Change API Demo"
             case .simpleForm:
                 return "Simple example Form"
             case .simpleNavigationTest:
@@ -526,6 +529,8 @@ struct OptionSelectionView: View {
                 return "Test change event handling and validation workflows"
             case .createRowUISample:
                 return "Create a row UI sample"
+            case .metadataChangeAPIDemo:
+                return "Set field and row metadata via Change API (field.update, rowCreate, rowUpdate)"
             case .simpleForm:
                 return "Simple example Form"
             case .simpleNavigationTest:
@@ -559,6 +564,8 @@ struct OptionSelectionView: View {
                 return "arrow.triangle.2.circlepath"
             case .createRowUISample:
                 return "slider.horizontal.3"
+            case .metadataChangeAPIDemo:
+                return "tag.fill"
             case .simpleForm:
                 return "slider.horizontal.3"
             case .simpleNavigationTest:
@@ -592,6 +599,8 @@ struct OptionSelectionView: View {
                 return .green
             case .createRowUISample:
                 return .red
+            case .metadataChangeAPIDemo:
+                return .orange
             case .simpleForm:
                 return .blue
             case .simpleNavigationTest:
@@ -737,6 +746,8 @@ struct OptionSelectionView: View {
             OnChangeHandlerTest()
         case .createRowUISample:
             CreateRowUISample()
+        case .metadataChangeAPIDemo:
+            MetadataChangeAPIDemoView()
         case .simpleForm:
             SimpleFormExampleView()
         case .simpleNavigationTest:
