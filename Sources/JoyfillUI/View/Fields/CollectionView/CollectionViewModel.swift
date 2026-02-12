@@ -1977,7 +1977,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
             Log("RowID not found or no cached ValueElement", type: .error)
             return
         }
-        let associatedSchemaID: String = change.change?["schemaId"] as! String
+        let associatedSchemaID: String = (change.change?["schemaId"] as? String) ?? ""
         // Merge payload into model
         let merged = mergedRow(from: change, existingRow: existingRow)
         rowToValueElementMap[rowID] = merged
