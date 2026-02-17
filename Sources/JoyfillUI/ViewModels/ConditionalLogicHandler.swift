@@ -86,7 +86,7 @@ class ConditionalLogicHandler {
         for column in columns {
             guard let columnID = column.id else { continue }
             let columnSchemaID = ColumnSchemaID(columnID: columnID)
-            columnLogic.showColumnMap[columnSchemaID] = shouldShowColumnLocal(column: column, fieldID: fieldID, schemaKey: nil)
+            columnLogic.showColumnMap[columnSchemaID] = shouldShowColumnLocal(column: column)
             registerColumnDependencies(column: column, parentFieldID: fieldID)
         }
         showColumnLogicMap[fieldID] = columnLogic
@@ -100,7 +100,7 @@ class ConditionalLogicHandler {
             for column in columns {
                 guard let columnID = column.id else { continue }
                 let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
-                columnLogic.showColumnMap[columnSchemaID] = shouldShowColumnLocal(column: column, fieldID: fieldID, schemaKey: schemaKey)
+                columnLogic.showColumnMap[columnSchemaID] = shouldShowColumnLocal(column: column)
                 registerColumnDependencies(column: column, parentFieldID: fieldID)
             }
         }
@@ -226,7 +226,7 @@ class ConditionalLogicHandler {
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
                 let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: nil)
-                let shouldShowColumn = shouldShowColumnLocal(column: tableColumn, fieldID: dependentFieldId, schemaKey: nil)
+                let shouldShowColumn = shouldShowColumnLocal(column: tableColumn)
                 if columnLogic.showColumnMap[columnSchemaID] != shouldShowColumn {
                     columnLogic.showColumnMap[columnSchemaID] = shouldShowColumn
                     hasChange = true
@@ -245,7 +245,7 @@ class ConditionalLogicHandler {
                 for tableColumn in tableColumns {
                     guard let columnID = tableColumn.id else { continue }
                     let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
-                    let shouldShowColumn = shouldShowColumnLocal(column: tableColumn, fieldID: dependentFieldId, schemaKey: schemaKey)
+                    let shouldShowColumn = shouldShowColumnLocal(column: tableColumn)
                     if columnLogic.showColumnMap[columnSchemaID] != shouldShowColumn {
                         columnLogic.showColumnMap[columnSchemaID] = shouldShowColumn
                         hasChange = true
@@ -388,7 +388,7 @@ class ConditionalLogicHandler {
         return fields.flatMap(conditionalLogicModel)
     }
 
-    private func shouldShowColumnLocal(column: FieldTableColumn, fieldID: String, schemaKey: String?) -> Bool {
+    private func shouldShowColumnLocal(column: FieldTableColumn) -> Bool {
         if let views = column.hiddenViews, views.contains(ViewType.mobile.rawValue) { return false }
         
         let model = conditionalLogicModel(column: column)
