@@ -199,13 +199,17 @@ class ConditionalLogicHandler {
         guard let dependentFields = fieldConditionalDependencyMap[fieldID] else { return []}
         // Refresh dependent fields if required
         for dependentFieldId in dependentFields {
+            var needsRefresh = false
             if columnsNeedsToRefreshed(dependentFieldId: dependentFieldId) {
-                refreshFieldIDs.append(dependentFieldId)
+                needsRefresh = true
             }
             // Regular field: refresh when field visibility changed
             let shouldShow = shouldShowLocal(fieldID: dependentFieldId)
             if showFieldMap[dependentFieldId] != shouldShow {
                 showFieldMap[dependentFieldId] = shouldShow
+                needsRefresh = true
+            }
+            if needsRefresh {
                 refreshFieldIDs.append(dependentFieldId)
             }
         }

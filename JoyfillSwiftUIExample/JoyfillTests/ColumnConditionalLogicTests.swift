@@ -1,7 +1,7 @@
 import XCTest
 import Foundation
 import JoyfillModel
-import Joyfill
+@testable import Joyfill
 
 final class ColumnConditionalLogicTests: XCTestCase {
     let fileID = "66a0fdb2acd89d30121053b9"
@@ -1819,5 +1819,59 @@ final class ColumnConditionalLogicTests: XCTestCase {
         let conditionFieldRef = columnConditions.first?.field
         XCTAssertNotEqual(conditionFieldRef, numberFieldID, "Collection column condition should NOT reference original number field ID after duplication")
         XCTAssertEqual(conditionFieldRef, duplicatedNumber.id, "Collection column condition should reference the duplicated number field ID")
+    }
+    
+    // MARK: - No Duplicate Refresh When Both Column and Field Logic Depend on Same Field
+    
+    /// When a table field has both column-level logic and field-level logic depending on the same field,
+    /// fieldsNeedsToBeRefreshed should only return the field ID once (not twice).
+    func testNoDuplicateRefreshForColumnAndFieldLogicOnSameDependency() {
+        // Column logic: show text column when number = 200
+        let columnLogicDict = buildColumnLogicDictionary(
+            isShow: true,
+            fieldID: numberFieldID,
+            conditionType: .equals,
+            value: .double(200)
+        )
+        let textColumn = buildColumn(id: textColumnID, type: .text, title: "Text Column", hidden: true, logic: Logic(field: columnLogicDict))
+        let normalColumn = buildColumn(id: numberColumnID, type: .number, title: "Number Column")
+        var tableField = buildTableFieldWithColumnLogic(tableFieldID: tableFieldID, columns: [textColumn, normalColumn])
+        tableField.hidden = true // Table field itself is hidden
+        
+        // Field-level logic: show table field when number = 200
+        let fieldLogicDict = buildColumnLogicDictionary(
+            isShow: true,
+            fieldID: numberFieldID,
+            conditionType: .equals,
+            value: .double(200)
+        )
+        tableField.logic = Logic(field: fieldLogicDict)
+        
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setNumberField(hidden: false, value: .double(100), id: numberFieldID) // initially 100
+        document.fields.append(tableField)
+        document = document
+            .setFieldPositionToPage(pageId: pageID, idAndTypes: [numberFieldID: .number, tableFieldID: .table])
+        
+        let editor = documentEditor(document: document)
+        
+        // Verify initial state: table field hidden, column hidden
+        XCTAssertFalse(editor.shouldShow(fieldID: tableFieldID), "Table field should be hidden initially (number=100, show when =200)")
+        XCTAssertFalse(editor.shouldShowColumn(columnID: textColumnID, fieldID: tableFieldID), "Column should be hidden initially")
+        
+        // Directly update the number field value to 200 (bypass updateField/refreshDependent chain)
+        editor.fieldMap[numberFieldID]?.value = .double(200)
+        
+        // Now call fieldsNeedsToBeRefreshed — both column and field visibility should change
+        let refreshList = editor.conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: numberFieldID)
+        
+        // The table field ID should appear exactly once, not twice
+        let occurrences = refreshList.filter { $0 == tableFieldID }.count
+        XCTAssertEqual(occurrences, 1, "Table field ID should appear exactly once in refresh list, but appeared \(occurrences) times")
     }
 }
