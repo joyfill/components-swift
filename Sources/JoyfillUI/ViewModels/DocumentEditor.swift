@@ -863,13 +863,13 @@ extension DocumentEditor {
             }
             
             // 2. Remap tableColumns logic (for table fields)
-            if var tableColumns = fields[i].tableColumns {
+            if fields[i].fieldType == .table, var tableColumns = fields[i].tableColumns {
                 remapTableColumnsLogic(&tableColumns, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
                 fields[i].tableColumns = tableColumns
             }
             
             // 3. Remap schema tableColumns logic (for collection fields)
-            if var schema = fields[i].schema {
+            if fields[i].fieldType == .collection, var schema = fields[i].schema {
                 for (key, var schemaEntry) in schema {
                     if var schemaColumns = schemaEntry.tableColumns {
                         remapTableColumnsLogic(&schemaColumns, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
