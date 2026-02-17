@@ -220,40 +220,42 @@ class ConditionalLogicHandler {
         guard let field = documentEditor.field(fieldID: dependentFieldId) else { return false }
         switch field.fieldType {
         case .table:
-            var showColumnMap = showColumnLogicMap[dependentFieldId]?.showColumnMap ?? [:]
+            var hasChange = false
+            var columnLogic = showColumnLogicMap[dependentFieldId] ?? ColumnLogic()
             let tableColumns = field.tableColumns ?? []
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
                 let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: nil)
                 let shouldShowColumn = shouldShowColumnLocal(column: tableColumn, fieldID: dependentFieldId, schemaKey: nil)
-                if showColumnMap[columnSchemaID] != shouldShowColumn {
-                    showColumnMap[columnSchemaID] = shouldShowColumn
-                    var columnLogic = showColumnLogicMap[dependentFieldId] ?? ColumnLogic()
-                    columnLogic.showColumnMap = showColumnMap
-                    showColumnLogicMap[dependentFieldId] = columnLogic
-                    return true
+                if columnLogic.showColumnMap[columnSchemaID] != shouldShowColumn {
+                    columnLogic.showColumnMap[columnSchemaID] = shouldShowColumn
+                    hasChange = true
                 }
             }
-            return false
+            if hasChange {
+                showColumnLogicMap[dependentFieldId] = columnLogic
+            }
+            return hasChange
         case .collection:
             guard let schema = field.schema else { return false }
+            var hasChange = false
             var columnLogic = showColumnLogicMap[dependentFieldId] ?? ColumnLogic()
-            var showColumnMap = columnLogic.showColumnMap
             for (schemaKey, schemaValue) in schema {
                 guard let tableColumns = schemaValue.tableColumns else { continue }
                 for tableColumn in tableColumns {
                     guard let columnID = tableColumn.id else { continue }
                     let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
                     let shouldShowColumn = shouldShowColumnLocal(column: tableColumn, fieldID: dependentFieldId, schemaKey: schemaKey)
-                    if showColumnMap[columnSchemaID] != shouldShowColumn {
-                        showColumnMap[columnSchemaID] = shouldShowColumn
-                        columnLogic.showColumnMap = showColumnMap
-                        showColumnLogicMap[dependentFieldId] = columnLogic
-                        return true
+                    if columnLogic.showColumnMap[columnSchemaID] != shouldShowColumn {
+                        columnLogic.showColumnMap[columnSchemaID] = shouldShowColumn
+                        hasChange = true
                     }
                 }
             }
-            return false
+            if hasChange {
+                showColumnLogicMap[dependentFieldId] = columnLogic
+            }
+            return hasChange
         default:
             return false
         }

@@ -1874,4 +1874,60 @@ final class ColumnConditionalLogicTests: XCTestCase {
         let occurrences = refreshList.filter { $0 == tableFieldID }.count
         XCTAssertEqual(occurrences, 1, "Table field ID should appear exactly once in refresh list, but appeared \(occurrences) times")
     }
+    
+    // MARK: - All Columns Cache Updated in Single Pass (No Partial Cache Update)
+    
+    /// When multiple columns depend on the same field and both change visibility,
+    /// all columns should have their cache updated in one pass (not just the first one found).
+    func testAllColumnsCacheUpdatedWhenMultipleColumnsChange() {
+        let col1ID = "col_logic_1"
+        let col2ID = "col_logic_2"
+        let col3ID = "col_no_logic"
+        
+        // Both columns have logic: show when number = 200
+        let logicDict1 = buildColumnLogicDictionary(
+            isShow: true,
+            fieldID: numberFieldID,
+            conditionType: .equals,
+            value: .double(200)
+        )
+        let logicDict2 = buildColumnLogicDictionary(
+            isShow: true,
+            fieldID: numberFieldID,
+            conditionType: .equals,
+            value: .double(200)
+        )
+        
+        let column1 = buildColumn(id: col1ID, type: .text, title: "Column 1", hidden: true, logic: Logic(field: logicDict1))
+        let column2 = buildColumn(id: col2ID, type: .number, title: "Column 2", hidden: true, logic: Logic(field: logicDict2))
+        let column3 = buildColumn(id: col3ID, type: .image, title: "Column 3 No Logic")
+        let tableField = buildTableFieldWithColumnLogic(tableFieldID: tableFieldID, columns: [column1, column2, column3])
+        
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setNumberField(hidden: false, value: .double(100), id: numberFieldID) // initially 100
+        document.fields.append(tableField)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [numberFieldID: .number, tableFieldID: .table])
+        
+        let editor = documentEditor(document: document)
+        
+        // Both columns should be hidden initially (number=100, show when =200)
+        XCTAssertFalse(editor.shouldShowColumn(columnID: col1ID, fieldID: tableFieldID), "Column 1 should be hidden initially")
+        XCTAssertFalse(editor.shouldShowColumn(columnID: col2ID, fieldID: tableFieldID), "Column 2 should be hidden initially")
+        
+        // Directly update number to 200 (bypass refreshDependent chain)
+        editor.fieldMap[numberFieldID]?.value = .double(200)
+        
+        // Call fieldsNeedsToBeRefreshed to trigger cache update
+        let _ = editor.conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: numberFieldID)
+        
+        // BOTH columns should now show (cache fully updated in one pass)
+        XCTAssertTrue(editor.shouldShowColumn(columnID: col1ID, fieldID: tableFieldID), "Column 1 should show after cache update (number=200)")
+        XCTAssertTrue(editor.shouldShowColumn(columnID: col2ID, fieldID: tableFieldID), "Column 2 should show after cache update (number=200) — not stale from partial update")
+        XCTAssertTrue(editor.shouldShowColumn(columnID: col3ID, fieldID: tableFieldID), "Column 3 (no logic) should still show")
+    }
 }
