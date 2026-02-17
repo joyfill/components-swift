@@ -1066,6 +1066,7 @@ extension DocumentEditor {
             var altView = altViews[0]
             if let originalAlternatePageIndex = altView.pages?.firstIndex(where: { $0.id == pageID }) {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
+                let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
                 
                 var alternateFieldMapping: [String: String] = [:]
@@ -1086,7 +1087,7 @@ extension DocumentEditor {
                     alternateNewFieldPositions.append(fieldPos)
                 }
                 // apply conditional logic here
-                remapConditionalLogic(fields: &alternateNewFields, fieldMapping: alternateFieldMapping, origPageID: originalAltPage.id, newPageID: newPageID)
+                remapConditionalLogic(fields: &alternateNewFields, fieldMapping: alternateFieldMapping, origPageID: originalAltPageID, newPageID: newPageID)
                 fieldMapping = alternateFieldMapping
                 // Duplicate formulas for the alternate view fields
                 let _ = duplicateFormulasForPage(&alternateNewFields, fieldMapping: alternateFieldMapping)
