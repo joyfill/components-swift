@@ -852,6 +852,60 @@ extension DocumentEditor {
         pageFieldModels[newPageID] = PageModel(id: newPageID, fields: fieldListModels)
     }
     
+    /// Remaps conditional logic conditions for duplicated fields, including field-level, tableColumn-level, and schema tableColumn-level logic.
+    fileprivate func remapConditionalLogic(fields: inout [JoyDocField], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        for i in 0..<fields.count {
+            // 1. Remap field-level logic
+            if var logic = fields[i].logic, var conditions = logic.conditions {
+                remapConditions(&conditions, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                logic.conditions = conditions
+                fields[i].logic = logic
+            }
+            
+            // 2. Remap tableColumns logic (for table fields)
+            if var tableColumns = fields[i].tableColumns {
+                remapTableColumnsLogic(&tableColumns, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                fields[i].tableColumns = tableColumns
+            }
+            
+            // 3. Remap schema tableColumns logic (for collection fields)
+            if var schema = fields[i].schema {
+                for (key, var schemaEntry) in schema {
+                    if var schemaColumns = schemaEntry.tableColumns {
+                        remapTableColumnsLogic(&schemaColumns, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                        schemaEntry.tableColumns = schemaColumns
+                        schema[key] = schemaEntry
+                    }
+                }
+                fields[i].schema = schema
+            }
+        }
+    }
+    
+    /// Remaps conditions array to point to new duplicated field IDs and page ID.
+    private func remapConditions(_ conditions: inout [Condition], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        for j in conditions.indices {
+            if let origPage = origPageID, conditions[j].page == origPage {
+                conditions[j].page = newPageID
+            }
+            if let origFieldRef = conditions[j].field,
+               let newFieldRef = fieldMapping[origFieldRef] {
+                conditions[j].field = newFieldRef
+            }
+        }
+    }
+    
+    /// Remaps logic conditions inside an array of FieldTableColumn.
+    private func remapTableColumnsLogic(_ tableColumns: inout [FieldTableColumn], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        for k in tableColumns.indices {
+            if var colLogic = tableColumns[k].logic, var colConditions = colLogic.conditions {
+                remapConditions(&colConditions, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                colLogic.conditions = colConditions
+                tableColumns[k].logic = colLogic
+            }
+        }
+    }
+    
     fileprivate func addFieldAndFieldPositionForWeb(_ originalPage: Page, _ fieldMapping: inout [String : String], _ newFields: inout [JoyDocField], _ newFieldPositions: inout [FieldPosition], _ newPageID: String) {
         for var fieldPos in originalPage.fieldPositions ?? [] {
             guard let origFieldID = fieldPos.field else { continue }
@@ -872,21 +926,7 @@ extension DocumentEditor {
             }
         }
         // apply conditional logic here
-        for i in 0..<newFields.count {
-            if var logic = newFields[i].logic, var conditions = logic.conditions {
-                for j in conditions.indices {
-                    if let origPageID = originalPage.id, conditions[j].page == origPageID {
-                        conditions[j].page = newPageID
-                    }
-                    if let origFieldRef = conditions[j].field,
-                       let newFieldRef = fieldMapping[origFieldRef] {
-                        conditions[j].field = newFieldRef
-                    }
-                }
-                logic.conditions = conditions
-                newFields[i].logic = logic
-            }
-        }
+        remapConditionalLogic(fields: &newFields, fieldMapping: fieldMapping, origPageID: originalPage.id, newPageID: newPageID)
     }
     
     /// Duplicates formulas and updates field references for duplicated page
@@ -1046,21 +1086,7 @@ extension DocumentEditor {
                     alternateNewFieldPositions.append(fieldPos)
                 }
                 // apply conditional logic here
-                for i in 0..<alternateNewFields.count {
-                    if var logic = alternateNewFields[i].logic, var conditions = logic.conditions {
-                        for j in conditions.indices {
-                            if let origPageID = originalAltPage.id, conditions[j].page == origPageID {
-                                conditions[j].page = newPageID
-                            }
-                            if let origFieldRef = conditions[j].field,
-                               let newFieldRef = alternateFieldMapping[origFieldRef] {
-                                conditions[j].field = newFieldRef
-                            }
-                        }
-                        logic.conditions = conditions
-                        alternateNewFields[i].logic = logic
-                    }
-                }
+                remapConditionalLogic(fields: &alternateNewFields, fieldMapping: alternateFieldMapping, origPageID: originalAltPage.id, newPageID: newPageID)
                 fieldMapping = alternateFieldMapping
                 // Duplicate formulas for the alternate view fields
                 let _ = duplicateFormulasForPage(&alternateNewFields, fieldMapping: alternateFieldMapping)
@@ -1118,6 +1144,7 @@ extension DocumentEditor {
         document.files = files
         updateFieldMap()
         updateFieldPositionMap()
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         if !isMobileViewActive {
             updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
         }
@@ -1126,7 +1153,7 @@ extension DocumentEditor {
                 updatePageFieldModels(page, newPageID, firstFile.id ?? "")
             }
         }
-        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        
         self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         
         if let views = document.files.first?.views, !views.isEmpty {
