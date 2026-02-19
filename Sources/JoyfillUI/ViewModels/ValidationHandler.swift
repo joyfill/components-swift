@@ -85,6 +85,7 @@ class ValidationHandler {
         }
 
         let rows = field.valueToValueElements ?? []
+        let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
         let columnOrder = field.tableColumnOrder ?? []
         let allColumns = field.tableColumns ?? []
 
@@ -96,11 +97,14 @@ class ValidationHandler {
             return documentEditor.shouldShowColumn(columnID: columnID, fieldID: fieldID)
         }
 
+        if nonDeletedRows.isEmpty {
+            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rows: [])
+        }
+
         var rowValidities = [RowValidity]()
         var isTableValid = true
 
-        for row in rows {
-            if row.deleted == true { continue }
+        for row in nonDeletedRows {
             let cells = row.cells ?? [:]
 
             var cellValidities = [CellValidity]()

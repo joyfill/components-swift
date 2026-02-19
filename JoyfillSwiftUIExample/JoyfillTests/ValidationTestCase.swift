@@ -878,8 +878,8 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
     }
@@ -3231,9 +3231,36 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         let rows = validationResult.fieldValidities.first?.rows
         XCTAssertNotNil(rows)
         XCTAssertEqual(rows?.count, 0)
+    }
+
+    func testTableField_AllRowsDeleted_IsInvalid() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        if let fieldIndex = document.fields.firstIndex(where: { $0.id == "67612793c4e6a5e6a05e64a3" }),
+           var elements = document.fields[fieldIndex].valueToValueElements {
+            for i in elements.indices {
+                elements[i].deleted = true
+            }
+            document.fields[fieldIndex].value = .valueElementArray(elements)
+        }
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.rows?.count, 0)
     }
 
     // MARK: - Collection Row/Cell Output Tests
