@@ -156,53 +156,45 @@ class ValidationHandler {
         var isCollectionValid = true
 
         for row in nonDeletedRows {
-            let rootRowValidity = validateCollectionRow(
-                row: row,
-                schema: rootSchema,
-                schemaId: rootSchemaId,
-                fullSchema: schema,
-                fieldID: fieldID,
-                documentEditor: documentEditor
+            let cellValidities = validateCollectionRowCells(
+                row: row, schema: rootSchema, schemaId: rootSchemaId,
+                fieldID: fieldID, documentEditor: documentEditor
             )
-            allRowValidities.append(rootRowValidity)
-            if rootRowValidity.status == .invalid { isCollectionValid = false }
+            let cellsValid = cellValidities.allSatisfy({ $0.status == .valid })
 
-            let (childValidities, hasRequiredEmptySchema) = validateCollectionChildren(
-                parentRow: row,
-                parentSchema: rootSchema,
-                fullSchema: schema,
-                fieldID: fieldID,
-                documentEditor: documentEditor
+            let (childRowValidities, hasRequiredEmptySchema) = validateCollectionChildren(
+                parentRow: row, parentSchema: rootSchema,
+                fullSchema: schema, fieldID: fieldID, documentEditor: documentEditor
             )
-            if hasRequiredEmptySchema { isCollectionValid = false }
-            for childValidity in childValidities {
-                allRowValidities.append(childValidity)
-                if childValidity.status == .invalid { isCollectionValid = false }
-            }
+
+            let childrenValid = !hasRequiredEmptySchema && childRowValidities.allSatisfy({ $0.status == .valid })
+            let rowStatus: ValidationStatus = (cellsValid && childrenValid) ? .valid : .invalid
+
+            allRowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities, row: row, schema: rootSchema, schemaId: rootSchemaId))
+            allRowValidities.append(contentsOf: childRowValidities)
+
+            if rowStatus == .invalid { isCollectionValid = false }
         }
 
         let status: ValidationStatus = isCollectionValid ? .valid : .invalid
         return FieldValidity(field: field, status: status, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: allRowValidities)
     }
 
-    private func validateCollectionRow(
+    private func validateCollectionRowCells(
         row: ValueElement,
         schema: Schema,
         schemaId: String,
-        fullSchema: [String: Schema],
         fieldID: String,
         documentEditor: DocumentEditor
-    ) -> RowValidity {
+    ) -> [CellValidity] {
         let columns = schema.tableColumns ?? []
         let cells = row.cells ?? [:]
-
         var cellValidities = [CellValidity]()
 
         for column in columns {
             guard let columnID = column.id else { continue }
 
-            let isColumnVisible = documentEditor.shouldShowColumn(columnID: columnID, fieldID: fieldID, schemaKey: schemaId)
-            if !isColumnVisible {
+            if !documentEditor.shouldShowColumn(columnID: columnID, fieldID: fieldID, schemaKey: schemaId) {
                 continue
             }
 
@@ -219,8 +211,7 @@ class ValidationHandler {
             }
         }
 
-        let rowStatus: ValidationStatus = cellValidities.allSatisfy({ $0.status == .valid }) ? .valid : .invalid
-        return RowValidity(status: rowStatus, cellValidities: cellValidities, row: row, schema: schema, schemaId: schemaId)
+        return cellValidities
     }
 
     private func validateCollectionChildren(
@@ -253,25 +244,22 @@ class ValidationHandler {
             }
 
             for childRow in nonDeletedChildRows {
-                let rowValidity = validateCollectionRow(
-                    row: childRow,
-                    schema: childSchema,
-                    schemaId: childSchemaId,
-                    fullSchema: fullSchema,
-                    fieldID: fieldID,
-                    documentEditor: documentEditor
+                let cellValidities = validateCollectionRowCells(
+                    row: childRow, schema: childSchema, schemaId: childSchemaId,
+                    fieldID: fieldID, documentEditor: documentEditor
                 )
-                results.append(rowValidity)
+                let cellsValid = cellValidities.allSatisfy({ $0.status == .valid })
 
                 let (nestedResults, nestedHasEmpty) = validateCollectionChildren(
-                    parentRow: childRow,
-                    parentSchema: childSchema,
-                    fullSchema: fullSchema,
-                    fieldID: fieldID,
-                    documentEditor: documentEditor
+                    parentRow: childRow, parentSchema: childSchema,
+                    fullSchema: fullSchema, fieldID: fieldID, documentEditor: documentEditor
                 )
+
+                let childrenValid = !nestedHasEmpty && nestedResults.allSatisfy({ $0.status == .valid })
+                let rowStatus: ValidationStatus = (cellsValid && childrenValid) ? .valid : .invalid
+
+                results.append(RowValidity(status: rowStatus, cellValidities: cellValidities, row: childRow, schema: childSchema, schemaId: childSchemaId))
                 results.append(contentsOf: nestedResults)
-                if nestedHasEmpty { hasRequiredEmptySchema = true }
             }
         }
 
