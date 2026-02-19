@@ -98,7 +98,7 @@ class ValidationHandler {
         }
 
         if nonDeletedRows.isEmpty {
-            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rows: [])
+            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: [])
         }
 
         var rowValidities = [RowValidity]()
@@ -130,7 +130,7 @@ class ValidationHandler {
         }
 
         let fieldStatus: ValidationStatus = isTableValid ? .valid : .invalid
-        return FieldValidity(field: field, status: fieldStatus, pageId: pageId, fieldPositionId: fieldPositionId, rows: rowValidities)
+        return FieldValidity(field: field, status: fieldStatus, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: rowValidities)
     }
 
     // MARK: - Collection Validation
@@ -151,7 +151,7 @@ class ValidationHandler {
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
 
         if nonDeletedRows.isEmpty {
-            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rows: [])
+            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: [])
         }
 
         var allRowValidities = [RowValidity]()
@@ -184,7 +184,7 @@ class ValidationHandler {
         }
 
         let status: ValidationStatus = isCollectionValid ? .valid : .invalid
-        return FieldValidity(field: field, status: status, pageId: pageId, fieldPositionId: fieldPositionId, rows: allRowValidities)
+        return FieldValidity(field: field, status: status, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: allRowValidities)
     }
 
     private func validateCollectionRow(

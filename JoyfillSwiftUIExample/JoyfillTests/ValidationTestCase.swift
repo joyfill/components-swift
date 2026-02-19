@@ -3076,9 +3076,9 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         let fieldValidity = validationResult.fieldValidities.first
-        XCTAssertNotNil(fieldValidity?.rows)
+        XCTAssertNotNil(fieldValidity?.rowValidities)
         // 5 rows total: 3 with data + 1 deleted (skipped) + 1 nil cells = 4 non-deleted
-        XCTAssertEqual(fieldValidity?.rows?.count, 4)
+        XCTAssertEqual(fieldValidity?.rowValidities?.count, 4)
     }
 
     func testTableField_DeletedRowsExcludedFromOutput() {
@@ -3094,7 +3094,7 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
-        let rows = validationResult.fieldValidities.first?.rows ?? []
+        let rows = validationResult.fieldValidities.first?.rowValidities ?? []
         let deletedRowId = "67612793a6cd1f9d39c8433c"
         XCTAssertFalse(rows.contains(where: { $0.row.id == deletedRowId }))
     }
@@ -3112,7 +3112,7 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
-        let firstRow = validationResult.fieldValidities.first?.rows?.first
+        let firstRow = validationResult.fieldValidities.first?.rowValidities?.first
         XCTAssertNotNil(firstRow)
         // 3 columns visible (none hidden), but column3 is not required
         XCTAssertEqual(firstRow?.cellValidities.count, 3)
@@ -3133,7 +3133,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         // Row 5 (id: 67612793a6cd1f9d39c8433d) has nil cells, should be invalid
-        let nilCellsRow = validationResult.fieldValidities.first?.rows?.first(where: { $0.row.id == "67612793a6cd1f9d39c8433d" })
+        let nilCellsRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.row.id == "67612793a6cd1f9d39c8433d" })
         XCTAssertNotNil(nilCellsRow)
         XCTAssertEqual(nilCellsRow?.status, .invalid)
 
@@ -3155,7 +3155,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         // Row 1 (id: 676127938056dcd158942bad) has all cells populated
-        let validRow = validationResult.fieldValidities.first?.rows?.first(where: { $0.row.id == "676127938056dcd158942bad" })
+        let validRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.row.id == "676127938056dcd158942bad" })
         XCTAssertNotNil(validRow)
         XCTAssertEqual(validRow?.status, .valid)
         XCTAssertTrue(validRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
@@ -3174,7 +3174,7 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
-        let rows = validationResult.fieldValidities.first?.rows ?? []
+        let rows = validationResult.fieldValidities.first?.rowValidities ?? []
         XCTAssertFalse(rows.isEmpty)
         // Row 2 has empty cells, should be invalid
         let row2 = rows.first(where: { $0.row.id == "67612793f70928da78973744" })
@@ -3211,7 +3211,7 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
-        let rows = validationResult.fieldValidities.first?.rows ?? []
+        let rows = validationResult.fieldValidities.first?.rowValidities ?? []
         for row in rows {
             XCTAssertEqual(row.status, .valid)
             XCTAssertTrue(row.cellValidities.allSatisfy { $0.status == .valid })
@@ -3232,7 +3232,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
-        let rows = validationResult.fieldValidities.first?.rows
+        let rows = validationResult.fieldValidities.first?.rowValidities
         XCTAssertNotNil(rows)
         XCTAssertEqual(rows?.count, 0)
     }
@@ -3260,7 +3260,7 @@ final class ValidationTestCase: XCTestCase {
 
         XCTAssertEqual(validationResult.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.rows?.count, 0)
+        XCTAssertEqual(validationResult.fieldValidities.first?.rowValidities?.count, 0)
     }
 
     // MARK: - Collection Row/Cell Output Tests
@@ -3279,8 +3279,8 @@ final class ValidationTestCase: XCTestCase {
         let result = editor.validate()
 
         let fieldValidity = result.fieldValidities.first
-        XCTAssertNotNil(fieldValidity?.rows)
-        XCTAssertFalse(fieldValidity?.rows?.isEmpty ?? true)
+        XCTAssertNotNil(fieldValidity?.rowValidities)
+        XCTAssertFalse(fieldValidity?.rowValidities?.isEmpty ?? true)
     }
 
     func testCollectionField_RootRowHasCorrectSchemaId() {
@@ -3296,7 +3296,7 @@ final class ValidationTestCase: XCTestCase {
         let editor = documentEditor(document: document)
         let result = editor.validate()
 
-        let rows = result.fieldValidities.first?.rows ?? []
+        let rows = result.fieldValidities.first?.rowValidities ?? []
         let rootRow = rows.first(where: { $0.row.id == "row_1" })
         XCTAssertNotNil(rootRow)
         XCTAssertEqual(rootRow?.schemaId, "main_schema")
@@ -3315,7 +3315,7 @@ final class ValidationTestCase: XCTestCase {
         let editor = documentEditor(document: document)
         let result = editor.validate()
 
-        let rows = result.fieldValidities.first?.rows ?? []
+        let rows = result.fieldValidities.first?.rowValidities ?? []
         let nestedRow = rows.first(where: { $0.row.id == "nested_row_1" })
         XCTAssertNotNil(nestedRow)
         XCTAssertEqual(nestedRow?.schemaId, "child_schema_1")
@@ -3334,7 +3334,7 @@ final class ValidationTestCase: XCTestCase {
         let editor = documentEditor(document: document)
         let result = editor.validate()
 
-        let rows = result.fieldValidities.first?.rows ?? []
+        let rows = result.fieldValidities.first?.rowValidities ?? []
         // Should have root row + nested row in flat array
         XCTAssertEqual(rows.count, 2)
 
@@ -3356,7 +3356,7 @@ final class ValidationTestCase: XCTestCase {
         let editor = documentEditor(document: document)
         let result = editor.validate()
 
-        let rows = result.fieldValidities.first?.rows ?? []
+        let rows = result.fieldValidities.first?.rowValidities ?? []
         let rootRow = rows.first(where: { $0.schemaId == "main_schema" })
         XCTAssertEqual(rootRow?.cellValidities.count, 1)
         XCTAssertEqual(rootRow?.cellValidities.first?.column.id, "col_text_1")
@@ -3379,7 +3379,7 @@ final class ValidationTestCase: XCTestCase {
         let editor = documentEditor(document: document)
         let result = editor.validate()
 
-        let rows = result.fieldValidities.first?.rows ?? []
+        let rows = result.fieldValidities.first?.rowValidities ?? []
         let rootRow = rows.first(where: { $0.schemaId == "main_schema" })
         XCTAssertEqual(rootRow?.status, .invalid)
         XCTAssertEqual(rootRow?.cellValidities.first?.status, .invalid)
@@ -3401,7 +3401,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(result.status, .invalid)
         XCTAssertEqual(result.fieldValidities.first?.status, .invalid)
         // Only root row in output (no nested rows)
-        let rows = result.fieldValidities.first?.rows ?? []
+        let rows = result.fieldValidities.first?.rowValidities ?? []
         XCTAssertFalse(rows.contains(where: { $0.schemaId == "child_schema_1" }))
     }
 

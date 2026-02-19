@@ -55,13 +55,13 @@ public struct FieldValidity {
     public let pageId: String?
     public let fieldPositionId: String?
     public let field: JoyDocField
-    public let rows: [RowValidity]?
-
-    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldPositionId: String? = nil, rows: [RowValidity]? = nil) {
+    public let rowValidities: [RowValidity]?
+    
+    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldPositionId: String? = nil, rowValidities: [RowValidity]? = nil) {
         self.field = field
         self.status = status
         self.pageId = pageId
         self.fieldPositionId = fieldPositionId
-        self.rows = rows
+        self.rowValidities = rowValidities
     }
 }
