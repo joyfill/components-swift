@@ -92,8 +92,6 @@ class ValidationHandler {
         let sortedColumns = sortColumns(allColumns, by: columnOrder)
         let visibleColumns = sortedColumns.filter { column in
             guard let columnID = column.id else { return false }
-            let isStaticHidden = fieldPosition.tableColumns?.first(where: { $0.id == columnID })?.hidden ?? false
-            if isStaticHidden { return false }
             return documentEditor.shouldShowColumn(columnID: columnID, fieldID: fieldID)
         }
 
@@ -205,7 +203,6 @@ class ValidationHandler {
 
             let isColumnVisible = documentEditor.shouldShowColumn(columnID: columnID, fieldID: fieldID, schemaKey: schemaId)
             if !isColumnVisible {
-                cellValidities.append(CellValidity(status: .valid, column: column, value: cells[columnID]))
                 continue
             }
 
