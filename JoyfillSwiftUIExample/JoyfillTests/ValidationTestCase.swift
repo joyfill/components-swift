@@ -3096,7 +3096,7 @@ final class ValidationTestCase: XCTestCase {
 
         let rows = validationResult.fieldValidities.first?.rowValidities ?? []
         let deletedRowId = "67612793a6cd1f9d39c8433c"
-        XCTAssertFalse(rows.contains(where: { $0.row.id == deletedRowId }))
+        XCTAssertFalse(rows.contains(where: { $0.rowId == deletedRowId }))
     }
 
     func testTableField_CellValiditiesReturnedPerRow() {
@@ -3116,7 +3116,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertNotNil(firstRow)
         // 3 columns visible (none hidden), but column3 is not required
         XCTAssertEqual(firstRow?.cellValidities.count, 3)
-        XCTAssertEqual(firstRow?.row.id, "676127938056dcd158942bad")
+        XCTAssertEqual(firstRow?.rowId, "676127938056dcd158942bad")
     }
 
     func testTableField_InvalidRowHasInvalidCells() {
@@ -3133,7 +3133,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         // Row 5 (id: 67612793a6cd1f9d39c8433d) has nil cells, should be invalid
-        let nilCellsRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.row.id == "67612793a6cd1f9d39c8433d" })
+        let nilCellsRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.rowId == "67612793a6cd1f9d39c8433d" })
         XCTAssertNotNil(nilCellsRow)
         XCTAssertEqual(nilCellsRow?.status, .invalid)
 
@@ -3155,7 +3155,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         // Row 1 (id: 676127938056dcd158942bad) has all cells populated
-        let validRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.row.id == "676127938056dcd158942bad" })
+        let validRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.rowId == "676127938056dcd158942bad" })
         XCTAssertNotNil(validRow)
         XCTAssertEqual(validRow?.status, .valid)
         XCTAssertTrue(validRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
@@ -3177,7 +3177,7 @@ final class ValidationTestCase: XCTestCase {
         let rows = validationResult.fieldValidities.first?.rowValidities ?? []
         XCTAssertFalse(rows.isEmpty)
         // Row 2 has empty cells, should be invalid
-        let row2 = rows.first(where: { $0.row.id == "67612793f70928da78973744" })
+        let row2 = rows.first(where: { $0.rowId == "67612793f70928da78973744" })
         XCTAssertEqual(row2?.status, .invalid)
     }
 
@@ -3297,7 +3297,7 @@ final class ValidationTestCase: XCTestCase {
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
-        let rootRow = rows.first(where: { $0.row.id == "row_1" })
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
         XCTAssertNotNil(rootRow)
         XCTAssertEqual(rootRow?.schemaId, "main_schema")
     }
@@ -3316,7 +3316,7 @@ final class ValidationTestCase: XCTestCase {
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
-        let nestedRow = rows.first(where: { $0.row.id == "nested_row_1" })
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
         XCTAssertNotNil(nestedRow)
         XCTAssertEqual(nestedRow?.schemaId, "child_schema_1")
     }
@@ -3359,11 +3359,11 @@ final class ValidationTestCase: XCTestCase {
         let rows = result.fieldValidities.first?.rowValidities ?? []
         let rootRow = rows.first(where: { $0.schemaId == "main_schema" })
         XCTAssertEqual(rootRow?.cellValidities.count, 1)
-        XCTAssertEqual(rootRow?.cellValidities.first?.column.id, "col_text_1")
+        XCTAssertEqual(rootRow?.cellValidities.first?.columnId, "col_text_1")
 
         let nestedRow = rows.first(where: { $0.schemaId == "child_schema_1" })
         XCTAssertEqual(nestedRow?.cellValidities.count, 1)
-        XCTAssertEqual(nestedRow?.cellValidities.first?.column.id, "nested_col_1")
+        XCTAssertEqual(nestedRow?.cellValidities.first?.columnId, "nested_col_1")
     }
 
     func testCollectionField_OmittedValues_CellsAreInvalid() {
@@ -3420,5 +3420,143 @@ final class ValidationTestCase: XCTestCase {
 
         XCTAssertEqual(result.status, .valid)
         XCTAssertEqual(result.fieldValidities.first?.status, .valid)
+    }
+
+    // MARK: - Bottom-Up Row Validity (row status reflects child schema validity)
+
+    func testCollectionField_RootRowInvalid_WhenRequiredChildSchemaHasNoRows() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        // Root row's own cells are filled, but its required child schema has zero rows
+        // so the root row itself must be invalid
+        XCTAssertEqual(rootRow?.status, .invalid)
+        // The root row's cells should still all be valid (invalidity comes from children)
+        XCTAssertTrue(rootRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
+    }
+
+    func testCollectionField_RootRowValid_WhenChildSchemaNotRequiredAndEmpty() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: false, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        // Child schema is not required, so empty children don't affect root row
+        XCTAssertEqual(rootRow?.status, .valid)
+    }
+
+    func testCollectionField_RootRowInvalid_WhenChildRowHasInvalidCells() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        // Clear only the nested row's cells so child row is invalid while root cells stay valid
+        let collectionFieldId = "67ddc52d35de157f6d7ebb63"
+        if let fieldIndex = document.fields.firstIndex(where: { $0.id == collectionFieldId }),
+           var elements = document.fields[fieldIndex].valueToValueElements {
+            let emptyNestedRow = ValueElement(dictionary: [
+                "_id": "nested_row_1",
+                "cells": [String: Any](),
+                "children": [String: Any]()
+            ])
+            elements[0].childrens = [
+                "child_schema_1": Children(dictionary: ["value": [emptyNestedRow]])
+            ]
+            document.fields[fieldIndex].value = .valueElementArray(elements)
+        }
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+
+        // The nested child row should be invalid (empty required cells)
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertNotNil(nestedRow)
+        XCTAssertEqual(nestedRow?.status, .invalid)
+
+        // The root row should also be invalid because its child row is invalid
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        XCTAssertEqual(rootRow?.status, .invalid)
+        // But the root row's own cells are all valid
+        XCTAssertTrue(rootRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
+    }
+
+    func testCollectionField_RootRowValid_WhenAllChildrenValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        // Root cells valid + child schema has rows + child row cells valid = root row valid
+        XCTAssertEqual(rootRow?.status, .valid)
+
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertNotNil(nestedRow)
+        XCTAssertEqual(nestedRow?.status, .valid)
+    }
+
+    func testCollectionField_BothRowsInvalid_WhenAllValuesOmitted() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+
+        // Child row invalid because its own cells are empty
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertEqual(nestedRow?.status, .invalid)
+
+        // Root row invalid because its own cells are empty AND its child row is invalid
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertEqual(rootRow?.status, .invalid)
     }
 }

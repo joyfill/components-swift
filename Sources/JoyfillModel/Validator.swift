@@ -24,40 +24,40 @@ public struct Validation {
 
 public struct CellValidity {
     public let status: ValidationStatus
-    public let column: FieldTableColumn
+    public let columnId: String?
     public let value: ValueUnion?
 
-    public init(status: ValidationStatus, column: FieldTableColumn, value: ValueUnion? = nil) {
+    public init(status: ValidationStatus, columnId: String? = nil, value: ValueUnion? = nil) {
         self.status = status
-        self.column = column
+        self.columnId = columnId
         self.value = value
     }
 }
 
 public struct RowValidity {
     public let status: ValidationStatus
-    public let row: ValueElement
+    public let rowId: String?
     public let cellValidities: [CellValidity]
-    public let schema: Schema?
     public let schemaId: String?
 
-    public init(status: ValidationStatus, cellValidities: [CellValidity], row: ValueElement, schema: Schema? = nil, schemaId: String? = nil) {
+    public init(status: ValidationStatus, cellValidities: [CellValidity], rowId: String? = nil, schemaId: String? = nil) {
         self.status = status
+        self.rowId = rowId
         self.cellValidities = cellValidities
-        self.row = row
-        self.schema = schema
         self.schemaId = schemaId
     }
 }
 
 public struct FieldValidity {
     public let status: ValidationStatus
+    public let fieldId: String?
     public let pageId: String?
     public let fieldPositionId: String?
     public let field: JoyDocField
     public let rowValidities: [RowValidity]?
     
-    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldPositionId: String? = nil, rowValidities: [RowValidity]? = nil) {
+    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldId: String? = nil, fieldPositionId: String? = nil, rowValidities: [RowValidity]? = nil) {
+        self.fieldId = fieldId
         self.field = field
         self.status = status
         self.pageId = pageId

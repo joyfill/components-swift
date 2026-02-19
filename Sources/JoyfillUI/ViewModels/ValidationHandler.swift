@@ -39,16 +39,16 @@ class ValidationHandler {
                 let fieldPositionId = fieldPosition.id
 
                 if !isPageVisible {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldPositionId: fieldPositionId))
+                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: field.id, fieldPositionId: fieldPositionId))
                     continue
                 }
                 if !documentEditor.shouldShow(fieldID: field.id) {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldPositionId: fieldPositionId))
+                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: field.id, fieldPositionId: fieldPositionId))
                     continue
                 }
 
                 guard let required = field.required, required else {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldPositionId: fieldPositionId))
+                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: field.id, fieldPositionId: fieldPositionId))
                     continue
                 }
                 guard let fieldID = field.id else {
@@ -66,10 +66,10 @@ class ValidationHandler {
                     fieldValidities.append(validity)
                 } else {
                     if let value = field.value, !value.isEmpty {
-                        fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldPositionId: fieldPositionId))
+                        fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
                     } else {
                         isValid = false
-                        fieldValidities.append(FieldValidity(field: field, status: .invalid, pageId: pageID, fieldPositionId: fieldPositionId))
+                        fieldValidities.append(FieldValidity(field: field, status: .invalid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
                     }
                 }
             }
@@ -81,7 +81,7 @@ class ValidationHandler {
 
     private func validateTableField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?) -> FieldValidity {
         guard let documentEditor = documentEditor else {
-            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldPositionId: fieldPositionId)
+            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
         }
 
         let rows = field.valueToValueElements ?? []
@@ -96,7 +96,7 @@ class ValidationHandler {
         }
 
         if nonDeletedRows.isEmpty {
-            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: [])
+            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: [])
         }
 
         var rowValidities = [RowValidity]()
@@ -111,24 +111,24 @@ class ValidationHandler {
                 let isRequired = column.required ?? false
 
                 if !isRequired {
-                    cellValidities.append(CellValidity(status: .valid, column: column, value: cells[columnID]))
+                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                     continue
                 }
 
                 if let cellValue = cells[columnID], !cellValue.isEmpty {
-                    cellValidities.append(CellValidity(status: .valid, column: column, value: cellValue))
+                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cellValue))
                 } else {
-                    cellValidities.append(CellValidity(status: .invalid, column: column, value: cells[columnID]))
+                    cellValidities.append(CellValidity(status: .invalid, columnId: columnID, value: cells[columnID]))
                     isTableValid = false
                 }
             }
 
             let rowStatus: ValidationStatus = cellValidities.allSatisfy({ $0.status == .valid }) ? .valid : .invalid
-            rowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities, row: row))
+            rowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities, rowId: row.id))
         }
 
         let fieldStatus: ValidationStatus = isTableValid ? .valid : .invalid
-        return FieldValidity(field: field, status: fieldStatus, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: rowValidities)
+        return FieldValidity(field: field, status: fieldStatus, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: rowValidities)
     }
 
     // MARK: - Collection Validation
@@ -136,11 +136,11 @@ class ValidationHandler {
     private func validateCollectionField(field: JoyDocField, fieldID: String, pageId: String?, fieldPositionId: String?) -> FieldValidity {
         guard let documentEditor = documentEditor,
               let schema = field.schema else {
-            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldPositionId: fieldPositionId)
+            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
         }
 
         guard let rootEntry = schema.first(where: { $0.value.root == true }) else {
-            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldPositionId: fieldPositionId)
+            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
         }
         let rootSchemaId = rootEntry.key
         let rootSchema = rootEntry.value
@@ -149,7 +149,7 @@ class ValidationHandler {
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
 
         if nonDeletedRows.isEmpty {
-            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: [])
+            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: [])
         }
 
         var allRowValidities = [RowValidity]()
@@ -170,14 +170,14 @@ class ValidationHandler {
             let childrenValid = !hasRequiredEmptySchema && childRowValidities.allSatisfy({ $0.status == .valid })
             let rowStatus: ValidationStatus = (cellsValid && childrenValid) ? .valid : .invalid
 
-            allRowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities, row: row, schema: rootSchema, schemaId: rootSchemaId))
+            allRowValidities.append(RowValidity(status: rowStatus, cellValidities: cellValidities, rowId: row.id, schemaId: rootSchemaId))
             allRowValidities.append(contentsOf: childRowValidities)
 
             if rowStatus == .invalid { isCollectionValid = false }
         }
 
         let status: ValidationStatus = isCollectionValid ? .valid : .invalid
-        return FieldValidity(field: field, status: status, pageId: pageId, fieldPositionId: fieldPositionId, rowValidities: allRowValidities)
+        return FieldValidity(field: field, status: status, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: allRowValidities)
     }
 
     private func validateCollectionRowCells(
@@ -200,14 +200,14 @@ class ValidationHandler {
 
             let isRequired = column.required ?? false
             if !isRequired {
-                cellValidities.append(CellValidity(status: .valid, column: column, value: cells[columnID]))
+                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue
             }
 
             if let cellValue = cells[columnID], !cellValue.isEmpty {
-                cellValidities.append(CellValidity(status: .valid, column: column, value: cellValue))
+                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cellValue))
             } else {
-                cellValidities.append(CellValidity(status: .invalid, column: column, value: cells[columnID]))
+                cellValidities.append(CellValidity(status: .invalid, columnId: columnID, value: cells[columnID]))
             }
         }
 
@@ -258,7 +258,7 @@ class ValidationHandler {
                 let childrenValid = !nestedHasEmpty && nestedResults.allSatisfy({ $0.status == .valid })
                 let rowStatus: ValidationStatus = (cellsValid && childrenValid) ? .valid : .invalid
 
-                results.append(RowValidity(status: rowStatus, cellValidities: cellValidities, row: childRow, schema: childSchema, schemaId: childSchemaId))
+                results.append(RowValidity(status: rowStatus, cellValidities: cellValidities, rowId: childRow.id, schemaId: childSchemaId))
                 results.append(contentsOf: nestedResults)
             }
         }
