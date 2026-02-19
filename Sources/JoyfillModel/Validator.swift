@@ -24,42 +24,30 @@ public struct Validation {
 
 public struct CellValidity {
     public let status: ValidationStatus
-    public let row: ValueElement
     public let column: FieldTableColumn
-    public let reasons: [String]?
-    
-    public init(status: ValidationStatus, row: ValueElement, column: FieldTableColumn, reasons: [String]? = nil) {
+    public let value: ValueUnion?
+
+    public init(status: ValidationStatus, column: FieldTableColumn, value: ValueUnion? = nil) {
         self.status = status
-        self.row = row
         self.column = column
-        self.reasons = reasons
+        self.value = value
     }
 }
 
 public struct RowValidity {
     public let status: ValidationStatus
+    public let row: ValueElement
     public let cellValidities: [CellValidity]
-    
-    public init(status: ValidationStatus, cellValidities: [CellValidity]) {
+    public let schema: Schema?
+    public let schemaId: String?
+
+    public init(status: ValidationStatus, cellValidities: [CellValidity], row: ValueElement, schema: Schema? = nil, schemaId: String? = nil) {
         self.status = status
         self.cellValidities = cellValidities
+        self.row = row
+        self.schema = schema
+        self.schemaId = schemaId
     }
-}
-
-public struct ColumnValidity {
-    public let status: ValidationStatus
-    public let cellValidities: [CellValidity]
-    
-    public init(status: ValidationStatus, cellValidities: [CellValidity]) {
-        self.status = status
-        self.cellValidities = cellValidities
-    }
-}
-
-struct TableValidity {
-    let status: ValidationStatus
-    let rowValidities: [RowValidity]
-    let columnValidities: [ColumnValidity]
 }
 
 public struct FieldValidity {
@@ -67,19 +55,13 @@ public struct FieldValidity {
     public let pageId: String?
     public let fieldPositionId: String?
     public let field: JoyDocField
-//    public let children: [FieldValidity]? // For fields with nested structures
-//    public let rowValidities: [RowValidity]? // Only available if field is a table
-//    public let columnValidities: [ColumnValidity]? // Only available if field is a table
-//    public let reasons: [String]? // Available only if status is invalid
-    
-    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldPositionId: String? = nil) {
+    public let rows: [RowValidity]?
+
+    public init(field: JoyDocField, status: ValidationStatus, pageId: String?, fieldPositionId: String? = nil, rows: [RowValidity]? = nil) {
         self.field = field
         self.status = status
-//        self.children = children
-//        self.rowValidities = rowValidities
-//        self.columnValidities = columnValidities
-//        self.reasons = reasons
         self.pageId = pageId
         self.fieldPositionId = fieldPositionId
+        self.rows = rows
     }
 }
