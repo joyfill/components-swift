@@ -3547,4 +3547,40 @@ final class ValidationTestCase: XCTestCase {
         let rootRow = rows.first(where: { $0.rowId == "row_1" })
         XCTAssertEqual(rootRow?.status, .invalid)
     }
+
+    // MARK: - Unknown Field Type Excluded
+
+    func testUnknownFieldType_ExcludedFromValidation() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+
+        var field = JoyDocField()
+        field.type = "someFutureType"
+        field.id = "unknown_field_1"
+        field.identifier = "field_unknown_1"
+        field.title = "Unknown Field"
+        field.required = true
+        field.value = .string("")
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        document.fields.append(field)
+
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "unknown_field_1"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 60
+        fieldPosition.id = "unknown_field_1_pos"
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertFalse(result.fieldValidities.contains(where: { $0.fieldId == "unknown_field_1" }))
+    }
 }

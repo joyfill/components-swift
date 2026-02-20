@@ -36,6 +36,11 @@ class ValidationHandler {
                       let field = documentEditor.fieldMap[id] else {
                     continue
                 }
+
+                guard field.fieldType != .unknown else {
+                    continue
+                }
+
                 let fieldPositionId = fieldPosition.id
 
                 if !isPageVisible {
