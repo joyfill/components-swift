@@ -45,23 +45,23 @@ class ValidationHandler {
                     continue
                 }
 
-                guard let required = field.required, required else {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: field.id, fieldPositionId: fieldPositionId))
-                    continue
-                }
                 guard let fieldID = field.id else {
                     Log("Missing field ID", type: .error)
                     continue
                 }
 
+                let isRequired = field.required ?? false
+
                 if field.fieldType == .table {
-                    let validity = validateTableField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageID, fieldPositionId: fieldPositionId)
+                    let validity = validateTableField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageID, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
                     if validity.status == .invalid { isValid = false }
                     fieldValidities.append(validity)
                 } else if field.fieldType == .collection {
-                    let validity = validateCollectionField(field: field, fieldID: fieldID, pageId: pageID, fieldPositionId: fieldPositionId)
+                    let validity = validateCollectionField(field: field, fieldID: fieldID, pageId: pageID, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
                     if validity.status == .invalid { isValid = false }
                     fieldValidities.append(validity)
+                } else if !isRequired {
+                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
                 } else {
                     if let value = field.value, !value.isEmpty {
                         fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
@@ -77,7 +77,7 @@ class ValidationHandler {
 
     // MARK: - Table Validation
 
-    private func validateTableField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?) -> FieldValidity {
+    private func validateTableField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?, isFieldRequired: Bool) -> FieldValidity {
         guard let documentEditor = documentEditor else {
             return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
         }
@@ -94,7 +94,8 @@ class ValidationHandler {
         }
 
         if nonDeletedRows.isEmpty {
-            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: [])
+            let emptyStatus: ValidationStatus = isFieldRequired ? .invalid : .valid
+            return FieldValidity(field: field, status: emptyStatus, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: [])
         }
 
         var rowValidities = [RowValidity]()
@@ -131,7 +132,7 @@ class ValidationHandler {
 
     // MARK: - Collection Validation
 
-    private func validateCollectionField(field: JoyDocField, fieldID: String, pageId: String?, fieldPositionId: String?) -> FieldValidity {
+    private func validateCollectionField(field: JoyDocField, fieldID: String, pageId: String?, fieldPositionId: String?, isFieldRequired: Bool) -> FieldValidity {
         guard let documentEditor = documentEditor,
               let schema = field.schema else {
             return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
@@ -147,7 +148,8 @@ class ValidationHandler {
         let nonDeletedRows = rows.filter { !($0.deleted ?? false) }
 
         if nonDeletedRows.isEmpty {
-            return FieldValidity(field: field, status: .invalid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: [])
+            let emptyStatus: ValidationStatus = isFieldRequired ? .invalid : .valid
+            return FieldValidity(field: field, status: emptyStatus, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId, rowValidities: [])
         }
 
         var allRowValidities = [RowValidity]()

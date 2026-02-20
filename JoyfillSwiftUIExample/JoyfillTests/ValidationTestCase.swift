@@ -930,9 +930,10 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        //if table/collection is not required , but some internal things are req and not filled , whole table is invalid
+        
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
     }
@@ -2578,9 +2579,9 @@ final class ValidationTestCase: XCTestCase {
 
             let editor = documentEditor(document: document)
             let result = editor.validate()
-
-            XCTAssertEqual(result.status, .valid)
-            XCTAssertEqual(result.fieldValidities.first?.status, .valid)
+            //if table/collection is not required , but some internal things are req and not filled , whole table is invalid
+            XCTAssertEqual(result.status, .invalid)
+            XCTAssertEqual(result.fieldValidities.first?.status, .invalid)
             XCTAssertEqual(result.fieldValidities.first?.field.id, "67ddc52d35de157f6d7ebb63")
             XCTAssertEqual(result.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         }
