@@ -3034,13 +3034,13 @@ extension JoyDoc {
             ],
             "child_schema_1": [
                 "title": "Child Schema",
-                "required": true,
+                "required": isSchemaRequired,
                 "tableColumns": [
                     [
                         "_id": "nested_col_1",
                         "type": "text",
                         "title": "Nested Column",
-                        "required": true
+                        "required": isSchemaRequired
                     ]
                 ]
             ]
