@@ -39,11 +39,9 @@ class ValidationHandler {
                 let fieldPositionId = fieldPosition.id
 
                 if !isPageVisible {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: field.id, fieldPositionId: fieldPositionId))
                     continue
                 }
                 if !documentEditor.shouldShow(fieldID: field.id) {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: field.id, fieldPositionId: fieldPositionId))
                     continue
                 }
 

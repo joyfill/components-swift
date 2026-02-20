@@ -682,14 +682,12 @@ final class ValidationTestCase: XCTestCase {
             .setMultilineTextField(hidden: true, value: .string(""), required: true)
                 let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
+        //Test case changed as we not returning the hidden fields/any elements
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
     }
 
     func testRequiredHiddenNumberFieldWithValue() {
@@ -710,12 +708,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        
     }
 
     // Show Hidden Field Test Cases
@@ -790,12 +787,10 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
     }
 
     func testRequiredHideNumberFieldWithValues() {
@@ -816,12 +811,12 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+//        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
+//        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
         
     }
     
@@ -837,7 +832,7 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-        //Invalid coz "67612793a6cd1f9d39c8433d" this row has nil cells
+        //Result should be invalid coz a row with id "67612793a6cd1f9d39c8433d" has nil cells
         XCTAssertEqual(validationResult.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
@@ -1744,7 +1739,7 @@ final class ValidationTestCase: XCTestCase {
         let pageToDeleteID = "second_page_id_12345" // ✅ Fixed: Using correct page ID
         let documentEditor = documentEditor(document: document)
         
-        XCTAssertTrue(documentEditor.document.fields.contains(where: { $0.id == sharedFieldID }), 
+        XCTAssertTrue(documentEditor.document.fields.contains(where: { $0.id == sharedFieldID }),
                      "Shared field should exist before deletion")
         
         // Delete page 2
@@ -1983,7 +1978,7 @@ final class ValidationTestCase: XCTestCase {
         let fieldD_ID = "field_d_mobile_pages"
         
         // Add all fields
-        for (id, identifier) in [(fieldA_ID, "fieldA"), (fieldB_ID, "fieldB"), 
+        for (id, identifier) in [(fieldA_ID, "fieldA"), (fieldB_ID, "fieldB"),
                                    (fieldC_ID, "fieldC"), (fieldD_ID, "fieldD")] {
             var field = JoyDocField(field: [:])
             field.id = id
@@ -2709,12 +2704,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.count, 0)
     }
         
         func testTwoPageFieldIds() {
@@ -2734,13 +2724,10 @@ final class ValidationTestCase: XCTestCase {
             let validationResult = documentEditor.validate()
             
             XCTAssertEqual(validationResult.status, .valid)
-            XCTAssertEqual(validationResult.fieldValidities.count, 2)
+            XCTAssertEqual(validationResult.fieldValidities.count, 1)
             XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
             XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
             XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-            XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-            XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-            XCTAssertEqual(validationResult.fieldValidities[1].pageId, "66600801dc1d8b4f72f54917")
         }
     
     // MARK: - Page Focus/Blur Event Tests
