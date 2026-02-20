@@ -369,7 +369,12 @@ struct FormDestinationView: View {
             )
         ) {
             if let validation = self.lastValidation {
-                ValidationResultsView(validation: validation)
+                ValidationResultsView(
+                    validation: validation,
+                    documentEditor: documentEditor
+                ) {
+                    self.lastValidation = nil
+                }
             }
         }
         // Kick off background creation once the view appears
