@@ -17,7 +17,7 @@ struct CollectionRowView: View {
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
-            ForEach($rowDataModel.cells, id: \.data.id) { $cellModel in
+            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let column = viewModel.columnsMap[cellModel.data.id]
                 let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
 
@@ -237,9 +237,9 @@ struct CollectionModalView : View {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             cellProxy.scrollTo(selectedRowID, anchor: .leading)
                         }
-                        if let columnId = viewModel.tableDataModel.scrollToColumnId {
-                            cellProxy.scrollTo(columnId, anchor: .leading)
-                        }
+//                        if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                            cellProxy.scrollTo(columnId, anchor: .leading)
+//                        }
                     }
                 }
                 .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in

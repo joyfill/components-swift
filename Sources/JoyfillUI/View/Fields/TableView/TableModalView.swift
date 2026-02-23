@@ -11,7 +11,7 @@ struct TableRowView : View {
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
-            ForEach($rowDataModel.cells, id: \.data.id) { $cellModel in
+            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
@@ -376,9 +376,9 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
-                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
-                                cellProxy.scrollTo(columnId, anchor: .leading)
-                            }
+//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                                cellProxy.scrollTo(columnId, anchor: .leading)
+//                            }
                         }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
@@ -421,9 +421,9 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
-                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
-                                cellProxy.scrollTo(columnId, anchor: .leading)
-                            }
+//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                                cellProxy.scrollTo(columnId, anchor: .leading)
+//                            }
                         }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
