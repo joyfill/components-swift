@@ -16,6 +16,8 @@ struct SimpleNavigationTestView: View {
     @State private var selectedRowId: String = ""
     @State private var manualPath: String = ""
     @State private var openModal: Bool = true
+    @State private var selectedColumnId: String = ""
+    @State private var manualColumnId: String = ""
     @Binding var showAlert: Bool
     @Binding var alertMessage: String
 
@@ -38,7 +40,6 @@ struct SimpleNavigationTestView: View {
               let valueElements = field.value?.valueElements else {
             return []
         }
-        // Return all rows including deleted ones
         return valueElements
     }
     
@@ -49,6 +50,23 @@ struct SimpleNavigationTestView: View {
             return false
         }
         return field.fieldType == .table || field.fieldType == .collection
+    }
+    
+    var columnsForSelectedField: [FieldTableColumn] {
+        guard let fieldPosition = fieldPositionsForSelectedPage.first(where: { $0.id == selectedFieldPositionId }),
+              let fieldId = fieldPosition.field,
+              let field = documentEditor.field(fieldID: fieldId) else {
+            return []
+        }
+        if field.fieldType == .collection {
+            guard let schema = field.schema,
+                  let rootSchema = schema.first(where: { $0.value.root == true })?.value,
+                  let columns = rootSchema.tableColumns else {
+                return []
+            }
+            return columns
+        }
+        return field.tableColumns ?? []
     }
     
     init(showAlert: Binding<Bool>, alertMessage: Binding<String>) {
@@ -74,7 +92,7 @@ struct SimpleNavigationTestView: View {
                     .foregroundColor(.secondary)
                 
                 HStack(spacing: 8) {
-                    TextField("pageId/fieldPositionId/rowId", text: $manualPath)
+                    TextField("pageId/fpId/rowId/colId", text: $manualPath)
                         .textFieldStyle(.roundedBorder)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
@@ -99,7 +117,6 @@ struct SimpleNavigationTestView: View {
                     .disabled(manualPath.isEmpty)
                 }
                 
-                // Open Modal Toggle
                 Toggle("Open Modal", isOn: $openModal)
                     .font(.caption)
                     .padding(.horizontal, 4)
@@ -193,7 +210,29 @@ struct SimpleNavigationTestView: View {
                         .background(Color(UIColor.secondarySystemGroupedBackground))
                         .cornerRadius(8)
                         .disabled(selectedFieldPositionId.isEmpty)
+                        .onChange(of: selectedRowId) { _ in
+                            selectedColumnId = ""
+                        }
                         
+                    }
+                    
+                    // Column Dropdown (only shown when a row is selected in table/collection)
+                    if selectedFieldIsTableOrCollection && !selectedRowId.isEmpty {
+                        Picker("Column", selection: $selectedColumnId) {
+                            Text("No column").tag("")
+                            ForEach(columnsForSelectedField, id: \.id) { col in
+                                if let id = col.id {
+                                    Text(col.title.isEmpty ? "Col \(id.prefix(8))" : col.title).tag(id)
+                                }
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.horizontal, 12)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(8)
                     }
                     
                     // Navigate Button
@@ -201,7 +240,11 @@ struct SimpleNavigationTestView: View {
                         if !selectedPageId.isEmpty {
                             let status: NavigationStatus
                             if !selectedRowId.isEmpty {
-                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)", gotoConfig: GotoConfig(open: openModal))
+                                var path = "\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)"
+                                if !selectedColumnId.isEmpty {
+                                    path += "/\(selectedColumnId)"
+                                }
+                                status = documentEditor.goto(path, gotoConfig: GotoConfig(open: openModal))
                             } else if !selectedFieldPositionId.isEmpty {
                                 status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)")
                             } else {
