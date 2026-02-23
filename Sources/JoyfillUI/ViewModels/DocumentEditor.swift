@@ -679,6 +679,24 @@ extension DocumentEditor {
         }
     }
     
+    /// Returns true if the columnId exists in the field's columns and is not hidden.
+    /// Table: checks field.tableColumns and shouldShowColumn.
+    /// Collection: checks tableColumns across all schema entries and shouldShowColumn.
+    private func columnExistsInField(_ field: JoyDocField, columnId: String, schemaKey: String? = nil) -> Bool {
+        guard let fieldID = field.id else { return false }
+        switch field.fieldType {
+        case .table:
+            guard field.tableColumns?.contains(where: { $0.id == columnId }) == true else { return false }
+            return shouldShowColumn(columnID: columnId, fieldID: fieldID)
+        case .collection:
+            guard let schema = field.schema else { return false }
+            guard let schemaKey = schema.first(where: { $0.value.tableColumns?.contains(where: { $0.id == columnId }) == true })?.key else { return false }
+            return shouldShowColumn(columnID: columnId, fieldID: fieldID, schemaKey: schemaKey)
+        default:
+            return false
+        }
+    }
+    
     /// Recursively finds rowId in collection value elements (including nested); returns false if row is deleted.
     private func rowExistsInValueElements(_ elements: [ValueElement], rowId: String) -> Bool {
         for element in elements {
@@ -1471,8 +1489,20 @@ extension DocumentEditor {
                     Log("Field \(fieldID) is not a table or collection field", type: .warning)
                     return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
                 }
-                status = rowExistsInField(fieldID: fieldID, rowId: rowId) ? .success : .failure
-                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open, columnId: columnId)
+                let rowExists = rowExistsInField(fieldID: fieldID, rowId: rowId)
+                var validColumnId: String? = nil
+                var columnValid = true
+
+                if rowExists, let columnId = columnId, !columnId.isEmpty {
+                    if columnExistsInField(field, columnId: columnId) {
+                        validColumnId = columnId
+                    } else {
+                        columnValid = false
+                    }
+                }
+
+                status = (rowExists && columnValid) ? .success : .failure
+                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open, columnId: validColumnId)
             } else {
                 event = NavigationTarget(pageId: pageId, fieldID: fieldID)
             }

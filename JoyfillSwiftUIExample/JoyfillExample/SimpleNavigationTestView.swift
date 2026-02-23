@@ -100,7 +100,7 @@ struct SimpleNavigationTestView: View {
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
                         let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal))
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                             if status == .failure {
                                 alertMessage = "Navigation failed for path: \(manualPath)"
                                 showAlert = true
