@@ -17,7 +17,7 @@ struct CollectionRowView: View {
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
-            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+            ForEach($rowDataModel.cells, id: \.data.id) { $cellModel in
                 let column = viewModel.columnsMap[cellModel.data.id]
                 let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
 
@@ -61,6 +61,7 @@ struct CollectionModalView : View {
                 viewModel: viewModel,
                 onEditTap: {
                     viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                    viewModel.tableDataModel.scrollToColumnId = nil
                     showEditMultipleRowsSheetView = true
                 },
                 onFilterTap: { showFilterModal = true })
@@ -92,9 +93,11 @@ struct CollectionModalView : View {
                     if rowFound {
                         viewModel.tableDataModel.selectedRows = [rowId]
                         viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                        viewModel.tableDataModel.scrollToColumnId = event.columnId
                         showEditMultipleRowsSheetView = event.openRowForm
                     }
                 } else {
+                    viewModel.tableDataModel.scrollToColumnId = nil
                     showEditMultipleRowsSheetView = false
                 }
             }
@@ -233,6 +236,9 @@ struct CollectionModalView : View {
                     if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                        }
+                        if let columnId = viewModel.tableDataModel.scrollToColumnId {
+                            cellProxy.scrollTo(columnId, anchor: .leading)
                         }
                     }
                 }
@@ -581,6 +587,7 @@ struct CollectionRowsHeaderView: View {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
                             viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                            viewModel.tableDataModel.scrollToColumnId = nil
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
@@ -611,6 +618,7 @@ struct CollectionRowsHeaderView: View {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
                             viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                            viewModel.tableDataModel.scrollToColumnId = nil
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")

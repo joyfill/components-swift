@@ -45,12 +45,14 @@ public struct NavigationTarget: Equatable {
     public let fieldID: String?
     public let rowId: String?
     public let openRowForm: Bool
+    public let columnId: String?
     
-    public init(pageId: String, fieldID: String? = nil, rowId: String? = nil, openRowForm: Bool = false) {
+    public init(pageId: String, fieldID: String? = nil, rowId: String? = nil, openRowForm: Bool = false, columnId: String? = nil) {
         self.pageId = pageId
         self.fieldID = fieldID
         self.rowId = rowId
         self.openRowForm = openRowForm
+        self.columnId = columnId
     }
 }
 
@@ -1414,9 +1416,9 @@ extension DocumentEditor {
         return status
     }
     
-    /// Navigates to a specific page, field, or row
+    /// Navigates to a specific page, field, row, or cell
     /// - Parameters:
-    ///   - path: Navigation path in format "pageId" or "pageId/fieldPositionId" or "pageId/fieldPositionId/rowId"
+    ///   - path: Navigation path in format "pageId", "pageId/fieldPositionId", "pageId/fieldPositionId/rowId", or "pageId/fieldPositionId/rowId/columnId"
     ///   - gotoConfig: Configuration for navigation behavior
     public func goto(_ path: String, gotoConfig: GotoConfig = GotoConfig()) -> NavigationStatus {
         let components = path.split(separator: "/").map(String.init)
@@ -1429,6 +1431,7 @@ extension DocumentEditor {
         let pageId = components[0]
         let fieldPositionId = components.count > 1 ? components[1] : nil
         let rowId = components.count > 2 ? components[2] : nil
+        let columnId = components.count > 3 ? components[3] : nil
         
         guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
             Log("Page with id \(pageId) not found", type: .warning)
@@ -1469,7 +1472,7 @@ extension DocumentEditor {
                     return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
                 }
                 status = rowExistsInField(fieldID: fieldID, rowId: rowId) ? .success : .failure
-                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open)
+                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open, columnId: columnId)
             } else {
                 event = NavigationTarget(pageId: pageId, fieldID: fieldID)
             }

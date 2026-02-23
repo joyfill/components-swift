@@ -303,6 +303,7 @@ struct CollectionEditMultipleRowsSheetView: View {
     }
 
     var body: some View {
+        ScrollViewReader { scrollProxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 if viewModel.tableDataModel.selectedRows.count == 1 {
@@ -440,6 +441,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                 }
 
                 ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
+                    VStack(alignment: .leading, spacing: 8) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
@@ -694,17 +696,25 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }
                     }
                 }
+                    }
+                    .id(col.id)
                 }
                 Spacer()
             }
             .padding(.all, 16)
         }
         .id(viewID)
+        .onAppear {
+            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+                scrollProxy.scrollTo(columnId, anchor: .top)
+            }
+        }
         .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
             viewID = UUID()
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
         }))
+        }
     }
 }

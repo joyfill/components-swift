@@ -11,7 +11,7 @@ struct TableRowView : View {
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
-            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+            ForEach($rowDataModel.cells, id: \.data.id) { $cellModel in
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
@@ -47,6 +47,7 @@ struct TableModalView : View {
                 viewModel: viewModel,
                 onEditTap: {
                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                viewModel.tableDataModel.scrollToColumnId = nil
                 showEditMultipleRowsSheetView = true
             })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
@@ -83,8 +84,10 @@ struct TableModalView : View {
                 if rowIdExists {
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                    viewModel.tableDataModel.scrollToColumnId = event.columnId
                     showEditMultipleRowsSheetView = event.openRowForm
                 } else {
+                    viewModel.tableDataModel.scrollToColumnId = nil
                     showEditMultipleRowsSheetView = false
                 }
             }
@@ -330,6 +333,7 @@ struct TableModalView : View {
                                 viewModel.tableDataModel.emptySelection()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
                                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                                viewModel.tableDataModel.scrollToColumnId = nil
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
@@ -372,6 +376,9 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
+                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+                                cellProxy.scrollTo(columnId, anchor: .leading)
+                            }
                         }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
@@ -413,6 +420,9 @@ struct TableModalView : View {
                         if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+                                cellProxy.scrollTo(columnId, anchor: .leading)
                             }
                         }
                     }

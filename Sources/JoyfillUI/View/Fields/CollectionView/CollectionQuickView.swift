@@ -51,9 +51,11 @@ struct CollectionQuickView : View {
                 if rowFound {
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                    viewModel.tableDataModel.scrollToColumnId = event.columnId
                     showEditMultipleRowsSheetView = event.openRowForm
                 }
             } else {
+                viewModel.tableDataModel.scrollToColumnId = nil
                 showEditMultipleRowsSheetView = false
             }
             
@@ -112,6 +114,7 @@ struct CollectionQuickView : View {
             Button(action: {
                 showEditMultipleRowsSheetView = false
                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                viewModel.tableDataModel.scrollToColumnId = nil
                 openCollection()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
