@@ -2,7 +2,7 @@ import XCTest
 import Foundation
 import SwiftUI
 import JoyfillModel
-import Joyfill
+@testable import Joyfill
 
 final class ValidationTestCase: XCTestCase {
     
@@ -44,9 +44,8 @@ final class ValidationTestCase: XCTestCase {
     func collectionDocumentEditor(document: JoyDoc) -> DocumentEditor {
         let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        if license.isEmpty {
-            XCTSkip("Missing JOYFILL_TEST_LICENSE")
-        }
+        XCTAssertFalse(license.isEmpty, "Missing license: set JOYFILL_TEST_LICENSE env var or check licenseKey")
+        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license), "License verification failed — the token does not match the public key in LicenseValidator")
         return DocumentEditor(document: document, validateSchema: false, license: license)
     }
     //
