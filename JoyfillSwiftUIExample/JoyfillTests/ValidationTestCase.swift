@@ -7,6 +7,7 @@ import Joyfill
 final class ValidationTestCase: XCTestCase {
     
     // MARK: - Test Helpers
+    let licenseKey: String = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3N1ZXIiOiJKb3lmaWxsIExMQyIsImlzc3VlZCI6IlNlcnZpY2UgVHJhZGUiLCJjb2xsZWN0aW9uRmllbGQiOnRydWV9.EA_6ZEq9viV6omtSquXzHkGMMIOtqyR2utE6sq2swATFn7-GCR032WZyxkJhc7dSl9rBG0sSNdQhfLYafKpJ07LD2jK7izKXcl0lZ4OkYWUjBlJzZqQVS9VIfkJxZg_CshuyTI5Srzw0-V8AuuaC_Lu2oAEiRxwMqCWXuZl6uHloe2sO5XmMUcZnkoOlwmNwsKwgjmL2N_9-FuuMha15jcqsEcgoA4y2caGIGsXdJlvEaQKT81nn4fN79eYGHVv_EucFutZLLLDbtZLheIYaV9gIGUrFyX210AGZ56sp6tGuadHu9yqQGM_a6kK_d5A97tnMlOzg06-CvWXzEaibMduxX1fecg8_iu6mUgA_1HN8E5FjtBtDUa6qpcIVMlGFss2rWiu1NdDBnZPhu6ZDPy9-h3edVFrGF-qCAaEk_Kvg2H4qnRhdZOzvS1JA1ZgxTKTH9UeQff5QJ8k4h83rG5_aPHuAEwj1KD9nK_h9Qlk3ClIUO_vaRxYl-SyyOffCUBBbnwCdyV4oKE4giJAxBbsup_pKYGZFKgpeBx_s3hOFvrHjShd-pFqgBJJUGf8Niz2yge4y7U0efuG9XAYKeIqAm5KF9x7_oDMmXYswF554QOb49V8SCaOmjTs3hU2zf0TzWv4WTOLW78Ahd4q3-pJVG8535r1oOH8Z7YiI6-4"
     
     /// Mock event handler to capture onChange events for testing
     class ChangeCapture: FormChangeEvent {
@@ -38,6 +39,11 @@ final class ValidationTestCase: XCTestCase {
     }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
+    }
+
+    func collectionDocumentEditor(document: JoyDoc) -> DocumentEditor {
+        let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
+        return DocumentEditor(document: document, validateSchema: false, license: license)
     }
     //
     // Test Case for check at same time web and mobile view fields
@@ -2481,7 +2487,7 @@ final class ValidationTestCase: XCTestCase {
                 .setCollectionFieldRequired()
                 .setCollectionFieldPosition()
 
-            let documentEditor = documentEditor(document: document)
+            let documentEditor = collectionDocumentEditor(document: document)
             let validationResult = documentEditor.validate()
 
             XCTAssertEqual(validationResult.status, .invalid)
@@ -2505,8 +2511,8 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
-            let result = editor.validate()
+            let documentEditor = collectionDocumentEditor(document: document)
+            let result = documentEditor.validate()
 
             XCTAssertEqual(result.status, .valid)
             XCTAssertEqual(result.fieldValidities.first?.status, .valid)
@@ -2529,7 +2535,7 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
+            let editor = collectionDocumentEditor(document: document)
             let result = editor.validate()
 
             XCTAssertEqual(result.status, .invalid)
@@ -2553,7 +2559,7 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
+            let editor = collectionDocumentEditor(document: document)
             let result = editor.validate()
 
             XCTAssertEqual(result.status, .invalid)
@@ -2577,7 +2583,7 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
+            let editor = collectionDocumentEditor(document: document)
             let result = editor.validate()
             //if table/collection is not required , but some internal things are req and not filled , whole table is invalid
             XCTAssertEqual(result.status, .invalid)
@@ -2596,7 +2602,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .valid)
@@ -2615,7 +2621,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -2634,7 +2640,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -2653,7 +2659,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .valid)
@@ -2672,7 +2678,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -3263,7 +3269,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let fieldValidity = result.fieldValidities.first
@@ -3281,7 +3287,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3300,7 +3306,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3319,7 +3325,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3341,7 +3347,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3364,7 +3370,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3383,7 +3389,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -3403,7 +3409,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: false, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .valid)
@@ -3422,7 +3428,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3445,7 +3451,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: false, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3480,7 +3486,7 @@ final class ValidationTestCase: XCTestCase {
             document.fields[fieldIndex].value = .valueElementArray(elements)
         }
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3508,7 +3514,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         let rows = result.fieldValidities.first?.rowValidities ?? []
@@ -3532,7 +3538,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -3582,5 +3588,80 @@ final class ValidationTestCase: XCTestCase {
         let result = editor.validate()
 
         XCTAssertFalse(result.fieldValidities.contains(where: { $0.fieldId == "unknown_field_1" }))
+    }
+
+    // MARK: - Collection License Validation Tests
+
+    func testCollectionField_NoLicense_ShouldBeExcludedFromValidation() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertFalse(
+            result.fieldValidities.contains(where: { $0.field.fieldType == .collection }),
+            "Collection field should not appear in validation results when no license is provided"
+        )
+    }
+
+    func testCollectionField_NoLicense_OtherFieldsStillValidated() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertFalse(
+            result.fieldValidities.contains(where: { $0.field.fieldType == .collection }),
+            "Collection field should be excluded when no license is provided"
+        )
+
+    }
+
+    func testCollectionField_ValidLicense_ShouldBeIncludedInValidation() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertTrue(
+            result.fieldValidities.contains(where: { $0.field.fieldType == .collection }),
+            "Collection field should be included in validation when a valid license is provided"
+        )
     }
 }

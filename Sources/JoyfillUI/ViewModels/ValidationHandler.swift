@@ -62,6 +62,9 @@ class ValidationHandler {
                     if validity.status == .invalid { isValid = false }
                     fieldValidities.append(validity)
                 } else if field.fieldType == .collection {
+                    if !documentEditor.isCollectionFieldEnabled {
+                        continue
+                    }
                     let validity = validateCollectionField(field: field, fieldID: fieldID, pageId: pageID, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
                     if validity.status == .invalid { isValid = false }
                     fieldValidities.append(validity)

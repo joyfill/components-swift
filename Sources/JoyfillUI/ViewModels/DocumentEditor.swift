@@ -74,7 +74,7 @@ public class DocumentEditor: ObservableObject {
     }
     @Published var currentPageOrder: [String] = []
     let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
-    private var isCollectionFieldEnabled: Bool = false
+    private(set) var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
     public var isPageDuplicateEnabled: Bool = true
