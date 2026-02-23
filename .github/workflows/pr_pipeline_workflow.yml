@@ -208,7 +208,7 @@ jobs:
           fi
 
       - name: Run Unit Tests
-      env:
+        env:
           SIMCTL_CHILD_JOYFILL_TEST_LICENSE: ${{ secrets.JOYFILL_TEST_LICENSE }}
         run: |
           set -o pipefail
