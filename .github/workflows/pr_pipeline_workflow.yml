@@ -207,23 +207,50 @@ jobs:
             gem install xcpretty
           fi
 
+      - name: Boot simulator + inject JOYFILL_TEST_LICENSE into Simulator
+        env:
+          JOYFILL_TEST_LICENSE: ${{ secrets.JOYFILL_TEST_LICENSE }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${JOYFILL_TEST_LICENSE}" ]]; then
+            echo "❌ JOYFILL_TEST_LICENSE secret is empty in this run."
+            exit 1
+          fi
+
+          # Pick the latest available iOS runtime identifier (e.g., com.apple.CoreSimulator.SimRuntime.iOS-18-2)
+          RUNTIME_ID=$(xcrun simctl list runtimes -j | python3 -c 'import json,sys; d=json.load(sys.stdin); r=[x["identifier"] for x in d["runtimes"] if x.get("isAvailable") and "iOS" in x.get("name","")]; print(r[-1])')
+
+          # Create a fresh simulator so destination is deterministic
+          DEVICE_ID=$(xcrun simctl create "CI-iPhone" "iPhone 15" "$RUNTIME_ID")
+          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
+
+          xcrun simctl boot "$DEVICE_ID" || true
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+
+          # Inject env var into processes launched inside the simulator
+          xcrun simctl spawn "$DEVICE_ID" launchctl setenv JOYFILL_TEST_LICENSE "$JOYFILL_TEST_LICENSE"
+
+          echo "✅ Simulator ready: $DEVICE_ID"
+
       - name: Run Unit Tests
         env:
           JOYFILL_TEST_LICENSE: ${{ secrets.JOYFILL_TEST_LICENSE }}
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
+
           xcodebuild test \
             -project JoyfillExample.xcodeproj \
             -scheme JoyfillTests \
             -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -destination "id=$DEVICE_ID" \
+            -resultBundlePath TestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            EXCLUDED_ARCHS=arm64 \
-            ONLY_ACTIVE_ARCH=YES \
           | xcpretty --color --report html --output unit-test-report.html
+
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         if: always()
