@@ -209,7 +209,7 @@ jobs:
 
       - name: Run Unit Tests
         env:
-          SIMCTL_CHILD_JOYFILL_TEST_LICENSE: ${{ secrets.JOYFILL_TEST_LICENSE }}
+          JOYFILL_TEST_LICENSE: ${{ secrets.JOYFILL_TEST_LICENSE }}
         run: |
           set -o pipefail
           cd JoyfillSwiftUIExample
