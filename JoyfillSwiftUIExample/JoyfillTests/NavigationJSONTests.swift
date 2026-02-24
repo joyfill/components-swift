@@ -820,4 +820,113 @@ final class NavigationJSONTests: XCTestCase {
         XCTAssertEqual(result, .failure, "Should fail for invalid field even with focus: true")
         XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
     }
+    
+    func testGoto_WithFocusTrue_HiddenField_ShouldFail() {
+        // Hidden multiline text field on Page 6
+        let path = "6970a8369b24206caf2b71cc/6970919020f5f698e4ea88cc"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(focus: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for hidden field even with focus: true")
+        XCTAssertEqual(documentEditor.currentPageID, "6970a8369b24206caf2b71cc")
+    }
+    
+    // MARK: - Focus + Row (no column)
+    
+    func testGoto_WithFocusTrue_ValidRow_OpenFalse_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: false, focus: true))
+        
+        XCTAssertEqual(result, .success, "Should succeed with focus: true, open: false, valid row")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusTrue_ValidRow_OpenTrue_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        
+        XCTAssertEqual(result, .success, "Should succeed with focus: true, open: true, valid row, no column")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusTrue_InvalidRow_OpenTrue_ShouldFail() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/invalidRowId"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid row even with focus: true and open: true")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusTrue_InvalidRow_OpenFalse_ShouldFail() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/invalidRowId"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: false, focus: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid row even with focus: true and open: false")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    // MARK: - Focus + Row + Column
+    
+    func testGoto_WithFocusTrue_ValidRow_InvalidColumn_ShouldFail() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/invalidColumnId"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid column even with focus: true")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusFalse_ValidRow_ValidColumn_OpenTrue_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/697090a35fe3eb39f20fa2d8"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: false))
+        
+        XCTAssertEqual(result, .success, "Should succeed with focus: false, open: true, valid row and column")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusTrue_ValidRow_ValidColumn_OpenFalse_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/697090a35fe3eb39f20fa2d8"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: false, focus: true))
+        
+        XCTAssertEqual(result, .success, "Should succeed with focus: true, open: false, valid row and column")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusTrue_InvalidRow_ColumnSkipped_ShouldFail() {
+        // Invalid row — column should not be checked at all
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/invalidRowId/697090a35fe3eb39f20fa2d8"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid row; column validation skipped")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    // MARK: - Focus does not change status
+    
+    func testGoto_FocusDoesNotAffectStatus_ValidPath() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/697090a35fe3eb39f20fa2d8"
+        
+        let resultWithFocus = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        let resultWithoutFocus = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: false))
+        
+        XCTAssertEqual(resultWithFocus, resultWithoutFocus, "Focus flag should not affect navigation status for valid path")
+        XCTAssertEqual(resultWithFocus, .success)
+    }
+    
+    func testGoto_FocusDoesNotAffectStatus_InvalidPath() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/invalidRowId/invalidColumnId"
+        
+        let resultWithFocus = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        let resultWithoutFocus = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: false))
+        
+        XCTAssertEqual(resultWithFocus, resultWithoutFocus, "Focus flag should not affect navigation status for invalid path")
+        XCTAssertEqual(resultWithFocus, .failure)
+    }
 }
