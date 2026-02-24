@@ -510,7 +510,8 @@ struct EditMultipleRowsSheetView: View {
                                     .frame(height: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                    lineWidth: 1)
                                     )
                                     .cornerRadius(10)
                                     .focused($isTextFieldFocused)
@@ -527,7 +528,8 @@ struct EditMultipleRowsSheetView: View {
                                 TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                    lineWidth: 1)
                                     )
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
@@ -539,7 +541,8 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.vertical, 2)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                    lineWidth: 1)
                                     )
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
@@ -552,7 +555,8 @@ struct EditMultipleRowsSheetView: View {
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                    lineWidth: 1)
                                     )
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
@@ -564,7 +568,8 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.vertical, 4)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                    lineWidth: 1)
                                     )
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
@@ -576,7 +581,8 @@ struct EditMultipleRowsSheetView: View {
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                    lineWidth: 1)
                                     )
                                     .cornerRadius(10)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
@@ -601,7 +607,8 @@ struct EditMultipleRowsSheetView: View {
                                 .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                        .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                lineWidth: 1)
                                 )
                                 .cornerRadius(10)
                                 .accessibilityIdentifier("EditRowsImageFieldIdentifier")
@@ -625,7 +632,8 @@ struct EditMultipleRowsSheetView: View {
                                 .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                        .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                lineWidth: 1)
                                 )
                                 .cornerRadius(10)
                                 .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
@@ -638,7 +646,8 @@ struct EditMultipleRowsSheetView: View {
                                         .frame(minHeight: 40)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 10)
-                                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                                                .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                        lineWidth: 1)
                                         )
                                         .cornerRadius(10)
                                 }
@@ -649,12 +658,6 @@ struct EditMultipleRowsSheetView: View {
                     }
                     }
                     .id(col.id)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 14)
-                            .stroke(Color.focusedFieldBorderColor, lineWidth: 1)
-                            .padding(-4)
-                            .opacity(col.id == viewModel.tableDataModel.focusColumnId ? 1 : 0)
-                    )
                 }
                 Spacer()
             }

@@ -13,6 +13,7 @@ struct SignatureView: View {
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
     @State var showError: Bool = false
 
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var signatureDataModel: SignatureDataModel
     let eventHandler: FieldChangeEvents
 
@@ -25,7 +26,7 @@ struct SignatureView: View {
         VStack(alignment: .leading) {
             FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty)
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                .stroke(navigationFocusFieldId == signatureDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
                 .background(
                     RoundedRectangle(cornerRadius: 10)

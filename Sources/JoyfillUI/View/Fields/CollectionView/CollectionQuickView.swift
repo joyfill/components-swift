@@ -14,6 +14,7 @@ struct CollectionQuickView : View {
     @StateObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     @State var isTableModalViewPresented = false
     @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
@@ -82,7 +83,7 @@ struct CollectionQuickView : View {
         .frame(maxWidth: .infinity)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
         )
     }
     
@@ -110,7 +111,7 @@ struct CollectionQuickView : View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
             )
             
             NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
@@ -146,7 +147,7 @@ struct CollectionQuickView : View {
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
             .accessibilityIdentifier("CollectionDetailViewIdentifier")

@@ -52,11 +52,11 @@ struct NumberView: View {
                 .padding(.horizontal, 10)
                 .keyboardType(.decimalPad)
                 .frame(minHeight: 40)
+                .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .stroke(navigationFocusFieldId == numberDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 )
-                .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {

@@ -16,6 +16,7 @@ struct TableQuickView : View {
     @StateObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
@@ -52,7 +53,7 @@ struct TableQuickView : View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
             )
             
             NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
@@ -88,7 +89,7 @@ struct TableQuickView : View {
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
             .accessibilityIdentifier("TableDetailViewIdentifier")

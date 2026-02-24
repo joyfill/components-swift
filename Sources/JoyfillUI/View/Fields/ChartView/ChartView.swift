@@ -12,6 +12,7 @@ struct ChartView: View {
     private let chartDataModel: ChartDataModel
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
 
 //    let data : MultiLineChartData
@@ -67,7 +68,7 @@ struct ChartView: View {
                 .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .stroke(navigationFocusFieldId == chartDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 )
             })
             .accessibilityIdentifier("ChartViewIdentifier")

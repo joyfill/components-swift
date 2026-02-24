@@ -284,12 +284,6 @@ struct FormView: View {
             List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
                 if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
                     fieldView(listModelBinding: $listModel)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14)
-                                .stroke(Color.focusedFieldBorderColor, lineWidth: 1)
-                                .padding(-4)
-                                .opacity(listModel.fieldIdentifier.fieldID == documentEditor.navigationFocusFieldId ? 1 : 0)
-                        )
                         .listRowSeparator(.hidden)
                         .buttonStyle(.borderless)
                 }

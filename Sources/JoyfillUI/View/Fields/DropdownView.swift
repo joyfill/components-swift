@@ -4,6 +4,7 @@ import JoyfillModel
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dropdownDataModel: DropdownDataModel
 
     let eventHandler: FieldChangeEvents
@@ -39,7 +40,7 @@ struct DropdownView: View {
             .accessibilityIdentifier("Dropdown")
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .stroke(navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
             )
             .sheet(isPresented: $isSheetPresented) {
                 if #available(iOS 16, *) {

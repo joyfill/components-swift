@@ -32,11 +32,11 @@ struct TextView: View {
                 .disabled(textDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .frame(height: 40)
+                .cornerRadius(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .stroke(navigationFocusFieldId == textDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 )
-                .cornerRadius(10)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
