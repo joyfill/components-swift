@@ -226,6 +226,7 @@ struct EditMultipleRowsSheetView: View {
     @State var changes = [Int: ValueUnion]()
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
+    @FocusState private var isTextFieldFocused: Bool
 
     init(viewModel: TableViewModel) {
         self.viewModel =  viewModel
@@ -512,6 +513,13 @@ struct EditMultipleRowsSheetView: View {
                                             .stroke(Color.allFieldBorderColor, lineWidth: 1)
                                     )
                                     .cornerRadius(10)
+                                    .focused($isTextFieldFocused)
+                                    .onAppear {
+                                        if viewModel.tableDataModel.focusColumnId == cellModel.data.id {
+                                            isTextFieldFocused = true
+                                        }
+                                    }
+                                
                             case .dropdown:
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                                     .font(.headline.bold())
@@ -641,10 +649,17 @@ struct EditMultipleRowsSheetView: View {
                     }
                     }
                     .id(col.id)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.focusedFieldBorderColor, lineWidth: 1)
+                            .padding(-4)
+                            .opacity(col.id == viewModel.tableDataModel.focusColumnId ? 1 : 0)
+                    )
                 }
                 Spacer()
             }
             .padding(.all, 16)
+            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.focusColumnId)
         }
         .id(viewID)
         .onAppear {
@@ -657,7 +672,11 @@ struct EditMultipleRowsSheetView: View {
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
+            viewModel.tableDataModel.focusColumnId = nil
         }))
+        .onTapGesture {
+            viewModel.tableDataModel.focusColumnId = nil
+        }
         }
     }
 }

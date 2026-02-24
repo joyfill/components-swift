@@ -48,6 +48,7 @@ struct TableModalView : View {
                 onEditTap: {
                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
                 viewModel.tableDataModel.scrollToColumnId = nil
+                viewModel.tableDataModel.focusColumnId = nil
                 showEditMultipleRowsSheetView = true
             })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
@@ -85,9 +86,11 @@ struct TableModalView : View {
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
                     viewModel.tableDataModel.scrollToColumnId = event.columnId
+                    viewModel.tableDataModel.focusColumnId = event.focus ? event.columnId : nil
                     showEditMultipleRowsSheetView = event.openRowForm
                 } else {
                     viewModel.tableDataModel.scrollToColumnId = nil
+                    viewModel.tableDataModel.focusColumnId = nil
                     showEditMultipleRowsSheetView = false
                 }
             }
@@ -334,6 +337,7 @@ struct TableModalView : View {
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
                                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
                                 viewModel.tableDataModel.scrollToColumnId = nil
+                                viewModel.tableDataModel.focusColumnId = nil
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")

@@ -11,6 +11,8 @@ import JoyfillModel
 struct TableBarcodeView: View {
     @Binding var cellModel: TableCellModel
     @State var text: String = ""
+    @FocusState private var isTextFieldFocused: Bool
+    @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     private var isUsedForBulkEdit: Bool
     var viewModel: TableDataViewModelProtocol?
 
@@ -44,15 +46,27 @@ struct TableBarcodeView: View {
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .scrollContentBackground(.hidden)
+                        .focused($isTextFieldFocused)
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
+                        }
+                        .onAppear {
+                            if navigationFocusColumnId == cellModel.data.id {
+                                isTextFieldFocused = true
+                            }
                         }
                 } else {
                     TextEditor(text: $text)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
+                        .focused($isTextFieldFocused)
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
+                        }
+                        .onAppear {
+                            if navigationFocusColumnId == cellModel.data.id {
+                                isTextFieldFocused = true
+                            }
                         }
                 }
                 

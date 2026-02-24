@@ -52,10 +52,12 @@ struct CollectionQuickView : View {
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
                     viewModel.tableDataModel.scrollToColumnId = event.columnId
+                    viewModel.tableDataModel.focusColumnId = event.focus ? event.columnId : nil
                     showEditMultipleRowsSheetView = event.openRowForm
                 }
             } else {
                 viewModel.tableDataModel.scrollToColumnId = nil
+                viewModel.tableDataModel.focusColumnId = nil
                 showEditMultipleRowsSheetView = false
             }
             
@@ -111,10 +113,17 @@ struct CollectionQuickView : View {
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
             
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
+            
             Button(action: {
                 showEditMultipleRowsSheetView = false
                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
                 viewModel.tableDataModel.scrollToColumnId = nil
+                viewModel.tableDataModel.focusColumnId = nil
                 openCollection()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
@@ -143,11 +152,6 @@ struct CollectionQuickView : View {
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
     }
     

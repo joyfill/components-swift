@@ -46,13 +46,15 @@ public struct NavigationTarget: Equatable {
     public let rowId: String?
     public let openRowForm: Bool
     public let columnId: String?
+    public let focus: Bool
     
-    public init(pageId: String, fieldID: String? = nil, rowId: String? = nil, openRowForm: Bool = false, columnId: String? = nil) {
+    public init(pageId: String, fieldID: String? = nil, rowId: String? = nil, openRowForm: Bool = false, columnId: String? = nil, focus: Bool = false) {
         self.pageId = pageId
         self.fieldID = fieldID
         self.rowId = rowId
         self.openRowForm = openRowForm
         self.columnId = columnId
+        self.focus = focus
     }
 }
 
@@ -60,9 +62,12 @@ public struct NavigationTarget: Equatable {
 public struct GotoConfig {
     /// Whether to automatically open the row form modal for table/collection rows
     public let open: Bool
+    /// Whether to auto-focus the target field or cell (opens keyboard for text/number/barcode)
+    public let focus: Bool
     
-    public init(open: Bool = false) {
+    public init(open: Bool = false, focus: Bool = false) {
         self.open = open
+        self.focus = focus
     }
 }
 
@@ -75,6 +80,7 @@ public class DocumentEditor: ObservableObject {
         }
     }
     @Published var currentPageOrder: [String] = []
+    @Published var navigationFocusFieldId: String?
     let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
     private var isCollectionFieldEnabled: Bool = false
 
@@ -1471,23 +1477,23 @@ extension DocumentEditor {
             
             guard let fieldPosition = fieldPosition else {
                 Log("Field position with id \(fieldPositionId) not found on page \(pageId)", type: .warning)
-                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId), status: .failure, pageChanged: pageChanged)
+                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, focus: gotoConfig.focus), status: .failure, pageChanged: pageChanged)
             }
             
             guard let fieldID = fieldPosition.field, shouldShow(fieldID: fieldID) else {
                 Log("Field position \(fieldPositionId) is hidden by conditional logic", type: .warning)
-                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId), status: .failure, pageChanged: pageChanged)
+                return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, focus: gotoConfig.focus), status: .failure, pageChanged: pageChanged)
             }
             
             if let rowId = rowId {
                 guard let field = field(fieldID: fieldID) else {
                     Log("Field with id \(fieldID) not found", type: .warning)
-                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
+                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID, focus: gotoConfig.focus), status: .failure, pageChanged: pageChanged)
                 }
                 
                 guard field.fieldType == .table || field.fieldType == .collection else {
                     Log("Field \(fieldID) is not a table or collection field", type: .warning)
-                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID), status: .failure, pageChanged: pageChanged)
+                    return executeNavigation(pageId: pageId, event: NavigationTarget(pageId: pageId, fieldID: fieldID, focus: gotoConfig.focus), status: .failure, pageChanged: pageChanged)
                 }
                 let rowExists = rowExistsInField(fieldID: fieldID, rowId: rowId)
                 var validColumnId: String? = nil
@@ -1502,12 +1508,12 @@ extension DocumentEditor {
                 }
 
                 status = (rowExists && columnValid) ? .success : .failure
-                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open, columnId: validColumnId)
+                event = NavigationTarget(pageId: pageId, fieldID: fieldID, rowId: rowId, openRowForm: gotoConfig.open, columnId: validColumnId, focus: gotoConfig.focus)
             } else {
-                event = NavigationTarget(pageId: pageId, fieldID: fieldID)
+                event = NavigationTarget(pageId: pageId, fieldID: fieldID, focus: gotoConfig.focus)
             }
         } else {
-            event = NavigationTarget(pageId: pageId)
+            event = NavigationTarget(pageId: pageId, focus: gotoConfig.focus)
         }
         
         return executeNavigation(pageId: pageId, event: event, status: status, pageChanged: pageChanged)

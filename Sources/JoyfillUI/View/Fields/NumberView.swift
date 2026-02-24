@@ -6,6 +6,7 @@ struct NumberView: View {
     // Use a binding that we control rather than a State variable
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
     // Use local state for value tracking instead of frequent model updates
     @State private var displayText: String = ""
@@ -76,6 +77,11 @@ struct NumberView: View {
                 displayText = formatNumber(numberDataModel.number)
             }
             lastModelValue = numberDataModel.number
+        }
+        .onChange(of: navigationFocusFieldId) { newValue in
+            if newValue == numberDataModel.fieldIdentifier.fieldID {
+                isFocused = true
+            }
         }
         .onChange(of: numberDataModel.number) { newValue in
             // Only update if not focused and value has actually changed

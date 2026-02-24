@@ -3,6 +3,7 @@ import SwiftUI
 struct TableNumberView: View {
     @State private var number: String = ""
     @FocusState private var isTextFieldFocused: Bool
+    @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @Binding var cellModel: TableCellModel
     
     private let numberFormatter: NumberFormatter = {
@@ -44,6 +45,11 @@ struct TableNumberView: View {
                     updateFieldValue()
                 }
                 .focused($isTextFieldFocused)
+                .onAppear {
+                    if navigationFocusColumnId == cellModel.data.id {
+                        isTextFieldFocused = true
+                    }
+                }
         }
     }
     

@@ -284,10 +284,17 @@ struct FormView: View {
             List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
                 if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
                     fieldView(listModelBinding: $listModel)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.focusedFieldBorderColor, lineWidth: 1)
+                                .padding(-4)
+                                .opacity(listModel.fieldIdentifier.fieldID == documentEditor.navigationFocusFieldId ? 1 : 0)
+                        )
                         .listRowSeparator(.hidden)
                         .buttonStyle(.borderless)
                 }
             }
+            .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
             .listStyle(PlainListStyle())
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
@@ -298,6 +305,7 @@ struct FormView: View {
                     documentEditor.onBlur(event: fieldEvent)
                 }
                 self.lastFocusedFieldsID = currentFocusedFieldsID
+                documentEditor.navigationFocusFieldId = nil
             }
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
@@ -311,6 +319,12 @@ struct FormView: View {
                 
                 if let fieldID = event.fieldID {
                     proxy.scrollTo(fieldID, anchor: .top)
+                }
+                
+                if event.focus, let fieldID = event.fieldID {
+                    documentEditor.navigationFocusFieldId = fieldID
+                } else {
+                    documentEditor.navigationFocusFieldId = nil
                 }
             }
         }

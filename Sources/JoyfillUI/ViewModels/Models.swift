@@ -170,6 +170,8 @@ struct TableDataModel {
     var rowFormOpenedViaGoto: Bool = false
     /// Column ID to scroll to in the row form or grid, set by navigation events.
     var scrollToColumnId: String?
+    /// Column ID to auto-focus in the row form, set by navigation events with focus: true.
+    var focusColumnId: String?
     private var pendingRowID: [String]?
     
     var viewMoreText: String {

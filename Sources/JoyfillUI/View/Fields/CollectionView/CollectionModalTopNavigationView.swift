@@ -698,10 +698,17 @@ struct CollectionEditMultipleRowsSheetView: View {
                 }
                     }
                     .id(col.id)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.focusedFieldBorderColor, lineWidth: 1)
+                            .padding(-4)
+                            .opacity(col.id == viewModel.tableDataModel.focusColumnId ? 1 : 0)
+                    )
                 }
                 Spacer()
             }
             .padding(.all, 16)
+            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.focusColumnId)
         }
         .id(viewID)
         .onAppear {
@@ -714,7 +721,11 @@ struct CollectionEditMultipleRowsSheetView: View {
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
+            viewModel.tableDataModel.focusColumnId = nil
         }))
+        .onTapGesture {
+            viewModel.tableDataModel.focusColumnId = nil
+        }
         }
     }
 }

@@ -45,6 +45,12 @@ struct ChartView: View {
 //                        .padding(.horizontal)
 //                )
             
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
+            
             Button(action: {
                 showDetailChartView = true
                 if chartDataModel.mode == .fill {
@@ -66,11 +72,6 @@ struct ChartView: View {
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             
-            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
     }
     

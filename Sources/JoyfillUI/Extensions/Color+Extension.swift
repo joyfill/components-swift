@@ -15,6 +15,7 @@ extension Color {
     static let buttonBorderColor = Color(hex: "#E2E3E7")
     static let tableDropdownBorderColor = Color(hex: "#D1D1D6")
     static let allFieldBorderColor = Color(hex: "#AAAAAE")
+    static let focusedFieldBorderColor = Color(hex: "#2563EB")
     static func rowSelectionBackground(isSelected: Bool, colorScheme: ColorScheme) -> Color {
         guard isSelected else { return .clear }
         return colorScheme == .dark ? Color.blue.opacity(0.35) : Color.blue.opacity(0.1)
@@ -43,6 +44,28 @@ extension Color {
             blue:  Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+}
+
+private struct NavigationFocusFieldIdKey: EnvironmentKey {
+    static let defaultValue: String? = nil
+}
+
+extension EnvironmentValues {
+    var navigationFocusFieldId: String? {
+        get { self[NavigationFocusFieldIdKey.self] }
+        set { self[NavigationFocusFieldIdKey.self] = newValue }
+    }
+}
+
+private struct NavigationFocusColumnIdKey: EnvironmentKey {
+    static let defaultValue: String? = nil
+}
+
+extension EnvironmentValues {
+    var navigationFocusColumnId: String? {
+        get { self[NavigationFocusColumnIdKey.self] }
+        set { self[NavigationFocusColumnIdKey.self] = newValue }
     }
 }
 

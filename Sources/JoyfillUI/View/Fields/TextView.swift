@@ -7,6 +7,7 @@ struct TextView: View {
     @State private var lastModelText: String?
     @State private var debounceTask: Task<Void, Never>?
     @FocusState private var isFocused: Bool
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var textDataModel: TextDataModel
     let eventHandler: FieldChangeEvents
 
@@ -55,6 +56,11 @@ struct TextView: View {
                 displayText = textDataModel.text ?? ""
             }
             lastModelText = textDataModel.text
+        }
+        .onChange(of: navigationFocusFieldId) { newValue in
+            if newValue == textDataModel.fieldIdentifier.fieldID {
+                isFocused = true
+            }
         }
         .onChange(of: textDataModel.text) { newValue in
             if !isFocused && lastModelText != newValue {

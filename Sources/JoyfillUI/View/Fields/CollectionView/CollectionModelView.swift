@@ -62,6 +62,7 @@ struct CollectionModalView : View {
                 onEditTap: {
                     viewModel.tableDataModel.rowFormOpenedViaGoto = false
                     viewModel.tableDataModel.scrollToColumnId = nil
+                    viewModel.tableDataModel.focusColumnId = nil
                     showEditMultipleRowsSheetView = true
                 },
                 onFilterTap: { showFilterModal = true })
@@ -94,10 +95,12 @@ struct CollectionModalView : View {
                         viewModel.tableDataModel.selectedRows = [rowId]
                         viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
                         viewModel.tableDataModel.scrollToColumnId = event.columnId
+                        viewModel.tableDataModel.focusColumnId = event.focus ? event.columnId : nil
                         showEditMultipleRowsSheetView = event.openRowForm
                     }
                 } else {
                     viewModel.tableDataModel.scrollToColumnId = nil
+                    viewModel.tableDataModel.focusColumnId = nil
                     showEditMultipleRowsSheetView = false
                 }
             }
@@ -588,6 +591,7 @@ struct CollectionRowsHeaderView: View {
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
                             viewModel.tableDataModel.rowFormOpenedViaGoto = false
                             viewModel.tableDataModel.scrollToColumnId = nil
+                            viewModel.tableDataModel.focusColumnId = nil
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
@@ -619,6 +623,7 @@ struct CollectionRowsHeaderView: View {
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
                             viewModel.tableDataModel.rowFormOpenedViaGoto = false
                             viewModel.tableDataModel.scrollToColumnId = nil
+                            viewModel.tableDataModel.focusColumnId = nil
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")

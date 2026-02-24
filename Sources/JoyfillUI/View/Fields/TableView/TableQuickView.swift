@@ -55,10 +55,17 @@ struct TableQuickView : View {
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
             
+            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
+            
             Button(action: {
                 self.showEditMultipleRowsSheetView = false
                 viewModel.tableDataModel.rowFormOpenedViaGoto = false
                 viewModel.tableDataModel.scrollToColumnId = nil
+                viewModel.tableDataModel.focusColumnId = nil
                 openTable()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
@@ -87,11 +94,6 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
@@ -107,9 +109,11 @@ struct TableQuickView : View {
                 viewModel.tableDataModel.selectedRows = [rowId]
                 viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
                 viewModel.tableDataModel.scrollToColumnId = event.columnId
+                viewModel.tableDataModel.focusColumnId = event.focus ? event.columnId : nil
                 showEditMultipleRowsSheetView = event.openRowForm
             } else {
                 viewModel.tableDataModel.scrollToColumnId = nil
+                viewModel.tableDataModel.focusColumnId = nil
                 showEditMultipleRowsSheetView = false
             }
             
