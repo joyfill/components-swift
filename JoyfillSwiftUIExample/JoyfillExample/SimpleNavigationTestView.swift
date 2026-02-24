@@ -16,6 +16,7 @@ struct SimpleNavigationTestView: View {
     @State private var selectedRowId: String = ""
     @State private var manualPath: String = ""
     @State private var openModal: Bool = true
+    @State private var focusField: Bool = true
     @State private var selectedColumnId: String = ""
     @State private var manualColumnId: String = ""
     @Binding var showAlert: Bool
@@ -87,10 +88,6 @@ struct SimpleNavigationTestView: View {
         VStack(spacing: 0) {
             // Manual Path Input Section
             VStack(spacing: 8) {
-                Text("Manual Path")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
                 HStack(spacing: 8) {
                     TextField("pageId/fpId/rowId/colId", text: $manualPath)
                         .textFieldStyle(.roundedBorder)
@@ -99,7 +96,7 @@ struct SimpleNavigationTestView: View {
                     
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
-                        let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal))
+                        let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal, focus: focusField))
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                             if status == .failure {
                                 alertMessage = "Navigation failed for path: \(manualPath)"
@@ -117,9 +114,24 @@ struct SimpleNavigationTestView: View {
                     .disabled(manualPath.isEmpty)
                 }
                 
-                Toggle("Open Modal", isOn: $openModal)
-                    .font(.caption)
-                    .padding(.horizontal, 4)
+                HStack {
+                    Toggle("Open Modal", isOn: $openModal)
+                        .font(.caption)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.blue, lineWidth: 1)
+                                .padding(.all, -4)
+                        }
+                                        
+                    Toggle("Focus", isOn: $focusField)
+                        .font(.caption)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.blue, lineWidth: 1)
+                                .padding(.all, -4)
+                        }
+                }
+                .padding(.horizontal, 4)
             }
             .padding(12)
             .background(Color(UIColor.systemGroupedBackground))
@@ -128,17 +140,15 @@ struct SimpleNavigationTestView: View {
             
             // Dropdown Navigation Section
             VStack(spacing: 8) {
-                Text("Select Page, Field & Row")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
                 HStack(spacing: 8) {
                     // Page Dropdown
                     Picker("Page", selection: $selectedPageId) {
                         Text("Select page...").tag("")
+                            .lineLimit(1)
                         ForEach(allPages, id: \.id) { page in
                             if let id = page.id {
                                 Text(page.name ?? "Page \(id.prefix(8))").tag(id)
+                                    .lineLimit(1)
                             }
                         }
                     }
@@ -157,11 +167,13 @@ struct SimpleNavigationTestView: View {
                     // Field Position Dropdown
                     Picker("Field", selection: $selectedFieldPositionId) {
                         Text("Select field...").tag("")
+                            .lineLimit(1)
                         ForEach(fieldPositionsForSelectedPage, id: \.id) { fieldPosition in
                             if let id = fieldPosition.id {
                                 if let fieldId = fieldPosition.field,
                                    let field = documentEditor.field(fieldID: fieldId) {
                                     Text(field.title ?? "Field \(id.prefix(8))").tag(id)
+                                        .lineLimit(1)
                                 } else {
                                     Text("Field \(id.prefix(8))").tag(id)
                                 }
@@ -184,6 +196,7 @@ struct SimpleNavigationTestView: View {
                     if selectedFieldIsTableOrCollection {
                         Picker("Row", selection: $selectedRowId) {
                             Text("Select row...").tag("")
+                                .lineLimit(1)
                             ForEach(Array(rowsForSelectedField.enumerated()), id: \.offset) { index, row in
                                 if let id = row.id {
                                     let isDeleted = row.deleted == true
@@ -195,9 +208,11 @@ struct SimpleNavigationTestView: View {
                                         Text(label)
                                             .foregroundStyle(.red)
                                             .tag(id)
+                                            .lineLimit(1)
                                     } else {
                                         Text(label)
                                             .tag(id)
+                                            .lineLimit(1)
                                     }
                                 }
                             }
@@ -220,9 +235,11 @@ struct SimpleNavigationTestView: View {
                     if selectedFieldIsTableOrCollection && !selectedRowId.isEmpty {
                         Picker("Column", selection: $selectedColumnId) {
                             Text("No column").tag("")
+                                .lineLimit(1)
                             ForEach(columnsForSelectedField, id: \.id) { col in
                                 if let id = col.id {
                                     Text(col.title.isEmpty ? "Col \(id.prefix(8))" : col.title).tag(id)
+                                        .lineLimit(1)
                                 }
                             }
                         }
@@ -244,11 +261,11 @@ struct SimpleNavigationTestView: View {
                                 if !selectedColumnId.isEmpty {
                                     path += "/\(selectedColumnId)"
                                 }
-                                status = documentEditor.goto(path, gotoConfig: GotoConfig(open: openModal))
+                                status = documentEditor.goto(path, gotoConfig: GotoConfig(open: openModal, focus: focusField))
                             } else if !selectedFieldPositionId.isEmpty {
-                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)")
+                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)", gotoConfig: GotoConfig(focus: focusField))
                             } else {
-                                status = documentEditor.goto(selectedPageId)
+                                status = documentEditor.goto(selectedPageId, gotoConfig: GotoConfig(focus: focusField))
                             }
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {

@@ -782,4 +782,42 @@ final class NavigationJSONTests: XCTestCase {
         // Double slash creates empty component, should not fail
         XCTAssertEqual(result, .success, "Should not fail for path with double slash")
     }
+    
+    // MARK: - Focus Navigation Tests
+    
+    func testGoto_WithFocusTrue_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/6970918d350238d0738dd5c9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(focus: true))
+        
+        XCTAssertEqual(result, .success, "Should succeed with focus: true on a valid field")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusFalse_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/6970918d350238d0738dd5c9"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(focus: false))
+        
+        XCTAssertEqual(result, .success, "Should succeed with focus: false on a valid field")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusAndOpenTrue_ShouldSucceed() {
+        let path = "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/697090a35fe3eb39f20fa2d8"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(open: true, focus: true))
+        
+        XCTAssertEqual(result, .success, "Should succeed with both open and focus true on valid table row with column")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
+    
+    func testGoto_WithFocusTrue_InvalidField_ShouldFail() {
+        let path = "691f376206195944e65eef76/nonExistentFieldPos"
+        
+        let result = documentEditor.goto(path, gotoConfig: GotoConfig(focus: true))
+        
+        XCTAssertEqual(result, .failure, "Should fail for invalid field even with focus: true")
+        XCTAssertEqual(documentEditor.currentPageID, "691f376206195944e65eef76")
+    }
 }
