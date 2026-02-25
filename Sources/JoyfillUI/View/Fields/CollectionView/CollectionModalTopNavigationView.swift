@@ -441,6 +441,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                 }
 
                 ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
+                    let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
                     VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
@@ -579,56 +580,31 @@ struct CollectionEditMultipleRowsSheetView: View {
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                         case .dropdown:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                         case .date:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .padding(.vertical, 2)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                         case .number:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                 .keyboardType(.decimalPad)
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                         case .multiSelect:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                 .padding(.vertical, 4)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                         case .image:
                             let bindingCellModel = Binding<TableCellModel>(
@@ -647,12 +623,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 Spacer()
                             }
                             .frame(minHeight: 40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                            lineWidth: 1)
-                            )
-                            .cornerRadius(10)
+                            .cellBorder(isFocused: isFocused)
                             .accessibilityIdentifier("EditRowsImageFieldIdentifier")
                         case .signature:
                             let bindingCellModel = Binding<TableCellModel>(
@@ -670,34 +641,20 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 Spacer()
                             }
                             .frame(minHeight: 40)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                            lineWidth: 1)
-                            )
-                            .cornerRadius(10)
+                            .cellBorder(isFocused: isFocused)
                             .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                         case .barcode:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled)
                             TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                         case .block:
                             if !isUsedForBulkEdit {
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableBlockView(cellModel: Binding.constant(cellModel))
                                     .frame(minHeight: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                             }
                         default:
                             Text("")

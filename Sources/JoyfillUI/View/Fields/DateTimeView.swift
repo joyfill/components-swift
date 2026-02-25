@@ -64,10 +64,7 @@ struct DateTimeView: View {
                     .accessibilityLabel("Clear")
                 }
                 .padding(.all, 8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(navigationFocusFieldId == dateTimeDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == dateTimeDataModel.fieldIdentifier.fieldID)
             } else {
                 HStack {
                     Text("Select a Date -")
@@ -77,10 +74,7 @@ struct DateTimeView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(navigationFocusFieldId == dateTimeDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == dateTimeDataModel.fieldIdentifier.fieldID)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     selectedDate = Date()

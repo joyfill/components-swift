@@ -365,6 +365,7 @@ struct EditMultipleRowsSheetView: View {
                 }
 
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
+                    let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
                     VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
@@ -508,12 +509,7 @@ struct EditMultipleRowsSheetView: View {
                                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                                     .padding(.horizontal, 10)
                                     .frame(height: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                    lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .focused($focusedColumnIndex, equals: colIndex)
                                 
                             case .dropdown:
@@ -521,12 +517,7 @@ struct EditMultipleRowsSheetView: View {
                                     .font(.headline.bold())
                                     .padding(.bottom, -8)
                                 TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                    lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                             case .date:
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
@@ -534,12 +525,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.bottom, -8)
                                 TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 2)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                    lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                             case .number:
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
@@ -548,12 +534,7 @@ struct EditMultipleRowsSheetView: View {
                                 TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .keyboardType(.decimalPad)
                                     .frame(minHeight: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                    lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                             case .multiSelect:
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
@@ -561,12 +542,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.bottom, -8)
                                 TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 4)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                    lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                             case .barcode:
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
@@ -574,12 +550,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.bottom, -8)
                                 TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                    lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                             case .image:
                                 let bindingCellModel = Binding<TableCellModel>(
@@ -600,12 +571,7 @@ struct EditMultipleRowsSheetView: View {
                                     Spacer()
                                 }
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsImageFieldIdentifier")
                             case .signature:
                                 let bindingCellModel = Binding<TableCellModel>(
@@ -625,12 +591,7 @@ struct EditMultipleRowsSheetView: View {
                                     Spacer()
                                 }
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                             case .block:
                                 if !isUsedForBulkEdit {
@@ -639,12 +600,7 @@ struct EditMultipleRowsSheetView: View {
                                         .padding(.bottom, -8)
                                     TableBlockView(cellModel: Binding.constant(cellModel))
                                         .frame(minHeight: 40)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
-                                                        lineWidth: 1)
-                                        )
-                                        .cornerRadius(10)
+                                        .cellBorder(isFocused: isFocused)
                                 }
                             default:
                                 Text("")

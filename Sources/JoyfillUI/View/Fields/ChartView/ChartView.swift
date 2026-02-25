@@ -66,10 +66,7 @@ struct ChartView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(navigationFocusFieldId == chartDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == chartDataModel.fieldIdentifier.fieldID)
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             

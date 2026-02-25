@@ -38,10 +38,7 @@ struct DropdownView: View {
                 .frame(height: 40)
             })
             .accessibilityIdentifier("Dropdown")
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-            )
+            .fieldBorder(isFocused: navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID)
             .sheet(isPresented: $isSheetPresented) {
                 if #available(iOS 16, *) {
                     DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)

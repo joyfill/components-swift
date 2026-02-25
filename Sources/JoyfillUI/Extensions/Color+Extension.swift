@@ -93,6 +93,20 @@ extension View {
     func grayLightThemeColor() -> some View {
         self.modifier(GrayLightThemeColor())
     }
+
+    func fieldBorder(isFocused: Bool, cornerRadius: CGFloat = 10) -> some View {
+        self.overlay(
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(isFocused ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
+        )
+    }
+
+    func cellBorder(isFocused: Bool) -> some View {
+        self.overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isFocused ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
+        )
+    }
 }
 struct HorizontalBorderModifier: ViewModifier {
     var color: Color

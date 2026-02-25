@@ -82,10 +82,7 @@ struct CollectionQuickView : View {
             .frame(height: 120)
         }
         .frame(maxWidth: .infinity)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-        )
+        .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
     }
     
     func openCollection() {
@@ -110,10 +107,7 @@ struct CollectionQuickView : View {
                 }
                 .frame(height: CGFloat(viewModel.getThreeRowsForQuickView().count) * rowHeight + rowHeight)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-            )
+            .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
             
             NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
                 EmptyView()
@@ -144,10 +138,7 @@ struct CollectionQuickView : View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID)
             })
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
