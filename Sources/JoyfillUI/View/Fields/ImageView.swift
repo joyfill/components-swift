@@ -13,6 +13,7 @@ struct ImageView: View {
     @State private var showMoreImages: Bool = false
     @State private var showProgressView : Bool = false
     @State var hasAppeared: Bool = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     
     @State var uiImagesArray: [UIImage] = []
     @State var valueElements: [ValueElement] = []
@@ -50,7 +51,7 @@ struct ImageView: View {
             if let uiImage = uiImagesArray.first {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        .stroke(navigationFocusFieldId == imageDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                         .frame(height: 250)
                         .overlay(content: {
                             if uiImage.size == .zero {
@@ -124,7 +125,7 @@ struct ImageView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                        .foregroundColor(.gray)
+                        .foregroundColor(navigationFocusFieldId == imageDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : .gray)
                 )
                 .disabled(imageDataModel.mode == .readonly || showProgressView)
             }

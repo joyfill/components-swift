@@ -920,9 +920,9 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        // result should be invalid because column is required and cells deosnt have value
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
     }
@@ -3251,9 +3251,9 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        // result should be invalid because column is required and cells deosnt have value
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
     }
 
     func testTableField_NonRequiredColumns_CellsAlwaysValid() {

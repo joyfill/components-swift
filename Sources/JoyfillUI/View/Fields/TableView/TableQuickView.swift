@@ -16,6 +16,7 @@ struct TableQuickView : View {
     @StateObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
@@ -50,14 +51,17 @@ struct TableQuickView : View {
                 }
                 .frame(height: min(CGFloat(viewModel.tableDataModel.filteredcellModels.count), 3) * rowHeight + rowHeight)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
+            .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
+            
+            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
             
             Button(action: {
                 self.showEditMultipleRowsSheetView = false
-                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                viewModel.tableDataModel.navigationIntent = .none
                 openTable()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
@@ -78,19 +82,11 @@ struct TableQuickView : View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID)
             })
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
@@ -104,9 +100,14 @@ struct TableQuickView : View {
             let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
             if rowIdExists {
                 viewModel.tableDataModel.selectedRows = [rowId]
-                viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                    rowFormOpenedViaGoto: event.openRowForm,
+                    scrollToColumnId: event.columnId,
+                    focusColumnId: event.focus ? event.columnId : nil
+                )
                 showEditMultipleRowsSheetView = event.openRowForm
             } else {
+                viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = false
             }
             

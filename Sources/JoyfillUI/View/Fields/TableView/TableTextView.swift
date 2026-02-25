@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TableTextView: View {
     @FocusState private var isTextFieldFocused: Bool
+    @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @Binding var cellModel: TableCellModel
 
     public init(cellModel: Binding<TableCellModel>) {
@@ -31,6 +32,7 @@ struct TableTextView: View {
                         updateFieldValue()
                     }
                     .focused($isTextFieldFocused)
+                    .onAppear { autoFocusIfNeeded() }
             } else {
                 TextEditor(text: $cellModel.data.title)
                     .font(.system(size: 15))
@@ -39,7 +41,14 @@ struct TableTextView: View {
                         updateFieldValue()
                     }
                     .focused($isTextFieldFocused)
+                    .onAppear { autoFocusIfNeeded() }
             }
+        }
+    }
+    
+    private func autoFocusIfNeeded() {
+        if navigationFocusColumnId == cellModel.data.id {
+            isTextFieldFocused = true
         }
     }
     

@@ -5,6 +5,7 @@ struct MultiSelectionView: View {
     @State var singleSelectedOptionArray: [String] = []
     @State var multiSelectedOptionArray: [String] = []
     
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private let multiSelectionDataModel: MultiSelectionDataModel
     private let currentFocusedFielsID: String?
     let eventHandler: FieldChangeEvents
@@ -62,7 +63,7 @@ struct MultiSelectionView: View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .stroke(navigationFocusFieldId == multiSelectionDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                     .padding(.vertical, -10)
             )
             .padding(.vertical, 10)

@@ -12,6 +12,7 @@ struct ChartView: View {
     private let chartDataModel: ChartDataModel
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
 
 //    let data : MultiLineChartData
@@ -45,6 +46,12 @@ struct ChartView: View {
 //                        .padding(.horizontal)
 //                )
             
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
+            
             Button(action: {
                 showDetailChartView = true
                 if chartDataModel.mode == .fill {
@@ -59,18 +66,10 @@ struct ChartView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == chartDataModel.fieldIdentifier.fieldID)
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             
-            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
     }
     

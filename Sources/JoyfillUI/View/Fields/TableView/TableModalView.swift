@@ -46,7 +46,7 @@ struct TableModalView : View {
             TableModalTopNavigationView(
                 viewModel: viewModel,
                 onEditTap: {
-                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = true
             })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
@@ -82,9 +82,14 @@ struct TableModalView : View {
                 let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
                 if rowIdExists {
                     viewModel.tableDataModel.selectedRows = [rowId]
-                    viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                    viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                        rowFormOpenedViaGoto: event.openRowForm,
+                        scrollToColumnId: event.columnId,
+                        focusColumnId: event.focus ? event.columnId : nil
+                    )
                     showEditMultipleRowsSheetView = event.openRowForm
                 } else {
+                    viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = false
                 }
             }
@@ -329,7 +334,7 @@ struct TableModalView : View {
                             .onTapGesture {
                                 viewModel.tableDataModel.emptySelection()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
-                                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                                viewModel.tableDataModel.navigationIntent = .none
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
@@ -372,6 +377,10 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
+//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                                cellProxy.scrollTo(columnId, anchor: .leading)
+//                            }
                         }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
@@ -414,6 +423,10 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
+//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                                cellProxy.scrollTo(columnId, anchor: .leading)
+//                            }
                         }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in

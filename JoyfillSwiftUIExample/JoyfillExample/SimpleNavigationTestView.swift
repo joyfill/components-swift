@@ -16,6 +16,9 @@ struct SimpleNavigationTestView: View {
     @State private var selectedRowId: String = ""
     @State private var manualPath: String = ""
     @State private var openModal: Bool = true
+    @State private var focusField: Bool = true
+    @State private var selectedColumnId: String = ""
+    @State private var manualColumnId: String = ""
     @Binding var showAlert: Bool
     @Binding var alertMessage: String
 
@@ -38,7 +41,6 @@ struct SimpleNavigationTestView: View {
               let valueElements = field.value?.valueElements else {
             return []
         }
-        // Return all rows including deleted ones
         return valueElements
     }
     
@@ -49,6 +51,23 @@ struct SimpleNavigationTestView: View {
             return false
         }
         return field.fieldType == .table || field.fieldType == .collection
+    }
+    
+    var columnsForSelectedField: [FieldTableColumn] {
+        guard let fieldPosition = fieldPositionsForSelectedPage.first(where: { $0.id == selectedFieldPositionId }),
+              let fieldId = fieldPosition.field,
+              let field = documentEditor.field(fieldID: fieldId) else {
+            return []
+        }
+        if field.fieldType == .collection {
+            guard let schema = field.schema,
+                  let rootSchema = schema.first(where: { $0.value.root == true })?.value,
+                  let columns = rootSchema.tableColumns else {
+                return []
+            }
+            return columns
+        }
+        return field.tableColumns ?? []
     }
     
     init(showAlert: Binding<Bool>, alertMessage: Binding<String>) {
@@ -69,20 +88,16 @@ struct SimpleNavigationTestView: View {
         VStack(spacing: 0) {
             // Manual Path Input Section
             VStack(spacing: 8) {
-                Text("Manual Path")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
                 HStack(spacing: 8) {
-                    TextField("pageId/fieldPositionId/rowId", text: $manualPath)
+                    TextField("pageId/fpId/rowId/colId", text: $manualPath)
                         .textFieldStyle(.roundedBorder)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                     
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
-                        let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal))
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
+                        let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal, focus: focusField))
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
                             if status == .failure {
                                 alertMessage = "Navigation failed for path: \(manualPath)"
                                 showAlert = true
@@ -99,10 +114,24 @@ struct SimpleNavigationTestView: View {
                     .disabled(manualPath.isEmpty)
                 }
                 
-                // Open Modal Toggle
-                Toggle("Open Modal", isOn: $openModal)
-                    .font(.caption)
-                    .padding(.horizontal, 4)
+                HStack {
+                    Toggle("Open Modal", isOn: $openModal)
+                        .font(.caption)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.blue, lineWidth: 1)
+                                .padding(.all, -4)
+                        }
+                                        
+                    Toggle("Focus", isOn: $focusField)
+                        .font(.caption)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(Color.blue, lineWidth: 1)
+                                .padding(.all, -4)
+                        }
+                }
+                .padding(.horizontal, 4)
             }
             .padding(12)
             .background(Color(UIColor.systemGroupedBackground))
@@ -111,17 +140,15 @@ struct SimpleNavigationTestView: View {
             
             // Dropdown Navigation Section
             VStack(spacing: 8) {
-                Text("Select Page, Field & Row")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
                 HStack(spacing: 8) {
                     // Page Dropdown
                     Picker("Page", selection: $selectedPageId) {
                         Text("Select page...").tag("")
+                            .lineLimit(1)
                         ForEach(allPages, id: \.id) { page in
                             if let id = page.id {
                                 Text(page.name ?? "Page \(id.prefix(8))").tag(id)
+                                    .lineLimit(1)
                             }
                         }
                     }
@@ -140,11 +167,13 @@ struct SimpleNavigationTestView: View {
                     // Field Position Dropdown
                     Picker("Field", selection: $selectedFieldPositionId) {
                         Text("Select field...").tag("")
+                            .lineLimit(1)
                         ForEach(fieldPositionsForSelectedPage, id: \.id) { fieldPosition in
                             if let id = fieldPosition.id {
                                 if let fieldId = fieldPosition.field,
                                    let field = documentEditor.field(fieldID: fieldId) {
                                     Text(field.title ?? "Field \(id.prefix(8))").tag(id)
+                                        .lineLimit(1)
                                 } else {
                                     Text("Field \(id.prefix(8))").tag(id)
                                 }
@@ -167,6 +196,7 @@ struct SimpleNavigationTestView: View {
                     if selectedFieldIsTableOrCollection {
                         Picker("Row", selection: $selectedRowId) {
                             Text("Select row...").tag("")
+                                .lineLimit(1)
                             ForEach(Array(rowsForSelectedField.enumerated()), id: \.offset) { index, row in
                                 if let id = row.id {
                                     let isDeleted = row.deleted == true
@@ -178,9 +208,11 @@ struct SimpleNavigationTestView: View {
                                         Text(label)
                                             .foregroundStyle(.red)
                                             .tag(id)
+                                            .lineLimit(1)
                                     } else {
                                         Text(label)
                                             .tag(id)
+                                            .lineLimit(1)
                                     }
                                 }
                             }
@@ -193,7 +225,31 @@ struct SimpleNavigationTestView: View {
                         .background(Color(UIColor.secondarySystemGroupedBackground))
                         .cornerRadius(8)
                         .disabled(selectedFieldPositionId.isEmpty)
+                        .onChange(of: selectedRowId) { _ in
+                            selectedColumnId = ""
+                        }
                         
+                    }
+                    
+                    // Column Dropdown (only shown when a row is selected in table/collection)
+                    if selectedFieldIsTableOrCollection && !selectedRowId.isEmpty {
+                        Picker("Column", selection: $selectedColumnId) {
+                            Text("No column").tag("")
+                                .lineLimit(1)
+                            ForEach(columnsForSelectedField, id: \.id) { col in
+                                if let id = col.id {
+                                    Text(col.title.isEmpty ? "Col \(id.prefix(8))" : col.title).tag(id)
+                                        .lineLimit(1)
+                                }
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(maxWidth: .infinity, minHeight: 40, maxHeight: 40)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .padding(.horizontal, 12)
+                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .cornerRadius(8)
                     }
                     
                     // Navigate Button
@@ -201,11 +257,15 @@ struct SimpleNavigationTestView: View {
                         if !selectedPageId.isEmpty {
                             let status: NavigationStatus
                             if !selectedRowId.isEmpty {
-                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)", gotoConfig: GotoConfig(open: openModal))
+                                var path = "\(selectedPageId)/\(selectedFieldPositionId)/\(selectedRowId)"
+                                if !selectedColumnId.isEmpty {
+                                    path += "/\(selectedColumnId)"
+                                }
+                                status = documentEditor.goto(path, gotoConfig: GotoConfig(open: openModal, focus: focusField))
                             } else if !selectedFieldPositionId.isEmpty {
-                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)")
+                                status = documentEditor.goto("\(selectedPageId)/\(selectedFieldPositionId)", gotoConfig: GotoConfig(focus: focusField))
                             } else {
-                                status = documentEditor.goto(selectedPageId)
+                                status = documentEditor.goto(selectedPageId, gotoConfig: GotoConfig(focus: focusField))
                             }
                             
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {

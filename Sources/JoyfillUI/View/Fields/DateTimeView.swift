@@ -6,6 +6,7 @@ struct DateTimeView: View {
     @State private var selectedDate = Date()
     @State private var lastModelValue: ValueUnion?
     @State private var ignoreOnChangeOnModelUpdate = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dateTimeDataModel: DateTimeDataModel
     @State var dateString: String = ""
     let eventHandler: FieldChangeEvents
@@ -63,10 +64,7 @@ struct DateTimeView: View {
                     .accessibilityLabel("Clear")
                 }
                 .padding(.all, 8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == dateTimeDataModel.fieldIdentifier.fieldID)
             } else {
                 HStack {
                     Text("Select a Date -")
@@ -76,10 +74,7 @@ struct DateTimeView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.all, 10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == dateTimeDataModel.fieldIdentifier.fieldID)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     selectedDate = Date()

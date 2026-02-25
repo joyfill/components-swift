@@ -290,6 +290,7 @@ struct FormView: View {
                         .buttonStyle(.borderless)
                 }
             }
+            .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
             .listStyle(PlainListStyle())
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
@@ -300,9 +301,13 @@ struct FormView: View {
                     documentEditor.onBlur(event: fieldEvent)
                 }
                 self.lastFocusedFieldsID = currentFocusedFieldsID
+                if !(currentFocusedFieldsID == documentEditor.navigationFocusFieldId) {
+                    documentEditor.navigationFocusFieldId = nil
+                }
             }
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
+                documentEditor.navigationFocusFieldId = nil
                 if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
                     proxy.scrollTo(firstFieldID, anchor: .top)
                 }
@@ -313,6 +318,14 @@ struct FormView: View {
                 
                 if let fieldID = event.fieldID {
                     proxy.scrollTo(fieldID, anchor: .top)
+                }
+                
+                if event.focus, let fieldID = event.fieldID {
+                    documentEditor.navigationFocusFieldId = fieldID
+                    let fieldEvent = documentEditor.getFieldIdentifier(for: fieldID)
+                    onFocus(event: fieldEvent)
+                } else {
+                    documentEditor.navigationFocusFieldId = nil
                 }
             }
         }
