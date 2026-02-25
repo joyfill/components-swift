@@ -226,7 +226,7 @@ struct EditMultipleRowsSheetView: View {
     @State var changes = [Int: ValueUnion]()
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
-    @FocusState private var isTextFieldFocused: Bool
+    @FocusState private var focusedColumnIndex: Int?
 
     init(viewModel: TableViewModel) {
         self.viewModel =  viewModel
@@ -514,12 +514,7 @@ struct EditMultipleRowsSheetView: View {
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
-                                    .focused($isTextFieldFocused)
-                                    .onAppear {
-                                        if viewModel.tableDataModel.focusColumnId == cellModel.data.id {
-                                            isTextFieldFocused = true
-                                        }
-                                    }
+                                    .focused($focusedColumnIndex, equals: colIndex)
                                 
                             case .dropdown:
                                 Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
@@ -669,6 +664,7 @@ struct EditMultipleRowsSheetView: View {
             if let columnId = viewModel.tableDataModel.scrollToColumnId {
                 scrollProxy.scrollTo(columnId, anchor: .top)
             }
+            triggerInlineTextFocus()
         }
         .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
             viewID = UUID()
@@ -681,5 +677,12 @@ struct EditMultipleRowsSheetView: View {
             viewModel.tableDataModel.focusColumnId = nil
         }
         }
+    }
+    
+    private func triggerInlineTextFocus() {
+        guard let columnId = viewModel.tableDataModel.focusColumnId,
+              let colIndex = viewModel.tableDataModel.tableColumns.firstIndex(where: { $0.id == columnId }),
+              viewModel.tableDataModel.tableColumns[colIndex].type == .text else { return }
+        focusedColumnIndex = colIndex
     }
 }
