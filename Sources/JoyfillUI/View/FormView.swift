@@ -299,7 +299,9 @@ struct FormView: View {
                     documentEditor.onBlur(event: fieldEvent)
                 }
                 self.lastFocusedFieldsID = currentFocusedFieldsID
-                documentEditor.navigationFocusFieldId = currentFocusedFieldsID
+                if !(currentFocusedFieldsID == documentEditor.navigationFocusFieldId) {
+                    documentEditor.navigationFocusFieldId = nil
+                }
             }
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
