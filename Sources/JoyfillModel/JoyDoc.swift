@@ -1070,6 +1070,18 @@ public struct FieldTableColumn {
         set { dictionary["multiSelectValues"] = newValue }
     }
     
+    /// Indicates whether the column is hidden.
+    public var hidden: Bool? {
+        get { dictionary["hidden"] as? Bool }
+        set { dictionary["hidden"] = newValue }
+    }
+
+    /// Conditional logic to show/hide this column based on external field values (same structure as field/page logic).
+    public var logic: Logic? {
+        get { Logic.init(field: dictionary["logic"] as? [String: Any]) }
+        set { dictionary["logic"] = newValue?.dictionary }
+    }
+
     /// View types in which this column is force-hidden. Takes precedence over conditional logic.
     /// e.g. ["mobile"] = never show this column on mobile.
     public var hiddenViews: [String]? {
