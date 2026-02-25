@@ -270,8 +270,10 @@ struct FormView: View {
                 .disabled(listModel.fieldEditMode == .readonly)
         case .table(let model):
             TableQuickView(tableDataModel: model, eventHandler: self)
+                .id(model.id)
         case .collection(let model):
             CollectionQuickView(tableDataModel: model, eventHandler: self)
+                .id(model.id)
         case .image(let model):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
