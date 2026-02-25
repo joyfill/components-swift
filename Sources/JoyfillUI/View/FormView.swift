@@ -322,6 +322,8 @@ struct FormView: View {
                 
                 if event.focus, let fieldID = event.fieldID {
                     documentEditor.navigationFocusFieldId = fieldID
+                    let fieldEvent = documentEditor.getFieldIdentifier(for: fieldID)
+                    onFocus(event: fieldEvent)
                 } else {
                     documentEditor.navigationFocusFieldId = nil
                 }
