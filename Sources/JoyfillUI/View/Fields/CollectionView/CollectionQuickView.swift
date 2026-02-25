@@ -28,7 +28,7 @@ struct CollectionQuickView : View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: viewModel.tableDataModel.nondeletedRowsCount > 0)
 
             if viewModel.isLoading {
                 loadingView

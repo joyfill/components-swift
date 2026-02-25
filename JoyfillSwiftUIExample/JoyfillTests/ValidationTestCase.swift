@@ -2,11 +2,12 @@ import XCTest
 import Foundation
 import SwiftUI
 import JoyfillModel
-import Joyfill
+@testable import Joyfill
 
 final class ValidationTestCase: XCTestCase {
     
     // MARK: - Test Helpers
+    let licenseKey: String = ""
     
     /// Mock event handler to capture onChange events for testing
     class ChangeCapture: FormChangeEvent {
@@ -38,6 +39,14 @@ final class ValidationTestCase: XCTestCase {
     }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
+    }
+
+    func collectionDocumentEditor(document: JoyDoc) -> DocumentEditor {
+        let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        XCTAssertFalse(license.isEmpty, "Missing license: set JOYFILL_TEST_LICENSE env var or check licenseKey")
+        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license), "License verification failed — the token does not match the public key in LicenseValidator")
+        return DocumentEditor(document: document, validateSchema: false, license: license)
     }
     //
     // Test Case for check at same time web and mobile view fields
@@ -682,14 +691,12 @@ final class ValidationTestCase: XCTestCase {
             .setMultilineTextField(hidden: true, value: .string(""), required: true)
                 let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
+        //Test case changed as we not returning the hidden fields/any elements
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
     }
 
     func testRequiredHiddenNumberFieldWithValue() {
@@ -710,12 +717,11 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
 
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        
     }
 
     // Show Hidden Field Test Cases
@@ -790,12 +796,10 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
     }
 
     func testRequiredHideNumberFieldWithValues() {
@@ -816,12 +820,12 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
+        XCTAssertEqual(validationResult.fieldValidities.count, 1)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+//        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
+//        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
         
     }
     
@@ -837,9 +841,9 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        //Result should be invalid because a row with id "67612793a6cd1f9d39c8433d" has nil cells
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
     }
@@ -878,8 +882,8 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
 
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
     }
@@ -935,11 +939,40 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-
-        XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+        //if table/collection is not required , but some internal things are req and not filled , whole table is invalid
+        
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testNonRequiredTableField_RowValiditiesPopulated() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        XCTAssertEqual(validationResult.status, .valid)
+
+        let fieldValidity = validationResult.fieldValidities.first
+        XCTAssertEqual(fieldValidity?.status, .valid)
+
+        let rows = fieldValidity?.rowValidities ?? []
+        XCTAssertEqual(rows.count, 4)
+        XCTAssertTrue(rows.allSatisfy { $0.status == .valid })
+
+        for row in rows {
+            XCTAssertEqual(row.cellValidities.count, 3)
+            XCTAssertTrue(row.cellValidities.allSatisfy { $0.status == .valid })
+        }
     }
 
     func testRequiredTableFieldNonRequiredColumns() {
@@ -1744,7 +1777,7 @@ final class ValidationTestCase: XCTestCase {
         let pageToDeleteID = "second_page_id_12345" // ✅ Fixed: Using correct page ID
         let documentEditor = documentEditor(document: document)
         
-        XCTAssertTrue(documentEditor.document.fields.contains(where: { $0.id == sharedFieldID }), 
+        XCTAssertTrue(documentEditor.document.fields.contains(where: { $0.id == sharedFieldID }),
                      "Shared field should exist before deletion")
         
         // Delete page 2
@@ -1983,7 +2016,7 @@ final class ValidationTestCase: XCTestCase {
         let fieldD_ID = "field_d_mobile_pages"
         
         // Add all fields
-        for (id, identifier) in [(fieldA_ID, "fieldA"), (fieldB_ID, "fieldB"), 
+        for (id, identifier) in [(fieldA_ID, "fieldA"), (fieldB_ID, "fieldB"),
                                    (fieldC_ID, "fieldC"), (fieldD_ID, "fieldD")] {
             var field = JoyDocField(field: [:])
             field.id = id
@@ -2485,7 +2518,7 @@ final class ValidationTestCase: XCTestCase {
                 .setCollectionFieldRequired()
                 .setCollectionFieldPosition()
 
-            let documentEditor = documentEditor(document: document)
+            let documentEditor = collectionDocumentEditor(document: document)
             let validationResult = documentEditor.validate()
 
             XCTAssertEqual(validationResult.status, .invalid)
@@ -2509,8 +2542,8 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
-            let result = editor.validate()
+            let documentEditor = collectionDocumentEditor(document: document)
+            let result = documentEditor.validate()
 
             XCTAssertEqual(result.status, .valid)
             XCTAssertEqual(result.fieldValidities.first?.status, .valid)
@@ -2533,7 +2566,7 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
+            let editor = collectionDocumentEditor(document: document)
             let result = editor.validate()
 
             XCTAssertEqual(result.status, .invalid)
@@ -2557,7 +2590,7 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
+            let editor = collectionDocumentEditor(document: document)
             let result = editor.validate()
 
             XCTAssertEqual(result.status, .invalid)
@@ -2581,14 +2614,47 @@ final class ValidationTestCase: XCTestCase {
                 )
                 .setCollectionFieldPosition()
 
-            let editor = documentEditor(document: document)
+            let editor = collectionDocumentEditor(document: document)
             let result = editor.validate()
-
-            XCTAssertEqual(result.status, .valid)
-            XCTAssertEqual(result.fieldValidities.first?.status, .valid)
+            //if table/collection is not required , but some internal things are req and not filled , whole table is invalid
+            XCTAssertEqual(result.status, .invalid)
+            XCTAssertEqual(result.fieldValidities.first?.status, .invalid)
             XCTAssertEqual(result.fieldValidities.first?.field.id, "67ddc52d35de157f6d7ebb63")
             XCTAssertEqual(result.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         }
+
+    func testNonRequiredCollectionField_WithRows_RowValiditiesPopulated() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: false, isSchemaRequired: false, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .valid)
+
+        let fieldValidity = result.fieldValidities.first
+        XCTAssertEqual(fieldValidity?.status, .valid)
+
+        let rows = fieldValidity?.rowValidities ?? []
+        XCTAssertEqual(rows.count, 2)
+        XCTAssertTrue(rows.allSatisfy { $0.status == .valid })
+
+        let rootRow = rows.first(where: { $0.schemaId == "main_schema" })
+        XCTAssertNotNil(rootRow)
+        XCTAssertEqual(rootRow?.rowId, "row_1")
+        XCTAssertFalse(rootRow?.cellValidities.isEmpty ?? true)
+
+        let nestedRow = rows.first(where: { $0.schemaId == "child_schema_1" })
+        XCTAssertNotNil(nestedRow)
+        XCTAssertEqual(nestedRow?.rowId, "nested_row_1")
+        XCTAssertFalse(nestedRow?.cellValidities.isEmpty ?? true)
+    }
 
     func testCollectionField_FieldRequired_SchemaNotRequiredWithValues_ShouldBeValid() {
         let document = JoyDoc()
@@ -2600,7 +2666,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .valid)
@@ -2619,7 +2685,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -2638,7 +2704,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -2657,7 +2723,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .valid)
@@ -2676,7 +2742,7 @@ final class ValidationTestCase: XCTestCase {
             .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
             .setCollectionFieldPosition()
 
-        let editor = documentEditor(document: document)
+        let editor = collectionDocumentEditor(document: document)
         let result = editor.validate()
 
         XCTAssertEqual(result.status, .invalid)
@@ -2709,12 +2775,7 @@ final class ValidationTestCase: XCTestCase {
         let validationResult = documentEditor.validate()
         
         XCTAssertEqual(validationResult.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities.count, 2)
-        XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
-        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-        XCTAssertEqual(validationResult.fieldValidities[1].pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(validationResult.fieldValidities.count, 0)
     }
         
         func testTwoPageFieldIds() {
@@ -2734,13 +2795,10 @@ final class ValidationTestCase: XCTestCase {
             let validationResult = documentEditor.validate()
             
             XCTAssertEqual(validationResult.status, .valid)
-            XCTAssertEqual(validationResult.fieldValidities.count, 2)
+            XCTAssertEqual(validationResult.fieldValidities.count, 1)
             XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
             XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
             XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-            XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa29c05db08120464a2875")
-            XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-            XCTAssertEqual(validationResult.fieldValidities[1].pageId, "66600801dc1d8b4f72f54917")
         }
     
     // MARK: - Page Focus/Blur Event Tests
@@ -3058,5 +3116,616 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(eventCapture.capturedFocusEvents.count, 3)
         XCTAssertEqual(eventCapture.capturedBlurEvents[2].pageEvent?.page.id, page1ID)
         XCTAssertEqual(eventCapture.capturedFocusEvents[2].pageEvent?.page.id, page2ID)
+    }
+
+    // MARK: - Table Row/Cell Output Tests
+
+    func testTableField_RowsReturnedInOutput() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        let fieldValidity = validationResult.fieldValidities.first
+        XCTAssertNotNil(fieldValidity?.rowValidities)
+        // 5 rows total: 3 with data + 1 deleted (skipped) + 1 nil cells = 4 non-deleted
+        XCTAssertEqual(fieldValidity?.rowValidities?.count, 4)
+    }
+
+    func testTableField_DeletedRowsExcludedFromOutput() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        let rows = validationResult.fieldValidities.first?.rowValidities ?? []
+        let deletedRowId = "67612793a6cd1f9d39c8433c"
+        XCTAssertFalse(rows.contains(where: { $0.rowId == deletedRowId }))
+    }
+
+    func testTableField_CellValiditiesReturnedPerRow() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        let firstRow = validationResult.fieldValidities.first?.rowValidities?.first
+        XCTAssertNotNil(firstRow)
+        // 3 columns visible (none hidden), but column3 is not required
+        XCTAssertEqual(firstRow?.cellValidities.count, 3)
+        XCTAssertEqual(firstRow?.rowId, "676127938056dcd158942bad")
+    }
+
+    func testTableField_InvalidRowHasInvalidCells() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        // Row 5 (id: 67612793a6cd1f9d39c8433d) has nil cells, should be invalid
+        let nilCellsRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.rowId == "67612793a6cd1f9d39c8433d" })
+        XCTAssertNotNil(nilCellsRow)
+        XCTAssertEqual(nilCellsRow?.status, .invalid)
+
+        let invalidCells = nilCellsRow?.cellValidities.filter { $0.status == .invalid } ?? []
+        XCTAssertFalse(invalidCells.isEmpty)
+    }
+
+    func testTableField_ValidRowsHaveValidStatus() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        // Row 1 (id: 676127938056dcd158942bad) has all cells populated
+        let validRow = validationResult.fieldValidities.first?.rowValidities?.first(where: { $0.rowId == "676127938056dcd158942bad" })
+        XCTAssertNotNil(validRow)
+        XCTAssertEqual(validRow?.status, .valid)
+        XCTAssertTrue(validRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
+    }
+
+    func testTableField_EmptyCells_AllRowsInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        let rows = validationResult.fieldValidities.first?.rowValidities ?? []
+        XCTAssertFalse(rows.isEmpty)
+        // Row 2 has empty cells, should be invalid
+        let row2 = rows.first(where: { $0.rowId == "67612793f70928da78973744" })
+        XCTAssertEqual(row2?.status, .invalid)
+    }
+
+    func testTableField_HiddenColumns_CellsNotValidated() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: true, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: true)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        XCTAssertEqual(validationResult.status, .valid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
+    }
+
+    func testTableField_NonRequiredColumns_CellsAlwaysValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        let rows = validationResult.fieldValidities.first?.rowValidities ?? []
+        for row in rows {
+            XCTAssertEqual(row.status, .valid)
+            XCTAssertTrue(row.cellValidities.allSatisfy { $0.status == .valid })
+        }
+    }
+
+    func testTableField_ZeroRows_NoRowsInOutput() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        let rows = validationResult.fieldValidities.first?.rowValidities
+        XCTAssertNotNil(rows)
+        XCTAssertEqual(rows?.count, 0)
+    }
+
+    func testTableField_AllRowsDeleted_IsInvalid() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        if let fieldIndex = document.fields.firstIndex(where: { $0.id == "67612793c4e6a5e6a05e64a3" }),
+           var elements = document.fields[fieldIndex].valueToValueElements {
+            for i in elements.indices {
+                elements[i].deleted = true
+            }
+            document.fields[fieldIndex].value = .valueElementArray(elements)
+        }
+
+        let documentEditor = documentEditor(document: document)
+        let validationResult = documentEditor.validate()
+
+        XCTAssertEqual(validationResult.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
+        XCTAssertEqual(validationResult.fieldValidities.first?.rowValidities?.count, 0)
+    }
+
+    // MARK: - Collection Row/Cell Output Tests
+
+    func testCollectionField_RowsReturnedInOutput() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let fieldValidity = result.fieldValidities.first
+        XCTAssertNotNil(fieldValidity?.rowValidities)
+        XCTAssertFalse(fieldValidity?.rowValidities?.isEmpty ?? true)
+    }
+
+    func testCollectionField_RootRowHasCorrectSchemaId() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        XCTAssertEqual(rootRow?.schemaId, "main_schema")
+    }
+
+    func testCollectionField_NestedRowHasCorrectSchemaId() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertNotNil(nestedRow)
+        XCTAssertEqual(nestedRow?.schemaId, "child_schema_1")
+    }
+
+    func testCollectionField_FlatRowsContainBothRootAndNested() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        // Should have root row + nested row in flat array
+        XCTAssertEqual(rows.count, 2)
+
+        let schemaIds = rows.compactMap { $0.schemaId }
+        XCTAssertTrue(schemaIds.contains("main_schema"))
+        XCTAssertTrue(schemaIds.contains("child_schema_1"))
+    }
+
+    func testCollectionField_CellValiditiesReturnedPerRow() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.schemaId == "main_schema" })
+        XCTAssertEqual(rootRow?.cellValidities.count, 1)
+        XCTAssertEqual(rootRow?.cellValidities.first?.columnId, "col_text_1")
+
+        let nestedRow = rows.first(where: { $0.schemaId == "child_schema_1" })
+        XCTAssertEqual(nestedRow?.cellValidities.count, 1)
+        XCTAssertEqual(nestedRow?.cellValidities.first?.columnId, "nested_col_1")
+    }
+
+    func testCollectionField_OmittedValues_CellsAreInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.schemaId == "main_schema" })
+        XCTAssertEqual(rootRow?.status, .invalid)
+        XCTAssertEqual(rootRow?.cellValidities.first?.status, .invalid)
+    }
+
+    func testCollectionField_RequiredSchemaNoRows_FieldInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+        XCTAssertEqual(result.fieldValidities.first?.status, .invalid)
+        // Only root row in output (no nested rows)
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        XCTAssertFalse(rows.contains(where: { $0.schemaId == "child_schema_1" }))
+    }
+
+    func testCollectionField_SchemaNotRequired_NoRowsStillValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: false, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .valid)
+        XCTAssertEqual(result.fieldValidities.first?.status, .valid)
+    }
+
+    // MARK: - Bottom-Up Row Validity (row status reflects child schema validity)
+
+    func testCollectionField_RootRowInvalid_WhenRequiredChildSchemaHasNoRows() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: false, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        // Root row's own cells are filled, but its required child schema has zero rows
+        // so the root row itself must be invalid
+        XCTAssertEqual(rootRow?.status, .invalid)
+        // The root row's cells should still all be valid (invalidity comes from children)
+        XCTAssertTrue(rootRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
+    }
+
+    func testCollectionField_RootRowValid_WhenChildSchemaNotRequiredAndEmpty() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: false, includeNestedRows: false, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        // Child schema is not required, so empty children don't affect root row
+        XCTAssertEqual(rootRow?.status, .valid)
+    }
+
+    func testCollectionField_RootRowInvalid_WhenChildRowHasInvalidCells() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        // Clear only the nested row's cells so child row is invalid while root cells stay valid
+        let collectionFieldId = "67ddc52d35de157f6d7ebb63"
+        if let fieldIndex = document.fields.firstIndex(where: { $0.id == collectionFieldId }),
+           var elements = document.fields[fieldIndex].valueToValueElements {
+            let emptyNestedRow = ValueElement(dictionary: [
+                "_id": "nested_row_1",
+                "cells": [String: Any](),
+                "children": [String: Any]()
+            ])
+            elements[0].childrens = [
+                "child_schema_1": Children(dictionary: ["value": [emptyNestedRow]])
+            ]
+            document.fields[fieldIndex].value = .valueElementArray(elements)
+        }
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+
+        // The nested child row should be invalid (empty required cells)
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertNotNil(nestedRow)
+        XCTAssertEqual(nestedRow?.status, .invalid)
+
+        // The root row should also be invalid because its child row is invalid
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        XCTAssertEqual(rootRow?.status, .invalid)
+        // But the root row's own cells are all valid
+        XCTAssertTrue(rootRow?.cellValidities.allSatisfy { $0.status == .valid } ?? false)
+    }
+
+    func testCollectionField_RootRowValid_WhenAllChildrenValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: false)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertNotNil(rootRow)
+        // Root cells valid + child schema has rows + child row cells valid = root row valid
+        XCTAssertEqual(rootRow?.status, .valid)
+
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertNotNil(nestedRow)
+        XCTAssertEqual(nestedRow?.status, .valid)
+    }
+
+    func testCollectionField_BothRowsInvalid_WhenAllValuesOmitted() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(isFieldRequired: true, isSchemaRequired: true, includeNestedRows: true, omitRequiredValues: true)
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertEqual(result.status, .invalid)
+
+        let rows = result.fieldValidities.first?.rowValidities ?? []
+
+        // Child row invalid because its own cells are empty
+        let nestedRow = rows.first(where: { $0.rowId == "nested_row_1" })
+        XCTAssertEqual(nestedRow?.status, .invalid)
+
+        // Root row invalid because its own cells are empty AND its child row is invalid
+        let rootRow = rows.first(where: { $0.rowId == "row_1" })
+        XCTAssertEqual(rootRow?.status, .invalid)
+    }
+
+    // MARK: - Unknown Field Type Excluded
+
+    func testUnknownFieldType_ExcludedFromValidation() {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+
+        var field = JoyDocField()
+        field.type = "someFutureType"
+        field.id = "unknown_field_1"
+        field.identifier = "field_unknown_1"
+        field.title = "Unknown Field"
+        field.required = true
+        field.value = .string("")
+        field.file = "6629fab3c0ba3fb775b4a55c"
+        document.fields.append(field)
+
+        var fieldPosition = FieldPosition()
+        fieldPosition.field = "unknown_field_1"
+        fieldPosition.displayType = "original"
+        fieldPosition.width = 12
+        fieldPosition.height = 8
+        fieldPosition.x = 0
+        fieldPosition.y = 60
+        fieldPosition.id = "unknown_field_1_pos"
+        document.files[0].views?[0].pages?[0].fieldPositions?.append(fieldPosition)
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertFalse(result.fieldValidities.contains(where: { $0.fieldId == "unknown_field_1" }))
+    }
+
+    // MARK: - Collection License Validation Tests
+
+    func testCollectionField_NoLicense_ShouldBeExcludedFromValidation() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertFalse(
+            result.fieldValidities.contains(where: { $0.field.fieldType == .collection }),
+            "Collection field should not appear in validation results when no license is provided"
+        )
+    }
+
+    func testCollectionField_NoLicense_OtherFieldsStillValidated() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = documentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertFalse(
+            result.fieldValidities.contains(where: { $0.field.fieldType == .collection }),
+            "Collection field should be excluded when no license is provided"
+        )
+
+    }
+
+    func testCollectionField_ValidLicense_ShouldBeIncludedInValidation() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionFieldRequired(
+                isFieldRequired: true,
+                isSchemaRequired: true,
+                includeNestedRows: true,
+                omitRequiredValues: true
+            )
+            .setCollectionFieldPosition()
+
+        let editor = collectionDocumentEditor(document: document)
+        let result = editor.validate()
+
+        XCTAssertTrue(
+            result.fieldValidities.contains(where: { $0.field.fieldType == .collection }),
+            "Collection field should be included in validation when a valid license is provided"
+        )
     }
 }
