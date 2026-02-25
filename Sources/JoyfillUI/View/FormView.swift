@@ -305,6 +305,7 @@ struct FormView: View {
             }
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
+                documentEditor.navigationFocusFieldId = nil
                 if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
                     proxy.scrollTo(firstFieldID, anchor: .top)
                 }
