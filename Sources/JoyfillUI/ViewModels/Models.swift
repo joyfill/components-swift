@@ -8,14 +8,6 @@
 import Foundation
 import JoyfillModel
 
-struct NavigationIntent {
-    var rowFormOpenedViaGoto: Bool = false
-    var scrollToColumnId: String?
-    var focusColumnId: String?
-    
-    static let none = NavigationIntent()
-}
-
 struct PageModel {
     let id: String
     var fields: [FieldListModel]

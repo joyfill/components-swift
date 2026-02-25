@@ -47,28 +47,6 @@ extension Color {
     }
 }
 
-private struct NavigationFocusFieldIdKey: EnvironmentKey {
-    static let defaultValue: String? = nil
-}
-
-extension EnvironmentValues {
-    var navigationFocusFieldId: String? {
-        get { self[NavigationFocusFieldIdKey.self] }
-        set { self[NavigationFocusFieldIdKey.self] = newValue }
-    }
-}
-
-private struct NavigationFocusColumnIdKey: EnvironmentKey {
-    static let defaultValue: String? = nil
-}
-
-extension EnvironmentValues {
-    var navigationFocusColumnId: String? {
-        get { self[NavigationFocusColumnIdKey.self] }
-        set { self[NavigationFocusColumnIdKey.self] = newValue }
-    }
-}
-
 struct DarkLightThemeColor: ViewModifier {
     @Environment(\.colorScheme) var colorScheme
 
