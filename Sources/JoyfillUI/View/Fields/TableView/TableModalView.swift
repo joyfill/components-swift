@@ -377,6 +377,7 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
 //                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
 //                                cellProxy.scrollTo(columnId, anchor: .leading)
 //                            }
@@ -422,6 +423,7 @@ struct TableModalView : View {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 cellProxy.scrollTo(selectedRowID, anchor: .leading)
                             }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
 //                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
 //                                cellProxy.scrollTo(columnId, anchor: .leading)
 //                            }
