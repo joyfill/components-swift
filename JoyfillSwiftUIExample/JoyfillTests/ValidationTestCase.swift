@@ -841,7 +841,7 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
-        //Result should be invalid coz a row with id "67612793a6cd1f9d39c8433d" has nil cells
+        //Result should be invalid because a row with id "67612793a6cd1f9d39c8433d" has nil cells
         XCTAssertEqual(validationResult.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
