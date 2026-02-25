@@ -64,9 +64,7 @@ struct TableQuickView : View {
             
             Button(action: {
                 self.showEditMultipleRowsSheetView = false
-                viewModel.tableDataModel.rowFormOpenedViaGoto = false
-                viewModel.tableDataModel.scrollToColumnId = nil
-                viewModel.tableDataModel.focusColumnId = nil
+                viewModel.tableDataModel.navigationIntent = .none
                 openTable()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
@@ -108,13 +106,14 @@ struct TableQuickView : View {
             let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
             if rowIdExists {
                 viewModel.tableDataModel.selectedRows = [rowId]
-                viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
-                viewModel.tableDataModel.scrollToColumnId = event.columnId
-                viewModel.tableDataModel.focusColumnId = event.focus ? event.columnId : nil
+                viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                    rowFormOpenedViaGoto: event.openRowForm,
+                    scrollToColumnId: event.columnId,
+                    focusColumnId: event.focus ? event.columnId : nil
+                )
                 showEditMultipleRowsSheetView = event.openRowForm
             } else {
-                viewModel.tableDataModel.scrollToColumnId = nil
-                viewModel.tableDataModel.focusColumnId = nil
+                viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = false
             }
             

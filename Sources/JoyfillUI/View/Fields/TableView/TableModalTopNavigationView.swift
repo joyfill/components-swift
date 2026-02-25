@@ -238,7 +238,7 @@ struct EditMultipleRowsSheetView: View {
             VStack(alignment: .leading, spacing: 16) {
                     if viewModel.tableDataModel.selectedRows.count == 1 {
                         HStack(alignment: .top) {
-                            if !viewModel.tableDataModel.rowFormOpenedViaGoto {
+                            if !viewModel.tableDataModel.navigationIntent.rowFormOpenedViaGoto {
                                 Button(action: {
                                     viewModel.selectUpperRow()
                                     changes = [:]
@@ -510,7 +510,7 @@ struct EditMultipleRowsSheetView: View {
                                     .frame(height: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
@@ -523,7 +523,7 @@ struct EditMultipleRowsSheetView: View {
                                 TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
@@ -536,7 +536,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.vertical, 2)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
@@ -550,7 +550,7 @@ struct EditMultipleRowsSheetView: View {
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
@@ -563,7 +563,7 @@ struct EditMultipleRowsSheetView: View {
                                     .padding(.vertical, 4)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
@@ -576,7 +576,7 @@ struct EditMultipleRowsSheetView: View {
                                     .frame(minHeight: 40)
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 10)
-                                            .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                            .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                     lineWidth: 1)
                                     )
                                     .cornerRadius(10)
@@ -602,7 +602,7 @@ struct EditMultipleRowsSheetView: View {
                                 .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                 lineWidth: 1)
                                 )
                                 .cornerRadius(10)
@@ -627,7 +627,7 @@ struct EditMultipleRowsSheetView: View {
                                 .frame(minHeight: 40)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                        .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                 lineWidth: 1)
                                 )
                                 .cornerRadius(10)
@@ -641,7 +641,7 @@ struct EditMultipleRowsSheetView: View {
                                         .frame(minHeight: 40)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 10)
-                                                .stroke(col.id == viewModel.tableDataModel.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
+                                                .stroke(col.id == viewModel.tableDataModel.navigationIntent.focusColumnId ? Color.focusedFieldBorderColor : Color.allFieldBorderColor,
                                                         lineWidth: 1)
                                         )
                                         .cornerRadius(10)
@@ -657,11 +657,11 @@ struct EditMultipleRowsSheetView: View {
                 Spacer()
             }
             .padding(.all, 16)
-            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.focusColumnId)
+            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.navigationIntent.focusColumnId)
         }
         .id(viewID)
         .onAppear {
-            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+            if let columnId = viewModel.tableDataModel.navigationIntent.scrollToColumnId {
                 scrollProxy.scrollTo(columnId, anchor: .top)
             }
             triggerInlineTextFocus()
@@ -671,16 +671,16 @@ struct EditMultipleRowsSheetView: View {
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
-            viewModel.tableDataModel.focusColumnId = nil
+            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
         }))
         .onTapGesture {
-            viewModel.tableDataModel.focusColumnId = nil
+            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
         }
         }
     }
     
     private func triggerInlineTextFocus() {
-        guard let columnId = viewModel.tableDataModel.focusColumnId,
+        guard let columnId = viewModel.tableDataModel.navigationIntent.focusColumnId,
               let colIndex = viewModel.tableDataModel.tableColumns.firstIndex(where: { $0.id == columnId }),
               viewModel.tableDataModel.tableColumns[colIndex].type == .text else { return }
         focusedColumnIndex = colIndex

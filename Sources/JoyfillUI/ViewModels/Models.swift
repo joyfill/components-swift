@@ -8,6 +8,14 @@
 import Foundation
 import JoyfillModel
 
+struct NavigationIntent {
+    var rowFormOpenedViaGoto: Bool = false
+    var scrollToColumnId: String?
+    var focusColumnId: String?
+    
+    static let none = NavigationIntent()
+}
+
 struct PageModel {
     let id: String
     var fields: [FieldListModel]
@@ -166,12 +174,7 @@ struct TableDataModel {
     var id = UUID()
     var showResetSelectionAlert: Bool = false
     var singleClickRowEdit: Bool = false
-    /// When true, row form was opened via goto(open: true); hide arrow and insert-below buttons.
-    var rowFormOpenedViaGoto: Bool = false
-    /// Column ID to scroll to in the row form or grid, set by navigation events.
-    var scrollToColumnId: String?
-    /// Column ID to auto-focus in the row form, set by navigation events with focus: true.
-    var focusColumnId: String?
+    var navigationIntent = NavigationIntent.none
     private var pendingRowID: [String]?
     
     var viewMoreText: String {

@@ -60,9 +60,7 @@ struct CollectionModalView : View {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
                 onEditTap: {
-                    viewModel.tableDataModel.rowFormOpenedViaGoto = false
-                    viewModel.tableDataModel.scrollToColumnId = nil
-                    viewModel.tableDataModel.focusColumnId = nil
+                    viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = true
                 },
                 onFilterTap: { showFilterModal = true })
@@ -93,14 +91,15 @@ struct CollectionModalView : View {
                     let rowFound = viewModel.expandToRow(rowId: rowId)
                     if rowFound {
                         viewModel.tableDataModel.selectedRows = [rowId]
-                        viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
-                        viewModel.tableDataModel.scrollToColumnId = event.columnId
-                        viewModel.tableDataModel.focusColumnId = event.focus ? event.columnId : nil
+                        viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                            rowFormOpenedViaGoto: event.openRowForm,
+                            scrollToColumnId: event.columnId,
+                            focusColumnId: event.focus ? event.columnId : nil
+                        )
                         showEditMultipleRowsSheetView = event.openRowForm
                     }
                 } else {
-                    viewModel.tableDataModel.scrollToColumnId = nil
-                    viewModel.tableDataModel.focusColumnId = nil
+                    viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = false
                 }
             }
@@ -589,9 +588,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
-                            viewModel.tableDataModel.scrollToColumnId = nil
-                            viewModel.tableDataModel.focusColumnId = nil
+                            viewModel.tableDataModel.navigationIntent = .none
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
@@ -621,9 +618,7 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
-                            viewModel.tableDataModel.scrollToColumnId = nil
-                            viewModel.tableDataModel.focusColumnId = nil
+                            viewModel.tableDataModel.navigationIntent = .none
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
