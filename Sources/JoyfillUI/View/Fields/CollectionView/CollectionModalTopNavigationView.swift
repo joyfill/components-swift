@@ -441,7 +441,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                 }
 
                 ForEach(Array(tableColumns.enumerated()), id: \.offset) { colIndex, col in
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)

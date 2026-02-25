@@ -365,7 +365,7 @@ struct EditMultipleRowsSheetView: View {
                 }
 
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
