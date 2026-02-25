@@ -221,7 +221,7 @@ struct PublicApiExamples: View {
                                     .tint(.blue)
                                 Button {
                                     guard !gotoPath.isEmpty, let editor = documentEditor else { return }
-                                    let status = editor.goto(gotoPath, gotoConfig: GotoConfig(open: gotoOpenModal))
+                                    let status = editor.goto(gotoPath, gotoConfig: GotoConfig(open: gotoOpenModal, focus: true))
                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: {
                                         if status == .failure {
                                             gotoAlertMessage = "Navigation failed for path: \(gotoPath)"
