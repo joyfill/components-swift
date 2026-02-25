@@ -204,7 +204,7 @@ extension DocumentEditor {
         }
     }
     
-    func columnExistsInField(_ field: JoyDocField, columnId: String, schemaKey: String? = nil) -> Bool {
+    func columnExistsInField(_ field: JoyDocField, columnId: String) -> Bool {
         guard let fieldID = field.id else { return false }
         switch field.fieldType {
         case .table:
