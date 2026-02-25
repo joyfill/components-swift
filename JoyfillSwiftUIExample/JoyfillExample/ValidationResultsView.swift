@@ -259,9 +259,9 @@ struct ValidationResultsView: View {
               let fieldPositionId = fv.fieldPositionId else { return }
         dismiss()
         onGoToField?()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
             _ = editor.goto("\(pageId)/\(fieldPositionId)")
-//        }
+        }
     }
 
     private func navigateToRow(row: RowValidity, fieldValidity: FieldValidity) {
@@ -271,9 +271,9 @@ struct ValidationResultsView: View {
               let rowId = row.rowId else { return }
         dismiss()
         onGoToField?()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             _ = editor.goto("\(pageId)/\(fieldPositionId)/\(rowId)", gotoConfig: GotoConfig(open: true))
-//        }
+        }
     }
 
 }
