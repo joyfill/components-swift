@@ -163,7 +163,7 @@ struct TableDataModel {
     var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
-    var id = UUID()
+    private(set) var id: String = ""
     var showResetSelectionAlert: Bool = false
     var singleClickRowEdit: Bool = false
     var navigationIntent = NavigationIntent.none
@@ -241,6 +241,7 @@ struct TableDataModel {
         }
         setupColumns()
         filterRowsIfNeeded()
+        self.id = fieldIdentifier.fieldID + ":" + filterModels.map { $0.colID }.sorted().joined(separator: ",")
     }
     
     mutating func buildFullSchemaChainMap() {
