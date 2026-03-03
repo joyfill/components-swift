@@ -32,8 +32,11 @@ final class FocusCallbackUITests: JoyfillUITestsBaseClass {
         if name.contains("testFieldFocus_TableRowColumn_") {
             return [("--goto-path", "691f376206195944e65eef76/69709462236416126c166efe/697090a399394f50229899a9/697090a35fe3eb39f20fa2d8"), ("--goto-open", nil), ("--goto-focus", nil)]
         }
-        if name.contains("testFieldFocus_CollectionRow_") {
+        if name.contains("testFieldFocus_CollectionRow_") && !name.contains("CollectionRowColumn") {
             return [("--goto-path", "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a4a3b830a02d7d3a3172"), ("--goto-open", nil), ("--goto-focus", nil)]
+        }
+        if name.contains("testFieldFocus_CollectionRowColumn_") {
+            return [("--goto-path", "691f376206195944e65eef76/6970a485380c41d6c06005aa/6970a4a3b830a02d7d3a3172/697090a3e627059c068c4858"), ("--goto-open", nil), ("--goto-focus", nil)]
         }
         return []
     }
@@ -89,8 +92,15 @@ final class FocusCallbackUITests: JoyfillUITestsBaseClass {
         XCTAssertTrue(hasFocusEventWithFieldID("69709462be820cc2c7c39a90"), "onFocus should fire for table field when goto to row+column with open and focus")
     }
 
+    // MARK: - Collection field focus
+
     func testFieldFocus_CollectionRow_FiresOnFocus() {
         waitForFocusBlurResult()
         XCTAssertTrue(hasFocusEventWithFieldID("6970a4856fd033cacf088025"), "onFocus should fire for collection field when goto to row with open and focus")
+    }
+
+    func testFieldFocus_CollectionRowColumn_FiresOnFocus() {
+        waitForFocusBlurResult()
+        XCTAssertTrue(hasFocusEventWithFieldID("6970a4856fd033cacf088025"), "onFocus should fire for collection field when goto to row+column with open and focus")
     }
 }
