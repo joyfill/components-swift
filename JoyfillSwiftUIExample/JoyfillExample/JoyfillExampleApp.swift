@@ -13,6 +13,7 @@ import Joyfill
 class AppState: ObservableObject {
     @Published var changeResult: String = ""
     @Published var uploadResult: String = ""
+    @Published var focusBlurResult: String = "[]"
 }
 
 // MARK: - Quick Configuration
@@ -36,6 +37,10 @@ struct JoyfillExampleApp: App {
         } setUploadResult: { change in
             DispatchQueue.main.async {
                 appState.uploadResult = change
+            }
+        } setFocusBlurResult: { json in
+            DispatchQueue.main.async {
+                appState.focusBlurResult = json
             }
         }
         _appState = StateObject(wrappedValue: appState)
@@ -97,6 +102,9 @@ struct JoyfillExampleApp: App {
                     .frame(height: 10)
                 Text(appState.uploadResult)
                     .accessibilityIdentifier("resultUploadfield")
+                    .frame(height: 10)
+                Text(appState.focusBlurResult)
+                    .accessibilityIdentifier("focusBlurResultfield")
                     .frame(height: 10)
             } else if useQuickTestMode {
                 //Quick test mode: directly open template list with default token
