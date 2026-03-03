@@ -929,4 +929,172 @@ final class NavigationJSONTests: XCTestCase {
         XCTAssertEqual(resultWithFocus, resultWithoutFocus, "Focus flag should not affect navigation status for invalid path")
         XCTAssertEqual(resultWithFocus, .failure)
     }
+    
+    // MARK: - Focus Callback Tests (onFocus/onBlur via FormChangeEvent)
+    // Field focus tests moved to UI tests.
+    
+    // MARK: Page focus/blur callbacks
+    
+    func testFocusCallback_PageChange_FiresOnFocusAndOnBlur() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        eventCapture.reset()
+        let page1 = editor.currentPageID
+        let page2 = "691f376206195944e65eef76"
+        XCTAssertNotEqual(page1, page2, "Should start on a different page than target")
+        
+        _ = editor.goto(page2)
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire for previous page")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1, "One focus event should fire for new page")
+        
+        let blurEvent = eventCapture.capturedBlurEvents.first
+        XCTAssertEqual(blurEvent?.pageEvent?.type, "page.blur")
+        XCTAssertEqual(blurEvent?.pageEvent?.page.id, page1)
+        
+        let focusEvent = eventCapture.capturedFocusEvents.first
+        XCTAssertEqual(focusEvent?.pageEvent?.type, "page.focus")
+        XCTAssertEqual(focusEvent?.pageEvent?.page.id, page2)
+    }
+    
+    func testFocusCallback_SamePage_NoFocusBlurEvents() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        eventCapture.reset()
+        let currentPage = editor.currentPageID
+        _ = editor.goto(currentPage)
+        
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 0, "No focus events should fire when jumping to current page")
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 0, "No blur events should fire when jumping to current page")
+    }
+    
+    func testFocusCallback_FieldOnSamePage_NoPageFocusBlurEvents() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        eventCapture.reset()
+        let currentPage = editor.currentPageID
+        let path = "\(currentPage)/6970918d350238d0738dd5c9"
+        _ = editor.goto(path, gotoConfig: GotoConfig(focus: true))
+        
+        let pageFocusEvents = eventCapture.capturedFocusEvents.filter { $0.pageEvent != nil }
+        let pageBlurEvents = eventCapture.capturedBlurEvents.filter { $0.pageEvent != nil }
+        XCTAssertEqual(pageFocusEvents.count, 0, "No page focus events for same-page field navigation")
+        XCTAssertEqual(pageBlurEvents.count, 0, "No page blur events for same-page field navigation")
+    }
+    
+    func testFocusCallback_FieldOnDifferentPage_FiresPageFocusBlur() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        eventCapture.reset()
+        let originalPage = editor.currentPageID
+        let targetPage = "691f376206195944e65eef76"
+        XCTAssertNotEqual(originalPage, targetPage)
+        
+        let path = "\(targetPage)/6970918d350238d0738dd5c9"
+        _ = editor.goto(path, gotoConfig: GotoConfig(focus: true))
+        
+        let pageBlurEvents = eventCapture.capturedBlurEvents.filter { $0.pageEvent != nil }
+        let pageFocusEvents = eventCapture.capturedFocusEvents.filter { $0.pageEvent != nil }
+        XCTAssertEqual(pageBlurEvents.count, 1, "Should fire blur for previous page")
+        XCTAssertEqual(pageFocusEvents.count, 1, "Should fire focus for new page")
+        XCTAssertEqual(pageBlurEvents.first?.pageEvent?.page.id, originalPage)
+        XCTAssertEqual(pageFocusEvents.first?.pageEvent?.page.id, targetPage)
+    }
+    
+    func testFocusCallback_MultiplePageChanges_FiresCorrectSequence() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        
+        let page1 = editor.currentPageID
+        let page2 = "691f376206195944e65eef76"
+        let page5 = "6970982db629fd3b68d28a35"
+        eventCapture.reset()
+        _ = editor.goto(page2)
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 1)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[0].pageEvent?.page.id, page1)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[0].pageEvent?.page.id, page2)
+        
+        _ = editor.goto(page5)
+        
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 2)
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 2)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[1].pageEvent?.page.id, page2)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[1].pageEvent?.page.id, page5)
+    }
+    
+    func testFocusCallback_RoundTripPageChange_FiresBlurAndFocusInOrder() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let pageA = editor.currentPageID
+        let pageB = "691f376206195944e65eef76"
+        eventCapture.reset()
+        _ = editor.goto(pageB)
+        _ = editor.goto(pageA)
+        XCTAssertEqual(eventCapture.capturedBlurEvents.count, 2, "Blur for A (when leaving to B), then blur for B (when leaving to A)")
+        XCTAssertEqual(eventCapture.capturedFocusEvents.count, 2, "Focus on B, then focus on A")
+        XCTAssertEqual(eventCapture.capturedBlurEvents[0].pageEvent?.page.id, pageA)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[0].pageEvent?.page.id, pageB)
+        XCTAssertEqual(eventCapture.capturedBlurEvents[1].pageEvent?.page.id, pageB)
+        XCTAssertEqual(eventCapture.capturedFocusEvents[1].pageEvent?.page.id, pageA)
+    }
+    
+    func testFocusCallback_InvalidPageId_NoPageFocusOrBlur() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        eventCapture.reset()
+        let result = editor.goto("nonExistentPageId123")
+        XCTAssertEqual(result, .failure)
+        let pageBlurs = eventCapture.capturedBlurEvents.filter { $0.pageEvent != nil }
+        let pageFocuses = eventCapture.capturedFocusEvents.filter { $0.pageEvent != nil }
+        XCTAssertEqual(pageBlurs.count, 0, "No page blur when goto fails for invalid page")
+        XCTAssertEqual(pageFocuses.count, 0, "No page focus when goto fails for invalid page")
+    }
+    
+    func testFocusCallback_HiddenPage_NoPageFocusOrBlur() {
+        let eventCapture = ChangeFocusCapture()
+        let document = sampleJSONDocument(fileName: "Navigation")
+        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        eventCapture.reset()
+        let hiddenPageId = "69709965bf69fedffee003a9"
+        let result = editor.goto(hiddenPageId)
+        XCTAssertEqual(result, .failure)
+        let pageBlurs = eventCapture.capturedBlurEvents.filter { $0.pageEvent != nil }
+        let pageFocuses = eventCapture.capturedFocusEvents.filter { $0.pageEvent != nil }
+        XCTAssertEqual(pageBlurs.count, 0, "No page blur when goto fails for hidden page")
+        XCTAssertEqual(pageFocuses.count, 0, "No page focus when goto fails for hidden page")
+    }
+    
+    class ChangeFocusCapture: FormChangeEvent {
+        var capturedFocusEvents: [Event] = []
+        var capturedBlurEvents: [Event] = []
+        
+        func onChange(changes: [Change], document: JoyDoc) {
+        }
+        
+        func onFocus(event: Event) {
+            capturedFocusEvents.append(event)
+        }
+        
+        func onBlur(event: Event) {
+            capturedBlurEvents.append(event)
+        }
+        
+        func onCapture(event: CaptureEvent) {}
+        func onUpload(event: UploadEvent) {}
+        func onError(error: JoyfillError) {}
+        
+        func reset() {
+            capturedFocusEvents.removeAll()
+            capturedBlurEvents.removeAll()
+        }
+    }
 }
