@@ -10,6 +10,19 @@ struct TableModalTopNavigationView: View {
 
     var body: some View {
         HStack {
+            if let onClose {
+                Button(action: onClose) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.blue)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("TableOverlayCloseIdentifier")
+            }
+
             if let title = viewModel.tableDataModel.title {
                 Text("\(title)")
                     .font(.headline.bold())
@@ -213,15 +226,6 @@ struct TableModalTopNavigationView: View {
             }
             .disabled(viewModel.tableDataModel.mode == .readonly)
             .accessibilityIdentifier("TableAddRowIdentifier")
-
-            if let onClose {
-                Button(action: onClose) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 22))
-                        .foregroundStyle(.gray)
-                }
-                .accessibilityIdentifier("TableOverlayCloseIdentifier")
-            }
         }
     }
 

@@ -33,36 +33,41 @@ struct ChartDetailView: View {
         VStack {
             if let onClose {
                 HStack {
-                    Spacer()
                     Button(action: onClose) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundStyle(.gray)
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.blue)
                     }
+                    .buttonStyle(.plain)
                     .accessibilityIdentifier("ChartOverlayCloseIdentifier")
+                    Spacer()
                 }
                 .padding(.horizontal, 10)
                 .padding(.top, 8)
             }
             ScrollView {
-                
-//                MultiLineChart(chartData: chartData)
-//                //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
-//                    .pointMarkers(chartData: chartData)
-//                //                        .xAxisGrid(chartData: data)
-//                //                        .yAxisGrid(chartData: data)
-//                    .xAxisLabels(chartData: chartData)
-//                    .yAxisLabels(chartData: chartData, specifier: "%.01f")
-//                    .floatingInfoBox(chartData: chartData)
-//                    .headerBox(chartData: chartData)
-//                    .legends(chartData: chartData, columns: [GridItem(.flexible()), GridItem(.flexible())])
-//                    .id(chartData.id)
-//                    .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
-//                    .padding(.horizontal)
-                
-                ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, chartDataModel: chartDataModel)
-                LinesView(valueElements: $valueElements, updateValueElements: updateValueElements)
-                    .disabled(chartDataModel.mode == .readonly)
+                VStack {
+                    //                MultiLineChart(chartData: chartData)
+                    //                //                        .touchOverlay(chartData: data, specifier: "%.01f", unit: .suffix(of: "ºC"))
+                    //                    .pointMarkers(chartData: chartData)
+                    //                //                        .xAxisGrid(chartData: data)
+                    //                //                        .yAxisGrid(chartData: data)
+                    //                    .xAxisLabels(chartData: chartData)
+                    //                    .yAxisLabels(chartData: chartData, specifier: "%.01f")
+                    //                    .floatingInfoBox(chartData: chartData)
+                    //                    .headerBox(chartData: chartData)
+                    //                    .legends(chartData: chartData, columns: [GridItem(.flexible()), GridItem(.flexible())])
+                    //                    .id(chartData.id)
+                    //                    .frame(minWidth: 150, maxWidth: 900, minHeight: 150, idealHeight: 500, maxHeight: 600, alignment: .center)
+                    //                    .padding(.horizontal)
+                    
+                    ChartCoordinateView(isCoordinateVisible: $isCoordinateVisible, chartCoordinatesData: $chartCoordinatesData, chartDataModel: chartDataModel)
+                    LinesView(valueElements: $valueElements, updateValueElements: updateValueElements)
+                        .disabled(chartDataModel.mode == .readonly)
+                }
             }
             .onChange(of: chartCoordinatesData, perform:  { newValue in
                 let chartData = ChartData(xTitle: newValue.xTitle, yTitle: newValue.yTitle, xMax: newValue.xMax, xMin: newValue.xMin, yMax: newValue.yMax, yMin: newValue.yMin)

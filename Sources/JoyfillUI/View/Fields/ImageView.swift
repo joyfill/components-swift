@@ -257,16 +257,21 @@ struct MoreImageView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
-                Text("More Images")
-                    .fontWeight(.bold)
-                Spacer()
-                
                 Button(action: {
                     closeView()
                 }, label: {
-                    Image(systemName: "xmark.circle")
-                        .imageScale(.large)
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.blue)
                 })
+                .buttonStyle(.plain)
+
+                Text("More Images")
+                    .fontWeight(.bold)
+                Spacer()
             }
             
             if !isUploadHidden {

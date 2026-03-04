@@ -225,17 +225,22 @@ struct CanvasSignatureView: View {
     var body: some View {
         VStack(alignment: .leading) {
             HStack {
+                if let onClose {
+                    Button(action: onClose) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.blue)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("SignatureOverlayCloseIdentifier")
+                }
+
                 Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                     .fontWeight(.bold)
                 Spacer()
-                if let onClose {
-                    Button(action: onClose) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 22))
-                            .foregroundStyle(.gray)
-                    }
-                    .accessibilityIdentifier("SignatureOverlayCloseIdentifier")
-                }
             }
             .padding(.top, 12)
             
