@@ -44,48 +44,40 @@ struct TableModalView : View {
     }
     
     var body: some View {
-        ZStack {
-            VStack {
-                TableModalTopNavigationView(
-                    viewModel: viewModel,
-                    onEditTap: {
-                    viewModel.tableDataModel.navigationIntent = .none
-                    showEditMultipleRowsSheetView = true
-                },
-                    onClose: onClose
-                )
-                .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-                if currentSelectedCol != Int.min {
-                    SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
-                    EmptyView()
-                }
-                scrollArea
-                    .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+        VStack {
+            TableModalTopNavigationView(
+                viewModel: viewModel,
+                onEditTap: {
+                viewModel.tableDataModel.navigationIntent = .none
+                showEditMultipleRowsSheetView = true
+            },
+                onClose: onClose
+            )
+            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+            if currentSelectedCol != Int.min {
+                SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
+                EmptyView()
             }
-            
+            scrollArea
+                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+        }
+        .modifier(InlinePopupHostModifier(
+            isPresented: isInlineRowEditorActive,
+            colorScheme: colorScheme,
+            ignoresKeyboardSafeArea: true
+        ) {
             if isInlineRowEditorActive {
                 EditMultipleRowsSheetView(
                     viewModel: viewModel,
                     onClose: { showEditMultipleRowsSheetView = false }
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .background(colorScheme == .dark ? Color.black : Color.white)
-                .zIndex(1)
             }
-        }
+        })
         .sheet(isPresented: rowEditorSheetBinding) {
             EditMultipleRowsSheetView(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isBulkLoading)
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    dismissKeyboard()
-                }
-            }
-        }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {

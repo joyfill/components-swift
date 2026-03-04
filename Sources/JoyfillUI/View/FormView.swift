@@ -290,7 +290,6 @@ struct FormView: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            ZStack {
             List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
                 if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
                     fieldView(listModelBinding: $listModel)
@@ -338,12 +337,16 @@ struct FormView: View {
                     documentEditor.navigationFocusFieldId = nil
                 }
             }
-                if let overlay = activeInlineOverlay {
-                    inlineOverlayView(overlay)
-                        .zIndex(1)
-                }
         }
-        }
+        .modifier(InlinePopupHostModifier(
+            isPresented: activeInlineOverlay != nil,
+            colorScheme: colorScheme,
+            ignoresKeyboardSafeArea: true
+        ) {
+            if let overlay = activeInlineOverlay {
+                overlay.content
+            }
+        })
     }
 
     private var inlineFieldPresenter: InlineFieldPresenter? {
@@ -364,18 +367,6 @@ struct FormView: View {
 
     private func dismissInlineOverlay() {
         activeInlineOverlay = nil
-    }
-
-    @ViewBuilder
-    private func inlineOverlayView(_ overlay: ActiveInlineOverlay) -> some View {
-        ZStack {
-            (colorScheme == .dark ? Color.black : Color.white)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea(.keyboard, edges: .bottom)
-            overlay.content
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        }
-        .transition(.opacity)
     }
 }
 
