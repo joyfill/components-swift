@@ -19,6 +19,7 @@ struct PublicApiExamples: View {
     @Binding var isPageDuplicate: Bool
     @Binding var isPageDelete: Bool
     @Binding var singleClickRowEdit: Bool
+    @Binding var inlineFields: Bool
     @Environment(\.dismiss) var dismiss
     @State private var selectedPageOption: String = "custom"
     @State private var showCustomPageInput: Bool = false
@@ -30,7 +31,14 @@ struct PublicApiExamples: View {
     @State private var showGotoAlert: Bool = false
     @State private var gotoAlertMessage: String = ""
 
-    init(documentEditor: Binding<DocumentEditor?>, licenseKey: Binding<String>, validateSchema: Binding<Bool>, isPageDuplicate: Binding<Bool>, isPageDelete: Binding<Bool>, singleClickRowEdit: Binding<Bool>, document: JoyDoc) {
+    init(documentEditor: Binding<DocumentEditor?>,
+         licenseKey: Binding<String>,
+         validateSchema: Binding<Bool>,
+         isPageDuplicate: Binding<Bool>,
+         isPageDelete: Binding<Bool>,
+         singleClickRowEdit: Binding<Bool>,
+         inlineFields: Binding<Bool>,
+         document: JoyDoc) {
         self._documentEditor = documentEditor
         let editor = documentEditor.wrappedValue
         _pageID = State(initialValue: editor?.currentPageID ?? "")
@@ -41,6 +49,7 @@ struct PublicApiExamples: View {
         self._isPageDuplicate = isPageDuplicate
         self._isPageDelete = isPageDelete
         self._singleClickRowEdit = singleClickRowEdit
+        self._inlineFields = inlineFields
         self.document = document
         self._license = licenseKey
     }
@@ -274,6 +283,16 @@ struct PublicApiExamples: View {
                                 .labelsHidden()
                                 .tint(.blue)
                         }
+
+                        SettingCard(
+                            icon: "rectangle.on.rectangle",
+                            iconColor: .teal,
+                            title: "Inline Fields"
+                        ) {
+                            Toggle("", isOn: $inlineFields)
+                                .labelsHidden()
+                                .tint(.teal)
+                        }
                         
                         // Mode Selection Card
                         SettingCard(
@@ -405,7 +424,8 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: isPageDelete,
                     validateSchema: newValue,
                     license: self.license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: editor.inlineFields
                 )
             }
         }
@@ -421,7 +441,8 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
                     license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: editor.inlineFields
                 )
             }
         }
@@ -437,7 +458,8 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
                     license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: editor.inlineFields
                 )
             }
         }
@@ -453,7 +475,8 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: newValue,
                     validateSchema: validateSchema,
                     license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: editor.inlineFields
                 )
             }
         }
@@ -469,7 +492,8 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
                     license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: editor.inlineFields
                 )
             }
         }
@@ -485,7 +509,8 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
                     license: newValue,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: editor.inlineFields
                 )
             }
         }
@@ -501,7 +526,25 @@ struct PublicApiExamples: View {
                     isPageDeleteEnabled: isPageDelete,
                     validateSchema: validateSchema,
                     license: license,
-                    singleClickRowEdit: newValue
+                    singleClickRowEdit: newValue,
+                    inlineFields: editor.inlineFields
+                )
+            }
+        }
+        .onChange(of: inlineFields) { newValue in
+            if let editor = documentEditor {
+                documentEditor = DocumentEditor(
+                    document: editor.document,
+                    mode: editor.mode,
+                    events: editor.events,
+                    pageID: editor.currentPageID,
+                    navigation: editor.showPageNavigationView,
+                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
+                    isPageDeleteEnabled: isPageDelete,
+                    validateSchema: validateSchema,
+                    license: license,
+                    singleClickRowEdit: editor.singleClickRowEdit,
+                    inlineFields: newValue
                 )
             }
         }
