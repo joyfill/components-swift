@@ -13,6 +13,7 @@ struct ChartView: View {
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.inlineFieldPresenter) private var inlineFieldPresenter
     let eventHandler: FieldChangeEvents
 
 //    let data : MultiLineChartData
@@ -46,14 +47,25 @@ struct ChartView: View {
 //                        .padding(.horizontal)
 //                )
             
-            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
-                EmptyView()
+            if inlineFieldPresenter == nil {
+                NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
+                    EmptyView()
+                }
+                .frame(width: 0, height: 0)
+                .hidden()
             }
-            .frame(width: 0, height: 0)
-            .hidden()
             
             Button(action: {
-                showDetailChartView = true
+                if let inlineFieldPresenter {
+                    inlineFieldPresenter.present(AnyView(
+                        ChartDetailView(
+                            chartDataModel: chartDataModel,
+                            onClose: inlineFieldPresenter.dismiss
+                        )
+                    ))
+                } else {
+                    showDetailChartView = true
+                }
                 if chartDataModel.mode == .fill {
                     eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
                 }
@@ -112,4 +124,3 @@ struct ChartView: View {
 //        return lineChartDataPoints
 //    }
 }
-

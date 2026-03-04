@@ -14,6 +14,7 @@ struct ImageView: View {
     @State private var showProgressView : Bool = false
     @State var hasAppeared: Bool = false
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.inlineFieldPresenter) private var inlineFieldPresenter
     
     @State var uiImagesArray: [UIImage] = []
     @State var valueElements: [ValueElement] = []
@@ -79,7 +80,19 @@ struct ImageView: View {
                             Spacer()
                             
                             Button(action: {
-                                showMoreImages = true
+                                if let inlineFieldPresenter {
+                                    inlineFieldPresenter.present(AnyView(
+                                        MoreImageView(images: $images,
+                                                      valueElements: $valueElements,
+                                                      isMultiEnabled: isMultiEnabled,
+                                                      showToast: $showToast,
+                                                      uploadAction: uploadAction,
+                                                      isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly),
+                                                      onClose: inlineFieldPresenter.dismiss)
+                                    ))
+                                } else {
+                                    showMoreImages = true
+                                }
                                 if imageDataModel.mode == .fill {
                                     eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                                 }
@@ -138,12 +151,16 @@ struct ImageView: View {
             }
         }
         .sheet(isPresented: $showMoreImages) {
-            MoreImageView(images: $images,
-                          valueElements: $valueElements,
-                          isMultiEnabled: isMultiEnabled,
-                          showToast: $showToast,
-                          uploadAction: uploadAction,
-                          isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
+            if inlineFieldPresenter == nil {
+                MoreImageView(images: $images,
+                              valueElements: $valueElements,
+                              isMultiEnabled: isMultiEnabled,
+                              showToast: $showToast,
+                              uploadAction: uploadAction,
+                              isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
+            } else {
+                EmptyView()
+            }
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()
@@ -235,6 +252,7 @@ struct MoreImageView: View {
     
     var uploadAction: () -> Void
     var isUploadHidden: Bool
+    var onClose: (() -> Void)? = nil
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -244,7 +262,7 @@ struct MoreImageView: View {
                 Spacer()
                 
                 Button(action: {
-                    presentationMode.wrappedValue.dismiss()
+                    closeView()
                 }, label: {
                     Image(systemName: "xmark.circle")
                         .imageScale(.large)
@@ -283,6 +301,14 @@ struct MoreImageView: View {
                 }
             }
         })
+    }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
     }
 
     private func loadImages(from elements: [ValueElement]) {

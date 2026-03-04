@@ -49,10 +49,12 @@ struct CollectionModalView : View {
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
+    let onClose: (() -> Void)?
     
-    init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
+    init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool, onClose: (() -> Void)? = nil) {
         self.viewModel = viewModel
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
+        self.onClose = onClose
     }
 
     var body: some View {
@@ -63,7 +65,8 @@ struct CollectionModalView : View {
                     viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = true
                 },
-                onFilterTap: { showFilterModal = true })
+                onFilterTap: { showFilterModal = true },
+                onClose: onClose)
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
@@ -80,7 +83,7 @@ struct CollectionModalView : View {
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
-                dismiss()
+                closeView()
                 return
             }
             
@@ -118,6 +121,14 @@ struct CollectionModalView : View {
                     viewModel.tableDataModel.cancelResetSelection()
                 })
             )
+        }
+    }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
         }
     }
 
@@ -663,4 +674,3 @@ extension View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
-

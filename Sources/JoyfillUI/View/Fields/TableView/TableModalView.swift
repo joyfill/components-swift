@@ -34,11 +34,13 @@ struct TableModalView : View {
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     var longestBlockText: String = ""
+    let onClose: (() -> Void)?
 
-    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
+    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool, onClose: (() -> Void)? = nil) {
         self.viewModel = viewModel
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
+        self.onClose = onClose
     }
     
     var body: some View {
@@ -48,7 +50,9 @@ struct TableModalView : View {
                 onEditTap: {
                 viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = true
-            })
+            },
+                onClose: onClose
+            )
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
@@ -73,7 +77,7 @@ struct TableModalView : View {
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
-                dismiss()
+                closeView()
                 return
             }
             
@@ -119,6 +123,14 @@ struct TableModalView : View {
                 currentSelectedCol = Int.min
                 viewModel.tableDataModel.emptySelection()
             }
+        }
+    }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
         }
     }
     

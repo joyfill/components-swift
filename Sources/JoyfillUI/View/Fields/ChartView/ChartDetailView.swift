@@ -13,9 +13,10 @@ struct ChartDetailView: View {
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     @State var chartCoordinatesData: ChartAxisConfiguration
+    let onClose: (() -> Void)?
     
 //    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
-    public init(chartDataModel: ChartDataModel) {
+    public init(chartDataModel: ChartDataModel, onClose: (() -> Void)? = nil) {
 //        self.chartData = chartData
         self.chartDataModel = chartDataModel
         _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
@@ -25,10 +26,24 @@ struct ChartDetailView: View {
                                                                            xTitle: chartDataModel.xTitle,
                                                                            xMax: chartDataModel.xMax,
                                                                            xMin: chartDataModel.xMin))
+        self.onClose = onClose
     }
     
     var body: some View {
         VStack {
+            if let onClose {
+                HStack {
+                    Spacer()
+                    Button(action: onClose) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 22))
+                            .foregroundStyle(.gray)
+                    }
+                    .accessibilityIdentifier("ChartOverlayCloseIdentifier")
+                }
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+            }
             ScrollView {
                 
 //                MultiLineChart(chartData: chartData)
@@ -526,4 +541,3 @@ struct xAndYAxisCoordinateView: View {
             .cornerRadius(10)
     }
 }
-

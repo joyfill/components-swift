@@ -12,6 +12,7 @@ struct CollectionModalTopNavigationView: View {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
     var onFilterTap: (() -> Void)?
+    var onClose: (() -> Void)?
     
     @State private var showingPopover = false
     
@@ -248,6 +249,15 @@ struct CollectionModalTopNavigationView: View {
                         }
                     }
                 }
+            }
+
+            if let onClose {
+                Button(action: onClose) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.gray)
+                }
+                .accessibilityIdentifier("CollectionOverlayCloseIdentifier")
             }
 
         }

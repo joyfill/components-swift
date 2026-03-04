@@ -14,6 +14,7 @@ struct SignatureView: View {
     @State var showError: Bool = false
 
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.inlineFieldPresenter) private var inlineFieldPresenter
     private var signatureDataModel: SignatureDataModel
     let eventHandler: FieldChangeEvents
 
@@ -53,7 +54,21 @@ struct SignatureView: View {
                 })
             
             Button(action: {
-                showCanvasSignatureView = true
+                if let inlineFieldPresenter {
+                    inlineFieldPresenter.present(AnyView(
+                        CanvasSignatureView(
+                            lines: $lines,
+                            savedLines: $savedLines,
+                            signatureImage: $signatureImage,
+                            signatureURL: $signatureURL,
+                            showError: $showError,
+                            isEditable: $isEditable,
+                            onClose: inlineFieldPresenter.dismiss
+                        )
+                    ))
+                } else {
+                    showCanvasSignatureView = true
+                }
                 eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)
             }, label: {
                 Text("\(!signatureURL.isEmpty ? "Edit Signature" : "Add Signature")")
@@ -69,11 +84,13 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
-                EmptyView()
+            if inlineFieldPresenter == nil {
+                NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
+                    EmptyView()
+                }
+                .frame(width: 0, height: 0)
+                .hidden()
             }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
         .onAppear{
             if !hasAppeared {
@@ -202,13 +219,25 @@ struct CanvasSignatureView: View {
     @Binding var showError: Bool
     @Binding var isEditable: Bool
     @Environment(\.presentationMode) private var presentationMode
+    var onClose: (() -> Void)? = nil
     let screenWidth = UIScreen.main.bounds.width
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
-                .fontWeight(.bold)
-                .padding(.top, 12)
+            HStack {
+                Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
+                    .fontWeight(.bold)
+                Spacer()
+                if let onClose {
+                    Button(action: onClose) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 22))
+                            .foregroundStyle(.gray)
+                    }
+                    .accessibilityIdentifier("SignatureOverlayCloseIdentifier")
+                }
+            }
+            .padding(.top, 12)
             
             if isEditable {
                 CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
@@ -300,7 +329,7 @@ struct CanvasSignatureView: View {
                             signatureImage = nil
                             signatureURL = ""
                             showError = false
-                            presentationMode.wrappedValue.dismiss()
+                            closeView()
                             return
                         }
                         if !showCanvasError {
@@ -310,7 +339,7 @@ struct CanvasSignatureView: View {
                             showError = false
                         }
                         savedLines = lines
-                        presentationMode.wrappedValue.dismiss()
+                        closeView()
                     }, label: {
                         Text("Save")
                             .foregroundColor(.white)
@@ -334,6 +363,14 @@ struct CanvasSignatureView: View {
         }
         .padding(.horizontal, 16.0)
     }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
 }
 extension View {
     func snapshot() -> UIImage {
@@ -351,4 +388,3 @@ extension View {
         }
     }
 }
-

@@ -4,6 +4,7 @@ import JoyfillModel
 struct TableModalTopNavigationView: View {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
+    var onClose: (() -> Void)?
     
     @State private var showingPopover = false
 
@@ -212,6 +213,15 @@ struct TableModalTopNavigationView: View {
             }
             .disabled(viewModel.tableDataModel.mode == .readonly)
             .accessibilityIdentifier("TableAddRowIdentifier")
+
+            if let onClose {
+                Button(action: onClose) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(.gray)
+                }
+                .accessibilityIdentifier("TableOverlayCloseIdentifier")
+            }
         }
     }
 

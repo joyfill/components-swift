@@ -52,6 +52,7 @@ public class DocumentEditor: ObservableObject {
     public var isPageDeleteEnabled: Bool = true
     public var showPageNavigationView: Bool = true
     public var singleClickRowEdit: Bool = false
+    public var inlineFields: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -79,7 +80,8 @@ public class DocumentEditor: ObservableObject {
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
                 license: String? = nil,
-                singleClickRowEdit: Bool = false) {
+                singleClickRowEdit: Bool = false,
+                inlineFields: Bool = false) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -94,6 +96,7 @@ public class DocumentEditor: ObservableObject {
                 self.isPageDeleteEnabled = isPageDeleteEnabled
                 self.showPageNavigationView = navigation
                 self.singleClickRowEdit = singleClickRowEdit
+                self.inlineFields = inlineFields
                 self.currentPageID = ""
                 self.events = events
                 
@@ -110,6 +113,7 @@ public class DocumentEditor: ObservableObject {
         self.isPageDeleteEnabled = mode == .readonly ? false : isPageDeleteEnabled
         self.showPageNavigationView = navigation
         self.singleClickRowEdit = singleClickRowEdit
+        self.inlineFields = inlineFields
         self.currentPageID = ""
         self.events = events
         // Set feature flags from license
@@ -1302,4 +1306,3 @@ extension DocumentEditor {
         return true
     }
 }
-

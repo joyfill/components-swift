@@ -17,6 +17,7 @@ struct TableQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.inlineFieldPresenter) private var inlineFieldPresenter
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
@@ -28,7 +29,17 @@ struct TableQuickView : View {
     }
         
     fileprivate func openTable() {
-        isTableModalViewPresented = true
+        if let inlineFieldPresenter {
+            inlineFieldPresenter.present(AnyView(
+                TableModalView(
+                    viewModel: viewModel,
+                    showEditMultipleRowsSheetView: showEditMultipleRowsSheetView,
+                    onClose: inlineFieldPresenter.dismiss
+                )
+            ))
+        } else {
+            isTableModalViewPresented = true
+        }
         
         if tableDataModel.mode == .fill {
             eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
@@ -53,11 +64,13 @@ struct TableQuickView : View {
             }
             .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
-                EmptyView()
+            if inlineFieldPresenter == nil {
+                NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+                    EmptyView()
+                }
+                .frame(width: 0, height: 0)
+                .hidden()
             }
-            .frame(width: 0, height: 0)
-            .hidden()
             
             Button(action: {
                 self.showEditMultipleRowsSheetView = false
@@ -168,4 +181,3 @@ struct TableQuickView : View {
         }
     }
 }
-

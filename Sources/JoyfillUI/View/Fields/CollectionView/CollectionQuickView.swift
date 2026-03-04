@@ -15,6 +15,7 @@ struct CollectionQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.inlineFieldPresenter) private var inlineFieldPresenter
     @State var isTableModalViewPresented = false
     @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
@@ -86,7 +87,17 @@ struct CollectionQuickView : View {
     }
     
     func openCollection() {
-        isTableModalViewPresented = true
+        if let inlineFieldPresenter {
+            inlineFieldPresenter.present(AnyView(
+                CollectionModalView(
+                    viewModel: viewModel,
+                    showEditMultipleRowsSheetView: showEditMultipleRowsSheetView,
+                    onClose: inlineFieldPresenter.dismiss
+                )
+            ))
+        } else {
+            isTableModalViewPresented = true
+        }
         if tableDataModel.mode == .fill {
             eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
         }
@@ -109,11 +120,13 @@ struct CollectionQuickView : View {
             }
             .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
-                EmptyView()
+            if inlineFieldPresenter == nil {
+                NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+                    EmptyView()
+                }
+                .frame(width: 0, height: 0)
+                .hidden()
             }
-            .frame(width: 0, height: 0)
-            .hidden()
             
             Button(action: {
                 showEditMultipleRowsSheetView = false
