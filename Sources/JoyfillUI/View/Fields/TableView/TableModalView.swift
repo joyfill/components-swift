@@ -44,26 +44,38 @@ struct TableModalView : View {
     }
     
     var body: some View {
-        VStack {
-            TableModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                viewModel.tableDataModel.navigationIntent = .none
-                showEditMultipleRowsSheetView = true
-            },
-                onClose: onClose
-            )
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                EditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
+        ZStack {
+            VStack {
+                TableModalTopNavigationView(
+                    viewModel: viewModel,
+                    onEditTap: {
+                    viewModel.tableDataModel.navigationIntent = .none
+                    showEditMultipleRowsSheetView = true
+                },
+                    onClose: onClose
+                )
+                .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+                if currentSelectedCol != Int.min {
+                    SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
+                    EmptyView()
+                }
+                scrollArea
+                    .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
             }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-            if currentSelectedCol != Int.min {
-                SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
-                EmptyView()
+            
+            if isInlineRowEditorActive {
+                EditMultipleRowsSheetView(
+                    viewModel: viewModel,
+                    onClose: { showEditMultipleRowsSheetView = false }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(colorScheme == .dark ? Color.black : Color.white)
+                .zIndex(1)
             }
-            scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+        }
+        .sheet(isPresented: rowEditorSheetBinding) {
+            EditMultipleRowsSheetView(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
         .toolbar {
@@ -124,6 +136,21 @@ struct TableModalView : View {
                 viewModel.tableDataModel.emptySelection()
             }
         }
+    }
+
+    private var isInlineRowEditorEnabled: Bool {
+        onClose != nil
+    }
+
+    private var isInlineRowEditorActive: Bool {
+        isInlineRowEditorEnabled && showEditMultipleRowsSheetView
+    }
+
+    private var rowEditorSheetBinding: Binding<Bool> {
+        Binding(
+            get: { !isInlineRowEditorEnabled && showEditMultipleRowsSheetView },
+            set: { showEditMultipleRowsSheetView = $0 }
+        )
     }
 
     private func closeView() {

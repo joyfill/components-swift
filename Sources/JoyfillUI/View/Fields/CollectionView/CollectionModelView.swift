@@ -58,27 +58,40 @@ struct CollectionModalView : View {
     }
 
     var body: some View {
-        VStack {
-            CollectionModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                    viewModel.tableDataModel.navigationIntent = .none
-                    showEditMultipleRowsSheetView = true
-                },
-                onFilterTap: { showFilterModal = true },
-                onClose: onClose)
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
-            .sheet(isPresented: $showFilterModal) {
-                CollectionFilterModal(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isSearching)
-            }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+        ZStack {
+            VStack {
+                CollectionModalTopNavigationView(
+                    viewModel: viewModel,
+                    onEditTap: {
+                        viewModel.tableDataModel.navigationIntent = .none
+                        showEditMultipleRowsSheetView = true
+                    },
+                    onFilterTap: { showFilterModal = true },
+                    onClose: onClose)
+                .sheet(isPresented: $showFilterModal) {
+                    CollectionFilterModal(viewModel: viewModel)
+                        .interactiveDismissDisabled(viewModel.isSearching)
+                }
+                .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
 
-            scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                scrollArea
+                    .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+            }
+
+            if isInlineRowEditorActive {
+                CollectionEditMultipleRowsSheetView(
+                    viewModel: viewModel,
+                    tableColumns: viewModel.getTableColumnsForSelectedRows(),
+                    onClose: { showEditMultipleRowsSheetView = false }
+                )
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(colorScheme == .dark ? Color.black : Color.white)
+                .zIndex(1)
+            }
+        }
+        .sheet(isPresented: rowEditorSheetBinding) {
+            CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
@@ -122,6 +135,21 @@ struct CollectionModalView : View {
                 })
             )
         }
+    }
+
+    private var isInlineRowEditorEnabled: Bool {
+        onClose != nil
+    }
+
+    private var isInlineRowEditorActive: Bool {
+        isInlineRowEditorEnabled && showEditMultipleRowsSheetView
+    }
+
+    private var rowEditorSheetBinding: Binding<Bool> {
+        Binding(
+            get: { !isInlineRowEditorEnabled && showEditMultipleRowsSheetView },
+            set: { showEditMultipleRowsSheetView = $0 }
+        )
     }
 
     private func closeView() {
