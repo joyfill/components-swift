@@ -22,6 +22,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     var showSingleClickEditButton: Bool {
         return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
+
+    var showRowDecorators: Bool {
+        return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
+    }
+
+    var onDecoratorAction: ((DecoratorLocal, FieldIdentifier) -> Void)?
     
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel

@@ -158,6 +158,7 @@ struct TableDataModel {
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
+    var rowDecorators: [DecoratorLocal] = []
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -208,6 +209,7 @@ struct TableDataModel {
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
+        self.rowDecorators = fieldData.rowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         self.cleanUpRowOrder()
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
@@ -1133,6 +1135,33 @@ struct OptionLocal: Identifiable {
     var deleted: Bool?
     var value: String?
     var color: String?
+}
+
+struct DecoratorLocal {
+    var icon: String?
+    var label: String?
+    var color: String?
+    var action: String?
+
+    var isDisplayable: Bool {
+        let hasIcon = !(icon?.isEmpty ?? true)
+        let hasLabel = !(label?.isEmpty ?? true)
+        return hasIcon || hasLabel
+    }
+
+    init(icon: String? = nil, label: String? = nil, color: String? = nil, action: String? = nil) {
+        self.icon = icon
+        self.label = label
+        self.color = color
+        self.action = action
+    }
+
+    init(from decorator: Decorator) {
+        self.icon = decorator.icon
+        self.label = decorator.label
+        self.color = decorator.color
+        self.action = decorator.action
+    }
 }
 
 struct ChartDataModel {

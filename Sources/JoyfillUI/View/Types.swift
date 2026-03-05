@@ -17,8 +17,10 @@ public struct FieldIdentifier: Equatable {
     public var pageID: String?
     public var fileID: String?
     public var fieldPositionId: String?
+    /// When set, indicates this event was triggered by a decorator action.
+    public var type: String?
     
-    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil) {
+    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil, type: String? = nil) {
         self._id = _id
         self.identifier = identifier
         self.fieldID = fieldID
@@ -26,6 +28,7 @@ public struct FieldIdentifier: Equatable {
         self.pageID = pageID
         self.fileID = fileID
         self.fieldPositionId = fieldPositionId
+        self.type = type
     }
 }
 

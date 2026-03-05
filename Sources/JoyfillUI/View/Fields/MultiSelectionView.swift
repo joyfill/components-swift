@@ -28,7 +28,9 @@ struct MultiSelectionView: View {
     var body: some View {
         VStack(alignment: .leading) {
             let isFilled = (multiSelectionDataModel.multi ?? false) ? !(multiSelectedOptionArray.isEmpty) : !(singleSelectedOptionArray.isEmpty)
-            FieldHeaderView(multiSelectionDataModel.fieldHeaderModel, isFilled: isFilled)
+            FieldHeaderView(multiSelectionDataModel.fieldHeaderModel, isFilled: isFilled) { decorator in
+                eventHandler.onDecoratorAction(event: multiSelectionDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             VStack {
                 if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in

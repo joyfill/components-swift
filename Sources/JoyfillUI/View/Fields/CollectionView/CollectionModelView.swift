@@ -161,11 +161,27 @@ struct CollectionModalView : View {
                     .foregroundColor(Color.gray.opacity(0.4))
                     .border(Color.tableCellBorderColor)
             }
+            if viewModel.showRowDecorators {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 40, height: 60)
+                    .foregroundColor(.blue)
+                    .border(Color.tableCellBorderColor)
+            }
         }
         .frame(minHeight: 60)
-        .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? (viewModel.showSingleClickEditButton ? 160 : 120) : (viewModel.showSingleClickEditButton ? 120 : 80)) : (viewModel.nestedTableCount > 0 ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40)), height: 60)
+        .frame(width: collectionLeftColumnWidth, height: 60)
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+    }
+
+    private var collectionLeftColumnWidth: CGFloat {
+        var width: CGFloat = 40 // # column
+        if viewModel.showRowSelector { width += 40 }
+        if viewModel.nestedTableCount > 0 { width += 40 }
+        if viewModel.showSingleClickEditButton { width += 40 }
+        if viewModel.showRowDecorators { width += 40 }
+        return width
     }
 
     var collection: some View {
@@ -564,6 +580,14 @@ struct CollectionRowsHeaderView: View {
                         .border(Color.tableCellBorderColor)
                         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 }
+                if viewModel.showRowDecorators {
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .frame(width: 40, height: 60)
+                        .foregroundColor(.blue)
+                        .border(Color.tableCellBorderColor)
+                        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                }
             case .nestedRow(let level, let nastedRowIndex, let parentID, let parentSchemaKey):
                 if !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
                     Image(systemName: "asterisk")
@@ -594,6 +618,13 @@ struct CollectionRowsHeaderView: View {
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
+                if viewModel.showRowDecorators {
+                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
+                        viewModel.onDecoratorAction?(decorator, viewModel.tableDataModel.fieldIdentifier)
+                    }
+                    .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                    .border(Color.tableCellBorderColor)
+                }
             case .row(let rowIndex):
                 if  !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: viewModel.rootSchemaKey) {
                     Image(systemName: "asterisk")
@@ -623,6 +654,13 @@ struct CollectionRowsHeaderView: View {
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
+                }
+                if viewModel.showRowDecorators {
+                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
+                        viewModel.onDecoratorAction?(decorator, viewModel.tableDataModel.fieldIdentifier)
+                    }
+                    .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                    .border(Color.tableCellBorderColor)
                 }
             case .tableExpander:
                 EmptyView()

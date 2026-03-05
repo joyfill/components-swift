@@ -44,7 +44,9 @@ struct NumberView: View {
         )
 
         return VStack(alignment: .leading) {
-            FieldHeaderView(numberDataModel.fieldHeaderModel, isFilled: !(displayText.isEmpty))
+            FieldHeaderView(numberDataModel.fieldHeaderModel, isFilled: !(displayText.isEmpty)) { decorator in
+                eventHandler.onDecoratorAction(event: numberDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             // Use the custom binding for more controlled updates
             TextField("", text: textBinding)
                 .accessibilityIdentifier("Number")

@@ -180,6 +180,14 @@ struct TableModalView : View {
         }
     }
 
+    private var leftColumnWidth: CGFloat {
+        var width: CGFloat = 40 // # column
+        if viewModel.showRowSelector { width += 40 }
+        if viewModel.showSingleClickEditButton { width += 40 }
+        if viewModel.showRowDecorators { width += 40 }
+        return width
+    }
+
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
@@ -207,9 +215,16 @@ struct TableModalView : View {
                             .foregroundColor(Color.gray.opacity(0.4))
                             .border(Color.tableCellBorderColor)
                     }
+                    if viewModel.showRowDecorators {
+                        Image(systemName: "ellipsis")
+                            .rotationEffect(.degrees(90))
+                            .frame(width: 40, height: 60)
+                            .foregroundColor(.blue)
+                            .border(Color.tableCellBorderColor)
+                    }
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40), height: 60)
+                .frame(width: leftColumnWidth, height: 60)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
@@ -217,7 +232,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40))
+                            .frame(width: leftColumnWidth)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -225,7 +240,7 @@ struct TableModalView : View {
                 } else {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40))
+                            .frame(width: leftColumnWidth)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -338,6 +353,13 @@ struct TableModalView : View {
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
+                    }
+                    if viewModel.showRowDecorators {
+                        RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
+                            viewModel.onDecoratorAction?(decorator, viewModel.tableDataModel.fieldIdentifier)
+                        }
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                        .border(Color.tableCellBorderColor)
                     }
                 }
             }

@@ -360,6 +360,12 @@ extension FormView: FieldChangeEvents {
         }
     }
 
+    func onDecoratorAction(event: FieldIdentifier, action: String) {
+        var decoratorEvent = event
+        decoratorEvent.type = action
+        documentEditor.onFocus(event: decoratorEvent)
+    }
+
     func onUpload(event: UploadEvent) {
         documentEditor.onUpload(event: event)
     }
