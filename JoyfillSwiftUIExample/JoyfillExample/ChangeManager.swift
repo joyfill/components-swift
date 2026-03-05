@@ -263,6 +263,10 @@ extension ChangeManager: FormChangeEvent {
             fieldDict["fieldPositionId"] = fieldPositionId
         }
         
+        if let type = fieldEvent.type {
+            fieldDict["type"] = type
+        }
+        
         return fieldDict
     }
     
