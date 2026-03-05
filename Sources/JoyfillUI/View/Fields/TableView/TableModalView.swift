@@ -63,8 +63,7 @@ struct TableModalView : View {
         }
         .modifier(InlinePopupHostModifier(
             isPresented: isInlineRowEditorActive,
-            colorScheme: colorScheme,
-            ignoresKeyboardSafeArea: true
+            colorScheme: colorScheme
         ) {
             if isInlineRowEditorActive {
                 EditMultipleRowsSheetView(

@@ -340,8 +340,7 @@ struct FormView: View {
         }
         .modifier(InlinePopupHostModifier(
             isPresented: activeInlineOverlay != nil,
-            colorScheme: colorScheme,
-            ignoresKeyboardSafeArea: true
+            colorScheme: colorScheme
         ) {
             if let overlay = activeInlineOverlay {
                 overlay.content

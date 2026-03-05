@@ -3,7 +3,6 @@ import SwiftUI
 struct InlinePopupHostModifier<PopupContent: View>: ViewModifier {
     let isPresented: Bool
     let colorScheme: ColorScheme
-    let ignoresKeyboardSafeArea: Bool
     @ViewBuilder let popupContent: () -> PopupContent
     
     func body(content: Content) -> some View {

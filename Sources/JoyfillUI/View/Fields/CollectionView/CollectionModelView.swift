@@ -78,8 +78,7 @@ struct CollectionModalView : View {
         }
         .modifier(InlinePopupHostModifier(
             isPresented: isInlineRowEditorActive,
-            colorScheme: colorScheme,
-            ignoresKeyboardSafeArea: true
+            colorScheme: colorScheme
         ) {
             if isInlineRowEditorActive {
                 CollectionEditMultipleRowsSheetView(
