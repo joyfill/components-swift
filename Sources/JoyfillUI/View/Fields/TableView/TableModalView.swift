@@ -219,7 +219,7 @@ struct TableModalView : View {
                         Image(systemName: "ellipsis")
                             .rotationEffect(.degrees(90))
                             .frame(width: 40, height: 60)
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color.gray.opacity(0.4))
                             .border(Color.tableCellBorderColor)
                     }
                 }
