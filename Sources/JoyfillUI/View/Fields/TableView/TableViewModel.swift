@@ -420,7 +420,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                 var newChanges: [String: [String: ValueUnion]] = [:]
                 self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
                 
-                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
+                let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
+                DispatchQueue.main.async {
+                    if let result = result {
+                        self.tableDataModel.valueToValueElements = result
+                    }
+                }
                 
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {
