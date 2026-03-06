@@ -305,7 +305,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                 let locals = decorators.compactMap { $0.isDisplayable ? DecoratorLocal(from: $0) : nil }
                 if !locals.isEmpty {
                     FieldDecoratorsView(decorators: locals) { decorator in
-                        viewModel.onDecoratorAction?(decorator, viewModel.tableDataModel.fieldIdentifier)
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "")
                     }
                 }
             }

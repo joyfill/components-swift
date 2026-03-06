@@ -27,8 +27,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
     }
 
-    var onDecoratorAction: ((DecoratorLocal, FieldIdentifier) -> Void)?
-    
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill

@@ -1229,6 +1229,13 @@ extension DocumentEditor {
         events?.onFocus(event: Event(fieldEvent: event))
     }
 
+    /// Single place for reporting decorator taps (table/collection row & column decorators). Forwards as onFocus with event.type = action.
+    func reportDecoratorAction(fieldIdentifier: FieldIdentifier, action: String) {
+        var event = fieldIdentifier
+        event.type = action
+        onFocus(event: event)
+    }
+
     func onBlur(event: FieldIdentifier) {
         events?.onBlur(event: Event(fieldEvent: event))
     }

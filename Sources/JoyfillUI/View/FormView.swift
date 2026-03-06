@@ -361,9 +361,7 @@ extension FormView: FieldChangeEvents {
     }
 
     func onDecoratorAction(event: FieldIdentifier, action: String) {
-        var decoratorEvent = event
-        decoratorEvent.type = action
-        documentEditor.onFocus(event: decoratorEvent)
+        documentEditor.reportDecoratorAction(fieldIdentifier: event, action: action)
     }
 
     func onUpload(event: UploadEvent) {

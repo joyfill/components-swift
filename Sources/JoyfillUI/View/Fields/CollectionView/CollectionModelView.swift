@@ -620,7 +620,7 @@ struct CollectionRowsHeaderView: View {
                 }
                 if viewModel.showRowDecorators {
                     RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
-                        viewModel.onDecoratorAction?(decorator, viewModel.tableDataModel.fieldIdentifier)
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "")
                     }
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)
@@ -657,7 +657,7 @@ struct CollectionRowsHeaderView: View {
                 }
                 if viewModel.showRowDecorators {
                     RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
-                        viewModel.onDecoratorAction?(decorator, viewModel.tableDataModel.fieldIdentifier)
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "")
                     }
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)

@@ -36,8 +36,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
     }
 
-    var onDecoratorAction: ((DecoratorLocal, FieldIdentifier) -> Void)?
-    
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.tableDataModel.schema.forEach { key, value in
