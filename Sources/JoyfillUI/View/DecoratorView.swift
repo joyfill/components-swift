@@ -27,6 +27,7 @@ enum DecoratorIcon {
         case "eye":          return "eye.fill"
         case "circle-info":  return "info.circle.fill"
         case "add":          return "plus.circle.fill"
+        case "plus":         return "plus"
         case "print":        return "printer.fill"
         default:             return "photo"
         }
