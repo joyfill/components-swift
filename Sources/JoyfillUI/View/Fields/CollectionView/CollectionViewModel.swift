@@ -1669,9 +1669,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                       isRootRow: isRootRow,
                                                                       fieldvalue: tableDataModel.valueToValueElements ?? [])
         DispatchQueue.main.sync {
-            self.tableDataModel.valueToValueElements = result?.0
-            for (key, value) in result?.1 ?? [:] {
-                self.rowToValueElementMap[key] = value
+            if let result = result {
+                self.tableDataModel.valueToValueElements = result.0
+                for (key, value) in result.1 {
+                    self.rowToValueElementMap[key] = value
+                }
             }
         }
     }
