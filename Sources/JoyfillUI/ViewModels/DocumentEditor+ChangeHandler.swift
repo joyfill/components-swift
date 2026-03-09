@@ -1229,12 +1229,12 @@ extension DocumentEditor {
         events?.onFocus(event: Event(fieldEvent: event))
     }
 
-    func reportDecoratorAction(fieldIdentifier: FieldIdentifier, action: String, rowId: String? = nil, columnId: String? = nil, schemaId: String? = nil, parentPath: String? = nil) {
+    func reportDecoratorAction(fieldIdentifier: FieldIdentifier, action: String, rowIds: [String]? = nil, columnId: String? = nil, parentPath: String? = nil) {
         var fieldEvent = fieldIdentifier
         fieldEvent.type = action
-        if rowId != nil || columnId != nil || schemaId != nil || parentPath != nil {
-            fieldEvent.rowColumnData = RowColumnData(rowId: rowId, columnId: columnId, schemaId: schemaId, parentPath: parentPath)
-        }
+        if let rowIds = rowIds { fieldEvent.rowIds = rowIds }
+        if let columnId = columnId { fieldEvent.columnId = columnId }
+        if let parentPath = parentPath { fieldEvent.parentPath = parentPath }
         onFocus(event: fieldEvent)
     }
 

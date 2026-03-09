@@ -33,7 +33,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     var showRowDecorators: Bool {
-        return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
+        return tableDataModel.hasAnyRowDecorators && tableDataModel.mode == .fill
     }
 
     init(tableDataModel: TableDataModel) {

@@ -9,21 +9,6 @@ import Foundation
 import JoyfillModel
 import JSONSchema
 
-/// Row, column, or cell data for table/collection fields. Present on `FieldIdentifier` when the event is scoped to a row, column, or cell (e.g. row decorator tap).
-public struct RowColumnData: Equatable {
-    public var rowId: String?
-    public var columnId: String?
-    public var schemaId: String?
-    public var parentPath: String?
-
-    public init(rowId: String? = nil, columnId: String? = nil, schemaId: String? = nil, parentPath: String? = nil) {
-        self.rowId = rowId
-        self.columnId = columnId
-        self.schemaId = schemaId
-        self.parentPath = parentPath
-    }
-}
-
 public struct FieldIdentifier: Equatable {
     public var _id: String?
     public var identifier: String?
@@ -34,10 +19,14 @@ public struct FieldIdentifier: Equatable {
     public var fieldPositionId: String?
     /// When set, indicates this event was triggered by a decorator action.
     public var type: String?
-    /// When the field is table or collection, optional row/column/cell data (e.g. row decorator tap).
-    public var rowColumnData: RowColumnData?
+    /// Row IDs for bulk edit or single-row context (table/collection).
+    public var rowIds: [String]?
+    /// Parent path for nested table/collection.
+    public var parentPath: String?
+    /// Column ID when event is scoped to a column/cell.
+    public var columnId: String?
 
-    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil, type: String? = nil, rowColumnData: RowColumnData? = nil) {
+    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil, type: String? = nil, rowIds: [String]? = nil, parentPath: String? = nil, columnId: String? = nil) {
         self._id = _id
         self.identifier = identifier
         self.fieldID = fieldID
@@ -46,7 +35,9 @@ public struct FieldIdentifier: Equatable {
         self.fileID = fileID
         self.fieldPositionId = fieldPositionId
         self.type = type
-        self.rowColumnData = rowColumnData
+        self.rowIds = rowIds
+        self.parentPath = parentPath
+        self.columnId = columnId
     }
 }
 

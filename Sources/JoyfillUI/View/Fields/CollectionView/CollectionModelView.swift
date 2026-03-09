@@ -619,8 +619,8 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
                 if viewModel.showRowDecorators {
-                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
-                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowId: rowModel.rowID, schemaId: parentSchemaKey)
+                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: parentSchemaKey)) { decorator in
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                     }
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)
@@ -656,8 +656,8 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
                 }
                 if viewModel.showRowDecorators {
-                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
-                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowId: rowModel.rowID, schemaId: viewModel.rootSchemaKey)
+                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: viewModel.rootSchemaKey)) { decorator in
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                     }
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)

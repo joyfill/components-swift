@@ -1193,6 +1193,12 @@ public struct Schema {
         get { dictionary["hidden"] as? Bool }
         set { dictionary["hidden"] = newValue }
     }
+
+    /// Row-level decorators for this collection schema. Rendered per-row via kebab menu (collection only; table uses field-level rowDecorators).
+    public var rowDecorators: [Decorator]? {
+        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
+    }
 }
 
 // MARK: - ValueElement

@@ -209,7 +209,7 @@ struct TableDataModel {
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
-        self.rowDecorators = fieldData.rowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+        self.rowDecorators = fieldData.fieldType == .table ? (fieldData.rowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []) : []
         self.cleanUpRowOrder()
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
@@ -367,6 +367,22 @@ struct TableDataModel {
     /// Checks if the given schema is the root schema
     private func isRootSchema(_ schemaKey: String) -> Bool {
         return schema[schemaKey]?.root == true
+    }
+
+    /// Row decorators for the given schema. Table: always returns field-level rowDecorators. Collection: returns this schema's rowDecorators (from schema, not field).
+    func rowDecorators(forSchemaKey schemaKey: String) -> [DecoratorLocal] {
+        if fieldType == .table {
+            return rowDecorators
+        }
+        return schema[schemaKey]?.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+    }
+
+    /// True if any row decorators should be shown. Table: field has rowDecorators. Collection: any schema has rowDecorators.
+    var hasAnyRowDecorators: Bool {
+        if fieldType == .table {
+            return !rowDecorators.isEmpty
+        }
+        return schema.values.contains { !(($0.rowDecorators ?? []).filter { $0.isDisplayable }).isEmpty }
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
