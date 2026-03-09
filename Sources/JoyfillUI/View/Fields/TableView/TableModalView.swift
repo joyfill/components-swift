@@ -356,7 +356,7 @@ struct TableModalView : View {
                     }
                     if viewModel.showRowDecorators {
                         RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
-                            viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "")
+                            viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowId: rowModel.rowID)
                         }
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)

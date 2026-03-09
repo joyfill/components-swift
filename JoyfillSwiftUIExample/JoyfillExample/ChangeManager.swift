@@ -267,6 +267,17 @@ extension ChangeManager: FormChangeEvent {
             fieldDict["type"] = type
         }
         
+        if let ctx = fieldEvent.rowColumnData {
+            var ctxDict: [String: Any] = [:]
+            if let rowId = ctx.rowId { ctxDict["rowId"] = rowId }
+            if let columnId = ctx.columnId { ctxDict["columnId"] = columnId }
+            if let schemaId = ctx.schemaId { ctxDict["schemaId"] = schemaId }
+            if let parentPath = ctx.parentPath { ctxDict["parentPath"] = parentPath }
+            if !ctxDict.isEmpty {
+                fieldDict["rowColumnData"] = ctxDict
+            }
+        }
+        
         return fieldDict
     }
     
