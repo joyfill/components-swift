@@ -614,8 +614,14 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
                 if viewModel.showRowDecorators {
+                    let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
                     RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: parentSchemaKey)) { decorator in
-                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                            action: decorator.action ?? "",
+                            rowIds: [rowModel.rowID],
+                            parentPath: parentPathForNested.0
+                        )
                     }
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)

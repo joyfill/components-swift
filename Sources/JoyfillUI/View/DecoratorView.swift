@@ -105,7 +105,7 @@ struct DecoratorButton: View {
         } label: {
             HStack(spacing: 5) {
                 if let icon = decorator.icon, !icon.isEmpty {
-                    DecoratorIconImage(iconName: icon, size: 14)
+                    DecoratorIconImage(iconName: icon, size: 16)
                 }
                 if let label = decorator.label, !label.isEmpty {
                     Text(label)

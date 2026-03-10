@@ -304,8 +304,19 @@ struct CollectionEditMultipleRowsSheetView: View {
                !decorators.isEmpty {
                 let locals = decorators.compactMap { $0.isDisplayable ? DecoratorLocal(from: $0) : nil }
                 if !locals.isEmpty {
+                    let parentPathForSelection: String? = {
+                        guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }
+                        let (path, _) = viewModel.getParenthPath(rowId: firstRowId)
+                        return path.isEmpty ? nil : path
+                    }()
                     FieldDecoratorsView(decorators: locals) { decorator in
-                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "",rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id)
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                            action: decorator.action ?? "",
+                            rowIds: viewModel.tableDataModel.selectedRows,
+                            columnId: col.id,
+                            parentPath: parentPathForSelection
+                        )
                     }
                 }
             }
