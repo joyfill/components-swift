@@ -19,6 +19,8 @@ public struct FieldIdentifier: Equatable {
     public var fieldPositionId: String?
     /// When set, indicates this event was triggered by a decorator action.
     public var type: String?
+    /// Decorator target; sent with same value as type in onFocus for decorator taps.
+    public var target: String?
     /// Row IDs for bulk edit or single-row context (table/collection).
     public var rowIds: [String]?
     /// Parent path for nested table/collection.
@@ -26,7 +28,7 @@ public struct FieldIdentifier: Equatable {
     /// Column ID when event is scoped to a column/cell.
     public var columnId: String?
 
-    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil, type: String? = nil, rowIds: [String]? = nil, parentPath: String? = nil, columnId: String? = nil) {
+    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil, type: String? = nil, target: String? = nil, rowIds: [String]? = nil, parentPath: String? = nil, columnId: String? = nil) {
         self._id = _id
         self.identifier = identifier
         self.fieldID = fieldID
@@ -35,6 +37,7 @@ public struct FieldIdentifier: Equatable {
         self.fileID = fileID
         self.fieldPositionId = fieldPositionId
         self.type = type
+        self.target = target
         self.rowIds = rowIds
         self.parentPath = parentPath
         self.columnId = columnId
