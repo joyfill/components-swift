@@ -48,7 +48,7 @@ struct RowDataModel: Equatable, Hashable {
 
 enum RowType: Equatable {
     case row(index: Int)
-    case header(level: Int, tableColumns: [FieldTableColumn])
+    case header(level: Int, tableColumns: [FieldTableColumn], schemaKey: String)
     case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil, parentSchemaKey: String = "")
     case tableExpander(schemaValue: (String, Schema)? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
     
@@ -56,7 +56,7 @@ enum RowType: Equatable {
         switch self {
         case let .row:
             return 0
-        case let .header(level, _):
+        case let .header(level, _, _):
             return level
         case let .nestedRow(level, _, _,_):
             return level
@@ -97,7 +97,7 @@ enum RowType: Equatable {
         case .nestedRow(_, index: let index, _, _): return index
         case .row(index: let index):
             return index
-        case .header(level: let level, tableColumns: let tableColumns):
+        case .header(level: let level, tableColumns: let tableColumns, _):
             return 0
         case .tableExpander(schemaValue: let schemaValue, level: let level, _, _):
             return 0
@@ -377,6 +377,9 @@ struct TableDataModel {
         return schema[schemaKey]?.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
     }
 
+    func hasAnyRowDecorators(schemaKey: String) -> Bool {
+        return !rowDecorators(forSchemaKey: schemaKey).isEmpty
+    }
     /// True if any row decorators should be shown. Table: field has rowDecorators. Collection: any schema has rowDecorators.
     var hasAnyRowDecorators: Bool {
         if fieldType == .table {
@@ -701,7 +704,7 @@ struct TableDataModel {
         let currentRow = filteredcellModels[index]
         let previousRow = filteredcellModels[index - 1]
         switch previousRow.rowType {
-        case .header(level: let level, tableColumns: _):
+        case .header(level: let level, tableColumns: _, _):
             if level == currentRow.rowType.level {
                 return true
             } else {

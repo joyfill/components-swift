@@ -161,13 +161,6 @@ struct CollectionModalView : View {
                     .foregroundColor(Color.gray.opacity(0.4))
                     .border(Color.tableCellBorderColor)
             }
-            if viewModel.showRowDecorators {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-                    .frame(width: 40, height: 60)
-                    .foregroundColor(Color.gray.opacity(0.4))
-                    .border(Color.tableCellBorderColor)
-            }
         }
         .frame(minHeight: 60)
         .frame(width: collectionLeftColumnWidth, height: 60)
@@ -180,7 +173,6 @@ struct CollectionModalView : View {
         if viewModel.showRowSelector { width += 40 }
         if viewModel.nestedTableCount > 0 { width += 40 }
         if viewModel.showSingleClickEditButton { width += 40 }
-        if viewModel.showRowDecorators { width += 40 }
         return width
     }
 
@@ -200,7 +192,8 @@ struct CollectionModalView : View {
                                                        tableColumns: viewModel.tableDataModel.tableColumns,
                                                        currentSelectedCol: $currentSelectedCol,
                                                        colorScheme: colorScheme,
-                                                       isHeaderNested: false)
+                                                       isHeaderNested: false,
+                                                       schemaKey: viewModel.rootSchemaKey)
                         }
                         
                         var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
@@ -227,12 +220,13 @@ struct CollectionModalView : View {
                                     case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
                                         CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
                                             .frame(height: 60)
-                                    case .header(level: let level, tableColumns: let tableColumns):
+                                    case .header(level: let level, tableColumns: let tableColumns, schemaKey: let schemaKey):
                                         CollectionColumnHeaderView(viewModel: viewModel,
                                                                    tableColumns: tableColumns ?? [],
                                                                    currentSelectedCol: $currentSelectedCol,
                                                                    colorScheme: colorScheme,
-                                                                   isHeaderNested: true)
+                                                                   isHeaderNested: true,
+                                                                   schemaKey: schemaKey)
                                         .frame(height: 60)
                                     case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                                         CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
@@ -373,7 +367,7 @@ struct RootTitleRowView: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .frame(minHeight: 50)
-        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0), height: 60)
+        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0, viewModel.rootSchemaKey), height: 60)
         .font(.system(size: 15, weight: .bold))
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
@@ -386,9 +380,18 @@ struct CollectionColumnHeaderView: View {
     @Binding var currentSelectedCol: Int
     let colorScheme: ColorScheme
     let isHeaderNested: Bool
+    let schemaKey: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
+            if viewModel.showRowDecorators, !viewModel.tableDataModel.rowDecorators(forSchemaKey: schemaKey).isEmpty {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 40, height: 60)
+                    .foregroundColor(Color.gray.opacity(0.4))
+                    .border(Color.tableCellBorderColor)
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+            }
             ForEach(Array(tableColumns.enumerated()), id: \.element.id) { index, column in
 //                Button(action: {
 ////                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
@@ -455,7 +458,7 @@ struct CollectionRowsHeaderView: View {
             // Expand Button View
             if viewModel.nestedTableCount > 0 {
                 switch rowModel.rowType {
-                case .header(level: let level, tableColumns: let columns):
+                case .header(level: let level, tableColumns: let columns, _):
                     if level == 0 {
                         EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                     } else {
@@ -575,14 +578,6 @@ struct CollectionRowsHeaderView: View {
                     .border(Color.tableCellBorderColor)
                 if viewModel.showSingleClickEditButton {
                     Image(systemName: "square.and.pencil")
-                        .frame(width: 40, height: 60)
-                        .foregroundColor(Color.gray.opacity(0.4))
-                        .border(Color.tableCellBorderColor)
-                        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
-                }
-                if viewModel.showRowDecorators {
-                    Image(systemName: "ellipsis")
-                        .rotationEffect(.degrees(90))
                         .frame(width: 40, height: 60)
                         .foregroundColor(Color.gray.opacity(0.4))
                         .border(Color.tableCellBorderColor)
