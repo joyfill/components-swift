@@ -30,6 +30,7 @@ enum DecoratorIcon {
         case "add":          return "decorator_add"
         case "plus":         return "decorator_plus"
         case "print":        return "decorator_print"
+        case "flag":         return "decorator_flag"
         default:             return nil
         }
     }
