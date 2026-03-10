@@ -266,6 +266,9 @@ extension ChangeManager: FormChangeEvent {
         if let type = fieldEvent.type {
             fieldDict["type"] = type
         }
+        if let target = fieldEvent.target {
+            fieldDict["target"] = target
+        }
         if let rowIDs = fieldEvent.rowIds, !rowIDs.isEmpty {
             fieldDict["rowIds"] = rowIDs
         }
