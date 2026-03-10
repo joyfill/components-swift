@@ -4,6 +4,37 @@ import JoyfillModel
 // MARK: - Decorator Icon Mapping
 
 enum DecoratorIcon {
+    /// Asset catalog name for bundled Font Awesome icon (Resources/Assets.xcassets).
+    static func bundledAssetName(for iconName: String?) -> String? {
+        guard let iconName = iconName?.lowercased(), !iconName.isEmpty else { return nil }
+        switch iconName {
+        case "camera":       return "decorator_camera"
+        case "import":       return "decorator_import"
+        case "paperclip":    return "decorator_paperclip"
+        case "image":        return "decorator_image"
+        case "file":         return "decorator_file"
+        case "comment":      return "decorator_comment"
+        case "comments":     return "decorator_comments"
+        case "upload":       return "decorator_upload"
+        case "download":     return "decorator_download"
+        case "rotate":       return "decorator_rotate"
+        case "cloud":        return "decorator_cloud"
+        case "filter":       return "decorator_filter"
+        case "share":        return "decorator_share"
+        case "paper-plane":  return "decorator_paper_plane"
+        case "folder":       return "decorator_folder"
+        case "folder-open":  return "decorator_folder_open"
+        case "magnet":       return "decorator_magnet"
+        case "eye":          return "decorator_eye"
+        case "circle-info":  return "decorator_circle_info"
+        case "add":          return "decorator_add"
+        case "plus":         return "decorator_plus"
+        case "print":        return "decorator_print"
+        default:             return nil
+        }
+    }
+
+    /// SF Symbol name (fallback when bundled asset not used).
     static func sfSymbol(for iconName: String?) -> String {
         guard let iconName = iconName?.lowercased() else { return "photo" }
         switch iconName {
@@ -34,6 +65,27 @@ enum DecoratorIcon {
     }
 }
 
+// MARK: - Decorator icon image (bundled asset or SF Symbol fallback)
+
+private struct DecoratorIconImage: View {
+    let iconName: String?
+    let size: CGFloat
+
+    var body: some View {
+        Group {
+            if let assetName = DecoratorIcon.bundledAssetName(for: iconName) {
+                Image(assetName, bundle: .module)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: size, height: size)
+            } else {
+                Image(systemName: DecoratorIcon.sfSymbol(for: iconName))
+                    .font(.system(size: size, weight: .medium))
+            }
+        }
+    }
+}
+
 // MARK: - Single Decorator Button
 
 struct DecoratorButton: View {
@@ -53,8 +105,7 @@ struct DecoratorButton: View {
         } label: {
             HStack(spacing: 5) {
                 if let icon = decorator.icon, !icon.isEmpty {
-                    Image(systemName: DecoratorIcon.sfSymbol(for: icon))
-                        .font(.system(size: 14, weight: .medium))
+                    DecoratorIconImage(iconName: icon, size: 14)
                 }
                 if let label = decorator.label, !label.isEmpty {
                     Text(label)
@@ -148,8 +199,7 @@ struct RowDecoratorMenuView: View {
         } label: {
             HStack(spacing: 4) {
                 if let icon = decorator.icon, !icon.isEmpty {
-                    Image(systemName: DecoratorIcon.sfSymbol(for: icon))
-                        .font(.system(size: 14, weight: .medium))
+                    DecoratorIconImage(iconName: icon, size: 14)
                 }
                 if let label = decorator.label, !label.isEmpty {
                     Text(label)
@@ -175,8 +225,7 @@ struct RowDecoratorMenuView: View {
                 } label: {
                     HStack(spacing: 8) {
                         if let icon = decorator.icon, !icon.isEmpty {
-                            Image(systemName: DecoratorIcon.sfSymbol(for: icon))
-                                .font(.system(size: 14, weight: .medium))
+                            DecoratorIconImage(iconName: icon, size: 14)
                                 .foregroundColor(tint)
                                 .frame(width: 20)
                         }

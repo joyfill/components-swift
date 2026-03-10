@@ -51,7 +51,8 @@ let package = Package(
                 "JoyfillFormulas",
                 "JoyfillAPIService",
             ],
-            path: "Sources/JoyfillUI"
+            path: "Sources/JoyfillUI",
+            resources: [.process("Resources")]
         ),
         // Test targets
         .testTarget(
