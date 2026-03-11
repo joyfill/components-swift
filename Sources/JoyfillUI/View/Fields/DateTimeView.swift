@@ -25,7 +25,9 @@ struct DateTimeView: View {
     
     var body: some View {
         VStack(spacing: 8) {
-        FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil)
+        FieldHeaderView(dateTimeDataModel.fieldHeaderModel, isFilled: dateTimeDataModel.value?.number != nil) { decorator in
+            eventHandler.onDecoratorAction(event: dateTimeDataModel.fieldIdentifier, action: decorator.action ?? "")
+        }
         Group {
             if !dateString.isEmpty {
                 HStack(spacing: 8) {

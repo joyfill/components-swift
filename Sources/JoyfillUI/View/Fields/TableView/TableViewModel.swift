@@ -22,7 +22,11 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     var showSingleClickEditButton: Bool {
         return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
-    
+
+    var showRowDecorators: Bool {
+        return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
@@ -405,10 +409,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         isBulkLoading = true
         
         // Perform heavy processing on background thread
-        let updatedCellModels: [RowDataModel] = await withCheckedContinuation { cont in
+        let (newValueToValueElements, updatedCellModels): ([ValueElement]?, [RowDataModel]) = await withCheckedContinuation { cont in
             dispatchQueue.async { [weak self] in
                 guard let self else {
-                    cont.resume(returning: [])
+                    cont.resume(returning: (nil, []))
                     return
                 }
                 var columnIDChanges = [String: ValueUnion]()
@@ -420,7 +424,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                 var newChanges: [String: [String: ValueUnion]] = [:]
                 self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
                 
-                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
+                let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
                 
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {
@@ -462,10 +466,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     }
                 }
                 
-                cont.resume(returning: updatedModels)
+                cont.resume(returning: (result, updatedModels))
             }
         }
         
+        if let newValueToValueElements = newValueToValueElements {
+            tableDataModel.valueToValueElements = newValueToValueElements
+        }
         tableDataModel.cellModels = updatedCellModels
         tableDataModel.filterRowsIfNeeded()
         isBulkLoading = false

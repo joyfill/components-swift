@@ -306,7 +306,7 @@ struct CollectionEditMultipleRowsSheetView: View {
     
     @ViewBuilder
     private func fieldTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
-        HStack {
+        HStack(alignment: .center, spacing: 4) {
             if let required = col.required, required, !isCellFilled {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
@@ -314,6 +314,28 @@ struct CollectionEditMultipleRowsSheetView: View {
             }
             Text(col.title)
                 .font(.headline.bold())
+            Spacer()
+            if viewModel.tableDataModel.mode == .fill,
+               let decorators = col.decorators,
+               !decorators.isEmpty {
+                let locals = decorators.compactMap { $0.isDisplayable ? DecoratorLocal(from: $0) : nil }
+                if !locals.isEmpty {
+                    let parentPathForSelection: String? = {
+                        guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }
+                        let (path, _) = viewModel.getParenthPath(rowId: firstRowId)
+                        return path.isEmpty ? nil : path
+                    }()
+                    FieldDecoratorsView(decorators: locals) { decorator in
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                            action: decorator.action ?? "",
+                            rowIds: viewModel.tableDataModel.selectedRows,
+                            columnId: col.id,
+                            parentPath: parentPathForSelection
+                        )
+                    }
+                }
+            }
         }
         .padding(.bottom, -8)
     }

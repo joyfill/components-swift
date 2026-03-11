@@ -822,7 +822,8 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) {
+    @discardableResult
+    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) -> [ValueElement] {
         var elements = fieldData
         let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
         var isDateColumn: Bool = false
@@ -867,6 +868,7 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
+        return elements
     }
     
     public func bulkEditForNested(changes: [String: [String : ValueUnion]],
@@ -1227,6 +1229,16 @@ extension DocumentEditor {
 
     func onFocus(event: FieldIdentifier) {
         events?.onFocus(event: Event(fieldEvent: event))
+    }
+
+    func reportDecoratorAction(fieldIdentifier: FieldIdentifier, action: String, rowIds: [String]? = nil, columnId: String? = nil, parentPath: String? = nil) {
+        var fieldEvent = fieldIdentifier
+        fieldEvent.type = action
+        fieldEvent.target = action
+        if let rowIds = rowIds { fieldEvent.rowIds = rowIds }
+        if let columnId = columnId { fieldEvent.columnId = columnId }
+        if let parentPath = parentPath { fieldEvent.parentPath = parentPath }
+        onFocus(event: fieldEvent)
     }
 
     func onBlur(event: FieldIdentifier) {

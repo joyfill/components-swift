@@ -25,7 +25,9 @@ struct SignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty)
+            FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: signatureDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             RoundedRectangle(cornerRadius: 10)
                 .stroke(navigationFocusFieldId == signatureDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)

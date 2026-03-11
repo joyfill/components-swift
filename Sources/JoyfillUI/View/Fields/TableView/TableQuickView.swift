@@ -48,7 +48,9 @@ struct TableQuickView : View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: tableDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     colsHeader

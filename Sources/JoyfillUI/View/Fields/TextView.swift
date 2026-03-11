@@ -26,7 +26,9 @@ struct TextView: View {
             }
         )
         return VStack(alignment: .leading) {
-            FieldHeaderView(textDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty)
+            FieldHeaderView(textDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: textDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             TextField("", text: textBinding)
                 .accessibilityIdentifier("Text")
                 .disabled(textDataModel.mode == .readonly)

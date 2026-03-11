@@ -48,7 +48,9 @@ struct ImageView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(imageDataModel.fieldHeaderModel, isFilled: !valueElements.isEmpty)
+            FieldHeaderView(imageDataModel.fieldHeaderModel, isFilled: !valueElements.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: imageDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             if let uiImage = uiImagesArray.first {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10)
