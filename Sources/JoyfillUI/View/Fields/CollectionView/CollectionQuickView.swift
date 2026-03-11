@@ -29,7 +29,9 @@ struct CollectionQuickView : View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: viewModel.tableDataModel.nondeletedRowsCount > 0)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: viewModel.tableDataModel.nondeletedRowsCount > 0) { decorator in
+                eventHandler.onDecoratorAction(event: tableDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
 
             if viewModel.isLoading {
                 loadingView

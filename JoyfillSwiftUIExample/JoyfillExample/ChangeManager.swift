@@ -263,6 +263,21 @@ extension ChangeManager: FormChangeEvent {
             fieldDict["fieldPositionId"] = fieldPositionId
         }
         
+        if let type = fieldEvent.type {
+            fieldDict["type"] = type
+        }
+        if let target = fieldEvent.target {
+            fieldDict["target"] = target
+        }
+        if let rowIDs = fieldEvent.rowIds, !rowIDs.isEmpty {
+            fieldDict["rowIds"] = rowIDs
+        }
+        if let parentPath = fieldEvent.parentPath {
+            fieldDict["parentPath"] = parentPath
+        }
+        if let columnId = fieldEvent.columnId {
+            fieldDict["columnId"] = columnId
+        }
         return fieldDict
     }
     

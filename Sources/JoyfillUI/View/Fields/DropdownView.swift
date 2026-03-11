@@ -19,7 +19,9 @@ struct DropdownView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true))
+            FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true)) { decorator in
+                eventHandler.onDecoratorAction(event: dropdownDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             Button(action: {
                 isSheetPresented = true
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)

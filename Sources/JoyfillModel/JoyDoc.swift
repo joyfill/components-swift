@@ -19,6 +19,45 @@ func asDouble(_ value: Any?) -> Double? {
     return nil
 }
 
+// MARK: - Decorator
+public struct Decorator: Equatable {
+    public var dictionary: [String: Any]
+
+    public init(dictionary: [String: Any] = [:]) {
+        self.dictionary = dictionary
+    }
+
+    public var icon: String? {
+        get { dictionary["icon"] as? String }
+        set { dictionary["icon"] = newValue }
+    }
+
+    public var label: String? {
+        get { dictionary["label"] as? String }
+        set { dictionary["label"] = newValue }
+    }
+
+    public var color: String? {
+        get { dictionary["color"] as? String }
+        set { dictionary["color"] = newValue }
+    }
+
+    public var action: String? {
+        get { dictionary["action"] as? String }
+        set { dictionary["action"] = newValue }
+    }
+
+    public var isDisplayable: Bool {
+        let hasIcon = icon != nil && !(icon?.isEmpty ?? true)
+        let hasLabel = label != nil && !(label?.isEmpty ?? true)
+        return hasIcon || hasLabel
+    }
+
+    public static func == (lhs: Decorator, rhs: Decorator) -> Bool {
+        lhs.icon == rhs.icon && lhs.label == rhs.label && lhs.color == rhs.color && lhs.action == rhs.action
+    }
+}
+
 /// Represents a Joy document.
 ///
 /// Use the `JoyDoc` struct to create and manipulate Joy documents.
@@ -453,6 +492,18 @@ public struct JoyDocField: Equatable {
         set { dictionary["xMin"] = newValue }
     }
     
+    /// Decorators attached to this field. Rendered inline next to the field title.
+    public var decorators: [Decorator]? {
+        get { (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    /// Row-level decorators for table/collection fields. Rendered per-row via a kebab menu column.
+    public var rowDecorators: [Decorator]? {
+        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
     /// The order of the rows in the table field.
     public var rowOrder: [String]? {
         get { dictionary["rowOrder"] as? [String] }
@@ -1076,6 +1127,12 @@ public struct FieldTableColumn {
         set { dictionary["hidden"] = newValue }
     }
 
+    /// Decorators attached to this column. Rendered in the column header area.
+    public var decorators: [Decorator]? {
+        get { (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
     /// Conditional logic to show/hide this column based on external field values (same structure as field/page logic).
     public var logic: Logic? {
         get { Logic.init(field: dictionary["logic"] as? [String: Any]) }
@@ -1135,6 +1192,12 @@ public struct Schema {
     public var hidden: Bool? {
         get { dictionary["hidden"] as? Bool }
         set { dictionary["hidden"] = newValue }
+    }
+
+    /// Row-level decorators for this collection schema. Rendered per-row via kebab menu (collection only; table uses field-level rowDecorators).
+    public var rowDecorators: [Decorator]? {
+        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
     }
 }
 

@@ -1231,6 +1231,16 @@ extension DocumentEditor {
         events?.onFocus(event: Event(fieldEvent: event))
     }
 
+    func reportDecoratorAction(fieldIdentifier: FieldIdentifier, action: String, rowIds: [String]? = nil, columnId: String? = nil, parentPath: String? = nil) {
+        var fieldEvent = fieldIdentifier
+        fieldEvent.type = action
+        fieldEvent.target = action
+        if let rowIds = rowIds { fieldEvent.rowIds = rowIds }
+        if let columnId = columnId { fieldEvent.columnId = columnId }
+        if let parentPath = parentPath { fieldEvent.parentPath = parentPath }
+        onFocus(event: fieldEvent)
+    }
+
     func onBlur(event: FieldIdentifier) {
         events?.onBlur(event: Event(fieldEvent: event))
     }

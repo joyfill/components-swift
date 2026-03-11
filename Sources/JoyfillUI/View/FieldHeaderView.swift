@@ -11,15 +11,17 @@ struct FieldHeaderView: View {
     @State private var showAlert: Bool = false
     let fieldHeaderModel: FieldHeaderModel?
     let isFilled: Bool
+    var onDecoratorTap: ((DecoratorLocal) -> Void)?
     
-    public init(_ fieldHeaderModel: FieldHeaderModel?, isFilled: Bool = false) {
+    public init(_ fieldHeaderModel: FieldHeaderModel?, isFilled: Bool = false, onDecoratorTap: ((DecoratorLocal) -> Void)? = nil) {
         self.fieldHeaderModel = fieldHeaderModel
         self.isFilled = isFilled
+        self.onDecoratorTap = onDecoratorTap
     }
     
     var body: some View {
         if let title = fieldHeaderModel?.title {
-            HStack(alignment: .top) {
+            HStack(alignment: .center, spacing: 4) {
                 Text("\(title)")
                     .font(.headline.bold())
                 
@@ -28,8 +30,16 @@ struct FieldHeaderView: View {
                         .foregroundColor(isFilled ? .gray : .red)
                         .imageScale(.small)
                 }
-                
+
                 Spacer()
+
+                if let decorators = fieldHeaderModel?.decorators,
+                   !decorators.isEmpty,
+                   fieldHeaderModel?.mode == .fill {
+                    FieldDecoratorsView(decorators: decorators) { decorator in
+                        onDecoratorTap?(decorator)
+                    }
+                }
                 let tipDescription = fieldHeaderModel?.tipDescription ?? ""
                 let tipTitle = fieldHeaderModel?.tipTitle ?? ""
                 if let tipVisible = fieldHeaderModel?.tipVisible {
@@ -65,4 +75,6 @@ struct FieldHeaderModel {
     var tipDescription: String?
     var tipTitle: String?
     var tipVisible: Bool?
+    var decorators: [DecoratorLocal] = []
+    var mode: Mode = .fill
 }
