@@ -93,6 +93,12 @@ class JoyfillUITestsBaseClass: XCTestCase {
         app.launchArguments.append("--json-file")
         app.launchArguments.append(getJSONFileNameForTest())
         
+        // Optional: goto path and flags for focus-callback UI tests
+        for (key, value) in getGotoLaunchArguments() {
+            app.launchArguments.append(key)
+            if let value = value { app.launchArguments.append(value) }
+        }
+        
         // Pass the current test name to the app
         app.launchArguments.append("--test-name")
         app.launchArguments.append(self.name)
@@ -196,6 +202,11 @@ class JoyfillUITestsBaseClass: XCTestCase {
     // Override this method in test classes to specify a custom JSON file
     func getJSONFileNameForTest() -> String {
         return "Joydocjson" // Default JSON file
+    }
+    
+    /// Override to add goto launch args (e.g. for focus callback tests). Return (key, value) pairs; value nil = flag-only.
+    func getGotoLaunchArguments() -> [(String, String?)] {
+        return []
     }
     
     func goBack() {

@@ -189,6 +189,7 @@
 		E27061CF2E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
 		E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */ = {isa = PBXBuildFile; fileRef = E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */; };
 		E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */; };
+		E274CA382E2E60A100B35C09 /* FocusCallbackUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */; };
 		E274CA432E2E7FB000B35C09 /* chartField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA362E2E7FB000B35C09 /* chartField.json */; };
 		E274CA442E2E7FB000B35C09 /* numberField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA3E2E2E7FB000B35C09 /* numberField.json */; };
 		E274CA452E2E7FB000B35C09 /* textField.json in Resources */ = {isa = PBXBuildFile; fileRef = E274CA412E2E7FB000B35C09 /* textField.json */; };
@@ -573,6 +574,7 @@
 		E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ChangerHandlerUnit.json; sourceTree = "<group>"; };
 		E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
+		E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusCallbackUITests.swift; sourceTree = "<group>"; };
 		E274CA352E2E7FB000B35C09 /* blockField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = blockField.json; sourceTree = "<group>"; };
 		E274CA362E2E7FB000B35C09 /* chartField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chartField.json; sourceTree = "<group>"; };
 		E274CA372E2E7FB000B35C09 /* collectionField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = collectionField.json; sourceTree = "<group>"; };
@@ -803,6 +805,7 @@
 				9EAAC7DF2EAB3EF4000B6F3C /* ReadonlyMode */,
 				9EAAC7BF2E979A20000B6F3C /* TimeZone */,
 				E274CA302E2E60A000B35C09 /* ChangeUITests */,
+				E274CA392E2E60A100B35C09 /* FocusCallbackUITests */,
 				E2F568BD2E2A47A1005216A6 /* SingleChoiceField */,
 				E2F568B82E2A4792005216A6 /* NumberField */,
 				E2F568B32E2A4786005216A6 /* MultiSelect */,
@@ -982,6 +985,14 @@
 				E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */,
 			);
 			path = ChangeUITests;
+			sourceTree = "<group>";
+		};
+		E274CA392E2E60A100B35C09 /* FocusCallbackUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */,
+			);
+			path = FocusCallbackUITests;
 			sourceTree = "<group>";
 		};
 		E274CA342E2E7EDB00B35C09 /* Schema-Validation */ = {
@@ -1894,6 +1905,7 @@
 				E2F568832E2A45BC005216A6 /* ChartFieldTests.swift in Sources */,
 				E2F568902E2A45F9005216A6 /* TableFieldUITestCases.swift in Sources */,
 				E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */,
+				E274CA382E2E60A100B35C09 /* FocusCallbackUITests.swift in Sources */,
 				E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */,
 				E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */,
 				E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */,
