@@ -61,6 +61,7 @@ enum DecoratorIcon {
         case "add":          return "plus"
         case "plus":         return "plus"
         case "print":        return "printer.fill"
+        case "flag":         return "flag.fill"
         default:             return "photo"
         }
     }
