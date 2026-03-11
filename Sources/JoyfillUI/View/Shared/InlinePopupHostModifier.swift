@@ -7,8 +7,6 @@ struct InlinePopupHostModifier<PopupContent: View>: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .disabled(isPresented)
-            .opacity(isPresented ? 0 : 1)
             .allowsHitTesting(!isPresented)
             .accessibilityHidden(isPresented)
             .overlay(alignment: .topLeading) {
