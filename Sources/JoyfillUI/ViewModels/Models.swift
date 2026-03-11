@@ -159,6 +159,7 @@ struct TableDataModel {
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
     var rowDecorators: [DecoratorLocal] = []
+    private var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -216,6 +217,7 @@ struct TableDataModel {
             buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
+                self.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
                 if value.root == true {
                     //Only top level columns
                     self.tableColumns = filterTableColumns(key: key)
@@ -369,12 +371,12 @@ struct TableDataModel {
         return schema[schemaKey]?.root == true
     }
 
-    /// Row decorators for the given schema. Table: always returns field-level rowDecorators. Collection: returns this schema's rowDecorators (from schema, not field).
+    /// Row decorators for the given schema. Table: always returns field-level rowDecorators. Collection: returns cached decorators per schema key (built in init).
     func rowDecorators(forSchemaKey schemaKey: String) -> [DecoratorLocal] {
         if fieldType == .table {
             return rowDecorators
         }
-        return schema[schemaKey]?.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+        return rowDecoratorsBySchemaKey[schemaKey] ?? []
     }
 
     func hasAnyRowDecorators(schemaKey: String) -> Bool {
