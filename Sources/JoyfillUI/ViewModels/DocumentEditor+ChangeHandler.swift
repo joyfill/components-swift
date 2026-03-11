@@ -822,6 +822,7 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
+    @discardableResult
     public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) -> [ValueElement] {
         var elements = fieldData
         let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
