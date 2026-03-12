@@ -49,10 +49,6 @@ struct TableModalView : View {
                 viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = true
             })
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                EditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
                 SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
@@ -60,6 +56,17 @@ struct TableModalView : View {
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+            NavigationLink(
+                destination: Group {
+                    if showEditMultipleRowsSheetView {
+                        TableEditFormDestination(viewModel: viewModel)
+                            .equatable()
+                    }
+                },
+                isActive: $showEditMultipleRowsSheetView
+            ) {
+                EmptyView()
+            }
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
         .toolbar {
@@ -95,8 +102,10 @@ struct TableModalView : View {
             }
         }
         .onDisappear(perform: {
-            viewModel.sendEventsIfNeeded()
-            clearFilter()
+            if !showEditMultipleRowsSheetView {
+                viewModel.sendEventsIfNeeded()
+                clearFilter()
+            }
         })
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             viewModel.tableDataModel.filterRowsIfNeeded()

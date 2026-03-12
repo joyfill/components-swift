@@ -64,10 +64,6 @@ struct CollectionModalView : View {
                     showEditMultipleRowsSheetView = true
                 },
                 onFilterTap: { showFilterModal = true })
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
             .sheet(isPresented: $showFilterModal) {
                 CollectionFilterModal(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isSearching)
@@ -76,6 +72,13 @@ struct CollectionModalView : View {
 
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+            NavigationLink(
+                destination: CollectionEditFormDestination(viewModel: viewModel)
+                    .equatable(),
+                isActive: $showEditMultipleRowsSheetView
+            ) {
+                EmptyView()
+            }
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
@@ -105,7 +108,9 @@ struct CollectionModalView : View {
             }
         }
         .onDisappear(perform: {
-            viewModel.sendEventsIfNeeded()
+            if !showEditMultipleRowsSheetView {
+                viewModel.sendEventsIfNeeded()
+            }
         })
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(

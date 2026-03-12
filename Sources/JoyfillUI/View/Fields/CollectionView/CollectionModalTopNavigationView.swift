@@ -274,18 +274,31 @@ struct CollectionModalTopNavigationView: View {
     }
 }
 
+/// Wrapper so the navigation destination is not replaced when the parent re-renders (e.g. on every keystroke).
+struct CollectionEditFormDestination: View, Equatable {
+    let viewModel: CollectionViewModel
+    static func == (lhs: Self, rhs: Self) -> Bool { true }
+    var body: some View {
+        CollectionEditMultipleRowsSheetView(viewModel: viewModel)
+            .navigationBarBackButtonHidden(viewModel.isBulkLoading)
+    }
+}
+
 struct CollectionEditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: CollectionViewModel
-    let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode) var presentationMode
     @State var changes = [Int: ValueUnion]()
     @State private var isLoading = false
-    @State private var viewID = UUID() // Unique ID for the view
+    @State private var viewID = UUID()
+    @State private var previousSelectedRowId: String?
     @State private var debounceTask: Task<Void, Never>?
 
-    init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn]) {
+    private var tableColumns: [FieldTableColumn] {
+        return viewModel.getTableColumnsForSelectedRows() ?? []
+    }
+    
+    init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
-        self.tableColumns = tableColumns
     }
     
     @ViewBuilder
@@ -697,8 +710,11 @@ struct CollectionEditMultipleRowsSheetView: View {
                 scrollProxy.scrollTo(columnId, anchor: .top)
             }
         }
-        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
-            viewID = UUID()
+        .onChange(of: viewModel.tableDataModel.selectedRows.first) { newValue in
+            if newValue != previousSelectedRowId {
+                viewID = UUID()
+                previousSelectedRowId = newValue
+            }
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()

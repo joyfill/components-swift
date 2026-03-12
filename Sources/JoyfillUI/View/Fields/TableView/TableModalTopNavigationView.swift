@@ -220,11 +220,23 @@ struct TableModalTopNavigationView: View {
     }
 }
 
+/// Wrapper so the navigation destination is not replaced when the parent re-renders (e.g. on every keystroke).
+/// Without this, the pushed view flickers because the parent rebuilds the destination on each viewModel update.
+struct TableEditFormDestination: View, Equatable {
+    let viewModel: TableViewModel
+    static func == (lhs: Self, rhs: Self) -> Bool { true }
+    var body: some View {
+        EditMultipleRowsSheetView(viewModel: viewModel)
+            .navigationBarBackButtonHidden(viewModel.isBulkLoading)
+    }
+}
+
 struct EditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.presentationMode)  var presentationMode
     @State var changes = [Int: ValueUnion]()
-    @State private var viewID = UUID() // Unique ID for the view
+    @State private var viewID = UUID() // Unique ID for the view (only when selected row changes)
+    @State private var previousSelectedRowId: String?
     @State private var debounceTask: Task<Void, Never>?
     @FocusState private var focusedColumnIndex: Int?
 
@@ -624,8 +636,11 @@ struct EditMultipleRowsSheetView: View {
             }
             triggerInlineTextFocus()
         }
-        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
-            viewID = UUID()
+        .onChange(of: viewModel.tableDataModel.selectedRows.first) { newValue in
+            if newValue != previousSelectedRowId {
+                viewID = UUID()
+                previousSelectedRowId = newValue
+            }
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
