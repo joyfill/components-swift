@@ -77,7 +77,8 @@ struct SimpleNavigationTestView: View {
             mode: .fill,
             validateSchema: false,
             license: licenseKey,
-            singleClickRowEdit: true
+            singleClickRowEdit: true,
+            inlineFields: true
         )
         _documentEditor = StateObject(wrappedValue: editor)
         _showAlert = showAlert

@@ -34,11 +34,13 @@ struct TableModalView : View {
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     var longestBlockText: String = ""
+    let onClose: (() -> Void)?
 
-    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
+    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool, onClose: (() -> Void)? = nil) {
         self.viewModel = viewModel
         longestBlockText = viewModel.tableDataModel.getLongestBlockText()
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
+        self.onClose = onClose
     }
     
     var body: some View {
@@ -48,11 +50,9 @@ struct TableModalView : View {
                 onEditTap: {
                 viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = true
-            })
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                EditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
+            },
+                onClose: onClose
+            )
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
                 SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
@@ -61,19 +61,26 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
-        .background(colorScheme == .dark ? Color.black : Color.white)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    dismissKeyboard()
-                }
+        .modifier(InlinePopupHostModifier(
+            isPresented: isInlineRowEditorActive,
+            colorScheme: colorScheme
+        ) {
+            if isInlineRowEditorActive {
+                EditMultipleRowsSheetView(
+                    viewModel: viewModel,
+                    onClose: { showEditMultipleRowsSheetView = false }
+                )
             }
+        })
+        .sheet(isPresented: rowEditorSheetBinding) {
+            EditMultipleRowsSheetView(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
         }
+        .background(colorScheme == .dark ? Color.black : Color.white)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
-                dismiss()
+                closeView()
                 return
             }
             
@@ -119,6 +126,29 @@ struct TableModalView : View {
                 currentSelectedCol = Int.min
                 viewModel.tableDataModel.emptySelection()
             }
+        }
+    }
+
+    private var isInlineRowEditorEnabled: Bool {
+        onClose != nil
+    }
+
+    private var isInlineRowEditorActive: Bool {
+        isInlineRowEditorEnabled && showEditMultipleRowsSheetView
+    }
+
+    private var rowEditorSheetBinding: Binding<Bool> {
+        Binding(
+            get: { !isInlineRowEditorEnabled && showEditMultipleRowsSheetView },
+            set: { showEditMultipleRowsSheetView = $0 }
+        )
+    }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            dismiss()
         }
     }
     

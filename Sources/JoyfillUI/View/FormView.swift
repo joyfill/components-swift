@@ -228,9 +228,16 @@ extension FieldListModelType {
 }
 
 struct FormView: View {
+    private struct ActiveInlineOverlay: Identifiable {
+        let id = UUID()
+        let content: AnyView
+    }
+
     @Binding var listModels: [FieldListModel]
     @State var currentFocusedFieldsID: String = ""
     @State var lastFocusedFieldsID: String? = nil
+    @State private var activeInlineOverlay: ActiveInlineOverlay? = nil
+    @Environment(\.colorScheme) private var colorScheme
     let documentEditor: DocumentEditor
 
     @ViewBuilder
@@ -291,6 +298,7 @@ struct FormView: View {
                 }
             }
             .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
+            .environment(\.inlineFieldPresenter, inlineFieldPresenter)
             .listStyle(PlainListStyle())
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
@@ -308,6 +316,7 @@ struct FormView: View {
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
                 documentEditor.navigationFocusFieldId = nil
+                dismissInlineOverlay()
                 if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
                     proxy.scrollTo(firstFieldID, anchor: .top)
                 }
@@ -329,6 +338,34 @@ struct FormView: View {
                 }
             }
         }
+        .modifier(InlinePopupHostModifier(
+            isPresented: activeInlineOverlay != nil,
+            colorScheme: colorScheme
+        ) {
+            if let overlay = activeInlineOverlay {
+                overlay.content
+            }
+        })
+    }
+
+    private var inlineFieldPresenter: InlineFieldPresenter? {
+        guard documentEditor.inlineFields else { return nil }
+        return InlineFieldPresenter(
+            present: { destination in
+                presentInlineOverlay(destination)
+            },
+            dismiss: {
+                dismissInlineOverlay()
+            }
+        )
+    }
+
+    private func presentInlineOverlay(_ content: AnyView) {
+        activeInlineOverlay = ActiveInlineOverlay(content: content)
+    }
+
+    private func dismissInlineOverlay() {
+        activeInlineOverlay = nil
     }
 }
 
@@ -588,4 +625,3 @@ struct ScaleButtonStyle: ButtonStyle {
             .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
-

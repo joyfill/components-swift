@@ -234,9 +234,10 @@ struct FormDestinationView: View {
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
-    @State var isPageDuplicated: Bool = false
-    @State var isPageDelete: Bool = false
-    @State var singleClickRowEdit: Bool = false
+    @State var isPageDuplicated: Bool = true
+    @State var isPageDelete: Bool = true
+    @State var singleClickRowEdit: Bool = true
+    @State var inlineFields: Bool = true
     @State var document = JoyDoc()
     @State var license: String
 
@@ -260,6 +261,11 @@ struct FormDestinationView: View {
         self._documentEditor = State(initialValue: editor)
         self._showPublicApis = showPublicApis
         self._document = State(initialValue: editor.document)
+        self._validateSchema = State(initialValue: false)
+        self._isPageDuplicated = State(initialValue: editor.isPageDuplicateEnabled)
+        self._isPageDelete = State(initialValue: editor.isPageDeleteEnabled)
+        self._singleClickRowEdit = State(initialValue: editor.singleClickRowEdit)
+        self._inlineFields = State(initialValue: editor.inlineFields)
         self.license = license
     }
 
@@ -279,7 +285,8 @@ struct FormDestinationView: View {
                 isPageDeleteEnabled: isPageDelete,
                 validateSchema: validateSchema,
                 license: license,
-                singleClickRowEdit: singleClickRowEdit
+                singleClickRowEdit: singleClickRowEdit,
+                inlineFields: inlineFields
             )
 
             // Publish to UI on the main actor
@@ -356,7 +363,14 @@ struct FormDestinationView: View {
             ChangelogView(changeManager: changeManager)
         }
         .sheet(isPresented: $showPublicApis) {
-            PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, isPageDelete: $isPageDelete, singleClickRowEdit: $singleClickRowEdit, document: documentEditor?.document ?? JoyDoc())
+            PublicApiExamples(documentEditor: $documentEditor,
+                              licenseKey: $license,
+                              validateSchema: $validateSchema,
+                              isPageDuplicate: $isPageDuplicated,
+                              isPageDelete: $isPageDelete,
+                              singleClickRowEdit: $singleClickRowEdit,
+                              inlineFields: $inlineFields,
+                              document: documentEditor?.document ?? JoyDoc())
         }
         .sheet(
             isPresented: Binding(
@@ -658,8 +672,15 @@ struct OptionSelectionView: View {
                 VStack(spacing: 0) {
                     Divider()
                     
+                    // Build destination only when isNavigating is true (after Continue), never when just selecting an option
                     NavigationLink(
-                        destination: destinationView(),
+                        destination: Group {
+                            if isNavigating {
+                                destinationView()
+                            } else {
+                                Color.clear
+                            }
+                        },
                         isActive: Binding(
                             get: { isNavigating },
                             set: { newValue in

@@ -12,6 +12,7 @@ struct CollectionModalTopNavigationView: View {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
     var onFilterTap: (() -> Void)?
+    var onClose: (() -> Void)?
     
     @State private var showingPopover = false
     
@@ -21,6 +22,19 @@ struct CollectionModalTopNavigationView: View {
 
     var body: some View {
         HStack {
+            if let onClose {
+                Button(action: onClose) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.blue)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("CollectionOverlayCloseIdentifier")
+            }
+
             if let title = viewModel.tableDataModel.title {
                 Text("\(title)")
                     .font(.headline.bold())
@@ -278,14 +292,16 @@ struct CollectionEditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: CollectionViewModel
     let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode) var presentationMode
+    let onClose: (() -> Void)?
     @State var changes = [Int: ValueUnion]()
     @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
-    init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn]) {
+    init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn], onClose: (() -> Void)? = nil) {
         self.viewModel = viewModel
         self.tableColumns = tableColumns
+        self.onClose = onClose
     }
     
     @ViewBuilder
@@ -383,7 +399,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }
                         
                         Button(action: {
-                            presentationMode.wrappedValue.dismiss()
+                            closeView()
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
@@ -420,7 +436,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             Task { @MainActor in
                                 await viewModel.bulkEdit(changes: changes)
                                 viewModel.tableDataModel.emptySelection()
-                                presentationMode.wrappedValue.dismiss()
+                                closeView()
                             }
                             
                         }, label: {
@@ -446,7 +462,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         .disabled(isLoading)
                         
                         Button(action: {
-                            presentationMode.wrappedValue.dismiss()
+                            closeView()
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
@@ -707,6 +723,14 @@ struct CollectionEditMultipleRowsSheetView: View {
         .onTapGesture {
             viewModel.tableDataModel.navigationIntent.focusColumnId = nil
         }
+        }
+    }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            presentationMode.wrappedValue.dismiss()
         }
     }
 }

@@ -50,6 +50,11 @@ struct NavigationIntent {
 
 // MARK: - Environment Keys
 
+struct InlineFieldPresenter {
+    let present: (AnyView) -> Void
+    let dismiss: () -> Void
+}
+
 private struct NavigationFocusFieldIdKey: EnvironmentKey {
     static let defaultValue: String? = nil
 }
@@ -69,6 +74,17 @@ extension EnvironmentValues {
     var navigationFocusColumnId: String? {
         get { self[NavigationFocusColumnIdKey.self] }
         set { self[NavigationFocusColumnIdKey.self] = newValue }
+    }
+}
+
+private struct InlineFieldPresenterKey: EnvironmentKey {
+    static let defaultValue: InlineFieldPresenter? = nil
+}
+
+extension EnvironmentValues {
+    var inlineFieldPresenter: InlineFieldPresenter? {
+        get { self[InlineFieldPresenterKey.self] }
+        set { self[InlineFieldPresenterKey.self] = newValue }
     }
 }
 

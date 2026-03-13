@@ -4,11 +4,25 @@ import JoyfillModel
 struct TableModalTopNavigationView: View {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
+    var onClose: (() -> Void)?
     
     @State private var showingPopover = false
 
     var body: some View {
         HStack {
+            if let onClose {
+                Button(action: onClose) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.blue)
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("TableOverlayCloseIdentifier")
+            }
+
             if let title = viewModel.tableDataModel.title {
                 Text("\(title)")
                     .font(.headline.bold())
@@ -223,13 +237,15 @@ struct TableModalTopNavigationView: View {
 struct EditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.presentationMode)  var presentationMode
+    let onClose: (() -> Void)?
     @State var changes = [Int: ValueUnion]()
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
     @FocusState private var focusedColumnIndex: Int?
 
-    init(viewModel: TableViewModel) {
+    init(viewModel: TableViewModel, onClose: (() -> Void)? = nil) {
         self.viewModel =  viewModel
+        self.onClose = onClose
     }
 
     @ViewBuilder
@@ -311,7 +327,7 @@ struct EditMultipleRowsSheetView: View {
                             }
                             
                             Button(action: {
-                                presentationMode.wrappedValue.dismiss()
+                                closeView()
                             }, label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 6)
@@ -344,7 +360,7 @@ struct EditMultipleRowsSheetView: View {
                             Task { @MainActor in
                                 await viewModel.bulkEdit(changes: changes)
                                 viewModel.tableDataModel.emptySelection()
-                                presentationMode.wrappedValue.dismiss()
+                                closeView()
                             }
                         }, label: {
                             ZStack {
@@ -368,7 +384,7 @@ struct EditMultipleRowsSheetView: View {
                         .accessibilityIdentifier("ApplyAllButtonIdentifier")
                         
                         Button(action: {
-                            presentationMode.wrappedValue.dismiss()
+                            closeView()
                         }, label: {
                             ZStack {
                                 RoundedRectangle(cornerRadius: 6)
@@ -642,5 +658,13 @@ struct EditMultipleRowsSheetView: View {
               let colIndex = viewModel.tableDataModel.tableColumns.firstIndex(where: { $0.id == columnId }),
               viewModel.tableDataModel.tableColumns[colIndex].type == .text else { return }
         focusedColumnIndex = colIndex
+    }
+
+    private func closeView() {
+        if let onClose {
+            onClose()
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
     }
 }
