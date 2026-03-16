@@ -152,6 +152,11 @@ public class DocumentEditor: ObservableObject {
     public func validate() -> Validation {
         return validationHandler.validate()
     }
+
+    public func validate(fieldID: String) -> FieldValidity? {
+        let fieldIdentifier = getFieldIdentifier(for: fieldID)
+        return validationHandler.validate(fieldIdentifier: fieldIdentifier)
+    }
     
     public func shouldShow(fieldID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
