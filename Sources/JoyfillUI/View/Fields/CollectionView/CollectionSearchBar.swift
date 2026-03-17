@@ -24,7 +24,8 @@ struct CollectionSearchBar: View {
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: viewModel.tableDataModel.mode)
+                                                   editMode: viewModel.tableDataModel.mode,
+                                                   didFocusBlur: { _, _ in },)
                     { cellDataModel in
                         switch cellDataModel.type {
                         case .text:
