@@ -66,7 +66,8 @@ struct JoyfillExampleApp: App {
                 isPageDuplicateEnabled: isPageDuplicateEnabled,
                 isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
-                license: licenseKey
+                license: licenseKey,
+                singleClickRowEdit: true
             )
         } catch {
             print("⚠️  Error creating document editor: \(error)")
@@ -79,7 +80,8 @@ struct JoyfillExampleApp: App {
                 isPageDuplicateEnabled: isPageDuplicateEnabled,
                 isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
-                license: licenseKey
+                license: licenseKey,
+                singleClickRowEdit: true
             )
         }
         

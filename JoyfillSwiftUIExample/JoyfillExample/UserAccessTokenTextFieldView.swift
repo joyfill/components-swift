@@ -234,9 +234,9 @@ struct FormDestinationView: View {
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
-    @State var isPageDuplicated: Bool = false
-    @State var isPageDelete: Bool = false
-    @State var singleClickRowEdit: Bool = false
+    @State var isPageDuplicated: Bool = true
+    @State var isPageDelete: Bool = true
+    @State var singleClickRowEdit: Bool = true
     @State var document = JoyDoc()
     @State var license: String
 
@@ -265,6 +265,14 @@ struct FormDestinationView: View {
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
     private func buildDocumentEditorInBackground() {
+        // Capture @State values on the main actor before entering the detached task,
+        // so the correct initial values are used regardless of concurrency timing.
+        let isDuplicate = isPageDuplicated
+        let isDelete = isPageDelete
+        let isSingleClick = singleClickRowEdit
+        let currentSchema = validateSchema
+        let currentLicense = license
+
         // Heavy work (JSON parse + DocumentEditor construction) off the main thread
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
@@ -275,11 +283,11 @@ struct FormDestinationView: View {
                 events: changeManager,
                 pageID: "",
                 navigation: true,
-                isPageDuplicateEnabled: isPageDuplicated,
-                isPageDeleteEnabled: isPageDelete,
-                validateSchema: validateSchema,
-                license: license,
-                singleClickRowEdit: singleClickRowEdit
+                isPageDuplicateEnabled: isDuplicate,
+                isPageDeleteEnabled: isDelete,
+                validateSchema: currentSchema,
+                license: currentLicense,
+                singleClickRowEdit: isSingleClick
             )
 
             // Publish to UI on the main actor
