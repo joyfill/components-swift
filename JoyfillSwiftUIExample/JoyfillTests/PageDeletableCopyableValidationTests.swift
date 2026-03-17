@@ -314,4 +314,57 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
         let hasValue = duplicatedFields.contains(where: { $0.value != nil })
         XCTAssertTrue(hasValue, "copyWithValues=true should preserve at least one field value on the duplicated page.")
     }
+
+    // MARK: - copyWithValues=false: original page fields untouched
+
+    /// `copyWithValues=false` must only clear the NEW page's fields — the original page's
+    /// field values must remain intact.
+    func testDuplicatePage_WithoutValues_OriginalPageFieldsUnchanged() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .setTextField()
+
+        let pageID = "6629fab320fca7c8107a6cf6"
+        let editor = makeEditor(document: document)
+
+        // Collect the original page's field IDs before duplication.
+        let originalPage = editor.document.files.first?.pages?.first(where: { $0.id == pageID })
+        let originalFieldIDs = Set(originalPage?.fieldPositions?.compactMap { $0.field } ?? [])
+        XCTAssertFalse(originalFieldIDs.isEmpty, "Test requires original page to have field positions.")
+
+        // Snapshot which original fields have values before the duplicate.
+        let fieldsBefore = editor.document.fields.filter { originalFieldIDs.contains($0.id ?? "") }
+        let valuesBefore = fieldsBefore.compactMap { $0.value }
+        XCTAssertFalse(valuesBefore.isEmpty, "Test requires at least one original field with a value.")
+
+        editor.duplicatePage(pageID: pageID, copyWithValues: false)
+
+        // Original page fields must still have their values.
+        let fieldsAfter = editor.document.fields.filter { originalFieldIDs.contains($0.id ?? "") }
+        let valuesAfter = fieldsAfter.compactMap { $0.value }
+        XCTAssertEqual(valuesAfter.count, valuesBefore.count,
+                       "copyWithValues=false must not clear the original page's field values.")
+    }
+
+    // MARK: - canDeletePage: deletable key absent defaults to true
+
+    /// A page that has no `deletable` key set (i.e., the default) must be treated
+    /// as deletable — `canDeletePage` should return `(true, [])`.
+    func testCanDeletePage_DeletableKeyAbsent_DefaultsToTrue() {
+        // addSecondPage() creates a page with no deletable key set — raw default.
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+
+        let editor = makeEditor(document: document)
+        let result = editor.canDeletePage(pageID: "second_page_id_12345")
+        XCTAssertTrue(result.canDelete, "Page with no deletable key should be deletable by default.")
+        XCTAssertTrue(result.warnings.isEmpty, "No warnings expected for a default-deletable page.")
+    }
 }
