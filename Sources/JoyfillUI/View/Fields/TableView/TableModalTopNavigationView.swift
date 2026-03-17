@@ -399,8 +399,7 @@ struct EditMultipleRowsSheetView: View {
                                                        viewMode: .modalView,
                                                        editMode: viewModel.tableDataModel.mode,
                                                        didFocusBlur: { action, cellDataModel in
-                            viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id)
-                            })
+                            viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id) })
                             { cellDataModel in
                                 switch cell.type {
                                 case .text:
