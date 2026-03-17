@@ -1607,6 +1607,14 @@ public struct Point: Codable,Hashable, Equatable {
     }
 }
 
+// MARK: - CopyMode
+/// Represents the allowed duplication modes for a page.
+public enum CopyMode: String {
+    case none = "none"
+    case withValues = "with-values"
+    case withoutValues = "without-values"
+}
+
 // MARK: - Page
 /// Represents a page in a document.
 public struct Page {
@@ -1716,6 +1724,27 @@ public struct Page {
     public var formulas: [AppliedFormula]? {
         get { (dictionary["formulas"] as? [[String: Any]])?.compactMap(AppliedFormula.init) }
         set { dictionary["formulas"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    /// Whether this page can be deleted. Defaults to true when not set or when set to null.
+    public var deletable: Bool {
+        get {
+            guard let value = dictionary["deletable"] else { return true }
+            if let boolValue = value as? Bool { return boolValue }
+            return true
+        }
+        set { dictionary["deletable"] = newValue }
+    }
+
+    /// The copy modes allowed for this page.
+    /// Defaults to [.withValues] when not set, null, or contains no valid values.
+    public var copyable: [CopyMode] {
+        get {
+            guard let arr = dictionary["copyable"] as? [String] else { return [.withValues] }
+            let valid = arr.compactMap { CopyMode(rawValue: $0) }
+            return valid.isEmpty ? [.withValues] : valid
+        }
+        set { dictionary["copyable"] = newValue.map { $0.rawValue } }
     }
 }
 

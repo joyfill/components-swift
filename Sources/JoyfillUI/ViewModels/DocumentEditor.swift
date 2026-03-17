@@ -977,7 +977,7 @@ extension DocumentEditor {
         return formulaMapping
     }
     
-    public func duplicatePage(pageID: String) {
+    public func duplicatePage(pageID: String, copyWithValues: Bool = true) {
         guard var firstFile = document.files.first else {
             Log("No file found in document.", type: .error)
             return
@@ -994,6 +994,9 @@ extension DocumentEditor {
         
         var duplicatedPage = originalPage
         duplicatedPage.id = newPageID
+        // Copied pages are always fully editable per spec
+        duplicatedPage.deletable = true
+        duplicatedPage.copyable = [.withValues, .withoutValues]
         
         var fieldMapping: [String: String] = [:]
         var newFields: [JoyDocField] = []
@@ -1057,7 +1060,13 @@ extension DocumentEditor {
         addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
         
         let _ = duplicateFormulasForPage(&newFields, fieldMapping: fieldMapping)
-        
+
+        if !copyWithValues {
+            for i in newFields.indices {
+                newFields[i].value = nil
+            }
+        }
+
         document.fields = newFields
         duplicatedPage.fieldPositions = newFieldPositions
         
@@ -1133,10 +1142,15 @@ extension DocumentEditor {
         }
         
         // Check 2: Page must exist
-        guard firstFile.pages?.contains(where: { $0.id == pageID }) == true else {
+        guard let page = firstFile.pages?.first(where: { $0.id == pageID }) else {
             return (false, ["Page with ID \(pageID) not found"])
         }
-        
+
+        // Check 3: Page-level deletable property
+        if !page.deletable {
+            return (false, [])
+        }
+
         return (true, warnings)
     }
     /// Determines the next page to navigate to after deleting a page

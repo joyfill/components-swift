@@ -175,6 +175,7 @@
 		9EAAC7E02EAB3EF4000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
 		9EAAC7E12EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */; };
 		9EAAC7E22EAB3F89000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
+		E2173C2F2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */; };
 		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
 		E225D1C52F3AE626000674CF /* HiddenViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */; };
 		E225D1C92F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E225D1C82F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift */; };
@@ -564,6 +565,7 @@
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
 		9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadonlyModeUITestCases.swift; sourceTree = "<group>"; };
+		E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableValidationTests.swift; sourceTree = "<group>"; };
 		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
 		E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenViewsTests.swift; sourceTree = "<group>"; };
 		E225D1C82F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerMetadataTests.swift"; sourceTree = "<group>"; };
@@ -574,9 +576,9 @@
 		E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerTests.swift"; sourceTree = "<group>"; };
 		E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ChangerHandlerUnit.json; sourceTree = "<group>"; };
 		E274CA2F2E2E60A000B35C09 /* OnChangeHandlerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnChangeHandlerUITests.swift; sourceTree = "<group>"; };
-		E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusCallbackUITests.swift; sourceTree = "<group>"; };
 		E274CA352E2E7FB000B35C09 /* blockField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = blockField.json; sourceTree = "<group>"; };
 		E274CA362E2E7FB000B35C09 /* chartField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chartField.json; sourceTree = "<group>"; };
+		E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusCallbackUITests.swift; sourceTree = "<group>"; };
 		E274CA372E2E7FB000B35C09 /* collectionField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = collectionField.json; sourceTree = "<group>"; };
 		E274CA382E2E7FB000B35C09 /* dateField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dateField.json; sourceTree = "<group>"; };
 		E274CA392E2E7FB000B35C09 /* dropdownField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = dropdownField.json; sourceTree = "<group>"; };
@@ -834,6 +836,7 @@
 			children = (
 				363A34CA2ED82AD800B578B2 /* ValueUnionNSNumberTests.swift */,
 				E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */,
+				E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */,
 				E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */,
 				E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */,
 				E27061C62E797E12006BAD18 /* OnChangeHandler */,
@@ -987,14 +990,6 @@
 			path = ChangeUITests;
 			sourceTree = "<group>";
 		};
-		E274CA392E2E60A100B35C09 /* FocusCallbackUITests */ = {
-			isa = PBXGroup;
-			children = (
-				E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */,
-			);
-			path = FocusCallbackUITests;
-			sourceTree = "<group>";
-		};
 		E274CA342E2E7EDB00B35C09 /* Schema-Validation */ = {
 			isa = PBXGroup;
 			children = (
@@ -1008,6 +1003,14 @@
 				E274CB062E2E84F700B35C09 /* optionalPropertiesRemovedTemplate */,
 			);
 			path = "Schema-Validation";
+			sourceTree = "<group>";
+		};
+		E274CA392E2E60A100B35C09 /* FocusCallbackUITests */ = {
+			isa = PBXGroup;
+			children = (
+				E274CA372E2E60A100B35C09 /* FocusCallbackUITests.swift */,
+			);
+			path = FocusCallbackUITests;
 			sourceTree = "<group>";
 		};
 		E274CA422E2E7FB000B35C09 /* allFieldsDesktopAndMobileTemplates */ = {
@@ -1959,6 +1962,7 @@
 				E225D1C52F3AE626000674CF /* HiddenViewsTests.swift in Sources */,
 				E2B8E3EF2E43806700AC6018 /* FormulaTemplate_BlockFieldTests.swift in Sources */,
 				36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */,
+				E2173C2F2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift in Sources */,
 				369D45772E0E586300677280 /* FormulaTemplate_CollectionField.swift in Sources */,
 				369025652E06E8EC00DCFF5B /* SimpleTableTest.swift in Sources */,
 				E2B8E3C22E436F2D00AC6018 /* FormulaTemplate_TextareaFieldTests.swift in Sources */,
