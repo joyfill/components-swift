@@ -1609,7 +1609,7 @@ public struct Point: Codable,Hashable, Equatable {
 
 // MARK: - CopyMode
 /// Represents the allowed duplication modes for a page.
-public enum CopyMode: String, CaseIterable {
+public enum CopyMode: String {
     case none = "none"
     case withValues = "with-values"
     case withoutValues = "without-values"
