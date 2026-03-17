@@ -506,7 +506,7 @@ struct PageDuplicateListView: View {
             showCopyModeDialog = true
         } else if hasWithoutValues {
             documentEditor.duplicatePage(pageID: pageID, copyWithValues: false)
-        } else {
+        } else if hasWithValues {
             documentEditor.duplicatePage(pageID: pageID, copyWithValues: true)
         }
     }
