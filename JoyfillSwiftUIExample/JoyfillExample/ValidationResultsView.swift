@@ -167,6 +167,7 @@ struct ValidationResultsView: View {
 
     private func invalidRowsList(rows: [RowValidity], fieldValidity: FieldValidity) -> some View {
         let invalidRows = rows.filter { $0.status == .invalid }
+        let displayedInvalidRows = Array(invalidRows.prefix(3))
         let totalRows = rows.count
 
         return VStack(alignment: .leading, spacing: 6) {
@@ -183,8 +184,14 @@ struct ValidationResultsView: View {
                     .foregroundColor(invalidRows.isEmpty ? .secondary : .red)
             }
 
-            ForEach(Array(invalidRows.enumerated()), id: \.offset) { index, row in
+            ForEach(Array(displayedInvalidRows.enumerated()), id: \.offset) { index, row in
                 invalidRowCard(row: row, index: index, fieldValidity: fieldValidity)
+            }
+
+            if invalidRows.count > displayedInvalidRows.count {
+                Text("Showing first \(displayedInvalidRows.count) invalid rows")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
             }
         }
     }
