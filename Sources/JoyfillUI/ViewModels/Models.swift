@@ -413,6 +413,12 @@ struct TableDataModel {
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
                 match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            case .date:
+                if let date = column.date {
+                    match = String(date) == filter.filterText
+                } else {
+                    match = false
+                }
             default:
                 match = false
             }
@@ -807,7 +813,7 @@ struct TableDataModel {
             title: column.title,
             number: column.number,
             date: column.date,
-            format: column.getFormat(from: fieldPositionTableColumns),
+            format: DateFormatType(rawValue: column.format ?? ""),
             multiSelectValues: column.multiSelectValues,
             multi: column.multi)
     }
