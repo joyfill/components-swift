@@ -125,6 +125,7 @@ struct SearchBar: View {
                 .accessibilityIdentifier("HideFilterSearchBar")
             }
         }
+        .id(model.colID)
         .frame(height: 40)
         .background(Color(.systemGray6))
         .cornerRadius(8)
