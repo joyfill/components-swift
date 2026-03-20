@@ -413,6 +413,15 @@ struct TableDataModel {
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
                 match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            case .date:
+                if filter.filterText == "null" {
+                    match = column.date == nil      // empty filter → only rows with no date
+                } else if let date = column.date,
+                          let filterDate = Double(filter.filterText) {
+                    match = date == filterDate
+                } else {
+                    match = false
+                }
             default:
                 match = false
             }
@@ -777,9 +786,17 @@ struct TableDataModel {
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
     
-    func getDummyCell(col: Int, selectedOptionText: String = "") -> CellDataModel? {
+    func getDummyCell(col: Int, selectedOptionText: String = "", empty: Bool) -> CellDataModel? {
         var dummyCell = cellModels.first?.cells[col].data
         dummyCell?.selectedOptionText = selectedOptionText
+        if empty {
+            dummyCell?.title = ""
+            dummyCell?.defaultDropdownSelectedId = nil
+            dummyCell?.valueElements = []
+            dummyCell?.number = nil
+            dummyCell?.date = nil
+            dummyCell?.multiSelectValues = nil
+        }
         return dummyCell
     }
     
@@ -807,7 +824,7 @@ struct TableDataModel {
             title: column.title,
             number: column.number,
             date: column.date,
-            format: column.getFormat(from: fieldPositionTableColumns),
+            format: DateFormatType(rawValue: column.format ?? ""),
             multiSelectValues: column.multiSelectValues,
             multi: column.multi)
     }

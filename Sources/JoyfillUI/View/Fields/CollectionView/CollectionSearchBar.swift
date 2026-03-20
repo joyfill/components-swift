@@ -43,6 +43,12 @@ struct CollectionSearchBar: View {
                             self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
                         case .barcode:
                             self.model.filterText = cellDataModel.title ?? ""
+                        case .date:
+                            if let dateEpoch = cellDataModel.date {
+                                self.model.filterText = String(dateEpoch)
+                            } else {
+                                self.model.filterText = "null"
+                            }
                         default:
                             break
                         }
@@ -76,6 +82,16 @@ struct CollectionSearchBar: View {
                             .cornerRadius(8)
                             .padding(.leading, 8)
                             .padding(.trailing, 8)
+                    case .date:
+                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText)
+                            .accessibilityIdentifier("SearchBarDateIdentifier")
+                            .frame(height: 40)
+                            .padding(.horizontal, 4)
+                            .onAppear {
+                                if self.model.filterText.isEmpty {
+                                    self.model.filterText = "null"
+                                }
+                            }
                     default:
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
