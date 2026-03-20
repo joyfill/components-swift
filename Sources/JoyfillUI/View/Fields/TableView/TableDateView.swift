@@ -30,8 +30,7 @@ struct TableDateView: View {
         }
         if !initialFilterText.isEmpty, let dateValue = Double(initialFilterText) {
             setupDate(dateValue: dateValue)
-        }
-        if !isUsedForBulkEdit {
+        } else if !isUsedForBulkEdit {
             if let dateValue = cellModel.wrappedValue.data.date {
                 setupDate(dateValue: dateValue)
             }
