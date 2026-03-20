@@ -18,7 +18,7 @@ struct SearchBar: View {
     var body: some View {
         HStack {
             if !viewModel.tableDataModel.rowOrder.isEmpty, selectedColumnIndex != Int.min {
-                let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex)
+                let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex, empty: true)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
                                                    timezoneId: "",
@@ -49,7 +49,7 @@ struct SearchBar: View {
                             if let dateEpoch = cellDataModel.date {
                                 self.model.filterText = String(dateEpoch)
                             } else {
-                                self.model.filterText = ""
+                                self.model.filterText = "null"
                             }
                         default:
                             break
@@ -87,6 +87,11 @@ struct SearchBar: View {
                         TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText)
                             .accessibilityIdentifier("SearchBarDateIdentifier")
                             .frame(height: 25)
+                            .onAppear {
+                                if self.model.filterText.isEmpty {
+                                    self.model.filterText = "null"
+                                }
+                            }
                     default:
                         Text("")
                     }

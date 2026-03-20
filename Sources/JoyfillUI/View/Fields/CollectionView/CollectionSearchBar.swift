@@ -47,7 +47,7 @@ struct CollectionSearchBar: View {
                             if let dateEpoch = cellDataModel.date {
                                 self.model.filterText = String(dateEpoch)
                             } else {
-                                self.model.filterText = ""
+                                self.model.filterText = "null"
                             }
                         default:
                             break
@@ -87,6 +87,11 @@ struct CollectionSearchBar: View {
                             .accessibilityIdentifier("SearchBarDateIdentifier")
                             .frame(height: 40)
                             .padding(.horizontal, 4)
+                            .onAppear {
+                                if self.model.filterText.isEmpty {
+                                    self.model.filterText = "null"
+                                }
+                            }
                     default:
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")
