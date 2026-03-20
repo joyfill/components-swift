@@ -414,8 +414,8 @@ struct TableDataModel {
             case .barcode:
                 match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
             case .date:
-                if let date = column.date {
-                    match = String(date) == filter.filterText
+                if let date = column.date, let filterDate = Double(filter.filterText) {
+                    match = date == filterDate
                 } else {
                     match = false
                 }
