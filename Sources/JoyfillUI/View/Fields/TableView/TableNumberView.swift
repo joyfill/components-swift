@@ -45,6 +45,13 @@ struct TableNumberView: View {
                     updateFieldValue()
                 }
                 .focused($isTextFieldFocused)
+                .onChange(of: isTextFieldFocused) { focused in
+                    if focused {
+                        cellModel.didFocusBlur?(.focus, cellModel.data)
+                    } else {
+                        cellModel.didFocusBlur?(.blur, cellModel.data)
+                    }
+                }
                 .onAppear {
                     if navigationFocusColumnId == cellModel.data.id {
                         isTextFieldFocused = true

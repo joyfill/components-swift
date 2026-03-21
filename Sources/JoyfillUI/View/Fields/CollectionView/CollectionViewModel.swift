@@ -491,7 +491,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel in
+                                               editMode: tableDataModel.mode,
+                                               didFocusBlur: { [weak self] action, cellDataModel in
+                    self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                }) { cellDataModel in
                     let columnIndex = columns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
@@ -567,7 +570,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel in
+                                                   editMode: tableDataModel.mode,
+                                                   didFocusBlur: { [weak self] action, cellDataModel in
+                        self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                    }) { cellDataModel in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
@@ -601,7 +607,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { cellDataModel in
+                                                   editMode: tableDataModel.mode,
+                                                   didFocusBlur: { [weak self] action, cellDataModel in
+                        self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                    }) { cellDataModel in
                         self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
@@ -670,7 +679,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { cellDataModel in
+                                               editMode: tableDataModel.mode,
+                                               didFocusBlur: { [weak self] action, cellDataModel in
+                    self?.emitCellFocusBlur(action: action, rowID: childRowID, columnID: cellDataModel.id)
+                }) { cellDataModel in
                     let columnIndex = filteredTableColumns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
@@ -851,7 +863,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
-                                                       editMode: tableDataModel.mode) { cellDataModel in
+                                                       editMode: tableDataModel.mode,
+                                                       didFocusBlur: { [weak self] action, cellDataModel in
+                            self?.emitCellFocusBlur(action: action, rowID: row.id ?? "", columnID: cellDataModel.id)
+                        }) { cellDataModel in
                             let columnIndex = filteredTableColumns.firstIndex(where: { column in
                                 column.id == cellDataModel.id
                             })
@@ -1863,6 +1878,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                 fieldIdentifier: tableDataModel.fieldIdentifier,
                                 viewMode: .modalView,
                                 editMode: tableDataModel.mode,
+                                didFocusBlur: { _, _ in },
                                 didChange: { _ in }
                             )
                         }
@@ -1972,6 +1988,34 @@ extension CollectionViewModel {
         let schemaKey = rowDataModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel?.rowType.parentSchemaKey ?? ""
         return (parentPath ?? "", schemaKey)
     }
+
+    private func makeCellFieldEvent(rowID: String, columnID: String) -> FieldIdentifier? {
+        guard !rowID.isEmpty, !columnID.isEmpty else { return nil }
+        var fieldEvent = tableDataModel.fieldIdentifier
+        fieldEvent.rowIds = [rowID]
+        fieldEvent.columnId = columnID
+        let (parentPath, _) = getParenthPath(rowId: rowID)
+        if !parentPath.isEmpty {
+            fieldEvent.parentPath = parentPath
+        }
+        return fieldEvent
+    }
+
+    func emitCellFocusBlur(action: FocusBlurAction, rowID: String, columnID: String) {
+        guard var event = makeCellFieldEvent(rowID: rowID, columnID: columnID) else { return }
+        guard tableDataModel.mode == .fill else { return }
+
+        event.type = action.rawValue
+        event.target = action.rawValue
+
+        switch action {
+        case .focus:
+            tableDataModel.documentEditor?.onFocus(event: event)
+        case .blur:
+            tableDataModel.documentEditor?.onBlur(event: event)
+        }
+    }
+
 }
 
 // MARK: - DocumentEditorDelegate methods

@@ -50,6 +50,13 @@ struct TableBarcodeView: View {
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
                         }
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
+                        }
                         .onAppear {
                             if navigationFocusColumnId == cellModel.data.id {
                                 isTextFieldFocused = true
@@ -62,6 +69,13 @@ struct TableBarcodeView: View {
                         .focused($isTextFieldFocused)
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
+                        }
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
                         }
                         .onAppear {
                             if navigationFocusColumnId == cellModel.data.id {

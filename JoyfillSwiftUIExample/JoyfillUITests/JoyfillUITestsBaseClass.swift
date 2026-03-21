@@ -567,6 +567,40 @@ extension JoyfillUITestsBaseClass {
         return []
     }
     
+    // MARK: - Focus / Blur result helpers
+
+    func focusBlurOptionalResults() -> [[String: Any]] {
+        let el = app.staticTexts["focusBlurResultfield"]
+        guard el.exists, !el.label.isEmpty, el.label != "[]" else { return [] }
+        guard let data = el.label.data(using: .utf8),
+              let array = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
+        return array
+    }
+
+    func focusBlurOptionalResult() -> [String: Any]? {
+        return focusBlurOptionalResults().first
+    }
+
+    func focusOptionalResult() -> [String: Any]? {
+        return focusBlurOptionalResults().first { $0["kind"] as? String == "focus" }
+    }
+
+    func blurOptionalResult() -> [String: Any]? {
+        return focusBlurOptionalResults().first { $0["kind"] as? String == "blur" }
+    }
+
+    func focusResult() -> [String: Any] {
+        return focusOptionalResult() ?? [:]
+    }
+
+    func blurResult() -> [String: Any] {
+        return blurOptionalResult() ?? [:]
+    }
+
+    func waitForFocusBlurResult(timeout: TimeInterval = 3) {
+        _ = waitUntil(timeout) { self.focusBlurOptionalResults().isEmpty == false }
+    }
+
     func onUploadOptionalResults() -> [Change] {
         let resultField = app.staticTexts["resultUploadfield"]
 
