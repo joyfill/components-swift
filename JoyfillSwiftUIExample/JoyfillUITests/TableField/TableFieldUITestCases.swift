@@ -835,10 +835,9 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     func testTableFieldOnFocusOnBlur() throws {
         goToTableDetailPage()
         let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
-        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Text field should exist")
+        XCTAssertTrue(textField.exists, "Text field should exist")
         textField.tap()
         goBack()
-        waitForFocusBlurResult(timeout: 5)
         let results = focusBlurOptionalResults()
 
         XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
@@ -885,11 +884,10 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
                 RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
             }
         }
-        XCTAssertTrue(dropdownField.waitForExistence(timeout: 5), "Dropdown field should exist")
+        XCTAssertTrue(dropdownField.exists, "Dropdown field should exist")
         dropdownField.tap()
 
         goBack()
-        waitForFocusBlurResult(timeout: 5)
         let results = focusBlurOptionalResults()
 
         XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
@@ -905,6 +903,105 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
             "fieldPositionId": "6875c7ccc68951e6aff6ebea",
             "rowIds": ["687478ee886e5d76ed0b3d1c"],
             "columnId": "6875f786e39a025afbe7d481"
+        ]
+
+        var expectedFocusFieldEvent = expectedFieldEventBase
+        expectedFocusFieldEvent["type"] = "field.focus"
+        expectedFocusFieldEvent["target"] = "field.focus"
+
+        var expectedBlurFieldEvent = expectedFieldEventBase
+        expectedBlurFieldEvent["type"] = "field.blur"
+        expectedBlurFieldEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedFocusFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedBlurFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+    }
+
+    func testTableMultiSelectOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let multiSelectField = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        if !multiSelectField.waitForExistence(timeout: 1.5) {
+            for _ in 0..<4 where !multiSelectField.exists {
+                app.swipeLeft()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+            }
+        }
+        XCTAssertTrue(multiSelectField.exists, "Multi-select field should exist")
+        multiSelectField.tap()
+
+        goBack()
+        let results = focusBlurOptionalResults()
+
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
+
+        // Values from TableFieldTestData.json (first table + first row + first multiSelect column)
+        let expectedFieldEventBase: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": "6875f780cf958bc05e29aa23"
+        ]
+
+        var expectedFocusFieldEvent = expectedFieldEventBase
+        expectedFocusFieldEvent["type"] = "field.focus"
+        expectedFocusFieldEvent["target"] = "field.focus"
+
+        var expectedBlurFieldEvent = expectedFieldEventBase
+        expectedBlurFieldEvent["type"] = "field.blur"
+        expectedBlurFieldEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedFocusFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedBlurFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+    }
+
+    func testTableImageOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let imageField = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        if !imageField.waitForExistence(timeout: 1.5) {
+            for _ in 0..<4 where !imageField.exists {
+                app.swipeLeft()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+            }
+        }
+        XCTAssertTrue(imageField.exists, "Image field should exist")
+        imageField.tap()
+        goBack()
+        let results = focusBlurOptionalResults()
+
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
+
+        // Values from TableFieldTestData.json (first table + first row + first image column)
+        let expectedFieldEventBase: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": "6875f77d94bf1a887629d6c1"
         ]
 
         var expectedFocusFieldEvent = expectedFieldEventBase
