@@ -79,8 +79,8 @@ extension DocumentEditor {
         runOnMain { self.navigationPublisher.send(event) }
     }
 
-    func sendDismissNavigation() {
-        runOnMain { self.dismissNavigationPublisher.send() }
+    func sendDismissNavigation(fieldID: String) {
+        runOnMain { self.dismissNavigationPublisher.send(fieldID) }
     }
     
     func changePageAndNavigate(pageId: String, event: NavigationTarget) {
@@ -95,7 +95,7 @@ extension DocumentEditor {
     func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
         if let currentFieldID = openedNavigationFieldID,
            currentFieldID != event.fieldID {
-            sendDismissNavigation()
+            sendDismissNavigation(fieldID: currentFieldID)
             let execute = { [self] in
                 if pageChanged { self.currentPageID = pageId }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {

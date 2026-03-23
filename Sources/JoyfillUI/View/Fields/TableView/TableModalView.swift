@@ -94,8 +94,10 @@ struct TableModalView : View {
                 }
             }
         }
-        .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { _ in
-            dismiss()
+        .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == viewModel.tableDataModel.fieldIdentifier.fieldID {
+                dismiss()
+            }
         }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()

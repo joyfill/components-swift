@@ -45,7 +45,7 @@ public class DocumentEditor: ObservableObject {
     @Published var currentPageOrder: [String] = []
     @Published var navigationFocusFieldId: String?
     let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
-    let dismissNavigationPublisher = PassthroughSubject<Void, Never>()
+    let dismissNavigationPublisher = PassthroughSubject<String, Never>()
     public private(set) var openedNavigationFieldID: String? = nil
     public private(set) var isCollectionFieldEnabled: Bool = false
 
