@@ -6,6 +6,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct ChartDetailView: View {
 //    var chartData: MultiLineChartData
@@ -13,6 +14,7 @@ struct ChartDetailView: View {
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     @State var chartCoordinatesData: ChartAxisConfiguration
+    @Environment(\.dismiss) private var dismiss
     
 //    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
     public init(chartDataModel: ChartDataModel) {
@@ -61,6 +63,11 @@ struct ChartDetailView: View {
         }
         .onDisappear {
             chartDataModel.documentEditor?.setOpenNavigationFieldID(nil)
+        }
+        .onReceive(chartDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == chartDataModel.fieldIdentifier.fieldID {
+                dismiss()
+            }
         }
     }
 

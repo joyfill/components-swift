@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import JoyfillModel
 
 struct SignatureView: View {
@@ -72,7 +73,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -205,6 +206,7 @@ struct CanvasSignatureView: View {
     @Binding var showError: Bool
     @Binding var isEditable: Bool
     var documentEditor: DocumentEditor?
+    var fieldID: String?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     
@@ -338,6 +340,11 @@ struct CanvasSignatureView: View {
         }
         .onDisappear {
             documentEditor?.setOpenNavigationFieldID(nil)
+        }
+        .onReceive(documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == fieldID {
+                presentationMode.wrappedValue.dismiss()
+            }
         }
         .padding(.horizontal, 16.0)
     }
