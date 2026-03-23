@@ -482,6 +482,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         if tableDataModel.mode == .fill {
             tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
         }
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(nil)
     }
     
     func getParenthPath(rowId: String) -> (String, String) {

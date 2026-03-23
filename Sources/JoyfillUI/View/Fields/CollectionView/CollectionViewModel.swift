@@ -1809,6 +1809,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         if tableDataModel.mode == .fill {
             tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
         }
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(nil)
     }
     
     func getFilteredColumns(for schemaKey: String) -> [FieldTableColumn] {
