@@ -24,7 +24,7 @@ let package = Package(
             targets: ["JoyfillAPIService"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
+        .package(path: "vendor/JSONSchema.swift"),
     ],
     targets: [
         // Core JoyfillModel target (no dependencies)
