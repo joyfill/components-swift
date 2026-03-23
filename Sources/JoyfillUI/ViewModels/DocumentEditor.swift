@@ -45,6 +45,8 @@ public class DocumentEditor: ObservableObject {
     @Published var currentPageOrder: [String] = []
     @Published var navigationFocusFieldId: String?
     let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
+    let dismissNavigationPublisher = PassthroughSubject<Void, Never>()
+    public private(set) var openedNavigationFieldID: String? = nil
     public private(set) var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
@@ -465,6 +467,14 @@ extension DocumentEditor {
         return files.first?.views?.contains(where: { $0.type == "mobile" }) ?? false
     }
     
+    public func setOpenNavigationFieldID(_ fieldID: String?) {
+        if Thread.isMainThread {
+            openedNavigationFieldID = fieldID
+        } else {
+            DispatchQueue.main.async { self.openedNavigationFieldID = fieldID }
+        }
+    }
+
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID && shouldShow(page: currentPage)

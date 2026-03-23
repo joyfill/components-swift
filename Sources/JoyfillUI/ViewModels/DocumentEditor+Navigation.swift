@@ -84,6 +84,16 @@ extension DocumentEditor {
             }
         }
     }
+
+    func sendDismissNavigation() {
+        if Thread.isMainThread {
+            dismissNavigationPublisher.send()
+        } else {
+            DispatchQueue.main.async {
+                self.dismissNavigationPublisher.send()
+            }
+        }
+    }
     
     func changePageAndNavigate(pageId: String, event: NavigationTarget) {
         let execute = { [self] in
@@ -104,6 +114,19 @@ extension DocumentEditor {
     }
     
     func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
+        if let currentFieldID = openedNavigationFieldID,
+           currentFieldID != event.fieldID {
+            sendDismissNavigation()
+            let execute = { [self] in
+                if pageChanged { self.currentPageID = pageId }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
+                    self.sendNavigation(event)
+                }
+            }
+            if Thread.isMainThread { execute() } else { DispatchQueue.main.async { execute() } }
+            return status
+        }
+
         if pageChanged {
             changePageAndNavigate(pageId: pageId, event: event)
         } else {

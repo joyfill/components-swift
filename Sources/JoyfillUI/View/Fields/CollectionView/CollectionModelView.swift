@@ -104,6 +104,9 @@ struct CollectionModalView : View {
                 }
             }
         }
+        .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { _ in
+            dismiss()
+        }
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
         })
