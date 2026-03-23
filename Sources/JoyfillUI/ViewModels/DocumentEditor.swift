@@ -735,12 +735,16 @@ extension DocumentEditor {
         return dataModelType
     }
     
-    func setOpenNavigationFieldID(_ fieldID: String?) {
+    func runOnMain(_ block: @escaping () -> Void) {
         if Thread.isMainThread {
-            openedNavigationFieldID = fieldID
+            block()
         } else {
-            DispatchQueue.main.async { self.openedNavigationFieldID = fieldID }
+            DispatchQueue.main.async { block() }
         }
+    }
+
+    func setOpenNavigationFieldID(_ fieldID: String?) {
+        runOnMain { self.openedNavigationFieldID = fieldID }
     }
 }
 
