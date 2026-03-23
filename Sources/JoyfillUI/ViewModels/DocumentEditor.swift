@@ -467,14 +467,6 @@ extension DocumentEditor {
         return files.first?.views?.contains(where: { $0.type == "mobile" }) ?? false
     }
     
-    public func setOpenNavigationFieldID(_ fieldID: String?) {
-        if Thread.isMainThread {
-            openedNavigationFieldID = fieldID
-        } else {
-            DispatchQueue.main.async { self.openedNavigationFieldID = fieldID }
-        }
-    }
-
     public func firstValidPageFor(currentPageID: String) -> Page? {
         return document.pagesForCurrentView.first { currentPage in
             currentPage.id == currentPageID && shouldShow(page: currentPage)
@@ -741,6 +733,14 @@ extension DocumentEditor {
             dataModelType = .none
         }
         return dataModelType
+    }
+    
+    func setOpenNavigationFieldID(_ fieldID: String?) {
+        if Thread.isMainThread {
+            openedNavigationFieldID = fieldID
+        } else {
+            DispatchQueue.main.async { self.openedNavigationFieldID = fieldID }
+        }
     }
 }
 
