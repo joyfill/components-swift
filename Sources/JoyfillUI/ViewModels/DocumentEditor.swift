@@ -679,7 +679,8 @@ extension DocumentEditor {
         case .signature:
             let model = SignatureDataModel(fieldIdentifier: fieldIdentifier,
                                            signatureURL: fieldData?.value?.signatureURL ?? "",
-                                           fieldHeaderModel: fieldHeaderModel)
+                                           fieldHeaderModel: fieldHeaderModel,
+                                           documentEditor: self)
             dataModelType = .signature(model)
         case .number:
             let model = NumberDataModel(fieldIdentifier: fieldIdentifier,

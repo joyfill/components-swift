@@ -1270,6 +1270,7 @@ struct SignatureDataModel {
     var fieldIdentifier: FieldIdentifier
     var signatureURL: String?
     var fieldHeaderModel: FieldHeaderModel?
+    var documentEditor: DocumentEditor?
 }
 
 struct TextDataModel {

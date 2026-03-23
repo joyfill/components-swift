@@ -59,6 +59,9 @@ struct ChartDetailView: View {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         }
+        .onDisappear {
+            chartDataModel.documentEditor?.setOpenNavigationFieldID(nil)
+        }
     }
 
     func updateValueElements(valueElements: [ValueElement]) {
