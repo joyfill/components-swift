@@ -216,6 +216,11 @@ extension FieldIdentifier {
         dict["pageID"] = pageID
         dict["fileID"] = fileID
         dict["fieldPositionId"] = fieldPositionId
+        dict["type"] = type
+        dict["target"] = target
+        dict["rowIds"] = rowIds
+        dict["parentPath"] = parentPath
+        dict["columnId"] = columnId
         return dict
     }
 }

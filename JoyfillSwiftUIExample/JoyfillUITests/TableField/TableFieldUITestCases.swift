@@ -831,4 +831,209 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         }
         return outputFormatter.string(from: date)
     }
+    
+    func testTableFieldOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Text field should exist")
+        textField.tap()
+        goBack()
+        waitForFocusBlurResult(timeout: 5)
+        let results = focusBlurOptionalResults()
+
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
+
+        // Values from TableFieldTestData.json (first table + first row + first text column)
+        let expectedFieldEventBase: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": "687478ee0b423b73bb24cafa"
+        ]
+        
+        var expectedFocusFieldEvent = expectedFieldEventBase
+        expectedFocusFieldEvent["type"] = "field.focus"
+        expectedFocusFieldEvent["target"] = "field.focus"
+
+        var expectedBlurFieldEvent = expectedFieldEventBase
+        expectedBlurFieldEvent["type"] = "field.blur"
+        expectedBlurFieldEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedFocusFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedBlurFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+    }
+
+    func testTableDropdownOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let dropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
+        if !dropdownField.waitForExistence(timeout: 1.5) {
+            for _ in 0..<4 where !dropdownField.exists {
+                app.swipeLeft()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+            }
+        }
+        XCTAssertTrue(dropdownField.waitForExistence(timeout: 5), "Dropdown field should exist")
+        dropdownField.tap()
+
+        goBack()
+        waitForFocusBlurResult(timeout: 5)
+        let results = focusBlurOptionalResults()
+
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
+
+        // Values from TableFieldTestData.json (first table + first row + first dropdown column)
+        let expectedFieldEventBase: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": "6875f786e39a025afbe7d481"
+        ]
+
+        var expectedFocusFieldEvent = expectedFieldEventBase
+        expectedFocusFieldEvent["type"] = "field.focus"
+        expectedFocusFieldEvent["target"] = "field.focus"
+
+        var expectedBlurFieldEvent = expectedFieldEventBase
+        expectedBlurFieldEvent["type"] = "field.blur"
+        expectedBlurFieldEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedFocusFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: expectedBlurFieldEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+    }
+}
+
+extension TableFieldUITestCases {
+    
+    @discardableResult
+    func assertFocusBlurFieldEvent(
+        in results: [[String: Any]],
+        expectedFieldEvent: [String: Any],
+        expectedAbsentFieldEventKeys: Set<String> = ["type", "target"],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> [String: Any] {
+        guard let matchedEvent = results.first(where: { event in
+            guard let fieldEvent = event["fieldEvent"] as? [String: Any] else {
+                return false
+            }
+            for (key, expectedValue) in expectedFieldEvent {
+                if !focusBlurValuesMatch(actual: fieldEvent[key], expected: expectedValue) {
+                    return false
+                }
+            }
+            return true
+        }) else {
+            XCTFail("Missing event matching expected payload: \(expectedFieldEvent)", file: file, line: line)
+            return [:]
+        }
+
+        XCTAssertNil(matchedEvent["pageEvent"], "Did not expect pageEvent", file: file, line: line)
+
+        guard let fieldEvent = matchedEvent["fieldEvent"] as? [String: Any] else {
+            XCTFail("Missing fieldEvent dictionary", file: file, line: line)
+            return matchedEvent
+        }
+
+        let expectedFieldEventKeys = Set(expectedFieldEvent.keys)
+        let nullableExpectedKeys = Set(
+            expectedFieldEvent.compactMap { key, value in
+                value is NSNull ? key : nil
+            }
+        )
+        let requiredExpectedKeys = expectedFieldEventKeys.subtracting(nullableExpectedKeys)
+        let fieldEventKeys = Set(fieldEvent.keys)
+        let absentKeysToAssert = expectedAbsentFieldEventKeys.subtracting(expectedFieldEventKeys)
+        XCTAssertTrue(
+            fieldEventKeys.isSuperset(of: requiredExpectedKeys),
+            "Missing required fieldEvent keys. Required: \(requiredExpectedKeys), got: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            fieldEventKeys.isSubset(of: expectedFieldEventKeys),
+            "Unexpected fieldEvent keys: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            absentKeysToAssert.isDisjoint(with: fieldEventKeys),
+            "Did not expect optional keys \(absentKeysToAssert), got \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+
+        for (key, expectedValue) in expectedFieldEvent {
+            let actualValue = fieldEvent[key]
+            if expectedValue is NSNull {
+                XCTAssertTrue(
+                    actualValue == nil || actualValue is NSNull,
+                    "Expected key '\(key)' to be nil/missing, got \(String(describing: actualValue))",
+                    file: file,
+                    line: line
+                )
+                continue
+            }
+            XCTAssertTrue(
+                focusBlurValuesMatch(actual: actualValue, expected: expectedValue),
+                "Mismatch for key '\(key)'. Expected \(expectedValue), got \(String(describing: actualValue))",
+                file: file,
+                line: line
+            )
+        }
+
+        for key in absentKeysToAssert {
+            XCTAssertFalse(fieldEvent.keys.contains(key), "\(key) should be absent", file: file, line: line)
+            XCTAssertNil(fieldEvent[key], "\(key) should be nil", file: file, line: line)
+        }
+
+        return matchedEvent
+    }
+
+    private func focusBlurValuesMatch(actual: Any?, expected: Any) -> Bool {
+        switch expected {
+        case let string as String:
+            return (actual as? String) == string
+        case let strings as [String]:
+            return (actual as? [String]) == strings
+        case let bool as Bool:
+            return (actual as? Bool) == bool
+        case let int as Int:
+            return (actual as? Int) == int
+        case let double as Double:
+            if let actualDouble = actual as? Double { return actualDouble == double }
+            if let actualNumber = actual as? NSNumber { return actualNumber.doubleValue == double }
+            return false
+        case is NSNull:
+            return actual == nil || actual is NSNull
+        default:
+            return String(describing: actual) == String(describing: expected)
+        }
+    }
+
 }
