@@ -838,251 +838,53 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(textField.exists, "Text field should exist")
         textField.tap()
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first text column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "687478ee0b423b73bb24cafa"
-        ]
-        
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "687478ee0b423b73bb24cafa")
     }
 
     func testTableDropdownOnFocusOnBlur() throws {
         goToTableDetailPage()
         let dropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
-        if !dropdownField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !dropdownField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
+        scrollToElement(dropdownField)
         XCTAssertTrue(dropdownField.exists, "Dropdown field should exist")
         dropdownField.tap()
-
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first dropdown column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f786e39a025afbe7d481"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f786e39a025afbe7d481")
     }
 
     func testTableMultiSelectOnFocusOnBlur() throws {
         goToTableDetailPage()
         let multiSelectField = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
-        if !multiSelectField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !multiSelectField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
+        scrollToElement(multiSelectField)
         XCTAssertTrue(multiSelectField.exists, "Multi-select field should exist")
         multiSelectField.tap()
-
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first multiSelect column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f780cf958bc05e29aa23"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f780cf958bc05e29aa23")
     }
 
     func testTableImageOnFocusOnBlur() throws {
         goToTableDetailPage()
         let imageField = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
-        if !imageField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !imageField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
+        scrollToElement(imageField)
         XCTAssertTrue(imageField.exists, "Image field should exist")
         imageField.tap()
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first image column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f77d94bf1a887629d6c1"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f77d94bf1a887629d6c1")
     }
 
     func testTableNumberOnFocusOnBlur() throws {
         goToTableDetailPage()
         let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
-        if !numberField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !numberField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
+        scrollToElement(numberField)
         XCTAssertTrue(numberField.exists, "Number field should exist")
         numberField.tap()
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first number column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f868ebe7eede60eb0f7c"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f868ebe7eede60eb0f7c")
     }
 
     func testTableDateOnFocusOnBlur() throws {
         goToTableDetailPage()
         let dateField = app.buttons.matching(identifier: "ChangeCellDateIdentifier").firstMatch
-        if !dateField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !dateField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
-
+        scrollToElement(dateField)
         if dateField.exists {
             dateField.tap()
         } else {
@@ -1090,7 +892,6 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
             XCTAssertTrue(dateIcon.exists, "Date field should exist")
             dateIcon.tap()
         }
-
         let closeDatePopupButton = app.buttons["Close"].firstMatch
         if closeDatePopupButton.waitForExistence(timeout: 1.0) {
             closeDatePopupButton.tap()
@@ -1098,141 +899,28 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
             dismissSheet()
         }
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first date column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f873e4ac8460314997f8"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f873e4ac8460314997f8")
     }
 
     func testTableBarcodeOnFocusOnBlur() throws {
         goToTableDetailPage()
         let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").firstMatch
-        if !barcodeField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !barcodeField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
+        scrollToElement(barcodeField)
         XCTAssertTrue(barcodeField.exists, "Barcode field should exist")
         barcodeField.tap()
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first barcode column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f89d075904bfa381619b"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f89d075904bfa381619b")
     }
 
     func testTableSignatureOnFocusOnBlur() throws {
         goToTableDetailPage()
         let signatureField = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
-        if !signatureField.waitForExistence(timeout: 1.5) {
-            for _ in 0..<4 where !signatureField.exists {
-                app.swipeLeft()
-                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
-            }
-        }
+        scrollToElement(signatureField)
         XCTAssertTrue(signatureField.exists, "Signature field should exist")
         signatureField.tap()
         dismissSheet()
-
         goBack()
-        let results = focusBlurOptionalResults()
-
-        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none")
-
-        // Values from TableFieldTestData.json (first table + first row + first signature column)
-        let expectedFieldEventBase: [String: Any] = [
-            "_id": "66a14cedd6e1ebcdf176a8da",
-            "identifier": "template_6849dbb509ede5510725c910",
-            "fieldID": "6875c7c5e988bf485f897df6",
-            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
-            "pageID": "66a14ced15a9dc96374e091e",
-            "fileID": "66a14ced9dc829a95e272506",
-            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
-            "rowIds": ["687478ee886e5d76ed0b3d1c"],
-            "columnId": "6875f89ffad5aad06e550a6f"
-        ]
-
-        var expectedFocusFieldEvent = expectedFieldEventBase
-        expectedFocusFieldEvent["type"] = "field.focus"
-        expectedFocusFieldEvent["target"] = "field.focus"
-
-        var expectedBlurFieldEvent = expectedFieldEventBase
-        expectedBlurFieldEvent["type"] = "field.blur"
-        expectedBlurFieldEvent["target"] = "field.blur"
-
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedFocusFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
-        assertFocusBlurFieldEvent(
-            in: results,
-            expectedFieldEvent: expectedBlurFieldEvent,
-            expectedAbsentFieldEventKeys: ["type", "target"]
-        )
+        assertTableCellFocusBlurEvents(columnId: "6875f89ffad5aad06e550a6f")
     }
 }
 
@@ -1321,6 +1009,47 @@ extension TableFieldUITestCases {
         }
 
         return matchedEvent
+    }
+
+    func scrollToElement(_ element: XCUIElement, maxSwipes: Int = 4) {
+        if !element.waitForExistence(timeout: 1.5) {
+            for _ in 0..<maxSwipes where !element.exists {
+                app.swipeLeft()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+            }
+        }
+    }
+
+    func assertTableCellFocusBlurEvents(
+        columnId: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let results = focusBlurOptionalResults()
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none", file: file, line: line)
+
+        let base: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": columnId
+        ]
+
+        var focusEvent = base
+        focusEvent["type"] = "field.focus"
+        focusEvent["target"] = "field.focus"
+
+        var blurEvent = base
+        blurEvent["type"] = "field.blur"
+        blurEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(in: results, expectedFieldEvent: focusEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
+        assertFocusBlurFieldEvent(in: results, expectedFieldEvent: blurEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
     }
 
     private func focusBlurValuesMatch(actual: Any?, expected: Any) -> Bool {
