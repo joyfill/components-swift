@@ -334,9 +334,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .date:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return (cell1.date ?? 0) < (cell2.date ?? 0)
+                        return (cell1.date ?? -.infinity) < (cell2.date ?? -.infinity)
                     case .descending:
-                        return (cell1.date ?? 0) > (cell2.date ?? 0)
+                        return (cell1.date ?? -.infinity) > (cell2.date ?? -.infinity)
                     case .none:
                         return true
                     }

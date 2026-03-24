@@ -176,9 +176,9 @@ struct TableModalView : View {
                 case .date:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (column1.date ?? 0) < (column2.date ?? 0)
+                        return (column1.date ?? -.infinity) < (column2.date ?? -.infinity)
                     case .descending:
-                        return (column1.date ?? 0) > (column2.date ?? 0)
+                        return (column1.date ?? -.infinity) > (column2.date ?? -.infinity)
                     case .none:
                         return true
                     }
