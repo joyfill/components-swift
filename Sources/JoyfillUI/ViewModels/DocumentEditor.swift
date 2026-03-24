@@ -849,7 +849,7 @@ extension DocumentEditor {
             guard let origFieldID = fieldPos.field else { continue }
             if let origField = field(fieldID: origFieldID) {
                 if fieldMapping[origFieldID] != nil {
-                    fieldPos.field = origFieldID
+                    fieldPos.field = fieldMapping[origFieldID]
                     newFieldPositions.append(fieldPos)
                     continue
                 }
@@ -1035,7 +1035,6 @@ extension DocumentEditor {
                 
                 originalAltPage.fieldPositions = alternateNewFieldPositions
                 newFields.append(contentsOf: alternateNewFields)
-                document.fields = newFields
                 if altView.pages == nil {
                     altView.pages = [originalAltPage]
                 } else {
@@ -1067,7 +1066,7 @@ extension DocumentEditor {
             }
         }
 
-        document.fields = newFields
+        document.fields.append(contentsOf: newFields)
         duplicatedPage.fieldPositions = newFieldPositions
         
         if firstFile.pages == nil {

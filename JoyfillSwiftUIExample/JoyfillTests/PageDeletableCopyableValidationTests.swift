@@ -348,6 +348,98 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
                        "copyWithValues=false must not clear the original page's field values.")
     }
 
+    // MARK: - duplicatePage: shared field between alt-view and web page duplicated only once
+    func testDuplicatePage_SharedField_BetweenAltViewAndWebPage_IsNotDuplicatedTwice() {
+        let pageID       = "shared_test_page_001"
+        let sharedFieldID = "shared_test_field_001"
+
+        // Build one field that lives on both the web page and the alternate-view page.
+        var sharedField = JoyDocField()
+        sharedField.id    = sharedFieldID
+        sharedField.type  = "text"
+        sharedField.value = .string("Original value")
+
+        let sharedFieldPos = FieldPosition(dictionary: [
+            "field":       sharedFieldID,
+            "displayType": "original",
+            "width":       4,
+            "height":      8,
+            "x":           0,
+            "y":           0,
+            "_id":         "shared_pos_id_001",
+            "type":        "text"
+        ])
+
+        // Web page — references the shared field.
+        var webPage = Page()
+        webPage.id             = pageID
+        webPage.name           = "Page 1"
+        webPage.fieldPositions = [sharedFieldPos]
+
+        // Alternate-view page — same pageID, same field position.
+        var altPage = Page()
+        altPage.id             = pageID
+        altPage.name           = "Page 1"
+        altPage.fieldPositions = [sharedFieldPos]
+
+        var altView = ModelView()
+        altView.id        = "alt_view_id_001"
+        altView.type      = "web"
+        altView.pages     = [altPage]
+        altView.pageOrder = [pageID]
+
+        var file = File()
+        file.id        = "file_id_001"
+        file.pages     = [webPage]
+        file.views     = [altView]
+        file.pageOrder = [pageID]
+
+        var document = JoyDoc()
+        document.fields = [sharedField]
+        document.files  = [file]
+
+        let editor           = makeEditor(document: document)
+        let fieldCountBefore = editor.document.fields.count // 1
+
+        editor.duplicatePage(pageID: pageID)
+
+        // ── 1. Exactly one new field added, not two ───────────────────────────
+        let fieldCountAfter = editor.document.fields.count
+        XCTAssertEqual(
+            fieldCountAfter, fieldCountBefore + 1,
+            "A field shared between the alt-view and web page must be duplicated only once, not twice."
+        )
+
+        // ── 2. Duplicated page exists ─────────────────────────────────────────
+        guard let newPageID = editor.document.files.first?.pageOrder?.first(where: { $0 != pageID }),
+              let newPage   = editor.document.files.first?.pages?.first(where: { $0.id == newPageID }) else {
+            XCTFail("Duplicated page not found.")
+            return
+        }
+
+        // ── 3. New page has exactly one field position ────────────────────────
+        let newFieldIDs = newPage.fieldPositions?.compactMap { $0.field } ?? []
+        XCTAssertEqual(newFieldIDs.count, 1,
+                       "Duplicated web page should have exactly 1 field position.")
+
+        // ── 4. That position uses a new ID (not the original) ─────────────────
+        let newFieldID = newFieldIDs.first
+        XCTAssertNotEqual(newFieldID, sharedFieldID,
+                          "Duplicated page field position must use a newly generated ID.")
+
+        // ── 5. The new ID resolves to a real field in document.fields ─────────
+        XCTAssertNotNil(
+            editor.document.fields.first(where: { $0.id == newFieldID }),
+            "The new field position must reference a field that actually exists in document.fields."
+        )
+
+        // ── 6. Alt-view new page also points to the SAME new field ID ─────────
+        let altNewPage    = editor.document.files.first?.views?.first?.pages?.first(where: { $0.id == newPageID })
+        let altNewFieldID = altNewPage?.fieldPositions?.first?.field
+        XCTAssertEqual(altNewFieldID, newFieldID,
+                       "Alt-view duplicated page must point to the same new field ID as the web page, not a separate copy.")
+    }
+
     // MARK: - canDeletePage: deletable key absent defaults to true
 
     /// A page that has no `deletable` key set (i.e., the default) must be treated
