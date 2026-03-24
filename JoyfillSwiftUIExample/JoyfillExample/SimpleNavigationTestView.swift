@@ -75,6 +75,8 @@ struct SimpleNavigationTestView: View {
         let editor = DocumentEditor(
             document: sampleDoc,
             mode: .fill,
+            isPageDuplicateEnabled: true,
+            isPageDeleteEnabled: true,
             validateSchema: false,
             license: licenseKey,
             singleClickRowEdit: true

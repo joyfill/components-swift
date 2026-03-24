@@ -849,7 +849,7 @@ extension DocumentEditor {
             guard let origFieldID = fieldPos.field else { continue }
             if let origField = field(fieldID: origFieldID) {
                 if fieldMapping[origFieldID] != nil {
-                    fieldPos.field = origFieldID
+                    fieldPos.field = fieldMapping[origFieldID]
                     newFieldPositions.append(fieldPos)
                     continue
                 }
@@ -977,7 +977,7 @@ extension DocumentEditor {
         return formulaMapping
     }
     
-    public func duplicatePage(pageID: String) {
+    public func duplicatePage(pageID: String, copyWithValues: Bool = true) {
         guard var firstFile = document.files.first else {
             Log("No file found in document.", type: .error)
             return
@@ -994,6 +994,9 @@ extension DocumentEditor {
         
         var duplicatedPage = originalPage
         duplicatedPage.id = newPageID
+        // Copied pages are always fully editable per spec
+        duplicatedPage.deletable = true
+        duplicatedPage.copyable = [.withValues, .withoutValues]
         
         var fieldMapping: [String: String] = [:]
         var newFields: [JoyDocField] = []
@@ -1032,7 +1035,6 @@ extension DocumentEditor {
                 
                 originalAltPage.fieldPositions = alternateNewFieldPositions
                 newFields.append(contentsOf: alternateNewFields)
-                document.fields = newFields
                 if altView.pages == nil {
                     altView.pages = [originalAltPage]
                 } else {
@@ -1057,8 +1059,14 @@ extension DocumentEditor {
         addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
         
         let _ = duplicateFormulasForPage(&newFields, fieldMapping: fieldMapping)
-        
-        document.fields = newFields
+
+        if !copyWithValues {
+            for i in newFields.indices {
+                newFields[i].value = nil
+            }
+        }
+
+        document.fields.append(contentsOf: newFields)
         duplicatedPage.fieldPositions = newFieldPositions
         
         if firstFile.pages == nil {
@@ -1133,10 +1141,15 @@ extension DocumentEditor {
         }
         
         // Check 2: Page must exist
-        guard firstFile.pages?.contains(where: { $0.id == pageID }) == true else {
+        guard let page = firstFile.pages?.first(where: { $0.id == pageID }) else {
             return (false, ["Page with ID \(pageID) not found"])
         }
-        
+
+        // Check 3: Page-level deletable property
+        if !page.deletable {
+            return (false, [])
+        }
+
         return (true, warnings)
     }
     /// Determines the next page to navigate to after deleting a page
