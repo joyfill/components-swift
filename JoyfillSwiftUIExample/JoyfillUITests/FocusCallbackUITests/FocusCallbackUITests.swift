@@ -39,26 +39,13 @@ final class FocusCallbackUITests: JoyfillUITestsBaseClass {
 
     // MARK: - Helpers
 
-    func focusBlurEventsFromApp() -> [[String: Any]] {
-        let el = app.staticTexts["focusBlurResultfield"]
-        guard el.waitForExistence(timeout: 3), !el.label.isEmpty, el.label != "[]" else { return [] }
-        guard let data = el.label.data(using: .utf8),
-              let array = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
-        return array
-    }
-
     func hasFocusEventWithFieldID(_ fieldID: String) -> Bool {
-        let events = focusBlurEventsFromApp()
-        return events.contains { dict in
+        return focusBlurOptionalResults().contains { dict in
             guard dict["kind"] as? String == "focus",
                   let fieldEvent = dict["fieldEvent"] as? [String: Any],
                   let id = fieldEvent["fieldID"] as? String else { return false }
             return id == fieldID
         }
-    }
-
-    func waitForFocusBlurResult(timeout: TimeInterval = 3) {
-        _ = waitUntil(timeout) { self.focusBlurEventsFromApp().isEmpty == false }
     }
 
     // MARK: - Field focus (goto with focus: true)

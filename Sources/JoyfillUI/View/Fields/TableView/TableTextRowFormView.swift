@@ -43,6 +43,13 @@ struct TableTextRowFormView: View {
                             updateFieldValue(newText: newValue)
                         }
                         .focused($isTextFieldFocused)
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
+                        }
                         .onAppear { autoFocusIfNeeded() }
                 } else {
                     TextEditor(text: $text)
@@ -52,6 +59,13 @@ struct TableTextRowFormView: View {
                             updateFieldValue(newText: newValue)
                         }
                         .focused($isTextFieldFocused)
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
+                        }
                         .onAppear { autoFocusIfNeeded() }
                 }
             }
@@ -71,5 +85,4 @@ struct TableTextRowFormView: View {
         }
     }
 }
-
 
