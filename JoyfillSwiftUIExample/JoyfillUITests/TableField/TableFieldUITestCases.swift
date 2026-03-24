@@ -1052,25 +1052,4 @@ extension TableFieldUITestCases {
         assertFocusBlurFieldEvent(in: results, expectedFieldEvent: blurEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
     }
 
-    private func focusBlurValuesMatch(actual: Any?, expected: Any) -> Bool {
-        switch expected {
-        case let string as String:
-            return (actual as? String) == string
-        case let strings as [String]:
-            return (actual as? [String]) == strings
-        case let bool as Bool:
-            return (actual as? Bool) == bool
-        case let int as Int:
-            return (actual as? Int) == int
-        case let double as Double:
-            if let actualDouble = actual as? Double { return actualDouble == double }
-            if let actualNumber = actual as? NSNumber { return actualNumber.doubleValue == double }
-            return false
-        case is NSNull:
-            return actual == nil || actual is NSNull
-        default:
-            return String(describing: actual) == String(describing: expected)
-        }
-    }
-
 }
