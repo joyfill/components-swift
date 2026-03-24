@@ -45,6 +45,8 @@ public class DocumentEditor: ObservableObject {
     @Published var currentPageOrder: [String] = []
     @Published var navigationFocusFieldId: String?
     let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
+    let dismissNavigationPublisher = PassthroughSubject<String, Never>()
+    public private(set) var openedNavigationFieldID: String? = nil
     public private(set) var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
@@ -677,7 +679,8 @@ extension DocumentEditor {
         case .signature:
             let model = SignatureDataModel(fieldIdentifier: fieldIdentifier,
                                            signatureURL: fieldData?.value?.signatureURL ?? "",
-                                           fieldHeaderModel: fieldHeaderModel)
+                                           fieldHeaderModel: fieldHeaderModel,
+                                           documentEditor: self)
             dataModelType = .signature(model)
         case .number:
             let model = NumberDataModel(fieldIdentifier: fieldIdentifier,
@@ -731,6 +734,18 @@ extension DocumentEditor {
             dataModelType = .none
         }
         return dataModelType
+    }
+    
+    func runOnMain(_ block: @escaping () -> Void) {
+        if Thread.isMainThread {
+            block()
+        } else {
+            DispatchQueue.main.async { block() }
+        }
+    }
+
+    func setOpenNavigationFieldID(_ fieldID: String?) {
+        runOnMain { self.openedNavigationFieldID = fieldID }
     }
 }
 

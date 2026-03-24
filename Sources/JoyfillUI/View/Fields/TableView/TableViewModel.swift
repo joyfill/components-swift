@@ -488,6 +488,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         if tableDataModel.mode == .fill {
             tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
         }
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(nil)
     }
 
     private func makeCellFieldEvent(rowID: String, columnID: String) -> FieldIdentifier? {

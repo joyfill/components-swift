@@ -29,7 +29,7 @@ struct TableQuickView : View {
         
     fileprivate func openTable() {
         isTableModalViewPresented = true
-        
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(tableDataModel.fieldIdentifier.fieldID)
         if tableDataModel.mode == .fill {
             eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
         }
