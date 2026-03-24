@@ -414,7 +414,7 @@ struct TableDataModel {
             case .barcode:
                 match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
             case .date:
-                if filter.filterText == "null" {
+                if filter.filterText == FilterModel.emptyDateSentinel {
                     match = column.date == nil      // empty filter → only rows with no date
                 } else if let date = column.date,
                           let filterDate = Double(filter.filterText) {

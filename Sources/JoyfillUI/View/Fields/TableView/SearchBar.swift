@@ -49,7 +49,7 @@ struct SearchBar: View {
                             if let dateEpoch = cellDataModel.date {
                                 self.model.filterText = String(dateEpoch)
                             } else {
-                                self.model.filterText = "null"
+                                self.model.filterText = FilterModel.emptyDateSentinel
                             }
                         default:
                             break
@@ -89,7 +89,7 @@ struct SearchBar: View {
                             .frame(height: 25)
                             .onAppear {
                                 if self.model.filterText.isEmpty {
-                                    self.model.filterText = "null"
+                                    self.model.filterText = FilterModel.emptyDateSentinel
                                 }
                             }
                     default:
