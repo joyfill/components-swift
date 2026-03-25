@@ -1,6 +1,6 @@
 import Foundation
 
-class Context {
+class JSONSchemaContext {
   let resolver: RefResolver
   let validator: Validator
 
@@ -38,7 +38,7 @@ class Context {
     }
 
     if validator is Draft4Validator || validator is Draft6Validator {
-      // Older versions of JSON Schema, $ref ignores any alongside keywords
+      // Older versions of JSON JSONSchemaDefinition, $ref ignores any alongside keywords
       if let ref = schema["$ref"] as? String {
         keywordLocation.push("$ref")
         defer { keywordLocation.pop() }
@@ -82,24 +82,24 @@ class Context {
 }
 
 protocol Validator {
-  typealias Validation = (Context, Any, Any, [String: Any]) throws -> AnySequence<ValidationError>
+  typealias Validation = (JSONSchemaContext, Any, Any, [String: Any]) throws -> AnySequence<ValidationError>
 
   var resolver: RefResolver { get }
 
   var schema: [String: Any] { get }
   var metaschmas: [String: Any] { get }
   var validations: [String: Validation] { get }
-  var formats: [String: (Context, String) -> (AnySequence<ValidationError>)] { get }
+  var formats: [String: (JSONSchemaContext, String) -> (AnySequence<ValidationError>)] { get }
 }
 
 extension Validator {
   public func validate(instance: Any) throws -> ValidationResult {
-    let context = Context(resolver: resolver, validator: self)
+    let context = JSONSchemaContext(resolver: resolver, validator: self)
     return try context.validate(instance: instance, schema: schema).validationResult()
   }
 
   public func validate(instance: Any) throws -> AnySequence<ValidationError> {
-    let context = Context(resolver: resolver, validator: self)
+    let context = JSONSchemaContext(resolver: resolver, validator: self)
     return try context.validate(instance: instance, schema: schema)
   }
 }

@@ -24,7 +24,7 @@ extension String {
 }
 
 
-public struct Schema {
+public struct JSONSchemaDefinition {
   public let title: String?
   public let description: String?
 
@@ -52,12 +52,12 @@ public struct Schema {
   }
 
   public func validate(_ data: Any) throws -> ValidationResult {
-    let validator = try JSONSchema.validator(for: schema)
+    let validator = try validator(for: schema)
     return try validator.validate(instance: data)
   }
 
   public func validate(_ data: Any) throws -> AnySequence<ValidationError> {
-    let validator = try JSONSchema.validator(for: schema)
+    let validator = try validator(for: schema)
     return try validator.validate(instance: data)
   }
 }

@@ -1,7 +1,7 @@
 import Foundation
 
 
-func multipleOf(context: Context, multipleOf: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func multipleOf(context: JSONSchemaContext, multipleOf: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let multipleOf = multipleOf as? Double else {
     return AnySequence(EmptyCollection())
   }

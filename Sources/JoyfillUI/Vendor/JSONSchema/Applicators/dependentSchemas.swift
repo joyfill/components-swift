@@ -1,4 +1,4 @@
-func dependentSchemas(context: Context, dependentRequired: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func dependentSchemas(context: JSONSchemaContext, dependentRequired: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let instance = instance as? [String: Any] else {
     return AnySequence(EmptyCollection())
   }

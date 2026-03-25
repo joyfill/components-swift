@@ -22,7 +22,7 @@ func isValidDateTime(_ value: String) -> Bool {
     }
 }
 
-func validateDateTime(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateDateTime(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   if isValidDateTime(value) {
     return AnySequence(EmptyCollection())
   }

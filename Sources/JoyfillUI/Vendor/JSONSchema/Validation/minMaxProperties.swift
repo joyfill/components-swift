@@ -1,4 +1,4 @@
-func validatePropertiesLength(_ context: Context, _ length: Int, comparitor: @escaping ((Int, Int) -> (Bool)), error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
+func validatePropertiesLength(_ context: JSONSchemaContext, _ length: Int, comparitor: @escaping ((Int, Int) -> (Bool)), error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
   return { value in
     if let value = value as? [String: Any] {
       if !comparitor(length, value.count) {
@@ -17,7 +17,7 @@ func validatePropertiesLength(_ context: Context, _ length: Int, comparitor: @es
 }
 
 
-func minProperties(context: Context, minProperties: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func minProperties(context: JSONSchemaContext, minProperties: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let minProperties = minProperties as? Int else {
     return AnySequence(EmptyCollection())
   }
@@ -26,7 +26,7 @@ func minProperties(context: Context, minProperties: Any, instance: Any, schema: 
 }
 
 
-func maxProperties(context: Context, maxProperties: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func maxProperties(context: JSONSchemaContext, maxProperties: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let maxProperties = maxProperties as? Int else {
     return AnySequence(EmptyCollection())
   }

@@ -1,4 +1,4 @@
-func validateNumericLength(_ context: Context, _ length: Double, comparitor: @escaping ((Double, Double) -> (Bool)), exclusiveComparitor: @escaping ((Double, Double) -> (Bool)), exclusive: Bool?, error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
+func validateNumericLength(_ context: JSONSchemaContext, _ length: Double, comparitor: @escaping ((Double, Double) -> (Bool)), exclusiveComparitor: @escaping ((Double, Double) -> (Bool)), exclusive: Bool?, error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
   return { value in
     if let value = value as? Double {
       if exclusive ?? false {
@@ -29,7 +29,7 @@ func validateNumericLength(_ context: Context, _ length: Double, comparitor: @es
 }
 
 
-func minimumDraft4(context: Context, minimum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func minimumDraft4(context: JSONSchemaContext, minimum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let minimum = minimum as? Double else {
     return AnySequence(EmptyCollection())
   }
@@ -38,7 +38,7 @@ func minimumDraft4(context: Context, minimum: Any, instance: Any, schema: [Strin
 }
 
 
-func maximumDraft4(context: Context, maximum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func maximumDraft4(context: JSONSchemaContext, maximum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let maximum = maximum as? Double else {
     return AnySequence(EmptyCollection())
   }
@@ -47,7 +47,7 @@ func maximumDraft4(context: Context, maximum: Any, instance: Any, schema: [Strin
 }
 
 
-func minimum(context: Context, minimum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func minimum(context: JSONSchemaContext, minimum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let minimum = minimum as? Double else {
     return AnySequence(EmptyCollection())
   }
@@ -56,7 +56,7 @@ func minimum(context: Context, minimum: Any, instance: Any, schema: [String: Any
 }
 
 
-func maximum(context: Context, maximum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func maximum(context: JSONSchemaContext, maximum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let maximum = maximum as? Double else {
     return AnySequence(EmptyCollection())
   }
@@ -65,7 +65,7 @@ func maximum(context: Context, maximum: Any, instance: Any, schema: [String: Any
 }
 
 
-func exclusiveMinimum(context: Context, minimum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func exclusiveMinimum(context: JSONSchemaContext, minimum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let minimum = minimum as? Double else {
     return AnySequence(EmptyCollection())
   }
@@ -74,7 +74,7 @@ func exclusiveMinimum(context: Context, minimum: Any, instance: Any, schema: [St
 }
 
 
-func exclusiveMaximum(context: Context, maximum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func exclusiveMaximum(context: JSONSchemaContext, maximum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let maximum = maximum as? Double else {
     return AnySequence(EmptyCollection())
   }

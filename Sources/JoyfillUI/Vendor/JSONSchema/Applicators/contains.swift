@@ -1,4 +1,4 @@
-func contains(context: Context, contains: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func contains(context: JSONSchemaContext, contains: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let instance = instance as? [Any] else {
     return AnySequence(EmptyCollection())
   }

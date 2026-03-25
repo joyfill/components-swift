@@ -19,7 +19,7 @@ func isValidDate(_ value: String) -> Bool {
   return false
 }
 
-func validateDate(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateDate(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
 
   if isValidDate(value) {
     return AnySequence(EmptyCollection())

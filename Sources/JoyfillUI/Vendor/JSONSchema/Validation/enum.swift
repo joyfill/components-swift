@@ -1,7 +1,7 @@
 import Foundation
 
 
-func `enum`(context: Context, enum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func `enum`(context: JSONSchemaContext, enum: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let `enum` = `enum` as? [Any] else {
     return AnySequence(EmptyCollection())
   }

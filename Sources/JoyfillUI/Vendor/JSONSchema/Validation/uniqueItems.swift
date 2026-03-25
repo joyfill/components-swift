@@ -1,7 +1,7 @@
 import Foundation
 
 
-func uniqueItems(context: Context, uniqueItems: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func uniqueItems(context: JSONSchemaContext, uniqueItems: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let uniqueItems = uniqueItems as? Bool, uniqueItems else {
     return AnySequence(EmptyCollection())
   }

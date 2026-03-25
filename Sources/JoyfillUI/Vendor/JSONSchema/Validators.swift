@@ -7,7 +7,7 @@ func validValidation(_ value: Any) -> AnySequence<ValidationError> {
 }
 
 /// Creates a Validator which always returns an invalid result with the given error
-func invalidValidation(_ context: Context, _ error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
+func invalidValidation(_ context: JSONSchemaContext, _ error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
   return { value in
     return AnySequence([
       ValidationError(
@@ -21,7 +21,7 @@ func invalidValidation(_ context: Context, _ error: String) -> (_ value: Any) ->
 
 // MARK: Shared
 
-func type(context: Context, type: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func type(context: JSONSchemaContext, type: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   func ensureArray(_ value: Any) -> [String]? {
     if let value = value as? [String] {
       return value
@@ -162,7 +162,7 @@ extension Sequence where Iterator.Element == ValidationError {
 }
 
 
-func unsupported(_ keyword: String) -> (_ context: Context, _ value: Any, _ instance: Any, _ schema: [String: Any]) -> AnySequence<ValidationError> {
+func unsupported(_ keyword: String) -> (_ context: JSONSchemaContext, _ value: Any, _ instance: Any, _ schema: [String: Any]) -> AnySequence<ValidationError> {
   return { (context, _, _, _) in
     return AnySequence([
       ValidationError(

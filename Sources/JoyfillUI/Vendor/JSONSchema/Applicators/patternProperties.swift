@@ -1,7 +1,7 @@
 import Foundation
 
 
-func patternProperties(context: Context, patternProperties: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func patternProperties(context: JSONSchemaContext, patternProperties: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let instance = instance as? [String: Any] else {
     return AnySequence(EmptyCollection())
   }
@@ -27,7 +27,7 @@ func patternProperties(context: Context, patternProperties: Any, instance: Any, 
     } catch {
       return AnySequence([
         ValidationError(
-          "[Schema] '\(pattern)' is not a valid regex pattern for patternProperties",
+          "[JSONSchemaDefinition] '\(pattern)' is not a valid regex pattern for patternProperties",
           instanceLocation: context.instanceLocation,
           keywordLocation: context.keywordLocation
         ),

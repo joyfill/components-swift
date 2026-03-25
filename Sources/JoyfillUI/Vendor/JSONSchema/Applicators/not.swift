@@ -1,4 +1,4 @@
-func not(context: Context, not: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func not(context: JSONSchemaContext, not: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   // Use fast mode: we only need to know whether the subschema matches, not why.
   let saved = context.collectAllErrors
   context.collectAllErrors = false

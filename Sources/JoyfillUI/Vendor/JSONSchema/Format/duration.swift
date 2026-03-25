@@ -39,7 +39,7 @@ func isValidDuration(_ value: String) -> Bool {
 }
 
 
-func validateDuration(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateDuration(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   guard isValidDuration(value) else {
     return AnySequence([
       ValidationError(

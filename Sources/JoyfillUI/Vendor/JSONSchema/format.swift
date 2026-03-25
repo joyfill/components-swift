@@ -1,7 +1,7 @@
 import Foundation
 
 
-func format(context: Context, format: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func format(context: JSONSchemaContext, format: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let format = format as? String else {
     return AnySequence(EmptyCollection())
   }
@@ -24,7 +24,7 @@ func format(context: Context, format: Any, instance: Any, schema: [String: Any])
 }
 
 
-func validateIPv4(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateIPv4(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   if let expression = try? NSRegularExpression(pattern: "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", options: NSRegularExpression.Options(rawValue: 0)) {
     if expression.matches(in: value, options: NSRegularExpression.MatchingOptions(rawValue: 0), range: NSMakeRange(0, value.utf16.count)).count == 1 {
       return AnySequence(EmptyCollection())
@@ -41,7 +41,7 @@ func validateIPv4(_ context: Context, _ value: String) -> AnySequence<Validation
 }
 
 
-func validateIPv6(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateIPv6(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   if !value.contains("%") {
     var buf = UnsafeMutablePointer<Int8>.allocate(capacity: Int(INET6_ADDRSTRLEN))
     if inet_pton(AF_INET6, value, &buf) == 1 {
@@ -59,7 +59,7 @@ func validateIPv6(_ context: Context, _ value: String) -> AnySequence<Validation
 }
 
 
-func validateURI(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateURI(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   // Using the regex from http://blog.dieweltistgarnichtso.net/constructing-a-regular-expression-that-matches-uris
 
   if let expression = try? NSRegularExpression(pattern: "((?<=\\()[A-Za-z][A-Za-z0-9\\+\\.\\-]*:([A-Za-z0-9\\.\\-_~:/\\?#\\[\\]@!\\$&'\\(\\)\\*\\+,;=]|%[A-Fa-f0-9]{2})+(?=\\)))|([A-Za-z][A-Za-z0-9\\+\\.\\-]*:([A-Za-z0-9\\.\\-_~:/\\?#\\[\\]@!\\$&'\\(\\)\\*\\+,;=]|%[A-Fa-f0-9]{2})+)", options: NSRegularExpression.Options(rawValue: 0)) {
@@ -82,7 +82,7 @@ func validateURI(_ context: Context, _ value: String) -> AnySequence<ValidationE
 }
 
 
-func validateUUID(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateUUID(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   if UUID(uuidString: value) == nil {
     return AnySequence([
       ValidationError(
@@ -97,7 +97,7 @@ func validateUUID(_ context: Context, _ value: String) -> AnySequence<Validation
 }
 
 
-func validateRegex(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateRegex(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   do {
     _ = try NSRegularExpression(pattern: value)
   } catch {
@@ -114,7 +114,7 @@ func validateRegex(_ context: Context, _ value: String) -> AnySequence<Validatio
 }
 
 
-func validateJSONPointer(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateJSONPointer(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   guard !value.isEmpty else {
     return AnySequence(EmptyCollection())
   }

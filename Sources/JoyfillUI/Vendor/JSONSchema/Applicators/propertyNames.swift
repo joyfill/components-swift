@@ -1,4 +1,4 @@
-func propertyNames(context: Context, propertyNames: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func propertyNames(context: JSONSchemaContext, propertyNames: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let instance = instance as? [String: Any] else {
     return AnySequence(EmptyCollection())
   }

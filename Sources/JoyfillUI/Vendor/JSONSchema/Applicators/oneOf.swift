@@ -1,4 +1,4 @@
-func oneOf(context: Context, oneOf: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func oneOf(context: JSONSchemaContext, oneOf: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let oneOf = oneOf as? [Any] else {
     return AnySequence(EmptyCollection())
   }

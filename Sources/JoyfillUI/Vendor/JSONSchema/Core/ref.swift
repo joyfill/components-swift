@@ -2,7 +2,7 @@ enum ReferenceError: Error {
   case notFound
 }
 
-func ref(context: Context, reference: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func ref(context: JSONSchemaContext, reference: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let reference = reference as? String else {
     return AnySequence(EmptyCollection())
   }
@@ -26,7 +26,7 @@ func ref(context: Context, reference: Any, instance: Any, schema: [String: Any])
   defer {
     if let id = id {
       assert(context.resolver.stack.removeLast() == id,
-             "popping id mismatch - if this assertion is triggered, there's probably a bug in JSON Schema context library")
+             "popping id mismatch - if this assertion is triggered, there's probably a bug in JSON JSONSchemaDefinition context library")
     }
   }
 

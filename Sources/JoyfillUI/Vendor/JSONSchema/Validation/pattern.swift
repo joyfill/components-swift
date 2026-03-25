@@ -1,7 +1,7 @@
 import Foundation
 
 
-func pattern(context: Context, pattern: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func pattern(context: JSONSchemaContext, pattern: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let pattern = pattern as? String else {
     return AnySequence(EmptyCollection())
   }
@@ -13,7 +13,7 @@ func pattern(context: Context, pattern: Any, instance: Any, schema: [String: Any
   guard let expression = try? NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options(rawValue: 0)) else {
     return AnySequence([
       ValidationError(
-        "[Schema] Regex pattern '\(pattern)' is not valid",
+        "[JSONSchemaDefinition] Regex pattern '\(pattern)' is not valid",
         instanceLocation: context.instanceLocation,
         keywordLocation: context.keywordLocation
       )

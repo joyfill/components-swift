@@ -341,7 +341,7 @@ public struct SchemaValidationError: Error {
     public init(
         code: String,
         message: String,
-        error: [JSONSchema.ValidationError]?,
+        error: [ValidationError]?,
         details: Details
     ) {
         self.code = code

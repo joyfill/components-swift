@@ -131,7 +131,7 @@ func isValidTime(_ value: String) -> Bool {
 }
 
 
-func validateTime(_ context: Context, _ value: String) -> AnySequence<ValidationError> {
+func validateTime(_ context: JSONSchemaContext, _ value: String) -> AnySequence<ValidationError> {
   if isValidTime(value) {
     return AnySequence(EmptyCollection())
   }

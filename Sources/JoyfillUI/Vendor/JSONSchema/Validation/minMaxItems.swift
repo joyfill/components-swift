@@ -1,4 +1,4 @@
-func validateArrayLength(_ context: Context, _ rhs: Int, comparitor: @escaping ((Int, Int) -> Bool), error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
+func validateArrayLength(_ context: JSONSchemaContext, _ rhs: Int, comparitor: @escaping ((Int, Int) -> Bool), error: String) -> (_ value: Any) -> AnySequence<ValidationError> {
   return { value in
     if let value = value as? [Any] {
       if !comparitor(value.count, rhs) {
@@ -17,7 +17,7 @@ func validateArrayLength(_ context: Context, _ rhs: Int, comparitor: @escaping (
 }
 
 
-func minItems(context: Context, minItems: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func minItems(context: JSONSchemaContext, minItems: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let minItems = minItems as? Int else {
     return AnySequence(EmptyCollection())
   }
@@ -26,7 +26,7 @@ func minItems(context: Context, minItems: Any, instance: Any, schema: [String: A
 }
 
 
-func maxItems(context: Context, maxItems: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
+func maxItems(context: JSONSchemaContext, maxItems: Any, instance: Any, schema: [String: Any]) -> AnySequence<ValidationError> {
   guard let maxItems = maxItems as? Int else {
     return AnySequence(EmptyCollection())
   }

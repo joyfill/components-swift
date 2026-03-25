@@ -1,4 +1,4 @@
-func additionalItems(context: Context, additionalItems: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func additionalItems(context: JSONSchemaContext, additionalItems: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let instance = instance as? [Any], let items = schema["items"] as? [Any], instance.count > items.count else {
     return AnySequence(EmptyCollection())
   }

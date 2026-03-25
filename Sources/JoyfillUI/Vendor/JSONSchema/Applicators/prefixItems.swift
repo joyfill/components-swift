@@ -1,4 +1,4 @@
-func prefixItems(context: Context, prefixItems: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func prefixItems(context: JSONSchemaContext, prefixItems: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard
     let instance = instance as? [Any],
     let prefixItems = prefixItems as? [Any]

@@ -25,7 +25,7 @@ func findAdditionalProperties(instance: [String: Any], schema: [String: Any]) ->
 }
 
 
-func additionalProperties(context: Context, additionalProperties: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
+func additionalProperties(context: JSONSchemaContext, additionalProperties: Any, instance: Any, schema: [String: Any]) throws -> AnySequence<ValidationError> {
   guard let instance = instance as? [String: Any] else {
     return AnySequence(EmptyCollection())
   }

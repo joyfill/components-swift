@@ -120,7 +120,7 @@ public class JoyfillSchemaManager {
         }
         
         do {
-            let validationResult = try JSONSchema.validate(document.dictionary, schema: schemaDict)
+            let validationResult = try validate(document.dictionary, schema: schemaDict)
             if validationResult.valid {
                 // Validation succeeded - return nil (no error)
                 return nil
