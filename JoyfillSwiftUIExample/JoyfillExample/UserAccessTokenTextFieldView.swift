@@ -466,6 +466,7 @@ struct OptionSelectionView: View {
         case createRowUISample
         case simpleForm
         case simpleNavigationTest
+        case footerExample
 
         var title: String {
             switch self {
@@ -497,6 +498,8 @@ struct OptionSelectionView: View {
                 return "Simple example Form"
             case .simpleNavigationTest:
                 return "Navigation Test"
+            case .footerExample:
+                return "Footer Example"
             }
         }
         
@@ -530,6 +533,8 @@ struct OptionSelectionView: View {
                 return "Simple example Form"
             case .simpleNavigationTest:
                 return "Navigate to any page or field in the form"
+            case .footerExample:
+                return "Form with a persistent footer using local JSON"
             }
         }
         
@@ -563,6 +568,8 @@ struct OptionSelectionView: View {
                 return "slider.horizontal.3"
             case .simpleNavigationTest:
                 return "location.circle.fill"
+            case .footerExample:
+                return "dock.rectangle"
             }
         }
         
@@ -596,6 +603,8 @@ struct OptionSelectionView: View {
                 return .blue
             case .simpleNavigationTest:
                 return .indigo
+            case .footerExample:
+                return .mint
             }
         }
     }
@@ -741,6 +750,8 @@ struct OptionSelectionView: View {
             SimpleFormExampleView()
         case .simpleNavigationTest:
             SimpleNavigationTestView(showAlert: $showNavigationAlert, alertMessage: $navigationAlertMessage)
+        case .footerExample:
+            FooterExampleView()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
