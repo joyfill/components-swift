@@ -76,34 +76,36 @@ extension EnvironmentValues {
 
 extension DocumentEditor {
     func sendNavigation(_ event: NavigationTarget) {
-        if Thread.isMainThread {
-            navigationPublisher.send(event)
-        } else {
-            DispatchQueue.main.async {
-                self.navigationPublisher.send(event)
-            }
-        }
+        runOnMain { self.navigationPublisher.send(event) }
+    }
+
+    func sendDismissNavigation(fieldID: String) {
+        runOnMain { self.dismissNavigationPublisher.send(fieldID) }
     }
     
     func changePageAndNavigate(pageId: String, event: NavigationTarget) {
-        let execute = { [self] in
+        runOnMain {
             self.currentPageID = pageId
-            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.navigationPublisher.send(event)
-            }
-        }
-
-        if Thread.isMainThread {
-            execute()
-        } else {
-            DispatchQueue.main.async {
-                execute()
             }
         }
     }
     
     func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
+        if let currentFieldID = openedNavigationFieldID,
+           currentFieldID != event.fieldID {
+            sendDismissNavigation(fieldID: currentFieldID)
+            let execute = { [self] in
+                if pageChanged { self.currentPageID = pageId }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
+                    self.sendNavigation(event)
+                }
+            }
+            runOnMain(execute)
+            return status
+        }
+
         if pageChanged {
             changePageAndNavigate(pageId: pageId, event: event)
         } else {

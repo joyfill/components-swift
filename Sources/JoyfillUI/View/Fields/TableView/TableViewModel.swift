@@ -50,7 +50,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                                               editMode: tableDataModel.mode,
+                                               didFocusBlur: { [weak self] action, cellDataModel in
+                    self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                }) { [weak self] cellDataModel in
                     if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
@@ -108,10 +111,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: timezoneId,
                                                    data: columnModel,
-                                                   documentEditor: tableDataModel.documentEditor,
-                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                   viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                                                    documentEditor: tableDataModel.documentEditor,
+                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                    viewMode: .modalView,
+                                                    editMode: tableDataModel.mode,
+                                                   didFocusBlur: { [weak self] action, cellDataModel in
+                        self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                    }) { [weak self] cellDataModel in
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
@@ -356,6 +362,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     cellValues[columnId] = ValueUnion.string(change)
                 case .signature:
                     cellValues[columnId] = ValueUnion.string(change)
+                case .date:
+                    if let doubleChange = Double(change) {
+                        cellValues[columnId] = ValueUnion.double(doubleChange)
+                    } else {
+                        cellValues[columnId] = ValueUnion.null
+                    }
                 default:
                     break
                 }
@@ -481,6 +493,30 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func sendEventsIfNeeded() {
         if tableDataModel.mode == .fill {
             tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+        }
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(nil)
+    }
+
+    private func makeCellFieldEvent(rowID: String, columnID: String) -> FieldIdentifier? {
+        guard !rowID.isEmpty, !columnID.isEmpty else { return nil }
+        var fieldEvent = tableDataModel.fieldIdentifier
+        fieldEvent.rowIds = [rowID]
+        fieldEvent.columnId = columnID
+        return fieldEvent
+    }
+
+    func emitCellFocusBlur(action: FocusBlurAction, rowID: String, columnID: String) {
+        guard var event = makeCellFieldEvent(rowID: rowID, columnID: columnID) else { return }
+        guard tableDataModel.mode == .fill else { return }
+
+        event.type = action.rawValue
+        event.target = action.rawValue
+
+        switch action {
+        case .focus:
+            tableDataModel.documentEditor?.onFocus(event: event)
+        case .blur:
+            tableDataModel.documentEditor?.onBlur(event: event)
         }
     }
     

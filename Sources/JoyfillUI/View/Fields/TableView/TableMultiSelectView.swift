@@ -56,6 +56,7 @@ struct TableMultiSelectView: View {
 
     var body: some View {
         Button(action: {
+            cellModel.didFocusBlur?(.focus, cellModel.data)
             showMoreImages = Int.random(in: 0...100)
         }) {
             HStack {
@@ -89,7 +90,9 @@ struct TableMultiSelectView: View {
           color: (colorScheme == .dark ? .white.opacity(0.4) : .black.opacity(0.12)),
           radius: 3, x: 2, y: 2
         )
-        .sheet(isPresented: $showMoreImages2) {
+        .sheet(isPresented: $showMoreImages2, onDismiss: {
+            cellModel.didFocusBlur?(.blur, cellModel.data)
+        }) {
             TableMultiSelectSheetView(
                 cellModel: $cellModel,
                 isUsedForBulkEdit: isUsedForBulkEdit,

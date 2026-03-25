@@ -59,6 +59,7 @@ struct ChartView: View {
                 if chartDataModel.mode == .fill {
                     eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
                 }
+                chartDataModel.documentEditor?.setOpenNavigationFieldID(chartDataModel.fieldIdentifier.fieldID)
             }, label: {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")
