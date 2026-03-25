@@ -7,6 +7,7 @@
 
 import Foundation
 import JoyfillModel
+import JSONSchema
 
 public struct FieldIdentifier: Equatable {
     public var _id: String?

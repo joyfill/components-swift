@@ -5,6 +5,7 @@
 //  Created by Vishnu Dutt on 16/07/25.
 //
 import JoyfillModel
+import JSONSchema
 import Foundation
 
 /// Validation Overview
@@ -120,7 +121,7 @@ public class JoyfillSchemaManager {
         }
         
         do {
-            let validationResult = try validate(document.dictionary, schema: schemaDict)
+            let validationResult = try JSONSchema.validate(document.dictionary, schema: schemaDict)
             if validationResult.valid {
                 // Validation succeeded - return nil (no error)
                 return nil
