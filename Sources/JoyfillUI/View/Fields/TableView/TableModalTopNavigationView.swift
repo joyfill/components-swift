@@ -649,5 +649,6 @@ struct EditMultipleRowsSheetView: View {
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
         }))
+        .modifier(JoyfillFooterModifier())
     }
 }

@@ -16,6 +16,7 @@ struct TableQuickView : View {
     @StateObject private var viewModel: TableViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.joyfillFooter) private var footer
     @State var isTableModalViewPresented = false
     var tableDataModel: TableDataModel
     let eventHandler: FieldChangeEvents
@@ -86,7 +87,8 @@ struct TableQuickView : View {
             .accessibilityIdentifier("TableDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: TableModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView)
+                .environment(\.joyfillFooter, footer), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

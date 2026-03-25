@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TableSignatureView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.joyfillFooter) private var footer
     @Binding var cellModel: TableCellModel
     @State var isEditable: Bool = false
     @State private var lines: [Line] = []
@@ -33,6 +34,7 @@ struct TableSignatureView: View {
             isEditable = false
         }) {
             CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
+                .environment(\.joyfillFooter, footer)
         }
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {

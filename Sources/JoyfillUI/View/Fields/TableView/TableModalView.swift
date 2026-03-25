@@ -29,6 +29,7 @@ struct TableModalView : View {
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.joyfillFooter) private var footer
     @State var showEditMultipleRowsSheetView: Bool
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
@@ -51,6 +52,7 @@ struct TableModalView : View {
             })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
+                    .environment(\.joyfillFooter, footer)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))

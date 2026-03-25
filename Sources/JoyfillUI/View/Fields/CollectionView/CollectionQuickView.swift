@@ -14,6 +14,7 @@ struct CollectionQuickView : View {
     @StateObject private var viewModel: CollectionViewModel
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.joyfillFooter) private var footer
     @State var isTableModalViewPresented = false
     @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
@@ -140,7 +141,8 @@ struct CollectionQuickView : View {
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView)
+                .environment(\.joyfillFooter, footer), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

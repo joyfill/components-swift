@@ -13,6 +13,7 @@ struct ChartView: View {
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     let eventHandler: FieldChangeEvents
+    @Environment(\.joyfillFooter) private var footer
 
 //    let data : MultiLineChartData
     public init(chartDataModel: ChartDataModel, eventHandler: FieldChangeEvents) {
@@ -66,7 +67,8 @@ struct ChartView: View {
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             
-            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel)
+                .environment(\.joyfillFooter, footer), isActive: $showDetailChartView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

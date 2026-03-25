@@ -6,7 +6,7 @@ struct FooterExampleView: View {
     let documentEditor: DocumentEditor
 
     init() {
-        let document = Self.loadDoc(named: "first-form")
+        let document = Self.loadDoc(named: "hint_and_deficiency_demo")
         self.documentEditor = DocumentEditor(
             document: document,
             mode: .fill,

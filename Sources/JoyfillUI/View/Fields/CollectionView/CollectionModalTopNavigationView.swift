@@ -706,5 +706,6 @@ struct CollectionEditMultipleRowsSheetView: View {
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
         }))
+        .modifier(JoyfillFooterModifier())
     }
 }

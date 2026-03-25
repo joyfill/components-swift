@@ -45,6 +45,7 @@ struct CollectionModalView : View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.joyfillFooter) private var footer
     @State var showEditMultipleRowsSheetView: Bool
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
@@ -66,10 +67,12 @@ struct CollectionModalView : View {
                 onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
+                    .environment(\.joyfillFooter, footer)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .sheet(isPresented: $showFilterModal) {
                 CollectionFilterModal(viewModel: viewModel)
+                    .environment(\.joyfillFooter, footer)
                     .interactiveDismissDisabled(viewModel.isSearching)
             }
             .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
