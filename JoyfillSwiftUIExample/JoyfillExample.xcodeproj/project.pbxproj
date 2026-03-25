@@ -1556,7 +1556,6 @@
 			mainGroup = FA529C412BA1D251000200F5;
 			packageReferences = (
 				36143FE92E2F57AF006B9048 /* XCLocalSwiftPackageReference "../../components-swift" */,
-				36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */,
 			);
 			productRefGroup = FA529C4B2BA1D251000200F5 /* Products */;
 			projectDirPath = "";
@@ -2393,17 +2392,6 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kylef/JSONSchema.swift";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.6.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
 		048149F92CDA8F8E0061FBDC /* JoyfillModel */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2462,7 +2450,7 @@
 		};
 		36143FFB2E2F57F3006B9048 /* JSONSchema */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */;
+			package = 36143FE92E2F57AF006B9048 /* XCLocalSwiftPackageReference "../../components-swift" */;
 			productName = JSONSchema;
 		};
 		361D90C42E296BD7003CE807 /* Joyfill */ = {
@@ -2563,7 +2551,7 @@
 		};
 		E2CC9FEF2E377AA800797331 /* JSONSchema */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 36143FFA2E2F57F3006B9048 /* XCRemoteSwiftPackageReference "JSONSchema" */;
+			package = 36143FE92E2F57AF006B9048 /* XCLocalSwiftPackageReference "../../components-swift" */;
 			productName = JSONSchema;
 		};
 		FA1FEAE12BA466CB00ABD018 /* Joyfill */ = {
