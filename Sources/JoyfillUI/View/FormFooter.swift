@@ -23,15 +23,20 @@ extension EnvironmentValues {
 
 // MARK: - formFooter modifier (public API)
 
+// renderID is a new UUID on every parent re-render, giving onChange something to
+// track without exposing any visibility parameter in the public API.
 private struct FormFooterModifier<Footer: View>: ViewModifier {
     @StateObject private var container = FooterContainer()
     let footer: () -> Footer
+    let renderID = UUID()
 
     func body(content: Content) -> some View {
-        let c = container
-        let f = AnyView(footer())
-        DispatchQueue.main.async { c.content = f }
-        return content.environment(\.footerContainer, container)
+        content
+            .environment(\.footerContainer, container)
+            .onAppear { container.content = AnyView(footer()) }
+            .onChange(of: renderID) { _ in
+                container.content = AnyView(footer())
+            }
     }
 }
 
