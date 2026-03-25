@@ -3,6 +3,7 @@ import SwiftUI
 // MARK: - FooterContainer
 // Reference type so already-pushed NavigationLink destinations react to show/hide changes.
 
+@MainActor
 final class FooterContainer: ObservableObject {
     @Published var content: AnyView? = nil
 }
