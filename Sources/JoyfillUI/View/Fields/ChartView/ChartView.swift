@@ -12,6 +12,7 @@ struct ChartView: View {
     private let chartDataModel: ChartDataModel
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
     @Environment(\.joyfillFooter) private var footer
 
@@ -25,7 +26,9 @@ struct ChartView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(chartDataModel.fieldHeaderModel, isFilled: !(valueElements.isEmpty))
+            FieldHeaderView(chartDataModel.fieldHeaderModel, isFilled: !(valueElements.isEmpty)) { decorator in
+                eventHandler.onDecoratorAction(event: chartDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             
 //            RoundedRectangle(cornerRadius: 10)
 //                .stroke(Color.allFieldBorderColor, lineWidth: 1)
@@ -46,11 +49,19 @@ struct ChartView: View {
 //                        .padding(.horizontal)
 //                )
             
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel)
+                .environment(\.joyfillFooter, footer), isActive: $showDetailChartView) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
+            
             Button(action: {
                 showDetailChartView = true
                 if chartDataModel.mode == .fill {
                     eventHandler.onFocus(event: chartDataModel.fieldIdentifier)
                 }
+                chartDataModel.documentEditor?.setOpenNavigationFieldID(chartDataModel.fieldIdentifier.fieldID)
             }, label: {
                 HStack {
                     Image(systemName: "chart.xyaxis.line")
@@ -60,19 +71,10 @@ struct ChartView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == chartDataModel.fieldIdentifier.fieldID)
             })
             .accessibilityIdentifier("ChartViewIdentifier")
             
-            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel)
-                .environment(\.joyfillFooter, footer), isActive: $showDetailChartView) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
     }
     

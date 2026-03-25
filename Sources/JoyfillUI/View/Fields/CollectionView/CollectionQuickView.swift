@@ -15,6 +15,7 @@ struct CollectionQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.joyfillFooter) private var footer
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     @State var isTableModalViewPresented = false
     @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
@@ -29,7 +30,9 @@ struct CollectionQuickView : View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: !viewModel.tableDataModel.rowOrder.isEmpty)
+            FieldHeaderView(tableDataModel.fieldHeaderModel, isFilled: viewModel.tableDataModel.nondeletedRowsCount > 0) { decorator in
+                eventHandler.onDecoratorAction(event: tableDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
 
             if viewModel.isLoading {
                 loadingView
@@ -51,10 +54,15 @@ struct CollectionQuickView : View {
                 let rowFound = viewModel.expandToRow(rowId: rowId)
                 if rowFound {
                     viewModel.tableDataModel.selectedRows = [rowId]
-                    viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                    viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                        rowFormOpenedViaGoto: event.openRowForm,
+                        scrollToColumnId: event.columnId,
+                        focusColumnId: event.focus ? event.columnId : nil
+                    )
                     showEditMultipleRowsSheetView = event.openRowForm
                 }
             } else {
+                viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = false
             }
             
@@ -77,14 +85,12 @@ struct CollectionQuickView : View {
             .frame(height: 120)
         }
         .frame(maxWidth: .infinity)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-        )
+        .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
     }
     
     func openCollection() {
         isTableModalViewPresented = true
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(tableDataModel.fieldIdentifier.fieldID)
         if tableDataModel.mode == .fill {
             eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
         }
@@ -105,14 +111,18 @@ struct CollectionQuickView : View {
                 }
                 .frame(height: CGFloat(viewModel.getThreeRowsForQuickView().count) * rowHeight + rowHeight)
             }
-            .overlay(
-                RoundedRectangle(cornerRadius: 14)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
+            .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
+            
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView)
+                .environment(\.joyfillFooter, footer), isActive: $isTableModalViewPresented) {
+                EmptyView()
+            }
+            .frame(width: 0, height: 0)
+            .hidden()
             
             Button(action: {
                 showEditMultipleRowsSheetView = false
-                viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                viewModel.tableDataModel.navigationIntent = .none
                 openCollection()
             }, label: {
                 HStack(alignment: .center, spacing: 0) {
@@ -133,20 +143,11 @@ struct CollectionQuickView : View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .cornerRadius(10)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
+                .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID)
             })
             .accessibilityIdentifier("CollectionDetailViewIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView)
-                .environment(\.joyfillFooter, footer), isActive: $isTableModalViewPresented) {
-                EmptyView()
-            }
-            .frame(width: 0, height: 0)
-            .hidden()
         }
     }
     
@@ -184,6 +185,7 @@ struct CollectionQuickView : View {
                                                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                            viewMode: .quickView,
                                                            editMode: viewModel.tableDataModel.mode,
+                                                           didFocusBlur: { _, _ in },
                                                            didChange: nil)
                             ZStack {
                                 Rectangle()

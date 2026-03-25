@@ -21,6 +21,7 @@ struct TableSignatureView: View {
     
     var body: some View {
         Button(action: {
+            cellModel.didFocusBlur?(.focus, cellModel.data)
             loadImageFromURL()
             showCanvasSignatureView = true
         }, label: {
@@ -32,6 +33,7 @@ struct TableSignatureView: View {
         .accessibilityIdentifier("TableSignatureOpenSheetButton")
         .sheet(isPresented: $showCanvasSignatureView, onDismiss: {
             isEditable = false
+            cellModel.didFocusBlur?(.blur, cellModel.data)
         }) {
             CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
                 .environment(\.joyfillFooter, footer)

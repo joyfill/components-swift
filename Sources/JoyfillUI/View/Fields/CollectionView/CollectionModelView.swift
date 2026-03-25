@@ -61,7 +61,7 @@ struct CollectionModalView : View {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
                 onEditTap: {
-                    viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                    viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = true
                 },
                 onFilterTap: { showFilterModal = true })
@@ -95,12 +95,22 @@ struct CollectionModalView : View {
                     let rowFound = viewModel.expandToRow(rowId: rowId)
                     if rowFound {
                         viewModel.tableDataModel.selectedRows = [rowId]
-                        viewModel.tableDataModel.rowFormOpenedViaGoto = event.openRowForm
+                        viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                            rowFormOpenedViaGoto: event.openRowForm,
+                            scrollToColumnId: event.columnId,
+                            focusColumnId: event.focus ? event.columnId : nil
+                        )
                         showEditMultipleRowsSheetView = event.openRowForm
                     }
                 } else {
+                    viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = false
                 }
+            }
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == viewModel.tableDataModel.fieldIdentifier.fieldID {
+                dismiss()
             }
         }
         .onDisappear(perform: {
@@ -162,9 +172,17 @@ struct CollectionModalView : View {
             }
         }
         .frame(minHeight: 60)
-        .frame(width: viewModel.showRowSelector ? (viewModel.nestedTableCount > 0 ? (viewModel.showSingleClickEditButton ? 160 : 120) : (viewModel.showSingleClickEditButton ? 120 : 80)) : (viewModel.nestedTableCount > 0 ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40)), height: 60)
+        .frame(width: collectionLeftColumnWidth, height: 60)
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+    }
+
+    private var collectionLeftColumnWidth: CGFloat {
+        var width: CGFloat = 40 // # column
+        if viewModel.showRowSelector { width += 40 }
+        if viewModel.nestedTableCount > 0 { width += 40 }
+        if viewModel.showSingleClickEditButton { width += 40 }
+        return width
     }
 
     var collection: some View {
@@ -183,7 +201,8 @@ struct CollectionModalView : View {
                                                        tableColumns: viewModel.tableDataModel.tableColumns,
                                                        currentSelectedCol: $currentSelectedCol,
                                                        colorScheme: colorScheme,
-                                                       isHeaderNested: false)
+                                                       isHeaderNested: false,
+                                                       schemaKey: viewModel.rootSchemaKey)
                         }
                         
                         var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
@@ -210,12 +229,13 @@ struct CollectionModalView : View {
                                     case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
                                         CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
                                             .frame(height: 60)
-                                    case .header(level: let level, tableColumns: let tableColumns):
+                                    case .header(level: let level, tableColumns: let tableColumns, schemaKey: let schemaKey):
                                         CollectionColumnHeaderView(viewModel: viewModel,
                                                                    tableColumns: tableColumns ?? [],
                                                                    currentSelectedCol: $currentSelectedCol,
                                                                    colorScheme: colorScheme,
-                                                                   isHeaderNested: true)
+                                                                   isHeaderNested: true,
+                                                                   schemaKey: schemaKey)
                                         .frame(height: 60)
                                     case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                                         CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
@@ -238,6 +258,10 @@ struct CollectionModalView : View {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             cellProxy.scrollTo(selectedRowID, anchor: .leading)
                         }
+                        // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
+//                        if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                            cellProxy.scrollTo(columnId, anchor: .leading)
+//                        }
                     }
                 }
                 .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
@@ -352,7 +376,7 @@ struct RootTitleRowView: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .frame(minHeight: 50)
-        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0), height: 60)
+        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0, viewModel.rootSchemaKey), height: 60)
         .font(.system(size: 15, weight: .bold))
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
@@ -365,9 +389,18 @@ struct CollectionColumnHeaderView: View {
     @Binding var currentSelectedCol: Int
     let colorScheme: ColorScheme
     let isHeaderNested: Bool
+    let schemaKey: String
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
+            if viewModel.showRowDecorators, !viewModel.tableDataModel.rowDecorators(forSchemaKey: schemaKey).isEmpty {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .frame(width: 40, height: 60)
+                    .foregroundColor(Color.gray.opacity(0.4))
+                    .border(Color.tableCellBorderColor)
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+            }
             ForEach(Array(tableColumns.enumerated()), id: \.element.id) { index, column in
 //                Button(action: {
 ////                    currentSelectedCol = currentSelectedCol == index ? Int.min : index
@@ -434,7 +467,7 @@ struct CollectionRowsHeaderView: View {
             // Expand Button View
             if viewModel.nestedTableCount > 0 {
                 switch rowModel.rowType {
-                case .header(level: let level, tableColumns: let columns):
+                case .header(level: let level, tableColumns: let columns, _):
                     if level == 0 {
                         EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                     } else {
@@ -584,10 +617,23 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                            viewModel.tableDataModel.navigationIntent = .none
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
+                }
+                if viewModel.showRowDecorators {
+                    let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
+                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: parentSchemaKey)) { decorator in
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                            action: decorator.action ?? "",
+                            rowIds: [rowModel.rowID],
+                            parentPath: parentPathForNested.0
+                        )
+                    }
+                    .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                    .border(Color.tableCellBorderColor)
                 }
             case .row(let rowIndex):
                 if  !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: viewModel.rootSchemaKey) {
@@ -614,10 +660,17 @@ struct CollectionRowsHeaderView: View {
                         .onTapGesture {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                            viewModel.tableDataModel.rowFormOpenedViaGoto = false
+                            viewModel.tableDataModel.navigationIntent = .none
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
+                }
+                if viewModel.showRowDecorators {
+                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: viewModel.rootSchemaKey)) { decorator in
+                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
+                    }
+                    .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                    .border(Color.tableCellBorderColor)
                 }
             case .tableExpander:
                 EmptyView()

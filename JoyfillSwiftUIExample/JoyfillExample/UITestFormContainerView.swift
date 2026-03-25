@@ -71,6 +71,21 @@ struct UITestFormContainerView: View {
                     self.onChangeFlag = didChange
                 }
             }
+            triggerGotoFromLaunchArgumentsIfNeeded()
+        }
+    }
+    
+    /// When running under UI tests with --goto-path, perform navigation after a short delay so the form is ready.
+    private func triggerGotoFromLaunchArgumentsIfNeeded() {
+        let args = CommandLine.arguments
+        guard let pathIndex = args.firstIndex(of: "--goto-path"),
+              pathIndex + 1 < args.count else { return }
+        let path = args[pathIndex + 1]
+        let open = args.contains("--goto-open")
+        let focus = args.contains("--goto-focus")
+        let gotoConfig = GotoConfig(open: open, focus: focus)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            _ = self.documentEditor.goto(path, gotoConfig: gotoConfig)
         }
     }
 }
@@ -78,13 +93,16 @@ struct UITestFormContainerView: View {
 class UITestFormContainerViewHandler: FormChangeEvent {
     var setResult: (String) -> Void
     var setUploadResult: (String) -> Void
+    var setFocusBlurResult: (String) -> Void
     var didReceiveChange = false
     var didReceiveUploadEvent = false
     var uploadCallback: ((Bool, Bool) -> Void)?
+    private var focusBlurEvents: [[String: Any]] = []
     
-    init(setResult: @escaping (String) -> Void, setUploadResult: @escaping (String) -> Void) {
+    init(setResult: @escaping (String) -> Void, setUploadResult: @escaping (String) -> Void, setFocusBlurResult: @escaping (String) -> Void) {
         self.setResult = setResult
         self.setUploadResult = setUploadResult
+        self.setFocusBlurResult = setFocusBlurResult
     }
     
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
@@ -101,11 +119,26 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     }
     
     func onFocus(event: Event) {
-        
+        appendFocusBlurEvent(kind: "focus", event: event)
     }
     
     func onBlur(event: Event) {
-        
+        appendFocusBlurEvent(kind: "blur", event: event)
+    }
+    
+    private func appendFocusBlurEvent(kind: String, event: Event) {
+        var dict: [String: Any] = ["kind": kind]
+        if let field = event.fieldEvent {
+            dict["fieldEvent"] = field.dictionary
+        }
+        if let pageEv = event.pageEvent {
+            dict["pageEvent"] = ["type": pageEv.type, "pageId": pageEv.page.id ?? ""]
+        }
+        focusBlurEvents.append(dict)
+        if let data = try? JSONSerialization.data(withJSONObject: focusBlurEvents),
+           let json = String(data: data, encoding: .utf8) {
+            setFocusBlurResult(json)
+        }
     }
     
     func onUpload(event: UploadEvent) {
@@ -183,6 +216,11 @@ extension FieldIdentifier {
         dict["pageID"] = pageID
         dict["fileID"] = fileID
         dict["fieldPositionId"] = fieldPositionId
+        dict["type"] = type
+        dict["target"] = target
+        dict["rowIds"] = rowIds
+        dict["parentPath"] = parentPath
+        dict["columnId"] = columnId
         return dict
     }
 }

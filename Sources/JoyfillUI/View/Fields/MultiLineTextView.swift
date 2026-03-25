@@ -8,6 +8,7 @@ struct MultiLineTextView: View {
     @State private var debounceTask: Task<Void, Never>?
     private var multiLineDataModel: MultiLineDataModel
     @FocusState private var isFocused: Bool
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
 
     public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
@@ -28,18 +29,17 @@ struct MultiLineTextView: View {
             }
         )
         return VStack(alignment: .leading) {
-            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty)
+            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: multiLineDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             TextEditor(text: textBinding)
                 .accessibilityIdentifier("MultilineTextFieldIdentifier")
                 .disabled(multiLineDataModel.mode == .readonly)
                 .padding(.horizontal, 10)
                 .autocorrectionDisabled()
                 .frame(minHeight: 200, maxHeight: 200)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
                 .cornerRadius(10)
+                .fieldBorder(isFocused: navigationFocusFieldId == multiLineDataModel.fieldIdentifier.fieldID)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
@@ -60,6 +60,11 @@ struct MultiLineTextView: View {
                 displayText = multiLineDataModel.multilineText ?? ""
             }
             lastModelText = multiLineDataModel.multilineText
+        }
+        .onChange(of: navigationFocusFieldId) { newValue in
+            if newValue == multiLineDataModel.fieldIdentifier.fieldID {
+                isFocused = true
+            }
         }
         .onChange(of: multiLineDataModel.multilineText) { newValue in
             // Only update if not focused and value has actually changed

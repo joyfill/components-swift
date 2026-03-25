@@ -1148,7 +1148,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage(index: 0)
-        
+        firstScrollLeft()
+        secScrollLeft()
         let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertGreaterThan(multiSelectionButtons.count, 0)
         let firstButton = multiSelectionButtons.element(boundBy: 0)
@@ -1621,7 +1622,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-        
+        firstScrollLeft()
+        secScrollLeft()
         // Access identifier
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
@@ -1673,10 +1675,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         
         dismissSheet()
-        
+        firstScrollLeft()
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
         goBack()
+        firstScrollLeft()
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
     }
     
@@ -1701,7 +1704,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         app.buttons["ApplyAllButtonIdentifier"].tap()
-        
+        firstScrollLeft()
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 0).label)
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 1).label)
@@ -1711,6 +1714,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 5).label)
         
         goBack()
+        firstScrollLeft()
         let secondMultiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes, +2", secondMultiFieldIdentifier.element(boundBy: 0).label)
         XCTAssertEqual("Yes, +2", secondMultiFieldIdentifier.element(boundBy: 1).label)
@@ -1742,9 +1746,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
+        firstScrollLeft()
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 6).label)
+        firstScrollRight()
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
     
@@ -1758,7 +1764,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
         app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
         app.buttons["TableInsertRowIdentifier"].firstMatch.tap()
-        
+        firstScrollLeft()
         let addedCellBlockValue = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         
@@ -1773,9 +1779,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
+        firstScrollLeft()
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+        firstScrollRight()
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
     
@@ -2148,6 +2156,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     func firstScrollLeft() {
         let firstScroll = app.scrollViews.matching(identifier: "TableScrollView").element(boundBy: 0)
         firstScroll.swipeLeft()
+    }
+    func firstScrollRight() {
+        let firstScroll = app.scrollViews.matching(identifier: "TableScrollView").element(boundBy: 0)
+        firstScroll.swipeRight()
     }
     
     func secScrollLeft() {

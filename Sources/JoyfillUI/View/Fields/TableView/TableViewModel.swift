@@ -22,7 +22,11 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     var showSingleClickEditButton: Bool {
         return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
-    
+
+    var showRowDecorators: Bool {
+        return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
@@ -46,7 +50,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                                               editMode: tableDataModel.mode,
+                                               didFocusBlur: { [weak self] action, cellDataModel in
+                    self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                }) { [weak self] cellDataModel in
                     if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
@@ -104,10 +111,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: timezoneId,
                                                    data: columnModel,
-                                                   documentEditor: tableDataModel.documentEditor,
-                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                   viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                                                    documentEditor: tableDataModel.documentEditor,
+                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                    viewMode: .modalView,
+                                                    editMode: tableDataModel.mode,
+                                                   didFocusBlur: { [weak self] action, cellDataModel in
+                        self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                    }) { [weak self] cellDataModel in
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
@@ -352,6 +362,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     cellValues[columnId] = ValueUnion.string(change)
                 case .signature:
                     cellValues[columnId] = ValueUnion.string(change)
+                case .date:
+                    if let doubleChange = Double(change) {
+                        cellValues[columnId] = ValueUnion.double(doubleChange)
+                    } else {
+                        cellValues[columnId] = ValueUnion.null
+                    }
                 default:
                     break
                 }
@@ -405,10 +421,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         isBulkLoading = true
         
         // Perform heavy processing on background thread
-        let updatedCellModels: [RowDataModel] = await withCheckedContinuation { cont in
+        let (newValueToValueElements, updatedCellModels): ([ValueElement]?, [RowDataModel]) = await withCheckedContinuation { cont in
             dispatchQueue.async { [weak self] in
                 guard let self else {
-                    cont.resume(returning: [])
+                    cont.resume(returning: (nil, []))
                     return
                 }
                 var columnIDChanges = [String: ValueUnion]()
@@ -420,7 +436,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                 var newChanges: [String: [String: ValueUnion]] = [:]
                 self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
                 
-                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
+                let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
                 
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {
@@ -462,10 +478,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     }
                 }
                 
-                cont.resume(returning: updatedModels)
+                cont.resume(returning: (result, updatedModels))
             }
         }
         
+        if let newValueToValueElements = newValueToValueElements {
+            tableDataModel.valueToValueElements = newValueToValueElements
+        }
         tableDataModel.cellModels = updatedCellModels
         tableDataModel.filterRowsIfNeeded()
         isBulkLoading = false
@@ -474,6 +493,30 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func sendEventsIfNeeded() {
         if tableDataModel.mode == .fill {
             tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+        }
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(nil)
+    }
+
+    private func makeCellFieldEvent(rowID: String, columnID: String) -> FieldIdentifier? {
+        guard !rowID.isEmpty, !columnID.isEmpty else { return nil }
+        var fieldEvent = tableDataModel.fieldIdentifier
+        fieldEvent.rowIds = [rowID]
+        fieldEvent.columnId = columnID
+        return fieldEvent
+    }
+
+    func emitCellFocusBlur(action: FocusBlurAction, rowID: String, columnID: String) {
+        guard var event = makeCellFieldEvent(rowID: rowID, columnID: columnID) else { return }
+        guard tableDataModel.mode == .fill else { return }
+
+        event.type = action.rawValue
+        event.target = action.rawValue
+
+        switch action {
+        case .focus:
+            tableDataModel.documentEditor?.onFocus(event: event)
+        case .blur:
+            tableDataModel.documentEditor?.onBlur(event: event)
         }
     }
     

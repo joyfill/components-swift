@@ -48,7 +48,7 @@ struct RowDataModel: Equatable, Hashable {
 
 enum RowType: Equatable {
     case row(index: Int)
-    case header(level: Int, tableColumns: [FieldTableColumn])
+    case header(level: Int, tableColumns: [FieldTableColumn], schemaKey: String)
     case nestedRow(level: Int, index: Int, parentID: (columnID: String, rowID: String)? = nil, parentSchemaKey: String = "")
     case tableExpander(schemaValue: (String, Schema)? = nil, level: Int, parentID: (columnID: String, rowID: String)? = nil, rowWidth: CGFloat = 0)
     
@@ -56,7 +56,7 @@ enum RowType: Equatable {
         switch self {
         case let .row:
             return 0
-        case let .header(level, _):
+        case let .header(level, _, _):
             return level
         case let .nestedRow(level, _, _,_):
             return level
@@ -97,7 +97,7 @@ enum RowType: Equatable {
         case .nestedRow(_, index: let index, _, _): return index
         case .row(index: let index):
             return index
-        case .header(level: let level, tableColumns: let tableColumns):
+        case .header(level: let level, tableColumns: let tableColumns, _):
             return 0
         case .tableExpander(schemaValue: let schemaValue, level: let level, _, _):
             return 0
@@ -158,16 +158,17 @@ struct TableDataModel {
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
+    var rowDecorators: [DecoratorLocal] = []
+    private var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
     var filterModels = [FilterModel]()
     var sortModel = SortModel()
-    var id = UUID()
+    private(set) var id: String = ""
     var showResetSelectionAlert: Bool = false
     var singleClickRowEdit: Bool = false
-    /// When true, row form was opened via goto(open: true); hide arrow and insert-below buttons.
-    var rowFormOpenedViaGoto: Bool = false
+    var navigationIntent = NavigationIntent.none
     private var pendingRowID: [String]?
     
     var viewMoreText: String {
@@ -209,12 +210,14 @@ struct TableDataModel {
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
+        self.rowDecorators = fieldData.fieldType == .table ? (fieldData.rowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []) : []
         self.cleanUpRowOrder()
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
             buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
+                self.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
                 if value.root == true {
                     //Only top level columns
                     self.tableColumns = filterTableColumns(key: key)
@@ -242,6 +245,7 @@ struct TableDataModel {
         }
         setupColumns()
         filterRowsIfNeeded()
+        self.id = fieldIdentifier.fieldID + ":" + filterModels.map { $0.colID }.sorted().joined(separator: ",")
     }
     
     mutating func buildFullSchemaChainMap() {
@@ -367,6 +371,25 @@ struct TableDataModel {
         return schema[schemaKey]?.root == true
     }
 
+    /// Row decorators for the given schema. Table: always returns field-level rowDecorators. Collection: returns cached decorators per schema key (built in init).
+    func rowDecorators(forSchemaKey schemaKey: String) -> [DecoratorLocal] {
+        if fieldType == .table {
+            return rowDecorators
+        }
+        return rowDecoratorsBySchemaKey[schemaKey] ?? []
+    }
+
+    func hasAnyRowDecorators(schemaKey: String) -> Bool {
+        return !rowDecorators(forSchemaKey: schemaKey).isEmpty
+    }
+    /// True if any row decorators should be shown. Table: field has rowDecorators. Collection: any schema has rowDecorators.
+    var hasAnyRowDecorators: Bool {
+        if fieldType == .table {
+            return !rowDecorators.isEmpty
+        }
+        return schema.values.contains { !(($0.rowDecorators ?? []).filter { $0.isDisplayable }).isEmpty }
+    }
+
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
         for filter in filters {
             if filter.filterText.isEmpty {
@@ -390,6 +413,15 @@ struct TableDataModel {
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
                 match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+            case .date:
+                if filter.filterText == FilterModel.emptyDateSentinel {
+                    match = column.date == nil      // empty filter → only rows with no date
+                } else if let date = column.date,
+                          let filterDate = Double(filter.filterText) {
+                    match = date == filterDate
+                } else {
+                    match = false
+                }
             default:
                 match = false
             }
@@ -683,7 +715,7 @@ struct TableDataModel {
         let currentRow = filteredcellModels[index]
         let previousRow = filteredcellModels[index - 1]
         switch previousRow.rowType {
-        case .header(level: let level, tableColumns: _):
+        case .header(level: let level, tableColumns: _, _):
             if level == currentRow.rowType.level {
                 return true
             } else {
@@ -754,9 +786,17 @@ struct TableDataModel {
         cellModels[rowIndex].cells[colIndex] = cellModel
     }
     
-    func getDummyCell(col: Int, selectedOptionText: String = "") -> CellDataModel? {
+    func getDummyCell(col: Int, selectedOptionText: String = "", empty: Bool) -> CellDataModel? {
         var dummyCell = cellModels.first?.cells[col].data
         dummyCell?.selectedOptionText = selectedOptionText
+        if empty {
+            dummyCell?.title = ""
+            dummyCell?.defaultDropdownSelectedId = nil
+            dummyCell?.valueElements = []
+            dummyCell?.number = nil
+            dummyCell?.date = nil
+            dummyCell?.multiSelectValues = nil
+        }
         return dummyCell
     }
     
@@ -784,7 +824,7 @@ struct TableDataModel {
             title: column.title,
             number: column.number,
             date: column.date,
-            format: column.getFormat(from: fieldPositionTableColumns),
+            format: DateFormatType(rawValue: column.format ?? ""),
             multiSelectValues: column.multiSelectValues,
             multi: column.multi)
     }
@@ -1135,6 +1175,33 @@ struct OptionLocal: Identifiable {
     var color: String?
 }
 
+struct DecoratorLocal {
+    var icon: String?
+    var label: String?
+    var color: String?
+    var action: String?
+
+    var isDisplayable: Bool {
+        let hasIcon = !(icon?.isEmpty ?? true)
+        let hasLabel = !(label?.isEmpty ?? true)
+        return hasIcon || hasLabel
+    }
+
+    init(icon: String? = nil, label: String? = nil, color: String? = nil, action: String? = nil) {
+        self.icon = icon
+        self.label = label
+        self.color = color
+        self.action = action
+    }
+
+    init(from decorator: Decorator) {
+        self.icon = decorator.icon
+        self.label = decorator.label
+        self.color = decorator.color
+        self.action = decorator.action
+    }
+}
+
 struct ChartDataModel {
     var fieldIdentifier: FieldIdentifier
     var valueElements: [ValueElement]?
@@ -1220,6 +1287,7 @@ struct SignatureDataModel {
     var fieldIdentifier: FieldIdentifier
     var signatureURL: String?
     var fieldHeaderModel: FieldHeaderModel?
+    var documentEditor: DocumentEditor?
 }
 
 struct TextDataModel {

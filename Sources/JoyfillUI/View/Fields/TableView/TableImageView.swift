@@ -39,6 +39,7 @@ import JoyfillModel
         } else {
         if #available(iOS 16, *) {
             Button(action: {
+                cellModel.didFocusBlur?(.focus, cellModel.data)
                 showMoreImages = Int.random(in: 0...100)
             }, label: {
                 HStack(spacing: 2) {
@@ -52,7 +53,9 @@ import JoyfillModel
                 .contentShape(Rectangle())
             })
             .accessibilityIdentifier("TableImageIdentifier")
-            .sheet(isPresented: $showMoreImages2) {
+            .sheet(isPresented: $showMoreImages2, onDismiss: {
+                cellModel.didFocusBlur?(.blur, cellModel.data)
+            }) {
                 MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }
@@ -68,6 +71,7 @@ import JoyfillModel
             }
         } else {
             Button(action: {
+                cellModel.didFocusBlur?(.focus, cellModel.data)
                 showMoreImages = Int.random(in: 0...100)
             }, label: {
                 HStack(spacing: 2) {
@@ -81,7 +85,9 @@ import JoyfillModel
                 .contentShape(Rectangle())
             })
             .accessibilityIdentifier("TableImageIdentifier")
-            .fullScreenCover(isPresented: $showMoreImages2) {
+            .fullScreenCover(isPresented: $showMoreImages2, onDismiss: {
+                cellModel.didFocusBlur?(.blur, cellModel.data)
+            }) {
                 MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
             }

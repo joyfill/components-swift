@@ -15,6 +15,7 @@ extension Color {
     static let buttonBorderColor = Color(hex: "#E2E3E7")
     static let tableDropdownBorderColor = Color(hex: "#D1D1D6")
     static let allFieldBorderColor = Color(hex: "#AAAAAE")
+    static let focusedFieldBorderColor = Color(hex: "#2563EB")
     static func rowSelectionBackground(isSelected: Bool, colorScheme: ColorScheme) -> Color {
         guard isSelected else { return .clear }
         return colorScheme == .dark ? Color.blue.opacity(0.35) : Color.blue.opacity(0.1)
@@ -69,6 +70,20 @@ extension View {
     
     func grayLightThemeColor() -> some View {
         self.modifier(GrayLightThemeColor())
+    }
+
+    func fieldBorder(isFocused: Bool, cornerRadius: CGFloat = 10) -> some View {
+        self.overlay(
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .stroke(isFocused ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
+        )
+    }
+
+    func cellBorder(isFocused: Bool) -> some View {
+        self.overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isFocused ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
+        )
     }
 }
 struct HorizontalBorderModifier: ViewModifier {

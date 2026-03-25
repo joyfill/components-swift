@@ -24,7 +24,8 @@ struct CollectionSearchBar: View {
                                                    documentEditor: viewModel.tableDataModel.documentEditor,
                                                    fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: viewModel.tableDataModel.mode)
+                                                   editMode: viewModel.tableDataModel.mode,
+                                                   didFocusBlur: { _, _ in })
                     { cellDataModel in
                         switch cellDataModel.type {
                         case .text:
@@ -43,6 +44,12 @@ struct CollectionSearchBar: View {
                             self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
                         case .barcode:
                             self.model.filterText = cellDataModel.title ?? ""
+                        case .date:
+                            if let dateEpoch = cellDataModel.date {
+                                self.model.filterText = String(dateEpoch)
+                            } else {
+                                self.model.filterText = FilterModel.emptyDateSentinel
+                            }
                         default:
                             break
                         }
@@ -76,6 +83,16 @@ struct CollectionSearchBar: View {
                             .cornerRadius(8)
                             .padding(.leading, 8)
                             .padding(.trailing, 8)
+                    case .date:
+                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText)
+                            .accessibilityIdentifier("SearchBarDateIdentifier")
+                            .frame(height: 40)
+                            .padding(.horizontal, 4)
+                            .onAppear {
+                                if self.model.filterText.isEmpty {
+                                    self.model.filterText = FilterModel.emptyDateSentinel
+                                }
+                            }
                     default:
                         HStack(spacing: 8) {
                             Image(systemName: "exclamationmark.triangle.fill")

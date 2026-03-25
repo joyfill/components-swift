@@ -234,9 +234,9 @@ struct FormDestinationView: View {
     @State private var documentEditor: DocumentEditor? = nil
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
-    @State var isPageDuplicated: Bool = false
-    @State var isPageDelete: Bool = false
-    @State var singleClickRowEdit: Bool = false
+    @State var isPageDuplicated: Bool = true
+    @State var isPageDelete: Bool = true
+    @State var singleClickRowEdit: Bool = true
     @State var document = JoyDoc()
     @State var license: String
 
@@ -265,6 +265,14 @@ struct FormDestinationView: View {
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
     private func buildDocumentEditorInBackground() {
+        // Capture @State values on the main actor before entering the detached task,
+        // so the correct initial values are used regardless of concurrency timing.
+        let isDuplicate = isPageDuplicated
+        let isDelete = isPageDelete
+        let isSingleClick = singleClickRowEdit
+        let currentSchema = validateSchema
+        let currentLicense = license
+
         // Heavy work (JSON parse + DocumentEditor construction) off the main thread
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
@@ -275,11 +283,11 @@ struct FormDestinationView: View {
                 events: changeManager,
                 pageID: "",
                 navigation: true,
-                isPageDuplicateEnabled: isPageDuplicated,
-                isPageDeleteEnabled: isPageDelete,
-                validateSchema: validateSchema,
-                license: license,
-                singleClickRowEdit: singleClickRowEdit
+                isPageDuplicateEnabled: isDuplicate,
+                isPageDeleteEnabled: isDelete,
+                validateSchema: currentSchema,
+                license: currentLicense,
+                singleClickRowEdit: isSingleClick
             )
 
             // Publish to UI on the main actor
@@ -369,7 +377,12 @@ struct FormDestinationView: View {
             )
         ) {
             if let validation = self.lastValidation {
-                ValidationResultsView(validation: validation)
+                ValidationResultsView(
+                    validation: validation,
+                    documentEditor: documentEditor
+                ) {
+                    self.lastValidation = nil
+                }
             }
         }
         // Kick off background creation once the view appears
@@ -464,6 +477,7 @@ struct OptionSelectionView: View {
         case oChangeHandlerTest
         case manipulateDataOnChangeView
         case createRowUISample
+        case metadataChangeAPIDemo
         case simpleForm
         case simpleNavigationTest
         case footerExample
@@ -494,6 +508,8 @@ struct OptionSelectionView: View {
                 return "Change Handler Test"
             case .createRowUISample:
                 return "Create Row UI Sample"
+            case .metadataChangeAPIDemo:
+                return "Metadata Change API Demo"
             case .simpleForm:
                 return "Simple example Form"
             case .simpleNavigationTest:
@@ -529,6 +545,8 @@ struct OptionSelectionView: View {
                 return "Test change event handling and validation workflows"
             case .createRowUISample:
                 return "Create a row UI sample"
+            case .metadataChangeAPIDemo:
+                return "Set field and row metadata via Change API (field.update, rowCreate, rowUpdate)"
             case .simpleForm:
                 return "Simple example Form"
             case .simpleNavigationTest:
@@ -564,6 +582,8 @@ struct OptionSelectionView: View {
                 return "arrow.triangle.2.circlepath"
             case .createRowUISample:
                 return "slider.horizontal.3"
+            case .metadataChangeAPIDemo:
+                return "tag.fill"
             case .simpleForm:
                 return "slider.horizontal.3"
             case .simpleNavigationTest:
@@ -599,6 +619,8 @@ struct OptionSelectionView: View {
                 return .green
             case .createRowUISample:
                 return .red
+            case .metadataChangeAPIDemo:
+                return .orange
             case .simpleForm:
                 return .blue
             case .simpleNavigationTest:
@@ -746,6 +768,8 @@ struct OptionSelectionView: View {
             OnChangeHandlerTest()
         case .createRowUISample:
             CreateRowUISample()
+        case .metadataChangeAPIDemo:
+            MetadataChangeAPIDemoView()
         case .simpleForm:
             SimpleFormExampleView()
         case .simpleNavigationTest:

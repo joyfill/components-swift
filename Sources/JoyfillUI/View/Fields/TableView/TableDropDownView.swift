@@ -40,6 +40,7 @@ struct TableDropDownOptionListView: View {
         } else {
             VStack(alignment: .leading) {
                 Button(action: {
+                    cellModel.didFocusBlur?(.focus, cellModel.data)
                     isSheetPresented = Int.random(in: 0...100)
                 }, label: {
                     HStack {
@@ -55,7 +56,9 @@ struct TableDropDownOptionListView: View {
                 .onChange(of: isSheetPresented) { newValue in
                     isSheetPresented2 = true
                 }
-                .sheet(isPresented: $isSheetPresented2) {
+                .sheet(isPresented: $isSheetPresented2, onDismiss: {
+                    cellModel.didFocusBlur?(.blur, cellModel.data)
+                }) {
                     TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
                 }
             }

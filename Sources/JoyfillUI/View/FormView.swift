@@ -279,8 +279,10 @@ struct FormView: View {
                 .disabled(listModel.fieldEditMode == .readonly)
         case .table(let model):
             TableQuickView(tableDataModel: model, eventHandler: self)
+                .id(model.id)
         case .collection(let model):
             CollectionQuickView(tableDataModel: model, eventHandler: self)
+                .id(model.id)
         case .image(let model):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
@@ -297,6 +299,7 @@ struct FormView: View {
                         .buttonStyle(.borderless)
                 }
             }
+            .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
             .listStyle(PlainListStyle())
             .modifier(JoyfillFooterModifier())
             .modifier(KeyboardDismissModifier())
@@ -308,9 +311,13 @@ struct FormView: View {
                     documentEditor.onBlur(event: fieldEvent)
                 }
                 self.lastFocusedFieldsID = currentFocusedFieldsID
+                if !(currentFocusedFieldsID == documentEditor.navigationFocusFieldId) {
+                    documentEditor.navigationFocusFieldId = nil
+                }
             }
             .onChange(of: documentEditor.currentPageID) { _ in
                 // Scroll to top when page changes
+                documentEditor.navigationFocusFieldId = nil
                 if let firstFieldID = listModels.first?.fieldIdentifier.fieldID {
                     proxy.scrollTo(firstFieldID, anchor: .top)
                 }
@@ -321,6 +328,14 @@ struct FormView: View {
                 
                 if let fieldID = event.fieldID {
                     proxy.scrollTo(fieldID, anchor: .top)
+                }
+                
+                if event.focus, let fieldID = event.fieldID {
+                    documentEditor.navigationFocusFieldId = fieldID
+                    let fieldEvent = documentEditor.getFieldIdentifier(for: fieldID)
+                    onFocus(event: fieldEvent)
+                } else {
+                    documentEditor.navigationFocusFieldId = nil
                 }
             }
         }
@@ -355,6 +370,10 @@ extension FormView: FieldChangeEvents {
         }
     }
 
+    func onDecoratorAction(event: FieldIdentifier, action: String) {
+        documentEditor.reportDecoratorAction(fieldIdentifier: event, action: action)
+    }
+
     func onUpload(event: UploadEvent) {
         documentEditor.onUpload(event: event)
     }
@@ -374,6 +393,9 @@ struct PageDuplicateListView: View {
     @State private var showDeleteConfirmation = false
     @State private var pageToDelete: String?
     @State private var deleteWarningMessage: String = ""
+
+    @State private var showCopyModeDialog = false
+    @State private var pageToCopyID: String?
 
     private var pageIDs: [String] {
         if !documentEditor.currentPageOrder.isEmpty {
@@ -430,7 +452,7 @@ struct PageDuplicateListView: View {
                                         presentationMode.wrappedValue.dismiss()
                                     },
                                     onDuplicate: {
-                                        documentEditor.duplicatePage(pageID: pageID)
+                                        handleDuplicatePage(pageID: pageID)
                                     },
                                     onDelete: {
                                         let (canDelete, warnings) = documentEditor.canDeletePage(pageID: pageID)
@@ -466,8 +488,39 @@ struct PageDuplicateListView: View {
                 secondaryButton: .cancel()
             )
         }
+        .alert("Duplicate Page", isPresented: $showCopyModeDialog) {
+            Button("With Values") {
+                if let id = pageToCopyID {
+                    documentEditor.duplicatePage(pageID: id, copyWithValues: true)
+                }
+            }
+            Button("Without Values") {
+                if let id = pageToCopyID {
+                    documentEditor.duplicatePage(pageID: id, copyWithValues: false)
+                }
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("How would you like to duplicate this page?")
+        }
     }
-    
+
+    private func handleDuplicatePage(pageID: String) {
+        guard let page = documentEditor.firstPageFor(currentPageID: pageID) else { return }
+        let copyable = page.copyable
+        let hasWithValues = copyable.contains(.withValues)
+        let hasWithoutValues = copyable.contains(.withoutValues)
+
+        if hasWithValues && hasWithoutValues {
+            pageToCopyID = pageID
+            showCopyModeDialog = true
+        } else if hasWithoutValues {
+            documentEditor.duplicatePage(pageID: pageID, copyWithValues: false)
+        } else if hasWithValues {
+            documentEditor.duplicatePage(pageID: pageID, copyWithValues: true)
+        }
+    }
+
     private func handleDeletePage(pageID: String, canDelete: Bool, warnings: [String]) {
         guard canDelete else {
             return
@@ -490,7 +543,21 @@ struct PageRowView: View {
     let onDelete: () -> Void
     
     @State private var isPressed = false
-    
+
+    /// Whether this page can be duplicated based on its copyable property.
+    /// Returns false only when copyable contains .none and no other valid modes.
+    private var canDuplicate: Bool {
+        let copyable = page.copyable
+        return copyable.contains(.withValues) || copyable.contains(.withoutValues)
+    }
+
+    /// Whether this page is allowed to be deleted per its deletable property.
+    /// Note: the page may still be disabled if it is the last remaining page.
+    private var isDeletable: Bool {
+        page.deletable
+    }
+
+    /// Whether the delete action can actually proceed (also checks last-page constraint).
     private var canDelete: Bool {
         documentEditor.canDeletePage(pageID: pageID).canDelete
     }
@@ -514,8 +581,8 @@ struct PageRowView: View {
                 
                 // Action Buttons
                 HStack(spacing: 8) {
-                    // Duplicate Button
-                    if documentEditor.isPageDuplicateEnabled {
+                    // Duplicate Button — hidden when page is not copyable
+                    if documentEditor.isPageDuplicateEnabled && canDuplicate {
                         Button(action: {
                             onDuplicate()
                         }) {
@@ -532,9 +599,9 @@ struct PageRowView: View {
                         .buttonStyle(ScaleButtonStyle())
                         .accessibilityIdentifier("PageDuplicateIdentifier")
                     }
-                    
-                    // Delete Button
-                    if documentEditor.isPageDeleteEnabled {
+
+                    // Delete Button — hidden when page.deletable == false
+                    if documentEditor.isPageDeleteEnabled && isDeletable {
                         Button(action: {
                             onDelete()
                         }) {

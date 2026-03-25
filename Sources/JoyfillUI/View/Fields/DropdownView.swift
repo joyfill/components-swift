@@ -4,6 +4,7 @@ import JoyfillModel
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
     @State private var isSheetPresented = false
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dropdownDataModel: DropdownDataModel
 
     let eventHandler: FieldChangeEvents
@@ -18,7 +19,9 @@ struct DropdownView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true))
+            FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true)) { decorator in
+                eventHandler.onDecoratorAction(event: dropdownDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             Button(action: {
                 isSheetPresented = true
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
@@ -37,10 +40,7 @@ struct DropdownView: View {
                 .frame(height: 40)
             })
             .accessibilityIdentifier("Dropdown")
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
+            .fieldBorder(isFocused: navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID)
             .sheet(isPresented: $isSheetPresented) {
                 if #available(iOS 16, *) {
                     DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)

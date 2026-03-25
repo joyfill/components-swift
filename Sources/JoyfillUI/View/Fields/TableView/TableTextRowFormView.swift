@@ -11,6 +11,8 @@ struct TableTextRowFormView: View {
     @Binding var cellModel: TableCellModel
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
+    @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
+    @FocusState private var isTextFieldFocused: Bool
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
@@ -40,6 +42,15 @@ struct TableTextRowFormView: View {
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
                         }
+                        .focused($isTextFieldFocused)
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
+                        }
+                        .onAppear { autoFocusIfNeeded() }
                 } else {
                     TextEditor(text: $text)
                         .font(.system(size: 15))
@@ -47,6 +58,15 @@ struct TableTextRowFormView: View {
                         .onChange(of: text) { newValue in
                             updateFieldValue(newText: newValue)
                         }
+                        .focused($isTextFieldFocused)
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
+                        }
+                        .onAppear { autoFocusIfNeeded() }
                 }
             }
         }
@@ -58,6 +78,11 @@ struct TableTextRowFormView: View {
         cellModel.data = cellModelData
         cellModel.didChange?(cellModelData)
     }
+    
+    private func autoFocusIfNeeded() {
+        if navigationFocusColumnId == cellModel.data.id {
+            isTextFieldFocused = true
+        }
+    }
 }
-
 
