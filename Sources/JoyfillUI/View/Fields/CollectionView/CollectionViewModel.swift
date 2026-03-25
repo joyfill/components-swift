@@ -331,6 +331,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     case .none:
                         return true
                     }
+                case .date:
+                    switch tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (cell1.date ?? -.infinity) < (cell2.date ?? -.infinity)
+                    case .descending:
+                        return (cell1.date ?? -.infinity) > (cell2.date ?? -.infinity)
+                    case .none:
+                        return true
+                    }
                 default:
                     return false
                 }
@@ -1610,6 +1619,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     cellValues[columnId] = ValueUnion.string(change)
                 case .signature:
                     cellValues[columnId] = ValueUnion.string(change)
+                case .date:
+                    if let doubleChange = Double(change) {
+                        cellValues[columnId] = ValueUnion.double(doubleChange)
+                    } else {
+                        cellValues[columnId] = ValueUnion.null
+                    }
                 default:
                     break
                 }
@@ -1831,7 +1846,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let tableColumns = tableDataModel.filterTableColumns(key: schemaKey)
         return tableColumns.filter { column in
             switch column.type {
-            case .text, .dropdown, .multiSelect, .number, .barcode:
+            case .text, .dropdown, .multiSelect, .number, .barcode, .date:
                 return true
             default:
                 return false

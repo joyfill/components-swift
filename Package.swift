@@ -24,7 +24,10 @@ let package = Package(
             targets: ["JoyfillAPIService"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
+        // Vendored from https://github.com/kylef/JSONSchema.swift @ v0.6.0 (commit d14de4b2)
+        // Local copy lives in vendor/JSONSchema.swift/ with performance patches applied.
+        // To update: clone the new tag into vendor/, re-apply the patches in vendor/JSONSchema.swift/Sources/.
+        .package(path: "vendor/JSONSchema.swift"),
     ],
     targets: [
         // Core JoyfillModel target (no dependencies)

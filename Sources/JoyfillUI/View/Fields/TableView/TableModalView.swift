@@ -181,6 +181,15 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
+                case .date:
+                    switch viewModel.tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (column1.date ?? -.infinity) < (column2.date ?? -.infinity)
+                    case .descending:
+                        return (column1.date ?? -.infinity) > (column2.date ?? -.infinity)
+                    case .none:
+                        return true
+                    }
                 default:
                     return false
                 }
@@ -297,7 +306,7 @@ struct TableModalView : View {
                             .imageScale(.small)
                     }
                     
-                    if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
+                    if ![.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                     }
@@ -315,7 +324,7 @@ struct TableModalView : View {
                 .accessibilityIdentifier("ColumnButtonIdentifier")
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .onTapGesture {
-                    if !([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0) {
+                    if !([.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0) {
                         currentSelectedCol = currentSelectedCol == index ? Int.min : index
                     }
                 }

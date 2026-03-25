@@ -18,7 +18,7 @@ struct SearchBar: View {
     var body: some View {
         HStack {
             if !viewModel.tableDataModel.rowOrder.isEmpty, selectedColumnIndex != Int.min {
-                let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex)
+                let column = viewModel.tableDataModel.getDummyCell(col: selectedColumnIndex, empty: true)
                 if let column = column {
                     let cellModel = TableCellModel(rowID: "",
                                                    timezoneId: "",
@@ -45,6 +45,12 @@ struct SearchBar: View {
                             self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
                         case .barcode:
                             self.model.filterText = cellDataModel.title ?? ""
+                        case .date:
+                            if let dateEpoch = cellDataModel.date {
+                                self.model.filterText = String(dateEpoch)
+                            } else {
+                                self.model.filterText = FilterModel.emptyDateSentinel
+                            }
                         default:
                             break
                         }
@@ -77,6 +83,15 @@ struct SearchBar: View {
                             .frame(height: 25)
                             .cornerRadius(6)
                             .padding(.leading, 8)
+                    case .date:
+                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText)
+                            .accessibilityIdentifier("SearchBarDateIdentifier")
+                            .frame(height: 25)
+                            .onAppear {
+                                if self.model.filterText.isEmpty {
+                                    self.model.filterText = FilterModel.emptyDateSentinel
+                                }
+                            }
                     default:
                         Text("")
                     }
@@ -115,6 +130,7 @@ struct SearchBar: View {
                 .accessibilityIdentifier("HideFilterSearchBar")
             }
         }
+        .id(model.colID)
         .frame(height: 40)
         .background(Color(.systemGray6))
         .cornerRadius(8)
