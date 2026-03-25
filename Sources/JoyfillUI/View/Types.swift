@@ -7,7 +7,6 @@
 
 import Foundation
 import JoyfillModel
-import JSONSchema
 
 public struct FieldIdentifier: Equatable {
     public var _id: String?
@@ -326,7 +325,7 @@ public enum JoyfillError: Error {
 public struct SchemaValidationError: Error {
     public let code: String
     public let message: String
-    public let error: [JSONSchema.ValidationError]?
+    public let error: [ValidationError]?
     public let details: Details
 
     public struct Details {

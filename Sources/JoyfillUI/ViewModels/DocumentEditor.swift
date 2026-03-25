@@ -7,7 +7,6 @@
 
 import Foundation
 import JoyfillModel
-import JSONSchema
 import Combine
 
 private enum ChangeTargetType: String {
