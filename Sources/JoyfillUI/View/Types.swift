@@ -326,7 +326,7 @@ public enum JoyfillError: Error {
 public struct SchemaValidationError: Error {
     public let code: String
     public let message: String
-    public let error: [JSONSchema.ValidationError]?
+    public let error: [ValidationError]?
     public let details: Details
 
     public struct Details {
@@ -342,7 +342,7 @@ public struct SchemaValidationError: Error {
     public init(
         code: String,
         message: String,
-        error: [JSONSchema.ValidationError]?,
+        error: [ValidationError]?,
         details: Details
     ) {
         self.code = code
