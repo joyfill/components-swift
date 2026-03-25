@@ -2,9 +2,23 @@ import SwiftUI
 
 // MARK: - FooterContainer
 // Reference type so already-pushed NavigationLink destinations react to show/hide changes.
+// Uses a stack of renderer IDs so only the topmost FormFooterView (across sheets and
+// NavigationLink destinations) is visible. No manual plumbing needed per-view.
 
 final class FooterContainer: ObservableObject {
     @Published var content: AnyView? = nil
+    @Published private(set) var topFooterID: UUID? = nil
+    private var footerIDStack: [UUID] = []
+
+    func push(id: UUID) {
+        footerIDStack.append(id)
+        topFooterID = footerIDStack.last
+    }
+
+    func pop(id: UUID) {
+        footerIDStack.removeAll { $0 == id }
+        topFooterID = footerIDStack.last
+    }
 }
 
 // MARK: - Environment key
@@ -61,8 +75,15 @@ struct FormFooterView: View {
 
 private struct FooterRenderer: View {
     @ObservedObject var container: FooterContainer
+    @State private var id = UUID()
 
     var body: some View {
-        if let footer = container.content { footer }
+        Group {
+            if let footer = container.content, container.topFooterID == id {
+                footer
+            }
+        }
+        .onAppear { container.push(id: id) }
+        .onDisappear { container.pop(id: id) }
     }
 }
