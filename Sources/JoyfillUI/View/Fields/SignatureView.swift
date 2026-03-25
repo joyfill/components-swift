@@ -335,6 +335,7 @@ struct CanvasSignatureView: View {
             }
             Spacer()
         }
+        .padding(.horizontal, 16.0)
         .onAppear {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
@@ -350,7 +351,6 @@ struct CanvasSignatureView: View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
-        .padding(.horizontal, 16.0)
     }
 }
 extension View {
