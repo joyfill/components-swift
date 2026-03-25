@@ -3,17 +3,25 @@ import JoyfillModel
 import JoyfillFormulas
 import Combine
 
-public struct Form: View {
+public struct Form<Footer: View>: View {
     let documentEditor: DocumentEditor
+    let footer: Footer?
 
     @available(*, deprecated, message: "Use init(documentEditor:) instead")
-    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
+    public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) where Footer == EmptyView {
         let documentEditor = DocumentEditor(document: document.wrappedValue, mode: mode, events: events, pageID: pageID, navigation: navigation)
         self.documentEditor = documentEditor
+        self.footer = nil
     }
 
-    public init(documentEditor: DocumentEditor) {
+    public init(documentEditor: DocumentEditor) where Footer == EmptyView {
         self.documentEditor = documentEditor
+        self.footer = nil
+    }
+
+    public init(documentEditor: DocumentEditor, @ViewBuilder footer: () -> Footer) {
+        self.documentEditor = documentEditor
+        self.footer = footer()
     }
 
     public var body: some View {
@@ -21,6 +29,7 @@ public struct Form: View {
             SchemaErrorView(error: error)
         } else {
             FilesView(documentEditor: documentEditor, files: documentEditor.files)
+                .environment(\.joyfillFooter, footer.map { AnyView($0) })
         }
     }
 }
@@ -289,6 +298,7 @@ struct FormView: View {
                 }
             }
             .listStyle(PlainListStyle())
+            .modifier(JoyfillFooterModifier())
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
                 guard newValue != nil else { return }

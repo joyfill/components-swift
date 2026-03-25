@@ -59,6 +59,7 @@ struct ChartDetailView: View {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         }
+        .modifier(JoyfillFooterModifier())
     }
 
     func updateValueElements(valueElements: [ValueElement]) {

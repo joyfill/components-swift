@@ -77,13 +77,14 @@ struct CollectionModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .modifier(JoyfillFooterModifier())
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
                 dismiss()
                 return
             }
-            
+
             // Same collection, handle row change
             if let rowId = event.rowId, !rowId.isEmpty {
                 let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
