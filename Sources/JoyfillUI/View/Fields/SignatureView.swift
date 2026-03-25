@@ -331,8 +331,8 @@ struct CanvasSignatureView: View {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
         }
-        .modifier(JoyfillFooterModifier())
         .padding(.horizontal, 16.0)
+        .modifier(JoyfillFooterModifier())
     }
 }
 extension View {

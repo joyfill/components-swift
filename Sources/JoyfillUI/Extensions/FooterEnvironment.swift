@@ -16,7 +16,8 @@ struct JoyfillFooterModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         if let footer = footer {
-            content.safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: 0) {
+                content
                 footer
             }
         } else {
