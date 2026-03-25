@@ -98,7 +98,7 @@ extension DocumentEditor {
             sendDismissNavigation(fieldID: currentFieldID)
             let execute = { [self] in
                 if pageChanged { self.currentPageID = pageId }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
                     self.sendNavigation(event)
                 }
             }
