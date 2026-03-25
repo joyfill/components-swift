@@ -35,6 +35,7 @@ struct TableSignatureView: View {
             cellModel.didFocusBlur?(.blur, cellModel.data)
         }) {
             CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
+                .environment(\.footerContainer, FooterContainer())
         }
         .onChange(of: signatureImage) { newImage in
             if let newImage = newImage, let data = newImage.pngData() {
