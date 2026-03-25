@@ -16,20 +16,25 @@ struct TableDateView: View {
     @State var dateString: String = ""
     @State var eraseDate: Bool = false
     
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "") {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        if !isUsedForBulkEdit {
-            if let dateValue = cellModel.wrappedValue.data.date {
-                if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
-                    _dateString = State(initialValue: dateString)
-                    if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
-                        _selectedDate = State(initialValue: date)
-                    }
+        datePickerComponent = Utility.getDateType(format: cellModel.wrappedValue.data.format ?? .empty)
+        func setupDate(dateValue: Double) {
+            if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
+                _dateString = State(initialValue: dateString)
+                if let date = Utility.stringToDate(dateString, format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
+                    _selectedDate = State(initialValue: date)
                 }
             }
         }
-        datePickerComponent = Utility.getDateType(format: cellModel.wrappedValue.data.format ?? .empty)
+        if !initialFilterText.isEmpty, let dateValue = Double(initialFilterText) {
+            setupDate(dateValue: dateValue)
+        } else if !isUsedForBulkEdit {
+            if let dateValue = cellModel.wrappedValue.data.date {
+                setupDate(dateValue: dateValue)
+            }
+        }
     }
     
     var body: some View {

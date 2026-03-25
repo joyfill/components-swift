@@ -2209,6 +2209,7 @@ public struct SortModel {
 }
 
 public struct FilterModel: Equatable {
+    public static let emptyDateSentinel = "null"
     public var filterText: String = ""
     public var colIndex: Int
     public var colID: String
