@@ -65,14 +65,6 @@ struct TableModalView : View {
             FormFooterView()
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    dismissKeyboard()
-                }
-            }
-        }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
@@ -430,9 +422,6 @@ struct TableModalView : View {
                             }
                         }
                     }
-                    .gesture(DragGesture().onChanged({ _ in
-                        dismissKeyboard()
-                    }))
                 } else {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
@@ -479,6 +468,9 @@ struct TableModalView : View {
                 }
             }
         }
+        .simultaneousGesture(DragGesture().onChanged({ _ in
+            dismissKeyboard()
+        }))
     }
 
     private func dismissKeyboard() {
