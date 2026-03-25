@@ -61,6 +61,9 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
         .background(colorScheme == .dark ? Color.black : Color.white)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {

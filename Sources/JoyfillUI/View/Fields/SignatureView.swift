@@ -15,6 +15,7 @@ struct SignatureView: View {
     @State var showError: Bool = false
 
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.footerContainer) private var footerContainer
     private var signatureDataModel: SignatureDataModel
     let eventHandler: FieldChangeEvents
 
@@ -73,7 +74,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID).environment(\.footerContainer, footerContainer), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -345,6 +346,9 @@ struct CanvasSignatureView: View {
             if targetFieldID == fieldID {
                 presentationMode.wrappedValue.dismiss()
             }
+        }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
         }
         .padding(.horizontal, 16.0)
     }

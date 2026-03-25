@@ -710,5 +710,8 @@ struct CollectionEditMultipleRowsSheetView: View {
             viewModel.tableDataModel.navigationIntent.focusColumnId = nil
         }
         }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
     }
 }

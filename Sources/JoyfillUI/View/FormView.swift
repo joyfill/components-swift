@@ -5,6 +5,7 @@ import Combine
 
 public struct Form: View {
     let documentEditor: DocumentEditor
+    @Environment(\.footerContainer) private var footerContainer
 
     @available(*, deprecated, message: "Use init(documentEditor:) instead")
     public init(document: Binding<JoyDoc>, mode: Mode = .fill, events: FormChangeEvent? = nil, pageID: String?, navigation: Bool = true) {
@@ -17,11 +18,17 @@ public struct Form: View {
     }
 
     public var body: some View {
-        if let error = documentEditor.schemaError {
-            SchemaErrorView(error: error)
-        } else {
-            FilesView(documentEditor: documentEditor, files: documentEditor.files)
+        Group {
+            if let error = documentEditor.schemaError {
+                SchemaErrorView(error: error)
+            } else {
+                FilesView(documentEditor: documentEditor, files: documentEditor.files)
+                    .safeAreaInset(edge: .bottom) {
+                        FormFooterView()
+                    }
+            }
         }
+        .environment(\.footerContainer, footerContainer)
     }
 }
 

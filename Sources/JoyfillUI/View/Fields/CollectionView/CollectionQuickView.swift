@@ -15,6 +15,7 @@ struct CollectionQuickView : View {
     private let rowHeight: CGFloat = 50
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.footerContainer) private var footerContainer
     @State var isTableModalViewPresented = false
     @State var showEditMultipleRowsSheetView: Bool = false
     var tableDataModel: TableDataModel
@@ -112,7 +113,7 @@ struct CollectionQuickView : View {
             }
             .fieldBorder(isFocused: navigationFocusFieldId == tableDataModel.fieldIdentifier.fieldID, cornerRadius: 14)
             
-            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView), isActive: $isTableModalViewPresented) {
+            NavigationLink(destination: CollectionModalView(viewModel: viewModel, showEditMultipleRowsSheetView: showEditMultipleRowsSheetView).environment(\.footerContainer, footerContainer), isActive: $isTableModalViewPresented) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)

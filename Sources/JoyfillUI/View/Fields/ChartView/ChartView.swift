@@ -13,6 +13,7 @@ struct ChartView: View {
     @State var valueElements: [ValueElement] = []
     @State var showDetailChartView: Bool = false
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.footerContainer) private var footerContainer
     let eventHandler: FieldChangeEvents
 
 //    let data : MultiLineChartData
@@ -48,7 +49,7 @@ struct ChartView: View {
 //                        .padding(.horizontal)
 //                )
             
-            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel), isActive: $showDetailChartView) {
+            NavigationLink(destination: ChartDetailView(chartDataModel: chartDataModel).environment(\.footerContainer, footerContainer), isActive: $showDetailChartView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
