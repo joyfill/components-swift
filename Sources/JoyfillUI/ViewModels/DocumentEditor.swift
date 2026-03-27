@@ -154,6 +154,38 @@ public class DocumentEditor: ObservableObject {
     public func validate() -> Validation {
         return validationHandler.validate()
     }
+
+    /// Validates based on a path string, returning a result scoped to the path depth.
+    /// - `""` (or only whitespace): validates all pages and fields → `.page(Validation)`
+    /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
+    /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)` only when `pageId` matches the page that contains that field position; otherwise falls back to `.page` for `pageId`.
+    /// - Parameter path: Leading, trailing, and segment-adjacent whitespace (per segment) are ignored; other characters must match ids exactly.
+    public func validate(path: String) -> ComponentValidity {
+        let trimmedPath = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else {
+            return .page(validationHandler.validate())
+        }
+
+        let components = trimmedPath.split(separator: "/", maxSplits: 1).map {
+            String($0).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let pageID = components[0]
+        guard !pageID.isEmpty else {
+            return .page(validationHandler.validate())
+        }
+
+        if components.count == 1 {
+            return .page(validationHandler.validate(pageID: pageID))
+        }
+
+        let fieldPositionID = components[1]
+        if let fieldIdentifier = getFieldIdentifier(forFieldPositionID: fieldPositionID),
+           fieldIdentifier.pageID == pageID,
+           let fieldValidity = validationHandler.validate(fieldIdentifier: fieldIdentifier) {
+            return .field(fieldValidity)
+        }
+        return .page(validationHandler.validate(pageID: pageID))
+    }
     
     public func shouldShow(fieldID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
@@ -490,6 +522,17 @@ extension DocumentEditor {
         }
 
         return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, fileID: fileID)
+    }
+
+    public func getFieldIdentifier(forFieldPositionID fieldPositionID: String) -> FieldIdentifier? {
+        for page in pagesForCurrentView {
+            if let position = page.fieldPositions?.first(where: { $0.id == fieldPositionID }),
+               let fieldID = position.field {
+                let field = field(fieldID: fieldID)
+                return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: field?.identifier, pageID: page.id, fileID: field?.file, fieldPositionId: position.id)
+            }
+        }
+        return nil
     }
 }
 

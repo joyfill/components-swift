@@ -65,3 +65,15 @@ public struct FieldValidity {
         self.rowValidities = rowValidities
     }
 }
+
+public enum ComponentValidity {
+    case page(Validation)
+    case field(FieldValidity)
+    case row(RowValidity)      // future
+    case cell(CellValidity)    // future
+
+    public var fieldValidity: FieldValidity? {
+        if case .field(let fv) = self { return fv }
+        return nil
+    }
+}
