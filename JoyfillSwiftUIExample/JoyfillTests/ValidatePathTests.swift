@@ -145,6 +145,33 @@ final class ValidatePathTests: XCTestCase {
         }
     }
 
+    func testValidatePath_WhitespaceOnly_TreatedAsEmptyPath() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let pathResult = editor.validate(path: "  \n\t  ")
+        let fullResult = editor.validate()
+
+        if case .page(let validation) = pathResult {
+            XCTAssertEqual(validation.status, fullResult.status)
+            XCTAssertEqual(validation.fieldValidities.count, fullResult.fieldValidities.count)
+        } else {
+            XCTFail("Expected .page for whitespace-only path")
+        }
+    }
+
+    func testValidatePath_TrimsSurroundingAndSegmentWhitespace() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let trimmedEquivalent = " \(pageID) / \(imagePositionID) \n"
+        let tight = "\(pageID)/\(imagePositionID)"
+
+        guard case .field(let a) = editor.validate(path: trimmedEquivalent),
+              case .field(let b) = editor.validate(path: tight) else {
+            XCTFail("Expected .field for both paths"); return
+        }
+        XCTAssertEqual(a.fieldPositionId, b.fieldPositionId)
+        XCTAssertEqual(a.pageId, b.pageId)
+        XCTAssertEqual(a.status, b.status)
+    }
+
     // MARK: - 2. Valid pageID only → .page scoped to that page
 
     func testValidatePath_ValidPageID_ReturnsDotPage() {

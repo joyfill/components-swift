@@ -156,16 +156,23 @@ public class DocumentEditor: ObservableObject {
     }
 
     /// Validates based on a path string, returning a result scoped to the path depth.
-    /// - `""`: validates all pages and fields → `.page(Validation)`
+    /// - `""` (or only whitespace): validates all pages and fields → `.page(Validation)`
     /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
     /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)` only when `pageId` matches the page that contains that field position; otherwise falls back to `.page` for `pageId`.
+    /// - Parameter path: Leading, trailing, and segment-adjacent whitespace (per segment) are ignored; other characters must match ids exactly.
     public func validate(path: String) -> ComponentValidity {
-        guard !path.isEmpty else {
+        let trimmedPath = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else {
             return .page(validationHandler.validate())
         }
 
-        let components = path.split(separator: "/", maxSplits: 1).map(String.init)
+        let components = trimmedPath.split(separator: "/", maxSplits: 1).map {
+            String($0).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
         let pageID = components[0]
+        guard !pageID.isEmpty else {
+            return .page(validationHandler.validate())
+        }
 
         if components.count == 1 {
             return .page(validationHandler.validate(pageID: pageID))
