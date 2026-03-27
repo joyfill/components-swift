@@ -15,6 +15,45 @@ class ValidationHandler {
         self.documentEditor = documentEditor
     }
 
+    fileprivate func validatePage(_ page: Page, _ documentEditor: DocumentEditor, _ isValid: inout Bool, _ fieldValidities: inout [FieldValidity]) {
+        let pageID = page.id
+        let isPageVisible = documentEditor.shouldShow(page: page)
+        
+        let fieldPositions = documentEditor.mapWebViewToMobileViewIfNeeded(
+            fieldPositions: page.fieldPositions ?? [],
+            isMobileViewActive: false
+        )
+        
+        for fieldPosition in fieldPositions {
+            guard let id = fieldPosition.field,
+                  let field = documentEditor.fieldMap[id] else {
+                continue
+            }
+            
+            guard field.fieldType != .unknown else {
+                continue
+            }
+            
+            if !isPageVisible {
+                continue
+            }
+            if !documentEditor.shouldShow(fieldID: field.id) {
+                continue
+            }
+            
+            guard let fieldID = field.id else {
+                Log("Missing field ID", type: .error)
+                continue
+            }
+            
+            guard let validity = validateField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageID, fieldPositionId: fieldPosition.id) else {
+                continue
+            }
+            if validity.status == .invalid { isValid = false }
+            fieldValidities.append(validity)
+        }
+    }
+    
     func validate() -> Validation {
         guard let documentEditor = documentEditor else {
             return Validation(status: .valid, fieldValidities: [])
@@ -23,43 +62,22 @@ class ValidationHandler {
         var isValid = true
 
         for page in documentEditor.pagesForCurrentView {
-            let pageID = page.id
-            let isPageVisible = documentEditor.shouldShow(page: page)
-
-            let fieldPositions = documentEditor.mapWebViewToMobileViewIfNeeded(
-                fieldPositions: page.fieldPositions ?? [],
-                isMobileViewActive: false
-            )
-
-            for fieldPosition in fieldPositions {
-                guard let id = fieldPosition.field,
-                      let field = documentEditor.fieldMap[id] else {
-                    continue
-                }
-
-                guard field.fieldType != .unknown else {
-                    continue
-                }
-
-                if !isPageVisible {
-                    continue
-                }
-                if !documentEditor.shouldShow(fieldID: field.id) {
-                    continue
-                }
-
-                guard let fieldID = field.id else {
-                    Log("Missing field ID", type: .error)
-                    continue
-                }
-
-                guard let validity = validateField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageID, fieldPositionId: fieldPosition.id) else {
-                    continue
-                }
-                if validity.status == .invalid { isValid = false }
-                fieldValidities.append(validity)
-            }
+            validatePage(page, documentEditor, &isValid, &fieldValidities)
         }
+        return Validation(status: isValid ? .valid : .invalid, fieldValidities: fieldValidities)
+    }
+
+    func validate(pageID: String) -> Validation {
+        guard let documentEditor = documentEditor else {
+            return Validation(status: .valid, fieldValidities: [])
+        }
+
+        guard let page = documentEditor.pagesForCurrentView.first(where: { $0.id == pageID }) else {
+            return Validation(status: .valid, fieldValidities: [])
+        }
+        var fieldValidities = [FieldValidity]()
+        var isValid = true
+        validatePage(page, documentEditor, &isValid, &fieldValidities)
         return Validation(status: isValid ? .valid : .invalid, fieldValidities: fieldValidities)
     }
 

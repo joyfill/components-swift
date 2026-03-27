@@ -155,9 +155,28 @@ public class DocumentEditor: ObservableObject {
         return validationHandler.validate()
     }
 
-    public func validate(fieldID: String) -> FieldValidity? {
-        let fieldIdentifier = getFieldIdentifier(for: fieldID)
-        return validationHandler.validate(fieldIdentifier: fieldIdentifier)
+    /// Validates based on a path string, returning a result scoped to the path depth.
+    /// - `""`: validates all pages and fields → `.page(Validation)`
+    /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
+    /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)`
+    public func validate(path: String) -> ComponentValidity {
+        guard !path.isEmpty else {
+            return .page(validationHandler.validate())
+        }
+
+        let components = path.split(separator: "/", maxSplits: 1).map(String.init)
+        let pageID = components[0]
+
+        if components.count == 1 {
+            return .page(validationHandler.validate(pageID: pageID))
+        }
+
+        let fieldPositionID = components[1]
+        if let fieldIdentifier = getFieldIdentifier(forFieldPositionID: fieldPositionID),
+           let fieldValidity = validationHandler.validate(fieldIdentifier: fieldIdentifier) {
+            return .field(fieldValidity)
+        }
+        return .page(validationHandler.validate(pageID: pageID))
     }
     
     public func shouldShow(fieldID: String?) -> Bool {
@@ -495,6 +514,17 @@ extension DocumentEditor {
         }
 
         return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, fileID: fileID)
+    }
+
+    public func getFieldIdentifier(forFieldPositionID fieldPositionID: String) -> FieldIdentifier? {
+        for page in pagesForCurrentView {
+            if let position = page.fieldPositions?.first(where: { $0.id == fieldPositionID }),
+               let fieldID = position.field {
+                let field = field(fieldID: fieldID)
+                return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: field?.identifier, pageID: page.id, fileID: field?.file, fieldPositionId: position.id)
+            }
+        }
+        return nil
     }
 }
 
