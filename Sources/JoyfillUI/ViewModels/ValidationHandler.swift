@@ -15,6 +15,45 @@ class ValidationHandler {
         self.documentEditor = documentEditor
     }
 
+    fileprivate func validatePage(_ page: Page, _ documentEditor: DocumentEditor, _ isValid: inout Bool, _ fieldValidities: inout [FieldValidity]) {
+        let pageID = page.id
+        let isPageVisible = documentEditor.shouldShow(page: page)
+        
+        let fieldPositions = documentEditor.mapWebViewToMobileViewIfNeeded(
+            fieldPositions: page.fieldPositions ?? [],
+            isMobileViewActive: false
+        )
+        
+        for fieldPosition in fieldPositions {
+            guard let id = fieldPosition.field,
+                  let field = documentEditor.fieldMap[id] else {
+                continue
+            }
+            
+            guard field.fieldType != .unknown else {
+                continue
+            }
+            
+            if !isPageVisible {
+                continue
+            }
+            if !documentEditor.shouldShow(fieldID: field.id) {
+                continue
+            }
+            
+            guard let fieldID = field.id else {
+                Log("Missing field ID", type: .error)
+                continue
+            }
+            
+            guard let validity = validateField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageID, fieldPositionId: fieldPosition.id) else {
+                continue
+            }
+            if validity.status == .invalid { isValid = false }
+            fieldValidities.append(validity)
+        }
+    }
+    
     func validate() -> Validation {
         guard let documentEditor = documentEditor else {
             return Validation(status: .valid, fieldValidities: [])
@@ -23,64 +62,63 @@ class ValidationHandler {
         var isValid = true
 
         for page in documentEditor.pagesForCurrentView {
-            let pageID = page.id
-            let isPageVisible = documentEditor.shouldShow(page: page)
-
-            let fieldPositions = documentEditor.mapWebViewToMobileViewIfNeeded(
-                fieldPositions: page.fieldPositions ?? [],
-                isMobileViewActive: false
-            )
-
-            for fieldPosition in fieldPositions {
-                guard let id = fieldPosition.field,
-                      let field = documentEditor.fieldMap[id] else {
-                    continue
-                }
-
-                guard field.fieldType != .unknown else {
-                    continue
-                }
-
-                let fieldPositionId = fieldPosition.id
-
-                if !isPageVisible {
-                    continue
-                }
-                if !documentEditor.shouldShow(fieldID: field.id) {
-                    continue
-                }
-
-                guard let fieldID = field.id else {
-                    Log("Missing field ID", type: .error)
-                    continue
-                }
-
-                let isRequired = field.required ?? false
-
-                if field.fieldType == .table {
-                    let validity = validateTableField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageID, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
-                    if validity.status == .invalid { isValid = false }
-                    fieldValidities.append(validity)
-                } else if field.fieldType == .collection {
-                    if !documentEditor.isCollectionFieldEnabled {
-                        continue
-                    }
-                    let validity = validateCollectionField(field: field, fieldID: fieldID, pageId: pageID, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
-                    if validity.status == .invalid { isValid = false }
-                    fieldValidities.append(validity)
-                } else if !isRequired {
-                    fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
-                } else {
-                    if let value = field.value, !value.isEmpty {
-                        fieldValidities.append(FieldValidity(field: field, status: .valid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
-                    } else {
-                        isValid = false
-                        fieldValidities.append(FieldValidity(field: field, status: .invalid, pageId: pageID, fieldId: fieldID, fieldPositionId: fieldPositionId))
-                    }
-                }
-            }
+            validatePage(page, documentEditor, &isValid, &fieldValidities)
         }
         return Validation(status: isValid ? .valid : .invalid, fieldValidities: fieldValidities)
+    }
+
+    func validate(pageID: String) -> Validation {
+        guard let documentEditor = documentEditor else {
+            return Validation(status: .valid, fieldValidities: [])
+        }
+
+        guard let page = documentEditor.pagesForCurrentView.first(where: { $0.id == pageID }) else {
+            return Validation(status: .valid, fieldValidities: [])
+        }
+        var fieldValidities = [FieldValidity]()
+        var isValid = true
+        validatePage(page, documentEditor, &isValid, &fieldValidities)
+        return Validation(status: isValid ? .valid : .invalid, fieldValidities: fieldValidities)
+    }
+
+    func validate(fieldIdentifier: FieldIdentifier) -> FieldValidity? {
+        guard let documentEditor = documentEditor else { return nil }
+
+        let fieldID = fieldIdentifier.fieldID
+        let pageID = fieldIdentifier.pageID
+
+        guard let field = documentEditor.field(fieldID: fieldID),
+              field.fieldType != .unknown,
+              documentEditor.shouldShow(pageID: pageID),
+              documentEditor.shouldShow(fieldID: fieldID),
+              let fieldPosition = documentEditor.fieldPosition(fieldID: fieldID) else { return nil }
+
+        return validateField(
+            field: field,
+            fieldID: fieldID,
+            fieldPosition: fieldPosition,
+            pageId: pageID,
+            fieldPositionId: fieldIdentifier.fieldPositionId ?? fieldPosition.id
+        )
+    }
+
+    // MARK: - Per-field validation helper
+
+    private func validateField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?) -> FieldValidity? {
+        guard let documentEditor = documentEditor else { return nil }
+        let isRequired = field.required ?? false
+
+        if field.fieldType == .table {
+            return validateTableField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageId, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
+        } else if field.fieldType == .collection {
+            guard documentEditor.isCollectionFieldEnabled else { return nil }
+            return validateCollectionField(field: field, fieldID: fieldID, pageId: pageId, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
+        } else if !isRequired {
+            return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
+        } else {
+            let status: ValidationStatus = (field.value.map { !$0.isEmpty } ?? false) ? .valid : .invalid
+            return FieldValidity(field: field, status: status, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
+        }
     }
 
     // MARK: - Table Validation

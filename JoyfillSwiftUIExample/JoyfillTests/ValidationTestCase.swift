@@ -161,6 +161,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid image field - result - valid
@@ -184,6 +185,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Text Field - Result - InValid
@@ -207,6 +209,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Text Field - Result - Valid
@@ -230,6 +233,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Multiline Field - Result - InValid
@@ -253,6 +257,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb2fca14b3e2ef978349")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Multiline Field - Result - Valid
@@ -276,6 +281,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb2fca14b3e2ef978349")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Number Field - Result - InValid
@@ -298,6 +304,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb3df03de10b26270ab3")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Number Field - Result - Valid
@@ -320,6 +327,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb3df03de10b26270ab3")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Date Field - Result - InValid
@@ -342,6 +350,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb44c79bb16ce072d233")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Date Field - Result - Valid
@@ -364,6 +373,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb44c79bb16ce072d233")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Time Field - Result - InValid
@@ -386,6 +396,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb638e230f348d0a8682")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Time Field - Result - Valid
@@ -408,6 +419,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb638e230f348d0a8682")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid dateTime Field - Result - InValid
@@ -430,6 +442,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb6ec5d88d3aadf548ca")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid dateTime Field - Result - Valid
@@ -452,6 +465,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb6ec5d88d3aadf548ca")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Dropdown Field - Result - InValid
@@ -474,6 +488,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb77593e3791638628bb")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Dropdown Field - Result - Valid
@@ -496,6 +511,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb77593e3791638628bb")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Multiselect Field - Result - InValid
@@ -518,6 +534,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb9f4d912053577652b1")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Multiselect Field - Result - Valid
@@ -540,6 +557,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb9f4d912053577652b1")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Single Field - Result - InValid
@@ -562,6 +580,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb2bf4f965b9d04f153")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Single Field - Result - Valid
@@ -584,6 +603,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb2bf4f965b9d04f153")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Signature Field - Result - InValid
@@ -606,6 +626,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb8cd16c0c4d308a252")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Signature Field - Result - Valid
@@ -628,6 +649,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb8cd16c0c4d308a252")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Chart Field - Result - InValid
@@ -650,6 +672,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbd957d928a973b1b42b")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Chart Field - Result - Valid
@@ -672,6 +695,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbd957d928a973b1b42b")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Hidden Field Test cases - result always - valid
@@ -697,6 +721,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testRequiredHiddenNumberFieldWithValue() {
@@ -721,7 +746,8 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
+
     }
 
     // Show Hidden Field Test Cases
@@ -748,6 +774,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .invalid)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity?.status, validationResult.fieldValidities[1].status)
     }
 
     func testRequiredShowHiddenFieldWithValue() {
@@ -774,6 +801,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity?.status, validationResult.fieldValidities[1].status)
 
     }
 
@@ -800,6 +828,8 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertNil(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity, "Field hidden by conditional logic should return nil")
     }
 
     func testRequiredHideNumberFieldWithValues() {
@@ -826,9 +856,11 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
 //        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
 //        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-        
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertNil(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity, "Field hidden by conditional logic should return nil")
+
     }
-    
+
     func testRequiredTableField() {
         let document = JoyDoc()
             .setDocument()
@@ -846,6 +878,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     //Zero columns
@@ -866,6 +899,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Zero rows
@@ -886,6 +920,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // table is required , columns are required , cells are empty should be invalid
@@ -906,6 +941,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testRequiredTableFieldIfHidden() {
@@ -925,6 +961,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testNonRequiredTableField() {
@@ -940,11 +977,12 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let validationResult = documentEditor.validate()
         //if table/collection is not required , but some internal things are req and not filled , whole table is invalid
-        
+
         XCTAssertEqual(validationResult.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testNonRequiredTableField_RowValiditiesPopulated() {
@@ -973,6 +1011,7 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(row.cellValidities.count, 3)
             XCTAssertTrue(row.cellValidities.allSatisfy { $0.status == .valid })
         }
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testRequiredTableFieldNonRequiredColumns() {
@@ -992,8 +1031,9 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
-        
+
         // Test Case for duplicate the page
         func testPageDuplication() {
             let document = JoyDoc()
@@ -1318,6 +1358,680 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertNotNil(changeDict["page"], "page.create change should include page.")
             XCTAssertNotNil(changeDict["targetIndex"], "page.create change should include targetIndex.")
         }
+    }
+
+    // MARK: - validate(path:) Tests
+
+    // Unknown field position id in path → fieldValidity is nil
+    func testValidatePath_unknownFieldPositionId_fieldValidityIsNil() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTextFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setTextPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/nonexistent_position_id").fieldValidity
+
+        XCTAssertNil(result, "Unknown field position id should not produce fieldValidity")
+    }
+
+    // Hidden-by-logic field → nil
+    func testValidateSingleFieldID_hiddenByLogicField_returnsNil() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTextField()
+            .setRequiredHideNumberFieldByLogicWithoutValue()
+            .setRequiredSingleChoiceFieldWithoutValue()
+            .setRequiredTextFieldInMobile()
+            .setRequiredHideNumberFieldByLogicWithoutValuePositionInMobile()
+            .setSingleSelectPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity
+
+        XCTAssertNil(result, "A field hidden by conditional logic should return nil")
+    }
+
+    // Non-required field without value → valid (not nil)
+    func testValidateSingleFieldID_nonRequiredField_withoutValue_isValid() {
+        var field = JoyDocField()
+        field.id = "nr_text_001"
+        field.fieldType = .text
+        field.required = false
+        field.value = nil
+        field.file = "file_nr_1"
+
+        var fp = FieldPosition()
+        fp.id = "fp_nr_001"
+        fp.field = "nr_text_001"
+
+        var page = Page()
+        page.id = "page_nr_1"
+        page.fieldPositions = [fp]
+
+        var file = File()
+        file.id = "file_nr_1"
+        file.pages = [page]
+        file.pageOrder = ["page_nr_1"]
+
+        var document = JoyDoc()
+        document.fields = [field]
+        document.files = [file]
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "page_nr_1/fp_nr_001").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "nr_text_001")
+        XCTAssertEqual(result?.pageId, "page_nr_1")
+    }
+
+    // Cross-check: validate(path:) matches corresponding entry in validate()
+    func testValidateSingleFieldID_result_matchesFullValidation() {
+        let fieldID = "6629fb1d92a76d06750ca4a1"
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTextFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setTextPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let fullValidation = documentEditor.validate()
+        let singleResult = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity
+
+        let matching = fullValidation.fieldValidities.first(where: { $0.fieldId == fieldID })
+        XCTAssertNotNil(singleResult, "Single-field result should not be nil for a known field")
+        XCTAssertEqual(singleResult?.status, matching?.status)
+        XCTAssertEqual(singleResult?.fieldId, matching?.fieldId)
+        XCTAssertEqual(singleResult?.pageId, matching?.pageId)
+        XCTAssertEqual(singleResult?.fieldPositionId, matching?.fieldPositionId)
+    }
+
+    // MARK: Image Field
+
+    func testValidateSingleFieldID_requiredImageField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredImagefieldsWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setImageFieldPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
+    }
+
+    func testValidateSingleFieldID_requiredImageField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredImagefieldsWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setImageFieldPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fab36e8925135f0cdd4f")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
+    }
+
+    // MARK: Text Field
+
+    func testValidateSingleFieldID_requiredTextField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTextFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setTextPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
+    }
+
+    func testValidateSingleFieldID_requiredTextField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTextFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setTextPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb1d92a76d06750ca4a1")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
+    }
+
+    // MARK: Multiline Field
+
+    func testValidateSingleFieldID_requiredMultilineTextField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredMultilineTextFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setMultilinePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb2b9a487ce1c1f35f6c")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.fieldPositionId, "6629fb2fca14b3e2ef978349")
+    }
+
+    func testValidateSingleFieldID_requiredMultilineTextField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredMultilineTextFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setMultilinePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb2b9a487ce1c1f35f6c")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.fieldPositionId, "6629fb2fca14b3e2ef978349")
+    }
+
+    // MARK: Number Field
+
+    func testValidateSingleFieldID_requiredNumberField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredNumberFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setNumberPosition()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb3df03de10b26270ab3")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredNumberField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredNumberFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setNumberPosition()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb3df03de10b26270ab3")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: Date Field
+
+    func testValidateSingleFieldID_requiredDateField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredDateFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setDatePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb44c79bb16ce072d233")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredDateField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredDateFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setDatePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb44c79bb16ce072d233")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: Time Field
+
+    func testValidateSingleFieldID_requiredTimeField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTimeFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setTimePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb638e230f348d0a8682")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredTimeField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTimeFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setTimePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb638e230f348d0a8682")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: DateTime Field
+
+    func testValidateSingleFieldID_requiredDateTimeField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredDateTimeFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setDateTimePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb6ec5d88d3aadf548ca")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredDateTimeField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredDateTimeFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setDateTimePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb6ec5d88d3aadf548ca")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: Dropdown Field
+
+    func testValidateSingleFieldID_requiredDropdownField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredDropdownFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setDropdownPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb77593e3791638628bb")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredDropdownField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredDropdownFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setDropdownPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb77593e3791638628bb")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: MultiSelect Field
+
+    func testValidateSingleFieldID_requiredMultiSelectField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredMultipleChoiceFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setMultiselectPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fb9f4d912053577652b1")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredMultiSelectField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredMultipleChoiceFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setMultiselectPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fb9f4d912053577652b1")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: SingleChoice Field
+
+    func testValidateSingleFieldID_requiredSingleChoiceField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredSingleChoiceFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setSingleSelectPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fbb2bf4f965b9d04f153")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredSingleChoiceField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredSingleChoiceFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setSingleSelectPositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fbb2bf4f965b9d04f153")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: Signature Field
+
+    func testValidateSingleFieldID_requiredSignatureField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredSignatureFieldWithoutValue()
+            .setRequiredChartFieldWithoutValue()
+            .setSignaturePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fbb8cd16c0c4d308a252")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredSignatureField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredSignatureFieldWithValue()
+            .setRequiredChartFieldWithoutValue()
+            .setSignaturePositionInMobile()
+            .setChartPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fbb8cd16c0c4d308a252")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: Chart Field
+
+    func testValidateSingleFieldID_requiredChartField_withoutValue_isInvalid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredChartFieldWithoutValue()
+            .setRequiredSingleChoiceFieldWithoutValue()
+            .setChartPositionInMobile()
+            .setSingleSelectPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "6629fbd957d928a973b1b42b")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    func testValidateSingleFieldID_requiredChartField_withValue_isValid() {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredChartFieldWithValue()
+            .setRequiredSingleChoiceFieldWithoutValue()
+            .setChartPositionInMobile()
+            .setSingleSelectPosition()
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "6629fbd957d928a973b1b42b")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+    }
+
+    // MARK: Table Field
+
+    func testValidateSingleFieldID_requiredTableField_zeroRows_isInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: false, isZeroRows: true, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "67612793c4e6a5e6a05e64a3")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertEqual(result?.rowValidities?.count, 0)
+    }
+
+    func testValidateSingleFieldID_tableField_nonRequiredColumns_isValid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .valid)
+        XCTAssertEqual(result?.fieldId, "67612793c4e6a5e6a05e64a3")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        XCTAssertNotNil(result?.rowValidities)
+    }
+
+    func testValidateSingleFieldID_tableField_withRequiredEmptyCells_isInvalid() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: true, isColumnRequired: true, areCellsEmpty: true, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        let documentEditor = documentEditor(document: document)
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.status, .invalid)
+        XCTAssertEqual(result?.fieldId, "67612793c4e6a5e6a05e64a3")
+        XCTAssertEqual(result?.pageId, "6629fab320fca7c8107a6cf6")
+        let invalidRows = result?.rowValidities?.filter { $0.status == .invalid } ?? []
+        XCTAssertFalse(invalidRows.isEmpty, "Should have at least one invalid row when required cells are empty")
     }
 
     /// isPageDuplicateEnabled is false in readonly mode; true when explicitly enabled in fill mode.
