@@ -8,6 +8,8 @@ final class ValidatePathTests: XCTestCase {
     // MARK: - Known IDs (from existing test data builders)
 
     let pageID            = "6629fab320fca7c8107a6cf6"
+    /// Second page from `addSecondPage()` / `addSecondPageInMobileView()` in JoyDoc+DummyModel.
+    let secondPageID      = "second_page_id_12345"
     let imageFieldID      = "6629fab36e8925135f0cdd4f"
     let imagePositionID   = "6629fab82ddb5cdd73a2f27f"
     let textFieldID       = "6629fb1d92a76d06750ca4a1"
@@ -99,6 +101,20 @@ final class ValidatePathTests: XCTestCase {
             .setPageField()
             .setTextField()
             .setTextPositionInMobile()
+        return documentEditor(document: document)
+    }
+
+    /// First page has required image (mobile layout); a real second page exists so paths can use a wrong but existing `pageId`.
+    func makeDocumentWithRequiredImageFirstPageAndSecondPage() -> DocumentEditor {
+        let document = JoyDoc()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredImagefieldsWithoutValue()
+            .setImageFieldPositionInMobile()
+            .addSecondPage()
+            .addSecondPageInMobileView()
         return documentEditor(document: document)
     }
 
@@ -264,6 +280,33 @@ final class ValidatePathTests: XCTestCase {
         } else {
             XCTFail("Expected .page when path page does not own the field position")
         }
+    }
+
+    /// Locks `fieldIdentifier.pageID == pageId` prefix: position exists on page 1 but path uses another real page id → `.page` for that other page, not `.field` for the image on page 1.
+    func testValidatePath_RealOtherPageIDWithPositionFromFirstPage_FallsBackToPage() {
+        let editor = makeDocumentWithRequiredImageFirstPageAndSecondPage()
+
+        let correctPath = "\(pageID)/\(imagePositionID)"
+        guard case .field(let fieldValidityForCorrectPath) = editor.validate(path: correctPath) else {
+            XCTFail("Sanity check: valid page + position should return .field"); return
+        }
+        XCTAssertEqual(fieldValidityForCorrectPath.fieldPositionId, imagePositionID)
+        XCTAssertEqual(fieldValidityForCorrectPath.pageId, pageID)
+
+        let wrongPath = "\(secondPageID)/\(imagePositionID)"
+        let result = editor.validate(path: wrongPath)
+
+        guard case .page(let validation) = result else {
+            XCTFail("Expected .page fallback when path page id does not own the field position, got \(result)"); return
+        }
+        XCTAssertFalse(
+            validation.fieldValidities.contains { $0.fieldPositionId == imagePositionID },
+            "Page-scoped result must not include the field position from another page"
+        )
+        XCTAssertFalse(
+            validation.fieldValidities.contains { $0.field.id == imageFieldID },
+            "Page-scoped result must not validate page-1 image under wrong page prefix"
+        )
     }
 
     // MARK: - 7. Required field without value → .invalid
