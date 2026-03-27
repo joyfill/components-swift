@@ -251,6 +251,21 @@ final class ValidatePathTests: XCTestCase {
         }
     }
 
+    // MARK: - Path page must own the field position
+
+    func testValidatePath_WrongPageIDWithValidFieldPositionID_FallsBackToPage() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let path = "non-existent-page-id/\(imagePositionID)"
+        let result = editor.validate(path: path)
+
+        if case .page(let validation) = result {
+            XCTAssertEqual(validation.status, .valid)
+            XCTAssertTrue(validation.fieldValidities.isEmpty)
+        } else {
+            XCTFail("Expected .page when path page does not own the field position")
+        }
+    }
+
     // MARK: - 7. Required field without value → .invalid
 
     func testValidatePath_RequiredFieldWithoutValue_IsInvalid() {

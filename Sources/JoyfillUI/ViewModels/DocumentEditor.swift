@@ -158,7 +158,7 @@ public class DocumentEditor: ObservableObject {
     /// Validates based on a path string, returning a result scoped to the path depth.
     /// - `""`: validates all pages and fields → `.page(Validation)`
     /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
-    /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)`
+    /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)` only when `pageId` matches the page that contains that field position; otherwise falls back to `.page` for `pageId`.
     public func validate(path: String) -> ComponentValidity {
         guard !path.isEmpty else {
             return .page(validationHandler.validate())
@@ -173,6 +173,7 @@ public class DocumentEditor: ObservableObject {
 
         let fieldPositionID = components[1]
         if let fieldIdentifier = getFieldIdentifier(forFieldPositionID: fieldPositionID),
+           fieldIdentifier.pageID == pageID,
            let fieldValidity = validationHandler.validate(fieldIdentifier: fieldIdentifier) {
             return .field(fieldValidity)
         }
