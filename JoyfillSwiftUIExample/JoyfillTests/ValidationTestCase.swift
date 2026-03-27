@@ -1362,8 +1362,8 @@ final class ValidationTestCase: XCTestCase {
 
     // MARK: - validate(path:) Tests
 
-    // Unknown fieldID → nil
-    func testValidateSingleFieldID_unknownFieldID_returnsNil() {
+    // Unknown field position id in path → fieldValidity is nil
+    func testValidatePath_unknownFieldPositionId_fieldValidityIsNil() {
         let document = JoyDoc()
             .setFile()
             .setMobileView()
@@ -1377,7 +1377,7 @@ final class ValidationTestCase: XCTestCase {
         let documentEditor = documentEditor(document: document)
         let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/nonexistent_position_id").fieldValidity
 
-        XCTAssertNil(result, "Unknown fieldID should return nil")
+        XCTAssertNil(result, "Unknown field position id should not produce fieldValidity")
     }
 
     // Hidden-by-logic field → nil
