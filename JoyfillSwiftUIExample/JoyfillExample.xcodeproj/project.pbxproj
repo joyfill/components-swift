@@ -345,6 +345,8 @@
 		E28D10AD2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
 		E28D10AE2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
 		E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
+		E295FA7A2F73DAEF00C3C8C1 /* FooterExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */; };
+		E295FA7B2F73DAEF00C3C8C1 /* footer-form.json in Resources */ = {isa = PBXBuildFile; fileRef = E295FA772F73DAEF00C3C8C1 /* footer-form.json */; };
 		E29FF8512F1F77C10079A614 /* SimpleNavigationTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */; };
 		E29FF8672F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
 		E29FF8682F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
@@ -631,6 +633,8 @@
 		E28D10A42E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = EncapsulatedCircularReference_FormulaTemplate.json; sourceTree = "<group>"; };
 		E28D10A82E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json; sourceTree = "<group>"; };
 		E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ConditionalEvaluationCircularReference.json; sourceTree = "<group>"; };
+		E295FA772F73DAEF00C3C8C1 /* footer-form.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "footer-form.json"; sourceTree = "<group>"; };
+		E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterExampleView.swift; sourceTree = "<group>"; };
 		E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleNavigationTestView.swift; sourceTree = "<group>"; };
 		E29FF8662F215C9C0079A614 /* Navigation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Navigation.json; sourceTree = "<group>"; };
 		E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationJSONTests.swift; sourceTree = "<group>"; };
@@ -1116,6 +1120,15 @@
 			path = optionalPropertiesRemovedTemplate;
 			sourceTree = "<group>";
 		};
+		E295FA792F73DAEF00C3C8C1 /* Footer Example */ = {
+			isa = PBXGroup;
+			children = (
+				E295FA772F73DAEF00C3C8C1 /* footer-form.json */,
+				E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */,
+			);
+			path = "Footer Example";
+			sourceTree = "<group>";
+		};
 		E2B8E3BC2E4361DF00AC6018 /* Formula */ = {
 			isa = PBXGroup;
 			children = (
@@ -1379,6 +1392,7 @@
 				E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */,
 				048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */,
 				E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */,
+				E295FA792F73DAEF00C3C8C1 /* Footer Example */,
 				E22516822E8B9C610089E2D2 /* Public Apis Example */,
 				E2E3E7772E856105002A10C2 /* Simple Form Example */,
 				E2FBBAC32E682139001FBF5B /* ValidationResultsView.swift */,
@@ -1812,6 +1826,7 @@
 				E274CA542E2E7FB000B35C09 /* blockField.json in Resources */,
 				E274CA552E2E7FB000B35C09 /* tableField.json in Resources */,
 				9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */,
+				E295FA7B2F73DAEF00C3C8C1 /* footer-form.json in Resources */,
 				E274CA562E2E7FB000B35C09 /* dropdownField.json in Resources */,
 				E274CA572E2E7FB000B35C09 /* dateField.json in Resources */,
 				E274CA582E2E7FB000B35C09 /* fileField.json in Resources */,
@@ -1997,6 +2012,7 @@
 				E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */,
 				3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */,
 				36CE14692DB7F90B00799B25 /* JoyDoc+helper.swift in Sources */,
+				E295FA7A2F73DAEF00C3C8C1 /* FooterExampleView.swift in Sources */,
 				13B544442BE37410008AF9BC /* JoyDoc+DummyModel.swift in Sources */,
 				364615AB2E29692D00F237F6 /* OnChangeHandlerTest.swift in Sources */,
 				364615AC2E29692D00F237F6 /* DeficiencyTableDemoView.swift in Sources */,

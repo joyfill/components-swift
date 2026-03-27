@@ -13,7 +13,7 @@ struct SimpleFormExampleView: View {
     let documentEditor: DocumentEditor
     let changeHandler = ChangeHandler()
     let document = loadDoc(named: "first-form")
-    
+
     init() {
         self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, isPageDeleteEnabled: true, validateSchema: true, singleClickRowEdit: true)
     }

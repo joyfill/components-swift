@@ -61,6 +61,9 @@ struct ChartDetailView: View {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
         .onDisappear {
             chartDataModel.documentEditor?.setOpenNavigationFieldID(nil)
         }

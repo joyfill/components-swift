@@ -77,6 +77,9 @@ struct CollectionModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {

@@ -637,8 +637,11 @@ struct EditMultipleRowsSheetView: View {
             viewModel.tableDataModel.navigationIntent.focusColumnId = nil
         }
         }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
     }
-    
+
     private func triggerInlineTextFocus() {
         guard let columnId = viewModel.tableDataModel.navigationIntent.focusColumnId,
               let colIndex = viewModel.tableDataModel.tableColumns.firstIndex(where: { $0.id == columnId }),
