@@ -14,6 +14,9 @@ let package = Package(
             name: "Joyfill",
             targets: ["Joyfill"]),
         .library(
+            name: "JSONSchema",
+            targets: ["JSONSchema"]),
+        .library(
             name: "JoyfillModel",
             targets: ["JoyfillModel"]),
         .library(
@@ -23,10 +26,15 @@ let package = Package(
             name: "JoyfillAPIService",
             targets: ["JoyfillAPIService"]),
     ],
-    dependencies: [
-        .package(url: "https://github.com/kylef/JSONSchema.swift", .upToNextMajor(from: "0.6.0")),
-    ],
+    dependencies: [],
     targets: [
+        // Vendored JSONSchema.swift @ v0.6.0 (commit d14de4b2) with performance patches
+        // Sources live in Sources/Vendor/JSONSchema/ — no external package needed
+        .target(
+            name: "JSONSchema",
+            dependencies: [],
+            path: "Sources/Vendor/JSONSchema"
+        ),
         // Core JoyfillModel target (no dependencies)
         .target(
             name: "JoyfillModel",
@@ -46,7 +54,7 @@ let package = Package(
         .target(
             name: "Joyfill",
             dependencies: [
-                .product(name: "JSONSchema", package: "JSONSchema.swift"),
+                "JSONSchema",
                 "JoyfillModel",
                 "JoyfillFormulas",
                 "JoyfillAPIService",

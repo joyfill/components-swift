@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import JoyfillModel
 
 struct SignatureView: View {
@@ -56,6 +57,7 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
+                signatureDataModel.documentEditor?.setOpenNavigationFieldID(signatureDataModel.fieldIdentifier.fieldID)
                 eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)
             }, label: {
                 Text("\(!signatureURL.isEmpty ? "Edit Signature" : "Add Signature")")
@@ -71,7 +73,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -203,6 +205,8 @@ struct CanvasSignatureView: View {
     @Binding var signatureURL: String
     @Binding var showError: Bool
     @Binding var isEditable: Bool
+    var documentEditor: DocumentEditor?
+    var fieldID: String?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     
@@ -333,6 +337,14 @@ struct CanvasSignatureView: View {
         .onAppear {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
+        }
+        .onDisappear {
+            documentEditor?.setOpenNavigationFieldID(nil)
+        }
+        .onReceive(documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == fieldID {
+                presentationMode.wrappedValue.dismiss()
+            }
         }
         .padding(.horizontal, 16.0)
     }

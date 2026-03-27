@@ -831,4 +831,225 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         }
         return outputFormatter.string(from: date)
     }
+    
+    func testTableFieldOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(textField.exists, "Text field should exist")
+        textField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "687478ee0b423b73bb24cafa")
+    }
+
+    func testTableDropdownOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let dropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
+        scrollToElement(dropdownField)
+        XCTAssertTrue(dropdownField.exists, "Dropdown field should exist")
+        dropdownField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f786e39a025afbe7d481")
+    }
+
+    func testTableMultiSelectOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let multiSelectField = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        scrollToElement(multiSelectField)
+        XCTAssertTrue(multiSelectField.exists, "Multi-select field should exist")
+        multiSelectField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f780cf958bc05e29aa23")
+    }
+
+    func testTableImageOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let imageField = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        scrollToElement(imageField)
+        XCTAssertTrue(imageField.exists, "Image field should exist")
+        imageField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f77d94bf1a887629d6c1")
+    }
+
+    func testTableNumberOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        scrollToElement(numberField)
+        XCTAssertTrue(numberField.exists, "Number field should exist")
+        numberField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f868ebe7eede60eb0f7c")
+    }
+
+    func testTableDateOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let dateField = app.buttons.matching(identifier: "ChangeCellDateIdentifier").firstMatch
+        scrollToElement(dateField)
+        if dateField.exists {
+            dateField.tap()
+        } else {
+            let dateIcon = app.images.matching(identifier: "CalendarImageIdentifier").firstMatch
+            XCTAssertTrue(dateIcon.exists, "Date field should exist")
+            dateIcon.tap()
+        }
+        let closeDatePopupButton = app.buttons["Close"].firstMatch
+        if closeDatePopupButton.waitForExistence(timeout: 1.0) {
+            closeDatePopupButton.tap()
+        } else {
+            dismissSheet()
+        }
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f873e4ac8460314997f8")
+    }
+
+    func testTableBarcodeOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").firstMatch
+        scrollToElement(barcodeField)
+        XCTAssertTrue(barcodeField.exists, "Barcode field should exist")
+        barcodeField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f89d075904bfa381619b")
+    }
+
+    func testTableSignatureOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let signatureField = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        scrollToElement(signatureField)
+        XCTAssertTrue(signatureField.exists, "Signature field should exist")
+        signatureField.tap()
+        dismissSheet()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f89ffad5aad06e550a6f")
+    }
+}
+
+extension TableFieldUITestCases {
+    
+    @discardableResult
+    func assertFocusBlurFieldEvent(
+        in results: [[String: Any]],
+        expectedFieldEvent: [String: Any],
+        expectedAbsentFieldEventKeys: Set<String> = ["type", "target"],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> [String: Any] {
+        guard let matchedEvent = results.first(where: { event in
+            guard let fieldEvent = event["fieldEvent"] as? [String: Any] else {
+                return false
+            }
+            for (key, expectedValue) in expectedFieldEvent {
+                if !focusBlurValuesMatch(actual: fieldEvent[key], expected: expectedValue) {
+                    return false
+                }
+            }
+            return true
+        }) else {
+            XCTFail("Missing event matching expected payload: \(expectedFieldEvent)", file: file, line: line)
+            return [:]
+        }
+
+        XCTAssertNil(matchedEvent["pageEvent"], "Did not expect pageEvent", file: file, line: line)
+
+        guard let fieldEvent = matchedEvent["fieldEvent"] as? [String: Any] else {
+            XCTFail("Missing fieldEvent dictionary", file: file, line: line)
+            return matchedEvent
+        }
+
+        let expectedFieldEventKeys = Set(expectedFieldEvent.keys)
+        let nullableExpectedKeys = Set(
+            expectedFieldEvent.compactMap { key, value in
+                value is NSNull ? key : nil
+            }
+        )
+        let requiredExpectedKeys = expectedFieldEventKeys.subtracting(nullableExpectedKeys)
+        let fieldEventKeys = Set(fieldEvent.keys)
+        let absentKeysToAssert = expectedAbsentFieldEventKeys.subtracting(expectedFieldEventKeys)
+        XCTAssertTrue(
+            fieldEventKeys.isSuperset(of: requiredExpectedKeys),
+            "Missing required fieldEvent keys. Required: \(requiredExpectedKeys), got: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            fieldEventKeys.isSubset(of: expectedFieldEventKeys),
+            "Unexpected fieldEvent keys: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            absentKeysToAssert.isDisjoint(with: fieldEventKeys),
+            "Did not expect optional keys \(absentKeysToAssert), got \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+
+        for (key, expectedValue) in expectedFieldEvent {
+            let actualValue = fieldEvent[key]
+            if expectedValue is NSNull {
+                XCTAssertTrue(
+                    actualValue == nil || actualValue is NSNull,
+                    "Expected key '\(key)' to be nil/missing, got \(String(describing: actualValue))",
+                    file: file,
+                    line: line
+                )
+                continue
+            }
+            XCTAssertTrue(
+                focusBlurValuesMatch(actual: actualValue, expected: expectedValue),
+                "Mismatch for key '\(key)'. Expected \(expectedValue), got \(String(describing: actualValue))",
+                file: file,
+                line: line
+            )
+        }
+
+        for key in absentKeysToAssert {
+            XCTAssertFalse(fieldEvent.keys.contains(key), "\(key) should be absent", file: file, line: line)
+            XCTAssertNil(fieldEvent[key], "\(key) should be nil", file: file, line: line)
+        }
+
+        return matchedEvent
+    }
+
+    func scrollToElement(_ element: XCUIElement, maxSwipes: Int = 4) {
+        if !element.waitForExistence(timeout: 1.5) {
+            for _ in 0..<maxSwipes where !element.exists {
+                app.swipeLeft()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+            }
+        }
+    }
+
+    func assertTableCellFocusBlurEvents(
+        columnId: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let results = focusBlurOptionalResults()
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none", file: file, line: line)
+
+        let base: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": columnId
+        ]
+
+        var focusEvent = base
+        focusEvent["type"] = "field.focus"
+        focusEvent["target"] = "field.focus"
+
+        var blurEvent = base
+        blurEvent["type"] = "field.blur"
+        blurEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(in: results, expectedFieldEvent: focusEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
+        assertFocusBlurFieldEvent(in: results, expectedFieldEvent: blurEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
+    }
+
 }

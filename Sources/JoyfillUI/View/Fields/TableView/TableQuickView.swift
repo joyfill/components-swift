@@ -29,7 +29,7 @@ struct TableQuickView : View {
         
     fileprivate func openTable() {
         isTableModalViewPresented = true
-        
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(tableDataModel.fieldIdentifier.fieldID)
         if tableDataModel.mode == .fill {
             eventHandler.onFocus(event: tableDataModel.fieldIdentifier)
         }
@@ -152,6 +152,7 @@ struct TableQuickView : View {
                                                                fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                                viewMode: .quickView,
                                                                editMode: viewModel.tableDataModel.mode,
+                                                               didFocusBlur: { _, _ in },
                                                                didChange: nil)
                                 ZStack {
                                     Rectangle()

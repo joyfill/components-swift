@@ -1073,8 +1073,12 @@ final class ValidationTestCase: XCTestCase {
                     XCTAssertNotEqual(dupFieldPos.field, origFieldPos.field, "Duplicated field id should differ from original field id.")
                 }
             }
-            
+
             XCTAssertEqual(documentEditor.document.fields.count, fieldCount, "Fields count can not match.")
+
+            // Verify duplicated page has reset deletable and copyable per spec
+            XCTAssertTrue(duplicatedPage?.deletable ?? false, "Duplicated page should always have deletable=true regardless of original.")
+            XCTAssertEqual(duplicatedPage?.copyable, [.withValues, .withoutValues], "Duplicated page should always have copyable=[.withValues,.withoutValues].")
         }
     
     // Test formula duplication when duplicating a page
@@ -1238,6 +1242,11 @@ final class ValidationTestCase: XCTestCase {
         
         // Get duplicated fields
         let duplicatedPage = firstFile?.pages?.first(where: { $0.id == duplicatedPageID })
+
+        // Verify duplicated page has reset deletable and copyable per spec
+        XCTAssertTrue(duplicatedPage?.deletable ?? false, "Duplicated page should always have deletable=true regardless of original.")
+        XCTAssertEqual(duplicatedPage?.copyable, [.withValues, .withoutValues], "Duplicated page should always have copyable=[.withValues,.withoutValues].")
+
         let duplicatedFieldIDs = duplicatedPage?.fieldPositions?.compactMap { $0.field } ?? []
         XCTAssertEqual(duplicatedFieldIDs.count, 6, "Duplicated page should have 6 fields")
         
@@ -2059,6 +2068,9 @@ final class ValidationTestCase: XCTestCase {
         let duplicatedPage = firstFile?.pages?.first(where: { $0.id != "empty_page_1" })
         XCTAssertNotNil(duplicatedPage, "Duplicated page should exist.")
         XCTAssertEqual(duplicatedPage?.fieldPositions?.count ?? 0, 0, "Duplicated page should have no field positions.")
+        // Verify duplicated page has reset deletable and copyable per spec
+        XCTAssertTrue(duplicatedPage?.deletable ?? false, "Duplicated page should always have deletable=true.")
+        XCTAssertEqual(duplicatedPage?.copyable, [.withValues, .withoutValues], "Duplicated page should always have copyable=[.withValues,.withoutValues].")
     }
 
     /// Desktop has 1 page with 2 fields; mobile view has the same page with 2 fields + 1 extra (3 total).
