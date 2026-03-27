@@ -161,7 +161,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fab36e8925135f0cdd4f")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid image field - result - valid
@@ -185,7 +185,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fab82ddb5cdd73a2f27f")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fab36e8925135f0cdd4f")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Text Field - Result - InValid
@@ -209,7 +209,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb1d92a76d06750ca4a1")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Text Field - Result - Valid
@@ -233,7 +233,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb203149d1c34cc6d6f8")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb1d92a76d06750ca4a1")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Multiline Field - Result - InValid
@@ -257,7 +257,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb2fca14b3e2ef978349")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb2b9a487ce1c1f35f6c")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Multiline Field - Result - Valid
@@ -281,7 +281,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities.first?.fieldPositionId, "6629fb2fca14b3e2ef978349")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb2b9a487ce1c1f35f6c")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Number Field - Result - InValid
@@ -304,7 +304,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb3df03de10b26270ab3")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb3df03de10b26270ab3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Number Field - Result - Valid
@@ -327,7 +327,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb3df03de10b26270ab3")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb3df03de10b26270ab3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Date Field - Result - InValid
@@ -350,7 +350,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb44c79bb16ce072d233")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb44c79bb16ce072d233")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Date Field - Result - Valid
@@ -373,7 +373,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb44c79bb16ce072d233")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb44c79bb16ce072d233")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Time Field - Result - InValid
@@ -396,7 +396,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb638e230f348d0a8682")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb638e230f348d0a8682")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Time Field - Result - Valid
@@ -419,7 +419,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb638e230f348d0a8682")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb638e230f348d0a8682")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid dateTime Field - Result - InValid
@@ -442,7 +442,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb6ec5d88d3aadf548ca")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb6ec5d88d3aadf548ca")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid dateTime Field - Result - Valid
@@ -465,7 +465,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb6ec5d88d3aadf548ca")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb6ec5d88d3aadf548ca")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Dropdown Field - Result - InValid
@@ -488,7 +488,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb77593e3791638628bb")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb77593e3791638628bb")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Dropdown Field - Result - Valid
@@ -511,7 +511,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb77593e3791638628bb")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb77593e3791638628bb")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Multiselect Field - Result - InValid
@@ -534,7 +534,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb9f4d912053577652b1")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb9f4d912053577652b1")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Multiselect Field - Result - Valid
@@ -557,7 +557,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fb9f4d912053577652b1")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fb9f4d912053577652b1")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Single Field - Result - InValid
@@ -580,7 +580,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb2bf4f965b9d04f153")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fbb2bf4f965b9d04f153")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Single Field - Result - Valid
@@ -603,7 +603,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb2bf4f965b9d04f153")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fbb2bf4f965b9d04f153")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Signature Field - Result - InValid
@@ -626,7 +626,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb8cd16c0c4d308a252")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fbb8cd16c0c4d308a252")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Signature Field - Result - Valid
@@ -649,7 +649,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbb8cd16c0c4d308a252")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fbb8cd16c0c4d308a252")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Invalid Chart Field - Result - InValid
@@ -672,7 +672,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbd957d928a973b1b42b")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fbd957d928a973b1b42b")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Valid Chart Field - Result - Valid
@@ -695,7 +695,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "6629fbd957d928a973b1b42b")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "6629fbd957d928a973b1b42b")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Hidden Field Test cases - result always - valid
@@ -721,7 +721,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "66aa2865da10ac1c7b7acb1d")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testRequiredHiddenNumberFieldWithValue() {
@@ -746,7 +746,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "66aa2865da10ac1c7b7acb1d")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
 
     }
 
@@ -774,7 +774,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .invalid)
-        XCTAssertEqual(documentEditor.validate(fieldID: "66aa28f805a4900ae643db9c")?.status, validationResult.fieldValidities[1].status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity?.status, validationResult.fieldValidities[1].status)
     }
 
     func testRequiredShowHiddenFieldWithValue() {
@@ -801,7 +801,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
         XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
         XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-        XCTAssertEqual(documentEditor.validate(fieldID: "66aa28f805a4900ae643db9c")?.status, validationResult.fieldValidities[1].status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity?.status, validationResult.fieldValidities[1].status)
 
     }
 
@@ -828,8 +828,8 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "66aa2865da10ac1c7b7acb1d")
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "66aa2865da10ac1c7b7acb1d")?.status, validationResult.fieldValidities.first?.status)
-        XCTAssertNil(documentEditor.validate(fieldID: "66aa28f805a4900ae643db9c"), "Field hidden by conditional logic should return nil")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertNil(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity, "Field hidden by conditional logic should return nil")
     }
 
     func testRequiredHideNumberFieldWithValues() {
@@ -856,8 +856,8 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
 //        XCTAssertEqual(validationResult.fieldValidities[1].field.id, "66aa28f805a4900ae643db9c")
 //        XCTAssertEqual(validationResult.fieldValidities[1].status, .valid)
-        XCTAssertEqual(documentEditor.validate(fieldID: "66aa2865da10ac1c7b7acb1d")?.status, validationResult.fieldValidities.first?.status)
-        XCTAssertNil(documentEditor.validate(fieldID: "66aa28f805a4900ae643db9c"), "Field hidden by conditional logic should return nil")
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa2520173f61daed286798").fieldValidity?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertNil(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity, "Field hidden by conditional logic should return nil")
 
     }
 
@@ -878,7 +878,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     //Zero columns
@@ -899,7 +899,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // Zero rows
@@ -920,7 +920,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     // table is required , columns are required , cells are empty should be invalid
@@ -941,7 +941,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testRequiredTableFieldIfHidden() {
@@ -961,7 +961,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testNonRequiredTableField() {
@@ -982,7 +982,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .invalid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testNonRequiredTableField_RowValiditiesPopulated() {
@@ -1011,7 +1011,7 @@ final class ValidationTestCase: XCTestCase {
             XCTAssertEqual(row.cellValidities.count, 3)
             XCTAssertTrue(row.cellValidities.allSatisfy { $0.status == .valid })
         }
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
     func testRequiredTableFieldNonRequiredColumns() {
@@ -1031,7 +1031,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(validationResult.fieldValidities.first?.status, .valid)
         XCTAssertEqual(validationResult.fieldValidities.first?.field.id, "67612793c4e6a5e6a05e64a3")
         XCTAssertEqual(validationResult.fieldValidities.first?.pageId, "6629fab320fca7c8107a6cf6")
-        XCTAssertEqual(documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")?.status, validationResult.fieldValidities.first?.status)
+        XCTAssertEqual(documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity?.status, validationResult.fieldValidities.first?.status)
     }
 
         // Test Case for duplicate the page
@@ -1360,7 +1360,7 @@ final class ValidationTestCase: XCTestCase {
         }
     }
 
-    // MARK: - validate(fieldID:) Tests
+    // MARK: - validate(path:) Tests
 
     // Unknown fieldID → nil
     func testValidateSingleFieldID_unknownFieldID_returnsNil() {
@@ -1375,7 +1375,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "nonexistent_field_id")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/nonexistent_position_id").fieldValidity
 
         XCTAssertNil(result, "Unknown fieldID should return nil")
     }
@@ -1396,7 +1396,7 @@ final class ValidationTestCase: XCTestCase {
             .setSingleSelectPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "66aa28f805a4900ae643db9c")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/66aa29136c6f17d56a2d9f67").fieldValidity
 
         XCTAssertNil(result, "A field hidden by conditional logic should return nil")
     }
@@ -1428,7 +1428,7 @@ final class ValidationTestCase: XCTestCase {
         document.files = [file]
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "nr_text_001")
+        let result = documentEditor.validate(path: "page_nr_1/fp_nr_001").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1436,7 +1436,7 @@ final class ValidationTestCase: XCTestCase {
         XCTAssertEqual(result?.pageId, "page_nr_1")
     }
 
-    // Cross-check: validate(fieldID:) matches corresponding entry in validate()
+    // Cross-check: validate(path:) matches corresponding entry in validate()
     func testValidateSingleFieldID_result_matchesFullValidation() {
         let fieldID = "6629fb1d92a76d06750ca4a1"
         let document = JoyDoc()
@@ -1451,7 +1451,7 @@ final class ValidationTestCase: XCTestCase {
 
         let documentEditor = documentEditor(document: document)
         let fullValidation = documentEditor.validate()
-        let singleResult = documentEditor.validate(fieldID: fieldID)
+        let singleResult = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity
 
         let matching = fullValidation.fieldValidities.first(where: { $0.fieldId == fieldID })
         XCTAssertNotNil(singleResult, "Single-field result should not be nil for a known field")
@@ -1475,7 +1475,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fab36e8925135f0cdd4f")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1496,7 +1496,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fab36e8925135f0cdd4f")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fab82ddb5cdd73a2f27f").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1519,7 +1519,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb1d92a76d06750ca4a1")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1540,7 +1540,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb1d92a76d06750ca4a1")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb203149d1c34cc6d6f8").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1563,7 +1563,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb2b9a487ce1c1f35f6c")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1584,7 +1584,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb2b9a487ce1c1f35f6c")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb2fca14b3e2ef978349").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1607,7 +1607,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb3df03de10b26270ab3")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1627,7 +1627,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb3df03de10b26270ab3")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb3f2eff74a9ca322bb5").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1649,7 +1649,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb44c79bb16ce072d233")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1669,7 +1669,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb44c79bb16ce072d233")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb4451f3bf2eb2f46567").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1691,7 +1691,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb638e230f348d0a8682")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1711,7 +1711,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb638e230f348d0a8682")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb66420b995d026e480b").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1733,7 +1733,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb6ec5d88d3aadf548ca")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1753,7 +1753,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb6ec5d88d3aadf548ca")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb749d0c1af5e94dbac7").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1775,7 +1775,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb77593e3791638628bb")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1795,7 +1795,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb77593e3791638628bb")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fb8ea500024170241af3").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1817,7 +1817,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb9f4d912053577652b1")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1837,7 +1837,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fb9f4d912053577652b1")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb06e14e0bcaeabf05b").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1859,7 +1859,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fbb2bf4f965b9d04f153")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1879,7 +1879,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fbb2bf4f965b9d04f153")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbb5daa40d68bf26525f").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1901,7 +1901,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fbb8cd16c0c4d308a252")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1921,7 +1921,7 @@ final class ValidationTestCase: XCTestCase {
             .setChartPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fbb8cd16c0c4d308a252")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbbc88ec687f865a53da").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1943,7 +1943,7 @@ final class ValidationTestCase: XCTestCase {
             .setSingleSelectPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fbd957d928a973b1b42b")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -1963,7 +1963,7 @@ final class ValidationTestCase: XCTestCase {
             .setSingleSelectPosition()
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "6629fbd957d928a973b1b42b")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbddabbd2a54f548bb95").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -1984,7 +1984,7 @@ final class ValidationTestCase: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
@@ -2004,7 +2004,7 @@ final class ValidationTestCase: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .valid)
@@ -2024,7 +2024,7 @@ final class ValidationTestCase: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
 
         let documentEditor = documentEditor(document: document)
-        let result = documentEditor.validate(fieldID: "67612793c4e6a5e6a05e64a3")
+        let result = documentEditor.validate(path: "6629fab320fca7c8107a6cf6/6629fbc736d179b9014abae0").fieldValidity
 
         XCTAssertNotNil(result)
         XCTAssertEqual(result?.status, .invalid)
