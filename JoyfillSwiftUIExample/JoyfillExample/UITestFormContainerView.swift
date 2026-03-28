@@ -119,10 +119,12 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     }
     
     func onFocus(event: Event) {
+        guard !shouldSkipFocusBlurHandler() else { return }
         appendFocusBlurEvent(kind: "focus", event: event)
     }
     
     func onBlur(event: Event) {
+        guard !shouldSkipFocusBlurHandler() else { return }
         appendFocusBlurEvent(kind: "blur", event: event)
     }
     
@@ -179,6 +181,29 @@ class UITestFormContainerViewHandler: FormChangeEvent {
             // Only skip for these two specific test cases - check for exact method names
             return testMethodName == "-[ImageFieldTests testUploadWithoutCallingHandler]" ||
                    testMethodName == "-[ImageFieldTests testUploadWithoutCallingHandlerForMultiFalse]"
+        }
+        
+        return false
+    }
+    
+    private func shouldSkipFocusBlurHandler() -> Bool {
+        guard CommandLine.arguments.contains("JoyfillUITests") else {
+            return false
+        }
+        
+        if CommandLine.arguments.contains("--skip-focus-blur-handler") {
+            return true
+        }
+        
+        let arguments = CommandLine.arguments
+        if let testNameIndex = arguments.firstIndex(of: "--test-name"),
+           testNameIndex + 1 < arguments.count {
+            let fullTestName = arguments[testNameIndex + 1]
+            
+            // OnChangeHandlerUITests renders a different test host view and does not
+            // read focus/blur payloads from this handler. Skipping here avoids
+            // unnecessary UI churn from result text updates during those tests.
+            return fullTestName.contains("OnChangeHandlerUITests")
         }
         
         return false
