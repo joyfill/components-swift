@@ -919,7 +919,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 2)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Number Column/ColumnButtonIdentifier").element.firstMatch
         textFieldColumnTitleButton.tap()
     }
     
@@ -927,19 +927,6 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let textField = app.textViews.matching(identifier: "SearchBarCodeFieldIdentifier").element(boundBy: 0)
         textField.tap()
         textField.typeText("Row")
-    }
-    
-    func tapOnBarcodeFieldColumn() {
-        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
-        textFieldColumnTitleButton.tap()
-    }
-    
-    func tapOnMultiSelectionFieldColumn() {
-        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "ColumnButtonIdentifier", type: .button, direction: "left") else {
-            XCTFail("Failed to find multifield column after swiping")
-            return
-        }
-        multiFieldColumnTitleButton.tap()
     }
     
     func tapOnSearchBarTextField(value: String) {

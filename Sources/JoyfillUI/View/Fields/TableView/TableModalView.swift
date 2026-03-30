@@ -313,7 +313,7 @@ struct TableModalView : View {
                         .inset(by: 1)
                         .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1.5)
                 )
-                .accessibilityIdentifier("ColumnButtonIdentifier")
+                .accessibilityIdentifier("\(column.title ?? "")/ColumnButtonIdentifier")
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .onTapGesture {
                     if !([.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0) {

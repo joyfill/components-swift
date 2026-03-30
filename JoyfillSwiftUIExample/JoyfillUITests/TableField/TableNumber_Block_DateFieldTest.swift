@@ -18,7 +18,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 2)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Number Column/ColumnButtonIdentifier").element
         textFieldColumnTitleButton.tap()
     }
     
@@ -35,15 +35,12 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     func tapOnBarcodeFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Barcode Column/ColumnButtonIdentifier").element.firstMatch
         textFieldColumnTitleButton.tap()
     }
     
     func tapOnMultiSelectionFieldColumn() {
-        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "ColumnButtonIdentifier", type: .button, direction: "left") else {
-            XCTFail("Failed to find multifield column after swiping")
-            return
-        }
+        let multiFieldColumnTitleButton = app.images.matching(identifier: "Multiple Column/ColumnButtonIdentifier").element.firstMatch
         multiFieldColumnTitleButton.tap()
     }
     
@@ -832,11 +829,9 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     func testMultiSelectionFilterRows() throws {
         goToTableDetailPage()
         //swipeForMultiSelctionField()
+        app.swipeLeft()
         tapOnMultiSelectionFieldColumn()
-        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "SearchBarMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
-            XCTFail("Failed to find multifield column after swiping")
-            return
-        }
+        let multiFieldColumnTitleButton = app.buttons.matching(identifier: "SearchBarMultiSelectionFieldIdentifier").element
         multiFieldColumnTitleButton.tap()
         //app.buttons["SearchBarMultiSelectionFieldIdentifier"].tap()
         app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier").element(boundBy: 0).tap()

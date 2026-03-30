@@ -805,8 +805,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
                 foundColumns += 1
             }
         }
-        
-        XCTAssertEqual(foundColumns, 5, "Should find at least some nested columns in Depth 3 schema")
+        //Changing 5 to 6 because of date column filter
+        XCTAssertEqual(foundColumns, 6, "Should find at least some nested columns in Depth 3 schema")
         
         closeFilterModal()
     }
