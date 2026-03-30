@@ -1637,7 +1637,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
         barcodeField.tap()
         barcodeField.typeText("ab")
-        if isAddMoreFilterButtonEnabled() {
+        //after date column filters it should be enabled 
+        if !isAddMoreFilterButtonEnabled() {
             XCTFail("Add More Filter button should be disabled")
         }
         tapApplyButton()
