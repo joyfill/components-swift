@@ -119,17 +119,16 @@ extension DocumentEditor {
     ///   - path: Navigation path in format "pageId", "pageId/fieldPositionId", "pageId/fieldPositionId/rowId", or "pageId/fieldPositionId/rowId/columnId"
     ///   - gotoConfig: Configuration for navigation behavior
     public func goto(_ path: String, gotoConfig: GotoConfig = GotoConfig()) -> NavigationStatus {
-        let components = path.split(separator: "/").map(String.init)
-        
-        guard !components.isEmpty else {
+        let parsedPath = parsePath(path)
+
+        guard let pageId = parsedPath.pageId else {
             Log("Navigation path is empty", type: .error)
             return .failure
         }
         
-        let pageId = components[0]
-        let fieldPositionId = components.count > 1 ? components[1] : nil
-        let rowId = components.count > 2 ? components[2] : nil
-        let columnId = components.count > 3 ? components[3] : nil
+        let fieldPositionId = parsedPath.fieldPositionId
+        let rowId = parsedPath.rowId
+        let columnId = parsedPath.columnId
         
         guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
             Log("Page with id \(pageId) not found", type: .warning)
@@ -261,5 +260,33 @@ extension DocumentEditor {
     func onPageBlur(page: Page) {
         let pageEvent = PageEvent(type: "page.blur", page: page)
         self.onBlur(event: pageEvent)
+    }
+}
+
+extension DocumentEditor{
+    private func normalizedPath(from path: String) -> String {
+        path.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func pathSegment(in path: String, at index: Int) -> String? {
+        guard index >= 0 else { return nil }
+        let segments = normalizedPath(from: path).split(separator: "/")
+        guard segments.indices.contains(index) else { return nil }
+        let value = String(segments[index]).trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? nil : value
+    }
+
+    func parsePath(_ path: String) -> (
+        pageId: String?,
+        fieldPositionId: String?,
+        rowId: String?,
+        columnId: String?
+    ) {
+        return (
+            pageId: pathSegment(in: path, at: 0),
+            fieldPositionId: pathSegment(in: path, at: 1),
+            rowId: pathSegment(in: path, at: 2),
+            columnId: pathSegment(in: path, at: 3)
+        )
     }
 }
