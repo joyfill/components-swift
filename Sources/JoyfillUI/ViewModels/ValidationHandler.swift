@@ -66,6 +66,36 @@ class ValidationHandler {
         }
         return Validation(status: isValid ? .valid : .invalid, fieldValidities: fieldValidities)
     }
+    
+    func validate(path: String) -> ComponentValidity {
+        guard let documentEditor = documentEditor else {
+            return .page(Validation(status: .valid, fieldValidities: []))
+        }
+        let trimmedPath = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPath.isEmpty else {
+            return .page(validate())
+        }
+
+        let components = trimmedPath.split(separator: "/", maxSplits: 1).map {
+            String($0).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        let pageID = components[0]
+        guard !pageID.isEmpty else {
+            return .page(validate())
+        }
+
+        if components.count == 1 {
+            return .page(validate(pageID: pageID))
+        }
+
+        let fieldPositionID = components[1]
+        if let fieldIdentifier = documentEditor.getFieldIdentifier(forFieldPositionID: fieldPositionID),
+           fieldIdentifier.pageID == pageID,
+           let fieldValidity = validate(fieldIdentifier: fieldIdentifier) {
+            return .field(fieldValidity)
+        }
+        return .page(validate(pageID: pageID))
+    }
 
     func validate(pageID: String) -> Validation {
         guard let documentEditor = documentEditor else {
