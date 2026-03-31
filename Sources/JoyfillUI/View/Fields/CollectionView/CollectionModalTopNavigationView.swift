@@ -276,16 +276,18 @@ struct CollectionModalTopNavigationView: View {
 
 struct CollectionEditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: CollectionViewModel
-    let tableColumns: [FieldTableColumn]
     @Environment(\.presentationMode) var presentationMode
     @State var changes = [Int: ValueUnion]()
     @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
-    init(viewModel: CollectionViewModel, tableColumns: [FieldTableColumn]) {
+    init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
-        self.tableColumns = tableColumns
+    }
+    
+    private var tableColumns: [FieldTableColumn] {
+        return viewModel.getTableColumnsForSelectedRows()
     }
     
     @ViewBuilder
