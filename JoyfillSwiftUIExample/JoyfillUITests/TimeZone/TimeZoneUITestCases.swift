@@ -302,7 +302,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }
         
         // Also check for column buttons
-        let columnButtons = app.images.matching(identifier: "ColumnButtonIdentifier")
+        let columnButtons = app.images.matching(identifier: "Date Column/ColumnButtonIdentifier")
         XCTAssertGreaterThan(columnButtons.count, 0, "Table should have column buttons")
         
         for index in 0..<columnButtons.count {

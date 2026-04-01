@@ -805,8 +805,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
                 foundColumns += 1
             }
         }
-        
-        XCTAssertEqual(foundColumns, 5, "Should find at least some nested columns in Depth 3 schema")
+        //Changing 5 to 6 because of date column filter
+        XCTAssertEqual(foundColumns, 6, "Should find at least some nested columns in Depth 3 schema")
         
         closeFilterModal()
     }
@@ -1637,7 +1637,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
         barcodeField.tap()
         barcodeField.typeText("ab")
-        if isAddMoreFilterButtonEnabled() {
+        //after date column filters it should be enabled 
+        if !isAddMoreFilterButtonEnabled() {
             XCTFail("Add More Filter button should be disabled")
         }
         tapApplyButton()
@@ -2016,9 +2017,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
         let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
         XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
+        
+        XCTAssertFalse(isAddMoreFilterButtonEnabled(), "Add More Filter button should be disabled")
         tapApplyButton()
         closeFilterModal()
     }
