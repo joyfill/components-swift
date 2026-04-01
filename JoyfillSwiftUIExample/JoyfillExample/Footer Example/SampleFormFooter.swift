@@ -58,21 +58,19 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
     // MARK: - FormChangeEvent
 
     func onChange(changes: [Change], document: JoyDoc) {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self, self.showValidationBar, let editor = self.documentEditor else { return }
-
-            let validation = editor.validate()
-            let validities = validation.fieldValidities
-            let total = validities.count
-            let completed = validities.filter { $0.status == .valid }.count
-
-            self.fieldPaths = Self.buildPaths(from: validities)
-            if self.currentFieldIndex >= self.fieldPaths.count {
-                self.currentFieldIndex = self.fieldPaths.isEmpty ? -1 : self.fieldPaths.count - 1
-            }
-            self.completedText = "\(completed) of \(total) Completed"
-            self.navigationEnabled = validation.status == .invalid
+        guard let editor = self.documentEditor else { return }
+        
+        let validation = editor.validate()
+        let validities = validation.fieldValidities
+        let total = validities.count
+        let completed = validities.filter { $0.status == .valid }.count
+        
+        self.fieldPaths = Self.buildPaths(from: validities)
+        if self.currentFieldIndex >= self.fieldPaths.count {
+            self.currentFieldIndex = self.fieldPaths.isEmpty ? -1 : self.fieldPaths.count - 1
         }
+        self.completedText = "\(completed) of \(total) Completed"
+        self.navigationEnabled = validation.status == .invalid
     }
 
     func onFocus(event: Event) {
@@ -178,6 +176,7 @@ struct SampleFormFooterBar: View {
                 .frame(maxWidth: .infinity)
                 .frame(minHeight: 56)
         }
+        .accessibilityIdentifier("SubmitValidateButtonIdentifier")
         .buttonStyle(.plain)
     }
 
@@ -190,7 +189,9 @@ struct SampleFormFooterBar: View {
 
             HStack(spacing: 8) {
                 navButton(systemName: "chevron.up", action: { controller.upTapped() }, dimsWhenDisabled: true)
+                    .accessibilityIdentifier("UpperNavigationIdentifier")
                 navButton(systemName: "chevron.down", action: { controller.downTapped() }, dimsWhenDisabled: true)
+                    .accessibilityIdentifier("LowerNavigationIdentifier")
             }
 
             Rectangle()
