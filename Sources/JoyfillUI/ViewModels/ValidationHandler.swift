@@ -81,16 +81,36 @@ class ValidationHandler {
             return .page(validate(pageID: pageID))
         }
 
-        if parsedPath.rowId != nil || parsedPath.columnId != nil {
-            return .page(validate(pageID: pageID))
-        }
-
         if let fieldIdentifier = documentEditor.getFieldIdentifier(forFieldPositionID: fieldPositionID),
            fieldIdentifier.pageID == pageID,
            let fieldValidity = validate(fieldIdentifier: fieldIdentifier) {
-            return .field(fieldValidity)
+            guard let rowId = parsedPath.rowId else {
+                return .field(fieldValidity)
+            }
+
+            guard let rowValidity = rowValidity(for: rowId, in: fieldValidity) else {
+                return .field(fieldValidity)
+            }
+
+            guard let columnId = parsedPath.columnId else {
+                return .row(rowValidity)
+            }
+
+            guard let cellValidity = cellValidity(for: columnId, in: rowValidity) else {
+                return .row(rowValidity)
+            }
+
+            return .cell(cellValidity)
         }
         return .page(validate(pageID: pageID))
+    }
+
+    private func rowValidity(for rowId: String, in fieldValidity: FieldValidity) -> RowValidity? {
+        return fieldValidity.rowValidities?.first(where: { $0.rowId == rowId })
+    }
+
+    private func cellValidity(for columnId: String, in rowValidity: RowValidity) -> CellValidity? {
+        return rowValidity.cellValidities.first(where: { $0.columnId == columnId })
     }
 
     func validate(pageID: String) -> Validation {

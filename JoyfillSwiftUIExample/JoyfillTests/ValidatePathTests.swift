@@ -118,6 +118,43 @@ final class ValidatePathTests: XCTestCase {
         return documentEditor(document: document)
     }
 
+    func makeTableEditorForRowCellPathValidation() -> DocumentEditor {
+        let document = JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": "file-1",
+                "pageOrder": ["page-1"],
+                "pages": [[
+                    "_id": "page-1",
+                    "fieldPositions": [[
+                        "_id": "fp-1",
+                        "field": "field-1",
+                        "type": "table",
+                    ]],
+                ]],
+            ]],
+            "fields": [[
+                "_id": "field-1",
+                "file": "file-1",
+                "type": "table",
+                "required": true,
+                "tableColumns": [
+                    ["_id": "col-required", "title": "Required", "type": "text", "required": true],
+                    ["_id": "col-optional", "title": "Optional", "type": "text", "required": false],
+                ],
+                "tableColumnOrder": ["col-required", "col-optional"],
+                "value": [[
+                    "_id": "row-1",
+                    "cells": [
+                        "col-required": "",
+                        "col-optional": "ok",
+                    ],
+                ]],
+            ]],
+        ])
+        return documentEditor(document: document)
+    }
+
     // MARK: - 1. Empty path → same result as validate()
 
     func testValidatePath_EmptyPath_ReturnsDotPage() {
@@ -846,5 +883,53 @@ final class ValidatePathTests: XCTestCase {
             XCTFail("Expected .page after clear"); return
         }
         XCTAssertEqual(afterValidation.status, .invalid)
+    }
+
+    // MARK: - 23. Row/Cell path validation
+
+    func testValidatePath_RowPath_ReturnsDotRowValidity() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1")
+
+        guard case .row(let rowValidity) = result else {
+            XCTFail("Expected .row for row path")
+            return
+        }
+        XCTAssertEqual(rowValidity.rowId, "row-1")
+        XCTAssertEqual(rowValidity.status, .invalid)
+    }
+
+    func testValidatePath_CellPath_ReturnsDotCellValidity() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1/col-required")
+
+        guard case .cell(let cellValidity) = result else {
+            XCTFail("Expected .cell for cell path")
+            return
+        }
+        XCTAssertEqual(cellValidity.columnId, "col-required")
+        XCTAssertEqual(cellValidity.status, .invalid)
+    }
+
+    func testValidatePath_CellPathMissingColumn_FallsBackToDotRow() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1/missing-column")
+
+        guard case .row(let rowValidity) = result else {
+            XCTFail("Expected .row fallback when column is missing")
+            return
+        }
+        XCTAssertEqual(rowValidity.rowId, "row-1")
+    }
+
+    func testValidatePath_RowPathMissingRow_FallsBackToDotField() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/missing-row")
+
+        guard case .field(let fieldValidity) = result else {
+            XCTFail("Expected .field fallback when row is missing")
+            return
+        }
+        XCTAssertEqual(fieldValidity.fieldId, "field-1")
     }
 }
