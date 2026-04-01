@@ -81,28 +81,35 @@ class ValidationHandler {
             return .page(validate(pageID: pageID))
         }
 
-        if let fieldIdentifier = documentEditor.getFieldIdentifier(forFieldPositionID: fieldPositionID),
-           fieldIdentifier.pageID == pageID,
-           let fieldValidity = validate(fieldIdentifier: fieldIdentifier) {
-            guard let rowId = parsedPath.rowId else {
-                return .field(fieldValidity)
-            }
-
-            guard let rowValidity = rowValidity(for: rowId, in: fieldValidity) else {
-                return .field(fieldValidity)
-            }
-
-            guard let columnId = parsedPath.columnId else {
-                return .row(rowValidity)
-            }
-
-            guard let cellValidity = cellValidity(for: columnId, in: rowValidity) else {
-                return .row(rowValidity)
-            }
-
-            return .cell(cellValidity)
+        guard let fieldIdentifier = documentEditor.getFieldIdentifier(forFieldPositionID: fieldPositionID) else {
+            Log("Field position with id \(fieldPositionID) not found", type: .error)
+            return .notFound
         }
-        return .page(validate(pageID: pageID))
+
+        guard fieldIdentifier.pageID == pageID,
+              let fieldValidity = validate(fieldIdentifier: fieldIdentifier) else {
+            return .page(validate(pageID: pageID))
+        }
+
+        guard let rowId = parsedPath.rowId else {
+            return .field(fieldValidity)
+        }
+
+        guard let rowValidity = rowValidity(for: rowId, in: fieldValidity) else {
+            Log("Row with id \(rowId) not found in field \(fieldPositionID)", type: .error)
+            return .notFound
+        }
+
+        guard let columnId = parsedPath.columnId else {
+            return .row(rowValidity)
+        }
+
+        guard let cellValidity = cellValidity(for: columnId, in: rowValidity) else {
+            Log("Column with id \(columnId) not found in row \(rowId)", type: .error)
+            return .notFound
+        }
+
+        return .cell(cellValidity)
     }
 
     private func rowValidity(for rowId: String, in fieldValidity: FieldValidity) -> RowValidity? {

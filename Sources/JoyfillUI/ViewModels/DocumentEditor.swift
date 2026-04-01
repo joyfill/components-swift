@@ -159,8 +159,9 @@ public class DocumentEditor: ObservableObject {
     /// - `""` (or only whitespace): validates all pages and fields → `.page(Validation)`
     /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
     /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)` only when `pageId` matches the page that contains that field position; otherwise falls back to `.page` for `pageId`.
-    /// - `"pageId/fieldPositionId/rowId"`: validates a specific row for table/collection fields → `.row(RowValidity)`; if row is not found, falls back to `.field(FieldValidity)`.
-    /// - `"pageId/fieldPositionId/rowId/columnId"`: validates a specific row cell for table/collection fields → `.cell(CellValidity)`; if cell is not found, falls back to `.row(RowValidity)`.
+    /// - `"pageId/fieldPositionId/rowId"`: validates a specific row for table/collection fields → `.row(RowValidity)`; if row is not found → `.notFound`.
+    /// - `"pageId/fieldPositionId/rowId/columnId"`: validates a specific row cell for table/collection fields → `.cell(CellValidity)`; if cell is not found → `.notFound`.
+    /// - If `fieldPositionId` is provided but not found on the given page → `.notFound`.
     /// - Parameter path: Leading, trailing, and segment-adjacent whitespace (per segment) are ignored; other characters must match ids exactly.
     public func validate(path: String) -> ComponentValidity {
         return validationHandler.validate(path: path)

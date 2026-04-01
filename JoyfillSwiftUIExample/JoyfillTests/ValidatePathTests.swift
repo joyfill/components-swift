@@ -302,32 +302,27 @@ final class ValidatePathTests: XCTestCase {
         }
     }
 
-    // MARK: - 5. Non-existent fieldPositionId → falls back to .page
+    // MARK: - 5. Non-existent fieldPositionId → .notFound
 
-    func testValidatePath_NonExistentFieldPositionID_FallsBackToPage() {
+    func testValidatePath_NonExistentFieldPositionID_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFieldWithoutValue()
         let path = "\(pageID)/non-existent-position-id"
         let result = editor.validate(path: path)
 
-        if case .page(_) = result {
-            // expected
-        } else {
-            XCTFail("Expected .page fallback for non-existent fieldPositionId")
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for non-existent fieldPositionId")
         }
     }
 
-    // MARK: - 6. Extra depth path → falls back to .page (no crash)
+    // MARK: - 6. Invalid rowId on non-table field → .notFound (no crash)
 
-    func testValidatePath_ExtraDepthPath_DoesNotCrash() {
+    func testValidatePath_ExtraDepthPath_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFieldWithoutValue()
-        let path = "\(pageID)/\(imagePositionID)/future-row-id"
+        let path = "\(pageID)/\(imagePositionID)/nonexistent-row-id"
         let result = editor.validate(path: path)
 
-        // maxSplits: 1 so "imagePositionID/future-row-id" is treated as unknown position
-        if case .page(_) = result {
-            // expected fallback
-        } else {
-            XCTFail("Expected .page fallback for over-depth path")
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for rowId on non-table field")
         }
     }
 
@@ -911,25 +906,30 @@ final class ValidatePathTests: XCTestCase {
         XCTAssertEqual(cellValidity.status, .invalid)
     }
 
-    func testValidatePath_CellPathMissingColumn_FallsBackToDotRow() {
+    func testValidatePath_InvalidColumnId_ReturnsNotFound() {
         let editor = makeTableEditorForRowCellPathValidation()
         let result = editor.validate(path: "page-1/fp-1/row-1/missing-column")
 
-        guard case .row(let rowValidity) = result else {
-            XCTFail("Expected .row fallback when column is missing")
-            return
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for invalid columnId")
         }
-        XCTAssertEqual(rowValidity.rowId, "row-1")
     }
 
-    func testValidatePath_RowPathMissingRow_FallsBackToDotField() {
+    func testValidatePath_InvalidRowId_ReturnsNotFound() {
         let editor = makeTableEditorForRowCellPathValidation()
         let result = editor.validate(path: "page-1/fp-1/missing-row")
 
-        guard case .field(let fieldValidity) = result else {
-            XCTFail("Expected .field fallback when row is missing")
-            return
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for invalid rowId")
         }
-        XCTAssertEqual(fieldValidity.fieldId, "field-1")
+    }
+
+    func testValidatePath_InvalidFieldPositionId_ReturnsNotFound() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/missing-fp")
+
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for invalid fieldPositionId")
+        }
     }
 }
