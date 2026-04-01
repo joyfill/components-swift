@@ -6,7 +6,7 @@ import Joyfill
 
 final class NavigationGotoUITests: JoyfillUITestsBaseClass {
 
-    
+    //Verifies no crash when goto navigates between collection rows with different schemas"
     func testGotoCollectionAndNavigateBetweenSchemas() throws {
         // 1. Tap Submit → triggers validation, shows validation bar
         let submitButton = app.buttons["SubmitValidateButtonIdentifier"]
