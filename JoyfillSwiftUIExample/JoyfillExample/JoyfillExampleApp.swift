@@ -91,7 +91,12 @@ struct JoyfillExampleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if joyfillUITestsMode && isRunOnChangeHandler() {
+            if joyfillUITestsMode && isRunningNavigationTest() {
+                NavigationView {
+                    FooterExampleView()
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+            } else if joyfillUITestsMode && isRunOnChangeHandler() {
                 OnChangeHandlerTest()
                     .navigationViewStyle(StackNavigationViewStyle())
             } else if joyfillUITestsMode {
@@ -121,6 +126,22 @@ struct JoyfillExampleApp: App {
     }
     
     func isRunOnChangeHandler(_ testClass: String = "OnChangeHandlerUITests") -> Bool {
+        // 1. Must be iPad
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return false
+        }
+        // 2. Pull the full test name from CLI args
+        let args = CommandLine.arguments
+        guard let idx = args.firstIndex(of: "--test-name"),
+              idx + 1 < args.count else {
+            return false
+        }
+        let fullTestName = args[idx + 1]
+        // 3. Check if it contains our test class
+        return fullTestName.contains(testClass)
+    }
+    
+    func isRunningNavigationTest(_ testClass: String = "NavigationGotoUITests") -> Bool {
         // 1. Must be iPad
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return false
