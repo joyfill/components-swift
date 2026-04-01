@@ -18,7 +18,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 2)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Number Column/ColumnButtonIdentifier").element
         textFieldColumnTitleButton.tap()
     }
     
@@ -35,15 +35,12 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     func tapOnBarcodeFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Barcode Column/ColumnButtonIdentifier").element.firstMatch
         textFieldColumnTitleButton.tap()
     }
     
     func tapOnMultiSelectionFieldColumn() {
-        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "ColumnButtonIdentifier", type: .button, direction: "left") else {
-            XCTFail("Failed to find multifield column after swiping")
-            return
-        }
+        let multiFieldColumnTitleButton = app.images.matching(identifier: "Multiple Column/ColumnButtonIdentifier").element.firstMatch
         multiFieldColumnTitleButton.tap()
     }
     
@@ -829,62 +826,60 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     // Filter Test case - Insert Below with filter , Add row with filters
-//    func testMultiSelectionFilterRows() throws {
-//        goToTableDetailPage()
-//        //swipeForMultiSelctionField()
-//        tapOnMultiSelectionFieldColumn()
-//        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "SearchBarMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
-//            XCTFail("Failed to find multifield column after swiping")
-//            return
-//        }
-//        multiFieldColumnTitleButton.tap()
-//        //app.buttons["SearchBarMultiSelectionFieldIdentifier"].tap()
-//        app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier").element(boundBy: 0).tap()
-//        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
-//        let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
-//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
-//        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 1).label)
-//        
-//        // Insert Row With Filter - Under first row
-//        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
-//        app.buttons["TableMoreButtonIdentifier"].tap()
-//        
-//        // Insert row with filter
-//        app.buttons["TableInsertRowIdentifier"].tap()
-//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
-//        
-//        // Add row with filter
-//        app.buttons["TableAddRowIdentifier"].tap()
-//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 3).label)
-//        
-//        // Clear filter
-//        app.buttons["HideFilterSearchBar"].tap()
-//        
-//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
-//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
-//        XCTAssertEqual("No", multiFieldIdentifier.element(boundBy: 2).label)
-//        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
-//        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 4).label)
-//        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 5).label)
-//        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 6).label)
-//        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 7).label)
-//        Thread.sleep(forTimeInterval: 0.5)
-//        goBack()
-//        sleep(2)
-//            let firstRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//            XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", firstRowDropdownValue)
-//        let secondRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        XCTAssertEqual("66a1e2e9ed6de57065b6cede", secondRowDropdownValue)
-//        let thirdRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", thirdRowDropdownValue)
-//        XCTAssertNil(onChangeResultValue().valueElements?[3].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        XCTAssertNil(onChangeResultValue().valueElements?[4].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        XCTAssertNil(onChangeResultValue().valueElements?[5].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        let seventhRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", seventhRowDropdownValue)
-//        let eigthRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
-//        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", eigthRowDropdownValue)
-//    }
+    func testMultiSelectionFilterRows() throws {
+        goToTableDetailPage()
+        //swipeForMultiSelctionField()
+        app.swipeLeft()
+        tapOnMultiSelectionFieldColumn()
+        let multiFieldColumnTitleButton = app.buttons.matching(identifier: "SearchBarMultiSelectionFieldIdentifier").element
+        multiFieldColumnTitleButton.tap()
+        //app.buttons["SearchBarMultiSelectionFieldIdentifier"].tap()
+        app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier").element(boundBy: 0).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
+        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 1).label)
+        
+        // Insert Row With Filter - Under first row
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        
+        // Insert row with filter
+        app.buttons["TableInsertRowIdentifier"].tap()
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+        
+        // Add row with filter
+        app.buttons["TableAddRowIdentifier"].tap()
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 3).label)
+        
+        // Clear filter
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+        XCTAssertEqual("No", multiFieldIdentifier.element(boundBy: 2).label)
+        XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
+        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 4).label)
+        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 5).label)
+        XCTAssertEqual("Go Down", multiFieldIdentifier.element(boundBy: 6).label)
+        XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 7).label)
+        Thread.sleep(forTimeInterval: 0.5)
+        goBack()
+        sleep(2)
+            let firstRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+            XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", firstRowDropdownValue)
+        let secondRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertEqual("66a1e2e9ed6de57065b6cede", secondRowDropdownValue)
+        let thirdRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", thirdRowDropdownValue)
+        XCTAssertNil(onChangeResultValue().valueElements?[3].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertNil(onChangeResultValue().valueElements?[4].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertNil(onChangeResultValue().valueElements?[5].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        let seventhRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", seventhRowDropdownValue)
+        let eigthRowDropdownValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["66a1ead8a7d8bff7bb2f982a"]?.multiSelector?.first)
+        XCTAssertEqual("66a1e2e9e9e6674ea80d71f7", eigthRowDropdownValue)
+    }
     
     // Default Columns value test case
     
@@ -1058,180 +1053,180 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     }
     
     // Add Row with filter text
-//    func testAddRowWithFilterBarcodeField() throws {
-//        goToTableDetailPage()
-//        tapOnBarcodeFieldColumn()
-//        enterDataInBarcodeSearchFilter()
-//        
-//        // Check filter data
-//        let firstTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("First row", firstTextField.value as! String)
-//        let secondTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
-//        XCTAssertEqual("Second row", secondTextField.value as! String)
-//        let thirdTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
-//        XCTAssertEqual("Third row", thirdTextField.value as! String)
-//        
-//        // Add row
-//        app.buttons["TableAddRowIdentifier"].tap()
-//        
-//        // Insert below with filter
-//        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
-//        app.buttons["TableMoreButtonIdentifier"].tap()
-//        app.buttons["TableInsertRowIdentifier"].tap()
-//                
-//        // Check inserted row data
-//        let insertedTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 3)
-//        XCTAssertEqual("Row", insertedTextField.value as! String)
-//        
-//        // Clear filter
-//        app.buttons["HideFilterSearchBar"].tap()
-//        
-//        // Check data after clear filter
-//        XCTAssertEqual("First row", firstTextField.value as! String)
-//        XCTAssertEqual("Second row", secondTextField.value as! String)
-//        XCTAssertEqual("Third row", thirdTextField.value as! String)
-//        XCTAssertEqual("Row", insertedTextField.value as! String)
-//        
-//        let addRowTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 7)
-//        XCTAssertEqual("Row", addRowTextField.value as! String)
-//        
-//        goBack()
-//        sleep(2)
-//        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let insertedCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let addRowCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["676137715cb7a772624dd5ab"]?.text)
-//        XCTAssertEqual("First row", firstCellTextValue)
-//        XCTAssertEqual("Second row", secondCellTextValue)
-//        XCTAssertEqual("Third row", thirdCellTextValue)
-//        XCTAssertEqual("Row", insertedCellTextValue)
-//        XCTAssertEqual("Row", addRowCellTextValue)
-//    }
+    func testAddRowWithFilterBarcodeField() throws {
+        goToTableDetailPage()
+        tapOnBarcodeFieldColumn()
+        enterDataInBarcodeSearchFilter()
+        
+        // Check filter data
+        let firstTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("First row", firstTextField.value as! String)
+        let secondTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Second row", secondTextField.value as! String)
+        let thirdTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("Third row", thirdTextField.value as! String)
+        
+        // Add row
+        app.buttons["TableAddRowIdentifier"].tap()
+        
+        // Insert below with filter
+        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableInsertRowIdentifier"].tap()
+                
+        // Check inserted row data
+        let insertedTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("Row", insertedTextField.value as! String)
+        
+        // Clear filter
+        app.buttons["HideFilterSearchBar"].tap()
+        
+        // Check data after clear filter
+        XCTAssertEqual("First row", firstTextField.value as! String)
+        XCTAssertEqual("Second row", secondTextField.value as! String)
+        XCTAssertEqual("Third row", thirdTextField.value as! String)
+        XCTAssertEqual("Row", insertedTextField.value as! String)
+        
+        let addRowTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 7)
+        XCTAssertEqual("Row", addRowTextField.value as! String)
+        
+        goBack()
+        sleep(2)
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
+        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
+        let insertedCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["676137715cb7a772624dd5ab"]?.text)
+        let addRowCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["676137715cb7a772624dd5ab"]?.text)
+        XCTAssertEqual("First row", firstCellTextValue)
+        XCTAssertEqual("Second row", secondCellTextValue)
+        XCTAssertEqual("Third row", thirdCellTextValue)
+        XCTAssertEqual("Row", insertedCellTextValue)
+        XCTAssertEqual("Row", addRowCellTextValue)
+    }
     
     // Barcode filter test case
-//    func testBarcodeFilterRows() throws {
-//        goToTableDetailPage()
-//        
-//        tapOnBarcodeFieldColumn()
-//        enterDataInBarcodeSearchFilter()
-//        
-//        // Check filter data
-//        let firstTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("First row", firstTextField.value as! String)
-//        firstTextField.tap()
-//        firstTextField.typeText("1 ")
-//        let secondTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
-//        XCTAssertEqual("Second row", secondTextField.value as! String)
-//        secondTextField.tap()
-//        secondTextField.typeText("2 ")
-//        let thirdTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
-//        XCTAssertEqual("Third row", thirdTextField.value as! String)
-//        thirdTextField.tap()
-//        thirdTextField.typeText("3 ")
-//        
-//        // Clear filter
-//        app.buttons["HideFilterSearchBar"].tap()
-//        XCTAssertEqual("1 First row", firstTextField.value as! String)
-//        XCTAssertEqual("2 Second row", secondTextField.value as! String)
-//        XCTAssertEqual("3 Third row", thirdTextField.value as! String)
-//        
-//        goBack()
-//        sleep(2)
-//        
-//        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
-//        XCTAssertEqual("1 First row", firstCellTextValue)
-//        XCTAssertEqual("2 Second row", secondCellTextValue)
-//        XCTAssertEqual("3 Third row", thirdCellTextValue)
-//    }
+    func testBarcodeFilterRows() throws {
+        goToTableDetailPage()
+        
+        tapOnBarcodeFieldColumn()
+        enterDataInBarcodeSearchFilter()
+        
+        // Check filter data
+        let firstTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("First row", firstTextField.value as! String)
+        firstTextField.tap()
+        firstTextField.typeText("1 ")
+        let secondTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Second row", secondTextField.value as! String)
+        secondTextField.tap()
+        secondTextField.typeText("2 ")
+        let thirdTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("Third row", thirdTextField.value as! String)
+        thirdTextField.tap()
+        thirdTextField.typeText("3 ")
+        
+        // Clear filter
+        app.buttons["HideFilterSearchBar"].tap()
+        XCTAssertEqual("1 First row", firstTextField.value as! String)
+        XCTAssertEqual("2 Second row", secondTextField.value as! String)
+        XCTAssertEqual("3 Third row", thirdTextField.value as! String)
+        
+        goBack()
+        sleep(2)
+        
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
+        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
+        XCTAssertEqual("1 First row", firstCellTextValue)
+        XCTAssertEqual("2 Second row", secondCellTextValue)
+        XCTAssertEqual("3 Third row", thirdCellTextValue)
+    }
     
     // Tap on scan button in bulkedit , search bar
-//    func testBarcodeScanButtonValueInBulkEditAndSearchBar() throws {
-//        goToTableDetailPage()
-//        
-//        tapOnMoreButton()
-//                
-//        app.buttons["TableEditRowsIdentifier"].tap()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        app.scrollViews.otherElements.images["EditRowsBarcodeFieldIdentifier"].tap()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        app.buttons["ApplyAllButtonIdentifier"].tap()
-//        tapOnBarcodeFieldColumn()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        app.images["SearchBarCodeFieldIdentifier"].tap()
-//                
-//        Thread.sleep(forTimeInterval: 0.5)
-//                
-//        let textFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
-//        for i in 0..<6 {
-//            let textField = textFields.element(boundBy: i)
-//            XCTAssertEqual("Scan Button Clicked", textField.value as! String, "The text in field \(i+1) is incorrect")
-//        }
-//        
-//        goBack()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-//        XCTAssertEqual("Scan Button Clicked", firstCellTextValue)
-//    }
+    func testBarcodeScanButtonValueInBulkEditAndSearchBar() throws {
+        goToTableDetailPage()
+        
+        tapOnMoreButton()
+                
+        app.buttons["TableEditRowsIdentifier"].tap()
+        Thread.sleep(forTimeInterval: 0.5)
+        app.scrollViews.otherElements.images["EditRowsBarcodeFieldIdentifier"].tap()
+        Thread.sleep(forTimeInterval: 0.5)
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        tapOnBarcodeFieldColumn()
+        Thread.sleep(forTimeInterval: 0.5)
+        app.images["SearchBarCodeFieldIdentifier"].tap()
+                
+        Thread.sleep(forTimeInterval: 0.5)
+                
+        let textFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        for i in 0..<6 {
+            let textField = textFields.element(boundBy: i)
+            XCTAssertEqual("Scan Button Clicked", textField.value as! String, "The text in field \(i+1) is incorrect")
+        }
+        
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
+        XCTAssertEqual("Scan Button Clicked", firstCellTextValue)
+    }
     
     // Sorting Test case
-//    func testSortingBarcodeField() throws {
-//        goToTableDetailPage()
-//        
-//        tapOnBarcodeFieldColumn()
-//        
-//        // Sort in ascending order - First time click
-//        app.buttons["SortButtonIdentifier"].tap()
-//        
-//        // Check data after sorting in ascending order
-//        let ascendingSortingFirstFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 3)
-//        XCTAssertEqual("First row", ascendingSortingFirstFieldData.value as! String)
-//        
-//        let ascendingSortingSecondtFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 4)
-//        XCTAssertEqual("Second row", ascendingSortingSecondtFieldData.value as! String)
-//        
-//        let ascendingSortingThirdFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 5)
-//        XCTAssertEqual("Third row", ascendingSortingThirdFieldData.value as! String)
-//        
-//        // Sort in ascending order - Second time click
-//        app.buttons["SortButtonIdentifier"].tap()
-//        
-//        // Check data after sorting in descending order
-//        let descendingSortingFirstFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
-//        XCTAssertEqual("Third row", descendingSortingFirstFieldData.value as! String)
-//        descendingSortingFirstFieldData.tap()
-//        descendingSortingFirstFieldData.typeText("3 ")
-//        
-//        let descendingSortingSecondFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
-//        XCTAssertEqual("Second row", descendingSortingSecondFieldData.value as! String)
-//        descendingSortingSecondFieldData.tap()
-//        descendingSortingSecondFieldData.typeText("2 ")
-//        
-//        let descendingThirdFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
-//        XCTAssertEqual("First row", descendingThirdFieldData.value as! String)
-//        descendingThirdFieldData.tap()
-//        descendingThirdFieldData.typeText("1 ")
-//        
-//        // Sort in Normal order - Third time click
-//        app.buttons["SortButtonIdentifier"].tap()
-//        
-//        XCTAssertEqual("1 First row", descendingSortingFirstFieldData.value as! String)
-//        XCTAssertEqual("2 Second row", descendingSortingSecondFieldData.value as! String)
-//        XCTAssertEqual("3 Third row", descendingThirdFieldData.value as! String)
-//        
-//        goBack()
-//        Thread.sleep(forTimeInterval: 0.5)
-//        
-//        // Check edited cell value - change on sorting time
-//        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
-//        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
-//        XCTAssertEqual("1 First row", firstCellTextValue)
-//        XCTAssertEqual("2 Second row", secondCellTextValue)
-//        XCTAssertEqual("3 Third row", thirdCellTextValue)
-//    }
+    func testSortingBarcodeField() throws {
+        goToTableDetailPage()
+        
+        tapOnBarcodeFieldColumn()
+        
+        // Sort in ascending order - First time click
+        app.buttons["SortButtonIdentifier"].tap()
+        
+        // Check data after sorting in ascending order
+        let ascendingSortingFirstFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 3)
+        XCTAssertEqual("First row", ascendingSortingFirstFieldData.value as! String)
+        
+        let ascendingSortingSecondtFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 4)
+        XCTAssertEqual("Second row", ascendingSortingSecondtFieldData.value as! String)
+        
+        let ascendingSortingThirdFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 5)
+        XCTAssertEqual("Third row", ascendingSortingThirdFieldData.value as! String)
+        
+        // Sort in ascending order - Second time click
+        app.buttons["SortButtonIdentifier"].tap()
+        
+        // Check data after sorting in descending order
+        let descendingSortingFirstFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Third row", descendingSortingFirstFieldData.value as! String)
+        descendingSortingFirstFieldData.tap()
+        descendingSortingFirstFieldData.typeText("3 ")
+        
+        let descendingSortingSecondFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 1)
+        XCTAssertEqual("Second row", descendingSortingSecondFieldData.value as! String)
+        descendingSortingSecondFieldData.tap()
+        descendingSortingSecondFieldData.typeText("2 ")
+        
+        let descendingThirdFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
+        XCTAssertEqual("First row", descendingThirdFieldData.value as! String)
+        descendingThirdFieldData.tap()
+        descendingThirdFieldData.typeText("1 ")
+        
+        // Sort in Normal order - Third time click
+        app.buttons["SortButtonIdentifier"].tap()
+        
+        XCTAssertEqual("1 First row", descendingSortingFirstFieldData.value as! String)
+        XCTAssertEqual("2 Second row", descendingSortingSecondFieldData.value as! String)
+        XCTAssertEqual("3 Third row", descendingThirdFieldData.value as! String)
+        
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        
+        // Check edited cell value - change on sorting time
+        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
+        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
+        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
+        XCTAssertEqual("1 First row", firstCellTextValue)
+        XCTAssertEqual("2 Second row", secondCellTextValue)
+        XCTAssertEqual("3 Third row", thirdCellTextValue)
+    }
     
     // Signature Column Test cases
     

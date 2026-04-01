@@ -114,6 +114,16 @@
               "field": "68ddf39f802a0d082a3bc3c4",
               "type": "date",
               "displayType": "original"
+            },
+            {
+              "_id": "686dea9891602bff8d529bc9",
+              "type": "number",
+              "field": "686dea82ad19e9a7a3f7c976",
+              "displayType": "original",
+              "x": 2,
+              "y": 0,
+              "width": 4,
+              "height": 9
             }
           ],
           "hidden": false,
@@ -402,6 +412,18 @@
       "file": "66a14ced9dc829a95e272506",
       "tz": "123kjh",
       "identifier": "field_68cbb34f304a11e7675412da"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "686dea82ad19e9a7a3f7c976",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_686dea98c790de3716db73d2",
+      "value": 10,
+      "required": true,
+      "tipTitle": "Tooltip Title",
+      "tipDescription": "Tooltip Description",
+      "tipVisible": true
     }
   ],
   "deleted": false
