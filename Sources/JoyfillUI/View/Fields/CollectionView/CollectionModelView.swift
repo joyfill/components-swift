@@ -18,7 +18,8 @@ struct CollectionRowView: View {
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                let column = viewModel.columnsMap[cellModel.data.id]
+                let schemaKey = rowDataModel.rowType.parentSchemaKey.isEmpty ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey
+                let column = viewModel.columnsMap["\(schemaKey)_\(cellModel.data.id)"]
                 let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
@@ -65,7 +66,7 @@ struct CollectionModalView : View {
                 },
                 onFilterTap: { showFilterModal = true })
             .sheet(isPresented: $showEditMultipleRowsSheetView) {
-                CollectionEditMultipleRowsSheetView(viewModel: viewModel, tableColumns: viewModel.getTableColumnsForSelectedRows())
+                CollectionEditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
             .sheet(isPresented: $showFilterModal) {

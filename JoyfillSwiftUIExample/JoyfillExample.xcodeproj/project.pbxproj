@@ -179,6 +179,8 @@
 		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
 		E225D1C52F3AE626000674CF /* HiddenViewsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */; };
 		E225D1C92F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E225D1C82F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift */; };
+		E24089F52F7C28ED005C4885 /* SampleFormFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = E24089F42F7C28ED005C4885 /* SampleFormFooter.swift */; };
+		E2408A022F7CF023005C4885 /* NavigationGotoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2408A012F7CF023005C4885 /* NavigationGotoUITests.swift */; };
 		E2459A7D2F442B4B000504A3 /* ColumnConditionalLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */; };
 		E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */; };
 		E26315E42F76AEA70008B89B /* ValidatePathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E26315E32F76AEA70008B89B /* ValidatePathTests.swift */; };
@@ -572,6 +574,8 @@
 		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
 		E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenViewsTests.swift; sourceTree = "<group>"; };
 		E225D1C82F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerMetadataTests.swift"; sourceTree = "<group>"; };
+		E24089F42F7C28ED005C4885 /* SampleFormFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleFormFooter.swift; sourceTree = "<group>"; };
+		E2408A012F7CF023005C4885 /* NavigationGotoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationGotoUITests.swift; sourceTree = "<group>"; };
 		E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColumnConditionalLogicTests.swift; sourceTree = "<group>"; };
 		E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionLogicUnitTests.swift; sourceTree = "<group>"; };
 		E26315E32F76AEA70008B89B /* ValidatePathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatePathTests.swift; sourceTree = "<group>"; };
@@ -809,6 +813,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				E24089FE2F7CEFA1005C4885 /* Navigation Goto tests */,
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
 				9EAAC7DF2EAB3EF4000B6F3C /* ReadonlyMode */,
 				9EAAC7BF2E979A20000B6F3C /* TimeZone */,
@@ -978,6 +983,14 @@
 			path = ReadonlyMode;
 			sourceTree = "<group>";
 		};
+		E24089FE2F7CEFA1005C4885 /* Navigation Goto tests */ = {
+			isa = PBXGroup;
+			children = (
+				E2408A012F7CF023005C4885 /* NavigationGotoUITests.swift */,
+			);
+			path = "Navigation Goto tests";
+			sourceTree = "<group>";
+		};
 		E27061C62E797E12006BAD18 /* OnChangeHandler */ = {
 			isa = PBXGroup;
 			children = (
@@ -1124,6 +1137,7 @@
 			isa = PBXGroup;
 			children = (
 				E295FA772F73DAEF00C3C8C1 /* footer-form.json */,
+				E24089F42F7C28ED005C4885 /* SampleFormFooter.swift */,
 				E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */,
 			);
 			path = "Footer Example";
@@ -1910,6 +1924,7 @@
 				E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */,
 				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
 				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
+				E2408A022F7CF023005C4885 /* NavigationGotoUITests.swift in Sources */,
 				E29FF8822F2527790079A614 /* TestMobileViewDuplicateLogic.swift in Sources */,
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
 				E2F5687C2E2A45A8005216A6 /* SignatureFieldTests.swift in Sources */,
@@ -2018,6 +2033,7 @@
 				364615AC2E29692D00F237F6 /* DeficiencyTableDemoView.swift in Sources */,
 				E2E3E7762E855F1B002A10C2 /* SimpleFormExampleView.swift in Sources */,
 				E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */,
+				E24089F52F7C28ED005C4885 /* SampleFormFooter.swift in Sources */,
 				E29FF8512F1F77C10079A614 /* SimpleNavigationTestView.swift in Sources */,
 				E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */,
 				048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */,

@@ -110,8 +110,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         for (key, _) in tableDataModel.schema {
             let tableColumns = tableDataModel.filterTableColumns(key: key)
             for column in tableColumns {
-                if let id = column.id, map[id] == nil {
-                    map[id] = column
+                if let id = column.id {
+                    map["\(key)_\(id)"] = column
                 }
             }
         }
