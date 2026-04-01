@@ -2017,9 +2017,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
         let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
         XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
+        
+        XCTAssertFalse(isAddMoreFilterButtonEnabled(), "Add More Filter button should be disabled")
         tapApplyButton()
         closeFilterModal()
     }
