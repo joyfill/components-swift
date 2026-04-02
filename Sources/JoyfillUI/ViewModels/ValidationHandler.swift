@@ -86,8 +86,13 @@ class ValidationHandler {
             return .notFound
         }
 
-        guard fieldIdentifier.pageID == pageID,
-              let fieldValidity = validate(fieldIdentifier: fieldIdentifier) else {
+        guard fieldIdentifier.pageID == pageID else {
+            Log("Field position \(fieldPositionID) belongs to page \(fieldIdentifier.pageID), not \(pageID)", type: .info)
+            return .notFound
+        }
+
+        guard let fieldValidity = validate(fieldIdentifier: fieldIdentifier) else {
+            Log("Field \(fieldPositionID) is hidden or excluded by conditional logic", type: .info)
             return .notFound
         }
 
