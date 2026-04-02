@@ -263,30 +263,25 @@ extension DocumentEditor {
     }
 }
 
-extension DocumentEditor{
-    private func normalizedPath(from path: String) -> String {
-        path.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private func pathSegment(in path: String, at index: Int) -> String? {
-        guard index >= 0 else { return nil }
-        let segments = normalizedPath(from: path).split(separator: "/")
-        guard segments.indices.contains(index) else { return nil }
-        let value = String(segments[index]).trimmingCharacters(in: .whitespacesAndNewlines)
-        return value.isEmpty ? nil : value
-    }
-
+extension DocumentEditor {
     func parsePath(_ path: String) -> (
         pageId: String?,
         fieldPositionId: String?,
         rowId: String?,
         columnId: String?
     ) {
+        let segments = path.trimmingCharacters(in: .whitespacesAndNewlines)
+            .split(separator: "/")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        func segment(at i: Int) -> String? { segments.indices.contains(i) ? segments[i] : nil }
+
         return (
-            pageId: pathSegment(in: path, at: 0),
-            fieldPositionId: pathSegment(in: path, at: 1),
-            rowId: pathSegment(in: path, at: 2),
-            columnId: pathSegment(in: path, at: 3)
+            pageId:          segment(at: 0),
+            fieldPositionId: segment(at: 1),
+            rowId:           segment(at: 2),
+            columnId:        segment(at: 3)
         )
     }
 }
