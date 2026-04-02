@@ -88,7 +88,7 @@ class ValidationHandler {
 
         guard fieldIdentifier.pageID == pageID,
               let fieldValidity = validate(fieldIdentifier: fieldIdentifier) else {
-            return .page(validate(pageID: pageID))
+            return .notFound
         }
 
         guard let rowId = parsedPath.rowId else {

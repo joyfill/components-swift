@@ -328,21 +328,18 @@ final class ValidatePathTests: XCTestCase {
 
     // MARK: - Path page must own the field position
 
-    func testValidatePath_WrongPageIDWithValidFieldPositionID_FallsBackToPage() {
+    func testValidatePath_WrongPageIDWithValidFieldPositionID_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFieldWithoutValue()
         let path = "non-existent-page-id/\(imagePositionID)"
         let result = editor.validate(path: path)
 
-        if case .page(let validation) = result {
-            XCTAssertEqual(validation.status, .valid)
-            XCTAssertTrue(validation.fieldValidities.isEmpty)
-        } else {
-            XCTFail("Expected .page when path page does not own the field position")
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound when fieldPositionId does not belong to the given pageId, got \(result)")
         }
     }
 
     /// Locks `fieldIdentifier.pageID == pageId` prefix: position exists on page 1 but path uses another real page id → `.page` for that other page, not `.field` for the image on page 1.
-    func testValidatePath_RealOtherPageIDWithPositionFromFirstPage_FallsBackToPage() {
+    func testValidatePath_RealOtherPageIDWithPositionFromFirstPage_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFirstPageAndSecondPage()
 
         let correctPath = "\(pageID)/\(imagePositionID)"
@@ -355,17 +352,9 @@ final class ValidatePathTests: XCTestCase {
         let wrongPath = "\(secondPageID)/\(imagePositionID)"
         let result = editor.validate(path: wrongPath)
 
-        guard case .page(let validation) = result else {
-            XCTFail("Expected .page fallback when path page id does not own the field position, got \(result)"); return
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound when fieldPositionId does not belong to the given pageId, got \(result)")
         }
-        XCTAssertFalse(
-            validation.fieldValidities.contains { $0.fieldPositionId == imagePositionID },
-            "Page-scoped result must not include the field position from another page"
-        )
-        XCTAssertFalse(
-            validation.fieldValidities.contains { $0.field.id == imageFieldID },
-            "Page-scoped result must not validate page-1 image under wrong page prefix"
-        )
     }
 
     // MARK: - 7. Required field without value → .invalid
