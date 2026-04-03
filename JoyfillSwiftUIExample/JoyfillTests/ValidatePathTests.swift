@@ -921,4 +921,15 @@ final class ValidatePathTests: XCTestCase {
             XCTFail("Expected .notFound for invalid fieldPositionId")
         }
     }
+
+    func testValidatePath_OptionalCellWithValue_ReturnsCellValid() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1/col-optional")
+
+        guard case .cell(let cellValidity) = result else {
+            XCTFail("Expected .cell for optional column with value")
+            return
+        }
+        XCTAssertEqual(cellValidity.status, .valid)
+    }
 }
