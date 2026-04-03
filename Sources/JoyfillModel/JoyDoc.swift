@@ -164,10 +164,12 @@ public struct JoyDoc {
             } else {
                 pages = firstFile.pages ?? []
             }
-            
+
+            // Pre-build index once — O(n log n) sort vs O(n² log n) with firstIndex; pays off at ~100+ pages
+            let pageOrderIndex = Dictionary(pageOrder.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
             return pages.sorted { page1, page2 in
-                let index1 = pageOrder.firstIndex(of: page1.id ?? "") ?? Int.max
-                let index2 = pageOrder.firstIndex(of: page2.id ?? "") ?? Int.max
+                let index1 = pageOrderIndex[page1.id ?? ""] ?? Int.max
+                let index2 = pageOrderIndex[page2.id ?? ""] ?? Int.max
                 return index1 < index2
             }
         }
