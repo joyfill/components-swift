@@ -69,7 +69,8 @@ class ValidationHandler {
     
     func validate(path: String) -> ComponentValidity {
         guard let documentEditor = documentEditor else {
-            return .page(Validation(status: .valid, fieldValidities: []))
+            Log("ValidationHandler.documentEditor was deallocated before validate(path:) could run", type: .error)
+            return .notFound
         }
         
         let parsedPath = documentEditor.parsePath(path)
