@@ -932,4 +932,28 @@ final class ValidatePathTests: XCTestCase {
         }
         XCTAssertEqual(cellValidity.status, .valid)
     }
+
+    // MARK: - 24. Leading / multiple slash paths
+    // parsePath strips empty segments produced by leading or adjacent slashes,
+    // so these paths resolve identically to their slash-free equivalents.
+
+    // Leading slash → normalised, resolves to .page for that pageID
+    func testValidatePath_LeadingSlash_NormalisedToPage() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let result = editor.validate(path: "/\(pageID)")
+
+        if case .page = result { } else {
+            XCTFail("Expected .page for path with leading slash — normalisation should strip the empty segment")
+        }
+    }
+
+    // Double leading slash before pageID/fieldPositionID → normalised, resolves to .field
+    func testValidatePath_DoubleLeadingSlash_NormalisedToField() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let result = editor.validate(path: "//\(pageID)/\(imagePositionID)")
+
+        if case .field = result { } else {
+            XCTFail("Expected .field for path with double leading slash — normalisation should strip empty segments")
+        }
+    }
 }
