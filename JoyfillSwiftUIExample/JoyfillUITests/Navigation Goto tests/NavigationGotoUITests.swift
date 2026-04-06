@@ -6,6 +6,8 @@ import Joyfill
 
 final class NavigationGotoUITests: JoyfillUITestsBaseClass {
 
+    /// Verifies goto navigation between collection rows with different schemas and across two different row forms.
+    /// Flow: submit triggers validation → Up opens collection row form → Up navigates between rows → Up moves to standalone table field.
     func testGotoCollectionAndNavigateBetweenSchemasAndAcrossTwoDifferentRowForms() throws {
         // 1. Tap Submit → triggers validation, shows validation bar
         let submitButton = app.buttons["SubmitValidateButtonIdentifier"]
@@ -30,15 +32,14 @@ final class NavigationGotoUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(parentElements.count, 1)
         
         upButton.tap()
-        sleep(2)
-        XCTAssertTrue(app.staticTexts["Child table"].exists)
-        XCTAssertEqual(childElements.count, 1)
-        XCTAssertTrue(app.staticTexts["Parent table"].exists)
-        XCTAssertEqual(parentElements.count, 2)
-        
+        XCTAssertTrue(app.staticTexts["Child table"].waitForExistence(timeout: 5))
+        let childElementsAfterFirstUp = app.staticTexts.matching(NSPredicate(format: "label == %@", "Child table"))
+        XCTAssertEqual(childElementsAfterFirstUp.count, 1)
+        let parentElementsAfterFirstUp = app.staticTexts.matching(NSPredicate(format: "label == %@", "Parent table"))
+        XCTAssertEqual(parentElementsAfterFirstUp.count, 2)
+
         upButton.tap()
-        sleep(2)
-        XCTAssertTrue(app.staticTexts["second page table"].exists)
+        XCTAssertTrue(app.staticTexts["second page table"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["1 row selected"].exists)
 
     }
