@@ -119,7 +119,7 @@ extension DocumentEditor {
     ///   - path: Navigation path in format "pageId", "pageId/fieldPositionId", "pageId/fieldPositionId/rowId", or "pageId/fieldPositionId/rowId/columnId"
     ///   - gotoConfig: Configuration for navigation behavior
     public func goto(_ path: String, gotoConfig: GotoConfig = GotoConfig()) -> NavigationStatus {
-        let parsedPath = parsePath(path)
+        let parsedPath = DocumentEditor.parsePath(path)
 
         guard let pageId = parsedPath.pageId else {
             Log("Navigation path is empty", type: .error)
@@ -264,7 +264,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    func parsePath(_ path: String) -> (
+    static func parsePath(_ path: String) -> (
         pageId: String?,
         fieldPositionId: String?,
         rowId: String?,

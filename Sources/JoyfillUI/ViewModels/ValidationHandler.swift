@@ -73,7 +73,7 @@ class ValidationHandler {
             return .notFound
         }
         
-        let parsedPath = documentEditor.parsePath(path)
+        let parsedPath = DocumentEditor.parsePath(path)
         guard let pageID = parsedPath.pageId else {
             return .page(validate())
         }
