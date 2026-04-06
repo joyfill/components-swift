@@ -118,6 +118,13 @@ class ValidationHandler {
         return .cell(cellValidity)
     }
 
+    /// Returns the `RowValidity` for the given `rowId`, or `nil` if not found.
+    ///
+    /// - Invariant: `rowValidities` contains only non-deleted rows. `validateTableField` and
+    ///   `validateCollectionField` both filter via `nonDeletedRows` before building `RowValidity`
+    ///   entries, so a deleted `rowId` will correctly return `nil` here → `.notFound`.
+    ///   If deleted rows are ever added to `rowValidities` (e.g. for audit purposes), this
+    ///   lookup must be updated to exclude them explicitly.
     private func rowValidity(for rowId: String, in fieldValidity: FieldValidity) -> RowValidity? {
         return fieldValidity.rowValidities?.first(where: { $0.rowId == rowId })
     }
