@@ -83,12 +83,12 @@ class ValidationHandler {
         }
 
         guard let fieldIdentifier = documentEditor.getFieldIdentifier(forFieldPositionID: fieldPositionID) else {
-            Log("Field position with id \(fieldPositionID) not found", type: .error)
+            Log("Field position with id \(fieldPositionID) not found", type: .warning)
             return .notFound
         }
 
         guard fieldIdentifier.pageID == pageID else {
-            Log("Field position \(fieldPositionID) belongs to page \(fieldIdentifier.pageID), not \(pageID)", type: .info)
+            Log("Field position \(fieldPositionID) belongs to page \(fieldIdentifier.pageID), not \(pageID)", type: .warning)
             return .notFound
         }
 
