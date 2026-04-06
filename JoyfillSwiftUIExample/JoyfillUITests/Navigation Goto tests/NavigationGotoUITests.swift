@@ -6,8 +6,7 @@ import Joyfill
 
 final class NavigationGotoUITests: JoyfillUITestsBaseClass {
 
-    //Verifies no crash when goto navigates between collection rows with different schemas"
-    func testGotoCollectionAndNavigateBetweenSchemas() throws {
+    func testGotoCollectionAndNavigateBetweenSchemasAndAcrossTwoDifferentRowForms() throws {
         // 1. Tap Submit → triggers validation, shows validation bar
         let submitButton = app.buttons["SubmitValidateButtonIdentifier"]
         submitButton.tap()
@@ -23,12 +22,24 @@ final class NavigationGotoUITests: JoyfillUITestsBaseClass {
                       "Row form sheet should open after goto navigates into the collection")
        
 
-        // After second Up tap — root schema, has barcode
-        XCTAssertFalse(app.staticTexts["Text Column"].exists)
+        XCTAssertTrue(app.staticTexts["Child table"].exists)
+        let childElements = app.staticTexts.matching(NSPredicate(format: "label == %@", "Child table"))
+        XCTAssertEqual(childElements.count, 2)
+        XCTAssertTrue(app.staticTexts["Parent table"].exists)
+        let parentElements = app.staticTexts.matching(NSPredicate(format: "label == %@", "Parent table"))
+        XCTAssertEqual(parentElements.count, 1)
         
         upButton.tap()
+        sleep(2)
+        XCTAssertTrue(app.staticTexts["Child table"].exists)
+        XCTAssertEqual(childElements.count, 1)
+        XCTAssertTrue(app.staticTexts["Parent table"].exists)
+        XCTAssertEqual(parentElements.count, 2)
         
-        XCTAssertTrue(app.staticTexts["Text Column"].exists)
+        upButton.tap()
+        sleep(2)
+        XCTAssertTrue(app.staticTexts["second page table"].exists)
+        XCTAssertTrue(app.staticTexts["1 row selected"].exists)
 
     }
 }
