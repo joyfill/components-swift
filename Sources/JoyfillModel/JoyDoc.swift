@@ -157,6 +157,8 @@ public struct JoyDoc {
             guard let firstFile = self.files.first else { return [] } 
             
             var pages: [Page] = []
+            // Note: pageOrder always uses firstFile.pageOrder regardless of the views/pages branch below.
+            // pageOrderForCurrentView correctly reads view.pageOrder when views are active — this property should mirror that logic.
             let pageOrder = firstFile.pageOrder ?? []
             
             if let views = firstFile.views, !views.isEmpty, let view = views.first {
