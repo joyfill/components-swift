@@ -61,7 +61,13 @@ RE_GLUE_SECTION = re.compile(
 )
 RE_DROP_H2_NEW_CONTRIBUTORS = re.compile(r"^##\s+New Contributors\s*$", re.IGNORECASE)
 
-RE_BULLET = re.compile(r"^\s*[-*]\s+(.*)$")
+# GitHub / pasted notes often use a bare "ADDED" / "CHANGED" / "FIXED" line instead of ### headings.
+RE_PLAIN_SECTION_LABEL = re.compile(
+    r"^(ADDED|CHANGED|FIXED|REMOVED)\s*$",
+    re.IGNORECASE,
+)
+
+RE_BULLET = re.compile(r"^\s*[-*•]\s+(.*)$")
 RE_FEAT = re.compile(r"^(feat|feature)(\([^)]*\))?!?:\s*", re.IGNORECASE)
 RE_FIX = re.compile(r"^fix(\([^)]*\))?!?:\s*", re.IGNORECASE)
 RE_REMOVE = re.compile(
@@ -77,7 +83,7 @@ RE_COMPOUND_BULLET_SPLIT = re.compile(
 RE_COMPOUND_BULLET_SPLIT_FALLBACK = re.compile(
     r"(?<=[^\s])\s+(?=\*\*[^*]+\*\*\s*[—\-–])",
 )
-RE_BULLET_LINE = re.compile(r"^(\s*)([-*])(\s+)(.+)$")
+RE_BULLET_LINE = re.compile(r"^(\s*)([-*•])(\s+)(.+)$")
 RE_TITLE_EM_DASH = re.compile(r"\*\*[^*]+\*\*\s*[—\-–]")
 
 
@@ -167,6 +173,21 @@ def has_section_headings(lines: list[str]) -> bool:
         if RE_SECTION.match(line.strip()):
             return True
     return False
+
+
+def normalize_plain_section_labels(lines: list[str]) -> list[str]:
+    """Turn standalone ADDED/CHANGED/FIXED/REMOVED lines into ### headings (GitHub-style notes)."""
+    out: list[str] = []
+    for line in lines:
+        st = line.strip()
+        m = RE_PLAIN_SECTION_LABEL.match(st)
+        if m:
+            name = m.group(1).lower()
+            cap = name[0].upper() + name[1:]
+            out.append(f"### {cap}\n")
+        else:
+            out.append(line if line.endswith("\n") else line + "\n")
+    return out
 
 
 def classify_bullet(text: str) -> str:
@@ -317,6 +338,7 @@ def transform_source(raw: str) -> str:
     raw_lines = raw.splitlines(keepends=True)
     raw_lines = expand_glued_section_headers(raw_lines)
     lines = preprocess_lines(raw_lines)
+    lines = normalize_plain_section_labels(lines)
     lines = normalize_bullets_to_sections(lines)
     lines = split_compound_bullets(lines)
     lines = apply_styles(lines)
