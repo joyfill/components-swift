@@ -41,13 +41,24 @@ jobs:
           TARGET_VER: ${{ github.event_name == 'workflow_dispatch' && inputs.test_tag || github.event.release.tag_name }}
           RELEASE_BODY: ${{ github.event_name == 'workflow_dispatch' && inputs.test_body || github.event.release.body }}
         run: |
-          echo "Processing version: $TARGET_VER"
           echo "VERSION=$TARGET_VER" >> $GITHUB_ENV
 
-          # Build the input file — header first, then body
-          printf '## %s\n\n' "$TARGET_VER" > release_notes_input.md
-          printf '%s\n' "$RELEASE_BODY" >> release_notes_input.md
-
+          # Python writes the file — guaranteed newline preservation + auto date
+          # NOTE: Do NOT include "**Release Date:**" in your release notes; it is auto-generated here.
+          python3 -c "
+import os
+from datetime import datetime
+ver = os.environ['TARGET_VER']
+body = os.environ['RELEASE_BODY']
+now = datetime.now()
+date_str = '{} {}, {}'.format(now.strftime('%B'), now.day, now.year)
+with open('release_notes_input.md', 'w') as f:
+    f.write('## ' + ver + '\n\n')
+    f.write('**Release Date:** ' + date_str + '\n\n')
+    f.write(body)
+    if not body.endswith('\n'):
+        f.write('\n')
+"
           echo "--- Content to be inserted ---"
           cat release_notes_input.md
 
@@ -63,7 +74,7 @@ jobs:
 
       # 5. Create Pull Request
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'

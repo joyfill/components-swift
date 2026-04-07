@@ -31,10 +31,11 @@ apply_styles() {
     }
     
     # Strip unwanted lines from the release body
-    /^> Source:/              { next }
-    /^\*\*Release Date:\*\*/  { next }
-    /^\*\*Full Changelog\*\*/ { next }
-    /^# /                     { next }
+    /^> Source:/              { next }   # never copy the source link into new entries
+    /^\*\*Full Changelog\*\*/ { next }   # GitHub auto-appends this comparison URL
+    /^# /                     { next }   # strip top-level # headings (release title)
+    # Skip non-version ## headings e.g. "## What's Changed" (GitHub auto-adds this)
+    /^## [^0-9\[]/ { next }
 
     # Badges
     /^###[[:space:]]+Added[[:space:]]*$/   { print added;   print ""; next }
