@@ -62,14 +62,11 @@ jobs:
           echo "--- Content to be inserted ---"
           cat release_notes_input.md
 
-      # 4. Run the Insert Script
+      # 4. Insert styled entry (Python: badges for Added/Changed/Fixed, GitHub body cleanup)
       - name: Insert into Docs
         run: |
-          # Ensure the folder exists
           mkdir -p docs/ios/changelogs
           chmod +x ios-sdk/scripts/update_release_mdx.sh
-          
-          # Run script with the file we created in Step 3
           ./ios-sdk/scripts/update_release_mdx.sh release_notes_input.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
 
       # 5. Create Pull Request
