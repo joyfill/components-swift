@@ -45,9 +45,10 @@ def badge_html(kind: str, is_first: bool) -> str:
 RE_STRIP = [
     re.compile(r"^> Source:"),
     re.compile(r"^#\s+"),  # top-level title from GitHub release UI
+    # GitHub appends compare URL; omit from docs (top of page has > Source: to releases)
+    re.compile(r"^\s*\*\*Full Changelog\*\*", re.IGNORECASE),
+    re.compile(r"^\s*Full Changelog:\s*https?://", re.IGNORECASE),
 ]
-# Note: We keep **Full Changelog** … (GitHub’s compare URL) so the docs entry can show
-# the same trailing link as the GitHub release.
 
 # GitHub-generated section titles to remove (ASCII or typographic apostrophe).
 RE_DROP_H2_BOILERPLATE = re.compile(
@@ -67,6 +68,17 @@ RE_REMOVE = re.compile(
     r"^(remove|removed|removal|deprecate)(\([^)]*\))?!?:\s*",
     re.IGNORECASE,
 )
+
+# Split one bullet that jams multiple "**Title** — …" items into separate bullets (docs use one `-` per feature).
+RE_COMPOUND_BULLET_SPLIT = re.compile(
+    r"(?<=[.!?])\s+(?=\*\*[^*]+\*\*\s*[—\-–])",
+)
+# When there is no sentence end before the next "**Title** —" (rare paste / GitHub quirk).
+RE_COMPOUND_BULLET_SPLIT_FALLBACK = re.compile(
+    r"(?<=[^\s])\s+(?=\*\*[^*]+\*\*\s*[—\-–])",
+)
+RE_BULLET_LINE = re.compile(r"^(\s*)([-*])(\s+)(.+)$")
+RE_TITLE_EM_DASH = re.compile(r"\*\*[^*]+\*\*\s*[—\-–]")
 
 
 def expand_glued_section_headers(lines: list[str]) -> list[str]:
@@ -168,6 +180,48 @@ def classify_bullet(text: str) -> str:
     return "changed"
 
 
+def _split_bullet_body(body: str) -> list[str]:
+    parts = RE_COMPOUND_BULLET_SPLIT.split(body)
+    parts = [p.strip() for p in parts if p.strip()]
+    if len(parts) > 1:
+        return parts
+    if len(RE_TITLE_EM_DASH.findall(body)) < 2:
+        return [body]
+    parts = RE_COMPOUND_BULLET_SPLIT_FALLBACK.split(body)
+    parts = [p.strip() for p in parts if p.strip()]
+    return parts if len(parts) > 1 else [body]
+
+
+def split_compound_bullets(lines: list[str]) -> list[str]:
+    """
+    Turn '- **A** — x. **B** — y' into two list items (matches hand-edited docs; see rc14).
+    Skips fenced code blocks. Does not split **Full Changelog**: (no em dash after title).
+    """
+    in_fence = False
+    out: list[str] = []
+    for line in lines:
+        raw = line.rstrip("\n")
+        if raw.strip().startswith("```"):
+            in_fence = not in_fence
+            out.append(line if line.endswith("\n") else line + "\n")
+            continue
+        if in_fence:
+            out.append(line if line.endswith("\n") else line + "\n")
+            continue
+        m = RE_BULLET_LINE.match(raw)
+        if not m:
+            out.append(line if line.endswith("\n") else line + "\n")
+            continue
+        indent, mark, sp, body = m.groups()
+        parts = _split_bullet_body(body)
+        if len(parts) <= 1:
+            out.append(line if line.endswith("\n") else line + "\n")
+            continue
+        for piece in parts:
+            out.append(f"{indent}{mark}{sp}{piece}\n")
+    return out
+
+
 def normalize_bullets_to_sections(lines: list[str]) -> list[str]:
     """When no ### Added/Changed/Fixed, group bullets using conventional-commit hints."""
     if has_section_headings(lines):
@@ -264,6 +318,7 @@ def transform_source(raw: str) -> str:
     raw_lines = expand_glued_section_headers(raw_lines)
     lines = preprocess_lines(raw_lines)
     lines = normalize_bullets_to_sections(lines)
+    lines = split_compound_bullets(lines)
     lines = apply_styles(lines)
     return "".join(lines).rstrip() + "\n"
 
