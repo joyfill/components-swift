@@ -92,6 +92,8 @@ class ValidationHandler {
             return .notFound
         }
 
+        // .notFound is returned for both invalid paths and hidden/conditionally-excluded fields.
+        // Callers that need to distinguish visibility should check shouldShow(fieldID:) separately.
         guard let fieldValidity = validate(fieldIdentifier: fieldIdentifier) else {
             Log("Field \(fieldPositionID) is hidden or excluded by conditional logic", type: .info)
             return .notFound
