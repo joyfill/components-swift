@@ -157,6 +157,8 @@ public struct JoyDoc {
             guard let firstFile = self.files.first else { return [] } 
             
             var pages: [Page] = []
+            // Note: pageOrder always uses firstFile.pageOrder regardless of the views/pages branch below.
+            // pageOrderForCurrentView correctly reads view.pageOrder when views are active — this property should mirror that logic.
             let pageOrder = firstFile.pageOrder ?? []
             
             if let views = firstFile.views, !views.isEmpty, let view = views.first {
@@ -164,10 +166,12 @@ public struct JoyDoc {
             } else {
                 pages = firstFile.pages ?? []
             }
-            
+
+            // Pre-build index once — O(n log n) sort vs O(n² log n) with firstIndex; pays off at ~100+ pages
+            let pageOrderIndex = Dictionary(pageOrder.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
             return pages.sorted { page1, page2 in
-                let index1 = pageOrder.firstIndex(of: page1.id ?? "") ?? Int.max
-                let index2 = pageOrder.firstIndex(of: page2.id ?? "") ?? Int.max
+                let index1 = pageOrderIndex[page1.id ?? ""] ?? Int.max
+                let index2 = pageOrderIndex[page2.id ?? ""] ?? Int.max
                 return index1 < index2
             }
         }
