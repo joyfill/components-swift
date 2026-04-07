@@ -316,9 +316,10 @@ class ValidationHandler {
 
     private func sortColumns(_ columns: [FieldTableColumn], by columnOrder: [String]) -> [FieldTableColumn] {
         guard !columnOrder.isEmpty else { return columns }
+        let orderMap = Dictionary(uniqueKeysWithValues: columnOrder.enumerated().map { ($1, $0) })
         return columns.sorted { a, b in
-            let indexA = columnOrder.firstIndex(of: a.id ?? "") ?? Int.max
-            let indexB = columnOrder.firstIndex(of: b.id ?? "") ?? Int.max
+            let indexA = orderMap[a.id ?? ""] ?? Int.max
+            let indexB = orderMap[b.id ?? ""] ?? Int.max
             return indexA < indexB
         }
     }
