@@ -1,231 +1,326 @@
 {
-      "fields" : [
-        {
-          "_id" : "collection1",
-          "schema" : {
-            "level1Table1" : {
-              "hidden" : false,
-              "title" : "New Table",
-              "required" : false,
-              "children" : [],
-              "tableColumns" : [
+  "fields": [
+    {
+      "_id": "collection1",
+      "schema": {
+        "level1Table1": {
+          "hidden": false,
+          "title": "New Table",
+          "required": false,
+          "children": [],
+          "tableColumns": [
+            {
+              "deleted": false,
+              "_id": "text1",
+              "title": "Text Column",
+              "type": "text",
+              "width": 0,
+              "required": true
+            },
+            {
+              "_id": "69d34273315eb6b2a6fd3242",
+              "type": "block",
+              "title": "Label Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "collection1_column_69d34273315eb6b2a6fd3242"
+            },
+            {
+              "_id": "dropdown2",
+              "deleted": false,
+              "width": 0,
+              "title": "Dropdown Column",
+              "identifier": "collection1_column_dropdown1",
+              "type": "dropdown",
+              "options": [
                 {
-                  "deleted" : false,
-                  "_id" : "text1",
-                  "title" : "Text Column",
-                  "type" : "text",
-                  "width" : 0,
-                  "required" : true
+                  "value": "Yes",
+                  "deleted": false,
+                  "_id": "695e37a49f0fcf5e42c022ca"
                 },
                 {
-                  "_id" : "dropdown2",
-                  "deleted" : false,
-                  "width" : 0,
-                  "title" : "Dropdown Column",
-                  "identifier" : "collection1_column_dropdown1",
-                  "type" : "dropdown",
-                  "options" : [
-                    {
-                      "value" : "Yes",
-                      "deleted" : false,
-                      "_id" : "695e37a49f0fcf5e42c022ca"
-                    },
-                    {
-                      "value" : "No",
-                      "deleted" : false,
-                      "_id" : "695e37a4aa8627f1678b7bf7"
-                    },
-                    {
-                      "deleted" : false,
-                      "value" : "N/A",
-                      "_id" : "695e37a41222f8686cbc3603"
-                    }
-                  ]
+                  "value": "No",
+                  "deleted": false,
+                  "_id": "695e37a4aa8627f1678b7bf7"
                 },
                 {
-                  "_id" : "image1",
-                  "multi" : true,
-                  "deleted" : false,
-                  "width" : 0,
-                  "title" : "Image Column",
-                  "identifier" : "collection1_column_image1",
-                  "type" : "image"
+                  "deleted": false,
+                  "value": "N/A",
+                  "_id": "695e37a41222f8686cbc3603"
                 }
               ]
             },
-            "collectionSchemaId" : {
-              "tableColumns" : [
-                {
-                  "_id" : "dropdown1",
-                  "deleted" : false,
-                  "width" : 0,
-                  "title" : "Dropdown Column",
-                  "identifier" : "collection1_column_dropdown1",
-                  "type" : "dropdown",
-                  "required" : true,
-                  "options" : [
-                    {
-                      "_id" : "695e378d7866b81ee106e437",
-                      "value" : "Yes",
-                      "deleted" : false
-                    },
-                    {
-                      "_id" : "695e378d34e50e4475b2f5da",
-                      "deleted" : false,
-                      "value" : "No"
-                    },
-                    {
-                      "deleted" : false,
-                      "_id" : "695e378db37fde2f2c81fa1c",
-                      "value" : "N/A"
-                    }
-                  ]
-                },
-                {
-                  "deleted" : false,
-                  "_id" : "block1",
-                  "title" : "Label Column",
-                  "identifier" : "collection1_column_block1",
-                  "type" : "block",
-                  "width" : 0
-                },
-                {
-                  "deleted" : false,
-                  "title" : "Barcode Column",
-                  "_id" : "barcode1",
-                  "width" : 0,
-                  "identifier" : "collection1_column_barcode1",
-                  "type" : "barcode"
-                },
-                {
-                  "deleted" : false,
-                  "title" : "Date Column",
-                  "_id" : "date1",
-                  "width" : 0,
-                  "type" : "date",
-                  "identifier" : "collection1_column_date1"
-                }
-              ],
-              "title" : "Main Collection",
-              "required" : true,
-              "root" : true,
-              "children" : [
-                "level1Table1"
-              ]
+            {
+              "_id": "image1",
+              "multi": true,
+              "deleted": false,
+              "width": 0,
+              "title": "Image Column",
+              "identifier": "collection1_column_image1",
+              "type": "image"
             }
-          },
-          "file" : "695e36f283142b6b2f8bf493",
-          "title" : "Collection (both full and 1st columns)",
-          "identifier" : "field_collection1",
-          "value" : [
+          ]
+        },
+        "collectionSchemaId": {
+          "tableColumns": [
             {
-              "cells" : {
-                "barcode1" : ""
-              },
-              "tz" : "Europe/Kiev",
-              "_id" : "695e37ab5c649d9ad7e7bec4",
-              "children" : {
-                "level1Table1" : {
-                  "value" : [
-                    {
-                      "cells" : {
-                      },
-                      "_id" : "695e37b1e74f99df16482db7",
-                      "children" : {
-
-                      }
-                    }
-                  ]
+              "_id": "dropdown1",
+              "deleted": false,
+              "width": 0,
+              "title": "Dropdown Column",
+              "identifier": "collection1_column_dropdown1",
+              "type": "dropdown",
+              "required": true,
+              "options": [
+                {
+                  "_id": "695e378d7866b81ee106e437",
+                  "value": "Yes",
+                  "deleted": false
+                },
+                {
+                  "_id": "695e378d34e50e4475b2f5da",
+                  "deleted": false,
+                  "value": "No"
+                },
+                {
+                  "deleted": false,
+                  "_id": "695e378db37fde2f2c81fa1c",
+                  "value": "N/A"
                 }
-              }
+              ]
             },
             {
-              "cells" : {
-              },
-              "tz" : "Europe/Kiev",
-              "_id" : "69a80c893cbf2a44e95be610",
-              "children" : {
-                "level1Table1" : {
-
-                }
-              }
+              "deleted": false,
+              "_id": "block1",
+              "title": "Label Column",
+              "identifier": "collection1_column_block1",
+              "type": "block",
+              "width": 0
+            },
+            {
+              "deleted": false,
+              "title": "Barcode Column",
+              "_id": "barcode1",
+              "width": 0,
+              "identifier": "collection1_column_barcode1",
+              "type": "barcode"
+            },
+            {
+              "deleted": false,
+              "title": "Date Column",
+              "_id": "date1",
+              "width": 0,
+              "type": "date",
+              "identifier": "collection1_column_date1"
             }
           ],
-          "type" : "collection",
-          "metadata" : {
-
+          "title": "Main Collection",
+          "required": true,
+          "root": true,
+          "children": [
+            "level1Table1"
+          ]
+        }
+      },
+      "file": "695e36f283142b6b2f8bf493",
+      "title": "Collection (both full and 1st columns)",
+      "identifier": "field_collection1",
+      "value": [
+        {
+          "cells": {
+            "barcode1": "",
+            "block1": "Parent table"
           },
-          "required" : true
+          "tz": "Europe/Kiev",
+          "_id": "695e37ab5c649d9ad7e7bec4",
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "cells": {
+                    "69d34273315eb6b2a6fd3242": "Child table"
+                  },
+                  "_id": "695e37b1e74f99df16482db7",
+                  "children": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "cells": {
+            "dropdown1": "695e378d7866b81ee106e437"
+          },
+          "tz": "Europe/Kiev",
+          "_id": "69a80c893cbf2a44e95be610",
+          "children": {
+            "level1Table1": {}
+          }
         }
       ],
-      "_id" : "695e36f2ec467a1860e1cac8",
-      "deleted" : false,
-      "identifier" : "doc_695e36f2ec467a1860e1cac8",
-      "createdOn" : 1767782130528,
-      "type" : "document",
-      "name" : "New Doc",
-      "files" : [
+      "type": "collection",
+      "metadata": {},
+      "required": true
+    },
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "69d3455047872828fd96de60",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
         {
-          "styles" : {
-            "margin" : 4
-          },
-          "_id" : "695e36f283142b6b2f8bf493",
-          "header" : {
-            "fields" : [
-
-            ],
-            "layout" : "grid",
-            "height" : 50,
-            "fieldPositions" : [
-              {
-                "fontSize" : 28,
-                "_id" : "695e3700a5132e55cf90d4a3",
-                "x" : 0,
-                "y" : 0,
-                "fontWeight" : "bold",
-                "width" : 12,
-                "height" : 40,
-                "field" : "block3",
-                "type" : "block",
-                "displayType" : "original"
-              }
-            ],
-            "cols" : 24,
-            "padding" : 0,
-            "rowHeight" : 1
-          },
-          "pages" : [
+          "_id": "69d337cc9b831b58582a05b9",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "69d3455047872828fd96de60_column_69d337cc9b831b58582a05b9"
+        },
+        {
+          "_id": "69d337ccd10629a7701dc731",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
             {
-              "layout" : "grid",
-              "height" : 1056,
-              "_id" : "695e375da819cd4e2da9161f",
-              "cols" : 8,
-              "presentation" : "normal",
-              "width" : 816,
-              "fieldPositions" : [
-                {
-                  "_id" : "695e378a7d31b4337a7b1f23",
-                  "height" : 40,
-                  "x" : 0,
-                  "y" : 0,
-                  "width" : 8,
-                  "field" : "collection1",
-                  "type" : "collection",
-                  "displayType" : "original"
-                }
-              ],
-              "padding" : 24,
-              "name" : "Collections",
-              "rowHeight" : 8
+              "_id": "69d337ccc122c9b7539df9e1",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "69d337cc3ca51f195f2eab6e",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "69d337ccbf3414c1609d60a1",
+              "value": "N/A",
+              "deleted": false
             }
           ],
-          "pageOrder" : [
-            "695e375da819cd4e2da9161f"
-          ],
-          "views" : [
-
-          ],
-          "name" : "New File"
+          "identifier": "69d3455047872828fd96de60_column_69d337ccd10629a7701dc731",
+          "required": true
+        },
+        {
+          "_id": "69d337cc0d7d1d99446a8754",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "69d3455047872828fd96de60_column_69d337cc0d7d1d99446a8754"
         }
+      ],
+      "value": [
+        {
+          "_id": "69d337cc0a8f58a5566fb164",
+          "deleted": false,
+          "cells": {
+            "69d337ccd10629a7701dc731": "69d337cc3ca51f195f2eab6e"
+          }
+        },
+        {
+          "_id": "69d337ccc0e4d42566be94cd",
+          "deleted": false,
+          "cells": {
+            "69d337ccd10629a7701dc731": "69d337ccbf3414c1609d60a1"
+          }
+        },
+        {
+          "_id": "69d337cc12404b8241bb3ce0",
+          "deleted": false,
+          "cells": {
+            "69d337cc9b831b58582a05b9": "second page table"
+          }
+        }
+      ],
+      "identifier": "field_69d3455047872828fd96de60",
+      "tableColumnOrder": [
+        "69d337cc9b831b58582a05b9",
+        "69d337ccd10629a7701dc731",
+        "69d337cc0d7d1d99446a8754"
+      ],
+      "rowOrder": [
+        "69d337cc0a8f58a5566fb164",
+        "69d337ccc0e4d42566be94cd",
+        "69d337cc12404b8241bb3ce0"
       ]
     }
+  ],
+  "_id": "695e36f2ec467a1860e1cac8",
+  "deleted": false,
+  "identifier": "doc_695e36f2ec467a1860e1cac8",
+  "createdOn": 1767782130528,
+  "type": "template",
+  "name": "New Doc",
+  "files": [
+    {
+      "styles": {
+        "margin": 4
+      },
+      "_id": "695e36f283142b6b2f8bf493",
+      "header": {
+        "fields": [],
+        "layout": "grid",
+        "height": 50,
+        "fieldPositions": [
+          {
+            "fontSize": 28,
+            "_id": "695e3700a5132e55cf90d4a3",
+            "x": 0,
+            "y": 0,
+            "fontWeight": "bold",
+            "width": 12,
+            "height": 40,
+            "field": "block3",
+            "type": "block",
+            "displayType": "original"
+          }
+        ],
+        "cols": 24,
+        "padding": 0,
+        "rowHeight": 1
+      },
+      "pages": [
+        {
+          "layout": "grid",
+          "height": 1056,
+          "_id": "695e375da819cd4e2da9161f",
+          "cols": 8,
+          "presentation": "normal",
+          "width": 816,
+          "fieldPositions": [
+            {
+              "_id": "695e378a7d31b4337a7b1f23",
+              "height": 40,
+              "x": 0,
+              "y": 20,
+              "width": 8,
+              "field": "collection1",
+              "type": "collection",
+              "displayType": "original"
+            },
+            {
+              "_id": "69d3455048a7267e6b36eeb9",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 20,
+              "field": "69d3455047872828fd96de60"
+            }
+          ],
+          "padding": 24,
+          "name": "Collections",
+          "rowHeight": 8
+        }
+      ],
+      "pageOrder": [
+        "695e375da819cd4e2da9161f"
+      ],
+      "views": [],
+      "name": "New File"
+    }
+  ]
+}
