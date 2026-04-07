@@ -119,17 +119,16 @@ extension DocumentEditor {
     ///   - path: Navigation path in format "pageId", "pageId/fieldPositionId", "pageId/fieldPositionId/rowId", or "pageId/fieldPositionId/rowId/columnId"
     ///   - gotoConfig: Configuration for navigation behavior
     public func goto(_ path: String, gotoConfig: GotoConfig = GotoConfig()) -> NavigationStatus {
-        let components = path.split(separator: "/").map(String.init)
-        
-        guard !components.isEmpty else {
+        let parsedPath = DocumentEditor.parsePath(path)
+
+        guard let pageId = parsedPath.pageId else {
             Log("Navigation path is empty", type: .error)
             return .failure
         }
         
-        let pageId = components[0]
-        let fieldPositionId = components.count > 1 ? components[1] : nil
-        let rowId = components.count > 2 ? components[2] : nil
-        let columnId = components.count > 3 ? components[3] : nil
+        let fieldPositionId = parsedPath.fieldPositionId
+        let rowId = parsedPath.rowId
+        let columnId = parsedPath.columnId
         
         guard pagesForCurrentView.contains(where: { $0.id == pageId }) else {
             Log("Page with id \(pageId) not found", type: .warning)
@@ -261,5 +260,28 @@ extension DocumentEditor {
     func onPageBlur(page: Page) {
         let pageEvent = PageEvent(type: "page.blur", page: page)
         self.onBlur(event: pageEvent)
+    }
+}
+
+extension DocumentEditor {
+    static func parsePath(_ path: String) -> (
+        pageId: String?,
+        fieldPositionId: String?,
+        rowId: String?,
+        columnId: String?
+    ) {
+        let segments = path.trimmingCharacters(in: .whitespacesAndNewlines)
+            .split(separator: "/")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        func segment(at i: Int) -> String? { segments.indices.contains(i) ? segments[i] : nil }
+
+        return (
+            pageId:          segment(at: 0),
+            fieldPositionId: segment(at: 1),
+            rowId:           segment(at: 2),
+            columnId:        segment(at: 3)
+        )
     }
 }

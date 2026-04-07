@@ -66,6 +66,74 @@ class ValidationHandler {
         }
         return Validation(status: isValid ? .valid : .invalid, fieldValidities: fieldValidities)
     }
+    
+    func validate(path: String) -> ComponentValidity {
+        guard let documentEditor = documentEditor else {
+            Log("ValidationHandler.documentEditor was deallocated before validate(path:) could run", type: .error)
+            return .notFound
+        }
+        
+        let parsedPath = DocumentEditor.parsePath(path)
+        guard let pageID = parsedPath.pageId else {
+            return .page(validate())
+        }
+
+        guard let fieldPositionID = parsedPath.fieldPositionId else {
+            return .page(validate(pageID: pageID))
+        }
+
+        guard let fieldIdentifier = documentEditor.getFieldIdentifier(forFieldPositionID: fieldPositionID) else {
+            Log("Field position with id \(fieldPositionID) not found", type: .warning)
+            return .notFound
+        }
+
+        guard fieldIdentifier.pageID == pageID else {
+            Log("Field position \(fieldPositionID) belongs to page \(fieldIdentifier.pageID), not \(pageID)", type: .warning)
+            return .notFound
+        }
+
+        // .notFound is returned for both invalid paths and hidden/conditionally-excluded fields.
+        // Callers that need to distinguish visibility should check shouldShow(fieldID:) separately.
+        guard let fieldValidity = validate(fieldIdentifier: fieldIdentifier) else {
+            Log("Field \(fieldPositionID) is hidden or excluded by conditional logic", type: .info)
+            return .notFound
+        }
+
+        guard let rowId = parsedPath.rowId else {
+            return .field(fieldValidity)
+        }
+
+        guard let rowValidity = rowValidity(for: rowId, in: fieldValidity) else {
+            Log("Row with id \(rowId) not found in field \(fieldPositionID)", type: .error)
+            return .notFound
+        }
+
+        guard let columnId = parsedPath.columnId else {
+            return .row(rowValidity)
+        }
+
+        guard let cellValidity = cellValidity(for: columnId, in: rowValidity) else {
+            Log("Column with id \(columnId) not found in row \(rowId)", type: .error)
+            return .notFound
+        }
+
+        return .cell(cellValidity)
+    }
+
+    /// Returns the `RowValidity` for the given `rowId`, or `nil` if not found.
+    ///
+    /// - Invariant: `rowValidities` contains only non-deleted rows. `validateTableField` and
+    ///   `validateCollectionField` both filter via `nonDeletedRows` before building `RowValidity`
+    ///   entries, so a deleted `rowId` will correctly return `nil` here → `.notFound`.
+    ///   If deleted rows are ever added to `rowValidities` (e.g. for audit purposes), this
+    ///   lookup must be updated to exclude them explicitly.
+    private func rowValidity(for rowId: String, in fieldValidity: FieldValidity) -> RowValidity? {
+        return fieldValidity.rowValidities?.first(where: { $0.rowId == rowId })
+    }
+
+    private func cellValidity(for columnId: String, in rowValidity: RowValidity) -> CellValidity? {
+        return rowValidity.cellValidities.first(where: { $0.columnId == columnId })
+    }
 
     func validate(pageID: String) -> Validation {
         guard let documentEditor = documentEditor else {

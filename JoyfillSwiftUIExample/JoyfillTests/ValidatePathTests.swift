@@ -118,6 +118,43 @@ final class ValidatePathTests: XCTestCase {
         return documentEditor(document: document)
     }
 
+    func makeTableEditorForRowCellPathValidation() -> DocumentEditor {
+        let document = JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": "file-1",
+                "pageOrder": ["page-1"],
+                "pages": [[
+                    "_id": "page-1",
+                    "fieldPositions": [[
+                        "_id": "fp-1",
+                        "field": "field-1",
+                        "type": "table",
+                    ]],
+                ]],
+            ]],
+            "fields": [[
+                "_id": "field-1",
+                "file": "file-1",
+                "type": "table",
+                "required": true,
+                "tableColumns": [
+                    ["_id": "col-required", "title": "Required", "type": "text", "required": true],
+                    ["_id": "col-optional", "title": "Optional", "type": "text", "required": false],
+                ],
+                "tableColumnOrder": ["col-required", "col-optional"],
+                "value": [[
+                    "_id": "row-1",
+                    "cells": [
+                        "col-required": "",
+                        "col-optional": "ok",
+                    ],
+                ]],
+            ]],
+        ])
+        return documentEditor(document: document)
+    }
+
     // MARK: - 1. Empty path → same result as validate()
 
     func testValidatePath_EmptyPath_ReturnsDotPage() {
@@ -265,52 +302,44 @@ final class ValidatePathTests: XCTestCase {
         }
     }
 
-    // MARK: - 5. Non-existent fieldPositionId → falls back to .page
+    // MARK: - 5. Non-existent fieldPositionId → .notFound
 
-    func testValidatePath_NonExistentFieldPositionID_FallsBackToPage() {
+    func testValidatePath_NonExistentFieldPositionID_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFieldWithoutValue()
         let path = "\(pageID)/non-existent-position-id"
         let result = editor.validate(path: path)
 
-        if case .page(_) = result {
-            // expected
-        } else {
-            XCTFail("Expected .page fallback for non-existent fieldPositionId")
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for non-existent fieldPositionId")
         }
     }
 
-    // MARK: - 6. Extra depth path → falls back to .page (no crash)
+    // MARK: - 6. Invalid rowId on non-table field → .notFound (no crash)
 
-    func testValidatePath_ExtraDepthPath_DoesNotCrash() {
+    func testValidatePath_ExtraDepthPath_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFieldWithoutValue()
-        let path = "\(pageID)/\(imagePositionID)/future-row-id"
+        let path = "\(pageID)/\(imagePositionID)/nonexistent-row-id"
         let result = editor.validate(path: path)
 
-        // maxSplits: 1 so "imagePositionID/future-row-id" is treated as unknown position
-        if case .page(_) = result {
-            // expected fallback
-        } else {
-            XCTFail("Expected .page fallback for over-depth path")
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for rowId on non-table field")
         }
     }
 
     // MARK: - Path page must own the field position
 
-    func testValidatePath_WrongPageIDWithValidFieldPositionID_FallsBackToPage() {
+    func testValidatePath_WrongPageIDWithValidFieldPositionID_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFieldWithoutValue()
         let path = "non-existent-page-id/\(imagePositionID)"
         let result = editor.validate(path: path)
 
-        if case .page(let validation) = result {
-            XCTAssertEqual(validation.status, .valid)
-            XCTAssertTrue(validation.fieldValidities.isEmpty)
-        } else {
-            XCTFail("Expected .page when path page does not own the field position")
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound when fieldPositionId does not belong to the given pageId, got \(result)")
         }
     }
 
     /// Locks `fieldIdentifier.pageID == pageId` prefix: position exists on page 1 but path uses another real page id → `.page` for that other page, not `.field` for the image on page 1.
-    func testValidatePath_RealOtherPageIDWithPositionFromFirstPage_FallsBackToPage() {
+    func testValidatePath_RealOtherPageIDWithPositionFromFirstPage_ReturnsNotFound() {
         let editor = makeDocumentWithRequiredImageFirstPageAndSecondPage()
 
         let correctPath = "\(pageID)/\(imagePositionID)"
@@ -323,17 +352,9 @@ final class ValidatePathTests: XCTestCase {
         let wrongPath = "\(secondPageID)/\(imagePositionID)"
         let result = editor.validate(path: wrongPath)
 
-        guard case .page(let validation) = result else {
-            XCTFail("Expected .page fallback when path page id does not own the field position, got \(result)"); return
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound when fieldPositionId does not belong to the given pageId, got \(result)")
         }
-        XCTAssertFalse(
-            validation.fieldValidities.contains { $0.fieldPositionId == imagePositionID },
-            "Page-scoped result must not include the field position from another page"
-        )
-        XCTAssertFalse(
-            validation.fieldValidities.contains { $0.field.id == imageFieldID },
-            "Page-scoped result must not validate page-1 image under wrong page prefix"
-        )
     }
 
     // MARK: - 7. Required field without value → .invalid
@@ -846,5 +867,93 @@ final class ValidatePathTests: XCTestCase {
             XCTFail("Expected .page after clear"); return
         }
         XCTAssertEqual(afterValidation.status, .invalid)
+    }
+
+    // MARK: - 23. Row/Cell path validation
+
+    func testValidatePath_RowPath_ReturnsDotRowValidity() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1")
+
+        guard case .row(let rowValidity) = result else {
+            XCTFail("Expected .row for row path")
+            return
+        }
+        XCTAssertEqual(rowValidity.rowId, "row-1")
+        XCTAssertEqual(rowValidity.status, .invalid)
+    }
+
+    func testValidatePath_CellPath_ReturnsDotCellValidity() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1/col-required")
+
+        guard case .cell(let cellValidity) = result else {
+            XCTFail("Expected .cell for cell path")
+            return
+        }
+        XCTAssertEqual(cellValidity.columnId, "col-required")
+        XCTAssertEqual(cellValidity.status, .invalid)
+    }
+
+    func testValidatePath_InvalidColumnId_ReturnsNotFound() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1/missing-column")
+
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for invalid columnId")
+        }
+    }
+
+    func testValidatePath_InvalidRowId_ReturnsNotFound() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/missing-row")
+
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for invalid rowId")
+        }
+    }
+
+    func testValidatePath_InvalidFieldPositionId_ReturnsNotFound() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/missing-fp")
+
+        if case .notFound = result { } else {
+            XCTFail("Expected .notFound for invalid fieldPositionId")
+        }
+    }
+
+    func testValidatePath_OptionalCellWithValue_ReturnsCellValid() {
+        let editor = makeTableEditorForRowCellPathValidation()
+        let result = editor.validate(path: "page-1/fp-1/row-1/col-optional")
+
+        guard case .cell(let cellValidity) = result else {
+            XCTFail("Expected .cell for optional column with value")
+            return
+        }
+        XCTAssertEqual(cellValidity.status, .valid)
+    }
+
+    // MARK: - 24. Leading / multiple slash paths
+    // parsePath strips empty segments produced by leading or adjacent slashes,
+    // so these paths resolve identically to their slash-free equivalents.
+
+    // Leading slash → normalised, resolves to .page for that pageID
+    func testValidatePath_LeadingSlash_NormalisedToPage() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let result = editor.validate(path: "/\(pageID)")
+
+        if case .page = result { } else {
+            XCTFail("Expected .page for path with leading slash — normalisation should strip the empty segment")
+        }
+    }
+
+    // Double leading slash before pageID/fieldPositionID → normalised, resolves to .field
+    func testValidatePath_DoubleLeadingSlash_NormalisedToField() {
+        let editor = makeDocumentWithRequiredImageFieldWithoutValue()
+        let result = editor.validate(path: "//\(pageID)/\(imagePositionID)")
+
+        if case .field = result { } else {
+            XCTFail("Expected .field for path with double leading slash — normalisation should strip empty segments")
+        }
     }
 }
