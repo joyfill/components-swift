@@ -37,25 +37,17 @@ jobs:
 
       # 3. Get Release Notes (From Release UI or Manual Input)
       - name: Get Release Notes
+        env:
+          TARGET_VER: ${{ github.event_name == 'workflow_dispatch' && inputs.test_tag || github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event_name == 'workflow_dispatch' && inputs.test_body || github.event.release.body }}
         run: |
-          # A. Determine Version and Content
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            TARGET_VER="${{ inputs.test_tag }}"
-            RELEASE_BODY="${{ inputs.test_body }}"
-          else
-            TARGET_VER="${{ github.event.release.tag_name }}"
-            RELEASE_BODY="${{ github.event.release.body }}"
-          fi
-          
           echo "Processing version: $TARGET_VER"
           echo "VERSION=$TARGET_VER" >> $GITHUB_ENV
-          
-          # B. Create the input file manually
-          # We add the header "## Version" so the script knows what to do
-          echo "## $TARGET_VER" > release_notes_input.md
-          echo "" >> release_notes_input.md
-          echo -e "$RELEASE_BODY" >> release_notes_input.md
-          
+
+          # Build the input file — header first, then body
+          printf '## %s\n\n' "$TARGET_VER" > release_notes_input.md
+          printf '%s\n' "$RELEASE_BODY" >> release_notes_input.md
+
           echo "--- Content to be inserted ---"
           cat release_notes_input.md
 
