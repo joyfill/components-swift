@@ -30,8 +30,11 @@ apply_styles() {
       next
     }
     
-    # SAFETY: Remove any source links if they accidentally exist in the input
-    /^> Source:/ { next }
+    # Strip unwanted lines from the release body
+    /^> Source:/              { next }
+    /^\*\*Release Date:\*\*/  { next }
+    /^\*\*Full Changelog\*\*/ { next }
+    /^# /                     { next }
 
     # Badges
     /^###[[:space:]]+Added[[:space:]]*$/   { print added;   print ""; next }
@@ -48,24 +51,29 @@ if [ ! -f "$TARGET_MDX" ]; then
     exit 1
 fi
 
-# 3. Format the New Entry (This is now just the text/badges)
-NEW_ENTRY_STYLED=$(apply_styles "$CHANGELOG_SOURCE")
+# 3. Format the New Entry into a temp file
+NEW_ENTRY_FILE=$(mktemp)
+apply_styles "$CHANGELOG_SOURCE" > "$NEW_ENTRY_FILE"
 
 # 4. INJECT AFTER SOURCE LINE
-# This reads the Target File line-by-line. 
-# When it sees "> Source:", it prints it, and then IMMEDIATELY prints the new content.
+# Reads new content from a file via getline — avoids awk -v mangling backslashes
+# (e.g. Swift's \(variable) interpolation would be corrupted by awk -v).
 TEMP_FILE=$(mktemp)
 
-awk -v new_content="$NEW_ENTRY_STYLED" '
+awk -v new_file="$NEW_ENTRY_FILE" '
     /^> Source:/ {
         print $0             # Print the existing Source line
         print ""             # Spacer
-        print new_content    # <--- INSERT NEW CONTENT HERE
+        while ((getline line < new_file) > 0) {
+            print line       # Stream new content line-by-line from file
+        }
         print ""             # Spacer
         next
     }
     { print }                # Print every other line normally
 ' "$TARGET_MDX" > "$TEMP_FILE"
+
+rm -f "$NEW_ENTRY_FILE"
 
 # 5. Overwrite the original file
 mv "$TEMP_FILE" "$TARGET_MDX"
