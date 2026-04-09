@@ -128,12 +128,10 @@ private extension DocumentEditor {
     func resolveDecoratorTarget(path: String) -> DecoratorTarget? {
         let parsed = DocumentEditor.parsePath(path)
 
-        guard
-            let pageId          = parsed.pageId,
+        guard let pageId = parsed.pageId,
             let fieldPositionId = parsed.fieldPositionId,
             let fieldIdentifier = getFieldIdentifier(forFieldPositionID: fieldPositionId),
-            fieldIdentifier.pageID == pageId
-        else { return nil }
+            fieldIdentifier.pageID == pageId else { return nil }
 
         let fieldID = fieldIdentifier.fieldID
 

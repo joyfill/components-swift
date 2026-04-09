@@ -232,7 +232,9 @@ struct FormDestinationView: View {
     @Binding var showPublicApis: Bool
     @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
-    @State private var showDecoratorManager = false
+    @State private var showDecoratorManager      = false
+    @State private var decoratorPageID:          String = ""
+    @State private var decoratorFieldPositionID: String = ""
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = true
@@ -375,7 +377,11 @@ struct FormDestinationView: View {
         }
         .sheet(isPresented: $showDecoratorManager) {
             if let editor = documentEditor {
-                DecoratorManagerView(editor: editor)
+                DecoratorManagerView(
+                    editor: editor,
+                    selectedPageID: $decoratorPageID,
+                    selectedFieldPositionID: $decoratorFieldPositionID
+                )
             }
         }
         .sheet(isPresented: $showPublicApis) {

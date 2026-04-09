@@ -108,11 +108,14 @@ struct DecoratorManagerView: View {
     @ObservedObject var editor: DocumentEditor
     @Environment(\.dismiss) private var dismiss
 
-    @State private var draft: DecoratorDraft?         = nil
-    @State private var selectedPageID:          String = ""
-    @State private var selectedFieldPositionID: String = ""
-    @State private var selectedSchemaKey:       String = ""  // collection fields only
-    @State private var selectedColumnID:        String = ""
+    // Lifted to the parent so selection survives sheet dismiss/re-open.
+    @Binding var selectedPageID:          String
+    @Binding var selectedFieldPositionID: String
+
+    // Schema / column reset on each open — less critical to persist.
+    @State private var draft:           DecoratorDraft? = nil
+    @State private var selectedSchemaKey: String = ""
+    @State private var selectedColumnID:  String = ""
 
     // MARK: Derived — pages
 
@@ -196,19 +199,10 @@ struct DecoratorManagerView: View {
 
     // MARK: Path helpers
 
-    /// Resolves the pageID that the SDK will actually use for this fieldPositionId.
-    /// The Navigation JSON (and similar documents) reuse the same fieldPosition _id across
-    /// multiple pages (copied page templates). getFieldIdentifier always returns the first
-    /// matching page, so we use its pageID in every path to stay consistent with the SDK.
-    private var resolvedPageID: String? {
-        guard !selectedFieldPositionID.isEmpty else { return nil }
-        return editor.getFieldIdentifier(forFieldPositionID: selectedFieldPositionID)?.pageID
-    }
-
     /// "pageId/fieldPositionId"
     private var fieldPath: String? {
-        guard let pageID = resolvedPageID else { return nil }
-        return "\(pageID)/\(selectedFieldPositionID)"
+        guard !selectedPageID.isEmpty, !selectedFieldPositionID.isEmpty else { return nil }
+        return "\(selectedPageID)/\(selectedFieldPositionID)"
     }
 
     /// "pageId/fieldPositionId/rowId"
@@ -291,10 +285,12 @@ struct DecoratorManagerView: View {
                             pagePickerRow
                         } header: { Text("Select Page").textCase(nil) }
 
-                        // ── Field picker ─────────────────────────────────────
-                        Section {
-                            fieldPickerRow
-                        } header: { Text("Select Field").textCase(nil) }
+                        // ── Field picker — only shown once a page is selected ─
+                        if !selectedPageID.isEmpty {
+                            Section {
+                                fieldPickerRow
+                            } header: { Text("Select Field").textCase(nil) }
+                        }
 
                         if let path = fieldPath {
 
@@ -372,19 +368,14 @@ struct DecoratorManagerView: View {
                     }
                     .listStyle(.insetGrouped)
                     .onAppear {
-                        if selectedPageID.isEmpty {
-                            selectedPageID = sortedPages.first?.id ?? ""
-                        }
-                        if selectedFieldPositionID.isEmpty {
-                            selectedFieldPositionID = fieldEntriesForPage(selectedPageID).first?.fieldPositionId ?? ""
-                        }
+                        // Do not auto-select page — user must pick explicitly so
+                        // paths are always built from a deliberate page choice.
                         if selectedSchemaKey.isEmpty { selectedSchemaKey = sortedSchemas.first?.key ?? "" }
                         if selectedColumnID.isEmpty  { selectedColumnID  = sortedColumns.first?.id  ?? "" }
                     }
-                    .onChange(of: selectedPageID) { newPageID in
-                        // Page changed: reload field list for the new page, reset downstream
-                        let entries = fieldEntriesForPage(newPageID)
-                        selectedFieldPositionID = entries.first?.fieldPositionId ?? ""
+                    .onChange(of: selectedPageID) { _ in
+                        // Page changed: clear field selection so user explicitly picks from fresh list
+                        selectedFieldPositionID = ""
                         selectedSchemaKey       = ""
                         selectedColumnID        = ""
                     }
@@ -415,8 +406,9 @@ struct DecoratorManagerView: View {
             ForEach(sortedPages, id: \.id) { page in
                 Button {
                     let pageID = page.id ?? ""
+                    // Reset all downstream selections when page changes
                     selectedPageID          = pageID
-                    selectedFieldPositionID = fieldEntriesForPage(pageID).first?.fieldPositionId ?? ""
+                    selectedFieldPositionID = ""
                     selectedSchemaKey       = ""
                     selectedColumnID        = ""
                 } label: {
@@ -770,9 +762,12 @@ struct DecoratorEditView: View {
 struct DecoratorAPIDemoView: View, FormChangeEvent {
     @StateObject private var editor: DocumentEditor
 
-    @State private var showDecoratorManager = false
-    @State private var lastAction: String   = ""
-    @State private var showBanner: Bool     = false
+    @State private var showDecoratorManager      = false
+    @State private var lastAction: String        = ""
+    @State private var showBanner: Bool          = false
+    // Persisted across sheet dismissals so the user doesn't have to re-select
+    @State private var decoratorPageID:          String = ""
+    @State private var decoratorFieldPositionID: String = ""
 
     init() {
         _editor = StateObject(wrappedValue: DocumentEditor(
@@ -811,7 +806,11 @@ struct DecoratorAPIDemoView: View, FormChangeEvent {
             }
         }
         .sheet(isPresented: $showDecoratorManager) {
-            DecoratorManagerView(editor: editor)
+            DecoratorManagerView(
+                editor: editor,
+                selectedPageID: $decoratorPageID,
+                selectedFieldPositionID: $decoratorFieldPositionID
+            )
         }
         .onAppear {
             editor.events = self
