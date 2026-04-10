@@ -111,6 +111,7 @@ private extension DocumentEditor {
         }
         updateField(field: field)
         refreshField(fieldId: fieldID)
+        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
     }
 
     // MARK: Path resolution
@@ -231,6 +232,7 @@ private extension DocumentEditor {
         }
         updateField(field: field)
         refreshField(fieldId: fieldID)
+        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
     }
 
     // MARK: Generic fetch / apply routers

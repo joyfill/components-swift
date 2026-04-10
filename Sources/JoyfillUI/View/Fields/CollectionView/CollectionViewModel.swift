@@ -2036,7 +2036,42 @@ extension CollectionViewModel {
 
 // MARK: - DocumentEditorDelegate methods
 extension CollectionViewModel: DocumentEditorDelegate {
-    
+
+    func decoratorsDidChange() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+
+        // Row decorators per schema key
+        field.schema?.forEach { key, value in
+            tableDataModel.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+        }
+
+        // Column decorators — update schema-level columns
+        field.schema?.forEach { key, freshSchema in
+            if let freshCols = freshSchema.tableColumns {
+                if var existingSchema = tableDataModel.schema[key] {
+                    var existingCols = existingSchema.tableColumns ?? []
+                    for (i, col) in existingCols.enumerated() {
+                        if let freshCol = freshCols.first(where: { $0.id == col.id }) {
+                            existingCols[i].decorators = freshCol.decorators
+                        }
+                    }
+                    existingSchema.tableColumns = existingCols
+                    tableDataModel.schema[key] = existingSchema
+                }
+            }
+        }
+
+        // Update root-level tableColumns (mirrors root schema's columns)
+        if let rootKey = tableDataModel.schema.first(where: { $0.value.root == true })?.key,
+           let freshRootCols = field.schema?[rootKey]?.tableColumns {
+            for (i, col) in tableDataModel.tableColumns.enumerated() {
+                if let freshCol = freshRootCols.first(where: { $0.id == col.id }) {
+                    tableDataModel.tableColumns[i].decorators = freshCol.decorators
+                }
+            }
+        }
+    }
+
     func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String,
               let existingRow = rowToValueElementMap[rowID] else {
