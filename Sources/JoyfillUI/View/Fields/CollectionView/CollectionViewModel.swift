@@ -2040,25 +2040,12 @@ extension CollectionViewModel: DocumentEditorDelegate {
     func decoratorsDidChange() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
 
-        // Row decorators per schema key
+        // Refresh the entire schema so hasAnyRowDecorators and column decorators stay in sync
+        tableDataModel.schema = field.schema ?? [:]
+
+        // Row decorators per schema key (local DecoratorLocal cache)
         field.schema?.forEach { key, value in
             tableDataModel.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
-        }
-
-        // Column decorators — update schema-level columns
-        field.schema?.forEach { key, freshSchema in
-            if let freshCols = freshSchema.tableColumns {
-                if var existingSchema = tableDataModel.schema[key] {
-                    var existingCols = existingSchema.tableColumns ?? []
-                    for (i, col) in existingCols.enumerated() {
-                        if let freshCol = freshCols.first(where: { $0.id == col.id }) {
-                            existingCols[i].decorators = freshCol.decorators
-                        }
-                    }
-                    existingSchema.tableColumns = existingCols
-                    tableDataModel.schema[key] = existingSchema
-                }
-            }
         }
 
         // Update root-level tableColumns (mirrors root schema's columns)
