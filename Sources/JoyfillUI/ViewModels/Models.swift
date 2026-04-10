@@ -159,7 +159,7 @@ struct TableDataModel {
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
     var rowDecorators: [DecoratorLocal] = []
-    private var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
+    var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()

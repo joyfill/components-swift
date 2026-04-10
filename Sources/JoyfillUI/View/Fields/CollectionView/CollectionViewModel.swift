@@ -2036,7 +2036,29 @@ extension CollectionViewModel {
 
 // MARK: - DocumentEditorDelegate methods
 extension CollectionViewModel: DocumentEditorDelegate {
-    
+
+    func decoratorsDidChange() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+
+        // Refresh the entire schema so hasAnyRowDecorators and column decorators stay in sync
+        tableDataModel.schema = field.schema ?? [:]
+
+        // Row decorators per schema key (local DecoratorLocal cache)
+        field.schema?.forEach { key, value in
+            tableDataModel.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+        }
+
+        // Update root-level tableColumns (mirrors root schema's columns)
+        if let rootKey = tableDataModel.schema.first(where: { $0.value.root == true })?.key,
+           let freshRootCols = field.schema?[rootKey]?.tableColumns {
+            for (i, col) in tableDataModel.tableColumns.enumerated() {
+                if let freshCol = freshRootCols.first(where: { $0.id == col.id }) {
+                    tableDataModel.tableColumns[i].decorators = freshCol.decorators
+                }
+            }
+        }
+    }
+
     func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String,
               let existingRow = rowToValueElementMap[rowID] else {

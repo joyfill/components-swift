@@ -628,6 +628,24 @@ extension TableViewModel: DocumentEditorDelegate {
         }
     }
     
+    func decoratorsDidChange() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+
+        // Row decorators
+        if field.fieldType == .table {
+            tableDataModel.rowDecorators = field.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+        }
+
+        // Column decorators
+        if let freshColumns = field.tableColumns {
+            for (i, col) in tableDataModel.tableColumns.enumerated() {
+                if let freshCol = freshColumns.first(where: { $0.id == col.id }) {
+                    tableDataModel.tableColumns[i].decorators = freshCol.decorators
+                }
+            }
+        }
+    }
+
     func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String else {
             Log("RowID not found or no cached ValueElement", type: .error)
