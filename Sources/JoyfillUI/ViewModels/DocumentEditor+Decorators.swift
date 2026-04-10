@@ -129,11 +129,11 @@ private extension DocumentEditor {
         let parsed = DocumentEditor.parsePath(path)
 
         guard let pageId = parsed.pageId,
-            let fieldPositionId = parsed.fieldPositionId,
-            let fieldIdentifier = getFieldIdentifier(forFieldPositionID: fieldPositionId),
-            fieldIdentifier.pageID == pageId else { return nil }
-
-        let fieldID = fieldIdentifier.fieldID
+              let fieldPositionId = parsed.fieldPositionId,
+              let page = pagesForCurrentView.first(where: { $0.id == pageId }),
+              let position = page.fieldPositions?.first(where: { $0.id == fieldPositionId }),
+              let fieldID = position.field,
+              fieldMap[fieldID] != nil else { return nil }
 
         if let columnId = parsed.columnId {
             // 4 segments → column decorators; rowId resolves the schema for collection fields
