@@ -150,26 +150,58 @@ final class DecoratorPathResolutionTests: XCTestCase {
 
     // MARK: - Schema key resolution behaviour (verified via the public API result)
 
-    func testSchemaKeyResolution_unknownRow_failsToResolveCollectionRow() {
-        // For collection row paths, an unknown rowId means schemaKey resolves to nil →
-        // setRowDecoratorsForPath bails out (it requires a schemaKey). Decorator should NOT persist.
-        let (editor, _) = makeChangerHandlerEditor()
+    // MARK: - rowId / columnId validation (resolver must reject unknown IDs)
+
+    func testInvalidRowId_collection_firesOnError_doesNotPersist() {
+        let (editor, mock) = makeChangerHandlerEditor()
         let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/unknownRowID"
         editor.addDecorators(path: path, decorators: [makeDecorator(action: "ghost")])
 
+        XCTAssertEqual(mock.decoratorErrorCount, 1,
+                       "unknown rowId on collection must fire a decoratorError")
+        XCTAssertTrue(mock.lastDecoratorErrorMessage?.contains("Failed to resolve path") ?? false)
+
         let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
-        // None of the schemas should have picked up the ghost decorator.
         for (_, schema) in field?.schema ?? [:] {
             XCTAssertNil(schema.rowDecorators?.first(where: { $0.action == "ghost" }))
         }
     }
 
-    func testSchemaKeyResolution_tableRowDoesNotRequireSchema() {
-        // Even though the rowId given is bogus, the table row writer ignores schemaKey and writes
-        // to field.rowDecorators directly. This documents that table row decorators are field-scoped.
-        let (editor, _) = makeChangerHandlerEditor()
-        let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.tableFieldPositionID)/anyRowIdEvenBogus"
-        editor.addDecorators(path: path, decorators: [makeDecorator(action: "tableRowAny")])
-        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.rowDecorators?.first?.action, "tableRowAny")
+    func testInvalidRowId_table_firesOnError_doesNotPersist() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.tableFieldPositionID)/bogusRowId"
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "ghostTableRow")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1,
+                       "unknown rowId on table must fire a decoratorError (no silent writes)")
+        let field = editor.field(fieldID: ChangerHandlerSample.tableFieldID)
+        XCTAssertNil(field?.rowDecorators?.first(where: { $0.action == "ghostTableRow" }),
+                     "the decorator must not leak into the field's global rowDecorators list")
+    }
+
+    func testInvalidColumnId_collection_firesOnError_doesNotPersist() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/\(ChangerHandlerSample.collectionRootRowID)/bogusColId"
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "ghostCol")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1)
+        let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        for (_, schema) in field?.schema ?? [:] {
+            for col in schema.tableColumns ?? [] {
+                XCTAssertNil(col.decorators?.first(where: { $0.action == "ghostCol" }))
+            }
+        }
+    }
+
+    func testInvalidColumnId_table_firesOnError_doesNotPersist() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.tableFieldPositionID)/\(ChangerHandlerSample.tableRowID)/bogusColId"
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "ghostTableCol")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1)
+        let field = editor.field(fieldID: ChangerHandlerSample.tableFieldID)
+        for col in field?.tableColumns ?? [] {
+            XCTAssertNil(col.decorators?.first(where: { $0.action == "ghostTableCol" }))
+        }
     }
 }

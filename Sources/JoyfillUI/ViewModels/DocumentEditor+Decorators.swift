@@ -196,13 +196,17 @@ private extension DocumentEditor {
               let page = pagesForCurrentView.first(where: { $0.id == pageId }),
               let position = page.fieldPositions?.first(where: { $0.id == fieldPositionId }),
               let fieldID = position.field,
-              fieldMap[fieldID] != nil else { return nil }
+              let field = fieldMap[fieldID] else { return nil }
 
         if let columnId = parsed.columnId {
+            guard let rowId = parsed.rowId else { return nil }
+            guard rowExistsInField(fieldID: fieldID, rowId: rowId),
+                  columnExistsInField(field, columnId: columnId) else { return nil }
             // 4 segments → column decorators; rowId resolves the schema for collection fields
             let schemaKey = parsed.rowId.flatMap { resolvedSchemaKey(forRowID: $0, inFieldID: fieldID) }
             return .column(fieldID: fieldID, columnID: columnId, schemaKey: schemaKey)
         } else if let rowId = parsed.rowId {
+            guard rowExistsInField(fieldID: fieldID, rowId: rowId) else { return nil }
             // 3 segments → row decorators; resolve schemaKey from the rowId
             let schemaKey = resolvedSchemaKey(forRowID: rowId, inFieldID: fieldID)
             return .row(fieldID: fieldID, schemaKey: schemaKey)
