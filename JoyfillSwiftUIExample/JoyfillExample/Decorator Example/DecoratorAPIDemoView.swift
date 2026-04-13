@@ -88,6 +88,13 @@ private func fieldTypeMeta(_ type: String?) -> (label: String, color: Color) {
     }
 }
 
+// MARK: - Error alert model (Identifiable so .alert(item:) works)
+
+struct DecoratorErrorAlert: Identifiable {
+    let id = UUID()
+    let message: String
+}
+
 // MARK: - Draft model (Identifiable so .sheet(item:) works)
 
 struct DecoratorDraft: Identifiable {
@@ -111,6 +118,8 @@ struct DecoratorManagerView: View {
     // Lifted to the parent so selection survives sheet dismiss/re-open.
     @Binding var selectedPageID:          String
     @Binding var selectedFieldPositionID: String
+    // Shared error alert state (alert attached here so it renders over this sheet)
+    @Binding var decoratorError:          DecoratorErrorAlert?
 
     // Schema / column reset on each open — less critical to persist.
     @State private var draft:           DecoratorDraft? = nil
@@ -395,7 +404,12 @@ struct DecoratorManagerView: View {
             }
         }
         .sheet(item: $draft) { d in
-            DecoratorEditView(draft: d, onSave: applyDraft(_:))
+            DecoratorEditView(draft: d, decoratorError: $decoratorError, onSave: applyDraft(_:))
+        }
+        .alert(item: $decoratorError) { err in
+            Alert(title: Text("Decorator Error"),
+                  message: Text(err.message),
+                  dismissButton: .default(Text("OK")))
         }
     }
 
@@ -585,6 +599,7 @@ struct DecoratorManagerView: View {
 
 struct DecoratorEditView: View {
     let draft:  DecoratorDraft
+    @Binding var decoratorError: DecoratorErrorAlert?
     let onSave: (DecoratorDraft) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -594,8 +609,11 @@ struct DecoratorEditView: View {
     @State private var color:  String
     @State private var action: String
 
-    init(draft: DecoratorDraft, onSave: @escaping (DecoratorDraft) -> Void) {
+    init(draft: DecoratorDraft,
+         decoratorError: Binding<DecoratorErrorAlert?>,
+         onSave: @escaping (DecoratorDraft) -> Void) {
         self.draft  = draft
+        self._decoratorError = decoratorError
         self.onSave = onSave
         _icon   = State(initialValue: draft.icon)
         _label  = State(initialValue: draft.label)
@@ -629,6 +647,11 @@ struct DecoratorEditView: View {
 //                        .fontWeight(.bold)
                         .disabled(icon.isEmpty)
                 }
+            }
+            .alert(item: $decoratorError) { err in
+                Alert(title: Text("Decorator Error"),
+                      message: Text(err.message),
+                      dismissButton: .default(Text("OK")))
             }
         }
     }
@@ -759,23 +782,81 @@ struct DecoratorEditView: View {
 
 // MARK: - DecoratorAPIDemoView  (standalone entry from the option list)
 
-struct DecoratorAPIDemoView: View, FormChangeEvent {
+private class DecoratorEventHandler: FormChangeEvent {
+    weak var editor: DocumentEditor?
+    var onDecoratorAction: ((String) -> Void)?
+    var onDecoratorError: ((String) -> Void)?
+
+    func onFocus(event: Event) {
+        guard let fieldEvent = event.fieldEvent,
+              let action = fieldEvent.type, !action.isEmpty else { return }
+
+        onDecoratorAction?(action)
+
+        // Build the decorator path from the event
+        guard let editor = editor,
+              let pageID = fieldEvent.pageID,
+              let fieldPositionId = fieldEvent.fieldPositionId else { return }
+
+        let basePath = "\(pageID)/\(fieldPositionId)"
+        let path: String
+        if let columnID = fieldEvent.columnId {
+            let rowID = fieldEvent.rowIds?.first ?? "-"
+            path = "\(basePath)/\(rowID)/\(columnID)"
+        } else if let rowID = fieldEvent.rowIds?.first {
+            path = "\(basePath)/\(rowID)"
+        } else {
+            path = basePath
+        }
+
+        // Update the tapped decorator to show it was viewed
+        var updated = Decorator()
+        updated.action = action
+        updated.icon   = "eye"
+        updated.label  = "Viewed"
+        updated.color  = "#10B981"
+        editor.updateDecorator(path: path, action: action, decorator: updated)
+    }
+
+    func onChange(changes: [Change], document: JoyDoc) { }
+    func onBlur(event: Event) { }
+    func onUpload(event: UploadEvent) { }
+    func onCapture(event: CaptureEvent) { }
+    func onError(error: JoyfillError) {
+        if case .decoratorError(let e) = error {
+            DispatchQueue.main.async { [weak self] in
+                self?.onDecoratorError?(e.message)
+            }
+        }
+    }
+}
+
+struct DecoratorAPIDemoView: View {
     @StateObject private var editor: DocumentEditor
 
     @State private var showDecoratorManager      = false
     @State private var lastAction: String        = ""
     @State private var showBanner: Bool          = false
+    @State private var decoratorError: DecoratorErrorAlert? = nil
     // Persisted across sheet dismissals so the user doesn't have to re-select
     @State private var decoratorPageID:          String = ""
     @State private var decoratorFieldPositionID: String = ""
 
     init() {
-        _editor = StateObject(wrappedValue: DocumentEditor(
+        let handler = DecoratorEventHandler()
+        let editor = DocumentEditor(
             document: sampleJSONDocument(fileName: "Navigation"),
-            events: nil,
+            events: handler,
             validateSchema: false,
             license: licenseKey
-        ))
+        )
+        handler.editor = editor
+        _editor = StateObject(wrappedValue: editor)
+    }
+
+    /// The event handler stored inside the editor, cast back to our concrete type.
+    private var eventHandler: DecoratorEventHandler? {
+        editor.events as? DecoratorEventHandler
     }
 
     var body: some View {
@@ -809,11 +890,24 @@ struct DecoratorAPIDemoView: View, FormChangeEvent {
             DecoratorManagerView(
                 editor: editor,
                 selectedPageID: $decoratorPageID,
-                selectedFieldPositionID: $decoratorFieldPositionID
+                selectedFieldPositionID: $decoratorFieldPositionID,
+                decoratorError: $decoratorError
             )
         }
         .onAppear {
-            editor.events = self
+            eventHandler?.onDecoratorAction = { action in
+                lastAction = action
+                showBanner = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { showBanner = false }
+            }
+            eventHandler?.onDecoratorError = { message in
+                decoratorError = DecoratorErrorAlert(message: message)
+            }
+        }
+        .alert(item: $decoratorError) { err in
+            Alert(title: Text("Decorator Error"),
+                  message: Text(err.message),
+                  dismissButton: .default(Text("OK")))
         }
     }
 
@@ -832,20 +926,6 @@ struct DecoratorAPIDemoView: View, FormChangeEvent {
         .cornerRadius(24)
     }
 
-    // MARK: FormChangeEvent
-
-    func onFocus(event: Event) {
-        guard let action = event.fieldEvent?.type, !action.isEmpty else { return }
-        lastAction = action
-        showBanner = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { showBanner = false }
-    }
-
-    func onChange(changes: [Change], document: JoyDoc) { }
-    func onBlur(event: Event)       { }
-    func onUpload(event: UploadEvent) { }
-    func onCapture(event: CaptureEvent) { }
-    func onError(error: JoyfillError) { }
 }
 
 // MARK: - JoyDocField + Identifiable (local)

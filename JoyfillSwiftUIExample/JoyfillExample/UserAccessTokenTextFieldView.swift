@@ -235,6 +235,7 @@ struct FormDestinationView: View {
     @State private var showDecoratorManager      = false
     @State private var decoratorPageID:          String = ""
     @State private var decoratorFieldPositionID: String = ""
+    @State private var decoratorError:           DecoratorErrorAlert? = nil
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = true
@@ -380,7 +381,8 @@ struct FormDestinationView: View {
                 DecoratorManagerView(
                     editor: editor,
                     selectedPageID: $decoratorPageID,
-                    selectedFieldPositionID: $decoratorFieldPositionID
+                    selectedFieldPositionID: $decoratorFieldPositionID,
+                    decoratorError: $decoratorError
                 )
             }
         }
