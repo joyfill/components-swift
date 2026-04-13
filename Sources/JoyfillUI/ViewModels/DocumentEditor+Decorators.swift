@@ -23,6 +23,7 @@ public extension DocumentEditor {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return
         }
+        guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
         for decorator in decorators {
             if let error = validateDecorator(decorator) {
                 events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
@@ -40,6 +41,7 @@ public extension DocumentEditor {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return
         }
+        guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
         var list = fetchDecorators(for: target)
         let countBefore = list.count
         list.removeAll { $0.action == action }
@@ -56,6 +58,7 @@ public extension DocumentEditor {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return
         }
+        guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
         if let error = validateDecorator(decorator) {
             events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
             return
@@ -73,6 +76,31 @@ public extension DocumentEditor {
 // MARK: - Private helpers
 
 private extension DocumentEditor {
+
+    // MARK: License gating
+
+    /// Returns the fieldID associated with a decorator target.
+    func fieldID(for target: DecoratorTarget) -> String {
+        switch target {
+        case .field(let fieldID): return fieldID
+        case .row(let fieldID, _): return fieldID
+        case .column(let fieldID, _, _): return fieldID
+        }
+    }
+
+    /// Blocks writes to collection-field decorators when the collection feature
+    /// is not enabled by the license. Emits a decoratorError and returns false.
+    func licenseAllowsDecoratorWrite(for target: DecoratorTarget, path: String) -> Bool {
+        let fieldID = self.fieldID(for: target)
+        guard let field = fieldMap[fieldID] else { return true }
+        if field.fieldType == .collection && !isCollectionFieldEnabled {
+            events?.onError(error: .decoratorError(error: DecoratorError(
+                message: "Collection field decorators are not available without a valid license (path '\(path)')"
+            )))
+            return false
+        }
+        return true
+    }
 
     // MARK: Decorator validation
 
