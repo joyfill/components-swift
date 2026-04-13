@@ -11,7 +11,7 @@ public extension DocumentEditor {
     /// Returns all decorators at the given path.
     func getDecorators(path: String) -> [Decorator] {
         guard let target = resolveDecoratorTarget(path: path) else {
-            Log("getDecorators: could not resolve path '\(path)'", type: .warning)
+            events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return []
         }
         return fetchDecorators(for: target)
@@ -20,8 +20,14 @@ public extension DocumentEditor {
     /// Appends one or more decorators at the given path.
     func addDecorators(path: String, decorators: [Decorator]) {
         guard let target = resolveDecoratorTarget(path: path) else {
-            Log("addDecorators: could not resolve path '\(path)'", type: .warning)
+            events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return
+        }
+        for decorator in decorators {
+            if let error = validateDecorator(decorator) {
+                events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
+                return
+            }
         }
         var list = fetchDecorators(for: target)
         list.append(contentsOf: decorators)
@@ -31,23 +37,32 @@ public extension DocumentEditor {
     /// Removes the decorator whose `action` matches at the given path.
     func removeDecorator(path: String, action: String) {
         guard let target = resolveDecoratorTarget(path: path) else {
-            Log("removeDecorator: could not resolve path '\(path)'", type: .warning)
+            events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return
         }
         var list = fetchDecorators(for: target)
+        let countBefore = list.count
         list.removeAll { $0.action == action }
+        if list.count == countBefore {
+            events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to remove decorator with action: '\(action)'")))
+            return
+        }
         applyDecorators(list, for: target)
     }
 
     /// Replaces the decorator whose `action` matches with the new decorator at the given path.
     func updateDecorator(path: String, action: String, decorator: Decorator) {
         guard let target = resolveDecoratorTarget(path: path) else {
-            Log("updateDecorator: could not resolve path '\(path)'", type: .warning)
+            events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
+            return
+        }
+        if let error = validateDecorator(decorator) {
+            events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
             return
         }
         var list = fetchDecorators(for: target)
         guard let index = list.firstIndex(where: { $0.action == action }) else {
-            Log("updateDecorator: no decorator with action '\(action)' found at path '\(path)'", type: .warning)
+            events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to update decorator with action: '\(action)'")))
             return
         }
         list[index] = decorator
@@ -58,6 +73,25 @@ public extension DocumentEditor {
 // MARK: - Private helpers
 
 private extension DocumentEditor {
+
+    // MARK: Decorator validation
+
+    /// Validates decorator properties. Returns an error message if invalid, nil if valid.
+    func validateDecorator(_ decorator: Decorator) -> String? {
+        if let action = decorator.action, action.isEmpty {
+            return "Invalid decorator property: 'action' must not be empty"
+        }
+        if decorator.action == nil {
+            return "Invalid decorator property: 'action' is required"
+        }
+        if let color = decorator.color, !color.isEmpty {
+            let hexPattern = "^#[0-9A-Fa-f]{6}$"
+            if color.range(of: hexPattern, options: .regularExpression) == nil {
+                return "Invalid decorator property: 'color' must be a hex string (e.g. #3B82F6), got '\(color)'"
+            }
+        }
+        return nil
+    }
 
     // MARK: Field Decorators
 
