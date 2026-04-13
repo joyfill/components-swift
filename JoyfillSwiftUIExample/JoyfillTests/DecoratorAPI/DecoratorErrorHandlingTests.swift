@@ -274,6 +274,104 @@ final class DecoratorErrorHandlingTests: XCTestCase {
         XCTAssertTrue(cached.isEmpty, "no decorators should persist when license blocks")
     }
 
+    // MARK: - Duplicate action rejection (uniqueness per scope)
+
+    func testAddDecorators_duplicateOfExisting_firesOnErrorAndBlocksBatch() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "dup", label: "Original")])
+        mock.reset()
+
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "dup", label: "NewOne")])
+        XCTAssertEqual(mock.decoratorErrorCount, 1)
+        XCTAssertTrue(mock.lastDecoratorErrorMessage?.contains("already exists") ?? false)
+        XCTAssertTrue(mock.lastDecoratorErrorMessage?.contains("dup") ?? false)
+
+        let list = editor.getDecorators(path: path)
+        XCTAssertEqual(list.count, 1, "duplicate must not be appended")
+        XCTAssertEqual(list.first?.label, "Original", "original must remain unchanged")
+    }
+
+    func testAddDecorators_duplicateWithinBatch_firesOnErrorAndBlocksAll() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        editor.addDecorators(path: path, decorators: [
+            makeDecorator(action: "a"),
+            makeDecorator(action: "b"),
+            makeDecorator(action: "a"), // duplicate within the batch
+        ])
+        XCTAssertEqual(mock.decoratorErrorCount, 1)
+        XCTAssertTrue(mock.lastDecoratorErrorMessage?.lowercased().contains("duplicate") ?? false)
+        XCTAssertEqual(editor.getDecorators(path: path).count, 0,
+                       "an internal duplicate must block the whole batch")
+    }
+
+    func testAddDecorators_noDuplicates_succeeds() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        editor.addDecorators(path: path, decorators: [
+            makeDecorator(action: "a"),
+            makeDecorator(action: "b"),
+            makeDecorator(action: "c"),
+        ])
+        XCTAssertEqual(mock.decoratorErrorCount, 0)
+        XCTAssertEqual(editor.getDecorators(path: path).map { $0.action }, ["a", "b", "c"])
+    }
+
+    func testUpdateDecorator_newActionCollidesWithAnotherEntry_firesOnError() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        editor.addDecorators(path: path, decorators: [
+            makeDecorator(action: "a", label: "Apple"),
+            makeDecorator(action: "b", label: "Banana"),
+        ])
+        mock.reset()
+
+        // Try to rename "a" → "b" (would collide with the existing "b")
+        editor.updateDecorator(path: path, action: "a",
+                               decorator: makeDecorator(action: "b", label: "Hijack"))
+        XCTAssertEqual(mock.decoratorErrorCount, 1)
+        XCTAssertTrue(mock.lastDecoratorErrorMessage?.contains("already exists") ?? false)
+
+        // Neither entry mutated
+        let list = editor.getDecorators(path: path)
+        XCTAssertEqual(list.count, 2)
+        XCTAssertEqual(list.first(where: { $0.action == "a" })?.label, "Apple")
+        XCTAssertEqual(list.first(where: { $0.action == "b" })?.label, "Banana")
+    }
+
+    func testUpdateDecorator_keepsSameAction_succeeds() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        editor.addDecorators(path: path, decorators: [
+            makeDecorator(action: "a", label: "Old"),
+            makeDecorator(action: "b", label: "Other"),
+        ])
+        mock.reset()
+
+        // Updating "a" with a new decorator that also has action "a" must NOT trigger collision.
+        editor.updateDecorator(path: path, action: "a",
+                               decorator: makeDecorator(action: "a", label: "New"))
+        XCTAssertEqual(mock.decoratorErrorCount, 0)
+        XCTAssertEqual(editor.getDecorators(path: path).first(where: { $0.action == "a" })?.label, "New")
+    }
+
+    func testUpdateDecorator_renameToFreshAction_succeeds() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "a", label: "Alpha")])
+        mock.reset()
+
+        // Rename "a" → "c" (no collision with any existing entry)
+        editor.updateDecorator(path: path, action: "a",
+                               decorator: makeDecorator(action: "c", label: "Charlie"))
+        XCTAssertEqual(mock.decoratorErrorCount, 0)
+        let list = editor.getDecorators(path: path)
+        XCTAssertEqual(list.count, 1)
+        XCTAssertEqual(list.first?.action, "c")
+        XCTAssertEqual(list.first?.label, "Charlie")
+    }
+
     // MARK: - No events handler (must not crash)
 
     func testNoEventsHandler_noCrash_invalidPath() {

@@ -31,6 +31,24 @@ public extension DocumentEditor {
             }
         }
         var list = fetchDecorators(for: target)
+        let existingActions = Set(list.compactMap { $0.action })
+        let newActions = decorators.compactMap { $0.action }
+
+        // Check duplicates within incoming batch
+        if Set(newActions).count != newActions.count {
+            events?.onError(error: .decoratorError(error: DecoratorError(
+                message: "Duplicate decorators found in the incoming batch at path '\(path)'"
+            )))
+            return
+        }
+
+        // Check duplicates against existing decorators
+        if let duplicate = newActions.first(where: { existingActions.contains($0) }) {
+            events?.onError(error: .decoratorError(error: DecoratorError(
+                message: "Decorator with action '\(duplicate)' already exists at path '\(path)'"
+            )))
+            return
+        }
         list.append(contentsOf: decorators)
         applyDecorators(list, for: target)
     }
@@ -43,12 +61,11 @@ public extension DocumentEditor {
         }
         guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
         var list = fetchDecorators(for: target)
-        let countBefore = list.count
-        list.removeAll { $0.action == action }
-        if list.count == countBefore {
+        guard let index = list.firstIndex(where: { $0.action == action }) else {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to remove decorator with action: '\(action)'")))
             return
         }
+        list.remove(at: index)
         applyDecorators(list, for: target)
     }
 
@@ -66,6 +83,16 @@ public extension DocumentEditor {
         var list = fetchDecorators(for: target)
         guard let index = list.firstIndex(where: { $0.action == action }) else {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to update decorator with action: '\(action)'")))
+            return
+        }
+        // If the new decorator's action differs from the target action, ensure it
+        // doesn't collide with a different existing entry (would create duplicates).
+        if let newAction = decorator.action,
+           newAction != action,
+           list.contains(where: { $0.action == newAction }) {
+            events?.onError(error: .decoratorError(error: DecoratorError(
+                message: "Decorator with action '\(newAction)' already exists at path '\(path)'"
+            )))
             return
         }
         list[index] = decorator
