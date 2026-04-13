@@ -176,6 +176,11 @@ final class DecoratorLiveUpdateTests: XCTestCase {
         let schemaCol = vm.tableDataModel.schema[ChangerHandlerSample.collectionRootSchemaKey]?
             .tableColumns?.first(where: { $0.id == ChangerHandlerSample.collectionRootColumnID })
         XCTAssertEqual(schemaCol?.decorators?.first?.action, "rootCol")
+        // columnsMap (authoritative source read by CollectionModalTopNavigationView)
+        let mapKey = "\(ChangerHandlerSample.collectionRootSchemaKey)_\(ChangerHandlerSample.collectionRootColumnID)"
+        let mappedCol = vm.columnsMap[mapKey]
+        XCTAssertEqual(mappedCol?.decorators?.first?.action, "rootCol",
+                       "columnsMap must be rebuilt so the navigation view reads fresh column decorators")
     }
 
     func testCollectionViewModel_addNestedColumnDecorator_updatesSchemaTableColumns() {
@@ -190,6 +195,12 @@ final class DecoratorLiveUpdateTests: XCTestCase {
         let schemaCol = vm.tableDataModel.schema[ChangerHandlerSample.collectionNestedSchemaKey]?
             .tableColumns?.first(where: { $0.id == ChangerHandlerSample.collectionNestedColumnID })
         XCTAssertEqual(schemaCol?.decorators?.first?.action, "nestedCol")
+        // columnsMap — critical for nested columns, which the navigation view's old
+        // code path (RowType.header.tableColumns snapshot) left stale.
+        let mapKey = "\(ChangerHandlerSample.collectionNestedSchemaKey)_\(ChangerHandlerSample.collectionNestedColumnID)"
+        let mappedCol = vm.columnsMap[mapKey]
+        XCTAssertEqual(mappedCol?.decorators?.first?.action, "nestedCol",
+                       "nested column decorators must be reflected in columnsMap")
     }
 
     /// Regression: before the fix, `tableDataModel.schema` was not refreshed in `decoratorsDidChange()`,
