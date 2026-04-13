@@ -35,6 +35,13 @@ public protocol DocumentEditorDelegate: AnyObject {
     func decoratorsDidChange()
 }
 
+public extension DocumentEditorDelegate {
+    /// Default no-op so external conformers don't break when the SDK adds
+    /// decorator-cache refresh hooks. Internal view models (TableViewModel,
+    /// CollectionViewModel) provide real implementations.
+    func decoratorsDidChange() {}
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
