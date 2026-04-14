@@ -76,6 +76,24 @@ final class DecoratorErrorHandlingTests: XCTestCase {
         XCTAssertEqual(editor.getDecorators(path: path).first?.label, "Real")
     }
 
+    // MARK: - Empty batch
+
+    func testAddDecorators_emptyArray_isNoOp() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableFieldPath()
+        // Seed one decorator so we can verify the list is untouched.
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "existing")])
+        mock.reset()
+
+        editor.addDecorators(path: path, decorators: [])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 0,
+                       "empty batch must not fire an error")
+        XCTAssertEqual(editor.getDecorators(path: path).count, 1,
+                       "existing decorators must be untouched")
+        XCTAssertEqual(editor.getDecorators(path: path).first?.action, "existing")
+    }
+
     // MARK: - Decorator validation: action
 
     func testValidation_addDecorator_nilAction_firesOnErrorAndBlocks() {

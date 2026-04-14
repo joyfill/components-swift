@@ -24,6 +24,7 @@ public extension DocumentEditor {
             return
         }
         guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
+        guard !decorators.isEmpty else { return }
         for decorator in decorators {
             if let error = validateDecorator(decorator) {
                 events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
