@@ -228,20 +228,21 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func getTableColumnsForSelectedRows() -> [FieldTableColumn] {
+        return getHeaderForSelectedRows().columns
+    }
+
+    func getHeaderForSelectedRows() -> (columns: [FieldTableColumn], schemaKey: String) {
         guard let firstSelectedRow = tableDataModel.selectedRows.first else {
             Log("No row selected", type: .error)
-            return []
+            return ([], rootSchemaKey)
         }
         
         let indexOfFirstSelectedRow = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRow } ) ?? 0
-        
-        let tableColumns = getTableColumnsByIndex(indexOfFirstSelectedRow)
-        if tableColumns.count > 0 {
-            return tableColumns
-        } else {
-            return tableDataModel.tableColumns
+        let header = getHeaderByIndex(indexOfFirstSelectedRow)
+        if !header.columns.isEmpty {
+            return header
         }
-        
+        return (tableDataModel.tableColumns, rootSchemaKey)
     }
     
     func isRootSchemaValid() -> Bool {
@@ -1026,11 +1027,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     fileprivate func getTableColumnsByIndex(_ indexOfFirstSelectedRow: Int) -> [FieldTableColumn] {
+        return getHeaderByIndex(indexOfFirstSelectedRow).columns
+    }
+
+    fileprivate func getHeaderByIndex(_ indexOfFirstSelectedRow: Int) -> (columns: [FieldTableColumn], schemaKey: String) {
         for indexOfCurrentRow in stride(from: indexOfFirstSelectedRow, through: 0, by: -1) {
             switch tableDataModel.filteredcellModels[indexOfCurrentRow].rowType {
-            case .header(level: let level, tableColumns: let tableColumns, _):
+            case .header(level: let level, tableColumns: let tableColumns, let schemaKey):
                 if level == tableDataModel.filteredcellModels[indexOfFirstSelectedRow].rowType.level {
-                    return tableColumns
+                    return (tableColumns, schemaKey)
                 } else {
                     continue
                 }
@@ -1038,7 +1043,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 continue
             }
         }
-        return []
+        return ([], rootSchemaKey)
     }
     
     func duplicateRow() {
@@ -2036,7 +2041,31 @@ extension CollectionViewModel {
 
 // MARK: - DocumentEditorDelegate methods
 extension CollectionViewModel: DocumentEditorDelegate {
-    
+
+    func decoratorsDidChange() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+
+        // Refresh the entire schema so hasAnyRowDecorators and column decorators stay in sync
+        tableDataModel.schema = field.schema ?? [:]
+
+        // Row decorators per schema key (local DecoratorLocal cache)
+        field.schema?.forEach { key, value in
+            tableDataModel.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
+        }
+        // Update columnsMap for decorators
+        self.columnsMap = self.getTableColumns(tableDataModel: self.tableDataModel)
+        
+        // Update root-level tableColumns (mirrors root schema's columns)
+        if let freshRootCols = field.schema?[rootSchemaKey]?.tableColumns {
+            for (i, col) in tableDataModel.tableColumns.enumerated() {
+                if let freshCol = freshRootCols.first(where: { $0.id == col.id }) {
+                    tableDataModel.tableColumns[i].decorators = freshCol.decorators
+                }
+            }
+        }
+    }
+
+
     func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String,
               let existingRow = rowToValueElementMap[rowID] else {

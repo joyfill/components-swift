@@ -32,6 +32,14 @@ public protocol DocumentEditorDelegate: AnyObject {
     func insertRow(for change: Change)
     func deleteRow(for change: Change)
     func moveRow(for change: Change)
+    func decoratorsDidChange()
+}
+
+public extension DocumentEditorDelegate {
+    /// Default no-op so external conformers don't break when the SDK adds
+    /// decorator-cache refresh hooks. Internal view models (TableViewModel,
+    /// CollectionViewModel) provide real implementations.
+    func decoratorsDidChange() {}
 }
 
 public class DocumentEditor: ObservableObject {
@@ -280,7 +288,7 @@ public class DocumentEditor: ObservableObject {
         return nil
     }
 
-    private func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
+    func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
         if let delegate = delegateMap[fieldID]?.value {
             return delegate
         }

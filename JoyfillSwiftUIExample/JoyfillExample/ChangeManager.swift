@@ -59,6 +59,8 @@ extension ChangeManager: FormChangeEvent {
             print("❌ Schema Error: \(schemaError)")
         case .schemaVersionError(let versionError):
             print("❌ Schema Error: \(versionError)")
+        case .decoratorError(let decoratorError):
+            print("❌ Decorator Error: \(decoratorError.message)")
         }
         print("Error occurred: \(error)")
     }
