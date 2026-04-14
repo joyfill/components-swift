@@ -148,6 +148,21 @@ final class DecoratorPathResolutionTests: XCTestCase {
         XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorators?.first?.action, "fieldA")
     }
 
+    // MARK: - Extra path segments
+
+    /// parsePath reads only the first 4 segments and silently discards the rest.
+    /// A 5-segment path resolves as a valid column path — the extra segment is ignored.
+    func testPathWithExtraSegments_resolvesAsColumnPath() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let path = "\(ChangerHandlerSample.tableColumnPath())/extraSegment"
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "extra")])
+        XCTAssertEqual(mock.decoratorErrorCount, 0,
+                       "extra segments are silently discarded by parsePath")
+        let field = editor.field(fieldID: ChangerHandlerSample.tableFieldID)
+        let col = field?.tableColumns?.first(where: { $0.id == ChangerHandlerSample.tableColumnID })
+        XCTAssertEqual(col?.decorators?.first?.action, "extra")
+    }
+
     // MARK: - Schema key resolution behaviour (verified via the public API result)
 
     // MARK: - rowId / columnId validation (resolver must reject unknown IDs)

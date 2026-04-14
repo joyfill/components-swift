@@ -7,6 +7,9 @@ public extension DocumentEditor {
     // path = "pageId/fieldPositionId"             → field decorators
     // path = "pageId/fieldPositionId/rowId"        → row decorators
     // path = "pageId/fieldPositionId/rowId/colId"  → column decorators
+    //
+    // Note: Path segments are parsed with empty-component filtering;
+    // consecutive or trailing slashes are treated as single separators.
 
     /// Returns all decorators at the given path.
     func getDecorators(path: String) -> [Decorator] {
