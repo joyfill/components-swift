@@ -179,6 +179,51 @@ final class DecoratorPathResolutionTests: XCTestCase {
                      "the decorator must not leak into the field's global rowDecorators list")
     }
 
+    // MARK: - Cross-schema rowId / columnId mismatch
+
+    /// Passes a root-schema rowId with a nested-schema columnId. The column
+    /// exists in the field but belongs to a different schema than the row.
+    /// The resolver must reject this — otherwise the setter silently no-ops
+    /// because the column is not found in the row's resolved schema.
+    func testCrossSchemaColumnMismatch_rootRowNestedColumn_firesOnError() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        // Root rowId + nested columnId → cross-schema mismatch
+        let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/\(ChangerHandlerSample.collectionRootRowID)/\(ChangerHandlerSample.collectionNestedColumnID)"
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "crossSchema")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1,
+                       "cross-schema rowId/columnId mismatch must fire a decoratorError")
+        XCTAssertTrue(mock.lastDecoratorErrorMessage?.contains("Failed to resolve path") ?? false)
+
+        // Must not write to any schema
+        let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        for (_, schema) in field?.schema ?? [:] {
+            for col in schema.tableColumns ?? [] {
+                XCTAssertNil(col.decorators?.first(where: { $0.action == "crossSchema" }),
+                             "cross-schema decorator must not leak into any schema's columns")
+            }
+        }
+    }
+
+    /// The inverse: nested-schema rowId with a root-schema columnId.
+    func testCrossSchemaColumnMismatch_nestedRowRootColumn_firesOnError() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        // Nested rowId + root columnId → cross-schema mismatch
+        let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/\(ChangerHandlerSample.collectionNestedRowID)/\(ChangerHandlerSample.collectionRootColumnID)"
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "crossSchemaReverse")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1,
+                       "cross-schema rowId/columnId mismatch must fire a decoratorError")
+
+        let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        for (_, schema) in field?.schema ?? [:] {
+            for col in schema.tableColumns ?? [] {
+                XCTAssertNil(col.decorators?.first(where: { $0.action == "crossSchemaReverse" }),
+                             "cross-schema decorator must not leak into any schema's columns")
+            }
+        }
+    }
+
     func testInvalidColumnId_collection_firesOnError_doesNotPersist() {
         let (editor, mock) = makeChangerHandlerEditor()
         let path = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/\(ChangerHandlerSample.collectionRootRowID)/bogusColId"

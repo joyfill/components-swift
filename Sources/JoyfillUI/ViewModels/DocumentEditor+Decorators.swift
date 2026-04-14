@@ -227,10 +227,10 @@ private extension DocumentEditor {
 
         if let columnId = parsed.columnId {
             guard let rowId = parsed.rowId else { return nil }
-            guard rowExistsInField(fieldID: fieldID, rowId: rowId),
-                  columnExistsInField(field, columnId: columnId) else { return nil }
+            guard rowExistsInField(fieldID: fieldID, rowId: rowId) else { return nil }
             // 4 segments → column decorators; rowId resolves the schema for collection fields
-            let schemaKey = parsed.rowId.flatMap { resolvedSchemaKey(forRowID: $0, inFieldID: fieldID) }
+            let schemaKey = resolvedSchemaKey(forRowID: rowId, inFieldID: fieldID)
+            guard columnExistsInField(field, columnId: columnId, schemaKey: schemaKey) else { return nil }
             return .column(fieldID: fieldID, columnID: columnId, schemaKey: schemaKey)
         } else if let rowId = parsed.rowId {
             guard rowExistsInField(fieldID: fieldID, rowId: rowId) else { return nil }
