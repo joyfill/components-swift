@@ -10,6 +10,9 @@ public extension DocumentEditor {
     //
     // Note: Path segments are parsed with empty-component filtering;
     // consecutive or trailing slashes are treated as single separators.
+    //
+    // All methods in this section must be called on the main thread,
+    // consistent with the DocumentEditor threading model.
 
     /// Returns all decorators at the given path.
     func getDecorators(path: String) -> [Decorator] {
