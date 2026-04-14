@@ -19,12 +19,13 @@ public extension DocumentEditor {
 
     /// Appends one or more decorators at the given path.
     func addDecorators(path: String, decorators: [Decorator]) {
+        guard !decorators.isEmpty else { return }
         guard let target = resolveDecoratorTarget(path: path) else {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
             return
         }
         guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
-        guard !decorators.isEmpty else { return }
+        
         for decorator in decorators {
             if let error = validateDecorator(decorator) {
                 events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
