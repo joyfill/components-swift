@@ -931,7 +931,3 @@ struct DecoratorAPIDemoView: View {
     }
 
 }
-
-// MARK: - JoyDocField + Identifiable (local)
-
-extension JoyDocField: @retroactive Identifiable { }
