@@ -241,7 +241,11 @@ struct DecoratorManagerView: View {
             else { return nil }
             return "\(base)/\(rowID)/\(columnID)"
         }
-        return "\(base)/-/\(columnID)"
+        // Table fields: use a real rowId from rowOrder so the path resolver
+        // can validate it. Column decorators are row-independent for tables,
+        // but the 4-segment path format still requires a valid rowId.
+        guard let rowID = selectedField?.rowOrder?.first else { return nil }
+        return "\(base)/\(rowID)/\(columnID)"
     }
 
     /// Returns the first rowId that belongs to the given schemaKey in a field's value tree.
