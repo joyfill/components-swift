@@ -2050,7 +2050,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
 
         // Row decorators per schema key (local DecoratorLocal cache)
         field.schema?.forEach { key, value in
-            tableDataModel.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+            tableDataModel.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
         }
         // Update columnsMap for decorators
         self.columnsMap = self.getTableColumns(tableDataModel: self.tableDataModel)

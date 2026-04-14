@@ -159,7 +159,7 @@ struct TableDataModel {
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
     var rowDecorators: [DecoratorLocal] = []
-    var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
+    private(set) var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -217,7 +217,7 @@ struct TableDataModel {
             buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
-                self.rowDecoratorsBySchemaKey[key] = value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+                self.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
                 if value.root == true {
                     //Only top level columns
                     self.tableColumns = filterTableColumns(key: key)
@@ -377,6 +377,10 @@ struct TableDataModel {
             return rowDecorators
         }
         return rowDecoratorsBySchemaKey[schemaKey] ?? []
+    }
+
+    mutating func setRowDecorators(_ decorators: [DecoratorLocal], forSchemaKey schemaKey: String) {
+        rowDecoratorsBySchemaKey[schemaKey] = decorators
     }
 
     func hasAnyRowDecorators(schemaKey: String) -> Bool {
