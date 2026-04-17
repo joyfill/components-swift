@@ -735,7 +735,7 @@ extension DocumentEditor {
                 yMin: fieldData?.yMin,
                 xTitle: fieldData?.xTitle,
                 xMax: fieldData?.xMax,
-                xMin: fieldData?.xMin,
+                xMin: fieldData?.xMin
             )
             let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
                                        valueElements: fieldData?.value?.valueElements,
