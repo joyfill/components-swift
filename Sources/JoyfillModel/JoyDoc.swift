@@ -58,6 +58,32 @@ public struct Decorator: Equatable {
     }
 }
 
+// MARK: - RowDecorators
+public struct Decorators {
+    public var dictionary: [String: Any]
+
+    public init(dictionary: [String: Any] = [:]) {
+        self.dictionary = dictionary
+    }
+
+    /// Row-level decorators that apply to the entire row.
+    public var all: [Decorator] {
+        get { (dictionary["all"] as? [[String: Any]])?.compactMap(Decorator.init) ?? [] }
+        set { dictionary["all"] = newValue.map { $0.dictionary } }
+    }
+
+    /// Per-cell decorators keyed by column ID.
+    public var cells: [String: [Decorator]] {
+        get {
+            guard let raw = dictionary["cells"] as? [String: Any] else { return [:] }
+            return raw.compactMapValues { ($0 as? [[String: Any]])?.compactMap(Decorator.init) }
+        }
+        set {
+            dictionary["cells"] = newValue.mapValues { $0.map { $0.dictionary } }
+        }
+    }
+}
+
 /// Represents a Joy document.
 ///
 /// Use the `JoyDoc` struct to create and manipulate Joy documents.
@@ -1280,7 +1306,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
 
     /// The coding keys used for encoding and decoding the value element.
     enum CodingKeys: String, CodingKey {
-        case _id, url, fileName, filePath, deleted, title, description, points, cells, metadata
+        case _id, url, fileName, filePath, deleted, title, description, points, cells, metadata, decorators
     }
 
     /// Initializes a value element with an ID, deleted flag, description, title, and points.
@@ -1462,6 +1488,22 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     public var tz: String? {
         get { (dictionary["tz"] as? ValueUnion)?.text }
         set { setValue(newValue, key: "tz") }
+    }
+
+    /// Per-row decorators: `all` for row-level, `cells` for per-cell keyed by column ID.
+    public var decorators: Decorators? {
+        get {
+            guard let valueUnion = dictionary["decorators"] as? ValueUnion,
+                  let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
+            return Decorators(dictionary: anyDict)
+        }
+        set {
+            if let decs = newValue {
+                dictionary["decorators"] = ValueUnion(anyDictionary: decs.dictionary)
+            } else {
+                dictionary.removeValue(forKey: "decorators")
+            }
+        }
     }
 }
 
