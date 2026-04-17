@@ -24,7 +24,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     var showRowDecorators: Bool {
-        return !tableDataModel.rowDecorators.isEmpty && tableDataModel.mode == .fill
+        return tableDataModel.decorate && tableDataModel.mode == .fill
     }
 
     init(tableDataModel: TableDataModel) {
@@ -633,7 +633,7 @@ extension TableViewModel: DocumentEditorDelegate {
 
         // Row decorators
         if field.fieldType == .table {
-            tableDataModel.rowDecorators = field.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+//            tableDataModel.rowDecorators = field.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
         }
 
         // Column decorators
