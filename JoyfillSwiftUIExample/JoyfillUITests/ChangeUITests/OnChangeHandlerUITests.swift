@@ -2603,6 +2603,28 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         deleteSelectedImages()
     }
     
+    func testDropdownCoordinatess() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        
+        let dropdownFields = app.buttons.matching(identifier: "Dropdown")
+        let leftDropdownField = dropdownFields.element(boundBy: 0)
+        let rightDropdownField = dropdownFields.element(boundBy: 1)
+        
+        leftDropdownField.tap()
+        app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "No")).tap()
+        XCTAssertEqual(rightDropdownField.label, "No", "Dropdown value selected on left should reflect on right side.")
+    }
+    
     func deleteSelectedImages() {
         app.buttons["ImageDeleteIdentifier"].tap()
     }

@@ -55,6 +55,11 @@ struct DropdownView: View {
             let fieldEvent = FieldChangeData(fieldIdentifier: dropdownDataModel.fieldIdentifier, updateValue: newDrodDownValue)
             eventHandler.onChange(event: fieldEvent)
         }
+        .onChange(of: dropdownDataModel.dropdownValue) { newValue in
+            if selectedDropdownValueID != newValue {
+                selectedDropdownValueID = newValue
+            }
+        }
     }
 }
 
