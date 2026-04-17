@@ -36,6 +36,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey) && tableDataModel.mode == .fill
     }
 
+    func getCollectionRowDecorators(forRowID rowID: String, schemaKey: String) -> [DecoratorLocal] {
+        let rowSpecific = rowToValueElementMap[rowID]?
+            .decorators?.all
+            .filter({ $0.isDisplayable })
+            .map(DecoratorLocal.init(from:)) ?? []
+        if !rowSpecific.isEmpty { return rowSpecific }
+        return tableDataModel.rowDecorators(forSchemaKey: schemaKey)
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.tableDataModel.schema.forEach { key, value in
