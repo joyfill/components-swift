@@ -2603,6 +2603,30 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         deleteSelectedImages()
     }
     
+    func testSignatureCoordinatess() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        let signatureButtons = app.buttons.matching(identifier: "SignatureIdentifier")
+        let leftSignatureButton = signatureButtons.element(boundBy: 0)
+        let rightSignatureButton = signatureButtons.element(boundBy: 1)
+        
+        leftSignatureButton.tap()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        
+        XCTAssertEqual(rightSignatureButton.label, "Edit Signature", "Signature added on left should reflect on right side.")
+    }
+    
     func deleteSelectedImages() {
         app.buttons["ImageDeleteIdentifier"].tap()
     }
