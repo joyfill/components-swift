@@ -107,9 +107,23 @@ struct SignatureView: View {
             }
         }
         .onChange(of: signatureURL) { newValue in
+            if newValue == (signatureDataModel.signatureURL ?? "") {
+                return
+            }
             let newSignatureImageValue = ValueUnion.string(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
             eventHandler.onChange(event: fieldEvent)
+        }
+        .onChange(of: signatureDataModel.signatureURL ?? "") { latestURL in
+            guard latestURL != signatureURL else {
+                return
+            }
+            signatureURL = latestURL
+            if latestURL.isEmpty {
+                signatureImage = nil
+            } else {
+                loadImageFromURL()
+            }
         }
     }
     
