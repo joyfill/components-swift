@@ -341,9 +341,17 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
+        let chartData = ChartData(
+            xTitle: change.change?["xTitle"] as? String,
+            yTitle: change.change?["yTitle"] as? String,
+            xMax: change.change?["xMax"] as? Double,
+            xMin: change.change?["xMin"] as? Double,
+            yMax: change.change?["yMax"] as? Double,
+            yMin: change.change?["yMin"] as? Double
+        )
         if let value = change.change?["value"] as? Any,
            let valueUnion = ValueUnion(value: value) {
-            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
+            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false, chartData: chartData)
         }
         if let metadataDict = change.change?["metadata"] as? [String: Any],
            let meta = Metadata(dictionary: metadataDict),
@@ -721,14 +729,17 @@ extension DocumentEditor {
             
             dataModelType = .number(model)
         case .chart:
+            let chartCoordinates = ChartAxisConfiguration(
+                yTitle: fieldData?.yTitle,
+                yMax: fieldData?.yMax,
+                yMin: fieldData?.yMin,
+                xTitle: fieldData?.xTitle,
+                xMax: fieldData?.xMax,
+                xMin: fieldData?.xMin
+            )
             let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
                                        valueElements: fieldData?.value?.valueElements,
-                                       yTitle: fieldData?.yTitle,
-                                       yMax: fieldData?.yMax,
-                                       yMin: fieldData?.yMin,
-                                       xTitle: fieldData?.xTitle,
-                                       xMax: fieldData?.xMax,
-                                       xMin: fieldData?.xMin,
+                                       chartCoordinates: chartCoordinates,
                                        mode: fieldEditMode,
                                        documentEditor: self,
                                        fieldHeaderModel: fieldHeaderModel)
@@ -1363,4 +1374,3 @@ extension DocumentEditor {
         return true
     }
 }
-
