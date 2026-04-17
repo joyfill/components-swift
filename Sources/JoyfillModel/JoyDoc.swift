@@ -528,6 +528,11 @@ public struct JoyDocField: Equatable {
         set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
+    public var decorate: Bool? {
+        get { dictionary["decorate"] as? Bool }
+        set { dictionary["decorate"] = newValue }
+    }
+
     /// Row-level decorators for table/collection fields. Rendered per-row via a kebab menu column.
     public var rowDecorators: [Decorator]? {
         get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
