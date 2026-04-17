@@ -1234,6 +1234,11 @@ public struct Schema {
         get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
         set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
     }
+
+    public var decorate: Bool? {
+        get { dictionary["decorate"] as? Bool }
+        set { dictionary["decorate"] = newValue }
+    }
 }
 
 // MARK: - ValueElement
