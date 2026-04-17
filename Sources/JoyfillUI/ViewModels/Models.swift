@@ -162,7 +162,7 @@ struct TableDataModel {
     var tableRowDecorators: [String: [DecoratorLocal]] = [:] // Both Row specific and common row decorators are combined
     var tableCellDecorators: [String: [DecoratorLocal]] = [:] // Both Cell specific and common column decorators are combined
     var tableCommonCellDecorators: [String: [DecoratorLocal]] = [:] // columnId
-    private(set) var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
+    private(set) var commonRowDecorators: [String: [DecoratorLocal]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -427,22 +427,15 @@ struct TableDataModel {
         if fieldType == .table {
             return []
         }
-        return rowDecoratorsBySchemaKey[schemaKey] ?? []
+        return commonRowDecorators[schemaKey] ?? []
     }
 
     mutating func setRowDecorators(_ decorators: [DecoratorLocal], forSchemaKey schemaKey: String) {
-        rowDecoratorsBySchemaKey[schemaKey] = decorators
+        commonRowDecorators[schemaKey] = decorators
     }
 
     func hasAnyRowDecorators(schemaKey: String) -> Bool {
-        return !rowDecorators(forSchemaKey: schemaKey).isEmpty
-    }
-    /// True if any row decorators should be shown. Table: field has rowDecorators. Collection: any schema has rowDecorators.
-    var hasAnyRowDecorators: Bool {
-        if fieldType == .table {
-            return true
-        }
-        return schema.values.contains { !(($0.rowDecorators ?? []).filter { $0.isDisplayable }).isEmpty }
+        return schema[schemaKey]?.decorate == true
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {

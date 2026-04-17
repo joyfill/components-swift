@@ -32,8 +32,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
 
-    var showRowDecorators: Bool {
-        return tableDataModel.hasAnyRowDecorators && tableDataModel.mode == .fill
+    func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
+        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey) && tableDataModel.mode == .fill
     }
 
     init(tableDataModel: TableDataModel) {

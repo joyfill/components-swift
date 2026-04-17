@@ -394,7 +394,7 @@ struct CollectionColumnHeaderView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            if viewModel.showRowDecorators, !viewModel.tableDataModel.rowDecorators(forSchemaKey: schemaKey).isEmpty {
+            if viewModel.showRowDecorators(forSchemaKey: schemaKey) {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
                     .frame(width: 40, height: 60)
@@ -623,7 +623,7 @@ struct CollectionRowsHeaderView: View {
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
-                if viewModel.showRowDecorators {
+                if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
                     RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: parentSchemaKey)) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
@@ -666,7 +666,7 @@ struct CollectionRowsHeaderView: View {
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
                 }
-                if viewModel.showRowDecorators {
+                if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
                     RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: viewModel.rootSchemaKey)) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                     }
