@@ -45,6 +45,21 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.rowDecorators(forSchemaKey: schemaKey)
     }
 
+    func getCollectionCellDecorators(rowIds: [String], columnId: String, schemaKey: String) -> [DecoratorLocal] {
+        let columnDecorators = columnsMap["\(schemaKey)_\(columnId)"]?
+            .decorators?
+            .filter({ $0.isDisplayable })
+            .map(DecoratorLocal.init(from:)) ?? []
+        if rowIds.count == 1, let singleID = rowIds.first {
+            let cellSpecific = rowToValueElementMap[singleID]?
+                .decorators?.cells[columnId]?
+                .filter({ $0.isDisplayable })
+                .map(DecoratorLocal.init(from:)) ?? []
+            if !cellSpecific.isEmpty { return cellSpecific }
+        }
+        return columnDecorators
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.tableDataModel.schema.forEach { key, value in
