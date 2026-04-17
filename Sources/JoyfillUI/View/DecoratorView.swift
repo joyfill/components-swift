@@ -191,6 +191,10 @@ struct RowDecoratorMenuView: View {
                     popoverContent
                 }
             }
+        } else {
+            // Empty placeholder so the column width stays consistent across rows
+            Color.clear
+                .frame(width: 40, height: 60)
         }
     }
 
