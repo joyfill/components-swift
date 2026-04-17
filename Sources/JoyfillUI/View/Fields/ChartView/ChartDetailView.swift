@@ -21,12 +21,13 @@ struct ChartDetailView: View {
 //        self.chartData = chartData
         self.chartDataModel = chartDataModel
         _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
-        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: chartDataModel.yTitle,
-                                                                           yMax: chartDataModel.yMax,
-                                                                           yMin: chartDataModel.yMin,
-                                                                           xTitle: chartDataModel.xTitle,
-                                                                           xMax: chartDataModel.xMax,
-                                                                           xMin: chartDataModel.xMin))
+        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(
+            yTitle: chartDataModel.chartCoordinates?.yTitle,
+            yMax: chartDataModel.chartCoordinates?.yMax,
+            yMin: chartDataModel.chartCoordinates?.yMin,
+            xTitle: chartDataModel.chartCoordinates?.xTitle,
+            xMax: chartDataModel.chartCoordinates?.xMax,
+            xMin: chartDataModel.chartCoordinates?.xMin))
     }
     
     var body: some View {
@@ -59,6 +60,13 @@ struct ChartDetailView: View {
             .onChange(of: chartDataModel.valueElements ?? [], perform: { latestValueElements in
                 if latestValueElements != valueElements {
                     valueElements = latestValueElements
+                }
+            })
+            .onChange(of: chartDataModel.chartCoordinates, perform: { latestChartCoordinates in
+                if let latestChartCoordinates = latestChartCoordinates {
+                    if latestChartCoordinates != chartCoordinatesData {
+                        chartCoordinatesData = latestChartCoordinates
+                    }
                 }
             })
             .modifier(KeyboardDismissModifier())
@@ -544,4 +552,3 @@ struct xAndYAxisCoordinateView: View {
             .cornerRadius(10)
     }
 }
-
