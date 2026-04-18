@@ -8,6 +8,7 @@ struct TableSignatureView: View {
     @State private var savedLines: [Line] = []
     @State private var signatureImage: UIImage?
     @State private var showCanvasSignatureView: Bool = false
+    @State var signatureInputMode: SignatureInputMode = .draw
     @State var title: String = ""
     @State var showError: Bool = false
     
@@ -21,6 +22,8 @@ struct TableSignatureView: View {
     var body: some View {
         Button(action: {
             cellModel.didFocusBlur?(.focus, cellModel.data)
+            isEditable = title.isEmpty
+            signatureInputMode = .draw
             loadImageFromURL()
             showCanvasSignatureView = true
         }, label: {
