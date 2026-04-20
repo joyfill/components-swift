@@ -638,19 +638,19 @@ extension TableViewModel: DocumentEditorDelegate {
     func decoratorsDidChange() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
 
-        // Row decorators
-        if field.fieldType == .table {
-            tableDataModel.valueToValueElements = field.valueToValueElements
-            refreshRowDecoratorMap()
-        }
-
-        // Column decorators
+        // Column decorators — refresh first so the row/cell maps below read fresh common column decorators
         if let freshColumns = field.tableColumns {
             for (i, col) in tableDataModel.tableColumns.enumerated() {
                 if let freshCol = freshColumns.first(where: { $0.id == col.id }) {
                     tableDataModel.tableColumns[i].decorators = freshCol.decorators
                 }
             }
+        }
+
+        // Row + cell decorator maps
+        if field.fieldType == .table {
+            tableDataModel.valueToValueElements = field.valueToValueElements
+            refreshRowDecoratorMap()
         }
     }
 

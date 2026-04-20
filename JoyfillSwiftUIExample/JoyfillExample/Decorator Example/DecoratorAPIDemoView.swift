@@ -238,10 +238,8 @@ struct DecoratorManagerView: View {
         return "\(base)/\(rowID)"
     }
 
-    /// "pageId/fieldPositionId/rowId/columnId"
-    /// For collections: uses a real rowId from the selected schema so the resolver
-    /// returns the correct schemaKey for column lookup.
-    /// For tables: uses "-" as a positional placeholder (rowId is ignored for table columns).
+    /// "pageId/fieldPositionId/columns/columnId" for tables (common column decorators),
+    /// or "pageId/fieldPositionId/{rowId}/{columnId}" for collections (rowId resolves schemaKey).
     private func columnPath(columnID: String) -> String? {
         guard let base = fieldPath else { return nil }
         if isCollection {
@@ -249,10 +247,14 @@ struct DecoratorManagerView: View {
             else { return nil }
             return "\(base)/\(rowID)/\(columnID)"
         }
-        // Table fields: use a real rowId from rowOrder so the path resolver
-        // can validate it. Column decorators are row-independent for tables,
-        // but the 4-segment path format still requires a valid rowId.
-        guard let rowID = selectedField?.rowOrder?.first else { return nil }
+        // Tables: "columns" keyword routes to common column decorators
+        return "\(base)/columns/\(columnID)"
+    }
+
+    /// "pageId/fieldPositionId/{rowId}/{columnId}" — cell-specific decorators (table only).
+    private func cellSpecificPath(columnID: String) -> String? {
+        guard isTable, let base = fieldPath,
+              let rowID = selectedRowID ?? tableRows.first?.id else { return nil }
         return "\(base)/\(rowID)/\(columnID)"
     }
 
@@ -402,8 +404,26 @@ struct DecoratorManagerView: View {
                                                                        icon: "circle-info", label: "", color: "#8B5CF6", action: "")
                                             }
                                         } header: {
-                                            decoratorSectionHeader(title: "Column Decorators", symbol: "tablecells",
+                                            decoratorSectionHeader(title: isTable ? "Common Column Decorators" : "Column Decorators",
+                                                                   symbol: "tablecells",
                                                                    count: colDecs.count, badge: .purple, path: cPath)
+                                        }
+
+                                        // Cell-specific decorators (table only)
+                                        if isTable, !tableRows.isEmpty,
+                                           let csPath = cellSpecificPath(columnID: colID) {
+                                            let cellDecs = editor.getDecorators(path: csPath)
+                                            Section {
+                                                ForEach(cellDecs, id: \.action) { decoratorRow($0, path: csPath) }
+                                                if cellDecs.isEmpty { emptyHint("No cell-specific decorators — tap + to add one (copies common column decorators first)") }
+                                                addButton(badge: .pink) {
+                                                    draft = DecoratorDraft(path: csPath, editAction: nil,
+                                                                           icon: "circle-info", label: "", color: "#F97316", action: "")
+                                                }
+                                            } header: {
+                                                decoratorSectionHeader(title: "Cell-Specific Decorators", symbol: "rectangle.split.3x1",
+                                                                       count: cellDecs.count, badge: .pink, path: csPath)
+                                            }
                                         }
                                     }
                                 }
