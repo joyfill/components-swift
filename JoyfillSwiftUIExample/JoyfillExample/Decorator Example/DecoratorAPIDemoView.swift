@@ -125,6 +125,7 @@ struct DecoratorManagerView: View {
     @State private var draft:           DecoratorDraft? = nil
     @State private var selectedSchemaKey: String = ""
     @State private var selectedColumnID:  String = ""
+    @State private var selectedRowID:     String? = nil
 
     // MARK: Derived — pages
 
@@ -187,6 +188,13 @@ struct DecoratorManagerView: View {
         selectedField?.schema?[selectedSchemaKey]
     }
 
+    // MARK: Derived — rows (table only, for row-specific decorators)
+
+    private var tableRows: [ValueElement] {
+        guard isTable else { return [] }
+        return (selectedField?.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
+    }
+
     // MARK: Derived — columns
 
     /// Columns for the currently active scope:
@@ -214,19 +222,19 @@ struct DecoratorManagerView: View {
         return "\(selectedPageID)/\(selectedFieldPositionID)"
     }
 
-    /// "pageId/fieldPositionId/rowId"
-    /// For collections: uses the first row that belongs to the selected schema so the
-    /// path resolver can derive the correct schemaKey.
-    /// For tables: uses the first root row (schema resolution short-circuits to nil anyway).
+    /// "pageId/fieldPositionId/rows" for table common row decorators,
+    /// or "pageId/fieldPositionId/{rowId}" for collection (uses first row of selected schema).
     private var rowPath: String? {
         guard let base = fieldPath else { return nil }
-        let rowID: String?
-        if isCollection {
-            rowID = firstRowID(forSchemaKey: selectedSchemaKey, in: selectedField)
-        } else {
-            rowID = selectedField?.valueToValueElements?.first?.id
-        }
-        guard let rowID = rowID else { return nil }
+        if isTable { return "\(base)/rows" }
+        guard let rowID = firstRowID(forSchemaKey: selectedSchemaKey, in: selectedField) else { return nil }
+        return "\(base)/\(rowID)"
+    }
+
+    /// "pageId/fieldPositionId/{rowId}" — row-specific decorators (table only).
+    private var rowSpecificPath: String? {
+        guard isTable, let base = fieldPath,
+              let rowID = selectedRowID ?? tableRows.first?.id else { return nil }
         return "\(base)/\(rowID)"
     }
 
@@ -318,7 +326,7 @@ struct DecoratorManagerView: View {
                                 }
                             } header: {
                                 decoratorSectionHeader(title: "Field Decorators", symbol: "tag.fill",
-                                                       count: fieldDecs.count, badge: .blue)
+                                                       count: fieldDecs.count, badge: .blue, path: path)
                             }
 
                             // ── Table / Collection only ──────────────────────
@@ -331,19 +339,20 @@ struct DecoratorManagerView: View {
                                     } header: { Text("Select Schema").textCase(nil) }
                                 }
 
-                                // Row decorators
+                                // Common row decorators
                                 if let rPath = rowPath {
                                     let rowDecs = editor.getDecorators(path: rPath)
                                     Section {
                                         ForEach(rowDecs, id: \.action) { decoratorRow($0, path: rPath) }
-                                        if rowDecs.isEmpty { emptyHint("No row decorators — tap + to add one") }
+                                        if rowDecs.isEmpty { emptyHint("No common row decorators — tap + to add one") }
                                         addButton(badge: .orange) {
                                             draft = DecoratorDraft(path: rPath, editAction: nil,
                                                                    icon: "flag", label: "", color: "#F97316", action: "")
                                         }
                                     } header: {
-                                        decoratorSectionHeader(title: "Row Decorators", symbol: "list.bullet.rectangle",
-                                                               count: rowDecs.count, badge: .orange)
+                                        decoratorSectionHeader(title: isTable ? "Common Row Decorators" : "Row Decorators",
+                                                               symbol: "list.bullet.rectangle",
+                                                               count: rowDecs.count, badge: .orange, path: rPath)
                                     }
                                 } else {
                                     Section {
@@ -351,6 +360,28 @@ struct DecoratorManagerView: View {
                                     } header: {
                                         decoratorSectionHeader(title: "Row Decorators", symbol: "list.bullet.rectangle",
                                                                count: 0, badge: .orange)
+                                    }
+                                }
+
+                                // Row-specific decorators (table only)
+                                if isTable, !tableRows.isEmpty {
+                                    Section {
+                                        rowPickerRow
+                                    } header: { Text("Select Row").textCase(nil) }
+
+                                    if let rsPath = rowSpecificPath {
+                                        let rowSpecDecs = editor.getDecorators(path: rsPath)
+                                        Section {
+                                            ForEach(rowSpecDecs, id: \.action) { decoratorRow($0, path: rsPath) }
+                                            if rowSpecDecs.isEmpty { emptyHint("No row-specific decorators — tap + to add one (copies common decorators first)") }
+                                            addButton(badge: .red) {
+                                                draft = DecoratorDraft(path: rsPath, editAction: nil,
+                                                                       icon: "flag", label: "", color: "#EF4444", action: "")
+                                            }
+                                        } header: {
+                                            decoratorSectionHeader(title: "Row-Specific Decorators", symbol: "person.text.rectangle",
+                                                                   count: rowSpecDecs.count, badge: .red, path: rsPath)
+                                        }
                                     }
                                 }
 
@@ -372,7 +403,7 @@ struct DecoratorManagerView: View {
                                             }
                                         } header: {
                                             decoratorSectionHeader(title: "Column Decorators", symbol: "tablecells",
-                                                                   count: colDecs.count, badge: .purple)
+                                                                   count: colDecs.count, badge: .purple, path: cPath)
                                         }
                                     }
                                 }
@@ -395,6 +426,7 @@ struct DecoratorManagerView: View {
                     .onChange(of: selectedFieldPositionID) { _ in
                         selectedSchemaKey = sortedSchemas.first?.key ?? ""
                         selectedColumnID  = sortedColumns.first?.id ?? ""
+                        selectedRowID     = nil
                     }
                     .onChange(of: selectedSchemaKey) { _ in
                         selectedColumnID = sortedColumns.first?.id ?? ""
@@ -486,6 +518,22 @@ struct DecoratorManagerView: View {
         }
     }
 
+    private var rowPickerRow: some View {
+        let rows = tableRows
+        let currentID = selectedRowID ?? rows.first?.id
+        return Menu {
+            ForEach(rows, id: \.id) { row in
+                Button {
+                    selectedRowID = row.id
+                } label: {
+                    Label(row.id ?? "", systemImage: currentID == row.id ? "checkmark" : "list.bullet")
+                }
+            }
+        } label: {
+            pickerLabel(icon: "list.bullet", color: .red, text: currentID ?? "Select a row")
+        }
+    }
+
     private var columnPickerRow: some View {
         Menu {
             ForEach(sortedColumns, id: \.id) { col in
@@ -518,15 +566,23 @@ struct DecoratorManagerView: View {
 
     // MARK: Section header / row helpers
 
-    private func decoratorSectionHeader(title: String, symbol: String, count: Int, badge: Color) -> some View {
-        HStack(spacing: 6) {
-            Label(title, systemImage: symbol).textCase(nil)
-            Spacer()
-            if count > 0 {
-                Text("\(count)")
-                    .font(.caption2.weight(.bold)).foregroundColor(.white)
-                    .padding(.horizontal, 6).padding(.vertical, 2)
-                    .background(badge).clipShape(Capsule())
+    private func decoratorSectionHeader(title: String, symbol: String, count: Int, badge: Color, path: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 6) {
+                Label(title, systemImage: symbol).textCase(nil)
+                Spacer()
+                if count > 0 {
+                    Text("\(count)")
+                        .font(.caption2.weight(.bold)).foregroundColor(.white)
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(badge).clipShape(Capsule())
+                }
+            }
+            if let path = path {
+                Text(path)
+                    .font(.caption.monospaced())
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
             }
         }
     }
@@ -788,14 +844,12 @@ struct DecoratorEditView: View {
 
 private class DecoratorEventHandler: FormChangeEvent {
     weak var editor: DocumentEditor?
-    var onDecoratorAction: ((String) -> Void)?
+    var onDecoratorAction: ((String, String) -> Void)? // (action, path)
     var onDecoratorError: ((String) -> Void)?
 
     func onFocus(event: Event) {
         guard let fieldEvent = event.fieldEvent,
               let action = fieldEvent.type, !action.isEmpty else { return }
-
-        onDecoratorAction?(action)
 
         // Build the decorator path from the event
         guard let editor = editor,
@@ -812,6 +866,8 @@ private class DecoratorEventHandler: FormChangeEvent {
         } else {
             path = basePath
         }
+
+        onDecoratorAction?(action, path)
 
         // Update the tapped decorator to show it was viewed
         var updated = Decorator()
@@ -840,6 +896,7 @@ struct DecoratorAPIDemoView: View {
 
     @State private var showDecoratorManager      = false
     @State private var lastAction: String        = ""
+    @State private var lastPath:   String        = ""
     @State private var showBanner: Bool          = false
     @State private var decoratorError: DecoratorErrorAlert? = nil
     // Persisted across sheet dismissals so the user doesn't have to re-select
@@ -899,8 +956,9 @@ struct DecoratorAPIDemoView: View {
             )
         }
         .onAppear {
-            eventHandler?.onDecoratorAction = { action in
+            eventHandler?.onDecoratorAction = { action, path in
                 lastAction = action
+                lastPath   = path
                 showBanner = true
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { showBanner = false }
             }
@@ -918,16 +976,21 @@ struct DecoratorAPIDemoView: View {
     // MARK: Banner
 
     private var bannerView: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "cursorarrow.rays")
-            Text("Action fired: \"\(lastAction)\"")
-                .font(.subheadline.weight(.medium))
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 8) {
+                Image(systemName: "cursorarrow.rays")
+                Text("Action: \"\(lastAction)\"")
+                    .font(.subheadline.weight(.medium))
+            }
+            Text("Path: \(lastPath)")
+                .font(.caption.monospaced())
+                .opacity(0.85)
         }
         .foregroundColor(.white)
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .background(.black.opacity(0.82))
-        .cornerRadius(24)
+        .cornerRadius(16)
     }
 
 }

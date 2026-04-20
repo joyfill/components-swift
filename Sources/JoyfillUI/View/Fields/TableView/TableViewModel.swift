@@ -27,6 +27,11 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.decorate && tableDataModel.mode == .fill
     }
 
+    private func refreshRowDecoratorMap() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+        tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
@@ -311,6 +316,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             shouldSendEvent: shouldSendEvent
         ) {
             tableDataModel.valueToValueElements = result.0
+            refreshRowDecoratorMap()
             updateRow(valueElement: result.1, at: tableDataModel.rowOrder.count)
         } else {
             Log("Row data is nil", type: .error)
@@ -324,6 +330,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         
         if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, metadata: metadata, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
             tableDataModel.valueToValueElements = result.0
+            refreshRowDecoratorMap()
             updateRow(valueElement: result.1, at: index)
         } else {
             Log("Row data is nil", type: .error)
@@ -633,7 +640,8 @@ extension TableViewModel: DocumentEditorDelegate {
 
         // Row decorators
         if field.fieldType == .table {
-//            tableDataModel.rowDecorators = field.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? []
+            tableDataModel.valueToValueElements = field.valueToValueElements
+            refreshRowDecoratorMap()
         }
 
         // Column decorators

@@ -4,9 +4,13 @@ public extension DocumentEditor {
 
     // MARK: - Path-Based API
     //
-    // path = "pageId/fieldPositionId"             → field decorators
-    // path = "pageId/fieldPositionId/rowId"        → row decorators
-    // path = "pageId/fieldPositionId/rowId/colId"  → column decorators
+    // path = "pageId/fieldPositionId"              → field decorators
+    // path = "pageId/fieldPositionId/rows"         → common row decorators   (table: field.rowDecorators)
+    // path = "pageId/fieldPositionId/{rowId}"      → row-specific decorators (table: ValueElement.decorators.all)
+    // path = "pageId/fieldPositionId/{rowId}/colId" → column decorators
+    //
+    // Collection fields: the 3rd segment is always a real rowId (used to resolve the schemaKey).
+    // Table fields: "rows" keyword → common; any valid rowId → row-specific (with copy-on-write from common).
     //
     // Note: Path segments are parsed with empty-component filtering;
     // consecutive or trailing slashes are treated as single separators.
@@ -39,6 +43,12 @@ public extension DocumentEditor {
             }
         }
         var list = fetchDecorators(for: target)
+        // Copy-on-write: if adding to a row-specific target with no existing row-specific
+        // decorators, seed the list with the common row decorators first so that row
+        // diverges from common while keeping all previously-visible decorators.
+        if case .rowSpecific(let fID, _) = target, list.isEmpty {
+            list = rowDecoratorsForPath(fieldID: fID, schemaKey: nil)
+        }
         let existingActions = Set(list.compactMap { $0.action })
         let newActions = decorators.compactMap { $0.action }
 
@@ -59,6 +69,7 @@ public extension DocumentEditor {
         }
         list.append(contentsOf: decorators)
         applyDecorators(list, for: target)
+        ensureDecorateEnabled(for: target)
     }
 
     /// Removes the decorator whose `action` matches at the given path.
@@ -119,6 +130,7 @@ private extension DocumentEditor {
         switch target {
         case .field(let fieldID): return fieldID
         case .row(let fieldID, _): return fieldID
+        case .rowSpecific(let fieldID, _): return fieldID
         case .column(let fieldID, _, _): return fieldID
         }
     }
@@ -135,6 +147,45 @@ private extension DocumentEditor {
             return false
         }
         return true
+    }
+
+    // MARK: Decorate flag
+
+    /// Sets `decorate = true` on the field (table) or schema entry (collection) when
+    /// row decorators are added, so the decorator column is shown automatically.
+    func ensureDecorateEnabled(for target: DecoratorTarget) {
+        switch target {
+        case .row(let fieldID, let schemaKey):
+            guard var field = fieldMap[fieldID] else { return }
+            if let schemaKey = schemaKey {
+                // Collection: set decorate on the specific schema entry
+                guard var schema = field.schema, var entry = schema[schemaKey] else { return }
+                guard entry.decorate != true else { return }
+                entry.decorate = true
+                schema[schemaKey] = entry
+                field.schema = schema
+            } else {
+                // Table: set decorate on the field
+                guard field.decorate != true else { return }
+                field.decorate = true
+            }
+            commitDecoratorChange(field: field, fieldID: fieldID)
+
+        case .rowSpecific(let fieldID, _):
+            guard var field = fieldMap[fieldID], field.decorate != true else { return }
+            field.decorate = true
+            commitDecoratorChange(field: field, fieldID: fieldID)
+
+        case .field, .column:
+            break
+        }
+    }
+
+    /// Persists a field mutation and notifies the view layer that decorators changed.
+    func commitDecoratorChange(field: JoyDocField, fieldID: String) {
+        updateField(field: field)
+        refreshField(fieldId: fieldID)
+        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
     }
 
     // MARK: Decorator validation
@@ -206,9 +257,7 @@ private extension DocumentEditor {
             columns[colIndex].decorators = decorators
             field.tableColumns = columns
         }
-        updateField(field: field)
-        refreshField(fieldId: fieldID)
-        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
+        commitDecoratorChange(field: field, fieldID: fieldID)
     }
 
     // MARK: Path resolution
@@ -216,7 +265,8 @@ private extension DocumentEditor {
     /// Resolved decorator scope from a path string.
     enum DecoratorTarget {
         case field(fieldID: String)
-        case row(fieldID: String, schemaKey: String?)
+        case row(fieldID: String, schemaKey: String?)          // common row decorators
+        case rowSpecific(fieldID: String, rowID: String)       // row-specific decorators (table only)
         case column(fieldID: String, columnID: String, schemaKey: String?)
     }
 
@@ -240,11 +290,21 @@ private extension DocumentEditor {
             let schemaKey = resolvedSchemaKey(forRowID: rowId, inFieldID: fieldID)
             guard columnExistsInField(field, columnId: columnId, schemaKey: schemaKey) else { return nil }
             return .column(fieldID: fieldID, columnID: columnId, schemaKey: schemaKey)
-        } else if let rowId = parsed.rowId {
-            guard rowExistsInField(fieldID: fieldID, rowId: rowId) else { return nil }
-            // 3 segments → row decorators; resolve schemaKey from the rowId
-            let schemaKey = resolvedSchemaKey(forRowID: rowId, inFieldID: fieldID)
-            return .row(fieldID: fieldID, schemaKey: schemaKey)
+        } else if let rowSegment = parsed.rowId {
+            if field.fieldType == .table {
+                if rowSegment == "rows" {
+                    // "rows" keyword → common row decorators on the field
+                    return .row(fieldID: fieldID, schemaKey: nil)
+                }
+                // Actual rowId → row-specific decorators
+                guard rowExistsInField(fieldID: fieldID, rowId: rowSegment) else { return nil }
+                return .rowSpecific(fieldID: fieldID, rowID: rowSegment)
+            } else {
+                // Collection: rowId always resolves to schema-level row decorators
+                guard rowExistsInField(fieldID: fieldID, rowId: rowSegment) else { return nil }
+                let schemaKey = resolvedSchemaKey(forRowID: rowSegment, inFieldID: fieldID)
+                return .row(fieldID: fieldID, schemaKey: schemaKey)
+            }
         } else {
             // 2 segments → field decorators
             return .field(fieldID: fieldID)
@@ -304,6 +364,24 @@ private extension DocumentEditor {
         return nil
     }
 
+    // MARK: Row-specific decorator read/write (table only)
+
+    func rowSpecificDecoratorsForPath(fieldID: String, rowID: String) -> [Decorator] {
+        guard let field = fieldMap[fieldID] else { return [] }
+        return field.valueToValueElements?.first(where: { $0.id == rowID })?.decorators?.all ?? []
+    }
+
+    func setRowSpecificDecoratorsForPath(_ decorators: [Decorator], fieldID: String, rowID: String) {
+        guard var field = fieldMap[fieldID],
+              var rows = field.valueToValueElements,
+              let index = rows.firstIndex(where: { $0.id == rowID }) else { return }
+        var decs = rows[index].decorators ?? Decorators()
+        decs.all = decorators
+        rows[index].decorators = decs
+        field.value = ValueUnion.valueElementArray(rows)
+        commitDecoratorChange(field: field, fieldID: fieldID)
+    }
+
     // MARK: Row decorator read/write (path-based, independent of the public API)
 
     /// Reads row decorators directly from the field model.
@@ -331,9 +409,7 @@ private extension DocumentEditor {
         } else {
             field.rowDecorators = decorators
         }
-        updateField(field: field)
-        refreshField(fieldId: fieldID)
-        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
+        commitDecoratorChange(field: field, fieldID: fieldID)
     }
 
     // MARK: Generic fetch / apply routers
@@ -345,6 +421,8 @@ private extension DocumentEditor {
             return decorators(forFieldID: fieldID)
         case .row(let fieldID, let schemaKey):
             return rowDecoratorsForPath(fieldID: fieldID, schemaKey: schemaKey)
+        case .rowSpecific(let fieldID, let rowID):
+            return rowSpecificDecoratorsForPath(fieldID: fieldID, rowID: rowID)
         case .column(let fieldID, let columnID, let schemaKey):
             return columnDecoratorsForPath(fieldID: fieldID, columnID: columnID, schemaKey: schemaKey)
         }
@@ -357,6 +435,8 @@ private extension DocumentEditor {
             setDecorators(decorators, forFieldID: fieldID)
         case .row(let fieldID, let schemaKey):
             setRowDecoratorsForPath(decorators, fieldID: fieldID, schemaKey: schemaKey)
+        case .rowSpecific(let fieldID, let rowID):
+            setRowSpecificDecoratorsForPath(decorators, fieldID: fieldID, rowID: rowID)
         case .column(let fieldID, let columnID, let schemaKey):
             setColumnDecoratorsForPath(decorators, fieldID: fieldID, columnID: columnID, schemaKey: schemaKey)
         }
