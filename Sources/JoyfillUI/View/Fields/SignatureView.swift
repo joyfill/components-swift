@@ -153,10 +153,8 @@ struct TypeToSign: View {
     let fontName: String
     
     var body: some View {
-        
         TextField("Type Signature", text: $typeSign)
             .font(.custom(fontName, size: 60))
-            .foregroundColor(typeSign.isEmpty ? .gray.opacity(0.7) : .black.opacity(0.92))
             .lineLimit(1)
             .minimumScaleFactor(0.3)
             .padding(.horizontal, 20)
@@ -230,7 +228,7 @@ struct CanvasSignatureView: View {
     var fieldID: String?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
-    private let typedSignatureFontName = "SignPainter-HouseScript Semibold"
+    private let typedSignatureFontName = "SnellRoundhand-Black"
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -474,7 +472,6 @@ private struct TypedSignatureSnapshotView: View {
             Color.clear
             Text(text)
                 .font(.custom(fontName, size: 72))
-                .foregroundColor(.black.opacity(0.92))
                 .lineLimit(1)
                 .minimumScaleFactor(0.2)
                 .padding(.horizontal, 20)
