@@ -1238,6 +1238,101 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         element.swipeLeft()
     }
     
+    @discardableResult
+    func openTableSignature(at index: Int) -> XCUIElement {
+        for _ in 0..<10 {
+            let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+            if signatureButtons.count > index {
+                let target = signatureButtons.element(boundBy: index)
+                if target.exists && target.isHittable {
+                    target.tap()
+                    return target
+                }
+            }
+            swipeLeftOnTableGridForSignatureDiscovery()
+        }
+        
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        XCTAssertTrue(signatureButtons.count > index, "Table signature button at index \(index) not found after swiping to last columns")
+        let fallbackTarget = signatureButtons.element(boundBy: index)
+        fallbackTarget.waitAndTap(message: "Table signature button at index \(index) not hittable")
+        return fallbackTarget
+    }
+
+    func swipeLeftOnTableGridForSignatureDiscovery() {
+        let table = app.tables.firstMatch
+        if table.waitForExistence(timeout: 1) {
+            table.swipeLeft()
+            return
+        }
+
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.waitForExistence(timeout: 5), "App window not available for table swipe")
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.55))
+        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.55))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+    
+    func switchToTypeModeInTableSignature() {
+        app.buttons["Type"].firstMatch.waitAndTap(message: "Type mode button not found")
+    }
+    
+    func tableSignatureTypedTextField() -> XCUIElement {
+        app.textFields["Type Signature"].firstMatch
+    }
+    
+    func enterTableTypedSignature(_ text: String) {
+        let textField = tableSignatureTypedTextField()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Type Signature text field not found")
+        textField.tap()
+        if let existingValue = textField.value as? String, !existingValue.isEmpty, existingValue != "Type Signature" {
+            textField.clearText()
+        }
+        textField.typeText(text)
+    }
+    
+    func tableTypedSignatureValue() -> String {
+        tableSignatureTypedTextField().value as? String ?? ""
+    }
+    
+    func testTableExistingSignatureOpensReadonlyPreviewFirst() throws {
+        goToTableDetailPage()
+        _ = openTableSignature(at: 0)
+        XCTAssertTrue(app.buttons["TableSignatureEditButton"].firstMatch.waitForExistence(timeout: 5),
+                      "Existing table signature should open in preview mode with Edit button")
+    }
+    
+    func testTableSignatureModeResetsToDrawOnOpen() throws {
+        goToTableDetailPage()
+        _ = openTableSignature(at: 1)
+        
+        let drawCanvas = app.otherElements["CanvasIdentifier"].firstMatch
+        XCTAssertTrue(drawCanvas.waitForExistence(timeout: 5), "New table signature should open in Draw mode")
+        
+        switchToTypeModeInTableSignature()
+        XCTAssertTrue(tableSignatureTypedTextField().waitForExistence(timeout: 5), "Type field should appear after switching to Type mode")
+        
+        dismissSheet()
+        _ = openTableSignature(at: 1)
+        XCTAssertTrue(app.otherElements["CanvasIdentifier"].firstMatch.waitForExistence(timeout: 5),
+                      "Table signature should reset to Draw mode when reopened")
+    }
+    
+    func testTableRestoreTypedTextOnEdit() throws {
+        goToTableDetailPage()
+        _ = openTableSignature(at: 1)
+        
+        switchToTypeModeInTableSignature()
+        enterTableTypedSignature("Table Typed")
+        app.buttons["SaveSignatureIdentifier"].firstMatch.waitAndTap()
+        
+        _ = openTableSignature(at: 1)
+        app.buttons["TableSignatureEditButton"].firstMatch.waitAndTap()
+        switchToTypeModeInTableSignature()
+        
+        XCTAssertEqual("Table Typed", tableTypedSignatureValue(), "Previously typed table signature text should be restored on edit")
+    }
+    
     func testClearExistingSignature() throws {
         goToTableDetailPage()
         //swipeLeftForSignatureColumn()
