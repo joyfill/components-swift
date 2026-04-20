@@ -6,6 +6,7 @@ struct SignatureView: View {
     @State private var lines: [Line] = []
     @State var signatureImage: UIImage?
     @State private var savedLines: [Line] = []
+    @State private var savedTypedSignature: String = ""
     @State var signatureURL: String = ""
     @State private var showCanvasSignatureView: Bool = false
     @State var isEditable: Bool = true
@@ -74,7 +75,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID).environment(\.footerContainer, footerContainer), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, savedTypedSignature: $savedTypedSignature, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID).environment(\.footerContainer, footerContainer), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -216,6 +217,7 @@ struct CanvasView: View {
 struct CanvasSignatureView: View {
     @Binding var lines: [Line]
     @Binding var savedLines: [Line]
+    @Binding var savedTypedSignature: String
     @Binding var signatureImage: UIImage?
     @State var signatureCanvasImage: UIImage?
     @State var showCanvasError: Bool = false
@@ -384,6 +386,7 @@ struct CanvasSignatureView: View {
                         if signatureInputMode == .draw{
                             if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
                                 savedLines = []
+                                savedTypedSignature = ""
                                 signatureImage = nil
                                 signatureURL = ""
                                 showError = false
@@ -397,17 +400,20 @@ struct CanvasSignatureView: View {
                                 showError = false
                             }
                             savedLines = lines
+                            savedTypedSignature = ""
                             presentationMode.wrappedValue.dismiss()
                         } else {
                             let trimmedTypedSignatureText = typedSignatureText.trimmingCharacters(in: .whitespacesAndNewlines)
                                 if trimmedTypedSignatureText.isEmpty {
                                     savedLines = []
+                                    savedTypedSignature = ""
                                     signatureImage = nil
                                     signatureURL = ""
                                     showError = false
                                     presentationMode.wrappedValue.dismiss()
                                     return
                                 }
+                                savedTypedSignature = trimmedTypedSignatureText
                                 signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
                                 signatureCanvasImage = signatureImage
                                 lines.removeAll()
@@ -437,6 +443,7 @@ struct CanvasSignatureView: View {
         .onAppear {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
+            typedSignatureText = savedTypedSignature
         }
         .onDisappear {
             documentEditor?.setOpenNavigationFieldID(nil)

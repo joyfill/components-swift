@@ -6,6 +6,7 @@ struct TableSignatureView: View {
     @State var isEditable: Bool = false
     @State private var lines: [Line] = []
     @State private var savedLines: [Line] = []
+    @State private var savedTypedSignature: String = ""
     @State private var signatureImage: UIImage?
     @State private var showCanvasSignatureView: Bool = false
     @State var signatureInputMode: SignatureInputMode = .draw
@@ -37,7 +38,7 @@ struct TableSignatureView: View {
             isEditable = false
             cellModel.didFocusBlur?(.blur, cellModel.data)
         }) {
-            CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
+            CanvasSignatureView(lines: $lines, savedLines: $savedLines, savedTypedSignature: $savedTypedSignature, signatureImage: $signatureImage, signatureURL: $title, showError: $showError, isEditable: $isEditable)
                 .environment(\.footerContainer, FooterContainer())
         }
         .onChange(of: signatureImage) { newImage in
