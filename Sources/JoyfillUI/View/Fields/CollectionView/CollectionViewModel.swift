@@ -2071,7 +2071,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
 
         // Refresh the entire schema so hasAnyRowDecorators and column decorators stay in sync
         tableDataModel.schema = field.schema ?? [:]
-
+        tableDataModel.valueToValueElements = field.valueToValueElements
         // Row decorators per schema key (local DecoratorLocal cache)
         field.schema?.forEach { key, value in
             tableDataModel.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
@@ -2087,6 +2087,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
                 }
             }
         }
+        buildRowToValueElementMap()
     }
 
 

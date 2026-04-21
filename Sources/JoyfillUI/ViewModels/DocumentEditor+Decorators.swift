@@ -4,22 +4,34 @@ public extension DocumentEditor {
 
     // MARK: - Path-Based API
     //
-    // path = "pageId/fieldPositionId"                    → field decorators
-    // path = "pageId/fieldPositionId/rows"               → common row decorators    (table: field.rowDecorators)
-    // path = "pageId/fieldPositionId/{rowId}"            → row-specific decorators  (table: ValueElement.decorators.all)
-    // path = "pageId/fieldPositionId/columns/{colId}"    → common column decorators (table: tableColumn.decorators)
-    // path = "pageId/fieldPositionId/{rowId}/{colId}"    → cell-specific decorators (table: ValueElement.decorators.cells[colId])
+    // Grammar (segments are "/"-separated; empty segments are ignored):
     //
-    // Collection fields: the 3rd segment is always a real rowId (used to resolve the schemaKey).
-    //   "rows" / "columns" keywords are table-only for now.
-    // Table fields: "rows" keyword → common rows; "columns" keyword → common columns;
-    //   any valid rowId → row-specific / cell-specific (with copy-on-write from common).
+    //   path := page-id "/" field-position-id [ rest ]
+    //   rest := "rows"                                  → common rows of root schema (or table)
+    //         | "columns/" col                          → common column of root schema (or table)
+    //         | "schemas/" sk "/rows"                   → common rows of schema sk
+    //         | "schemas/" sk "/columns/" col           → common column of schema sk
+    //         | "schemas/" sk "/" row rowRest           → a row inside schema sk
+    //         | row rowRest                             → a row at root schema
+    //   rowRest := ε                                     → that row's dedicated decorators
+    //            | col                                   → cell (row × col)
+    //            | "columns/" col                        → row-scoped column  (aliases cell storage)
+    //            | "schemas/" sk "/" row rowRest         → descend into child schema
     //
-    // Note: Path segments are parsed with empty-component filtering;
-    // consecutive or trailing slashes are treated as single separators.
+    // Tables cannot use "schemas/..." — they have no schema tree.
     //
-    // All methods in this section must be called on the main thread,
-    // consistent with the DocumentEditor threading model.
+    // Storage map:
+    //   field                            → field.decorators
+    //   commonRows(sk?)                  → sk?  ? field.schema[sk].rowDecorators : field.rowDecorators
+    //   commonColumn(sk?, col)           → sk?  ? field.schema[sk].tableColumns[col].decorators : field.tableColumns[col].decorators
+    //   rowSelf                          → ValueElement.decorators.all           (at the end of the hop chain)
+    //   cell(col) / rowScopedColumn(col) → ValueElement.decorators.cells[col]    (aliased storage)
+    //
+    // Copy-on-write: adding to rowSelf / cell / rowScopedColumn when the scope is empty
+    // seeds from the matching common scope first so the specific scope diverges without
+    // losing previously-visible decorators.
+    //
+    // All methods must be called on the main thread.
 
     /// Returns all decorators at the given path.
     func getDecorators(path: String) -> [Decorator] {
@@ -38,44 +50,39 @@ public extension DocumentEditor {
             return
         }
         guard licenseAllowsDecoratorWrite(for: target, path: path) else { return }
-        
+
         for decorator in decorators {
             if let error = validateDecorator(decorator) {
                 events?.onError(error: .decoratorError(error: DecoratorError(message: error)))
                 return
             }
         }
+
         var list = fetchDecorators(for: target)
-        // Copy-on-write: if adding to a row-specific / cell-specific target with no existing
-        // decorators on that scope, seed the list with the matching common decorators first so
-        // the row/cell diverges from common while keeping all previously-visible decorators.
-        if case .rowSpecific(let fID, _) = target, list.isEmpty {
-            list = rowDecoratorsForPath(fieldID: fID, schemaKey: nil)
+        // Copy-on-write seed for specific scopes
+        if list.isEmpty, let seed = commonSeed(for: target) {
+            list = seed
         }
-        if case .cellSpecific(let fID, _, let colID) = target, list.isEmpty {
-            list = columnDecoratorsForPath(fieldID: fID, columnID: colID, schemaKey: nil)
-        }
+
         let existingActions = Set(list.compactMap { $0.action })
         let newActions = decorators.compactMap { $0.action }
 
-        // Check duplicates within incoming batch
         if Set(newActions).count != newActions.count {
             events?.onError(error: .decoratorError(error: DecoratorError(
                 message: "Duplicate decorators found in the incoming batch at path '\(path)'"
             )))
             return
         }
-
-        // Check duplicates against existing decorators
         if let duplicate = newActions.first(where: { existingActions.contains($0) }) {
             events?.onError(error: .decoratorError(error: DecoratorError(
                 message: "Decorator with action '\(duplicate)' already exists at path '\(path)'"
             )))
             return
         }
+
         list.append(contentsOf: decorators)
-        applyDecorators(list, for: target)
         ensureDecorateEnabled(for: target)
+        applyDecorators(list, for: target)
     }
 
     /// Removes the decorator whose `action` matches at the given path.
@@ -110,8 +117,6 @@ public extension DocumentEditor {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to update decorator with action: '\(action)'")))
             return
         }
-        // If the new decorator's action differs from the target action, ensure it
-        // doesn't collide with a different existing entry (would create duplicates).
         if let newAction = decorator.action,
            newAction != action,
            list.contains(where: { $0.action == newAction }) {
@@ -125,28 +130,42 @@ public extension DocumentEditor {
     }
 }
 
+// MARK: - Internal target model
+
+private extension DocumentEditor {
+
+    /// A resolved decorator location: a chain of hops through the row/schema tree, plus a terminator.
+    struct DecoratorTarget {
+        let fieldID: String
+        let hops: [Hop]
+        let terminator: Terminator
+
+        struct Hop {
+            /// Schema key the row lives in. Table fields: always nil.
+            /// Collection fields: root hop = root schema key; nested hops = the preceding `schemas/sk` key.
+            let schemaKey: String?
+            let rowID: String
+        }
+
+        enum Terminator {
+            case field
+            case commonRows(schemaKey: String?)                       // nil → table root
+            case commonColumn(schemaKey: String?, columnID: String)
+            case rowSelf                                              // hops.last is the row
+            case cell(columnID: String)
+            case rowScopedColumn(columnID: String)                    // aliased to cell storage
+        }
+    }
+}
+
 // MARK: - Private helpers
 
 private extension DocumentEditor {
 
     // MARK: License gating
 
-    /// Returns the fieldID associated with a decorator target.
-    func fieldID(for target: DecoratorTarget) -> String {
-        switch target {
-        case .field(let fieldID): return fieldID
-        case .row(let fieldID, _): return fieldID
-        case .rowSpecific(let fieldID, _): return fieldID
-        case .column(let fieldID, _, _): return fieldID
-        case .cellSpecific(let fieldID, _, _): return fieldID
-        }
-    }
-
-    /// Blocks writes to collection-field decorators when the collection feature
-    /// is not enabled by the license. Emits a decoratorError and returns false.
     func licenseAllowsDecoratorWrite(for target: DecoratorTarget, path: String) -> Bool {
-        let fieldID = self.fieldID(for: target)
-        guard let field = fieldMap[fieldID] else { return true }
+        guard let field = fieldMap[target.fieldID] else { return true }
         if field.fieldType == .collection && !isCollectionFieldEnabled {
             events?.onError(error: .decoratorError(error: DecoratorError(
                 message: "Collection field decorators are not available without a valid license (path '\(path)')"
@@ -156,48 +175,8 @@ private extension DocumentEditor {
         return true
     }
 
-    // MARK: Decorate flag
-
-    /// Sets `decorate = true` on the field (table) or schema entry (collection) when
-    /// row decorators are added, so the decorator column is shown automatically.
-    func ensureDecorateEnabled(for target: DecoratorTarget) {
-        switch target {
-        case .row(let fieldID, let schemaKey):
-            guard var field = fieldMap[fieldID] else { return }
-            if let schemaKey = schemaKey {
-                // Collection: set decorate on the specific schema entry
-                guard var schema = field.schema, var entry = schema[schemaKey] else { return }
-                guard entry.decorate != true else { return }
-                entry.decorate = true
-                schema[schemaKey] = entry
-                field.schema = schema
-            } else {
-                // Table: set decorate on the field
-                guard field.decorate != true else { return }
-                field.decorate = true
-            }
-            commitDecoratorChange(field: field, fieldID: fieldID)
-
-        case .rowSpecific(let fieldID, _):
-            guard var field = fieldMap[fieldID], field.decorate != true else { return }
-            field.decorate = true
-            commitDecoratorChange(field: field, fieldID: fieldID)
-
-        case .field, .column, .cellSpecific:
-            break
-        }
-    }
-
-    /// Persists a field mutation and notifies the view layer that decorators changed.
-    func commitDecoratorChange(field: JoyDocField, fieldID: String) {
-        updateField(field: field)
-        refreshField(fieldId: fieldID)
-        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
-    }
-
     // MARK: Decorator validation
 
-    /// Validates decorator properties. Returns an error message if invalid, nil if valid.
     func validateDecorator(_ decorator: Decorator) -> String? {
         if let action = decorator.action, action.isEmpty {
             return "Invalid decorator property: 'action' must not be empty"
@@ -214,279 +193,341 @@ private extension DocumentEditor {
         return nil
     }
 
-    // MARK: Field Decorators
+    // MARK: Decorate flag
 
-    func decorators(forFieldID fieldID: String) -> [Decorator] {
-        fieldMap[fieldID]?.decorators ?? []
+    /// Sets `decorate = true` on the field (table) or schema entry (collection) when
+    /// row-level decorators are added, so the decorator column shows automatically.
+    func ensureDecorateEnabled(for target: DecoratorTarget) {
+        let schemaKey: String?
+        switch target.terminator {
+        case .commonRows(let sk):
+            schemaKey = sk
+        case .rowSelf:
+            schemaKey = target.hops.last?.schemaKey
+        default:
+            return
+        }
+        guard var field = fieldMap[target.fieldID] else { return }
+
+        if let sk = schemaKey {
+            guard var schema = field.schema, var entry = schema[sk] else { return }
+            guard entry.decorate != true else { return }
+            entry.decorate = true
+            schema[sk] = entry
+            field.schema = schema
+        } else {
+            guard field.decorate != true else { return }
+            field.decorate = true
+        }
+        commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
-    func setDecorators(_ decorators: [Decorator], forFieldID fieldID: String) {
-        guard var field = fieldMap[fieldID] else { return }
-        field.decorators = decorators
+    func commitDecoratorChange(field: JoyDocField, fieldID: String) {
         updateField(field: field)
         refreshField(fieldId: fieldID)
+        valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
     }
 
-    // MARK: Column Decorators
-    //
-    // - Table fields:      columns live on field.tableColumns      → schemaKey is nil
-    // - Collection fields: columns live on field.schema[key].tableColumns → schemaKey is non-nil
+    // MARK: COW seed
 
-    func columnDecoratorsForPath(fieldID: String, columnID: String, schemaKey: String?) -> [Decorator] {
-        guard let field = fieldMap[fieldID] else { return [] }
-        let columns: [FieldTableColumn]?
-        if field.fieldType == .collection {
-            guard let schemaKey = schemaKey else { return [] }
-            columns = field.schema?[schemaKey]?.tableColumns
-        } else {
-            columns = field.tableColumns
+    /// Returns the common-scope decorators to seed a specific scope with, if any.
+    func commonSeed(for target: DecoratorTarget) -> [Decorator]? {
+        let seedTerminator: DecoratorTarget.Terminator
+        switch target.terminator {
+        case .rowSelf:
+            seedTerminator = .commonRows(schemaKey: target.hops.last?.schemaKey)
+        case .cell(let col), .rowScopedColumn(let col):
+            seedTerminator = .commonColumn(schemaKey: target.hops.last?.schemaKey, columnID: col)
+        default:
+            return nil
         }
-        return columns?.first(where: { $0.id == columnID })?.decorators ?? []
+        let seedTarget = DecoratorTarget(fieldID: target.fieldID, hops: [], terminator: seedTerminator)
+        return fetchDecorators(for: seedTarget)
     }
 
-    func setColumnDecoratorsForPath(_ decorators: [Decorator], fieldID: String, columnID: String, schemaKey: String?) {
-        guard var field = fieldMap[fieldID] else { return }
-        if field.fieldType == .collection {
-            // Collection field: update column inside the schema entry
-            guard let schemaKey = schemaKey,
-                  var schema    = field.schema,
-                  var entry     = schema[schemaKey],
-                  var columns   = entry.tableColumns,
-                  let colIndex  = columns.firstIndex(where: { $0.id == columnID }) else { return }
-            columns[colIndex].decorators = decorators
-            entry.tableColumns  = columns
-            schema[schemaKey]   = entry
-            field.schema        = schema
-        } else {
-            // Table field: update column directly on the field
-            guard var columns  = field.tableColumns,
-                  let colIndex = columns.firstIndex(where: { $0.id == columnID }) else { return }
-            columns[colIndex].decorators = decorators
-            field.tableColumns = columns
-        }
-        commitDecoratorChange(field: field, fieldID: fieldID)
-    }
+    // MARK: Path parsing
 
-    // MARK: Path resolution
-
-    /// Resolved decorator scope from a path string.
-    enum DecoratorTarget {
-        case field(fieldID: String)
-        case row(fieldID: String, schemaKey: String?)          // common row decorators
-        case rowSpecific(fieldID: String, rowID: String)       // row-specific decorators (table only)
-        case column(fieldID: String, columnID: String, schemaKey: String?)
-        case cellSpecific(fieldID: String, rowID: String, columnID: String) // cell-specific decorators (table only)
-    }
-
-    /// Parses the path and maps it to the correct decorator scope.
-    /// The rowId segment resolves the schemaKey for both row and column paths on
-    /// collection fields. Table fields always resolve to schemaKey = nil.
+    /// Parses the path string into a DecoratorTarget, validating each segment along the way.
     func resolveDecoratorTarget(path: String) -> DecoratorTarget? {
-        let parsed = DocumentEditor.parsePath(path)
+        let segments = path
+            .split(separator: "/")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
 
-        guard let pageId = parsed.pageId,
-              let fieldPositionId = parsed.fieldPositionId,
-              let page = pagesForCurrentView.first(where: { $0.id == pageId }),
+        guard segments.count >= 2 else { return nil }
+        let pageId = segments[0]
+        let fieldPositionId = segments[1]
+
+        guard let page = pagesForCurrentView.first(where: { $0.id == pageId }),
               let position = page.fieldPositions?.first(where: { $0.id == fieldPositionId }),
               let fieldID = position.field,
               let field = fieldMap[fieldID] else { return nil }
 
-        if let columnId = parsed.columnId {
-            guard let rowSegment = parsed.rowId else { return nil }
-            if field.fieldType == .table {
-                if rowSegment == "columns" {
-                    // "columns/{colId}" → common column decorators
-                    guard columnExistsInField(field, columnId: columnId, schemaKey: nil) else { return nil }
-                    return .column(fieldID: fieldID, columnID: columnId, schemaKey: nil)
+        let isCollection = field.fieldType == .collection
+        let rootSchemaKey: String? = isCollection
+            ? field.schema?.first(where: { $0.value.root == true })?.key
+            : nil
+
+        var hops: [DecoratorTarget.Hop] = []
+        var pendingSchema: String? = nil      // last `schemas/sk` consumed, pending binding
+        var hasPendingSchema = false
+        var cursor = 2
+
+        while cursor < segments.count {
+            let tok = segments[cursor]
+
+            switch tok {
+            case "schemas":
+                if !isCollection { return nil }
+                cursor += 1
+                guard cursor < segments.count else { return nil }
+                pendingSchema = segments[cursor]
+                hasPendingSchema = true
+                cursor += 1
+                guard cursor < segments.count else { return nil } // must be followed by rows / columns / row-id
+
+            case "rows":
+                cursor += 1
+                guard cursor == segments.count else { return nil }
+                let sk: String?
+                if hasPendingSchema {
+                    sk = pendingSchema
+                } else if !hops.isEmpty {
+                    // fp/row-id/rows is not defined in the spec
+                    return nil
+                } else {
+                    sk = rootSchemaKey
                 }
-                // "{rowId}/{colId}" → cell-specific decorators
-                guard rowExistsInField(fieldID: fieldID, rowId: rowSegment) else { return nil }
-                guard columnExistsInField(field, columnId: columnId, schemaKey: nil) else { return nil }
-                return .cellSpecific(fieldID: fieldID, rowID: rowSegment, columnID: columnId)
-            } else {
-                // Collection: rowId resolves the schema for the column
-                guard rowExistsInField(fieldID: fieldID, rowId: rowSegment) else { return nil }
-                let schemaKey = resolvedSchemaKey(forRowID: rowSegment, inFieldID: fieldID)
-                guard columnExistsInField(field, columnId: columnId, schemaKey: schemaKey) else { return nil }
-                return .column(fieldID: fieldID, columnID: columnId, schemaKey: schemaKey)
-            }
-        } else if let rowSegment = parsed.rowId {
-            if field.fieldType == .table {
-                if rowSegment == "rows" {
-                    // "rows" keyword → common row decorators on the field
-                    return .row(fieldID: fieldID, schemaKey: nil)
+                if let sk = sk, field.schema?[sk] == nil { return nil }
+                return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .commonRows(schemaKey: sk))
+
+            case "columns":
+                cursor += 1
+                guard cursor < segments.count else { return nil }
+                let col = segments[cursor]
+                cursor += 1
+                guard cursor == segments.count else { return nil }
+
+                let contextSk: String?
+                let isRowScoped: Bool
+                if hasPendingSchema {
+                    contextSk = pendingSchema
+                    isRowScoped = false
+                } else if let lastHop = hops.last {
+                    contextSk = lastHop.schemaKey
+                    isRowScoped = true
+                } else {
+                    contextSk = rootSchemaKey
+                    isRowScoped = false
                 }
-                if rowSegment == "columns" {
-                    // "columns" without a columnID is an invalid path — decorators live per column
+
+                guard columnExists(in: field, columnID: col, schemaKey: contextSk) else { return nil }
+
+                if isRowScoped {
+                    return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .rowScopedColumn(columnID: col))
+                }
+                return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .commonColumn(schemaKey: contextSk, columnID: col))
+
+            default:
+                // row-id
+                let rowID = tok
+                cursor += 1
+
+                let hopSchema: String?
+                if hasPendingSchema {
+                    hopSchema = pendingSchema
+                } else if hops.isEmpty {
+                    hopSchema = rootSchemaKey  // nil for table
+                } else {
+                    // collection requires schemas/sk between consecutive rows; tables don't nest
                     return nil
                 }
-                // Actual rowId → row-specific decorators
-                guard rowExistsInField(fieldID: fieldID, rowId: rowSegment) else { return nil }
-                return .rowSpecific(fieldID: fieldID, rowID: rowSegment)
-            } else {
-                // Collection: rowId always resolves to schema-level row decorators
-                guard rowExistsInField(fieldID: fieldID, rowId: rowSegment) else { return nil }
-                let schemaKey = resolvedSchemaKey(forRowID: rowSegment, inFieldID: fieldID)
-                return .row(fieldID: fieldID, schemaKey: schemaKey)
-            }
-        } else {
-            // 2 segments → field decorators
-            return .field(fieldID: fieldID)
-        }
-    }
+                hops.append(.init(schemaKey: hopSchema, rowID: rowID))
+                pendingSchema = nil
+                hasPendingSchema = false
 
-    // MARK: Schema key resolution
+                guard rowExistsInField(fieldID: fieldID, rowId: rowID) else { return nil }
 
-    /// Returns the schemaKey the given rowId belongs to.
-    ///
-    /// - Table fields always return nil (row decorators live at field level).
-    /// - Collection fields: root-level rows map to the schema entry where
-    ///   `root == true`; nested rows return the key found in their parent's
-    ///   `childrens` map.
-    func resolvedSchemaKey(forRowID rowID: String, inFieldID fieldID: String) -> String? {
-        guard let field = fieldMap[fieldID] else { return nil }
-
-        // Table fields store row decorators at the field level, no schemaKey needed
-        if field.fieldType == .table { return nil }
-
-        let rootRows = field.valueToValueElements ?? []
-
-        // Root schema = the schema entry flagged with root == true
-        let rootSchemaKey = field.schema?.first { $0.value.root == true }?.key
-
-        // Check root-level rows first
-        if rootRows.contains(where: { $0.id == rowID }) {
-            return rootSchemaKey
-        }
-
-        // Recursively search nested children
-        for row in rootRows {
-            if let found = schemaKey(forRowID: rowID, in: row) {
-                return found
-            }
-        }
-
-        return nil
-    }
-
-    /// Recursively walks a ValueElement's `childrens` map to find which
-    /// schemaKey contains the given rowId.
-    func schemaKey(forRowID rowID: String, in element: ValueElement) -> String? {
-        guard let childrens = element.childrens else { return nil }
-        for (schemaKey, children) in childrens {
-            let childRows = children.valueToValueElements ?? []
-            if childRows.contains(where: { $0.id == rowID }) {
-                return schemaKey
-            }
-            // Go one level deeper
-            for child in childRows {
-                if let found = self.schemaKey(forRowID: rowID, in: child) {
-                    return found
+                if cursor == segments.count {
+                    return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .rowSelf)
                 }
+
+                let next = segments[cursor]
+                if next == "schemas" {
+                    continue // outer loop handles
+                }
+                if next == "columns" {
+                    cursor += 1
+                    guard cursor < segments.count else { return nil }
+                    let col = segments[cursor]
+                    cursor += 1
+                    guard cursor == segments.count else { return nil }
+                    guard columnExists(in: field, columnID: col, schemaKey: hopSchema) else { return nil }
+                    return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .rowScopedColumn(columnID: col))
+                }
+                if next == "rows" {
+                    // fp/.../row-id/rows not defined
+                    return nil
+                }
+                // Bare column id → cell
+                let col = next
+                cursor += 1
+                guard cursor == segments.count else { return nil }
+                guard columnExists(in: field, columnID: col, schemaKey: hopSchema) else { return nil }
+                return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .cell(columnID: col))
             }
+        }
+
+        // No rest → field-level
+        if hasPendingSchema { return nil }
+        return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .field)
+    }
+
+    // MARK: Column existence
+
+    func columnExists(in field: JoyDocField, columnID: String, schemaKey: String?) -> Bool {
+        let cols: [FieldTableColumn]?
+        if let sk = schemaKey {
+            cols = field.schema?[sk]?.tableColumns
+        } else {
+            cols = field.tableColumns
+        }
+        return (cols ?? []).contains(where: { $0.id == columnID })
+    }
+
+    // MARK: Fetch / apply
+
+    func fetchDecorators(for target: DecoratorTarget) -> [Decorator] {
+        guard let field = fieldMap[target.fieldID] else { return [] }
+        switch target.terminator {
+        case .field:
+            return field.decorators ?? []
+
+        case .commonRows(let sk):
+            if let sk = sk {
+                return field.schema?[sk]?.rowDecorators ?? []
+            }
+            return field.rowDecorators ?? []
+
+        case .commonColumn(let sk, let col):
+            let cols: [FieldTableColumn]?
+            if let sk = sk {
+                cols = field.schema?[sk]?.tableColumns
+            } else {
+                cols = field.tableColumns
+            }
+            return cols?.first(where: { $0.id == col })?.decorators ?? []
+
+        case .rowSelf:
+            guard let element = valueElement(at: target.hops, in: field) else { return [] }
+            return element.decorators?.all ?? []
+
+        case .cell(let col), .rowScopedColumn(let col):
+            guard let element = valueElement(at: target.hops, in: field) else { return [] }
+            return element.decorators?.cells[col] ?? []
+        }
+    }
+
+    func applyDecorators(_ decorators: [Decorator], for target: DecoratorTarget) {
+        guard var field = fieldMap[target.fieldID] else { return }
+
+        switch target.terminator {
+        case .field:
+            field.decorators = decorators
+
+        case .commonRows(let sk):
+            if let sk = sk {
+                guard var schema = field.schema, var entry = schema[sk] else { return }
+                entry.rowDecorators = decorators
+                schema[sk] = entry
+                field.schema = schema
+            } else {
+                field.rowDecorators = decorators
+            }
+
+        case .commonColumn(let sk, let col):
+            if let sk = sk {
+                guard var schema = field.schema,
+                      var entry = schema[sk],
+                      var cols = entry.tableColumns,
+                      let i = cols.firstIndex(where: { $0.id == col }) else { return }
+                cols[i].decorators = decorators
+                entry.tableColumns = cols
+                schema[sk] = entry
+                field.schema = schema
+            } else {
+                guard var cols = field.tableColumns,
+                      let i = cols.firstIndex(where: { $0.id == col }) else { return }
+                cols[i].decorators = decorators
+                field.tableColumns = cols
+            }
+
+        case .rowSelf, .cell, .rowScopedColumn:
+            guard !target.hops.isEmpty else { return }
+            var rows = field.valueToValueElements ?? []
+            rewriteRows(&rows, hops: target.hops, depth: 0, terminator: target.terminator, newList: decorators)
+            field.value = ValueUnion.valueElementArray(rows)
+        }
+
+        commitDecoratorChange(field: field, fieldID: target.fieldID)
+    }
+
+    // MARK: Row tree walking
+
+    /// Walks the hop chain and returns the ValueElement at the end (last hop's row).
+    func valueElement(at hops: [DecoratorTarget.Hop], in field: JoyDocField) -> ValueElement? {
+        guard !hops.isEmpty else { return nil }
+        var currentRows: [ValueElement] = field.valueToValueElements ?? []
+        for (i, hop) in hops.enumerated() {
+            guard let row = currentRows.first(where: { $0.id == hop.rowID }) else { return nil }
+            if i == hops.count - 1 { return row }
+            // Descend into child schema specified by NEXT hop's schemaKey
+            let nextHop = hops[i + 1]
+            guard let sk = nextHop.schemaKey,
+                  let children = row.childrens?[sk] else { return nil }
+            currentRows = children.valueToValueElements ?? []
         }
         return nil
     }
 
-    // MARK: Row-specific decorator read/write (table only)
+    /// Recursively rewrites the row tree to apply the terminator's new decorator list at the deepest hop.
+    func rewriteRows(
+        _ rows: inout [ValueElement],
+        hops: [DecoratorTarget.Hop],
+        depth: Int,
+        terminator: DecoratorTarget.Terminator,
+        newList: [Decorator]
+    ) {
+        let hop = hops[depth]
+        guard let idx = rows.firstIndex(where: { $0.id == hop.rowID }) else { return }
+        var row = rows[idx]
 
-    func rowSpecificDecoratorsForPath(fieldID: String, rowID: String) -> [Decorator] {
-        guard let field = fieldMap[fieldID] else { return [] }
-        return field.valueToValueElements?.first(where: { $0.id == rowID })?.decorators?.all ?? []
-    }
-
-    func setRowSpecificDecoratorsForPath(_ decorators: [Decorator], fieldID: String, rowID: String) {
-        guard var field = fieldMap[fieldID],
-              var rows = field.valueToValueElements,
-              let index = rows.firstIndex(where: { $0.id == rowID }) else { return }
-        var decs = rows[index].decorators ?? Decorators()
-        decs.all = decorators
-        rows[index].decorators = decs
-        field.value = ValueUnion.valueElementArray(rows)
-        commitDecoratorChange(field: field, fieldID: fieldID)
-    }
-
-    // MARK: Cell-specific decorator read/write (table only)
-
-    func cellSpecificDecoratorsForPath(fieldID: String, rowID: String, columnID: String) -> [Decorator] {
-        guard let field = fieldMap[fieldID] else { return [] }
-        return field.valueToValueElements?.first(where: { $0.id == rowID })?.decorators?.cells[columnID] ?? []
-    }
-
-    func setCellSpecificDecoratorsForPath(_ decorators: [Decorator], fieldID: String, rowID: String, columnID: String) {
-        guard var field = fieldMap[fieldID],
-              var rows = field.valueToValueElements,
-              let index = rows.firstIndex(where: { $0.id == rowID }) else { return }
-        var decs = rows[index].decorators ?? Decorators()
-        var cells = decs.cells
-        cells[columnID] = decorators
-        decs.cells = cells
-        rows[index].decorators = decs
-        field.value = ValueUnion.valueElementArray(rows)
-        commitDecoratorChange(field: field, fieldID: fieldID)
-    }
-
-    // MARK: Row decorator read/write (path-based, independent of the public API)
-
-    /// Reads row decorators directly from the field model.
-    /// - nil schemaKey → table field, reads `field.rowDecorators`
-    /// - non-nil schemaKey → collection field, reads `field.schema[schemaKey].rowDecorators`
-    func rowDecoratorsForPath(fieldID: String, schemaKey: String?) -> [Decorator] {
-        guard let field = fieldMap[fieldID] else { return [] }
-        if field.fieldType == .collection {
-            guard let schemaKey = schemaKey else { return [] }
-            return field.schema?[schemaKey]?.rowDecorators ?? []
+        if depth == hops.count - 1 {
+            var decs = row.decorators ?? Decorators()
+            switch terminator {
+            case .rowSelf:
+                decs.all = newList
+            case .cell(let col), .rowScopedColumn(let col):
+                var cells = decs.cells
+                cells[col] = newList
+                decs.cells = cells
+            default:
+                return
+            }
+            row.decorators = decs
+            rows[idx] = row
+            return
         }
-        return field.rowDecorators ?? []
-    }
 
-    /// Writes row decorators directly to the field model.
-    func setRowDecoratorsForPath(_ decorators: [Decorator], fieldID: String, schemaKey: String?) {
-        guard var field = fieldMap[fieldID] else { return }
-        if field.fieldType == .collection {
-            guard var schema = field.schema,
-                  let schemaKey = schemaKey,
-                  var entry  = schema[schemaKey] else { return }
-            entry.rowDecorators = decorators
-            schema[schemaKey]   = entry
-            field.schema        = schema
-        } else {
-            field.rowDecorators = decorators
-        }
-        commitDecoratorChange(field: field, fieldID: fieldID)
-    }
-
-    // MARK: Generic fetch / apply routers
-
-    /// Returns the current decorator list for a resolved target.
-    func fetchDecorators(for target: DecoratorTarget) -> [Decorator] {
-        switch target {
-        case .field(let fieldID):
-            return decorators(forFieldID: fieldID)
-        case .row(let fieldID, let schemaKey):
-            return rowDecoratorsForPath(fieldID: fieldID, schemaKey: schemaKey)
-        case .rowSpecific(let fieldID, let rowID):
-            return rowSpecificDecoratorsForPath(fieldID: fieldID, rowID: rowID)
-        case .column(let fieldID, let columnID, let schemaKey):
-            return columnDecoratorsForPath(fieldID: fieldID, columnID: columnID, schemaKey: schemaKey)
-        case .cellSpecific(let fieldID, let rowID, let columnID):
-            return cellSpecificDecoratorsForPath(fieldID: fieldID, rowID: rowID, columnID: columnID)
-        }
-    }
-
-    /// Persists an updated decorator list for a resolved target.
-    func applyDecorators(_ decorators: [Decorator], for target: DecoratorTarget) {
-        switch target {
-        case .field(let fieldID):
-            setDecorators(decorators, forFieldID: fieldID)
-        case .row(let fieldID, let schemaKey):
-            setRowDecoratorsForPath(decorators, fieldID: fieldID, schemaKey: schemaKey)
-        case .rowSpecific(let fieldID, let rowID):
-            setRowSpecificDecoratorsForPath(decorators, fieldID: fieldID, rowID: rowID)
-        case .column(let fieldID, let columnID, let schemaKey):
-            setColumnDecoratorsForPath(decorators, fieldID: fieldID, columnID: columnID, schemaKey: schemaKey)
-        case .cellSpecific(let fieldID, let rowID, let columnID):
-            setCellSpecificDecoratorsForPath(decorators, fieldID: fieldID, rowID: rowID, columnID: columnID)
-        }
+        let nextHop = hops[depth + 1]
+        guard let sk = nextHop.schemaKey else { return }
+        var childrens = row.childrens ?? [:]
+        guard var children = childrens[sk] else { return }
+        var childRows = children.valueToValueElements ?? []
+        rewriteRows(&childRows, hops: hops, depth: depth + 1, terminator: terminator, newList: newList)
+        children.value = ValueUnion.valueElementArray(childRows)
+        childrens[sk] = children
+        row.childrens = childrens
+        rows[idx] = row
     }
 }
