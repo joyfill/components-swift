@@ -107,6 +107,16 @@ struct DecoratorDraft: Identifiable {
     var action:     String
 }
 
+// MARK: - Hop step for unbounded-depth path chain
+
+/// One descent step.
+/// `schemaKey == nil` means root-level descent (table or collection root schema).
+/// `schemaKey == "sk"` means we entered this row via `/schemas/sk/` from the parent row.
+struct DecoratorHopStep: Hashable {
+    let schemaKey: String?
+    let rowID: String
+}
+
 // MARK: - DecoratorManagerView
 
 /// Full-screen decorator manager sheet.
@@ -121,11 +131,15 @@ struct DecoratorManagerView: View {
     // Shared error alert state (alert attached here so it renders over this sheet)
     @Binding var decoratorError:          DecoratorErrorAlert?
 
-    // Schema / column reset on each open — less critical to persist.
-    @State private var draft:           DecoratorDraft? = nil
-    @State private var selectedSchemaKey: String = ""
-    @State private var selectedColumnID:  String = ""
-    @State private var selectedRowID:     String? = nil
+    // Unbounded-depth path state — also lifted so it survives dismiss/re-open.
+    //   hopChain       — descent chain (row-id plus optional schema-key entry prefix)
+    //   pendingSchema  — child schema selected for the *next* descent (collection only)
+    //   selectedColumnID — column used for column / cell / row-scoped-column paths
+    @Binding var hopChain:         [DecoratorHopStep]
+    @Binding var pendingSchema:    String
+    @Binding var selectedColumnID: String
+
+    @State private var draft: DecoratorDraft? = nil
 
     // MARK: Derived — pages
 
@@ -139,13 +153,10 @@ struct DecoratorManagerView: View {
 
     // MARK: Derived — field entries (loaded explicitly from the selected page)
 
-    /// (fieldPositionId, field) pairs for the selected page, in layout order.
     private var fieldEntries: [(fieldPositionId: String, field: JoyDocField)] {
         fieldEntriesForPage(selectedPageID)
     }
 
-    /// Local helper: builds (fieldPositionId, field) pairs for any page using only
-    /// public DocumentEditor APIs — no SDK-side method needed.
     private func fieldEntriesForPage(_ pageID: String) -> [(fieldPositionId: String, field: JoyDocField)] {
         guard !pageID.isEmpty,
               let page = editor.pagesForCurrentView.first(where: { $0.id == pageID })
@@ -164,48 +175,84 @@ struct DecoratorManagerView: View {
 
     private var isCollection: Bool { selectedField?.fieldType == .collection }
     private var isTable:      Bool { selectedField?.fieldType == .table }
+    private var isTabular:    Bool { isTable || isCollection }
 
-    // MARK: Derived — schemas (collection fields only)
+    // MARK: Derived — schema helpers
 
-    /// All schemas for the selected collection field, root first then children in declared order.
-    private var sortedSchemas: [(key: String, schema: Schema)] {
-        guard let schemas = selectedField?.schema else { return [] }
-        var result: [(String, Schema)] = []
-        if let rootEntry = schemas.first(where: { $0.value.root == true }) {
-            result.append((rootEntry.key, rootEntry.value))
-            for childKey in rootEntry.value.children ?? [] {
-                if let child = schemas[childKey] { result.append((childKey, child)) }
+    private var collectionRootSchemaKey: String? {
+        selectedField?.schema?.first(where: { $0.value.root == true })?.key
+    }
+
+    /// Schema we're currently "inside" after walking the hop chain.
+    /// - Table: always nil
+    /// - Collection, empty chain: root schema key
+    /// - Collection, after N hops: hopChain.last.schemaKey ?? root
+    private var currentSchemaKey: String? {
+        guard isCollection else { return nil }
+        if hopChain.isEmpty { return collectionRootSchemaKey }
+        return hopChain.last?.schemaKey ?? collectionRootSchemaKey
+    }
+
+    /// Effective schema for column lookup at the current level:
+    /// pendingSchema overrides currentSchemaKey when the user is about to descend.
+    private var effectiveSchemaKey: String? {
+        if !pendingSchema.isEmpty { return pendingSchema }
+        return currentSchemaKey
+    }
+
+    /// Child schemas that can be descended into from the current level.
+    private var availableChildSchemas: [(key: String, schema: Schema)] {
+        guard isCollection,
+              let ck = currentSchemaKey,
+              let current = selectedField?.schema?[ck]
+        else { return [] }
+        return (current.children ?? []).compactMap { key in
+            guard let s = selectedField?.schema?[key] else { return nil }
+            return (key, s)
+        }
+    }
+
+    // MARK: Derived — walking the row tree
+
+    /// Walks the hop chain and returns the ValueElement at the tip (nil if chain empty or broken).
+    private func walkToChainTip() -> ValueElement? {
+        guard let field = selectedField else { return nil }
+        var list: [ValueElement] = field.valueToValueElements ?? []
+        var tip: ValueElement? = nil
+        for (idx, hop) in hopChain.enumerated() {
+            if idx > 0 {
+                guard let sk = hop.schemaKey,
+                      let children = tip?.childrens?[sk]?.valueToValueElements else { return nil }
+                list = children
             }
+            guard let el = list.first(where: { $0.id == hop.rowID && !($0.deleted ?? false) }) else { return nil }
+            tip = el
         }
-        // Append any schemas not reachable from root's children list
-        for (key, schema) in schemas where !result.contains(where: { $0.0 == key }) {
-            result.append((key, schema))
+        return tip
+    }
+
+    /// Rows available for descent at the current level.
+    private var availableRows: [ValueElement] {
+        if hopChain.isEmpty {
+            // Root-level rows (table or collection root schema)
+            guard isTabular else { return [] }
+            return (selectedField?.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
         }
-        return result
+        // Inside a row — need a pending schema to know which child list to show
+        guard isCollection, !pendingSchema.isEmpty, let tip = walkToChainTip() else { return [] }
+        return (tip.childrens?[pendingSchema]?.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
     }
 
-    private var selectedSchema: Schema? {
-        selectedField?.schema?[selectedSchemaKey]
-    }
+    // MARK: Derived — columns for the current level
 
-    // MARK: Derived — rows (table only, for row-specific decorators)
-
-    private var tableRows: [ValueElement] {
-        guard isTable else { return [] }
-        return (selectedField?.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
-    }
-
-    // MARK: Derived — columns
-
-    /// Columns for the currently active scope:
-    /// - Collection: columns from the selected schema entry
-    /// - Table:      columns directly on the field
     private var sortedColumns: [FieldTableColumn] {
         let cols: [FieldTableColumn]?
-        if isCollection {
-            cols = selectedSchema?.tableColumns
-        } else {
+        if isTable {
             cols = selectedField?.tableColumns
+        } else if isCollection, let sk = effectiveSchemaKey {
+            cols = selectedField?.schema?[sk]?.tableColumns
+        } else {
+            cols = nil
         }
         return (cols ?? []).filter { $0.id != nil }
     }
@@ -222,69 +269,57 @@ struct DecoratorManagerView: View {
         return "\(selectedPageID)/\(selectedFieldPositionID)"
     }
 
-    /// "pageId/fieldPositionId/rows" for table common row decorators,
-    /// or "pageId/fieldPositionId/{rowId}" for collection (uses first row of selected schema).
-    private var rowPath: String? {
+    /// Path built by walking every hop — this is the row-self path when chain is non-empty.
+    private var chainRowPath: String? {
         guard let base = fieldPath else { return nil }
-        if isTable { return "\(base)/rows" }
-        guard let rowID = firstRowID(forSchemaKey: selectedSchemaKey, in: selectedField) else { return nil }
-        return "\(base)/\(rowID)"
-    }
-
-    /// "pageId/fieldPositionId/{rowId}" — row-specific decorators (table only).
-    private var rowSpecificPath: String? {
-        guard isTable, let base = fieldPath,
-              let rowID = selectedRowID ?? tableRows.first?.id else { return nil }
-        return "\(base)/\(rowID)"
-    }
-
-    /// "pageId/fieldPositionId/columns/columnId" for tables (common column decorators),
-    /// or "pageId/fieldPositionId/{rowId}/{columnId}" for collections (rowId resolves schemaKey).
-    private func columnPath(columnID: String) -> String? {
-        guard let base = fieldPath else { return nil }
-        if isCollection {
-            guard let rowID = firstRowID(forSchemaKey: selectedSchemaKey, in: selectedField)
-            else { return nil }
-            return "\(base)/\(rowID)/\(columnID)"
+        var p = base
+        for hop in hopChain {
+            if let sk = hop.schemaKey { p += "/schemas/\(sk)" }
+            p += "/\(hop.rowID)"
         }
-        // Tables: "columns" keyword routes to common column decorators
-        return "\(base)/columns/\(columnID)"
+        return p
     }
 
-    /// "pageId/fieldPositionId/{rowId}/{columnId}" — cell-specific decorators (table only).
-    private func cellSpecificPath(columnID: String) -> String? {
-        guard isTable, let base = fieldPath,
-              let rowID = selectedRowID ?? tableRows.first?.id else { return nil }
-        return "\(base)/\(rowID)/\(columnID)"
+    /// Prefix at the current "level" — chainRowPath + optional `/schemas/{pending}`.
+    private var currentLevelPrefix: String? {
+        guard let row = chainRowPath else { return nil }
+        if !pendingSchema.isEmpty { return "\(row)/schemas/\(pendingSchema)" }
+        return row
     }
 
-    /// Returns the first rowId that belongs to the given schemaKey in a field's value tree.
-    /// - Root schema: first root-level row.
-    /// - Child schema: first child row found under any parent that has that schema.
-    private func firstRowID(forSchemaKey schemaKey: String, in field: JoyDocField?) -> String? {
-        guard let field = field else { return nil }
-        let rootSchemaKey = field.schema?.first { $0.value.root == true }?.key
-        if schemaKey == rootSchemaKey {
-            return field.valueToValueElements?.first?.id
-        }
-        return findFirstChildRow(forSchemaKey: schemaKey, in: field.valueToValueElements ?? [])
+    /// Common-rows path at the current level.
+    /// Only valid at a level boundary: root (chain empty) OR after a pendingSchema.
+    /// A nested collection row without pendingSchema has no common-rows path because
+    /// the parser requires `/schemas/{sk}/rows` to disambiguate the child list.
+    /// Table never nests, so rows path exists only when chain is empty.
+    private var rowsPath: String? {
+        guard let prefix = currentLevelPrefix else { return nil }
+        if hopChain.isEmpty { return isTabular ? "\(prefix)/rows" : nil }
+        guard isCollection, !pendingSchema.isEmpty else { return nil }
+        return "\(prefix)/rows"
     }
 
-    private func findFirstChildRow(forSchemaKey targetKey: String, in rows: [ValueElement]) -> String? {
-        for row in rows {
-            if let children = row.childrens?[targetKey],
-               let firstID  = children.valueToValueElements?.first?.id {
-                return firstID
-            }
-            if let childrens = row.childrens {
-                for (_, childGroup) in childrens {
-                    if let found = findFirstChildRow(forSchemaKey: targetKey, in: childGroup.valueToValueElements ?? []) {
-                        return found
-                    }
-                }
-            }
-        }
-        return nil
+    /// Row-self path (chain must be non-empty, no pending schema).
+    private var rowSelfPath: String? {
+        guard !hopChain.isEmpty, pendingSchema.isEmpty else { return nil }
+        return chainRowPath
+    }
+
+    /// Common-column path at the current level (for a given column).
+    /// Same level-boundary rule as `rowsPath` — inside a nested collection row
+    /// without pendingSchema, emit nothing (the user would just be looking at
+    /// a row-scoped column, which aliases the cell path).
+    private func commonColumnPath(columnID: String) -> String? {
+        guard let prefix = currentLevelPrefix else { return nil }
+        if hopChain.isEmpty { return isTabular ? "\(prefix)/columns/\(columnID)" : nil }
+        guard isCollection, !pendingSchema.isEmpty else { return nil }
+        return "\(prefix)/columns/\(columnID)"
+    }
+
+    /// Cell-specific path (chain non-empty, pending schema cleared).
+    private func cellPath(columnID: String) -> String? {
+        guard !hopChain.isEmpty, pendingSchema.isEmpty, let row = chainRowPath else { return nil }
+        return "\(row)/\(columnID)"
     }
 
     // MARK: Body
@@ -332,17 +367,20 @@ struct DecoratorManagerView: View {
                             }
 
                             // ── Table / Collection only ──────────────────────
-                            if isTable || isCollection {
+                            if isTabular {
 
-                                // Schema picker (collection only)
-                                if isCollection {
-                                    Section {
-                                        schemaPickerRow
-                                    } header: { Text("Select Schema").textCase(nil) }
+                                // Path chain navigator
+                                Section {
+                                    chainNavigator
+                                } header: {
+                                    Text("Path Chain").textCase(nil)
+                                } footer: {
+                                    Text("Descend into rows (and child schemas for collections) to build arbitrary-depth paths.")
+                                        .font(.caption)
                                 }
 
-                                // Common row decorators
-                                if let rPath = rowPath {
+                                // Common row decorators at current level
+                                if let rPath = rowsPath {
                                     let rowDecs = editor.getDecorators(path: rPath)
                                     Section {
                                         ForEach(rowDecs, id: \.action) { decoratorRow($0, path: rPath) }
@@ -352,66 +390,55 @@ struct DecoratorManagerView: View {
                                                                    icon: "flag", label: "", color: "#F97316", action: "")
                                         }
                                     } header: {
-                                        decoratorSectionHeader(title: isTable ? "Common Row Decorators" : "Row Decorators",
+                                        decoratorSectionHeader(title: "Common Row Decorators",
                                                                symbol: "list.bullet.rectangle",
                                                                count: rowDecs.count, badge: .orange, path: rPath)
                                     }
-                                } else {
-                                    Section {
-                                        emptyHint("Add at least one row to manage row decorators.")
-                                    } header: {
-                                        decoratorSectionHeader(title: "Row Decorators", symbol: "list.bullet.rectangle",
-                                                               count: 0, badge: .orange)
-                                    }
                                 }
 
-                                // Row-specific decorators (table only)
-                                if isTable, !tableRows.isEmpty {
+                                // Row-self decorators (when chain is non-empty)
+                                if let rsPath = rowSelfPath, pendingSchema.isEmpty {
+                                    let rowSelfDecs = editor.getDecorators(path: rsPath)
                                     Section {
-                                        rowPickerRow
-                                    } header: { Text("Select Row").textCase(nil) }
-
-                                    if let rsPath = rowSpecificPath {
-                                        let rowSpecDecs = editor.getDecorators(path: rsPath)
-                                        Section {
-                                            ForEach(rowSpecDecs, id: \.action) { decoratorRow($0, path: rsPath) }
-                                            if rowSpecDecs.isEmpty { emptyHint("No row-specific decorators — tap + to add one (copies common decorators first)") }
-                                            addButton(badge: .red) {
-                                                draft = DecoratorDraft(path: rsPath, editAction: nil,
-                                                                       icon: "flag", label: "", color: "#EF4444", action: "")
-                                            }
-                                        } header: {
-                                            decoratorSectionHeader(title: "Row-Specific Decorators", symbol: "person.text.rectangle",
-                                                                   count: rowSpecDecs.count, badge: .red, path: rsPath)
+                                        ForEach(rowSelfDecs, id: \.action) { decoratorRow($0, path: rsPath) }
+                                        if rowSelfDecs.isEmpty { emptyHint("No row-specific decorators — tap + to add one (copies common row decorators first)") }
+                                        addButton(badge: .red) {
+                                            draft = DecoratorDraft(path: rsPath, editAction: nil,
+                                                                   icon: "flag", label: "", color: "#EF4444", action: "")
                                         }
+                                    } header: {
+                                        decoratorSectionHeader(title: "Row-Specific Decorators",
+                                                               symbol: "person.text.rectangle",
+                                                               count: rowSelfDecs.count, badge: .red, path: rsPath)
                                     }
                                 }
 
-                                // Column picker + column decorators
+                                // Column picker + column / cell decorators
                                 if !sortedColumns.isEmpty {
                                     Section {
                                         columnPickerRow
                                     } header: { Text("Select Column").textCase(nil) }
 
-                                    if let col = selectedColumn, let colID = col.id,
-                                       let cPath = columnPath(columnID: colID) {
-                                        let colDecs = editor.getDecorators(path: cPath)
-                                        Section {
-                                            ForEach(colDecs, id: \.action) { decoratorRow($0, path: cPath) }
-                                            if colDecs.isEmpty { emptyHint("No column decorators — tap + to add one") }
-                                            addButton(badge: .purple) {
-                                                draft = DecoratorDraft(path: cPath, editAction: nil,
-                                                                       icon: "circle-info", label: "", color: "#8B5CF6", action: "")
+                                    if let col = selectedColumn, let colID = col.id {
+                                        // Common column
+                                        if let cPath = commonColumnPath(columnID: colID) {
+                                            let colDecs = editor.getDecorators(path: cPath)
+                                            Section {
+                                                ForEach(colDecs, id: \.action) { decoratorRow($0, path: cPath) }
+                                                if colDecs.isEmpty { emptyHint("No common column decorators — tap + to add one") }
+                                                addButton(badge: .purple) {
+                                                    draft = DecoratorDraft(path: cPath, editAction: nil,
+                                                                           icon: "circle-info", label: "", color: "#8B5CF6", action: "")
+                                                }
+                                            } header: {
+                                                decoratorSectionHeader(title: "Common Column Decorators",
+                                                                       symbol: "tablecells",
+                                                                       count: colDecs.count, badge: .purple, path: cPath)
                                             }
-                                        } header: {
-                                            decoratorSectionHeader(title: isTable ? "Common Column Decorators" : "Column Decorators",
-                                                                   symbol: "tablecells",
-                                                                   count: colDecs.count, badge: .purple, path: cPath)
                                         }
 
-                                        // Cell-specific decorators (table only)
-                                        if isTable, !tableRows.isEmpty,
-                                           let csPath = cellSpecificPath(columnID: colID) {
+                                        // Cell-specific (chain non-empty, pending schema cleared)
+                                        if let csPath = cellPath(columnID: colID) {
                                             let cellDecs = editor.getDecorators(path: csPath)
                                             Section {
                                                 ForEach(cellDecs, id: \.action) { decoratorRow($0, path: csPath) }
@@ -421,7 +448,8 @@ struct DecoratorManagerView: View {
                                                                            icon: "circle-info", label: "", color: "#F97316", action: "")
                                                 }
                                             } header: {
-                                                decoratorSectionHeader(title: "Cell-Specific Decorators", symbol: "rectangle.split.3x1",
+                                                decoratorSectionHeader(title: "Cell-Specific Decorators",
+                                                                       symbol: "rectangle.split.3x1",
                                                                        count: cellDecs.count, badge: .pink, path: csPath)
                                             }
                                         }
@@ -431,24 +459,14 @@ struct DecoratorManagerView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
-                    .onAppear {
-                        // Do not auto-select page — user must pick explicitly so
-                        // paths are always built from a deliberate page choice.
-                        if selectedSchemaKey.isEmpty { selectedSchemaKey = sortedSchemas.first?.key ?? "" }
-                        if selectedColumnID.isEmpty  { selectedColumnID  = sortedColumns.first?.id  ?? "" }
-                    }
                     .onChange(of: selectedPageID) { _ in
-                        // Page changed: clear field selection so user explicitly picks from fresh list
                         selectedFieldPositionID = ""
-                        selectedSchemaKey       = ""
-                        selectedColumnID        = ""
+                        resetChain()
                     }
                     .onChange(of: selectedFieldPositionID) { _ in
-                        selectedSchemaKey = sortedSchemas.first?.key ?? ""
-                        selectedColumnID  = sortedColumns.first?.id ?? ""
-                        selectedRowID     = nil
+                        resetChain()
                     }
-                    .onChange(of: selectedSchemaKey) { _ in
+                    .onChange(of: pendingSchema) { _ in
                         selectedColumnID = sortedColumns.first?.id ?? ""
                     }
                 }
@@ -469,6 +487,123 @@ struct DecoratorManagerView: View {
         }
     }
 
+    private func resetChain() {
+        hopChain = []
+        pendingSchema = ""
+        selectedColumnID = sortedColumns.first?.id ?? ""
+    }
+
+    // MARK: Chain navigator UI
+
+    @ViewBuilder
+    private var chainNavigator: some View {
+        // Breadcrumb
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 4) {
+                Image(systemName: "location.fill").font(.caption2).foregroundColor(.secondary)
+                Text("root")
+                    .font(.caption.monospaced())
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(Color.secondary.opacity(0.12))
+                    .cornerRadius(4)
+                ForEach(Array(hopChain.enumerated()), id: \.offset) { _, hop in
+                    Image(systemName: "chevron.right").font(.caption2).foregroundColor(.secondary)
+                    if let sk = hop.schemaKey {
+                        Text("sk:\(sk)")
+                            .font(.caption.monospaced())
+                            .padding(.horizontal, 6).padding(.vertical, 2)
+                            .background(Color.teal.opacity(0.15)).foregroundColor(.teal)
+                            .cornerRadius(4)
+                        Image(systemName: "chevron.right").font(.caption2).foregroundColor(.secondary)
+                    }
+                    Text(shortID(hop.rowID))
+                        .font(.caption.monospaced())
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.15)).foregroundColor(.orange)
+                        .cornerRadius(4)
+                }
+                if !pendingSchema.isEmpty {
+                    Image(systemName: "chevron.right").font(.caption2).foregroundColor(.secondary)
+                    Text("sk:\(pendingSchema)")
+                        .font(.caption.monospaced())
+                        .padding(.horizontal, 6).padding(.vertical, 2)
+                        .background(Color.teal.opacity(0.15)).foregroundColor(.teal)
+                        .cornerRadius(4)
+                }
+            }
+        }
+
+        // Descend into a child schema (collection only)
+        if isCollection, !availableChildSchemas.isEmpty {
+            Menu {
+                Button("(none)") { pendingSchema = "" }
+                ForEach(availableChildSchemas, id: \.key) { entry in
+                    Button {
+                        pendingSchema = entry.key
+                    } label: {
+                        Label(entry.schema.title ?? entry.key,
+                              systemImage: pendingSchema == entry.key ? "checkmark" : "square.stack.3d.up")
+                    }
+                }
+            } label: {
+                pickerLabel(icon: "square.stack.3d.up", color: .teal,
+                            text: pendingSchema.isEmpty ? "Pick child schema (optional)" : "sk: \(pendingSchema)")
+            }
+        }
+
+        // Descend into a row
+        if !availableRows.isEmpty {
+            Menu {
+                ForEach(availableRows, id: \.id) { row in
+                    Button {
+                        descend(into: row)
+                    } label: {
+                        Label(shortID(row.id ?? ""), systemImage: "arrow.down.forward")
+                    }
+                }
+            } label: {
+                pickerLabel(icon: "arrow.down.forward.circle", color: .orange,
+                            text: hopChain.isEmpty ? "Descend into row…" : "Descend further into row…")
+            }
+        } else if isCollection && !hopChain.isEmpty && pendingSchema.isEmpty && !availableChildSchemas.isEmpty {
+            Text("Pick a child schema above to list nested rows.")
+                .font(.caption).foregroundColor(.secondary)
+        }
+
+        // Go up
+        if !hopChain.isEmpty || !pendingSchema.isEmpty {
+            Button {
+                goUp()
+            } label: {
+                Label("Go up one level", systemImage: "arrow.up.left.circle")
+                    .foregroundColor(.blue)
+            }
+        }
+    }
+
+    private func descend(into row: ValueElement) {
+        guard let rid = row.id else { return }
+        let sk: String? = hopChain.isEmpty ? nil : (pendingSchema.isEmpty ? nil : pendingSchema)
+        // Root-level descent must have nil schemaKey; nested descent requires pendingSchema.
+        if !hopChain.isEmpty && pendingSchema.isEmpty { return }
+        hopChain.append(DecoratorHopStep(schemaKey: sk, rowID: rid))
+        pendingSchema = ""
+        selectedColumnID = sortedColumns.first?.id ?? ""
+    }
+
+    private func goUp() {
+        if !pendingSchema.isEmpty {
+            pendingSchema = ""
+        } else if !hopChain.isEmpty {
+            hopChain.removeLast()
+        }
+        selectedColumnID = sortedColumns.first?.id ?? ""
+    }
+
+    private func shortID(_ s: String) -> String {
+        s.count <= 10 ? s : String(s.prefix(6)) + "…" + String(s.suffix(3))
+    }
+
     // MARK: Pickers
 
     private var pagePickerRow: some View {
@@ -476,11 +611,9 @@ struct DecoratorManagerView: View {
             ForEach(sortedPages, id: \.id) { page in
                 Button {
                     let pageID = page.id ?? ""
-                    // Reset all downstream selections when page changes
                     selectedPageID          = pageID
                     selectedFieldPositionID = ""
-                    selectedSchemaKey       = ""
-                    selectedColumnID        = ""
+                    resetChain()
                 } label: {
                     Label(page.name ?? page.id ?? "",
                           systemImage: selectedPageID == page.id ? "checkmark" : "doc.text")
@@ -519,41 +652,6 @@ struct DecoratorManagerView: View {
         }
     }
 
-    private var schemaPickerRow: some View {
-        Menu {
-            ForEach(sortedSchemas, id: \.key) { entry in
-                Button {
-                    selectedSchemaKey = entry.key
-                } label: {
-                    Label(entry.schema.title ?? entry.key,
-                          systemImage: selectedSchemaKey == entry.key ? "checkmark" : "square.stack.3d.up")
-                }
-            }
-        } label: {
-            pickerLabel(
-                icon:  "square.stack.3d.up",
-                color: .teal,
-                text:  selectedSchema?.title ?? (selectedSchemaKey.isEmpty ? "Select a schema" : selectedSchemaKey)
-            )
-        }
-    }
-
-    private var rowPickerRow: some View {
-        let rows = tableRows
-        let currentID = selectedRowID ?? rows.first?.id
-        return Menu {
-            ForEach(rows, id: \.id) { row in
-                Button {
-                    selectedRowID = row.id
-                } label: {
-                    Label(row.id ?? "", systemImage: currentID == row.id ? "checkmark" : "list.bullet")
-                }
-            }
-        } label: {
-            pickerLabel(icon: "list.bullet", color: .red, text: currentID ?? "Select a row")
-        }
-    }
-
     private var columnPickerRow: some View {
         Menu {
             ForEach(sortedColumns, id: \.id) { col in
@@ -573,7 +671,6 @@ struct DecoratorManagerView: View {
         }
     }
 
-    /// Shared chevron-picker label layout.
     private func pickerLabel(icon: String, color: Color, text: String) -> some View {
         HStack(spacing: 10) {
             Image(systemName: icon).font(.caption.weight(.semibold)).foregroundColor(color)
@@ -602,7 +699,7 @@ struct DecoratorManagerView: View {
                 Text(path)
                     .font(.caption.monospaced())
                     .foregroundColor(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(3)
             }
         }
     }
@@ -724,7 +821,6 @@ struct DecoratorEditView: View {
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") { save() }
-//                        .fontWeight(.bold)
                         .disabled(icon.isEmpty)
                 }
             }
@@ -922,6 +1018,9 @@ struct DecoratorAPIDemoView: View {
     // Persisted across sheet dismissals so the user doesn't have to re-select
     @State private var decoratorPageID:          String = ""
     @State private var decoratorFieldPositionID: String = ""
+    @State private var decoratorHopChain:        [DecoratorHopStep] = []
+    @State private var decoratorPendingSchema:   String = ""
+    @State private var decoratorColumnID:        String = ""
 
     init() {
         let handler = DecoratorEventHandler()
@@ -972,7 +1071,10 @@ struct DecoratorAPIDemoView: View {
                 editor: editor,
                 selectedPageID: $decoratorPageID,
                 selectedFieldPositionID: $decoratorFieldPositionID,
-                decoratorError: $decoratorError
+                decoratorError: $decoratorError,
+                hopChain: $decoratorHopChain,
+                pendingSchema: $decoratorPendingSchema,
+                selectedColumnID: $decoratorColumnID
             )
         }
         .onAppear {

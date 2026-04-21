@@ -236,6 +236,9 @@ struct FormDestinationView: View {
     @State private var decoratorPageID:          String = ""
     @State private var decoratorFieldPositionID: String = ""
     @State private var decoratorError:           DecoratorErrorAlert? = nil
+    @State private var decoratorHopChain:        [DecoratorHopStep] = []
+    @State private var decoratorPendingSchema:   String = ""
+    @State private var decoratorColumnID:        String = ""
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
     @State var isPageDuplicated: Bool = true
@@ -382,7 +385,10 @@ struct FormDestinationView: View {
                     editor: editor,
                     selectedPageID: $decoratorPageID,
                     selectedFieldPositionID: $decoratorFieldPositionID,
-                    decoratorError: $decoratorError
+                    decoratorError: $decoratorError,
+                    hopChain: $decoratorHopChain,
+                    pendingSchema: $decoratorPendingSchema,
+                    selectedColumnID: $decoratorColumnID
                 )
             }
         }
