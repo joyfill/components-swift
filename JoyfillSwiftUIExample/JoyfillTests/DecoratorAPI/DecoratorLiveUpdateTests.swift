@@ -74,6 +74,99 @@ final class DecoratorLiveUpdateTests: XCTestCase {
 
     // MARK: - TableViewModel — common rows / common columns (cache-backed)
 
+    // MARK: - `decorate` flag — live vs snapshot behavior
+
+    /// Pinned behavior: `TableDataModel.decorate` is a `let` captured at init, and
+    /// `TableViewModel.showRowDecorators` reads that snapshot — so on a view model
+    /// that already exists, the row-indicator column does NOT appear live when a
+    /// common-row decorator is added afterwards. The underlying field flag DOES
+    /// flip (source of truth is correct); only the cached UI-facing property lags.
+    ///
+    /// Fix (whenever we decide to): have `showRowDecorators` read `decorate` live
+    /// from `documentEditor.field(...)`. When that lands, flip this test's
+    /// `XCTAssertFalse` → `XCTAssertTrue`.
+    func testTableViewModel_showRowDecorators_doesNotFlipLive_currentLimitation() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = makeTableViewModel(editor: editor)
+        XCTAssertFalse(vm.showRowDecorators, "starts false — no decorators yet")
+
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonRowsPath(),
+                             decorators: [makeDecorator(action: "x")])
+        waitForMainQueueToDrain()
+
+        // Field-level source of truth did flip.
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
+        // …but the VM's snapshot-backed computed property did not.
+        XCTAssertFalse(vm.showRowDecorators,
+                       "known limitation: TableDataModel.decorate is captured at init and never refreshed")
+    }
+
+    /// Inverse: if the VM is built AFTER the decorator exists, the snapshot picks
+    /// up the true flag and the row-indicator column renders correctly. This path
+    /// is what currently keeps tables usable — the UI typically constructs the VM
+    /// fresh when the modal opens.
+    func testTableViewModel_showRowDecorators_trueWhenBuiltAfterDecoratorExists() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonRowsPath(),
+                             decorators: [makeDecorator(action: "pre-existing")])
+
+        let vm = makeTableViewModel(editor: editor)
+        XCTAssertTrue(vm.showRowDecorators,
+                      "VM built after the decorator exists must see decorate=true on its snapshot")
+    }
+
+    /// Collection counterpart — `hasAnyRowDecorators(schemaKey:)` reads from
+    /// `tableDataModel.schema`, which `decoratorsDidChange()` does refresh.
+    /// So the collection UI picks up the flag live (unlike tables).
+    func testCollectionViewModel_hasAnyRowDecorators_flipsLive_onCommonRowAdd() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = makeCollectionViewModel(editor: editor)
+        waitForDelegate(editor, fieldID: ChangerHandlerSample.collectionFieldID)
+        let rootSK = ChangerHandlerSample.collectionRootSchemaKey
+        XCTAssertFalse(vm.tableDataModel.hasAnyRowDecorators(schemaKey: rootSK))
+
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootCommonRowsPath(),
+                             decorators: [makeDecorator(action: "x")])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(vm.tableDataModel.hasAnyRowDecorators(schemaKey: rootSK),
+                      "collection's schema mirror IS refreshed, so hasAnyRowDecorators flips live")
+    }
+
+    /// Collection nested schema — same live-flip behavior.
+    func testCollectionViewModel_hasAnyRowDecorators_flipsLive_onNestedCommonRowAdd() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = makeCollectionViewModel(editor: editor)
+        waitForDelegate(editor, fieldID: ChangerHandlerSample.collectionFieldID)
+        let nestedSK = ChangerHandlerSample.collectionNestedSchemaKey
+
+        editor.addDecorators(path: ChangerHandlerSample.collectionNestedCommonRowsPath(),
+                             decorators: [makeDecorator(action: "x")])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(vm.tableDataModel.hasAnyRowDecorators(schemaKey: nestedSK))
+        // Root schema must NOT flip from a nested-only write.
+        XCTAssertFalse(vm.tableDataModel.hasAnyRowDecorators(schemaKey: ChangerHandlerSample.collectionRootSchemaKey))
+    }
+
+    /// Row-self write also flips the schema's `decorate`, reaching
+    /// `hasAnyRowDecorators` live via the refreshed schema mirror.
+    func testCollectionViewModel_hasAnyRowDecorators_flipsLive_onRowSelfAdd() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = makeCollectionViewModel(editor: editor)
+        waitForDelegate(editor, fieldID: ChangerHandlerSample.collectionFieldID)
+        let rootSK = ChangerHandlerSample.collectionRootSchemaKey
+
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootRowSelfPath(),
+                             decorators: [makeDecorator(action: "x")])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(vm.tableDataModel.hasAnyRowDecorators(schemaKey: rootSK),
+                      "row-self writes flip the schema's decorate flag, visible live through the mirror")
+    }
+
+    // MARK: - Row decorator cache (works correctly on tables too)
+
     func testTableViewModel_addCommonRowDecorator_refreshesRowDecoratorCache() {
         let (editor, _) = makeChangerHandlerEditor()
         let vm = makeTableViewModel(editor: editor)
@@ -82,15 +175,19 @@ final class DecoratorLiveUpdateTests: XCTestCase {
                              decorators: [makeDecorator(action: "live-row")])
         waitForMainQueueToDrain()
 
-        // Source of truth — field got the decorator + decorate flag
+        // Source of truth — field got the decorator + decorate flag.
         let field = editor.field(fieldID: ChangerHandlerSample.tableFieldID)
         XCTAssertEqual(field?.rowDecorators?.first?.action, "live-row")
         XCTAssertEqual(field?.decorate, true)
 
-        // Delegate refresh — per-row cache populated with the common-row decorator
+        // Delegate refresh — per-row cache populated with the common-row decorator.
         let cached = vm.tableDataModel.tableRowDecorators[ChangerHandlerSample.tableRowID] ?? []
         XCTAssertEqual(cached.first?.action, "live-row",
                        "decoratorsDidChange must refresh tableRowDecorators from field.rowDecorators")
+
+        // Known limitation: `TableDataModel.decorate` is a `let` captured at init,
+        // so `vm.showRowDecorators` cannot flip true post-init. The UI currently
+        // relies on the init-time snapshot for the row-indicator column on tables.
     }
 
     func testTableViewModel_addCommonColumnDecorator_updatesTableColumnsDecorators() {
