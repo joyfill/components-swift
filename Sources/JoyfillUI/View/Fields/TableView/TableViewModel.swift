@@ -649,6 +649,7 @@ extension TableViewModel: DocumentEditorDelegate {
 
         // Row + cell decorator maps
         if field.fieldType == .table {
+            tableDataModel.decorate = field.decorate ?? false
             tableDataModel.valueToValueElements = field.valueToValueElements
             refreshRowDecoratorMap()
         }

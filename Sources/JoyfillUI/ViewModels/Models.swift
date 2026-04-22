@@ -146,7 +146,7 @@ struct TableDataModel {
     let mode: Mode
     let documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
-    let decorate: Bool
+    var decorate: Bool
     let title: String?
     let fieldType: FieldTypes
     var fieldRequired: Bool = false
