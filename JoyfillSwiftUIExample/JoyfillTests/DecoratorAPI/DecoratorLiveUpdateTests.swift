@@ -76,16 +76,10 @@ final class DecoratorLiveUpdateTests: XCTestCase {
 
     // MARK: - `decorate` flag — live vs snapshot behavior
 
-    /// Pinned behavior: `TableDataModel.decorate` is a `let` captured at init, and
-    /// `TableViewModel.showRowDecorators` reads that snapshot — so on a view model
-    /// that already exists, the row-indicator column does NOT appear live when a
-    /// common-row decorator is added afterwards. The underlying field flag DOES
-    /// flip (source of truth is correct); only the cached UI-facing property lags.
-    ///
-    /// Fix (whenever we decide to): have `showRowDecorators` read `decorate` live
-    /// from `documentEditor.field(...)`. When that lands, flip this test's
-    /// `XCTAssertFalse` → `XCTAssertTrue`.
-    func testTableViewModel_showRowDecorators_doesNotFlipLive_currentLimitation() {
+    /// `TableViewModel.showRowDecorators` flips live when a common-row decorator
+    /// is added to an already-built view model — `decoratorsDidChange()` refreshes
+    /// `tableDataModel.decorate` from the field, and the computed property re-reads it.
+    func testTableViewModel_showRowDecorators_flipsLive_onCommonRowAdd() {
         let (editor, _) = makeChangerHandlerEditor()
         let vm = makeTableViewModel(editor: editor)
         XCTAssertFalse(vm.showRowDecorators, "starts false — no decorators yet")
@@ -94,11 +88,39 @@ final class DecoratorLiveUpdateTests: XCTestCase {
                              decorators: [makeDecorator(action: "x")])
         waitForMainQueueToDrain()
 
-        // Field-level source of truth did flip.
         XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
-        // …but the VM's snapshot-backed computed property did not.
+        XCTAssertTrue(vm.showRowDecorators,
+                      "decoratorsDidChange must refresh tableDataModel.decorate so the row-indicator column appears live")
+    }
+
+    /// Row-self writes also flip `decorate` on the field (per ensureDecorateEnabled),
+    /// so the VM must pick it up live too.
+    func testTableViewModel_showRowDecorators_flipsLive_onRowSelfAdd() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = makeTableViewModel(editor: editor)
+        XCTAssertFalse(vm.showRowDecorators)
+
+        editor.addDecorators(path: ChangerHandlerSample.tableRowSelfPath(),
+                             decorators: [makeDecorator(action: "x")])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(vm.showRowDecorators,
+                      "row-self writes flip field.decorate too, must reach showRowDecorators live")
+    }
+
+    /// Cell / common-column writes do NOT flip `decorate`, so `showRowDecorators` stays false.
+    func testTableViewModel_showRowDecorators_notFlipped_byCellOrCommonColumnWrites() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = makeTableViewModel(editor: editor)
+
+        editor.addDecorators(path: ChangerHandlerSample.tableCellPath(),
+                             decorators: [makeDecorator(action: "cell")])
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonColumnPath(),
+                             decorators: [makeDecorator(action: "col")])
+        waitForMainQueueToDrain()
+
         XCTAssertFalse(vm.showRowDecorators,
-                       "known limitation: TableDataModel.decorate is captured at init and never refreshed")
+                       "column-scope writes must not flip the row-indicator area")
     }
 
     /// Inverse: if the VM is built AFTER the decorator exists, the snapshot picks
@@ -184,10 +206,6 @@ final class DecoratorLiveUpdateTests: XCTestCase {
         let cached = vm.tableDataModel.tableRowDecorators[ChangerHandlerSample.tableRowID] ?? []
         XCTAssertEqual(cached.first?.action, "live-row",
                        "decoratorsDidChange must refresh tableRowDecorators from field.rowDecorators")
-
-        // Known limitation: `TableDataModel.decorate` is a `let` captured at init,
-        // so `vm.showRowDecorators` cannot flip true post-init. The UI currently
-        // relies on the init-time snapshot for the row-indicator column on tables.
     }
 
     func testTableViewModel_addCommonColumnDecorator_updatesTableColumnsDecorators() {
