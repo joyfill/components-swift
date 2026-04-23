@@ -644,7 +644,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                   level: 0,
                                                   parentSchemaKey: rootSchemaKey,
                                                   parentID: ("", rowID),
-                                                  targetSchema: targetSchema)
+                                                  targetSchema: targetSchema,
+                                                  tableDataModel: tableDataModel)
                 }
             }
         }
@@ -671,7 +672,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         isSearching = false
     }
     
-    fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel]) {
+    fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel], tableDataModel: TableDataModel) {
         // Add all nested rows for this schema
         let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
         var displayIndex = 1
@@ -722,7 +723,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                              level: level + 1,
                                              parentSchemaKey: childSchemaKey,
                                              parentID: ("", childRowID),
-                                             targetSchema: targetSchema)
+                                             targetSchema: targetSchema, tableDataModel: tableDataModel)
                 }
             }
         }
@@ -733,9 +734,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                            parentRowID: String,
                                            level: Int,
                                            parentSchemaKey: String,
-                                             parentID: (columnID: String, rowID: String),
-                                             targetSchema: String) {
-        
+                                           parentID: (columnID: String, rowID: String),
+                                           targetSchema: String,
+                                           tableDataModel: TableDataModel) {
+
         // Get the schema for the parent to find its children
         guard let schema = tableDataModel.schema[parentSchemaKey],
               let childrenKeys = schema.children, !childrenKeys.isEmpty else {
@@ -778,8 +780,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     guard let childValueElements = parentChildren[childSchemaKey]?.valueToValueElements else {
                         continue
                     }
-                    
-                    addAllNestedRowsRecursively(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels)
+
+                    addAllNestedRowsRecursively(childValueElements, filteredTableColumns, childSchemaKey, level, parentID, targetSchema, &cellModels, tableDataModel: tableDataModel)
                 }
             }
         }
