@@ -417,7 +417,6 @@ struct CollectionEditMultipleRowsSheetView: View {
                         Button(action: {
                             Task { @MainActor in
                                 await viewModel.bulkEdit(changes: changes)
-                                viewModel.tableDataModel.emptySelection()
                                 presentationMode.wrappedValue.dismiss()
                             }
                             
