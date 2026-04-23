@@ -55,7 +55,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let collectionWidth = self.getCollectionWidth(tableDataModel: tableDataModel)
 //            let lastSchema = self.getOrderedSchemaKeys().last
 //            let allCellModels = self.getAllCellModels(lastSchema ?? "")
-            self.getparentToChildRowMap()
+            self.getparentToChildRowMap(tableDataModel: tableDataModel)
 
             DispatchQueue.main.async {
                 self.columnsMap = columnsMap
@@ -82,7 +82,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    func getparentToChildRowMap() {
+    func getparentToChildRowMap(tableDataModel: TableDataModel) {
         var map: [RowSchemaID: [String]] = [:]
         let valueElements = tableDataModel.valueToValueElements ?? []
         for valueElement in valueElements {
