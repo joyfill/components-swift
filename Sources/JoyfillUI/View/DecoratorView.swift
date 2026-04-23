@@ -122,6 +122,7 @@ struct DecoratorButton: View {
             .cornerRadius(8)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("decorator_button_\(decorator.action ?? "unknown")")
     }
 }
 
@@ -183,6 +184,7 @@ struct RowDecoratorMenuView: View {
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("row_decorator_menu")
             .popover(isPresented: $showingPopover) {
                 if #available(iOS 16.4, *) {
                     popoverContent
@@ -218,6 +220,7 @@ struct RowDecoratorMenuView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("row_decorator_\(decorator.action ?? "unknown")")
     }
 
     private var popoverContent: some View {
