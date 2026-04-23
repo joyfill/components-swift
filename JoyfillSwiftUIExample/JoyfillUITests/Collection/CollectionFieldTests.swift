@@ -1192,6 +1192,50 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             // No change event received, which is the expected behavior for this test.
         }
     }
+
+    func testBulkEditApplyAllKeepsRowsSelected() throws {
+        goToCollectionDetailField()
+
+        selectAllParentRows()
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "More button should appear after selecting rows")
+
+        tapOnMoreButton()
+        let editRowsMenuBefore = editRowsButton()
+        let deleteRowsMenuBefore = deleteRowButton()
+        XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
+        XCTAssertTrue(deleteRowsMenuBefore.waitForExistence(timeout: 1), "Delete rows option should be visible in More menu")
+
+        let editLabelBefore = editRowsMenuBefore.label
+        let deleteLabelBefore = deleteRowsMenuBefore.label
+        XCTAssertTrue(editLabelBefore.contains("rows"), "This should be a bulk edit flow, but got: \(editLabelBefore)")
+        XCTAssertTrue(deleteLabelBefore.contains("rows"), "This should be a bulk delete flow, but got: \(deleteLabelBefore)")
+
+        editRowsMenuBefore.tap()
+
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 1), "Bulk edit text field should be visible")
+        textField.tap()
+        textField.typeText("BulkSelectionPersistence")
+
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 1), "Apply All button should be visible in bulk edit")
+        applyAllButton.tap()
+
+        waitForAppToSettle()
+
+        XCTAssertFalse(applyAllButton.exists, "Bulk edit sheet should be dismissed after applying")
+        XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "Rows should remain selected after Apply All")
+
+        tapOnMoreButton()
+        let editRowsMenuAfter = editRowsButton()
+        let deleteRowsMenuAfter = deleteRowButton()
+        XCTAssertTrue(editRowsMenuAfter.waitForExistence(timeout: 1), "Edit rows option should still be visible after Apply All")
+        XCTAssertTrue(deleteRowsMenuAfter.waitForExistence(timeout: 1), "Delete rows option should still be visible after Apply All")
+        XCTAssertEqual(editRowsMenuAfter.label, editLabelBefore, "Edit rows label/count should remain unchanged after bulk apply")
+        XCTAssertEqual(deleteRowsMenuAfter.label, deleteLabelBefore, "Delete rows label/count should remain unchanged after bulk apply")
+    }
     
     // Edit all Nested rows
     func testBulkEditNestedRows() throws {
@@ -1404,4 +1448,3 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
 }
-
