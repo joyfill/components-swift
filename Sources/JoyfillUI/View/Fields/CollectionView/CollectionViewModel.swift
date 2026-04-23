@@ -560,8 +560,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func getCellModels(tableDataModel: TableDataModel) -> [RowDataModel] {
         var cellModels = [RowDataModel]()
-        let rowDataMap = setupRows()
-        let rowToChildrenMap = setupRowsChildrens()
+        let rowDataMap = setupRows(tableDataModel: tableDataModel)
+        let rowToChildrenMap = setupRowsChildrens(tableDataModel: tableDataModel)
         tableDataModel.valueToValueElements?.forEach { valueElement in
             if valueElement.deleted ?? false { return }
             guard let rowID = valueElement.id else {
@@ -594,10 +594,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellModels
     }
     
-    fileprivate func getAllCellModels(_ targetSchema: String) -> [RowDataModel] {
+    fileprivate func getAllCellModels(_ tableDataModel: TableDataModel, _ targetSchema: String) -> [RowDataModel] {
         var result = [RowDataModel]()
-        let rowDataMap = self.setupRows()
-        let rowToChildrenMap = self.setupRowsChildrens()
+        let rowDataMap = self.setupRows(tableDataModel: tableDataModel)
+        let rowToChildrenMap = self.setupRowsChildrens(tableDataModel: tableDataModel)
         let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
         var displayIndex = 1
         for valueElement in rootRows {
@@ -658,7 +658,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let cellModels: [RowDataModel] = await withCheckedContinuation { cont in
             dispatchQueue.async { [tableDataModel, rootSchemaKey] in
                 
-                let result = self.getAllCellModels(targetSchema)
+                let result = self.getAllCellModels(tableDataModel, targetSchema)
                 
                 cont.resume(returning: result)
             }
@@ -783,7 +783,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
 
-    private func setupRows() -> [String: [CellDataModel]] {
+    private func setupRows(tableDataModel: TableDataModel) -> [String: [CellDataModel]] {
         guard let valueElements = tableDataModel.valueToValueElements, !valueElements.isEmpty else {
             return [:]
         }
@@ -801,8 +801,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         return rowToCellMap
     }
-    
-    private func setupRowsChildrens() -> [String: [String : Children]] {
+
+    private func setupRowsChildrens(tableDataModel: TableDataModel) -> [String: [String : Children]] {
         guard let valueElements = tableDataModel.valueToValueElements, !valueElements.isEmpty else {
             return [:]
         }
