@@ -634,7 +634,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                             rowType: .row(index: displayIndex),
                                             isExpanded: targetSchema != rootSchemaKey ? true : false,
                                             rowWidth: self.rowWidth(tableDataModel.tableColumns, 0, rootSchemaKey, tableDataModel: tableDataModel))
-            if self.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
+            if self.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel, tableDataModel: tableDataModel) {
                 result.append(rootRowModel)
                 displayIndex += 1
                 // Add all nested rows for this root row
@@ -713,7 +713,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                   parentSchemaKey: childSchemaKey),
                                               isExpanded: targetSchema != childSchemaKey ? true : false,
                                               rowWidth: rowWidth(filteredTableColumns, level + 1, childSchemaKey, tableDataModel: tableDataModel))
-            if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: nestedRowModel) {
+            if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: nestedRowModel, tableDataModel: tableDataModel) {
                 cellModels.append(nestedRowModel)
                 displayIndex += 1
                 // Recursively add nested rows for this child (if it has children)
@@ -896,7 +896,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                            parentSchemaKey: schemaValue?.0 ?? ""),
                                                        rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "", tableDataModel: tableDataModel)
                     )
-                    if shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: newRowDataModel) {
+                    if shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: newRowDataModel, tableDataModel: tableDataModel) {
                         cellModels.append(newRowDataModel)
                         displayIndex += 1
                    }
@@ -1863,7 +1863,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    func shouldShowRowAccToFilters(schemaKey: String, row: RowDataModel) -> Bool {
+    func shouldShowRowAccToFilters(schemaKey: String, row: RowDataModel, tableDataModel: TableDataModel) -> Bool {
         guard !tableDataModel.filterModels.noFilterApplied else {
             return true
         }
@@ -1913,7 +1913,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                             rowType: .nestedRow(level: 0, index: index, parentID: row.rowType.parentID, parentSchemaKey: childSchemaKey)
                         )
                         if let shouldShow = tableDataModel.documentEditor?.shouldShowSchema(for: tableDataModel.fieldIdentifier.fieldID, rowSchemaID: RowSchemaID(rowID: row.rowID, schemaID: childSchemaKey)), shouldShow {
-                            if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: childRowModel) {
+                            if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: childRowModel, tableDataModel: tableDataModel) {
                                 return true
                             }
                         }
