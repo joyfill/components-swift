@@ -175,6 +175,7 @@
 		9EAAC7E02EAB3EF4000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
 		9EAAC7E12EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */; };
 		9EAAC7E22EAB3F89000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
+		BA2352F22F99E9FE002D9345 /* Decorator.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2352F12F99E9F4002D9345 /* Decorator.json */; };
 		DEC000B100000000000000A1 /* DecoratorTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F100000000000000A1 /* DecoratorTestSupport.swift */; };
 		DEC000B200000000000000A2 /* DecoratorPathResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F200000000000000A2 /* DecoratorPathResolutionTests.swift */; };
 		DEC000B300000000000000A3 /* DecoratorPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */; };
@@ -578,6 +579,7 @@
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
 		9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadonlyModeUITestCases.swift; sourceTree = "<group>"; };
+		BA2352F12F99E9F4002D9345 /* Decorator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Decorator.json; sourceTree = "<group>"; };
 		DEC000F100000000000000A1 /* DecoratorTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorTestSupport.swift; sourceTree = "<group>"; };
 		DEC000F200000000000000A2 /* DecoratorPathResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPathResolutionTests.swift; sourceTree = "<group>"; };
 		DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPublicAPITests.swift; sourceTree = "<group>"; };
@@ -829,6 +831,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				BA2352F02F99E9DB002D9345 /* DecoratorUITests */,
 				E24089FE2F7CEFA1005C4885 /* Navigation Goto tests */,
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
 				9EAAC7DF2EAB3EF4000B6F3C /* ReadonlyMode */,
@@ -998,6 +1001,14 @@
 				9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */,
 			);
 			path = ReadonlyMode;
+			sourceTree = "<group>";
+		};
+		BA2352F02F99E9DB002D9345 /* DecoratorUITests */ = {
+			isa = PBXGroup;
+			children = (
+				BA2352F12F99E9F4002D9345 /* Decorator.json */,
+			);
+			path = DecoratorUITests;
 			sourceTree = "<group>";
 		};
 		DEC000A000000000000000A0 /* DecoratorAPI */ = {
@@ -1632,6 +1643,7 @@
 			files = (
 				3682A4C92E158AA4005B73C3 /* FormulaTemplate_Write_ChartField.json in Resources */,
 				369D45672E0E52CA00677280 /* JoyfillResolver_LongChainIndirectCircularDependency.json in Resources */,
+				BA2352F22F99E9FE002D9345 /* Decorator.json in Resources */,
 				E2B8E3B92E435EC000AC6018 /* FSMIndustry_FormulaTemplate.json in Resources */,
 				369D45682E0E52CA00677280 /* JoyfillResolverTemplate_ComplexWorking.json in Resources */,
 				E2E3E77B2E85611E002A10C2 /* first-form.json in Resources */,
