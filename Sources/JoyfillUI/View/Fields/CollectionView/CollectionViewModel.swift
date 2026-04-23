@@ -13,7 +13,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var tableDataModel: TableDataModel
     
     @Published var shouldShowAddRowButton: Bool = false
-    @Published var showRowSelector: Bool = false
     @Published var nestedTableCount: Int = 0
     @Published var collectionWidth: CGFloat = 0.0
     var rowToValueElementMap: [String: ValueElement] = [:]
@@ -28,7 +27,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     let dispatchQueue = DispatchQueue(label: "Collection", qos: .userInitiated)
     @Published var uuid = UUID()
     
-    var showSingleClickEditButton: Bool {
+    func showRowSelector(for tableDataModel: TableDataModel) -> Bool {
+        return tableDataModel.mode == .fill
+    }
+
+    func showSingleClickEditButton(for tableDataModel: TableDataModel) -> Bool {
         return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
 
@@ -64,7 +67,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 self.collectionWidth = collectionWidth
                 
                 
-                self.showRowSelector = self.tableDataModel.mode == .fill
                 self.shouldShowAddRowButton = self.tableDataModel.mode == .fill
                 self.nestedTableCount = self.tableDataModel.childrens.count
                 
@@ -476,8 +478,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return true
     }
     
-    func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int, _ schemaKey: String) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector, showSingleClickEdit: showSingleClickEditButton, showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)) + Utility.getTotalTableScrollWidth(level: level)
+    func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int, _ schemaKey: String, tableDataModel: TableDataModel) -> CGFloat {
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
@@ -516,15 +518,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowDataModel = RowDataModel(rowID: rowID,
                                             cells: rowCellModels,
                                             rowType: rowType,
-                                            rowWidth: rowWidth(columns, level, schemaKey))
-            
+                                            rowWidth: rowWidth(columns, level, schemaKey, tableDataModel: tableDataModel))
+
             self.tableDataModel.filteredcellModels.insert(rowDataModel, at: index)
-            
+
         } else {
             self.tableDataModel.filteredcellModels.append(RowDataModel(rowID: rowID,
                                                                cells: rowCellModels,
                                                                rowType: rowType,
-                                                                       rowWidth: rowWidth(columns, level, schemaKey)))
+                                                               rowWidth: rowWidth(columns, level, schemaKey, tableDataModel: tableDataModel)))
         }
         tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID, valueElement: rowToValueElementMap[rowID])
         updateCollectionWidth()
@@ -589,7 +591,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     rowCellModels.append(cellModel)
                 }
             }
-            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count + 1), rowWidth: rowWidth(tableDataModel.tableColumns, 0, rootSchemaKey)))
+            cellModels.append(RowDataModel(rowID: rowID, cells: rowCellModels, rowType: .row(index: cellModels.count + 1), rowWidth: rowWidth(tableDataModel.tableColumns, 0, rootSchemaKey, tableDataModel: tableDataModel)))
         }
         return cellModels
     }
@@ -631,7 +633,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                             cells: rowCellModels,
                                             rowType: .row(index: displayIndex),
                                             isExpanded: targetSchema != rootSchemaKey ? true : false,
-                                            rowWidth: self.rowWidth(tableDataModel.tableColumns, 0, rootSchemaKey))
+                                            rowWidth: self.rowWidth(tableDataModel.tableColumns, 0, rootSchemaKey, tableDataModel: tableDataModel))
             if self.shouldShowRowAccToFilters(schemaKey: rootSchemaKey, row: rootRowModel) {
                 result.append(rootRowModel)
                 displayIndex += 1
@@ -709,7 +711,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                   parentID: parentID,
                                                                   parentSchemaKey: childSchemaKey),
                                               isExpanded: targetSchema != childSchemaKey ? true : false,
-                                              rowWidth: rowWidth(filteredTableColumns, level + 1, childSchemaKey))
+                                              rowWidth: rowWidth(filteredTableColumns, level + 1, childSchemaKey, tableDataModel: tableDataModel))
             if shouldShowRowAccToFilters(schemaKey: childSchemaKey, row: nestedRowModel) {
                 cellModels.append(nestedRowModel)
                 displayIndex += 1
@@ -760,9 +762,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, showSingleClickEdit: showSingleClickEditButton, showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey))),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey))),
                                                    isExpanded: true, // Mark as expanded since we're showing content
-                                                   rowWidth: rowWidth(filteredTableColumns, level, childSchemaKey))
+                                                   rowWidth: rowWidth(filteredTableColumns, level, childSchemaKey, tableDataModel: tableDataModel))
                     cellModels.append(expanderRow)
                     
                     // Add header row for the nested table
@@ -770,7 +772,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     let headerRow = RowDataModel(rowID: headerRowID,
                                                  cells: [],
                                                  rowType: .header(level: level + 1, tableColumns: filteredTableColumns, schemaKey: childSchemaKey),
-                                                 rowWidth: rowWidth(filteredTableColumns, level + 1, childSchemaKey))
+                                                 rowWidth: rowWidth(filteredTableColumns, level + 1, childSchemaKey, tableDataModel: tableDataModel))
                     cellModels.append(headerRow)
                     
                     guard let childValueElements = parentChildren[childSchemaKey]?.valueToValueElements else {
@@ -855,7 +857,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                cells: [],
                                                rowType: .header(level: level + 1,
                                                                 tableColumns: filteredTableColumns, schemaKey: schemaValue?.0 ?? ""),
-                                               rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "")))
+                                               rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "", tableDataModel: tableDataModel)))
                 let childrens = rowToValueElementMap[parentID?.rowID ?? ""]?.childrens ?? [:]
                 let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
                     !(valueElement.deleted ?? false)
@@ -890,7 +892,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                            index: displayIndex,
                                                                            parentID: parentID,
                                                                            parentSchemaKey: schemaValue?.0 ?? ""),
-                                                       rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "")
+                                                       rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "", tableDataModel: tableDataModel)
                     )
                     if shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: newRowDataModel) {
                         cellModels.append(newRowDataModel)
@@ -946,8 +948,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector, showSingleClickEdit: showSingleClickEditButton, showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id))),
-                                                            rowWidth: rowWidth(filteredTableColumns, level, id)
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id))),
+                                                            rowWidth: rowWidth(filteredTableColumns, level, id, tableDataModel: tableDataModel)
                             )
                             rowDataModel.isExpanded = false
                             cellModels.append(rowDataModel)
