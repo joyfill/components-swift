@@ -381,44 +381,7 @@ struct CanvasSignatureView: View {
                     .accessibilityIdentifier("ClearSignatureIdentifier")
                     
                     Button(action: {
-                        if signatureInputMode == .draw {
-                            if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
-                                savedLines = []
-                                savedTypedSignature = ""
-                                signatureImage = nil
-                                signatureURL = ""
-                                showError = false
-                                presentationMode.wrappedValue.dismiss()
-                                return
-                            }
-                            if !showCanvasError {
-                                signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
-                                    .frame(width: screenWidth, height: 220)
-                                    .snapshot()
-                                showError = false
-                            }
-                            savedLines = lines
-                            savedTypedSignature = ""
-                            presentationMode.wrappedValue.dismiss()
-                        } else {
-                            let trimmedTypedSignatureText = typedSignatureText.trimmingCharacters(in: .whitespacesAndNewlines)
-                                if trimmedTypedSignatureText.isEmpty {
-                                    savedLines = []
-                                    savedTypedSignature = ""
-                                    signatureImage = nil
-                                    signatureURL = ""
-                                    showError = false
-                                    presentationMode.wrappedValue.dismiss()
-                                    return
-                                }
-                                savedTypedSignature = trimmedTypedSignatureText
-                                signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
-                                lines.removeAll()
-                                savedLines = []
-                                showCanvasError = false
-                                showError = false
-                                presentationMode.wrappedValue.dismiss()
-                        }
+                        saveSignature()
                     }, label: {
                         Text("Save")
                             .foregroundColor(.white)
@@ -459,6 +422,54 @@ struct CanvasSignatureView: View {
         TypedSignatureSnapshotView(text: text, fontName: typedSignatureFontName)
                 .frame(width: screenWidth, height: 220)
                 .snapshot()
+    }
+    
+    private func saveSignature() {
+        switch signatureInputMode {
+        case .draw:
+            saveDrawSignature()
+        case .type:
+            saveTypedSignature()
+        }
+    }
+    private func saveDrawSignature() {
+        if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
+            clearSignatureAndDismiss()
+            return
+        }
+        if !showCanvasError {
+            signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
+                .frame(width: screenWidth, height: 220)
+                .snapshot()
+            showError = false
+        }
+        savedLines = lines
+        savedTypedSignature = ""
+        presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func saveTypedSignature() {
+        let trimmedTypedSignatureText = typedSignatureText.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedTypedSignatureText.isEmpty {
+                clearSignatureAndDismiss()
+                return
+            }
+            savedTypedSignature = trimmedTypedSignatureText
+            signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
+            lines.removeAll()
+            savedLines = []
+            showCanvasError = false
+            showError = false
+            presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func clearSignatureAndDismiss() {
+        savedLines = []
+        savedTypedSignature = ""
+        signatureImage = nil
+        signatureURL = ""
+        showError = false
+        presentationMode.wrappedValue.dismiss()
     }
 }
 
