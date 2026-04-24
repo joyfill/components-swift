@@ -386,7 +386,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
     }
 
-    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], tableDataModel: TableDataModel) {
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
         for rowId in tableDataModel.selectedRows {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
@@ -419,8 +419,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func bulkEdit(changes: [Int: ValueUnion]) async {
         if changes.count == 0 { return }
         isBulkLoading = true
-        let tableDataModel = self.tableDataModel
-
+        
         // Perform heavy processing on background thread
         let (newValueToValueElements, updatedCellModels): ([ValueElement]?, [RowDataModel]) = await withCheckedContinuation { cont in
             dispatchQueue.async { [weak self] in
@@ -430,20 +429,20 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
                 var columnIDChanges = [String: ValueUnion]()
                 changes.forEach { (colIndex: Int, value: ValueUnion) in
-                    guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+                    guard let cellDataModelId = self.tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
                     columnIDChanges[cellDataModelId] = value
                 }
-
+                
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns, tableDataModel: tableDataModel)
-
+                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
+                
                 let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
-
+                
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {
                     guard let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) else { continue }
                     guard rowIndex < updatedModels.count else { continue }
-
+                    
                     tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                         guard colIndex < updatedModels[rowIndex].cells.count else { return }
                         var cellDataModel = updatedModels[rowIndex].cells[colIndex].data
