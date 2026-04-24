@@ -215,31 +215,11 @@ final class DecoratorDeepPathTests: XCTestCase {
         XCTAssertEqual(field?.schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true)
     }
 
-    /// decorate is a one-way latch — removing the last decorator must not flip it back off
-    /// (the renderer decides per-row whether to show the indicator area; a formerly-decorated
-    /// field stays configured as decorator-capable).
-    func testDecorateFlag_staysTrue_afterRemovingLastDecorator_table() {
-        let (editor, _) = makeChangerHandlerEditor()
-        let path = ChangerHandlerSample.tableCommonRowsPath()
-        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
-        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
-
-        editor.removeDecorator(path: path, action: "only")
-
-        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
-                       "decorate is a one-way latch — removing the last decorator must not flip it back off")
-        XCTAssertEqual(editor.getDecorators(path: path).count, 0)
-    }
-
-    func testDecorateFlag_staysTrue_afterRemovingLastDecorator_collectionRoot() {
-        let (editor, _) = makeChangerHandlerEditor()
-        let path = ChangerHandlerSample.collectionRootCommonRowsPath()
-        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
-
-        editor.removeDecorator(path: path, action: "only")
-
-        let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
-        XCTAssertEqual(field?.schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
-                       "schema-level decorate must also be a one-way latch")
-    }
+    // NOTE: The "one-way latch" assertions that used to live here (decorate stays true
+    // after removing the last decorator) encoded the pre-fix behavior. That was a bug —
+    // `decorate` must flip back to false when the scope goes empty, otherwise the
+    // decorator column renders with no content. The inverted-assertion replacements
+    // live in `DecoratorPublicAPITests.swift`:
+    //   • testDecorateFlag_table_disabledAfterRemovingLastCommonRowsDecorator
+    //   • testDecorateFlag_collectionRoot_disabledAfterRemovingLastCommonRowsDecorator
 }

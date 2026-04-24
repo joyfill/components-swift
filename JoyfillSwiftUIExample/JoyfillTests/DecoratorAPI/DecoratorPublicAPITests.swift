@@ -222,4 +222,225 @@ final class DecoratorPublicAPITests: XCTestCase {
                              decorators: [makeDecorator(action: "live")])
         XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorators?.first?.action, "live")
     }
+
+    // MARK: - decorate flag: flips off when scope becomes empty
+    //
+    // Mirror of ensureDecorateEnabled on add. After remove/update, if the
+    // affected scope (table field, root schema, or nested schema) has no
+    // displayable decorators left — neither common rowDecorators nor any
+    // row-specific decorator on any row in that scope — decorate flips to false.
+
+    // -- Table field
+
+    func testDecorateFlag_table_disabledAfterRemovingLastCommonRowsDecorator() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonRowsPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
+
+        editor.removeDecorator(path: path, action: "only")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                          "decorate should flip off once the last common row decorator is removed")
+    }
+
+    func testDecorateFlag_table_disabledAfterRemovingLastRowSelfDecorator() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableRowSelfPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
+
+        editor.removeDecorator(path: path, action: "only")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                          "decorate should flip off once the last row-self decorator is removed")
+    }
+
+    func testDecorateFlag_table_staysTrueWhenAnotherCommonRowsDecoratorRemains() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonRowsPath()
+        editor.addDecorators(path: path, decorators: [
+            makeDecorator(action: "a"),
+            makeDecorator(action: "b"),
+        ])
+
+        editor.removeDecorator(path: path, action: "a")
+
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                       "decorate must stay true while any common row decorator remains")
+    }
+
+    func testDecorateFlag_table_staysTrueWhenRowSelfExistsAfterCommonRemoved() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonRowsPath(),
+                             decorators: [makeDecorator(action: "common")])
+        editor.addDecorators(path: ChangerHandlerSample.tableRowSelfPath(),
+                             decorators: [makeDecorator(action: "rowSelf")])
+
+        editor.removeDecorator(path: ChangerHandlerSample.tableCommonRowsPath(), action: "common")
+
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                       "decorate must stay true because a row-specific decorator still exists")
+    }
+
+    func testDecorateFlag_table_staysTrueWhenCommonExistsAfterRowSelfRemoved() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonRowsPath(),
+                             decorators: [makeDecorator(action: "common")])
+        editor.addDecorators(path: ChangerHandlerSample.tableRowSelfPath(),
+                             decorators: [makeDecorator(action: "rowSelf")])
+
+        editor.removeDecorator(path: ChangerHandlerSample.tableRowSelfPath(), action: "rowSelf")
+
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                       "decorate must stay true because a common decorator still exists")
+    }
+
+    // -- Collection root schema
+
+    func testDecorateFlag_collectionRoot_disabledAfterRemovingLastCommonRowsDecorator() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.collectionRootCommonRowsPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                        .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true)
+
+        editor.removeDecorator(path: path, action: "only")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                            .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
+                          "root schema's decorate should flip off after last common decorator removed")
+    }
+
+    func testDecorateFlag_collectionRoot_disabledAfterRemovingLastRowSelfDecorator() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.collectionRootRowSelfPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
+
+        editor.removeDecorator(path: path, action: "only")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                            .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true)
+    }
+
+    func testDecorateFlag_collectionRoot_staysTrueWhenRowSelfExistsAfterCommonRemoved() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootCommonRowsPath(),
+                             decorators: [makeDecorator(action: "common")])
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootRowSelfPath(),
+                             decorators: [makeDecorator(action: "rowSelf")])
+
+        editor.removeDecorator(path: ChangerHandlerSample.collectionRootCommonRowsPath(), action: "common")
+
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                        .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
+                       "root schema's decorate must stay true because a row-specific decorator remains")
+    }
+
+    // -- Collection nested schema
+
+    func testDecorateFlag_collectionNested_disabledAfterRemovingLastCommonRowsDecorator() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.collectionNestedCommonRowsPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                        .schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true)
+
+        editor.removeDecorator(path: path, action: "only")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                            .schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true)
+    }
+
+    func testDecorateFlag_collectionNested_disabledAfterRemovingLastRowSelfDecorator() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.collectionNestedRowSelfPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only")])
+
+        editor.removeDecorator(path: path, action: "only")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                            .schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true)
+    }
+
+    // -- Scope isolation
+
+    /// Removing a table decorator must not flip the collection's decorate flag.
+    func testDecorateFlag_tableRemoval_doesNotAffectCollectionDecorate() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonRowsPath(),
+                             decorators: [makeDecorator(action: "t")])
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootCommonRowsPath(),
+                             decorators: [makeDecorator(action: "c")])
+
+        editor.removeDecorator(path: ChangerHandlerSample.tableCommonRowsPath(), action: "t")
+
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                        .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
+                       "collection's decorate must not flip off when a table decorator is removed")
+    }
+
+    /// Removing from nested schema must not flip the root schema's decorate off.
+    func testDecorateFlag_nestedRemoval_doesNotFlipRootDecorate() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootCommonRowsPath(),
+                             decorators: [makeDecorator(action: "root")])
+        editor.addDecorators(path: ChangerHandlerSample.collectionNestedCommonRowsPath(),
+                             decorators: [makeDecorator(action: "nested")])
+
+        editor.removeDecorator(path: ChangerHandlerSample.collectionNestedCommonRowsPath(), action: "nested")
+
+        let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        XCTAssertEqual(field?.schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
+                       "root schema's decorate must stay true — only the nested schema scope went empty")
+        XCTAssertNotEqual(field?.schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true,
+                          "nested schema's decorate must flip off")
+    }
+
+    /// Removing from root must not flip the nested schema's decorate off.
+    func testDecorateFlag_rootRemoval_doesNotFlipNestedDecorate() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootCommonRowsPath(),
+                             decorators: [makeDecorator(action: "root")])
+        editor.addDecorators(path: ChangerHandlerSample.collectionNestedCommonRowsPath(),
+                             decorators: [makeDecorator(action: "nested")])
+
+        editor.removeDecorator(path: ChangerHandlerSample.collectionRootCommonRowsPath(), action: "root")
+
+        let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        XCTAssertNotEqual(field?.schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true)
+        XCTAssertEqual(field?.schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true,
+                       "nested schema's decorate must stay true — only the root scope went empty")
+    }
+
+    // -- updateDecorator path
+
+    /// Updating a decorator to remove its icon AND label makes it non-displayable.
+    /// If it was the only one, decorate must flip off.
+    func testDecorateFlag_disabledAfterUpdateMakesLastDecoratorNonDisplayable() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonRowsPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only", icon: "flag", label: "Flag")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
+
+        // Update to a decorator with empty icon AND empty label → isDisplayable = false
+        let emptyDecorator = makeDecorator(action: "only", icon: "", label: "")
+        editor.updateDecorator(path: path, action: "only", decorator: emptyDecorator)
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                          "decorate should flip off when the only remaining decorator becomes non-displayable")
+    }
+
+    /// Updating a decorator but keeping it displayable must leave decorate on.
+    func testDecorateFlag_staysTrueAfterUpdateKeepsDecoratorDisplayable() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonRowsPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "only", icon: "flag", label: "Flag")])
+
+        editor.updateDecorator(path: path, action: "only",
+                               decorator: makeDecorator(action: "only", icon: "warning", label: "Warning"))
+
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                       "decorate must remain true after a displayable update")
+    }
 }

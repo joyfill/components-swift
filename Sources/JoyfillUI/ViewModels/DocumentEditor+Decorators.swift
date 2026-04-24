@@ -81,8 +81,11 @@ public extension DocumentEditor {
         }
 
         list.append(contentsOf: decorators)
-        ensureDecorateEnabled(for: target)
-        applyDecorators(list, for: target)
+
+        guard var field = fieldMap[target.fieldID] else { return }
+        applyDecorators(list, for: target, in: &field)
+        ensureDecorateEnabled(for: target, in: &field)
+        commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
     /// Removes the decorator whose `action` matches at the given path.
@@ -98,7 +101,11 @@ public extension DocumentEditor {
             return
         }
         list.remove(at: index)
-        applyDecorators(list, for: target)
+
+        guard var field = fieldMap[target.fieldID] else { return }
+        applyDecorators(list, for: target, in: &field)
+        ensureDecorateDisabledIfEmpty(for: target, in: &field)
+        commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
     /// Replaces the decorator whose `action` matches with the new decorator at the given path.
@@ -126,7 +133,11 @@ public extension DocumentEditor {
             return
         }
         list[index] = decorator
-        applyDecorators(list, for: target)
+
+        guard var field = fieldMap[target.fieldID] else { return }
+        applyDecorators(list, for: target, in: &field)
+        ensureDecorateDisabledIfEmpty(for: target, in: &field)
+        commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 }
 
@@ -197,7 +208,8 @@ private extension DocumentEditor {
 
     /// Sets `decorate = true` on the field (table) or schema entry (collection) when
     /// row-level decorators are added, so the decorator column shows automatically.
-    func ensureDecorateEnabled(for target: DecoratorTarget) {
+    /// Mutates `field` in place; the caller commits.
+    func ensureDecorateEnabled(for target: DecoratorTarget, in field: inout JoyDocField) {
         let schemaKey: String?
         switch target.terminator {
         case .commonRows(let sk):
@@ -207,7 +219,6 @@ private extension DocumentEditor {
         default:
             return
         }
-        guard var field = fieldMap[target.fieldID] else { return }
 
         if let sk = schemaKey {
             guard var schema = field.schema, var entry = schema[sk] else { return }
@@ -219,13 +230,92 @@ private extension DocumentEditor {
             guard field.decorate != true else { return }
             field.decorate = true
         }
-        commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
     func commitDecoratorChange(field: JoyDocField, fieldID: String) {
         updateField(field: field)
         refreshField(fieldId: fieldID)
         valueDelegate(for: fieldID, fieldType: field.fieldType)?.decoratorsDidChange()
+    }
+
+    /// Mirror of `ensureDecorateEnabled`. Flips `decorate` to `false` on the target's
+    /// scope only when no displayable row decorators remain anywhere in that scope —
+    /// neither common row decorators nor row-specific decorators on any row.
+    ///
+    /// Scope:
+    /// - Table fields: the entire field (checks `field.rowDecorators` + every row's `decorators.all`).
+    /// - Collection fields: the specific schema key (checks `schema[sk].rowDecorators` +
+    ///   every row belonging to that schema, including nested occurrences).
+    /// Mutates `field` in place; the caller commits.
+    func ensureDecorateDisabledIfEmpty(for target: DecoratorTarget, in field: inout JoyDocField) {
+        let schemaKey: String?
+        switch target.terminator {
+        case .commonRows(let sk):
+            schemaKey = sk
+        case .rowSelf:
+            schemaKey = target.hops.last?.schemaKey
+        default:
+            return
+        }
+
+        // 1. Any displayable common row decorators at this scope?
+        let commonDecs: [Decorator]
+        if let sk = schemaKey {
+            commonDecs = field.schema?[sk]?.rowDecorators ?? []
+        } else {
+            commonDecs = field.rowDecorators ?? []
+        }
+        if commonDecs.contains(where: { $0.isDisplayable }) { return }
+
+        // 2. Any displayable row-specific decorator on any row in this scope?
+        let rows = rowsInScope(field: field, schemaKey: schemaKey)
+        let anyRowSpecific = rows.contains { row in
+            (row.decorators?.all ?? []).contains(where: { $0.isDisplayable })
+        }
+        if anyRowSpecific { return }
+
+        // 3. Scope is empty — flip decorate off.
+        if let sk = schemaKey {
+            guard var schema = field.schema, var entry = schema[sk], entry.decorate == true else { return }
+            entry.decorate = false
+            schema[sk] = entry
+            field.schema = schema
+        } else {
+            guard field.decorate == true else { return }
+            field.decorate = false
+        }
+    }
+
+    /// Returns every row that belongs to `schemaKey` within `field`.
+    /// - Table fields or `schemaKey == nil`: top-level rows.
+    /// - Collection root schema: top-level rows.
+    /// - Collection nested schema: walks the entire row tree collecting rows stored under
+    ///   any `row.childrens[schemaKey]` (supports the same schema appearing at multiple depths).
+    func rowsInScope(field: JoyDocField, schemaKey: String?) -> [ValueElement] {
+        let top = field.valueToValueElements ?? []
+        guard field.fieldType == .collection, let sk = schemaKey else {
+            return top
+        }
+        let rootKey = field.schema?.first(where: { $0.value.root == true })?.key
+        if sk == rootKey {
+            return top
+        }
+        var collected: [ValueElement] = []
+        func walk(_ rows: [ValueElement]) {
+            for row in rows {
+                guard let childrens = row.childrens else { continue }
+                if let match = childrens[sk] {
+                    let matchRows = match.valueToValueElements ?? []
+                    collected.append(contentsOf: matchRows)
+                    walk(matchRows)
+                }
+                for (key, children) in childrens where key != sk {
+                    walk(children.valueToValueElements ?? [])
+                }
+            }
+        }
+        walk(top)
+        return collected
     }
 
     // MARK: COW seed
@@ -428,9 +518,9 @@ private extension DocumentEditor {
         }
     }
 
-    func applyDecorators(_ decorators: [Decorator], for target: DecoratorTarget) {
-        guard var field = fieldMap[target.fieldID] else { return }
-
+    /// Writes `decorators` into the correct slot on `field` based on `target.terminator`.
+    /// Mutates `field` in place; the caller commits.
+    func applyDecorators(_ decorators: [Decorator], for target: DecoratorTarget, in field: inout JoyDocField) {
         switch target.terminator {
         case .field:
             field.decorators = decorators
@@ -468,8 +558,6 @@ private extension DocumentEditor {
             rewriteRows(&rows, hops: target.hops, depth: 0, terminator: target.terminator, newList: decorators)
             field.value = ValueUnion.valueElementArray(rows)
         }
-
-        commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
     // MARK: Row tree walking
