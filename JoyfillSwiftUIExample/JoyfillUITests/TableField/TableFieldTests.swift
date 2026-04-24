@@ -7,12 +7,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         return "Joydocjson"
     }
 
-    private func rowCountFromBulkMenuLabel(_ label: String) -> Int? {
-        let numberToken = label.split(whereSeparator: { !$0.isNumber }).first
-        guard let numberToken else { return nil }
-        return Int(numberToken)
-    }
-    
+
     func goToTableDetailPage() {
         app.swipeUp()
         app.swipeUp()
@@ -392,7 +387,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         }
     }
 
-    func testBulkEditApplyAllKeepsRowsSelected() throws {
+    func testBulkEditApplyAllClearsSelection() throws {
         navigateToTableViewOnSecondPage()
 
         let selectAllButton = app.images["SelectAllRowSelectorButton"]
@@ -405,13 +400,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 
         let editRowsMenuBefore = app.buttons["TableEditRowsIdentifier"]
         XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
-
-        let editLabelBefore = editRowsMenuBefore.label
-        XCTAssertTrue(editLabelBefore.contains("rows"), "Expected bulk edit menu label, got: \(editLabelBefore)")
-        guard let beforeBulkEditCount = rowCountFromBulkMenuLabel(editLabelBefore) else {
-            XCTFail("Could not parse bulk edit row count from label: \(editLabelBefore)")
-            return
-        }
+        XCTAssertTrue(editRowsMenuBefore.label.contains("rows"), "Expected bulk edit menu label, got: \(editRowsMenuBefore.label)")
 
         editRowsMenuBefore.tap()
 
@@ -426,17 +415,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 
         XCTAssertTrue(waitUntil(2) { !applyAllButton.exists }, "Bulk edit sheet should be dismissed after applying")
         XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
-        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "Rows should remain selected after Apply All")
-
-        moreButton.tap()
-        let editRowsMenuAfter = app.buttons["TableEditRowsIdentifier"]
-        XCTAssertTrue(editRowsMenuAfter.waitForExistence(timeout: 1), "Edit rows option should still be visible after Apply All")
-        let editLabelAfter = editRowsMenuAfter.label
-        guard let afterBulkEditCount = rowCountFromBulkMenuLabel(editLabelAfter) else {
-            XCTFail("Could not parse bulk edit row count after apply from label: \(editLabelAfter)")
-            return
-        }
-        XCTAssertEqual(afterBulkEditCount, beforeBulkEditCount, "Edit rows count should remain unchanged after bulk apply")
+        XCTAssertFalse(moreButton.exists, "Selection should be cleared after Apply All")
     }
     
     func testEditSingleRow() throws {

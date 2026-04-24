@@ -76,12 +76,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         usleep(500000) // 0.5 second to allow UI to settle
     }
 
-    private func rowCountFromBulkMenuLabel(_ label: String) -> Int? {
-        let numberToken = label.split(whereSeparator: { !$0.isNumber }).first
-        guard let numberToken else { return nil }
-        return Int(numberToken)
-    }
-    
+
     func ensureCleanCollectionState() {
         returnToRootView()
         dismissAnyOpenModals()
@@ -1199,7 +1194,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
     }
 
-    func testBulkEditApplyAllKeepsRowsSelected() throws {
+    func testBulkEditApplyAllClearsSelection() throws {
         goToCollectionDetailField()
 
         selectAllParentRows()
@@ -1209,14 +1204,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         let editRowsMenuBefore = editRowsButton()
         XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
-        XCTAssertTrue(deleteRowButton().waitForExistence(timeout: 1), "Delete rows option should be visible in More menu")
-
-        let editLabelBefore = editRowsMenuBefore.label
-        XCTAssertTrue(editLabelBefore.contains("rows"), "This should be a bulk edit flow, but got: \(editLabelBefore)")
-        guard let beforeBulkEditCount = rowCountFromBulkMenuLabel(editLabelBefore) else {
-            XCTFail("Could not parse bulk edit row count from label: \(editLabelBefore)")
-            return
-        }
+        XCTAssertTrue(editRowsMenuBefore.label.contains("rows"), "This should be a bulk edit flow, but got: \(editRowsMenuBefore.label)")
 
         editRowsMenuBefore.tap()
 
@@ -1231,17 +1219,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
 
         XCTAssertTrue(waitUntil(2) { !applyAllButton.exists }, "Bulk edit sheet should be dismissed after applying")
         XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
-        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "Rows should remain selected after Apply All")
-
-        tapOnMoreButton()
-        let editRowsMenuAfter = editRowsButton()
-        XCTAssertTrue(editRowsMenuAfter.waitForExistence(timeout: 1), "Edit rows option should still be visible after Apply All")
-        let editLabelAfter = editRowsMenuAfter.label
-        guard let afterBulkEditCount = rowCountFromBulkMenuLabel(editLabelAfter) else {
-            XCTFail("Could not parse bulk edit row count after apply from label: \(editLabelAfter)")
-            return
-        }
-        XCTAssertEqual(afterBulkEditCount, beforeBulkEditCount, "Edit rows count should remain unchanged after bulk apply")
+        XCTAssertFalse(moreButton.exists, "Selection should be cleared after Apply All")
     }
     
     // Edit all Nested rows
