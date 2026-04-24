@@ -219,7 +219,7 @@ struct CanvasSignatureView: View {
     @Binding var signatureImage: UIImage?
     @State var signatureCanvasImage: UIImage?
     @State var showCanvasError: Bool = false
-    @State var signatureInputMode: SignatureInputMode = .draw
+    @State private var signatureInputMode: SignatureInputMode = .draw
     @State private var typedSignatureText: String = ""
     @Binding var signatureURL: String
     @Binding var showError: Bool
