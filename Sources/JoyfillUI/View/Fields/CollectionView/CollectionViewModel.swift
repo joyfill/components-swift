@@ -1689,20 +1689,20 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 //        sortRowsIfNeeded()
     }
     
-    fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]]) {
+    fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {
         var parentRowID = ""
         var nestedSchemaKey = ""
         var isRootRow: Bool = false
-        
+
         if let firstSelectedRowID = tableDataModel.selectedRows.first {
             let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == firstSelectedRowID }) ?? 0
             let rowDataModel = tableDataModel.filteredcellModels[rowIndex]
-            
+
             isRootRow = rowDataModel.rowType.isRow
             parentRowID = rowDataModel.rowType.parentID?.rowID ?? ""
             nestedSchemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
         }
-        
+
         let result = tableDataModel.documentEditor?.bulkEditForNested(changes: columnIDChanges,
                                                                       selectedRows: tableDataModel.selectedRows,
                                                                       fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1721,7 +1721,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int]) {
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
         for rowId in tableDataModel.selectedRows {
             guard let rowIndex = rowIndexMap[rowId] else { continue }
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
@@ -1750,11 +1750,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    fileprivate func updateBulkLocalCellModels(_ tableColumns: [FieldTableColumn], _ newChanges: inout [String : [String : ValueUnion]], _ updatedCellModels: inout [RowDataModel], rowIndexMap: [String: Int]) {
+    fileprivate func updateBulkLocalCellModels(_ tableColumns: [FieldTableColumn], _ newChanges: inout [String : [String : ValueUnion]], _ updatedCellModels: inout [RowDataModel], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
 
-        for rowId in self.tableDataModel.selectedRows {
+        for rowId in tableDataModel.selectedRows {
             guard let rowIndex = rowIndexMap[rowId] else { continue }
-            var rowDataModel = self.tableDataModel.filteredcellModels[rowIndex]
+            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
@@ -1784,7 +1784,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 updatedCellModels[rowIndex] = rowDataModel
                 
                 //Update conditional logic
-                self.tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: self.tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: self.rowToValueElementMap[rowId])
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: self.rowToValueElementMap[rowId])
             }
         }
     }
@@ -1794,30 +1794,31 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         if changes.count == 0 { return }
         isBulkLoading = true
         let tableColumns = self.getTableColumnsForSelectedRows()
+        let tableDataModel = self.tableDataModel
         let updatedCellModels: [RowDataModel] = await withCheckedContinuation { (cont: CheckedContinuation<[RowDataModel], Never>) in
             dispatchQueue.async { [weak self] in
                 guard let self else {
                     cont.resume(returning: [])
                     return
                 }
-               
+
                 let rowIndexMap = Dictionary(uniqueKeysWithValues:
-                    self.tableDataModel.filteredcellModels.enumerated().map { ($1.rowID, $0) }
+                    tableDataModel.filteredcellModels.enumerated().map { ($1.rowID, $0) }
                 )
-                
+
                 var columnIDChanges = [String: ValueUnion]()
                 changes.forEach { (colIndex: Int, value: ValueUnion) in
                     guard let cellDataModelId = tableColumns[colIndex].id else { return }
                     columnIDChanges[cellDataModelId] = value
                 }
-                
+
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableColumns, rowIndexMap: rowIndexMap)
-                
-                self.updateJSON(newChanges)
-                
-                var updatedCellModels = self.tableDataModel.filteredcellModels
-                self.updateBulkLocalCellModels(tableColumns, &newChanges, &updatedCellModels, rowIndexMap: rowIndexMap)
+                self.makeChangeDict(&newChanges, columnIDChanges, tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
+
+                self.updateJSON(newChanges, tableDataModel: tableDataModel)
+
+                var updatedCellModels = tableDataModel.filteredcellModels
+                self.updateBulkLocalCellModels(tableColumns, &newChanges, &updatedCellModels, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
                 cont.resume(returning: updatedCellModels)
             }
         }
