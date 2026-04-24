@@ -417,6 +417,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         Button(action: {
                             Task { @MainActor in
                                 await viewModel.bulkEdit(changes: changes)
+                                viewModel.tableDataModel.emptySelection()
                                 presentationMode.wrappedValue.dismiss()
                             }
                             
@@ -459,6 +460,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                     }
                 }
 
+                if !viewModel.tableDataModel.selectedRows.isEmpty {
                 let header = viewModel.getHeaderForSelectedRows()
                 ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
                     let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
@@ -686,6 +688,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                     }
                     .id(col.id)
                 }
+                } // selectedRows non-empty guard
                 Spacer()
             }
             .padding(.all, 16)
