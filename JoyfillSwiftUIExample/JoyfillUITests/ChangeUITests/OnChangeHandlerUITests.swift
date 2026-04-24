@@ -2603,7 +2603,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         deleteSelectedImages()
     }
     
-    func testSignatureCoordinatess() throws {
+    func testMirroredSignatureFieldSyncsOnSave() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
         }
