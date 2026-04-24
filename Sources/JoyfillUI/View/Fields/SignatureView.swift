@@ -449,17 +449,17 @@ struct CanvasSignatureView: View {
     
     private func saveTypedSignature() {
         let trimmedTypedSignatureText = typedSignatureText.trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedTypedSignatureText.isEmpty {
-                clearSignatureAndDismiss()
-                return
-            }
-            savedTypedSignature = trimmedTypedSignatureText
-            signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
-            lines.removeAll()
-            savedLines = []
-            showCanvasError = false
-            showError = false
-            presentationMode.wrappedValue.dismiss()
+        if trimmedTypedSignatureText.isEmpty {
+            clearSignatureAndDismiss()
+            return
+        }
+        savedTypedSignature = trimmedTypedSignatureText
+        signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
+        lines.removeAll()
+        savedLines = []
+        showCanvasError = false
+        showError = false
+        presentationMode.wrappedValue.dismiss()
     }
     
     private func clearSignatureAndDismiss() {
