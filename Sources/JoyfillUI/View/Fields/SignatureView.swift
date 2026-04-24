@@ -6,6 +6,7 @@ struct SignatureView: View {
     @State private var lines: [Line] = []
     @State var signatureImage: UIImage?
     @State private var savedLines: [Line] = []
+    @State private var savedTypedSignature: String = ""
     @State var signatureURL: String = ""
     @State private var showCanvasSignatureView: Bool = false
     @State var isEditable: Bool = true
@@ -74,7 +75,7 @@ struct SignatureView: View {
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID).environment(\.footerContainer, footerContainer), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, savedTypedSignature: $savedTypedSignature, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID).environment(\.footerContainer, footerContainer), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -147,6 +148,20 @@ struct Line: Equatable {
     var lineWidth: Double = 2.0
 }
 
+struct TypeToSign: View {
+    @Binding var typeSign: String
+    let fontName: String
+    
+    var body: some View {
+        TextField("Type Signature", text: $typeSign)
+            .font(.custom(fontName, size: 60))
+            .lineLimit(1)
+            .minimumScaleFactor(0.3)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    }
+}
+
 struct CanvasView: View {
     @State var currentLine = Line()
     @Binding var lines: [Line]
@@ -200,9 +215,12 @@ struct CanvasView: View {
 struct CanvasSignatureView: View {
     @Binding var lines: [Line]
     @Binding var savedLines: [Line]
+    @Binding var savedTypedSignature: String
     @Binding var signatureImage: UIImage?
     @State var signatureCanvasImage: UIImage?
     @State var showCanvasError: Bool = false
+    @State private var signatureInputMode: SignatureInputMode = .draw
+    @State private var typedSignatureText: String = ""
     @Binding var signatureURL: String
     @Binding var showError: Bool
     @Binding var isEditable: Bool
@@ -210,25 +228,84 @@ struct CanvasSignatureView: View {
     var fieldID: String?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
+    private let typedSignatureFontName = "SnellRoundhand-Black"
     
     var body: some View {
         VStack(alignment: .leading) {
             Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
                 .fontWeight(.bold)
                 .padding(.top, 12)
-            
+                .padding(.bottom, 8)
+            HStack(spacing: 8) {
+                if isEditable || signatureImage == nil {
+                    Button(action: {
+                        signatureInputMode = .draw
+                    }, label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "pencil.tip")
+                            Text("Draw")
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .foregroundColor(signatureInputMode == .draw ? .white : .primary)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(signatureInputMode == .draw ? Color.accentColor : Color.clear)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                    })
+                    Button(action: {
+                        signatureInputMode = .type
+                    }, label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "keyboard")
+                            Text("Type")
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .foregroundColor(signatureInputMode == .type ? .white : .primary)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(signatureInputMode == .type ? Color.accentColor : Color.clear)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                    })
+                }
+            }
             if isEditable {
-                CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
-                    .frame(height: 150)
-                    .cornerRadius(10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color(UIColor.systemGray5))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
+                if signatureInputMode == .draw {
+                    CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
+                        .frame(height: 150)
+                        .cornerRadius(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(UIColor.systemGray5))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                } else {
+                    TypeToSign(typeSign: $typedSignatureText, fontName: typedSignatureFontName)
+                        .frame(height: 150)
+                        .cornerRadius(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(UIColor.systemGray5))
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                        )
+                }
             } else {
                 if let signatureImage = signatureImage {
                     ZStack(alignment: .bottomTrailing) {
@@ -288,6 +365,7 @@ struct CanvasSignatureView: View {
                     Button(action: {
                         lines.removeAll()
                         signatureCanvasImage = nil
+                        typedSignatureText = ""
                         showCanvasError = false
                     }, label: {
                         Text("Clear")
@@ -302,22 +380,7 @@ struct CanvasSignatureView: View {
                     .accessibilityIdentifier("ClearSignatureIdentifier")
                     
                     Button(action: {
-                        if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
-                            savedLines = []
-                            signatureImage = nil
-                            signatureURL = ""
-                            showError = false
-                            presentationMode.wrappedValue.dismiss()
-                            return
-                        }
-                        if !showCanvasError {
-                            signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
-                                .frame(width: screenWidth, height: 220)
-                                .snapshot()
-                            showError = false
-                        }
-                        savedLines = lines
-                        presentationMode.wrappedValue.dismiss()
+                        saveSignature()
                     }, label: {
                         Text("Save")
                             .foregroundColor(.white)
@@ -339,6 +402,7 @@ struct CanvasSignatureView: View {
         .onAppear {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
+            typedSignatureText = savedTypedSignature
         }
         .onDisappear {
             documentEditor?.setOpenNavigationFieldID(nil)
@@ -352,7 +416,79 @@ struct CanvasSignatureView: View {
             FormFooterView()
         }
     }
+
+    private func typedSignatureSnapshot(text: String) -> UIImage {
+        TypedSignatureSnapshotView(text: text, fontName: typedSignatureFontName)
+                .frame(width: screenWidth, height: 220)
+                .snapshot()
+    }
+    
+    private func saveSignature() {
+        switch signatureInputMode {
+        case .draw:
+            saveDrawSignature()
+        case .type:
+            saveTypedSignature()
+        }
+    }
+    private func saveDrawSignature() {
+        if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
+            clearSignatureAndDismiss()
+            return
+        }
+        if !showCanvasError {
+            signatureImage = CanvasView(lines: $lines, signatureCanvasImage: $signatureCanvasImage, showCanvasError: $showCanvasError)
+                .frame(width: screenWidth, height: 220)
+                .snapshot()
+            showError = false
+        }
+        savedLines = lines
+        savedTypedSignature = ""
+        presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func saveTypedSignature() {
+        let trimmedTypedSignatureText = typedSignatureText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedTypedSignatureText.isEmpty {
+            clearSignatureAndDismiss()
+            return
+        }
+        savedTypedSignature = trimmedTypedSignatureText
+        signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
+        lines.removeAll()
+        savedLines = []
+        showCanvasError = false
+        showError = false
+        presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func clearSignatureAndDismiss() {
+        savedLines = []
+        savedTypedSignature = ""
+        signatureImage = nil
+        signatureURL = ""
+        showError = false
+        presentationMode.wrappedValue.dismiss()
+    }
 }
+
+private struct TypedSignatureSnapshotView: View {
+    let text: String
+    let fontName: String
+
+    var body: some View {
+        ZStack {
+            Color.clear
+            Text(text)
+                .font(.custom(fontName, size: 72))
+                .lineLimit(1)
+                .minimumScaleFactor(0.2)
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+    }
+}
+
 extension View {
     func snapshot() -> UIImage {
         let controller = UIHostingController(rootView: self)
@@ -370,3 +506,7 @@ extension View {
     }
 }
 
+enum SignatureInputMode {
+    case draw
+    case type
+}
