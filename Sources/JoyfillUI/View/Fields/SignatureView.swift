@@ -232,10 +232,10 @@ struct CanvasSignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-                Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
-                    .fontWeight(.bold)
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
+            Text("\(signatureImage != nil ? "Edit Signature" : "Add Signature")")
+                .fontWeight(.bold)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
             HStack {
                 if isEditable || signatureImage == nil {
                     Button(action: {
