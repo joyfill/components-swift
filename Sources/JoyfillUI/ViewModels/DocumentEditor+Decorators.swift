@@ -2,38 +2,10 @@ import JoyfillModel
 
 public extension DocumentEditor {
 
-    // MARK: - Path-Based API
-    //
-    // Grammar (segments are "/"-separated; empty segments are ignored):
-    //
-    //   path := page-id "/" field-position-id [ rest ]
-    //   rest := "rows"                                  → common rows of root schema (or table)
-    //         | "columns/" col                          → common column of root schema (or table)
-    //         | "schemas/" sk "/rows"                   → common rows of schema sk
-    //         | "schemas/" sk "/columns/" col           → common column of schema sk
-    //         | "schemas/" sk "/" row rowRest           → a row inside schema sk
-    //         | row rowRest                             → a row at root schema
-    //   rowRest := ε                                     → that row's dedicated decorators
-    //            | col                                   → cell (row × col)
-    //            | "columns/" col                        → row-scoped column  (aliases cell storage)
-    //            | "schemas/" sk "/" row rowRest         → descend into child schema
-    //
-    // Tables cannot use "schemas/..." — they have no schema tree.
-    //
-    // Storage map:
-    //   field                            → field.decorators
-    //   commonRows(sk?)                  → sk?  ? field.schema[sk].rowDecorators : field.rowDecorators
-    //   commonColumn(sk?, col)           → sk?  ? field.schema[sk].tableColumns[col].decorators : field.tableColumns[col].decorators
-    //   rowSelf                          → ValueElement.decorators.all           (at the end of the hop chain)
-    //   cell(col) / rowScopedColumn(col) → ValueElement.decorators.cells[col]    (aliased storage)
-    //
-    // Copy-on-write: adding to rowSelf / cell / rowScopedColumn when the scope is empty
-    // seeds from the matching common scope first so the specific scope diverges without
-    // losing previously-visible decorators.
-    //
-    // All methods must be called on the main thread.
+    // MARK: - Decorator API (path-based)
 
-    /// Returns all decorators at the given path.
+    /// Returns decorators at `path`, or `[]` if the path doesn't resolve / the
+    /// scope is empty. Does not trigger copy-on-write seeding.
     func getDecorators(path: String) -> [Decorator] {
         guard let target = resolveDecoratorTarget(path: path) else {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
@@ -42,7 +14,10 @@ public extension DocumentEditor {
         return fetchDecorators(for: target)
     }
 
-    /// Appends one or more decorators at the given path.
+    /// Appends decorators at `path`. Each needs a non-empty `action` unique
+    /// within the batch and against entries already there; `color` if set must
+    /// be `#RRGGBB`. Row-scope adds flip `decorate` on; specific-row adds on
+    /// an empty scope seed from the common scope first.
     func addDecorators(path: String, decorators: [Decorator]) {
         guard !decorators.isEmpty else { return }
         guard let target = resolveDecoratorTarget(path: path) else {
@@ -88,7 +63,10 @@ public extension DocumentEditor {
         commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
-    /// Removes the decorator whose `action` matches at the given path.
+    /// Removes the decorator with matching `action` at `path`. If the enclosing
+    /// scope (table field / schema entry) has no displayable decorator left
+    /// after the removal — neither common `rowDecorators` nor any row's
+    /// `decorators.all` — `decorate` is flipped off.
     func removeDecorator(path: String, action: String) {
         guard let target = resolveDecoratorTarget(path: path) else {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
@@ -108,7 +86,10 @@ public extension DocumentEditor {
         commitDecoratorChange(field: field, fieldID: target.fieldID)
     }
 
-    /// Replaces the decorator whose `action` matches with the new decorator at the given path.
+    /// Replaces the decorator with matching `action` at `path`. Rename is
+    /// allowed if the new action is unused. An update that strips both icon
+    /// and label makes it non-displayable; if that empties the scope,
+    /// `decorate` flips off (same as `removeDecorator`).
     func updateDecorator(path: String, action: String, decorator: Decorator) {
         guard let target = resolveDecoratorTarget(path: path) else {
             events?.onError(error: .decoratorError(error: DecoratorError(message: "Failed to resolve path '\(path)'")))
