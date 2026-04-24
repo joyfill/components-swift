@@ -381,7 +381,7 @@ struct CanvasSignatureView: View {
                     .accessibilityIdentifier("ClearSignatureIdentifier")
                     
                     Button(action: {
-                        if signatureInputMode == .draw{
+                        if signatureInputMode == .draw {
                             if lines.isEmpty && signatureCanvasImage == nil && showCanvasError == false {
                                 savedLines = []
                                 savedTypedSignature = ""
