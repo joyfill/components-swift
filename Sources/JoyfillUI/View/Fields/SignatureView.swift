@@ -413,7 +413,6 @@ struct CanvasSignatureView: View {
                                 }
                                 savedTypedSignature = trimmedTypedSignatureText
                                 signatureImage = typedSignatureSnapshot(text: trimmedTypedSignatureText)
-                                signatureCanvasImage = signatureImage
                                 lines.removeAll()
                                 savedLines = []
                                 showCanvasError = false
