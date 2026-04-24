@@ -236,7 +236,7 @@ struct CanvasSignatureView: View {
                 .fontWeight(.bold)
                 .padding(.top, 12)
                 .padding(.bottom, 8)
-            HStack {
+            HStack(spacing: 8) {
                 if isEditable || signatureImage == nil {
                     Button(action: {
                         signatureInputMode = .draw
@@ -258,7 +258,6 @@ struct CanvasSignatureView: View {
                                 .stroke(Color.allFieldBorderColor, lineWidth: 1)
                         )
                     })
-                    Spacer().frame(width: 8)
                     Button(action: {
                         signatureInputMode = .type
                     }, label: {
