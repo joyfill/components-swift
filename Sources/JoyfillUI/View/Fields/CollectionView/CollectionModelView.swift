@@ -146,7 +146,7 @@ struct CollectionModalView : View {
             if viewModel.nestedTableCount > 0 {
                 Spacer()
             }
-            if viewModel.showRowSelector(for: viewModel.tableDataModel)  {
+            if viewModel.showRowSelector(for: viewModel.tableDataModel) {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
                     .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 ? Color.gray.opacity(0.4) : nil)

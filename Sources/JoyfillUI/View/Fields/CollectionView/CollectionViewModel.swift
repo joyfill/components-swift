@@ -596,7 +596,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellModels
     }
     
-    fileprivate func getAllCellModels(_ tableDataModel: TableDataModel, _ targetSchema: String) -> [RowDataModel] {
+    fileprivate func getAllCellModels(_ targetSchema: String, tableDataModel: TableDataModel) -> [RowDataModel] {
         var result = [RowDataModel]()
         let rowDataMap = self.setupRows(tableDataModel: tableDataModel)
         let rowToChildrenMap = self.setupRowsChildrens(tableDataModel: tableDataModel)
@@ -661,7 +661,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let cellModels: [RowDataModel] = await withCheckedContinuation { cont in
             dispatchQueue.async { [tableDataModel, rootSchemaKey] in
                 
-                let result = self.getAllCellModels(tableDataModel, targetSchema)
+                let result = self.getAllCellModels(targetSchema, tableDataModel: tableDataModel)
                 
                 cont.resume(returning: result)
             }
