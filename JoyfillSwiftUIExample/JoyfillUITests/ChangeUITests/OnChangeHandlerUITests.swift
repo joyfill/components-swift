@@ -2603,6 +2603,40 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         deleteSelectedImages()
     }
     
+    func testMirroredSignatureFieldSyncsOnSave() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let firstPageNavigationButton = pageSelectionButton.element(boundBy: 0)
+        let secondPageNavigationButton = pageSelectionButton.element(boundBy: 1)
+        let pageSelectionItem = pageSheetSelectionButton.element(boundBy: 3)
+        
+        XCTAssertTrue(firstPageNavigationButton.waitForExistence(timeout: 5), "First page navigation button not found")
+        firstPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page selection item not found")
+        pageSelectionItem.tap()
+        XCTAssertTrue(secondPageNavigationButton.waitForExistence(timeout: 5), "Second page navigation button not found")
+        secondPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page selection item not found")
+        pageSelectionItem.tap()
+        
+        let signatureButtons = app.buttons.matching(identifier: "SignatureIdentifier")
+        let leftSignatureButton = signatureButtons.element(boundBy: 0)
+        let rightSignatureButton = signatureButtons.element(boundBy: 1)
+        
+        XCTAssertTrue(leftSignatureButton.waitForExistence(timeout: 5), "Left signature button not found")
+        leftSignatureButton.tap()
+        drawSignatureLine()
+        let saveSignatureButton = app.buttons["SaveSignatureIdentifier"]
+        XCTAssertTrue(saveSignatureButton.waitForExistence(timeout: 5), "Save signature button not found")
+        saveSignatureButton.tap()
+        
+        XCTAssertEqual(rightSignatureButton.label, "Edit Signature", "Signature added on left should reflect on right side.")
+    }
+    
     func deleteSelectedImages() {
         app.buttons["ImageDeleteIdentifier"].tap()
     }
