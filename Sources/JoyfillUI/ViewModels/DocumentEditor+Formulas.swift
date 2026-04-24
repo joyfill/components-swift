@@ -49,12 +49,14 @@ extension DocumentEditor: JoyDocProvider {
         updateValue(for: identifier, value: value, shouldCallOnChange: true)
     }
     
-    func updateValue(for identifier: String, value: JoyfillModel.ValueUnion, shouldCallOnChange: Bool, chartData: ChartData? = nil) {
+    func updateValue(for identifier: String, value: JoyfillModel.ValueUnion? = nil, shouldCallOnChange: Bool, chartData: ChartData? = nil) {
         guard var field = allFields.first(where: { $0.id == identifier }) else {
             return
         }
         guard let fieldID = field.id else { return }
-        field.value = value
+        if let value = value {
+            field.value = value
+        }
         if let chartData = chartData {
             field.xTitle = chartData.xTitle
             field.yTitle = chartData.yTitle

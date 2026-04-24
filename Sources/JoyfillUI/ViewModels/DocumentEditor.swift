@@ -341,17 +341,24 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        let chartData = ChartData(
-            xTitle: change.change?["xTitle"] as? String,
-            yTitle: change.change?["yTitle"] as? String,
-            xMax: change.change?["xMax"] as? Double,
-            xMin: change.change?["xMin"] as? Double,
-            yMax: change.change?["yMax"] as? Double,
-            yMin: change.change?["yMin"] as? Double
-        )
-        if let value = change.change?["value"] as? Any,
+        let chartData: ChartData? = {
+            let hasAxisData = change.change?.keys.contains(where: { ["xTitle","yTitle","xMin","xMax","yMin","yMax"].contains($0) }) == true
+            guard hasAxisData else { return nil }
+            return ChartData(
+                xTitle: change.change?["xTitle"] as? String,
+                yTitle: change.change?["yTitle"] as? String,
+                xMax: change.change?["xMax"] as? Double,
+                xMin: change.change?["xMin"] as? Double,
+                yMax: change.change?["yMax"] as? Double,
+                yMin: change.change?["yMin"] as? Double
+            )
+        }()
+        
+        if let value = change.change?["value"],
            let valueUnion = ValueUnion(value: value) {
             updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false, chartData: chartData)
+        } else if let chartData = chartData {
+            updateValue(for: fieldID, shouldCallOnChange: false, chartData: chartData)
         }
         if let metadataDict = change.change?["metadata"] as? [String: Any],
            let meta = Metadata(dictionary: metadataDict),
