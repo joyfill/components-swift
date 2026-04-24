@@ -2605,7 +2605,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     
     func testMirroredSignatureFieldSyncsOnSave() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
-            return
+            throw XCTSkip("Test is iPad-only")
         }
         
         let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
