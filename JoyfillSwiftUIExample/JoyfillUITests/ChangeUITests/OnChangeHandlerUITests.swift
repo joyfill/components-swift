@@ -2557,7 +2557,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
     
-    func testChartCoordinatess() throws {
+    func testChartCoordinates() throws {
         let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
 
