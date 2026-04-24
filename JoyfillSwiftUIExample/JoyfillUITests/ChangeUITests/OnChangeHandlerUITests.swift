@@ -2621,7 +2621,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let rightDropdownField = dropdownFields.element(boundBy: 1)
         
         leftDropdownField.tap()
-        app.buttons.matching(identifier: "DropdownoptionIdentifier").element(matching: NSPredicate(format: "label == %@", "No")).tap()
+        let noOption = app.buttons.matching(identifier: "DropdownoptionIdentifier")
+            .element(matching: NSPredicate(format: "label == %@", "No"))
+        XCTAssertTrue(noOption.waitForExistence(timeout: 5), "'No' option never appeared in dropdown sheet")
+        noOption.tap()
         XCTAssertEqual(rightDropdownField.label, "No", "Dropdown value selected on left should reflect on right side.")
     }
     
