@@ -51,6 +51,10 @@ struct DropdownView: View {
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
+            // Avoid echoing programmatic model syncs as user-originated changes.
+            if newValue == dropdownDataModel.dropdownValue {
+                return
+            }
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
             let fieldEvent = FieldChangeData(fieldIdentifier: dropdownDataModel.fieldIdentifier, updateValue: newDrodDownValue)
             eventHandler.onChange(event: fieldEvent)
