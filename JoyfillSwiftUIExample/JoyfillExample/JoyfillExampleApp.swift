@@ -87,6 +87,10 @@ struct JoyfillExampleApp: App {
         
         // Set up crash prevention for UI tests after all properties are initialized
         setupCrashPrevention()
+
+        if CommandLine.arguments.contains("--disable-animations") {
+            UIView.setAnimationsEnabled(false)
+        }
     }
 
     var body: some Scene {
