@@ -1,6 +1,24 @@
 import SwiftUI
 import JoyfillModel
 
+private extension View {
+    func decoratorOverflowPopover<Content: View>(
+        isPresented: Binding<Bool>,
+        @ViewBuilder content: @escaping () -> Content
+    ) -> some View {
+        self.popover(isPresented: isPresented) {
+            Group {
+                if #available(iOS 16.4, *) {
+                    content()
+                        .presentationCompactAdaptation(.popover)
+                } else {
+                    content()
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Decorator Icon Mapping
 
 enum DecoratorIcon {
@@ -138,6 +156,7 @@ private struct DecoratorKebabButton: View {
                 .font(.system(size: 14, weight: .bold))
                 .foregroundColor(.blue)
         }
+        .contentShape(Rectangle())
         .buttonStyle(.plain)
     }
 }
@@ -161,8 +180,9 @@ struct FieldDecoratorsView: View {
                     .frame(minHeight: 32)
                     .background(Color.blue.opacity(0.12))
                     .cornerRadius(8)
+                    .contentShape(Rectangle())
                     .accessibilityIdentifier("field_decorator_overflow_menu")
-                    .popover(isPresented: $showingOverflow) {
+                    .decoratorOverflowPopover(isPresented: $showingOverflow) {
                         decoratorPopover
                     }
             } else {
@@ -263,12 +283,8 @@ struct RowDecoratorMenuView: View {
             .frame(width: 40, height: 60)
             .contentShape(Rectangle())
             .accessibilityIdentifier("row_decorator_menu")
-            .popover(isPresented: $showingPopover) {
-                if #available(iOS 16.4, *) {
-                    popoverContent.presentationCompactAdaptation(.popover)
-                } else {
-                    popoverContent
-                }
+            .decoratorOverflowPopover(isPresented: $showingPopover) {
+                popoverContent
             }
     }
 

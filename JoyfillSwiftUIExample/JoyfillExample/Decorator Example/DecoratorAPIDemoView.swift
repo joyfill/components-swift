@@ -996,37 +996,7 @@ private class DecoratorEventHandler: FormChangeEvent {
     var onDecoratorAction: ((String, String) -> Void)? // (action, path)
     var onDecoratorError: ((String) -> Void)?
 
-    func onFocus(event: Event) {
-        guard let fieldEvent = event.fieldEvent,
-              let action = fieldEvent.type, !action.isEmpty else { return }
-
-        // Build the decorator path from the event
-        guard let editor = editor,
-              let pageID = fieldEvent.pageID,
-              let fieldPositionId = fieldEvent.fieldPositionId else { return }
-
-        let basePath = "\(pageID)/\(fieldPositionId)"
-        let path: String
-        if let columnID = fieldEvent.columnId {
-            let rowID = fieldEvent.rowIds?.first ?? "-"
-            path = "\(basePath)/\(rowID)/\(columnID)"
-        } else if let rowID = fieldEvent.rowIds?.first {
-            path = "\(basePath)/\(rowID)"
-        } else {
-            path = basePath
-        }
-
-        onDecoratorAction?(action, path)
-
-        // Update the tapped decorator to show it was viewed
-        var updated = Decorator()
-        updated.action = action
-        updated.icon   = "eye"
-        updated.label  = "Viewed"
-        updated.color  = "#10B981"
-        editor.updateDecorator(path: path, action: action, decorator: updated)
-    }
-
+    func onFocus(event: Event) {}
     func onChange(changes: [Change], document: JoyDoc) { }
     func onBlur(event: Event) { }
     func onUpload(event: UploadEvent) { }
