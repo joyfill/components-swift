@@ -275,18 +275,19 @@ private extension DocumentEditor {
     func rowsInScope(field: JoyDocField, schemaKey: String?) -> [ValueElement] {
         let top = field.valueToValueElements ?? []
         guard field.fieldType == .collection, let sk = schemaKey else {
-            return top
+            return top.filter { !($0.deleted ?? false) }
         }
         let rootKey = field.schema?.first(where: { $0.value.root == true })?.key
         if sk == rootKey {
-            return top
+            return top.filter { !($0.deleted ?? false) }
         }
         var collected: [ValueElement] = []
         func walk(_ rows: [ValueElement]) {
             for row in rows {
+                if row.deleted == true { continue }
                 guard let childrens = row.childrens else { continue }
                 if let match = childrens[sk] {
-                    let matchRows = match.valueToValueElements ?? []
+                    let matchRows = (match.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
                     collected.append(contentsOf: matchRows)
                     walk(matchRows)
                 }

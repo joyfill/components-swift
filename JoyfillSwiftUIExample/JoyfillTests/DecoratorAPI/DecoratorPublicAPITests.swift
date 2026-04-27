@@ -296,6 +296,27 @@ final class DecoratorPublicAPITests: XCTestCase {
                        "decorate must stay true because a common decorator still exists")
     }
 
+    /// Regression guard: deleted rows must not keep `decorate` pinned on.
+    /// If the only remaining row-self decorator belongs to a soft-deleted row,
+    /// removing the last common row decorator should flip `decorate` off.
+    func testDecorateFlag_table_deletedRowSelfDoesNotKeepDecoratePinned() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.tableCommonRowsPath(),
+                             decorators: [makeDecorator(action: "common")])
+        editor.addDecorators(path: ChangerHandlerSample.tableRowSelfPath(),
+                             decorators: [makeDecorator(action: "rowSelf")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true)
+
+        let fieldIdentifier = editor.getFieldIdentifier(for: ChangerHandlerSample.tableFieldID)
+        _ = editor.deleteRows(rowIDs: [ChangerHandlerSample.tableRowID],
+                              fieldIdentifier: fieldIdentifier,
+                              shouldSendEvent: false)
+        editor.removeDecorator(path: ChangerHandlerSample.tableCommonRowsPath(), action: "common")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
+                          "row-self decorators on deleted rows must be ignored when deciding decorate emptiness")
+    }
+
     // -- Collection root schema
 
     func testDecorateFlag_collectionRoot_disabledAfterRemovingLastCommonRowsDecorator() {
@@ -335,6 +356,39 @@ final class DecoratorPublicAPITests: XCTestCase {
         XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
                         .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
                        "root schema's decorate must stay true because a row-specific decorator remains")
+    }
+
+    /// Same deleted-row regression at collection root schema scope.
+    func testDecorateFlag_collectionRoot_deletedRowSelfDoesNotKeepDecoratePinned() {
+        let (editor, _) = makeChangerHandlerEditor()
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootCommonRowsPath(),
+                             decorators: [makeDecorator(action: "common")])
+        editor.addDecorators(path: ChangerHandlerSample.collectionRootRowSelfPath(),
+                             decorators: [makeDecorator(action: "rowSelf")])
+        XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                        .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true)
+
+        // Simulate a soft-deleted root row (collection delete APIs hard-delete).
+        if var field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID) {
+            var rows = field.valueToValueElements ?? []
+            if let idx = rows.firstIndex(where: { $0.id == ChangerHandlerSample.collectionRootRowID }) {
+                var row = rows[idx]
+                row.setDeleted()
+                rows[idx] = row
+                field.value = ValueUnion.valueElementArray(rows)
+                editor.updateField(field: field)
+            } else {
+                XCTFail("Expected sample root collection row not found")
+            }
+        } else {
+            XCTFail("Expected sample collection field not found")
+        }
+
+        editor.removeDecorator(path: ChangerHandlerSample.collectionRootCommonRowsPath(), action: "common")
+
+        XCTAssertNotEqual(editor.field(fieldID: ChangerHandlerSample.collectionFieldID)?
+                            .schema?[ChangerHandlerSample.collectionRootSchemaKey]?.decorate, true,
+                          "deleted root row decorators must not keep root decorate true")
     }
 
     // -- Collection nested schema
