@@ -2245,6 +2245,12 @@ protocol TableDataViewModelProtocol {
     func getParenthPath(rowId: String) -> (String, String)
 }
 
+extension TableDataViewModelProtocol {
+    var decoratorConfig: DecoratorConfig {
+        tableDataModel.documentEditor?.decoratorConfig ?? DecoratorConfig()
+    }
+}
+
 extension CollectionViewModel {
     //Helper Methods for parentToChildRowMap
     func appendChild(_ childID: String, to parentRowID: String, schemaID: String) {

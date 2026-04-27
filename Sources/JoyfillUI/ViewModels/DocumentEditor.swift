@@ -74,7 +74,7 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     public var events: FormChangeEvent?
-    let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
+    private(set) public var decoratorConfig: DecoratorConfig
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
@@ -89,7 +89,8 @@ public class DocumentEditor: ObservableObject {
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
                 license: String? = nil,
-                singleClickRowEdit: Bool = false) {
+                singleClickRowEdit: Bool = false,
+                decoratorConfig: DecoratorConfig = DecoratorConfig()) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -106,6 +107,7 @@ public class DocumentEditor: ObservableObject {
                 self.singleClickRowEdit = singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
+                self.decoratorConfig = decoratorConfig
                 
                 // Trigger onError callback if events handler is available
                 events?.onError(error: .schemaValidationError(error: schemaError))
@@ -124,6 +126,7 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         // Set feature flags from license
         self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
+        self.decoratorConfig = decoratorConfig
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -654,7 +657,7 @@ extension DocumentEditor {
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode) : nil
+        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
         
         switch fieldPosition.type {
         case .text:
@@ -826,7 +829,7 @@ extension DocumentEditor {
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
             
-            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode) : nil
+            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))

@@ -241,7 +241,7 @@ struct EditMultipleRowsSheetView: View {
             if viewModel.tableDataModel.mode == .fill {
                 let decorators = viewModel.tableDataModel.getTableCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "")
                 if !decorators.isEmpty {
-                    FieldDecoratorsView(decorators: decorators) { decorator in
+                    FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id)
                     }
                 }

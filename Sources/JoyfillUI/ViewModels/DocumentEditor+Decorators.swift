@@ -600,3 +600,18 @@ private extension DocumentEditor {
         rows[idx] = row
     }
 }
+
+public struct DecoratorConfig {
+    /// Maximum number of field-level decorators (`field.decorators`) shown
+    /// inline next to the field title before the rest move into a kebab menu.
+    public var visibleLimitInFields: Int
+
+    /// Maximum number of row decorators (merged common + row-self) shown
+    /// inline on a row before the rest move into a kebab menu.
+    public var visibleLimitInRows: Int
+
+    public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1) {
+        self.visibleLimitInFields = max(0, visibleLimitInFields)
+        self.visibleLimitInRows = max(0, visibleLimitInRows)
+    }
+}

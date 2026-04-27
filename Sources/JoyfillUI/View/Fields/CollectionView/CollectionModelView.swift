@@ -625,7 +625,7 @@ struct CollectionRowsHeaderView: View {
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
-                    RowDecoratorMenuView(decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey)) { decorator in
+                    RowDecoratorMenuView(decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
                             fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                             action: decorator.action ?? "",
@@ -667,7 +667,7 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
                 }
                 if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
-                    RowDecoratorMenuView(decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: viewModel.rootSchemaKey)) { decorator in
+                    RowDecoratorMenuView(decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: viewModel.rootSchemaKey), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                     }
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))

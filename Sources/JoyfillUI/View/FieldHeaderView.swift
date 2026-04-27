@@ -33,10 +33,13 @@ struct FieldHeaderView: View {
 
                 Spacer()
 
-                if let decorators = fieldHeaderModel?.decorators,
-                   !decorators.isEmpty,
-                   fieldHeaderModel?.mode == .fill {
-                    FieldDecoratorsView(decorators: decorators) { decorator in
+                if let model = fieldHeaderModel,
+                   !model.decorators.isEmpty,
+                   model.mode == .fill {
+                    FieldDecoratorsView(
+                        decorators: model.decorators,
+                        visibleLimit: model.visibleLimitInFields
+                    ) { decorator in
                         onDecoratorTap?(decorator)
                     }
                 }
@@ -77,4 +80,5 @@ struct FieldHeaderModel {
     var tipVisible: Bool?
     var decorators: [DecoratorLocal] = []
     var mode: Mode = .fill
+    var visibleLimitInFields: Int
 }

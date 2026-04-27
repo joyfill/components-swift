@@ -365,7 +365,7 @@ struct TableModalView : View {
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
                     }
                     if viewModel.showRowDecorators {
-                        RowDecoratorMenuView(decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowModel.rowID)) { decorator in
+                        RowDecoratorMenuView(decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowModel.rowID), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
                             viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                         }
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))

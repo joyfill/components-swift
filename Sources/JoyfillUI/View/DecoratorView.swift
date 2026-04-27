@@ -126,24 +126,83 @@ struct DecoratorButton: View {
     }
 }
 
+// MARK: - Shared Kebab Button
+
+private struct DecoratorKebabButton: View {
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Image(systemName: "ellipsis")
+                .rotationEffect(.degrees(90))
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.blue)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 // MARK: - Field-Level Decorators (inline next to title)
 
 struct FieldDecoratorsView: View {
     let decorators: [DecoratorLocal]
+    let visibleLimit: Int
     let onDecoratorTap: (DecoratorLocal) -> Void
+    @State private var showingOverflow = false
 
-    var displayable: [DecoratorLocal] {
-        decorators.filter { $0.isDisplayable }
-    }
+    var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
+    var exceedsLimit: Bool { displayable.count > visibleLimit }
 
     var body: some View {
         if !displayable.isEmpty {
-            HStack(spacing: 4) {
-                ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
-                    DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+            if exceedsLimit {
+                DecoratorKebabButton { showingOverflow = true }
+                    .padding(.horizontal, 10)
+                    .frame(minHeight: 32)
+                    .background(Color.blue.opacity(0.12))
+                    .cornerRadius(8)
+                    .accessibilityIdentifier("field_decorator_overflow_menu")
+                    .popover(isPresented: $showingOverflow) {
+                        decoratorPopover
+                    }
+            } else {
+                HStack(spacing: 4) {
+                    ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                        DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                    }
                 }
             }
         }
+    }
+
+    private var decoratorPopover: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
+                let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
+                Button {
+                    showingOverflow = false
+                    onDecoratorTap(decorator)
+                } label: {
+                    HStack(spacing: 8) {
+                        if let icon = decorator.icon, !icon.isEmpty {
+                            DecoratorIconImage(iconName: icon, size: 14)
+                                .foregroundColor(tint)
+                                .frame(width: 20)
+                        }
+                        if let label = decorator.label, !label.isEmpty {
+                            Text(label)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(tint)
+                        }
+                    }
+                    .frame(height: 27)
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, index == 0 ? 12 : 4)
+                .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
+            }
+        }
+        .frame(minWidth: 160)
     }
 }
 
@@ -151,52 +210,28 @@ struct FieldDecoratorsView: View {
 
 struct RowDecoratorMenuView: View {
     let decorators: [DecoratorLocal]
+    let visibleLimit: Int
     let onDecoratorTap: (DecoratorLocal) -> Void
     @State private var showingPopover = false
 
-    private var displayable: [DecoratorLocal] {
-        decorators.filter { $0.isDisplayable }
-    }
-
-    private var dominantDecorator: DecoratorLocal? {
-        displayable.first
-    }
-
-    private var dominantColor: Color {
-        if let hex = dominantDecorator?.color, !hex.isEmpty {
-            return Color(hex: hex)
-        }
-        return .secondary
-    }
+    private var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
+    private var exceedsLimit: Bool { displayable.count > visibleLimit }
 
     var body: some View {
-        if displayable.count == 1, let decorator = displayable.first {
+        if displayable.isEmpty {
+            Color.clear.frame(width: 40, height: 60)
+        } else if exceedsLimit {
+            kebabButton.frame(width: 40, height: 60)
+        } else if displayable.count == 1, let decorator = displayable.first {
             singleDecoratorButton(decorator)
-        } else if displayable.count > 1 {
-            Button {
-                showingPopover = true
-            } label: {
-                Image(systemName: "ellipsis")
-                    .rotationEffect(.degrees(90))
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(.blue)
-                    .frame(width: 40, height: 60)
-                    .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityIdentifier("row_decorator_menu")
-            .popover(isPresented: $showingPopover) {
-                if #available(iOS 16.4, *) {
-                    popoverContent
-                        .presentationCompactAdaptation(.popover)
-                } else {
-                    popoverContent
+        } else {
+            VStack(spacing: 0) {
+                ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                    singleDecoratorButton(decorator)
+                        .frame(maxHeight: .infinity)
                 }
             }
-        } else {
-            // Empty placeholder so the column width stays consistent across rows
-            Color.clear
-                .frame(width: 40, height: 60)
+            .frame(width: 40, height: 60)
         }
     }
 
@@ -221,6 +256,20 @@ struct RowDecoratorMenuView: View {
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("row_decorator_\(decorator.action ?? "unknown")")
+    }
+
+    private var kebabButton: some View {
+        DecoratorKebabButton { showingPopover = true }
+            .frame(width: 40, height: 60)
+            .contentShape(Rectangle())
+            .accessibilityIdentifier("row_decorator_menu")
+            .popover(isPresented: $showingPopover) {
+                if #available(iOS 16.4, *) {
+                    popoverContent.presentationCompactAdaptation(.popover)
+                } else {
+                    popoverContent
+                }
+            }
     }
 
     private var popoverContent: some View {

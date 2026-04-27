@@ -305,7 +305,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         let (path, _) = viewModel.getParenthPath(rowId: firstRowId)
                         return path.isEmpty ? nil : path
                     }()
-                    FieldDecoratorsView(decorators: decorators) { decorator in
+                    FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
                             fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                             action: decorator.action ?? "",
