@@ -44,7 +44,8 @@ final class DecoratorLiveUpdateTests: XCTestCase {
         let field = editor.field(fieldID: ChangerHandlerSample.tableFieldID)
         let header = FieldHeaderModel(title: field?.title, required: field?.required,
                                       tipDescription: field?.tipDescription,
-                                      tipTitle: field?.tipTitle, tipVisible: field?.tipVisible)
+                                      tipTitle: field?.tipTitle, tipVisible: field?.tipVisible,
+                                      visibleLimitInFields: editor.decoratorConfig.visibleLimitInFields)
         let model = TableDataModel(
             fieldHeaderModel: header,
             mode: .fill,
@@ -60,7 +61,8 @@ final class DecoratorLiveUpdateTests: XCTestCase {
         let field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
         let header = FieldHeaderModel(title: field?.title, required: field?.required,
                                       tipDescription: field?.tipDescription,
-                                      tipTitle: field?.tipTitle, tipVisible: field?.tipVisible)
+                                      tipTitle: field?.tipTitle, tipVisible: field?.tipVisible,
+                                      visibleLimitInFields: editor.decoratorConfig.visibleLimitInFields)
         let model = TableDataModel(
             fieldHeaderModel: header,
             mode: .fill,
