@@ -1055,7 +1055,12 @@ struct DecoratorAPIDemoView: View {
                         Image(systemName: "slider.horizontal.3")
                     }
                     .popover(isPresented: $showConfigPopover) {
-                        configPopover
+                        if #available(iOS 16.4, *) {
+                            configPopover
+                                .presentationCompactAdaptation(.popover)
+                        } else {
+                            configPopover
+                        }
                     }
                     Button { showDecoratorManager = true } label: {
                         Label("Decorators", systemImage: "paintbrush.pointed.fill")
