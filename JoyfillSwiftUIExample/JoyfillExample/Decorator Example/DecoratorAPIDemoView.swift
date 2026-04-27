@@ -1050,6 +1050,7 @@ private class DecoratorEventHandler: FormChangeEvent {
 
 struct DecoratorAPIDemoView: View {
     @StateObject private var box              = EditorBox()
+    @Environment(\.dismiss) private var dismiss
 
     @State private var showDecoratorManager      = false
     @State private var lastAction: String        = ""
@@ -1067,6 +1068,28 @@ struct DecoratorAPIDemoView: View {
     @State private var decoratorColumnID:        String = ""
 
     private var editor: DocumentEditor { box.editor }
+
+    private func cleanupEventCallbacks() {
+        box.onAction = nil
+        box.onError = nil
+        if let h = box.editor.events as? DecoratorEventHandler {
+            h.onDecoratorAction = nil
+            h.onDecoratorError = nil
+        }
+    }
+
+    private func closeOverlaysBeforeExit() {
+        showConfigPopover = false
+        showDecoratorManager = false
+        decoratorError = nil
+    }
+
+    private func handleBackTap() {
+        closeOverlaysBeforeExit()
+        DispatchQueue.main.async {
+            dismiss()
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -1086,7 +1109,16 @@ struct DecoratorAPIDemoView: View {
         }
         .navigationTitle("Decorator API Demo")
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: handleBackTap) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: 16) {
                     Button { showConfigPopover = true } label: {
@@ -1128,6 +1160,10 @@ struct DecoratorAPIDemoView: View {
                 decoratorError = DecoratorErrorAlert(message: message)
             }
             box.wire()
+        }
+        .onDisappear {
+            closeOverlaysBeforeExit()
+            cleanupEventCallbacks()
         }
         .alert(item: $decoratorError) { err in
             Alert(title: Text("Decorator Error"),
