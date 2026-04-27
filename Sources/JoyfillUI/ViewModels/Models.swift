@@ -408,6 +408,10 @@ struct TableDataModel {
     
     mutating func setTableRowDecorators(rowDecorators: [Decorator]?, rows: [ValueElement]) {
         guard fieldType == .table else { return }
+        tableRowDecorators.removeAll()
+        tableCellDecorators.removeAll()
+        tableCommonCellDecorators.removeAll()
+
         let nonDeleteRows = rows.filter { !($0.deleted ?? false) }
         for row in nonDeleteRows {
             updateTableRowDecorators(for: row, fieldRowDecorators: rowDecorators)
