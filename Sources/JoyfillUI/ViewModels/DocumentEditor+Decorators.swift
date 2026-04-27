@@ -417,7 +417,7 @@ private extension DocumentEditor {
                 pendingSchema = nil
                 hasPendingSchema = false
 
-                guard rowExistsInField(fieldID: fieldID, rowId: rowID) else { return nil }
+                guard valueElement(at: hops, in: field) != nil else { return nil }
 
                 if cursor == segments.count {
                     return DecoratorTarget(fieldID: fieldID, hops: hops, terminator: .rowSelf)

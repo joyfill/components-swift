@@ -330,4 +330,32 @@ final class DecoratorPathResolutionTests: XCTestCase {
             }
         }
     }
+
+    /// Regression guard: nested row hops must be validated against the current branch,
+    /// not just "row exists somewhere in the field".
+    /// Here we use the ROOT row id at a nested hop:
+    ///   fp/{rootRow}/schemas/{nestedSchema}/{rootRow}
+    /// That trailing row id exists globally in the collection, but not under nestedSchema.
+    /// Expected: path resolve failure + no decorate/state mutation.
+    func testInvalidNestedHop_rowExistsGloballyButNotUnderCurrentBranch_rejectsPath() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let invalidPath = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/\(ChangerHandlerSample.collectionRootRowID)/schemas/\(ChangerHandlerSample.collectionNestedSchemaKey)/\(ChangerHandlerSample.collectionRootRowID)"
+
+        let before = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        XCTAssertNotEqual(before?.schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true)
+
+        editor.addDecorators(path: invalidPath, decorators: [makeDecorator(action: "invalidNestedHop")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1,
+                       "invalid nested hop should fail path resolution")
+        let after = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        XCTAssertNotEqual(after?.schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate, true,
+                          "failed path must not flip decorate")
+        let nested = findValueElement(in: after, hops: [
+            (ChangerHandlerSample.collectionRootSchemaKey, ChangerHandlerSample.collectionRootRowID),
+            (ChangerHandlerSample.collectionNestedSchemaKey, ChangerHandlerSample.collectionNestedRowID),
+        ])
+        XCTAssertNil(nested?.decorators?.all.first(where: { $0.action == "invalidNestedHop" }),
+                     "failed path must not write row-self decorators")
+    }
 }
