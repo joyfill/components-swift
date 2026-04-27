@@ -997,35 +997,27 @@ struct DecoratorEditView: View {
 // MARK: - DecoratorAPIDemoView  (standalone entry from the option list)
 
 private class EditorBox: ObservableObject {
-    @Published var editor: DocumentEditor
+    let editor: DocumentEditor
 
     var onAction: ((String, String) -> Void)?
     var onError:  ((String) -> Void)?
 
-    init() { editor = EditorBox.make(document: sampleJSONDocument(fileName: "Navigation"), config: DecoratorConfig()) }
-
-    func remake(config: DecoratorConfig) {
-        editor = EditorBox.make(document: editor.document, config: config)
-        wire()
+    init() {
+        let handler = DecoratorEventHandler()
+        let ed = DocumentEditor(
+            document: sampleJSONDocument(fileName: "Navigation"),
+            events: handler,
+            validateSchema: false,
+            license: licenseKey
+        )
+        handler.editor = ed
+        self.editor = ed
     }
 
     func wire() {
         guard let h = editor.events as? DecoratorEventHandler else { return }
         h.onDecoratorAction = onAction
         h.onDecoratorError  = onError
-    }
-
-    private static func make(document: JoyDoc, config: DecoratorConfig) -> DocumentEditor {
-        let handler = DecoratorEventHandler()
-        let ed = DocumentEditor(
-            document: document,
-            events: handler,
-            validateSchema: false,
-            license: licenseKey,
-            decoratorConfig: config
-        )
-        handler.editor = ed
-        return ed
     }
 }
 
@@ -1057,9 +1049,6 @@ struct DecoratorAPIDemoView: View {
     @State private var lastPath:   String        = ""
     @State private var showBanner: Bool          = false
     @State private var decoratorError: DecoratorErrorAlert? = nil
-    @State private var visibleLimitInFields: Int = 2
-    @State private var visibleLimitInRows: Int   = 1
-    @State private var showConfigPopover: Bool   = false
     // Persisted across sheet dismissals so the user doesn't have to re-select
     @State private var decoratorPageID:          String = ""
     @State private var decoratorFieldPositionID: String = ""
@@ -1079,7 +1068,6 @@ struct DecoratorAPIDemoView: View {
     }
 
     private func closeOverlaysBeforeExit() {
-        showConfigPopover = false
         showDecoratorManager = false
         decoratorError = nil
     }
@@ -1120,21 +1108,8 @@ struct DecoratorAPIDemoView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
-                    Button { showConfigPopover = true } label: {
-                        Image(systemName: "slider.horizontal.3")
-                    }
-                    .popover(isPresented: $showConfigPopover) {
-                        if #available(iOS 16.4, *) {
-                            configPopover
-                                .presentationCompactAdaptation(.popover)
-                        } else {
-                            configPopover
-                        }
-                    }
-                    Button { showDecoratorManager = true } label: {
-                        Label("Decorators", systemImage: "paintbrush.pointed.fill")
-                    }
+                Button { showDecoratorManager = true } label: {
+                    Label("Decorators", systemImage: "paintbrush.pointed.fill")
                 }
             }
         }
@@ -1170,77 +1145,6 @@ struct DecoratorAPIDemoView: View {
                   message: Text(err.message),
                   dismissButton: .default(Text("OK")))
         }
-    }
-
-    // MARK: Config popover
-
-    private var configPopover: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("Decorator Config")
-                .font(.headline)
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 12)
-
-            Divider()
-
-            VStack(spacing: 0) {
-                Stepper(value: $visibleLimitInFields, in: 0...10) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Fields & Columns").font(.subheadline)
-                        Text("visibleLimitInFields: \(visibleLimitInFields)")
-                            .font(.caption.monospaced()).foregroundColor(.secondary)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 14)
-
-                Divider().padding(.leading, 20)
-
-                Stepper(value: $visibleLimitInRows, in: 0...10) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Rows").font(.subheadline)
-                        Text("visibleLimitInRows: \(visibleLimitInRows)")
-                            .font(.caption.monospaced()).foregroundColor(.secondary)
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 14)
-            }
-
-            Divider()
-
-            HStack(spacing: 0) {
-                Button {
-                    visibleLimitInFields = 2
-                    visibleLimitInRows   = 1
-                } label: {
-                    Text("Reset to defaults")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-
-                Divider().frame(height: 44)
-
-                Button {
-                    box.remake(config: DecoratorConfig(
-                        visibleLimitInFields: visibleLimitInFields,
-                        visibleLimitInRows: visibleLimitInRows
-                    ))
-                    showConfigPopover = false
-                } label: {
-                    Text("Update")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.blue)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-            }
-        }
-        .frame(minWidth: 300)
-        .background(Color(.systemBackground))
     }
 
     // MARK: Banner
