@@ -469,6 +469,19 @@ struct DecoratorManagerView: View {
                     .onChange(of: pendingSchema) { _ in
                         selectedColumnID = sortedColumns.first?.id ?? ""
                     }
+                    // Selection state (hopChain / selectedColumnID) survives sheet
+                    // dismiss/re-open. If the user deletes a row outside this
+                    // sheet and reopens it, the saved chain may point at a row
+                    // that no longer exists. Without this trim, every body
+                    // pass would call getDecorators on the stale row-self /
+                    // cell paths, the SDK would emit `onError` on each call,
+                    // the alert would pop, dismissing the alert would trigger
+                    // another redraw, and we'd loop. Trim back to the last
+                    // reachable prefix on appear and on editor changes.
+                    .onAppear { trimStaleChainIfNeeded() }
+                    .onReceive(editor.objectWillChange) { _ in
+                        DispatchQueue.main.async { trimStaleChainIfNeeded() }
+                    }
                 }
             }
             .navigationTitle("Decorator Manager")
@@ -491,6 +504,31 @@ struct DecoratorManagerView: View {
         hopChain = []
         pendingSchema = ""
         selectedColumnID = sortedColumns.first?.id ?? ""
+    }
+
+    /// Walks `hopChain` against the currently selected field's value tree and
+    /// drops any trailing hops whose row is missing or soft-deleted. Cheap —
+    /// O(chain depth × siblings per level). Called on appear and after every
+    /// editor publish so the demo never builds a path that points at a row
+    /// the user has just deleted.
+    private func trimStaleChainIfNeeded() {
+        guard let field = selectedField, !hopChain.isEmpty else { return }
+        var current = field.valueToValueElements ?? []
+        var validPrefix: [DecoratorHopStep] = []
+        for (i, hop) in hopChain.enumerated() {
+            guard let row = current.first(where: { $0.id == hop.rowID && $0.deleted != true }) else {
+                break
+            }
+            validPrefix.append(hop)
+            if i == hopChain.count - 1 { return } // whole chain still reachable
+            let nextHop = hopChain[i + 1]
+            guard let sk = nextHop.schemaKey,
+                  let children = row.childrens?[sk]?.valueToValueElements else { break }
+            current = children
+        }
+        guard validPrefix.count != hopChain.count else { return }
+        hopChain = validPrefix
+        pendingSchema = ""
     }
 
     // MARK: Chain navigator UI
