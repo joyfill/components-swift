@@ -32,6 +32,16 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])
     }
 
+    /// Seeds the row + cell decorator caches for a single newly-inserted
+    /// row so common `rowDecorators` show up immediately without rebuilding
+    /// the cache for every existing row in the table.
+    private func seedRowDecorators(for row: ValueElement) {
+        let fieldRowDecorators = tableDataModel.documentEditor?
+            .field(fieldID: tableDataModel.fieldIdentifier.fieldID)?
+            .rowDecorators
+        tableDataModel.updateTableRowDecorators(for: row, fieldRowDecorators: fieldRowDecorators)
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
@@ -195,6 +205,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             Log("Could not find index of last selected row", type: .error)
             return nil
         }
+
+        seedRowDecorators(for: targetRows.0)
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
         return targetRows.0.id
@@ -316,7 +328,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             shouldSendEvent: shouldSendEvent
         ) {
             tableDataModel.valueToValueElements = result.0
-            refreshRowDecoratorMap()
+            seedRowDecorators(for: result.1)
             updateRow(valueElement: result.1, at: tableDataModel.rowOrder.count)
         } else {
             Log("Row data is nil", type: .error)
@@ -330,7 +342,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         
         if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, metadata: metadata, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
             tableDataModel.valueToValueElements = result.0
-            refreshRowDecoratorMap()
+            seedRowDecorators(for: result.1)
             updateRow(valueElement: result.1, at: index)
         } else {
             Log("Row data is nil", type: .error)

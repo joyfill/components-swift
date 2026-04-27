@@ -410,16 +410,20 @@ struct TableDataModel {
         guard fieldType == .table else { return }
         let nonDeleteRows = rows.filter { !($0.deleted ?? false) }
         for row in nonDeleteRows {
-            guard let id = row.id else { continue }
-            let rowCommonDecorators = rowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
-            let rowSpecificDecorators = row.decorators?.all.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
-            if rowSpecificDecorators.isEmpty {
-                self.tableRowDecorators[id] = rowCommonDecorators
-            } else {
-                self.tableRowDecorators[id] = rowSpecificDecorators
-            }
-            self.setTableCellDecorators(row, id)
+            updateTableRowDecorators(for: row, fieldRowDecorators: rowDecorators)
         }
+    }
+
+    mutating func updateTableRowDecorators(for row: ValueElement, fieldRowDecorators: [Decorator]?) {
+        guard fieldType == .table, let id = row.id, !(row.deleted ?? false) else { return }
+        let rowCommonDecorators = fieldRowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+        let rowSpecificDecorators = row.decorators?.all.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+        if rowSpecificDecorators.isEmpty {
+            self.tableRowDecorators[id] = rowCommonDecorators
+        } else {
+            self.tableRowDecorators[id] = rowSpecificDecorators
+        }
+        self.setTableCellDecorators(row, id)
     }
     
     /// Row decorators for the given schema. Table: always returns field-level rowDecorators. Collection: returns cached decorators per schema key (built in init).
