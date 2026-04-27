@@ -141,6 +141,14 @@ struct DecoratorManagerView: View {
 
     @State private var draft: DecoratorDraft? = nil
 
+    // Ad-hoc path tester — paste / type any path and exercise the four
+    // decorator APIs against it. Useful for poking at edge cases (malformed
+    // paths, deleted rows, schema-graph violations, …) without rebuilding
+    // the whole picker chain.
+    @State private var customPath: String = ""
+    @State private var customPathReadResult: String = ""
+    @State private var customPathActionInput: String = ""
+
     // MARK: Derived — pages
 
     private var sortedPages: [Page] {
@@ -350,6 +358,9 @@ struct DecoratorManagerView: View {
                             } header: { Text("Select Field").textCase(nil) }
                         }
 
+                        // ── Custom path tester ───────────────────────────────
+                        customPathSection
+
                         if let path = fieldPath {
 
                             // ── Field-level decorators ───────────────────────
@@ -504,6 +515,113 @@ struct DecoratorManagerView: View {
         hopChain = []
         pendingSchema = ""
         selectedColumnID = sortedColumns.first?.id ?? ""
+    }
+
+    // MARK: Custom path tester
+
+    @ViewBuilder
+    private var customPathSection: some View {
+        Section {
+            if #available(iOS 16.0, *) {
+                TextField("page-id/field-position-id/...", text: $customPath, axis: .vertical)
+                    .font(.system(.footnote, design: .monospaced))
+                    .lineLimit(2...5)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+            } else {
+                TextField("page-id/field-position-id/...", text: $customPath)
+                    .font(.system(.footnote, design: .monospaced))
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+            }
+
+            HStack {
+                Button {
+                    runCustomGet()
+                } label: {
+                    Label("Get", systemImage: "magnifyingglass")
+                }
+                .buttonStyle(.bordered)
+                .disabled(customPath.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                Button {
+                    runCustomAdd()
+                } label: {
+                    Label("Add", systemImage: "plus.circle")
+                }
+                .buttonStyle(.bordered)
+                .disabled(customPath.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                Spacer()
+
+                Button(role: .destructive) {
+                    customPath = ""
+                    customPathReadResult = ""
+                    customPathActionInput = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill").foregroundColor(.secondary)
+                }
+                .buttonStyle(.borderless)
+            }
+
+            HStack {
+                TextField("action (for remove)", text: $customPathActionInput)
+                    .font(.system(.footnote, design: .monospaced))
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled(true)
+                Button {
+                    runCustomRemove()
+                } label: {
+                    Label("Remove", systemImage: "minus.circle")
+                }
+                .buttonStyle(.bordered)
+                .disabled(customPath.trimmingCharacters(in: .whitespaces).isEmpty
+                          || customPathActionInput.trimmingCharacters(in: .whitespaces).isEmpty)
+            }
+
+            if !customPathReadResult.isEmpty {
+                Text(customPathReadResult)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        } header: {
+            Text("Custom Path Tester").textCase(nil)
+        } footer: {
+            Text("Paste any path and call Get / Add / Remove against it. SDK errors surface in the shared alert.")
+                .font(.caption)
+        }
+    }
+
+    private var trimmedCustomPath: String {
+        customPath.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func runCustomGet() {
+        let path = trimmedCustomPath
+        let decs = editor.getDecorators(path: path)
+        if decs.isEmpty {
+            customPathReadResult = "→ [] (path resolved or didn't — check error alert)"
+        } else {
+            let summary = decs.map { d in
+                "\(d.action ?? "?") (\(d.label ?? "")\(d.icon.map { " \($0)" } ?? ""))"
+            }.joined(separator: ", ")
+            customPathReadResult = "→ \(decs.count): \(summary)"
+        }
+    }
+
+    private func runCustomAdd() {
+        let path = trimmedCustomPath
+        draft = DecoratorDraft(path: path, editAction: nil,
+                               icon: "flag", label: "Custom", color: "#3B82F6",
+                               action: "custom-\(Int(Date().timeIntervalSince1970) % 10_000)")
+    }
+
+    private func runCustomRemove() {
+        let path = trimmedCustomPath
+        let action = customPathActionInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        editor.removeDecorator(path: path, action: action)
+        runCustomGet()
     }
 
     /// Walks `hopChain` against the currently selected field's value tree and
