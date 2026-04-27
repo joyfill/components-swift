@@ -358,4 +358,57 @@ final class DecoratorPathResolutionTests: XCTestCase {
         XCTAssertNil(nested?.decorators?.all.first(where: { $0.action == "invalidNestedHop" }),
                      "failed path must not write row-self decorators")
     }
+
+    // MARK: - First-hop schema must equal the root schema
+
+    /// Path `/schemas/{nestedSK}/{rowID}` from the field root. Nested
+    /// schemas have no top-level rows; the chain walker scans top-level
+    /// rows by id only at the first hop and ignores `hop.schemaKey`.
+    /// Without the resolver guard, a row id that exists at top level
+    /// (e.g. the root row's id) would match — the writer would mutate
+    /// the root row, and `ensureDecorateEnabled` would flip the wrong
+    /// schema's `decorate` flag.
+    func testInvalidPath_firstHopWithNestedSchema_rejectsAndPreservesState() {
+        let (editor, mock) = makeChangerHandlerEditor()
+
+        let buggyPath = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/schemas/\(ChangerHandlerSample.collectionNestedSchemaKey)/\(ChangerHandlerSample.collectionRootRowID)"
+
+        let before = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        let rootRowDecsBefore = (findValueElement(in: before,
+                                                  hops: [(ChangerHandlerSample.collectionRootSchemaKey,
+                                                          ChangerHandlerSample.collectionRootRowID)])?
+            .decorators?.all ?? []).count
+        let nestedDecorateBefore = before?.schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate
+
+        editor.addDecorators(path: buggyPath, decorators: [makeDecorator(action: "leak")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 1,
+                       "first-hop schema-vs-storage mismatch must reject")
+
+        let after = editor.field(fieldID: ChangerHandlerSample.collectionFieldID)
+        let rootRowDecsAfter = (findValueElement(in: after,
+                                                 hops: [(ChangerHandlerSample.collectionRootSchemaKey,
+                                                         ChangerHandlerSample.collectionRootRowID)])?
+            .decorators?.all ?? []).count
+        XCTAssertEqual(rootRowDecsBefore, rootRowDecsAfter,
+                       "rejected path must not mutate the root row's decorators")
+        XCTAssertEqual(nestedDecorateBefore,
+                       after?.schema?[ChangerHandlerSample.collectionNestedSchemaKey]?.decorate,
+                       "rejected path must not flip the nested schema's decorate flag")
+    }
+
+    /// Sanity: `/schemas/{rootSK}/{rowID}` is the verbose-but-equivalent
+    /// spelling of `/{rowID}` — must keep resolving so the fix doesn't
+    /// over-reject.
+    func testValidPath_firstHopVerboseRootSpelling_resolves() {
+        let (editor, mock) = makeChangerHandlerEditor()
+        let verbose = "\(ChangerHandlerSample.pageID)/\(ChangerHandlerSample.collectionFieldPositionID)/schemas/\(ChangerHandlerSample.collectionRootSchemaKey)/\(ChangerHandlerSample.collectionRootRowID)"
+
+        editor.addDecorators(path: verbose, decorators: [makeDecorator(action: "ok")])
+
+        XCTAssertEqual(mock.decoratorErrorCount, 0)
+        XCTAssertEqual(editor.getDecorators(path: verbose).map { $0.action }, ["ok"])
+        XCTAssertEqual(editor.getDecorators(path: ChangerHandlerSample.collectionRootRowSelfPath()).map { $0.action }, ["ok"],
+                       "verbose and short spellings must address the same scope")
+    }
 }

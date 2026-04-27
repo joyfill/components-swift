@@ -408,6 +408,9 @@ private extension DocumentEditor {
                 let hopSchema: String?
                 if hasPendingSchema {
                     hopSchema = pendingSchema
+                    if hops.isEmpty, hopSchema != rootSchemaKey {
+                        return nil
+                    }
                 } else if hops.isEmpty {
                     hopSchema = rootSchemaKey  // nil for table
                 } else {
