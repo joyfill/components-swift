@@ -58,6 +58,17 @@ public struct Decorator: Equatable {
     }
 }
 
+extension Array where Element == Decorator {
+    /// Returns the first decorator per action, preserving order. Decorators without an action are always kept.
+    func deduplicatedByAction() -> [Decorator] {
+        var seen = Set<String>()
+        return filter { dec in
+            guard let action = dec.action, !action.isEmpty else { return true }
+            return seen.insert(action).inserted
+        }
+    }
+}
+
 // MARK: - RowDecorators
 public struct Decorators {
     public var dictionary: [String: Any]
@@ -68,7 +79,10 @@ public struct Decorators {
 
     /// Row-level decorators that apply to the entire row.
     public var all: [Decorator] {
-        get { (dictionary["all"] as? [[String: Any]])?.compactMap(Decorator.init) ?? [] }
+        get {
+            let raw = (dictionary["all"] as? [[String: Any]])?.compactMap(Decorator.init) ?? []
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["all"] = newValue.map { $0.dictionary } }
     }
 
@@ -76,7 +90,10 @@ public struct Decorators {
     public var cells: [String: [Decorator]] {
         get {
             guard let raw = dictionary["cells"] as? [String: Any] else { return [:] }
-            return raw.compactMapValues { ($0 as? [[String: Any]])?.compactMap(Decorator.init) }
+            return raw.compactMapValues { value -> [Decorator]? in
+                guard let list = (value as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+                return list.deduplicatedByAction()
+            }
         }
         set {
             dictionary["cells"] = newValue.mapValues { $0.map { $0.dictionary } }
@@ -524,7 +541,10 @@ public struct JoyDocField: Equatable {
     
     /// Decorators attached to this field. Rendered inline next to the field title.
     public var decorators: [Decorator]? {
-        get { (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
@@ -535,7 +555,10 @@ public struct JoyDocField: Equatable {
 
     /// Row-level decorators for table/collection fields. Rendered per-row via a kebab menu column.
     public var rowDecorators: [Decorator]? {
-        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
@@ -1164,7 +1187,10 @@ public struct FieldTableColumn {
 
     /// Decorators attached to this column. Rendered in the column header area.
     public var decorators: [Decorator]? {
-        get { (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
@@ -1231,7 +1257,10 @@ public struct Schema {
 
     /// Row-level decorators for this collection schema. Rendered per-row via kebab menu (collection only; table uses field-level rowDecorators).
     public var rowDecorators: [Decorator]? {
-        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
