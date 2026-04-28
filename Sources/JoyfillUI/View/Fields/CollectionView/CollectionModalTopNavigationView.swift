@@ -458,23 +458,55 @@ struct CollectionEditMultipleRowsSheetView: View {
                     }
                 }
 
-                let header = viewModel.getHeaderForSelectedRows()
-                ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
-                    let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
-                    VStack(alignment: .leading, spacing: 16) {
-                    if let row = viewModel.tableDataModel.selectedRows.first {
-                        let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
-                        let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
-                        if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
-                            var cellModel = TableCellModel(rowID: row,
-                                                           timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
-                                                           data: cell,
-                                                           documentEditor: viewModel.tableDataModel.documentEditor,
-                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                           viewMode: .modalView,
-                                                           editMode: viewModel.tableDataModel.mode,
-                                                           didFocusBlur: { action, cellDataModel in
-                                viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id) })
+                if !viewModel.tableDataModel.selectedRows.isEmpty {
+                    selectedRowsHeaderColumns
+                }
+                Spacer()
+            }
+            .padding(.all, 16)
+            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.navigationIntent.focusColumnId)
+        }
+        .id(viewID)
+        .onAppear {
+            if let columnId = viewModel.tableDataModel.navigationIntent.scrollToColumnId {
+                scrollProxy.scrollTo(columnId, anchor: .top)
+            }
+        }
+        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
+            viewID = UUID()
+        }
+        .simultaneousGesture(DragGesture().onChanged({ _ in
+            dismissKeyboard()
+            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
+        }))
+        .onTapGesture {
+            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
+        }
+        }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
+    }
+
+    @ViewBuilder
+    private var selectedRowsHeaderColumns: some View {
+        let header = viewModel.getHeaderForSelectedRows()
+        ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
+            let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
+            VStack(alignment: .leading, spacing: 16) {
+                if let row = viewModel.tableDataModel.selectedRows.first {
+                    let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
+                    let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
+                    if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
+                        var cellModel = TableCellModel(rowID: row,
+                                                       timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
+                                                       data: cell,
+                                                       documentEditor: viewModel.tableDataModel.documentEditor,
+                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                       viewMode: .modalView,
+                                                       editMode: viewModel.tableDataModel.mode,
+                                                       didFocusBlur: { action, cellDataModel in
+                            viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id) })
                         { cellDataModel in
                             switch cell.type {
                             case .text:
@@ -558,7 +590,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 } else {
                                     self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
                                 }
- 
+                                
                             default:
                                 break
                             }
@@ -568,12 +600,12 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 }
                             }
                         }
-
+                        
                         var isFilledBasedOnChange: Bool {
                             guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
                                 return false
                             }
-
+                            
                             switch changeValue {
                             case .string(let str):
                                 return !str.isEmpty
@@ -593,9 +625,9 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 return false
                             }
                         }
-
+                        
                         let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
-
+                        
                         switch col.type {
                         case .text:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
@@ -682,33 +714,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                         }
                     }
                 }
-                    }
-                    .id(col.id)
-                }
-                Spacer()
             }
-            .padding(.all, 16)
-            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.navigationIntent.focusColumnId)
-        }
-        .id(viewID)
-        .onAppear {
-            if let columnId = viewModel.tableDataModel.navigationIntent.scrollToColumnId {
-                scrollProxy.scrollTo(columnId, anchor: .top)
-            }
-        }
-        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
-            viewID = UUID()
-        }
-        .simultaneousGesture(DragGesture().onChanged({ _ in
-            dismissKeyboard()
-            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
-        }))
-        .onTapGesture {
-            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
-        }
-        }
-        .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            .id(col.id)
         }
     }
 }
