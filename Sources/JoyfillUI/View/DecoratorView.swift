@@ -186,9 +186,11 @@ struct FieldDecoratorsView: View {
                         decoratorPopover
                     }
             } else {
-                HStack(spacing: 4) {
-                    ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
-                        DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                            DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                        }
                     }
                 }
             }
@@ -196,30 +198,32 @@ struct FieldDecoratorsView: View {
     }
 
     private var decoratorPopover: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
-                let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
-                Button {
-                    showingOverflow = false
-                    onDecoratorTap(decorator)
-                } label: {
-                    HStack(spacing: 8) {
-                        if let icon = decorator.icon, !icon.isEmpty {
-                            DecoratorIconImage(iconName: icon, size: 14)
-                                .foregroundColor(tint)
-                                .frame(width: 20)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
+                    let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
+                    Button {
+                        showingOverflow = false
+                        onDecoratorTap(decorator)
+                    } label: {
+                        HStack(spacing: 8) {
+                            if let icon = decorator.icon, !icon.isEmpty {
+                                DecoratorIconImage(iconName: icon, size: 14)
+                                    .foregroundColor(tint)
+                                    .frame(width: 20)
+                            }
+                            if let label = decorator.label, !label.isEmpty {
+                                Text(label)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(tint)
+                            }
                         }
-                        if let label = decorator.label, !label.isEmpty {
-                            Text(label)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(tint)
-                        }
+                        .frame(height: 27)
                     }
-                    .frame(height: 27)
+                    .padding(.horizontal, 16)
+                    .padding(.top, index == 0 ? 12 : 4)
+                    .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, index == 0 ? 12 : 4)
-                .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
             }
         }
         .frame(minWidth: 160)
@@ -234,21 +238,28 @@ struct RowDecoratorMenuView: View {
     let onDecoratorTap: (DecoratorLocal) -> Void
     @State private var showingPopover = false
 
+    private static let inlineMax = 3
     private var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
     private var exceedsLimit: Bool { displayable.count > visibleLimit }
+    private var inlineVisible: [DecoratorLocal] { Array(displayable.prefix(Self.inlineMax)) }
+    private var hasInlineOverflow: Bool { displayable.count > Self.inlineMax }
 
     var body: some View {
         if displayable.isEmpty {
             Color.clear.frame(width: 40, height: 60)
         } else if exceedsLimit {
             kebabButton.frame(width: 40, height: 60)
-        } else if displayable.count == 1, let decorator = displayable.first {
-            singleDecoratorButton(decorator)
         } else {
             VStack(spacing: 0) {
-                ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                ForEach(Array(inlineVisible.enumerated()), id: \.offset) { _, decorator in
                     singleDecoratorButton(decorator)
                         .frame(maxHeight: .infinity)
+                }
+                if hasInlineOverflow {
+                    Text("•••")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .frame(width: 40, height: 60)
@@ -271,7 +282,7 @@ struct RowDecoratorMenuView: View {
                 }
             }
             .foregroundColor(tint)
-            .frame(width: 40, height: 60)
+            .frame(width: 40)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -289,33 +300,35 @@ struct RowDecoratorMenuView: View {
     }
 
     private var popoverContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
-                let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
-
-                Button {
-                    showingPopover = false
-                    onDecoratorTap(decorator)
-                } label: {
-                    HStack(spacing: 8) {
-                        if let icon = decorator.icon, !icon.isEmpty {
-                            DecoratorIconImage(iconName: icon, size: 14)
-                                .foregroundColor(tint)
-                                .frame(width: 20)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
+                    let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
+                    
+                    Button {
+                        showingPopover = false
+                        onDecoratorTap(decorator)
+                    } label: {
+                        HStack(spacing: 8) {
+                            if let icon = decorator.icon, !icon.isEmpty {
+                                DecoratorIconImage(iconName: icon, size: 14)
+                                    .foregroundColor(tint)
+                                    .frame(width: 20)
+                            }
+                            if let label = decorator.label, !label.isEmpty {
+                                Text(label)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(tint)
+                            }
                         }
-                        if let label = decorator.label, !label.isEmpty {
-                            Text(label)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(tint)
-                        }
+                        .frame(height: 27)
                     }
-                    .frame(height: 27)
+                    .padding(.horizontal, 16)
+                    .padding(.top, index == 0 ? 12 : 4)
+                    .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, index == 0 ? 12 : 4)
-                .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
             }
+            .frame(minWidth: 160)
         }
-        .frame(minWidth: 160)
     }
 }
