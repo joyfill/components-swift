@@ -186,13 +186,17 @@ struct FieldDecoratorsView: View {
                         decoratorPopover
                     }
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
-                        ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
-                            DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                GeometryReader { geometry in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 4) {
+                            ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                                DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                            }
                         }
+                        .frame(minWidth: geometry.size.width, alignment: .trailing)
                     }
                 }
+                .frame(height: 32)
             }
         }
     }
