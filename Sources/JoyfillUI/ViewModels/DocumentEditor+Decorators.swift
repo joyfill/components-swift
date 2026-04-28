@@ -552,7 +552,7 @@ private extension DocumentEditor {
         guard !hops.isEmpty else { return nil }
         var currentRows: [ValueElement] = field.valueToValueElements ?? []
         for (i, hop) in hops.enumerated() {
-            guard let row = currentRows.first(where: { $0.id == hop.rowID }) else { return nil }
+            guard let row = currentRows.first(where: { $0.id == hop.rowID && !($0.deleted ?? false) }) else { return nil }
             if i == hops.count - 1 { return row }
             // Descend into child schema specified by NEXT hop's schemaKey
             let nextHop = hops[i + 1]
@@ -572,7 +572,7 @@ private extension DocumentEditor {
         newList: [Decorator]
     ) {
         let hop = hops[depth]
-        guard let idx = rows.firstIndex(where: { $0.id == hop.rowID }) else { return }
+        guard let idx = rows.firstIndex(where: { $0.id == hop.rowID && !($0.deleted ?? false) }) else { return }
         var row = rows[idx]
 
         if depth == hops.count - 1 {

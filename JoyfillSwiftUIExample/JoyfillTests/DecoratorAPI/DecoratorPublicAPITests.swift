@@ -497,4 +497,101 @@ final class DecoratorPublicAPITests: XCTestCase {
         XCTAssertEqual(editor.field(fieldID: ChangerHandlerSample.tableFieldID)?.decorate, true,
                        "decorate must remain true after a displayable update")
     }
+
+    // MARK: - Soft-deleted row path resolution
+    //
+    // A path that targets a soft-deleted row (`deleted == true`) must resolve to
+    // nil at the row level. Reads return `[]`; writes are silent no-ops that
+    // never mutate the deleted element.
+
+    /// Helper: soft-delete a single root row in the sample collection field.
+    private func softDeleteCollectionRootRow(_ editor: DocumentEditor, rowID: String) {
+        guard var field = editor.field(fieldID: ChangerHandlerSample.collectionFieldID) else {
+            XCTFail("Expected sample collection field"); return
+        }
+        var rows = field.valueToValueElements ?? []
+        guard let idx = rows.firstIndex(where: { $0.id == rowID }) else {
+            XCTFail("Expected sample row \(rowID)"); return
+        }
+        var row = rows[idx]
+        row.setDeleted()
+        rows[idx] = row
+        field.value = ValueUnion.valueElementArray(rows)
+        editor.updateField(field: field)
+    }
+
+    /// Helper: soft-delete a row in the table field (table value array).
+    private func softDeleteTableRow(_ editor: DocumentEditor, rowID: String) {
+        guard var field = editor.field(fieldID: ChangerHandlerSample.tableFieldID) else {
+            XCTFail("Expected sample table field"); return
+        }
+        var rows = field.valueToValueElements ?? []
+        guard let idx = rows.firstIndex(where: { $0.id == rowID }) else {
+            XCTFail("Expected sample row \(rowID)"); return
+        }
+        var row = rows[idx]
+        row.setDeleted()
+        rows[idx] = row
+        field.value = ValueUnion.valueElementArray(rows)
+        editor.updateField(field: field)
+    }
+
+    func testGetDecorators_tableRowSelf_deletedRow_returnsEmpty() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableRowSelfPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "a")])
+        XCTAssertEqual(editor.getDecorators(path: path).count, 1)
+
+        softDeleteTableRow(editor, rowID: ChangerHandlerSample.tableRowID)
+
+        XCTAssertEqual(editor.getDecorators(path: path).count, 0,
+                       "soft-deleted row paths must resolve to no decorators")
+    }
+
+    func testGetDecorators_tableCell_deletedRow_returnsEmpty() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCellPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "c")])
+        XCTAssertEqual(editor.getDecorators(path: path).count, 1)
+
+        softDeleteTableRow(editor, rowID: ChangerHandlerSample.tableRowID)
+
+        XCTAssertEqual(editor.getDecorators(path: path).count, 0,
+                       "cell decorators on a soft-deleted row must not be returned")
+    }
+
+    func testGetDecorators_collectionRootRowSelf_deletedRow_returnsEmpty() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.collectionRootRowSelfPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "a")])
+        XCTAssertEqual(editor.getDecorators(path: path).count, 1)
+
+        softDeleteCollectionRootRow(editor, rowID: ChangerHandlerSample.collectionRootRowID)
+
+        XCTAssertEqual(editor.getDecorators(path: path).count, 0,
+                       "soft-deleted root row paths must resolve to no decorators")
+    }
+
+    func testAddDecorators_onDeletedRow_doesNotMutateUnderlyingRow() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableRowSelfPath()
+        softDeleteTableRow(editor, rowID: ChangerHandlerSample.tableRowID)
+
+        // Snapshot the deleted row's existing decorators.
+        let beforeRow = editor.field(fieldID: ChangerHandlerSample.tableFieldID)?
+            .valueToValueElements?
+            .first(where: { $0.id == ChangerHandlerSample.tableRowID })
+        let beforeCount = beforeRow?.decorators?.all.count ?? 0
+
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "ghost")])
+
+        let afterRow = editor.field(fieldID: ChangerHandlerSample.tableFieldID)?
+            .valueToValueElements?
+            .first(where: { $0.id == ChangerHandlerSample.tableRowID })
+        let afterCount = afterRow?.decorators?.all.count ?? 0
+        XCTAssertEqual(beforeCount, afterCount,
+                       "writes targeting a deleted row must not mutate its decorators")
+        XCTAssertEqual(editor.getDecorators(path: path).count, 0,
+                       "reads on the deleted row path must remain empty")
+    }
 }
