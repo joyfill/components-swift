@@ -198,30 +198,32 @@ struct FieldDecoratorsView: View {
     }
 
     private var decoratorPopover: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
-                let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
-                Button {
-                    showingOverflow = false
-                    onDecoratorTap(decorator)
-                } label: {
-                    HStack(spacing: 8) {
-                        if let icon = decorator.icon, !icon.isEmpty {
-                            DecoratorIconImage(iconName: icon, size: 14)
-                                .foregroundColor(tint)
-                                .frame(width: 20)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
+                    let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
+                    Button {
+                        showingOverflow = false
+                        onDecoratorTap(decorator)
+                    } label: {
+                        HStack(spacing: 8) {
+                            if let icon = decorator.icon, !icon.isEmpty {
+                                DecoratorIconImage(iconName: icon, size: 14)
+                                    .foregroundColor(tint)
+                                    .frame(width: 20)
+                            }
+                            if let label = decorator.label, !label.isEmpty {
+                                Text(label)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(tint)
+                            }
                         }
-                        if let label = decorator.label, !label.isEmpty {
-                            Text(label)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(tint)
-                        }
+                        .frame(height: 27)
                     }
-                    .frame(height: 27)
+                    .padding(.horizontal, 16)
+                    .padding(.top, index == 0 ? 12 : 4)
+                    .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, index == 0 ? 12 : 4)
-                .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
             }
         }
         .frame(minWidth: 160)
@@ -291,33 +293,35 @@ struct RowDecoratorMenuView: View {
     }
 
     private var popoverContent: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
-                let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
-
-                Button {
-                    showingPopover = false
-                    onDecoratorTap(decorator)
-                } label: {
-                    HStack(spacing: 8) {
-                        if let icon = decorator.icon, !icon.isEmpty {
-                            DecoratorIconImage(iconName: icon, size: 14)
-                                .foregroundColor(tint)
-                                .frame(width: 20)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(displayable.enumerated()), id: \.offset) { index, decorator in
+                    let tint: Color = decorator.color.map { Color(hex: $0) } ?? .primary
+                    
+                    Button {
+                        showingPopover = false
+                        onDecoratorTap(decorator)
+                    } label: {
+                        HStack(spacing: 8) {
+                            if let icon = decorator.icon, !icon.isEmpty {
+                                DecoratorIconImage(iconName: icon, size: 14)
+                                    .foregroundColor(tint)
+                                    .frame(width: 20)
+                            }
+                            if let label = decorator.label, !label.isEmpty {
+                                Text(label)
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(tint)
+                            }
                         }
-                        if let label = decorator.label, !label.isEmpty {
-                            Text(label)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(tint)
-                        }
+                        .frame(height: 27)
                     }
-                    .frame(height: 27)
+                    .padding(.horizontal, 16)
+                    .padding(.top, index == 0 ? 12 : 4)
+                    .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, index == 0 ? 12 : 4)
-                .padding(.bottom, index == displayable.count - 1 ? 12 : 4)
             }
+            .frame(minWidth: 160)
         }
-        .frame(minWidth: 160)
     }
 }
