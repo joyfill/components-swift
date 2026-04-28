@@ -238,12 +238,10 @@ struct EditMultipleRowsSheetView: View {
             Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                 .font(.headline.bold())
             Spacer()
-            if viewModel.tableDataModel.mode == .fill,
-               let decorators = col.decorators,
-               !decorators.isEmpty {
-                let locals = decorators.compactMap { $0.isDisplayable ? DecoratorLocal(from: $0) : nil }
-                if !locals.isEmpty {
-                    FieldDecoratorsView(decorators: locals) { decorator in
+            if viewModel.tableDataModel.mode == .fill {
+                let decorators = viewModel.tableDataModel.getTableCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "")
+                if !decorators.isEmpty {
+                    FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id)
                     }
                 }

@@ -32,8 +32,32 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
     }
 
-    var showRowDecorators: Bool {
-        return tableDataModel.hasAnyRowDecorators && tableDataModel.mode == .fill
+    func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
+        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey) && tableDataModel.mode == .fill
+    }
+
+    func getCollectionRowDecorators(forRowID rowID: String, schemaKey: String) -> [DecoratorLocal] {
+        let rowSpecific = rowToValueElementMap[rowID]?
+            .decorators?.all
+            .filter({ $0.isDisplayable })
+            .map(DecoratorLocal.init(from:)) ?? []
+        if !rowSpecific.isEmpty { return rowSpecific }
+        return tableDataModel.rowDecorators(forSchemaKey: schemaKey)
+    }
+
+    func getCollectionCellDecorators(rowIds: [String], columnId: String, schemaKey: String) -> [DecoratorLocal] {
+        let columnDecorators = columnsMap["\(schemaKey)_\(columnId)"]?
+            .decorators?
+            .filter({ $0.isDisplayable })
+            .map(DecoratorLocal.init(from:)) ?? []
+        if rowIds.count == 1, let singleID = rowIds.first {
+            let cellSpecific = rowToValueElementMap[singleID]?
+                .decorators?.cells[columnId]?
+                .filter({ $0.isDisplayable })
+                .map(DecoratorLocal.init(from:)) ?? []
+            if !cellSpecific.isEmpty { return cellSpecific }
+        }
+        return columnDecorators
     }
 
     init(tableDataModel: TableDataModel) {
@@ -2047,7 +2071,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
 
         // Refresh the entire schema so hasAnyRowDecorators and column decorators stay in sync
         tableDataModel.schema = field.schema ?? [:]
-
+        tableDataModel.valueToValueElements = field.valueToValueElements
         // Row decorators per schema key (local DecoratorLocal cache)
         field.schema?.forEach { key, value in
             tableDataModel.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
@@ -2063,6 +2087,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
                 }
             }
         }
+        buildRowToValueElementMap()
     }
 
 
@@ -2218,6 +2243,12 @@ extension CollectionViewModel: DocumentEditorDelegate {
 protocol TableDataViewModelProtocol {
     var tableDataModel: TableDataModel { get }
     func getParenthPath(rowId: String) -> (String, String)
+}
+
+extension TableDataViewModelProtocol {
+    var decoratorConfig: DecoratorConfig {
+        tableDataModel.documentEditor?.decoratorConfig ?? DecoratorConfig()
+    }
 }
 
 extension CollectionViewModel {

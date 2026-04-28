@@ -297,17 +297,15 @@ struct CollectionEditMultipleRowsSheetView: View {
             Text(col.title)
                 .font(.headline.bold())
             Spacer()
-            if viewModel.tableDataModel.mode == .fill,
-               let liveCol = viewModel.columnsMap["\(schemaKey)_\(col.id ?? "")"],
-               let decorators = liveCol.decorators, !decorators.isEmpty {
-                let locals = decorators.compactMap { $0.isDisplayable ? DecoratorLocal(from: $0) : nil }
-                if !locals.isEmpty {
+            if viewModel.tableDataModel.mode == .fill {
+                let decorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
+                if !decorators.isEmpty {
                     let parentPathForSelection: String? = {
                         guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }
                         let (path, _) = viewModel.getParenthPath(rowId: firstRowId)
                         return path.isEmpty ? nil : path
                     }()
-                    FieldDecoratorsView(decorators: locals) { decorator in
+                    FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
                             fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                             action: decorator.action ?? "",
