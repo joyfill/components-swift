@@ -186,9 +186,11 @@ struct FieldDecoratorsView: View {
                         decoratorPopover
                     }
             } else {
-                HStack(spacing: 4) {
-                    ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
-                        DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                            DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                        }
                     }
                 }
             }
