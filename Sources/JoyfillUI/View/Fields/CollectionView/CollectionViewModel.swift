@@ -1794,6 +1794,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         if changes.count == 0 { return }
         isBulkLoading = true
         let tableColumns = self.getTableColumnsForSelectedRows()
+        // Snapshot on main thread so background block never reads @Published property off-thread.
         let tableDataModel = self.tableDataModel
         let updatedCellModels: [RowDataModel] = await withCheckedContinuation { (cont: CheckedContinuation<[RowDataModel], Never>) in
             dispatchQueue.async { [weak self] in
