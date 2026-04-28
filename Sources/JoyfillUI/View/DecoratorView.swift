@@ -238,21 +238,28 @@ struct RowDecoratorMenuView: View {
     let onDecoratorTap: (DecoratorLocal) -> Void
     @State private var showingPopover = false
 
+    private static let inlineMax = 3
     private var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
     private var exceedsLimit: Bool { displayable.count > visibleLimit }
+    private var inlineVisible: [DecoratorLocal] { Array(displayable.prefix(Self.inlineMax)) }
+    private var hasInlineOverflow: Bool { displayable.count > Self.inlineMax }
 
     var body: some View {
         if displayable.isEmpty {
             Color.clear.frame(width: 40, height: 60)
         } else if exceedsLimit {
             kebabButton.frame(width: 40, height: 60)
-        } else if displayable.count == 1, let decorator = displayable.first {
-            singleDecoratorButton(decorator)
         } else {
             VStack(spacing: 0) {
-                ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                ForEach(Array(inlineVisible.enumerated()), id: \.offset) { _, decorator in
                     singleDecoratorButton(decorator)
                         .frame(maxHeight: .infinity)
+                }
+                if hasInlineOverflow {
+                    Text("•••")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             }
             .frame(width: 40, height: 60)
@@ -275,7 +282,7 @@ struct RowDecoratorMenuView: View {
                 }
             }
             .foregroundColor(tint)
-            .frame(width: 40, height: 60)
+            .frame(width: 40)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
