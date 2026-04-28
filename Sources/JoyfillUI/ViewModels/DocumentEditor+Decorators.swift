@@ -3,6 +3,12 @@ import JoyfillModel
 public extension DocumentEditor {
 
     // MARK: - Decorator API (path-based)
+    //
+    // Note: Path segments are parsed with empty-component filtering;
+    // consecutive or trailing slashes are treated as single separators.
+    //
+    // All methods in this section must be called on the main thread,
+    // consistent with the DocumentEditor threading model.
 
     /// Returns decorators at `path`, or `[]` if the path doesn't resolve / the
     /// scope is empty. Does not trigger copy-on-write seeding.
