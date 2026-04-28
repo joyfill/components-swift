@@ -204,6 +204,10 @@ private extension DocumentEditor {
         case .rowSelf:
             schemaKey = target.hops.last?.schemaKey
         default:
+            // .field / .commonColumn / .cell / .rowScopedColumn — none reserve
+            // the row-decorator column. Cell and row-scoped-column decorators
+            // render within the cell body (next to the column title), so they
+            // intentionally do not flip `decorate` on.
             return
         }
 
@@ -242,6 +246,9 @@ private extension DocumentEditor {
         case .rowSelf:
             schemaKey = target.hops.last?.schemaKey
         default:
+            // .field / .commonColumn / .cell / .rowScopedColumn — none drive
+            // the row-decorator column, so removing one never flips `decorate`
+            // off. Cell decorators in particular render within the cell body.
             return
         }
 
@@ -566,7 +573,7 @@ private extension DocumentEditor {
                   let children = row.childrens?[sk] else { return nil }
             currentRows = children.valueToValueElements ?? []
         }
-        return nil
+        return nil // unreachable: loop always returns; required to satisfy the compiler.
     }
 
     /// Recursively rewrites the row tree to apply the terminator's new decorator list at the deepest hop.
