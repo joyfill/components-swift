@@ -167,6 +167,48 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
         return value
     }
 
+    private func assertFieldTextVisible(_ expectedText: String, file: StaticString = #filePath, line: UInt = #line) {
+        let textFieldPredicate = NSPredicate(format: "value == %@", expectedText)
+        let matchingTextField = app.textFields.matching(textFieldPredicate).firstMatch
+        if matchingTextField.waitForExistence(timeout: 2) {
+            return
+        }
+
+        let staticText = app.staticTexts[expectedText]
+        if staticText.waitForExistence(timeout: 2) {
+            return
+        }
+
+        app.swipeUp()
+        if matchingTextField.waitForExistence(timeout: 1) || staticText.waitForExistence(timeout: 1) {
+            return
+        }
+
+        XCTFail("Expected to find text '\(expectedText)' in duplicated page, but it was not visible.", file: file, line: line)
+    }
+
+    private func assertStaticTextOccurrences(_ text: String, minimumCount: Int, file: StaticString = #filePath, line: UInt = #line) {
+        func visibleCount() -> Int {
+            app.staticTexts.matching(NSPredicate(format: "label == %@", text)).allElementsBoundByIndex.filter { $0.exists }.count
+        }
+
+        if waitUntil(2, condition: { visibleCount() >= minimumCount }) {
+            return
+        }
+
+        app.swipeUp()
+        if waitUntil(2, condition: { visibleCount() >= minimumCount }) {
+            return
+        }
+
+        let actualCount = visibleCount()
+        XCTFail(
+            "Expected at least \(minimumCount) visible static texts with value '\(text)', found \(actualCount).",
+            file: file,
+            line: line
+        )
+    }
+
     private func findRow(named pageName: String, in pageRows: XCUIElementQuery, maxScrolls: Int) -> XCUIElement? {
         for _ in 0..<maxScrolls {
             let rows = visibleRows(from: pageRows)
@@ -424,6 +466,47 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
             uniqueValue,
             "Without-values duplicate should not keep the edited Page 4 value. Actual duplicated value: '\(duplicatedValue)'"
         )
+    }
+
+    func testDuplicateWithoutValuesPreservesReadonlyAndBlockValues() {
+        guard let expectedPages = loadExpectedPagesOrFail() else { return }
+        guard let sourceIndex = expectedPages.firstIndex(where: { $0.name == "Page 4" }) else {
+            XCTFail("Page 4 is required for this test.")
+            return
+        }
+        let sourcePageName = "Page 4"
+
+        openPageNavigationSheet()
+        XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear in the page sheet.")
+        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let sourcePageRow = pageRows.element(boundBy: sourceIndex)
+        XCTAssertTrue(sourcePageRow.exists, "Page 4 row should exist before duplication.")
+        XCTAssertTrue(rowContainsPageName(sourcePageRow, pageName: sourcePageName), "Expected source row at index \(sourceIndex) to be Page 4.")
+        sourcePageRow.tap()
+
+        let uniqueValue = "without-values-preserve-\(UUID().uuidString.prefix(8))"
+        setFirstTextFieldValue(uniqueValue)
+        XCTAssertEqual(firstTextFieldValue(), uniqueValue, "Page 4 should keep the edited value before duplication.")
+
+        openPageNavigationSheet()
+        XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear for duplication.")
+        let initialCount = pageRows.count
+        XCTAssertTrue(pageRows.element(boundBy: sourceIndex).exists, "Page 4 row should exist for duplication.")
+
+        let sourceRow = pageRows.element(boundBy: sourceIndex)
+        let duplicateButton = sourceRow.descendants(matching: .button).matching(identifier: "PageDuplicateIdentifier").firstMatch
+        XCTAssertTrue(duplicateButton.exists, "Duplicate button should exist for Page 4.")
+        duplicateButton.tap()
+        chooseDuplicateModeOrFail("Without Values")
+
+        XCTAssertTrue(waitUntil(5) { pageRows.count == initialCount + 1 }, "Page count should increase by 1 after duplication.")
+
+        let duplicatedRow = pageRows.element(boundBy: sourceIndex + 1)
+        XCTAssertTrue(duplicatedRow.waitForExistence(timeout: 3), "Duplicated row should appear immediately after Page 4.")
+        duplicatedRow.tap()
+
+        assertFieldTextVisible("Readonly fixture value")
+        assertStaticTextOccurrences("Page 4", minimumCount: 2)
     }
 
     func testDuplicateCancelKeepsPageUnchanged() {

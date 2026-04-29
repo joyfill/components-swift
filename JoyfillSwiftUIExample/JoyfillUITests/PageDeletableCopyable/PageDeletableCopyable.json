@@ -153,7 +153,7 @@
               "type": "text",
               "displayType": "original",
               "x": 0,
-              "y": 0,
+              "y": 5,
               "width": 4,
               "height": 8,
               "field": "69ca48e8d8dd048db208ee70"
@@ -164,10 +164,42 @@
               "displayType": "original",
               "targetValue": "69c7ae511e05045f723ed912",
               "x": 0,
-              "y": 8,
+              "y": 13,
               "width": 4,
               "height": 15,
               "field": "69ca48e803f5653e541d5d66"
+            },
+            {
+              "_id": "69d7a8ba6d31af00110c0001",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 36,
+              "width": 4,
+              "height": 8,
+              "field": "69d7a8ba6d31af00110c0002"
+            },
+            {
+              "_id": "69d7a8ba6d31af00110c0003",
+              "type": "block",
+              "displayType": "original",
+              "x": 0,
+              "y": 28,
+              "width": 4,
+              "height": 8,
+              "field": "69d7a8ba6d31af00110c0004"
+            },
+            {
+              "_id": "69f1b6b25a84314e0500b8b7",
+              "type": "block",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 5,
+              "field": "69f1b6b2fdad2f8f85dabceb",
+              "fontSize": 40,
+              "fontWeight": "bold"
             }
           ],
           "layout": "grid",
@@ -489,6 +521,23 @@
     },
     {
       "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "69d7a8ba6d31af00110c0002",
+      "type": "text",
+      "title": "Readonly Text",
+      "identifier": "field_69d7a8ba6d31af00110c0002",
+      "disabled": true,
+      "value": "Readonly fixture value"
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "69d7a8ba6d31af00110c0004",
+      "type": "block",
+      "title": "Display Text",
+      "identifier": "field_69d7a8ba6d31af00110c0004",
+      "value": "Page 4"
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
       "_id": "69ca48e9d831169996915082",
       "type": "text",
       "title": "Text",
@@ -634,6 +683,14 @@
         "69c7ae51aa908fed6a37d3c5",
         "69c7ae515707be634fac72c4"
       ]
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "69f1b6b2fdad2f8f85dabceb",
+      "type": "block",
+      "title": "Display Text",
+      "value": "Page 4",
+      "identifier": "field_69f1b6b2fdad2f8f85dabceb"
     }
   ],
   "deleted": false
