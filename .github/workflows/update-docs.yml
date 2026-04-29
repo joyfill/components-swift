@@ -37,41 +37,41 @@ jobs:
 
       # 3. Get Release Notes (From Release UI or Manual Input)
       - name: Get Release Notes
+        env:
+          TARGET_VER: ${{ github.event_name == 'workflow_dispatch' && inputs.test_tag || github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event_name == 'workflow_dispatch' && inputs.test_body || github.event.release.body }}
         run: |
-          # A. Determine Version and Content
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            TARGET_VER="${{ inputs.test_tag }}"
-            RELEASE_BODY="${{ inputs.test_body }}"
-          else
-            TARGET_VER="${{ github.event.release.tag_name }}"
-            RELEASE_BODY="${{ github.event.release.body }}"
-          fi
-          
-          echo "Processing version: $TARGET_VER"
           echo "VERSION=$TARGET_VER" >> $GITHUB_ENV
-          
-          # B. Create the input file manually
-          # We add the header "## Version" so the script knows what to do
-          echo "## $TARGET_VER" > release_notes_input.md
-          echo "" >> release_notes_input.md
-          echo -e "$RELEASE_BODY" >> release_notes_input.md
-          
+
+          # Python writes the file — guaranteed newline preservation + auto date
+          # NOTE: Do NOT include "**Release Date:**" in your release notes; it is auto-generated here.
+          python3 - <<'PYEOF'
+          import os
+          from datetime import datetime
+          ver = os.environ['TARGET_VER']
+          body = os.environ['RELEASE_BODY']
+          now = datetime.now()
+          date_str = '{} {}, {}'.format(now.strftime('%B'), now.day, now.year)
+          with open('release_notes_input.md', 'w') as f:
+              f.write('## ' + ver + '\n\n')
+              f.write('**Release Date:** ' + date_str + '\n\n')
+              f.write(body)
+              if not body.endswith('\n'):
+                  f.write('\n')
+          PYEOF
           echo "--- Content to be inserted ---"
           cat release_notes_input.md
 
-      # 4. Run the Insert Script
+      # 4. Insert styled entry (Python: badges for Added/Changed/Fixed, GitHub body cleanup)
       - name: Insert into Docs
         run: |
-          # Ensure the folder exists
           mkdir -p docs/ios/changelogs
           chmod +x ios-sdk/scripts/update_release_mdx.sh
-          
-          # Run script with the file we created in Step 3
           ./ios-sdk/scripts/update_release_mdx.sh release_notes_input.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
 
       # 5. Create Pull Request
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'

@@ -32,6 +32,14 @@ public protocol DocumentEditorDelegate: AnyObject {
     func insertRow(for change: Change)
     func deleteRow(for change: Change)
     func moveRow(for change: Change)
+    func decoratorsDidChange()
+}
+
+public extension DocumentEditorDelegate {
+    /// Default no-op so external conformers don't break when the SDK adds
+    /// decorator-cache refresh hooks. Internal view models (TableViewModel,
+    /// CollectionViewModel) provide real implementations.
+    func decoratorsDidChange() {}
 }
 
 public class DocumentEditor: ObservableObject {
@@ -66,7 +74,7 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     public var events: FormChangeEvent?
-    let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
+    private(set) public var decoratorConfig: DecoratorConfig
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
@@ -81,7 +89,8 @@ public class DocumentEditor: ObservableObject {
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
                 license: String? = nil,
-                singleClickRowEdit: Bool = false) {
+                singleClickRowEdit: Bool = false,
+                decoratorConfig: DecoratorConfig = DecoratorConfig()) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -98,6 +107,7 @@ public class DocumentEditor: ObservableObject {
                 self.singleClickRowEdit = singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
+                self.decoratorConfig = decoratorConfig
                 
                 // Trigger onError callback if events handler is available
                 events?.onError(error: .schemaValidationError(error: schemaError))
@@ -116,6 +126,7 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         // Set feature flags from license
         self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
+        self.decoratorConfig = decoratorConfig
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -159,32 +170,12 @@ public class DocumentEditor: ObservableObject {
     /// - `""` (or only whitespace): validates all pages and fields → `.page(Validation)`
     /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
     /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)` only when `pageId` matches the page that contains that field position; otherwise falls back to `.page` for `pageId`.
+    /// - `"pageId/fieldPositionId/rowId"`: validates a specific row for table/collection fields → `.row(RowValidity)`; if row is not found → `.notFound`.
+    /// - `"pageId/fieldPositionId/rowId/columnId"`: validates a specific row cell for table/collection fields → `.cell(CellValidity)`; if cell is not found → `.notFound`.
+    /// - If `fieldPositionId` is provided but not found on the given page → `.notFound`.
     /// - Parameter path: Leading, trailing, and segment-adjacent whitespace (per segment) are ignored; other characters must match ids exactly.
     public func validate(path: String) -> ComponentValidity {
-        let trimmedPath = path.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedPath.isEmpty else {
-            return .page(validationHandler.validate())
-        }
-
-        let components = trimmedPath.split(separator: "/", maxSplits: 1).map {
-            String($0).trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        let pageID = components[0]
-        guard !pageID.isEmpty else {
-            return .page(validationHandler.validate())
-        }
-
-        if components.count == 1 {
-            return .page(validationHandler.validate(pageID: pageID))
-        }
-
-        let fieldPositionID = components[1]
-        if let fieldIdentifier = getFieldIdentifier(forFieldPositionID: fieldPositionID),
-           fieldIdentifier.pageID == pageID,
-           let fieldValidity = validationHandler.validate(fieldIdentifier: fieldIdentifier) {
-            return .field(fieldValidity)
-        }
-        return .page(validationHandler.validate(pageID: pageID))
+        return validationHandler.validate(path: path)
     }
     
     public func shouldShow(fieldID: String?) -> Bool {
@@ -300,7 +291,7 @@ public class DocumentEditor: ObservableObject {
         return nil
     }
 
-    private func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
+    func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
         if let delegate = delegateMap[fieldID]?.value {
             return delegate
         }
@@ -666,7 +657,7 @@ extension DocumentEditor {
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode) : nil
+        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
         
         switch fieldPosition.type {
         case .text:
@@ -838,7 +829,7 @@ extension DocumentEditor {
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
             
-            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode) : nil
+            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))

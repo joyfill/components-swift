@@ -91,6 +91,7 @@ struct TableModalView : View {
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
             if targetFieldID == viewModel.tableDataModel.fieldIdentifier.fieldID {
+                showEditMultipleRowsSheetView = false
                 dismiss()
             }
         }
@@ -364,7 +365,7 @@ struct TableModalView : View {
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
                     }
                     if viewModel.showRowDecorators {
-                        RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators) { decorator in
+                        RowDecoratorMenuView(decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowModel.rowID), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
                             viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                         }
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))

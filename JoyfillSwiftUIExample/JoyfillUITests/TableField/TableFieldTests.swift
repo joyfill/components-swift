@@ -6,7 +6,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     override func getJSONFileNameForTest() -> String {
         return "Joydocjson"
     }
-    
+
+
     func goToTableDetailPage() {
         app.swipeUp()
         app.swipeUp()
@@ -384,6 +385,37 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
             XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
             XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
         }
+    }
+
+    func testBulkEditApplyAllClearsSelection() throws {
+        navigateToTableViewOnSecondPage()
+
+        let selectAllButton = app.images["SelectAllRowSelectorButton"]
+        XCTAssertTrue(selectAllButton.waitForExistence(timeout: 1), "Select all row button should be visible")
+        selectAllButton.tap()
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "More button should be visible after selecting rows")
+        moreButton.tap()
+
+        let editRowsMenuBefore = app.buttons["TableEditRowsIdentifier"]
+        XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
+        XCTAssertTrue(editRowsMenuBefore.label.contains("rows"), "Expected bulk edit menu label, got: \(editRowsMenuBefore.label)")
+
+        editRowsMenuBefore.tap()
+
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 1), "Bulk edit text field should be visible")
+        textField.tap()
+        textField.typeText("KeepSelection")
+
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 1), "Apply All button should be visible in bulk edit")
+        applyAllButton.tap()
+
+        XCTAssertTrue(waitUntil(2) { !applyAllButton.exists }, "Bulk edit sheet should be dismissed after applying")
+        XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
+        XCTAssertFalse(moreButton.exists, "Selection should be cleared after Apply All")
     }
     
     func testEditSingleRow() throws {

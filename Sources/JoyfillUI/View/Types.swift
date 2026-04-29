@@ -321,6 +321,15 @@ public protocol FormChangeEvent {
 public enum JoyfillError: Error {
     case schemaValidationError(error: SchemaValidationError)
     case schemaVersionError(error: SchemaValidationError)
+    case decoratorError(error: DecoratorError)
+}
+
+public struct DecoratorError: Error {
+    public let message: String
+    
+    public init(message: String) {
+        self.message = message
+    }
 }
 
 public struct SchemaValidationError: Error {

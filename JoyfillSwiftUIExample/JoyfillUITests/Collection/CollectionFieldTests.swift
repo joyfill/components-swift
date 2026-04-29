@@ -75,7 +75,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         usleep(500000) // 0.5 second to allow UI to settle
     }
-    
+
+
     func ensureCleanCollectionState() {
         returnToRootView()
         dismissAnyOpenModals()
@@ -1192,6 +1193,34 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             // No change event received, which is the expected behavior for this test.
         }
     }
+
+    func testBulkEditApplyAllClearsSelection() throws {
+        goToCollectionDetailField()
+
+        selectAllParentRows()
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "More button should appear after selecting rows")
+
+        tapOnMoreButton()
+        let editRowsMenuBefore = editRowsButton()
+        XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
+        XCTAssertTrue(editRowsMenuBefore.label.contains("rows"), "This should be a bulk edit flow, but got: \(editRowsMenuBefore.label)")
+
+        editRowsMenuBefore.tap()
+
+        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 1), "Bulk edit text field should be visible")
+        textField.tap()
+        textField.typeText("BulkSelectionPersistence")
+
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 1), "Apply All button should be visible in bulk edit")
+        applyAllButton.tap()
+
+        XCTAssertTrue(waitUntil(2) { !applyAllButton.exists }, "Bulk edit sheet should be dismissed after applying")
+        XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
+        XCTAssertFalse(moreButton.exists, "Selection should be cleared after Apply All")
+    }
     
     // Edit all Nested rows
     func testBulkEditNestedRows() throws {
@@ -1404,4 +1433,3 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
 }
-

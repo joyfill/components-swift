@@ -58,6 +58,49 @@ public struct Decorator: Equatable {
     }
 }
 
+extension Array where Element == Decorator {
+    /// Returns the first decorator per action, preserving order. Decorators without an action are always kept.
+    func deduplicatedByAction() -> [Decorator] {
+        var seen = Set<String>()
+        return filter { dec in
+            guard let action = dec.action, !action.isEmpty else { return true }
+            return seen.insert(action).inserted
+        }
+    }
+}
+
+// MARK: - RowDecorators
+public struct Decorators {
+    public var dictionary: [String: Any]
+
+    public init(dictionary: [String: Any] = [:]) {
+        self.dictionary = dictionary
+    }
+
+    /// Row-level decorators that apply to the entire row.
+    public var all: [Decorator] {
+        get {
+            let raw = (dictionary["all"] as? [[String: Any]])?.compactMap(Decorator.init) ?? []
+            return raw.deduplicatedByAction()
+        }
+        set { dictionary["all"] = newValue.map { $0.dictionary } }
+    }
+
+    /// Per-cell decorators keyed by column ID.
+    public var cells: [String: [Decorator]] {
+        get {
+            guard let raw = dictionary["cells"] as? [String: Any] else { return [:] }
+            return raw.compactMapValues { value -> [Decorator]? in
+                guard let list = (value as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+                return list.deduplicatedByAction()
+            }
+        }
+        set {
+            dictionary["cells"] = newValue.mapValues { $0.map { $0.dictionary } }
+        }
+    }
+}
+
 /// Represents a Joy document.
 ///
 /// Use the `JoyDoc` struct to create and manipulate Joy documents.
@@ -157,6 +200,8 @@ public struct JoyDoc {
             guard let firstFile = self.files.first else { return [] } 
             
             var pages: [Page] = []
+            // Note: pageOrder always uses firstFile.pageOrder regardless of the views/pages branch below.
+            // pageOrderForCurrentView correctly reads view.pageOrder when views are active — this property should mirror that logic.
             let pageOrder = firstFile.pageOrder ?? []
             
             if let views = firstFile.views, !views.isEmpty, let view = views.first {
@@ -164,10 +209,12 @@ public struct JoyDoc {
             } else {
                 pages = firstFile.pages ?? []
             }
-            
+
+            // Pre-build index once — O(n log n) sort vs O(n² log n) with firstIndex; pays off at ~100+ pages
+            let pageOrderIndex = Dictionary(pageOrder.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
             return pages.sorted { page1, page2 in
-                let index1 = pageOrder.firstIndex(of: page1.id ?? "") ?? Int.max
-                let index2 = pageOrder.firstIndex(of: page2.id ?? "") ?? Int.max
+                let index1 = pageOrderIndex[page1.id ?? ""] ?? Int.max
+                let index2 = pageOrderIndex[page2.id ?? ""] ?? Int.max
                 return index1 < index2
             }
         }
@@ -494,13 +541,24 @@ public struct JoyDocField: Equatable {
     
     /// Decorators attached to this field. Rendered inline next to the field title.
     public var decorators: [Decorator]? {
-        get { (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    public var decorate: Bool? {
+        get { dictionary["decorate"] as? Bool }
+        set { dictionary["decorate"] = newValue }
     }
 
     /// Row-level decorators for table/collection fields. Rendered per-row via a kebab menu column.
     public var rowDecorators: [Decorator]? {
-        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
@@ -1129,7 +1187,10 @@ public struct FieldTableColumn {
 
     /// Decorators attached to this column. Rendered in the column header area.
     public var decorators: [Decorator]? {
-        get { (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
     }
 
@@ -1196,8 +1257,16 @@ public struct Schema {
 
     /// Row-level decorators for this collection schema. Rendered per-row via kebab menu (collection only; table uses field-level rowDecorators).
     public var rowDecorators: [Decorator]? {
-        get { (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) }
+        get {
+            guard let raw = (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
         set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    public var decorate: Bool? {
+        get { dictionary["decorate"] as? Bool }
+        set { dictionary["decorate"] = newValue }
     }
 }
 
@@ -1276,7 +1345,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
 
     /// The coding keys used for encoding and decoding the value element.
     enum CodingKeys: String, CodingKey {
-        case _id, url, fileName, filePath, deleted, title, description, points, cells, metadata
+        case _id, url, fileName, filePath, deleted, title, description, points, cells, metadata, decorators
     }
 
     /// Initializes a value element with an ID, deleted flag, description, title, and points.
@@ -1458,6 +1527,22 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     public var tz: String? {
         get { (dictionary["tz"] as? ValueUnion)?.text }
         set { setValue(newValue, key: "tz") }
+    }
+
+    /// Per-row decorators: `all` for row-level, `cells` for per-cell keyed by column ID.
+    public var decorators: Decorators? {
+        get {
+            guard let valueUnion = dictionary["decorators"] as? ValueUnion,
+                  let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
+            return Decorators(dictionary: anyDict)
+        }
+        set {
+            if let decs = newValue {
+                dictionary["decorators"] = ValueUnion(anyDictionary: decs.dictionary)
+            } else {
+                dictionary.removeValue(forKey: "decorators")
+            }
+        }
     }
 }
 
