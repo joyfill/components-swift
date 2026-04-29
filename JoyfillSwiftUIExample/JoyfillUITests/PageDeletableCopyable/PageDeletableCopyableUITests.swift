@@ -461,10 +461,9 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
         duplicatedRow.tap()
 
         guard let duplicatedValue = firstTextFieldValue() else { return }
-        XCTAssertNotEqual(
-            duplicatedValue,
-            uniqueValue,
-            "Without-values duplicate should not keep the edited Page 4 value. Actual duplicated value: '\(duplicatedValue)'"
+        XCTAssertTrue(
+            duplicatedValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+            "Without-values duplicate should clear the editable text field. Actual duplicated value: '\(duplicatedValue)'"
         )
     }
 
