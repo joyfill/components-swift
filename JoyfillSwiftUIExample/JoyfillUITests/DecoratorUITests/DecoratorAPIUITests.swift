@@ -74,6 +74,33 @@ final class DecoratorTextFieldAPIUITests: DecoratorAPIUITestsBase {
         S.run(S.removeCommand(path: fieldPath, action: "flag"), in: app)
         XCTAssertTrue(waitUntil(2) { !flag.exists })
     }
+
+    func testDecoratorConfigFieldOverflowAfterTwo() {
+        typealias S = DecoratorUITestSupport
+
+        let d1 = app.buttons[S.fieldDecoratorID(action: "d1")]
+        let d2 = app.buttons[S.fieldDecoratorID(action: "d2")]
+        let overflow = app.buttons["field_decorator_overflow_menu"]
+
+        S.run(S.addCommand(path: fieldPath, decorators: [
+            S.decorator(action: "d1", icon: "flag", label: "D1"),
+            S.decorator(action: "d2", icon: "comment", label: "D2")
+        ]), in: app)
+
+        XCTAssertTrue(d1.waitForExistence(timeout: 1))
+        XCTAssertTrue(d2.exists)
+        XCTAssertTrue(waitUntil(1) { !overflow.exists }, "Overflow menu should not show at limit (2)")
+
+        S.run(S.addCommand(path: fieldPath, decorators: [
+            S.decorator(action: "d3", icon: "share", label: "D3")
+        ]), in: app)
+
+        XCTAssertTrue(overflow.waitForExistence(timeout: 1), "Overflow menu should show after adding 3rd decorator")
+        overflow.tap()
+        XCTAssertTrue(app.buttons["D1"].waitForExistence(timeout: 1))
+        XCTAssertTrue(app.buttons["D2"].exists)
+        XCTAssertTrue(app.buttons["D3"].exists)
+    }
 }
 
 // MARK: - Table (Common Row / Specific Row / Cell)
@@ -327,6 +354,59 @@ final class DecoratorTableAPIUITests: DecoratorAPIUITestsBase {
         S.openTableRowEditForm(rowIndex: 1, in: app)
         XCTAssertTrue(waitUntil(2) { !flag.exists })
         S.dismissRowEditForm(in: app)
+    }
+
+    func testDecoratorConfigColumnOverflowAfterTwo() {
+        typealias S = DecoratorUITestSupport
+        S.openTableDetailView(in: app)
+
+        let overflow = app.buttons["field_decorator_overflow_menu"]
+
+        S.run(S.addCommand(path: commonCell1Path, decorators: [
+            S.decorator(action: "c1", icon: "flag", label: "C1"),
+            S.decorator(action: "c2", icon: "comment", label: "C2")
+        ]), in: app)
+
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+        XCTAssertTrue(waitUntil(1) { !overflow.exists }, "Column decorators should not overflow at limit (2)")
+        S.dismissRowEditForm(in: app)
+
+        S.run(S.addCommand(path: commonCell1Path, decorators: [
+            S.decorator(action: "c3", icon: "share", label: "C3")
+        ]), in: app)
+
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+        XCTAssertTrue(overflow.waitForExistence(timeout: 1), "Column decorators should overflow after 2")
+        overflow.tap()
+        XCTAssertTrue(app.buttons["C1"].waitForExistence(timeout: 1))
+        XCTAssertTrue(app.buttons["C2"].exists)
+        XCTAssertTrue(app.buttons["C3"].exists)
+        S.dismissRowEditForm(in: app)
+    }
+
+    func testDecoratorConfigRowOverflowAfterOne() {
+        typealias S = DecoratorUITestSupport
+        S.openTableDetailView(in: app)
+
+        let kebab = app.buttons[S.rowDecoratorMenuID]
+        let r1 = app.buttons[S.rowDecoratorID(action: "r1")]
+
+        S.run(S.addCommand(path: row1Path, decorators: [
+            S.decorator(action: "r1", icon: "flag", label: "R1")
+        ]), in: app)
+
+        XCTAssertTrue(r1.waitForExistence(timeout: 1), "Single row decorator should be visible inline at limit (1)")
+        XCTAssertEqual(r1.label, "R1")
+        XCTAssertTrue(waitUntil(1) { !kebab.exists }, "Row decorators should not overflow at limit (1)")
+
+        S.run(S.addCommand(path: row1Path, decorators: [
+            S.decorator(action: "r2", icon: "comment", label: "R2")
+        ]), in: app)
+
+        XCTAssertTrue(kebab.waitForExistence(timeout: 1), "Row decorators should overflow after adding 2nd decorator")
+        kebab.tap()
+        XCTAssertTrue(app.buttons["R1"].waitForExistence(timeout: 1))
+        XCTAssertTrue(app.buttons["R2"].exists)
     }
 }
 
