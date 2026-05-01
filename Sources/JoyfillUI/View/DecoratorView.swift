@@ -254,43 +254,18 @@ struct RowDecoratorMenuView: View {
         } else if exceedsLimit {
             kebabButton.frame(width: 40, height: 60)
         } else {
-            VStack(spacing: 0) {
-                ForEach(Array(inlineVisible.enumerated()), id: \.offset) { _, decorator in
-                    singleDecoratorButton(decorator)
-                        .frame(maxHeight: .infinity)
-                }
-                if hasInlineOverflow {
-                    Text("•••")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+            GeometryReader { geometry in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                            DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
+                        }
+                    }
+                    .frame(minWidth: geometry.size.width, alignment: .center)
                 }
             }
-            .frame(width: 40, height: 60)
+            .frame(height: 32)
         }
-    }
-
-    private func singleDecoratorButton(_ decorator: DecoratorLocal) -> some View {
-        let tint: Color = decorator.color.map { Color(hex: $0) } ?? .secondary
-        return Button {
-            onDecoratorTap(decorator)
-        } label: {
-            HStack(spacing: 4) {
-                if let icon = decorator.icon, !icon.isEmpty {
-                    DecoratorIconImage(iconName: icon, size: 14)
-                }
-                if let label = decorator.label, !label.isEmpty {
-                    Text(label)
-                        .font(.system(size: 12, weight: .medium))
-                        .lineLimit(1)
-                }
-            }
-            .foregroundColor(tint)
-            .frame(width: 40)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("row_decorator_\(decorator.action ?? "unknown")")
     }
 
     private var kebabButton: some View {

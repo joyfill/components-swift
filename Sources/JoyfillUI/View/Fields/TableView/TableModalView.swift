@@ -11,6 +11,22 @@ struct TableRowView : View {
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
+            if viewModel.showRowDecorators {
+                RowDecoratorMenuView(
+                    decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowDataModel.rowID),
+                    visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
+                ) { decorator in
+                    viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                        action: decorator.action ?? "",
+                        rowIds: [rowDataModel.rowID]
+                    )
+                }
+                .padding(.all, 4)
+                .frame(width: viewModel.decoratorsCellWidth(), height: 60)
+                .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
+                .border(Color.tableCellBorderColor)
+            }
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
@@ -194,7 +210,6 @@ struct TableModalView : View {
         var width: CGFloat = 40 // # column
         if viewModel.showRowSelector { width += 40 }
         if viewModel.showSingleClickEditButton { width += 40 }
-        if viewModel.showRowDecorators { width += 40 }
         return width
     }
 
@@ -221,13 +236,6 @@ struct TableModalView : View {
                         .border(Color.tableCellBorderColor)
                     if viewModel.showSingleClickEditButton {
                         Image(systemName: "square.and.pencil")
-                            .frame(width: 40, height: 60)
-                            .foregroundColor(Color.gray.opacity(0.4))
-                            .border(Color.tableCellBorderColor)
-                    }
-                    if viewModel.showRowDecorators {
-                        Image(systemName: "ellipsis")
-                            .rotationEffect(.degrees(90))
                             .frame(width: 40, height: 60)
                             .foregroundColor(Color.gray.opacity(0.4))
                             .border(Color.tableCellBorderColor)
@@ -283,6 +291,18 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
+            if viewModel.showRowDecorators {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .foregroundColor(Color.gray.opacity(0.4))
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .inset(by: 1)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                    )
+            }
             ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
                 HStack {
                     ScrollView {
@@ -363,13 +383,6 @@ struct TableModalView : View {
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
-                    }
-                    if viewModel.showRowDecorators {
-                        RowDecoratorMenuView(decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowModel.rowID), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
-                            viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
-                        }
-                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                        .border(Color.tableCellBorderColor)
                     }
                 }
             }
