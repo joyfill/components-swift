@@ -84,7 +84,7 @@ struct CollectionSearchBar: View {
                             .padding(.leading, 8)
                             .padding(.trailing, 8)
                     case .date:
-                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText)
+                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText, isUsedForFilter: true)
                             .accessibilityIdentifier("SearchBarDateIdentifier")
                             .frame(height: 40)
                             .padding(.horizontal, 4)
