@@ -1656,7 +1656,7 @@ public struct Point: Codable,Hashable, Equatable {
     ///   - key: The key to set the value for.
     mutating func setValue(_ value: CGFloat?, key: String) {
         guard let value = value else {
-            self.dictionary[key] = .null
+            self.dictionary[key] = nil
             return
         }
         self.dictionary[key] = .double(value)
