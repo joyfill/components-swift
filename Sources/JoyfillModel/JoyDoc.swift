@@ -1594,7 +1594,10 @@ public struct Point: Codable,Hashable, Equatable {
         }
         let allKeys = container.allKeys
         for key in allKeys {
-            dictionary[key.stringValue] = try container.decodeIfPresent(ValueUnion.self, forKey: key)
+            // Use `decode` rather than `decodeIfPresent` so JSON `null` round-trips
+            // as `ValueUnion.null` instead of being silently dropped. `allKeys` only
+            // contains keys present in the payload, so `decode` cannot throw "missing key".
+            dictionary[key.stringValue] = try container.decode(ValueUnion.self, forKey: key)
         }
     }
 
