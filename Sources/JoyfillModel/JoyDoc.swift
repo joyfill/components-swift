@@ -1633,8 +1633,8 @@ public struct Point: Codable,Hashable, Equatable {
     /// - Parameter id: The id of the `Point`.
     public init(id: String) {
         self.id = id
-        self.x = 0
-        self.y = 0
+        self.x = nil
+        self.y = nil
         self.label = ""
     }
 
@@ -1656,6 +1656,7 @@ public struct Point: Codable,Hashable, Equatable {
     ///   - key: The key to set the value for.
     mutating func setValue(_ value: CGFloat?, key: String) {
         guard let value = value else {
+            self.dictionary[key] = .null
             return
         }
         self.dictionary[key] = .double(value)
