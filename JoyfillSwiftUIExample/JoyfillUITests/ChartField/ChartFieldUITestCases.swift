@@ -147,6 +147,14 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
 
         XCTAssertNil(onChangeResultValue().valueElements?.first?.points?.first?.x, "Horizontal coordinate should be nil after clearing")
         XCTAssertNil(onChangeResultValue().valueElements?.first?.points?.first?.y, "Vertical coordinate should be nil after clearing")
+
+        // The getter returns nil for both `.null` and "key absent". Pin down the
+        // actual contract — cleared coordinates must be omitted from the point's
+        // dictionary entirely (not stored as .null or .double(0)).
+        let clearedPoint = onChangeResultValue().valueElements?.first?.points?.first
+        XCTAssertNotNil(clearedPoint, "Point should still exist after clearing coordinates")
+        XCTAssertNil(clearedPoint?.dictionary["x"], "x key should be absent from point dictionary, not stored as null or 0")
+        XCTAssertNil(clearedPoint?.dictionary["y"], "y key should be absent from point dictionary, not stored as null or 0")
     }
 
     func testChartFieldOnFocusAndOnBlur() {
