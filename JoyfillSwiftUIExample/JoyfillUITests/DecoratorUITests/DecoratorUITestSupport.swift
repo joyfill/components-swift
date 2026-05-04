@@ -63,8 +63,9 @@ enum DecoratorUITestSupport {
     }
 
     /// Identifier for a single row-level decorator button (shown when exactly one is displayable).
+    /// Row and field buttons currently share the same DecoratorButton identifier format.
     static func rowDecoratorID(action: String) -> String {
-        return "row_decorator_\(action)"
+        return "decorator_button_\(action)"
     }
 
     /// Identifier for the row hamburger menu button (shown when multiple decorators exist on a row).
