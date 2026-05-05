@@ -12,13 +12,15 @@ struct TableDateView: View {
     @State private var selectedDate: Date = Date()
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
+    private var isUsedForFilter = false
     let datePickerComponent: DatePickerComponents
     @State var dateString: String = ""
     @State var eraseDate: Bool = false
     
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "") {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "", isUsedForFilter: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
+        self.isUsedForFilter = isUsedForFilter
         datePickerComponent = Utility.getDateType(format: cellModel.wrappedValue.data.format ?? .empty)
         func setupDate(dateValue: Double) {
             if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
@@ -56,15 +58,35 @@ struct TableDateView: View {
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                             isDatePickerPresented = true
                         } label: {
-                            Text(dateString)
-                                .darkLightThemeColor()
-                                .font(.system(size: 16))
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.7)
-                                .allowsTightening(true)
-                                .layoutPriority(1)
+                            if isUsedForFilter {
+                                Text(dateString)
+                                    .darkLightThemeColor()
+                                    .font(.system(size: 20))
+                                    .lineLimit(2)
+                                    .minimumScaleFactor(0.7)
+                                    .allowsTightening(true)
+                                    .layoutPriority(1)
+                            } else {
+                                let parts = dateString.split(separator: " ")
+                                
+                                VStack(alignment: .leading, spacing: 3) {
+                                    if parts.count >= 1 {
+                                        Text(parts[0])
+                                            .darkLightThemeColor()
+                                            .font(.system(size: 16))
+                                    }
+                                    if parts.count >= 2 {
+                                        Text(parts[1...].joined(separator: " "))
+                                            .darkLightThemeColor()
+                                            .font(.system(size: 16))
+                                    }
+                                }
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.85)
+                            }
                         }
                         .contentShape(Rectangle())
+                        .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(
@@ -73,10 +95,9 @@ struct TableDateView: View {
                         )
                         .accessibilityIdentifier("ChangeCellDateIdentifier")
                         
-                        Spacer()
-                        
                         Image(systemName: "xmark.circle")
                             .foregroundStyle(.blue)
+                            .padding(.trailing, 8)
                             .onTapGesture {
                                 selectedDate = Date()
                                 eraseDate = true
@@ -92,8 +113,10 @@ struct TableDateView: View {
                             Spacer()
                         }
                         .contentShape(Rectangle())
+                        .frame(maxWidth: .infinity)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.all, 8)
             }
             .contentShape(Rectangle())

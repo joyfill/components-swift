@@ -84,7 +84,7 @@ struct SearchBar: View {
                             .cornerRadius(6)
                             .padding(.leading, 8)
                     case .date:
-                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText)
+                        TableDateView(cellModel: Binding.constant(cellModel), initialFilterText: model.filterText, isUsedForFilter: true)
                             .accessibilityIdentifier("SearchBarDateIdentifier")
                             .frame(height: 25)
                             .onAppear {
