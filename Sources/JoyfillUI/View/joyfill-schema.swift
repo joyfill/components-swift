@@ -2594,7 +2594,7 @@ public var joyfillSchema = """
         ]
       }
     },
-    "$joyfillSchemaVersion": "1.0.0"
+    "$joyfillSchemaVersion": "1.0.1"
   }
 
 """
