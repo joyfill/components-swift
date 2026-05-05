@@ -242,11 +242,8 @@ struct RowDecoratorMenuView: View {
     let onDecoratorTap: (DecoratorLocal) -> Void
     @State private var showingPopover = false
 
-    private static let inlineMax = 3
     private var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
     private var exceedsLimit: Bool { displayable.count > visibleLimit }
-    private var inlineVisible: [DecoratorLocal] { Array(displayable.prefix(Self.inlineMax)) }
-    private var hasInlineOverflow: Bool { displayable.count > Self.inlineMax }
 
     var body: some View {
         if displayable.isEmpty {
