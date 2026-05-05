@@ -21,12 +21,13 @@ struct ChartDetailView: View {
 //        self.chartData = chartData
         self.chartDataModel = chartDataModel
         _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
-        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: chartDataModel.yTitle,
-                                                                           yMax: chartDataModel.yMax,
-                                                                           yMin: chartDataModel.yMin,
-                                                                           xTitle: chartDataModel.xTitle,
-                                                                           xMax: chartDataModel.xMax,
-                                                                           xMin: chartDataModel.xMin))
+        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(
+            yTitle: chartDataModel.chartCoordinates?.yTitle,
+            yMax: chartDataModel.chartCoordinates?.yMax,
+            yMin: chartDataModel.chartCoordinates?.yMin,
+            xTitle: chartDataModel.chartCoordinates?.xTitle,
+            xMax: chartDataModel.chartCoordinates?.xMax,
+            xMin: chartDataModel.chartCoordinates?.xMin))
     }
     
     var body: some View {
@@ -55,6 +56,18 @@ struct ChartDetailView: View {
                 let chartData = ChartData(xTitle: newValue.xTitle, yTitle: newValue.yTitle, xMax: newValue.xMax, xMin: newValue.xMin, yMax: newValue.yMax, yMin: newValue.yMin)
                 let fieldEvent = FieldChangeData(fieldIdentifier: chartDataModel.fieldIdentifier, updateValue: .valueElementArray(valueElements), chartData: chartData)
                 chartDataModel.documentEditor?.onChange(event: fieldEvent)
+            })
+            .onChange(of: chartDataModel.valueElements ?? [], perform: { latestValueElements in
+                if latestValueElements != valueElements {
+                    valueElements = latestValueElements
+                }
+            })
+            .onChange(of: chartDataModel.chartCoordinates, perform: { latestChartCoordinates in
+                if let latestChartCoordinates = latestChartCoordinates {
+                    if latestChartCoordinates != chartCoordinatesData {
+                        chartCoordinatesData = latestChartCoordinates
+                    }
+                }
             })
             .modifier(KeyboardDismissModifier())
             .onTapGesture {
@@ -541,4 +554,3 @@ struct xAndYAxisCoordinateView: View {
             .cornerRadius(10)
     }
 }
-

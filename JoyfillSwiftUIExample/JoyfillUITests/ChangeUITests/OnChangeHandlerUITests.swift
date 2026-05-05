@@ -2557,6 +2557,63 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
     
+    func testChartCoordinates() throws {
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.buttons["ShowHideButtonIdentifier"].tap()
+
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.staticTexts["Show"].firstMatch.tap()
+        
+        let textFieldsQuery = app.textFields
+        let element1 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 0)
+        element1.tap()
+        element1.typeText("Y")
+        
+        let element2 = textFieldsQuery.matching(identifier: "HorizontalTextFieldIdentifier").element(boundBy: 0)
+        element2.tap()
+        element2.typeText("X")
+
+        let minY = textFieldsQuery.matching(identifier: "MinY").element(boundBy: 0)
+        let minX = textFieldsQuery.matching(identifier: "MinX").element(boundBy: 0)
+        let maxY = textFieldsQuery.matching(identifier: "MaxY").element(boundBy: 0)
+        let maxX = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 0)
+
+        minY.tap()
+        minY.typeText("1")
+        minX.tap()
+        minX.typeText("2")
+        maxY.tap()
+        maxY.typeText("7")
+        maxX.tap()
+        maxX.typeText("8")
+        
+        let element3 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 1)
+        let element4 = textFieldsQuery.matching(identifier: "HorizontalTextFieldIdentifier").element(boundBy: 1)
+
+        XCTAssertEqual(element3.value as? String, "VerticalY", "Vertical title should match expected value.")
+        XCTAssertEqual(element4.value as? String, "HorizontalX", "Horizontal title should match expected value.")
+   
+        let minYOther = textFieldsQuery.matching(identifier: "MinY").element(boundBy: 1)
+        let minXOther = textFieldsQuery.matching(identifier: "MinX").element(boundBy: 1)
+        let maxYOther = textFieldsQuery.matching(identifier: "MaxY").element(boundBy: 1)
+        let maxXOther = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 1)
+
+        XCTAssertEqual(minYOther.value as? String, "1", "MinY should match expected value.")
+        XCTAssertEqual(minXOther.value as? String, "2", "MinX should match expected value.")
+        XCTAssertEqual(maxYOther.value as? String, "1007", "MaxY should match expected value.")
+        XCTAssertEqual(maxXOther.value as? String, "1008", "MaxX should match expected value.")
+
+    }
+    
     func testImageField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
