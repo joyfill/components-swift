@@ -1877,6 +1877,9 @@ public var joyfillSchema = """
             "type": "string",
             "minLength": 1
           },
+          "multi": {
+            "type": "boolean"
+          },
           "type": {
             "type": "string",
             "const": "image"
@@ -2257,16 +2260,14 @@ public var joyfillSchema = """
             "type": "string"
           },
           "y": {
-            "type": "number"
+            "type": ["number", "null"]
           },
           "x": {
-            "type": "number"
+            "type": ["number", "null"]
           }
         },
         "required": [
-          "_id",
-          "y",
-          "x"
+          "_id"
         ]
       },
       "CollectionField": {
