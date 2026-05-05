@@ -1111,6 +1111,10 @@ extension DocumentEditor {
 
         if !copyWithValues {
             for i in newFields.indices {
+                // Copying "without values" keeps values for read-only fields and block fields.
+                let isReadonly = newFields[i].disabled == true
+                let isDisplayText = newFields[i].fieldType == .block
+                if isReadonly || isDisplayText { continue }
                 newFields[i].value = nil
             }
         }
