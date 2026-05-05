@@ -49,6 +49,8 @@ enum DecoratorIcon {
         case "plus":         return "decorator_plus"
         case "print":        return "decorator_print"
         case "flag":         return "decorator_flag"
+        case "pencil":       return "decorator_pencil"
+        case "pen-to-square": return "decorator_pen_to_square"
         default:             return nil
         }
     }
@@ -80,6 +82,8 @@ enum DecoratorIcon {
         case "plus":         return "plus"
         case "print":        return "printer.fill"
         case "flag":         return "flag.fill"
+        case "pencil":       return "pencil"
+        case "pen-to-square": return "square.and.pencil"
         default:             return "photo"
         }
     }
