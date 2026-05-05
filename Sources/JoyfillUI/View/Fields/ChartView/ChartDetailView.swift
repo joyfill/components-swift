@@ -465,10 +465,11 @@ struct PointView: View {
                 HStack {
                     var xBinding : Binding<String> {
                            Binding {
+                               guard let x = point.x else { return "" }
                                let formatter = NumberFormatter()
                                formatter.numberStyle = .decimal
                                formatter.usesGroupingSeparator = false
-                               let formattedNumberString = formatter.string(from: NSNumber(value: point.x ?? 0)) ?? ""
+                               let formattedNumberString = formatter.string(from: NSNumber(value: x)) ?? ""
                                return formattedNumberString
                            } set: { newX in
                                setX(x: newX)
@@ -476,10 +477,11 @@ struct PointView: View {
                        }
                     var yBinding : Binding<String> {
                            Binding {
+                               guard let y = point.y else { return "" }
                                let formatter = NumberFormatter()
                                formatter.numberStyle = .decimal
                                formatter.usesGroupingSeparator = false
-                               let formattedNumberString = formatter.string(from: NSNumber(value: point.y ?? 0)) ?? ""
+                               let formattedNumberString = formatter.string(from: NSNumber(value: y)) ?? ""
                                return formattedNumberString
                            } set: { newY in
                                setY(y: newY)
@@ -506,7 +508,7 @@ struct PointView: View {
         formatter.usesGroupingSeparator = false
         let number = formatter.number(from: y)
         var point = self.point
-        point.y = CGFloat(number?.doubleValue ?? 0)
+        point.y = number.map { CGFloat($0.doubleValue) }
         updatePoint(point)
     }
     
@@ -516,7 +518,7 @@ struct PointView: View {
         formatter.usesGroupingSeparator = false
         let number = formatter.number(from: x)
         var point = self.point
-        point.x = CGFloat(number?.doubleValue ?? 0)
+        point.x = number.map { CGFloat($0.doubleValue) }
         updatePoint(point)
     }
 }
