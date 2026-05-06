@@ -29,6 +29,9 @@ private let cL2ColBarcode    = "69e8827e72fb2149cfd944a4"
 
 // Text field
 private let fpTextField = "6970918d350238d0738dd5c9"
+private let fpNumberField = "69709192a4e9c0c281851275"
+private let fpDateField = "6970919451f1adb30fcff9ea"
+private let fpDropdownField = "6970919a6ce635a6b14913ed"
 
 // MARK: - Decorator base (disables animations for all decorator tests)
 
@@ -779,5 +782,99 @@ final class DecoratorCollectionAPIUITests: DecoratorAPIUITestsBase {
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
         XCTAssertTrue(waitUntil(2) { !flag.exists })
         S.dismissRowEditForm(in: app)
+    }
+}
+
+// MARK: - Readonly Decorator Coverage
+
+final class DecoratorReadonlyAPIUITests: DecoratorAPIUITestsBase {
+
+    override func getJSONFileNameForTest() -> String { "Decorator" }
+
+    override func getGotoLaunchArguments() -> [(String, String?)] {
+        return [("--disable-animations", nil), ("--mode", "readonly")]
+    }
+
+    private func slightSwipeUp() {
+        let start = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.72))
+        let end = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.58))
+        start.press(forDuration: 0.01, thenDragTo: end)
+    }
+
+    private func addTapAndAssertFocus(path: String, action: String) {
+        typealias S = DecoratorUITestSupport
+        let button = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.run(S.addCommand(path: path,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        XCTAssertTrue(waitUntil(3) { button.exists && button.isHittable })
+        button.tap()
+
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        })
+
+        S.run(S.removeCommand(path: path, action: action), in: app)
+    }
+
+    func testReadonly_TextDecorator_Tappable() {
+        addTapAndAssertFocus(path: "\(pageID)/\(fpTextField)", action: "ro_text")
+    }
+
+    func testReadonly_NumberDecorator_Tappable() {
+        addTapAndAssertFocus(path: "\(pageID)/\(fpNumberField)", action: "ro_number")
+    }
+
+    func testReadonly_DateDecorator_Tappable() {
+        addTapAndAssertFocus(path: "\(pageID)/\(fpDateField)", action: "ro_date")
+    }
+
+    func testReadonly_DropdownDecorator_Tappable() {
+        slightSwipeUp()
+        addTapAndAssertFocus(path: "\(pageID)/\(fpDropdownField)", action: "ro_dropdown")
+    }
+
+    func testReadonly_TableRowDecorator_Tappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_table_row"
+        let rowsPath = "\(pageID)/\(fpTable)/rows"
+
+        S.openTableDetailView(in: app)
+        let rowButton = app.buttons.matching(identifier: S.rowDecoratorID(action: action)).element(boundBy: 0)
+
+        S.run(S.addCommand(path: rowsPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+        XCTAssertTrue(waitUntil(3) { rowButton.exists && rowButton.isHittable })
+
+        rowButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        })
+
+        S.run(S.removeCommand(path: rowsPath, action: action), in: app)
+    }
+
+    func testReadonly_CollectionRowDecorator_Tappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_collection_row"
+        let rootRowsPath = "\(pageID)/\(fpCollection)/rows"
+
+        S.openCollectionDetailView(in: app)
+        let rowButton = app.buttons.matching(identifier: S.rowDecoratorID(action: action)).element(boundBy: 0)
+
+        S.run(S.addCommand(path: rootRowsPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+        XCTAssertTrue(waitUntil(3) { rowButton.exists && rowButton.isHittable })
+
+        rowButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        })
+
+        S.run(S.removeCommand(path: rootRowsPath, action: action), in: app)
     }
 }
