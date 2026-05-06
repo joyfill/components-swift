@@ -34,8 +34,7 @@ struct FieldHeaderView: View {
                 Spacer()
 
                 if let model = fieldHeaderModel,
-                   !model.decorators.isEmpty,
-                   model.mode == .fill {
+                   !model.decorators.isEmpty {
                     FieldDecoratorsView(
                         decorators: model.decorators,
                         visibleLimit: model.visibleLimitInFields
