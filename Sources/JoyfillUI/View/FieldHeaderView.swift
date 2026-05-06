@@ -67,6 +67,9 @@ struct FieldHeaderView: View {
                     }
                 }
             }
+            // Re-enable the header even when the parent field is .disabled() —
+            // decorators and tooltip must stay interactive on readonly forms.
+            .environment(\.isEnabled, true)
         }
     }
 }
