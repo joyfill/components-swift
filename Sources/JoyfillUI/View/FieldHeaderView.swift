@@ -42,6 +42,7 @@ struct FieldHeaderView: View {
                 ) { decorator in
                     onDecoratorTap?(decorator)
                 }
+                .padding(.bottom, fieldHeaderModel?.title == nil ? 12 : 0)
                 // Re-enable the header even when the parent field is .disabled() —
                 // decorators must stay interactive on readonly forms.
                 .environment(\.isEnabled, true)
