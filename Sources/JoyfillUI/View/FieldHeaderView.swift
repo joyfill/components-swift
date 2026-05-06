@@ -41,6 +41,9 @@ struct FieldHeaderView: View {
                     ) { decorator in
                         onDecoratorTap?(decorator)
                     }
+                    // Re-enable the header even when the parent field is .disabled() —
+                    // decorators must stay interactive on readonly forms.
+                    .environment(\.isEnabled, true)
                 }
                 let tipDescription = fieldHeaderModel?.tipDescription ?? ""
                 let tipTitle = fieldHeaderModel?.tipTitle ?? ""
@@ -67,9 +70,6 @@ struct FieldHeaderView: View {
                     }
                 }
             }
-            // Re-enable the header even when the parent field is .disabled() —
-            // decorators and tooltip must stay interactive on readonly forms.
-            .environment(\.isEnabled, true)
         }
     }
 }
