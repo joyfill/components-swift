@@ -1114,10 +1114,56 @@ struct DecoratorEditView: View {
     }
 }
 
+// MARK: - DecoratorLimitsSheet (shared)
+
+/// Sheet that lets the user change `DecoratorConfig.visibleLimitInFields` /
+/// `visibleLimitInRows` and rebuild the form so the limits take effect.
+struct DecoratorLimitsSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var fields: Int
+    @State private var rows: Int
+    let onApply: (Int, Int) -> Void
+
+    init(currentFields: Int, currentRows: Int, onApply: @escaping (Int, Int) -> Void) {
+        _fields = State(initialValue: currentFields)
+        _rows = State(initialValue: currentRows)
+        self.onApply = onApply
+    }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section {
+                    Stepper("Fields visible limit: \(fields)", value: $fields, in: 0...10)
+                    Stepper("Rows visible limit: \(rows)",   value: $rows,   in: 0...10)
+                } header: {
+                    Text("Decorator Visible Limits").textCase(nil)
+                } footer: {
+                    Text("Applying rebuilds the form with the new limits. Current document state is preserved.")
+                        .font(.caption)
+                }
+            }
+            .navigationTitle("Decorator Limits")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Apply") {
+                        onApply(fields, rows)
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
 // MARK: - DecoratorAPIDemoView  (standalone entry from the option list)
 
 private class EditorBox: ObservableObject {
-    let editor: DocumentEditor
+    @Published var editor: DocumentEditor
 
     var onAction: ((String, String) -> Void)?
     var onError:  ((String) -> Void)?
@@ -1138,6 +1184,22 @@ private class EditorBox: ObservableObject {
         guard let h = editor.events as? DecoratorEventHandler else { return }
         h.onDecoratorAction = onAction
         h.onDecoratorError  = onError
+    }
+
+    /// Rebuild the editor with a new `DecoratorConfig`, preserving the current
+    /// document state (so any decorators added in this session survive).
+    func rebuild(config: DecoratorConfig) {
+        let handler = DecoratorEventHandler()
+        let newEditor = DocumentEditor(
+            document: editor.document,
+            events: handler,
+            validateSchema: false,
+            license: licenseKey,
+            decoratorConfig: config
+        )
+        handler.editor = newEditor
+        editor = newEditor
+        wire()
     }
 }
 
@@ -1165,6 +1227,7 @@ struct DecoratorAPIDemoView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showDecoratorManager      = false
+    @State private var showDecoratorLimits       = false
     @State private var lastAction: String        = ""
     @State private var lastPath:   String        = ""
     @State private var showBanner: Bool          = false
@@ -1205,6 +1268,7 @@ struct DecoratorAPIDemoView: View {
             ZStack(alignment: .bottom) {
                 Form(documentEditor: editor)
                     .tint(.blue)
+                    .id("\(editor.decoratorConfig.visibleLimitInFields)-\(editor.decoratorConfig.visibleLimitInRows)")
 
                 if showBanner {
                     bannerView
@@ -1228,9 +1292,22 @@ struct DecoratorAPIDemoView: View {
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
+                Button { showDecoratorLimits = true } label: {
+                    Label("Limits", systemImage: "slider.horizontal.3")
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button { showDecoratorManager = true } label: {
                     Label("Decorators", systemImage: "paintbrush.pointed.fill")
                 }
+            }
+        }
+        .sheet(isPresented: $showDecoratorLimits) {
+            DecoratorLimitsSheet(
+                currentFields: editor.decoratorConfig.visibleLimitInFields,
+                currentRows:   editor.decoratorConfig.visibleLimitInRows
+            ) { fields, rows in
+                box.rebuild(config: DecoratorConfig(visibleLimitInFields: fields, visibleLimitInRows: rows))
             }
         }
         .sheet(isPresented: $showDecoratorManager) {
