@@ -36,7 +36,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
-        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey) && tableDataModel.mode == .fill
+        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)
     }
 
     func getCollectionRowDecorators(forRowID rowID: String, schemaKey: String) -> [DecoratorLocal] {
