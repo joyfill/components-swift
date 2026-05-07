@@ -36,7 +36,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
-        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey) && tableDataModel.mode == .fill
+        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)
     }
 
     func getCollectionRowDecorators(forRowID rowID: String, schemaKey: String) -> [DecoratorLocal] {
@@ -503,7 +503,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int, _ schemaKey: String, tableDataModel: TableDataModel) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey), rowDecoratorsCellWidth: decoratorsCellWidth()) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
@@ -788,7 +788,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey))),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey), rowDecoratorsCellWidth: decoratorsCellWidth())),
                                                    isExpanded: true, // Mark as expanded since we're showing content
                                                    rowWidth: rowWidth(filteredTableColumns, level, childSchemaKey, tableDataModel: tableDataModel))
                     cellModels.append(expanderRow)
@@ -974,7 +974,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id))),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id), rowDecoratorsCellWidth: decoratorsCellWidth())),
                                                             rowWidth: rowWidth(filteredTableColumns, level, id, tableDataModel: tableDataModel)
                             )
                             rowDataModel.isExpanded = false
@@ -2254,6 +2254,16 @@ protocol TableDataViewModelProtocol {
 extension TableDataViewModelProtocol {
     var decoratorConfig: DecoratorConfig {
         tableDataModel.documentEditor?.decoratorConfig ?? DecoratorConfig()
+    }
+
+    func decoratorsCellWidth() -> CGFloat {
+        if decoratorConfig.visibleLimitInRows <= 1 {
+            return 40
+        } else if decoratorConfig.visibleLimitInRows == 2 {
+            return 80
+        } else {
+            return 100
+        }
     }
 }
 

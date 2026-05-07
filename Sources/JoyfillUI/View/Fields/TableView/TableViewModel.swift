@@ -24,7 +24,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     var showRowDecorators: Bool {
-        return tableDataModel.decorate && tableDataModel.mode == .fill
+        return tableDataModel.decorate
     }
 
     private func refreshRowDecoratorMap() {

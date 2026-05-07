@@ -657,7 +657,9 @@ extension DocumentEditor {
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
+        let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+        
+        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -829,7 +831,9 @@ extension DocumentEditor {
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
             
-            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
+            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+            
+            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -1111,6 +1115,10 @@ extension DocumentEditor {
 
         if !copyWithValues {
             for i in newFields.indices {
+                // Copying "without values" keeps values for read-only fields and block fields.
+                let isReadonly = newFields[i].disabled == true
+                let isDisplayText = newFields[i].fieldType == .block
+                if isReadonly || isDisplayText { continue }
                 newFields[i].value = nil
             }
         }

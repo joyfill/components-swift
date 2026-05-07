@@ -12,7 +12,7 @@ import Joyfill
 
 final class SchemaValidationTests: XCTestCase {
     /// The schema version expected in `SchemaValidationError.details`.
-    private let expectedSchemaVersion = "1.0.0"
+    private let expectedSchemaVersion = "1.0.1"
     private let sdkVersion = "3.0.0-rc17"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
@@ -339,6 +339,39 @@ final class SchemaValidationTests: XCTestCase {
             let err = JoyfillSchemaManager().validateSchema(document: doc)
             XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "Type mismatch for Field.\(prop) should fail")
             XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+        }
+    }
+
+    // MARK: - Schema 1.0.1 relaxations
+
+    // ChartPoint: x/y are now optional and may be null. Only _id is required.
+    func testChartPoint_WithNullOrMissingCoordinates_ShouldValidate() {
+        let cases: [(String, [String: Any])] = [
+            ("null x and y",     ["_id": "p1", "x": NSNull(), "y": NSNull()]),
+            ("missing x and y",  ["_id": "p2"]),
+            ("null x only",      ["_id": "p3", "x": NSNull(), "y": 5]),
+            ("missing y only",   ["_id": "p4", "x": 1])
+        ]
+        for (label, point) in cases {
+            var docDict = minimalValidDocumentDictionary()
+            let chartField: [String: Any] = [
+                "_id": "chart1",
+                "type": "chart",
+                "file": "file1",
+                "xTitle": "X", "yTitle": "Y",
+                "xMin": 0, "xMax": 100,
+                "yMin": 0, "yMax": 100,
+                "value": [
+                    [
+                        "_id": "series1",
+                        "points": [point]
+                    ]
+                ]
+            ]
+            docDict["fields"] = [chartField]
+            let doc = JoyDoc(dictionary: docDict)
+            let err = JoyfillSchemaManager().validateSchema(document: doc)
+            XCTAssertNil(err, "ChartPoint with \(label) should validate against the relaxed schema")
         }
     }
 }

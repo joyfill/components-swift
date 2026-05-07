@@ -20,51 +20,54 @@ struct FieldHeaderView: View {
     }
     
     var body: some View {
-        if let title = fieldHeaderModel?.title {
-            HStack(alignment: .center, spacing: 4) {
+        HStack(alignment: .center, spacing: 4) {
+            if let title = fieldHeaderModel?.title {
                 Text("\(title)")
                     .font(.headline.bold())
-                
-                if fieldHeaderModel?.required == true {
-                    Image(systemName: "asterisk")
-                        .foregroundColor(isFilled ? .gray : .red)
-                        .imageScale(.small)
+            }
+            
+            if fieldHeaderModel?.required == true {
+                Image(systemName: "asterisk")
+                    .foregroundColor(isFilled ? .gray : .red)
+                    .imageScale(.small)
+            }
+            
+            Spacer()
+            
+            if let model = fieldHeaderModel,
+               !model.decorators.isEmpty {
+                FieldDecoratorsView(
+                    decorators: model.decorators,
+                    visibleLimit: model.visibleLimitInFields
+                ) { decorator in
+                    onDecoratorTap?(decorator)
                 }
-
-                Spacer()
-
-                if let model = fieldHeaderModel,
-                   !model.decorators.isEmpty,
-                   model.mode == .fill {
-                    FieldDecoratorsView(
-                        decorators: model.decorators,
-                        visibleLimit: model.visibleLimitInFields
-                    ) { decorator in
-                        onDecoratorTap?(decorator)
-                    }
-                }
-                let tipDescription = fieldHeaderModel?.tipDescription ?? ""
-                let tipTitle = fieldHeaderModel?.tipTitle ?? ""
-                if let tipVisible = fieldHeaderModel?.tipVisible {
-                    if tipVisible == true && !(tipDescription.isEmpty && tipTitle.isEmpty) {
-                        Button(action: {
-                            if let tipTitle = fieldHeaderModel?.tipTitle,
-                               let tipDescription = fieldHeaderModel?.tipDescription {
-                                alertMessage = tipTitle
-                                alertDescription = tipDescription
-                                showAlert = true
-                            }
-                        }, label: {
-                            Image(systemName: "i.circle")
-                        })
-                        .accessibilityIdentifier("ToolTipIdentifier")
-                        .alert(isPresented: $showAlert) {
-                            Alert(
-                                title: Text(alertMessage ?? ""),
-                                message: Text(alertDescription ?? ""),
-                                dismissButton: .default(Text("Dismiss"))
-                            )
+                .padding(.bottom, fieldHeaderModel?.title == nil ? 8 : 0)
+                // Re-enable the header even when the parent field is .disabled() —
+                // decorators must stay interactive on readonly forms.
+                .environment(\.isEnabled, true)
+            }
+            let tipDescription = fieldHeaderModel?.tipDescription ?? ""
+            let tipTitle = fieldHeaderModel?.tipTitle ?? ""
+            if let tipVisible = fieldHeaderModel?.tipVisible {
+                if tipVisible == true && !(tipDescription.isEmpty && tipTitle.isEmpty) {
+                    Button(action: {
+                        if let tipTitle = fieldHeaderModel?.tipTitle,
+                           let tipDescription = fieldHeaderModel?.tipDescription {
+                            alertMessage = tipTitle
+                            alertDescription = tipDescription
+                            showAlert = true
                         }
+                    }, label: {
+                        Image(systemName: "i.circle")
+                    })
+                    .accessibilityIdentifier("ToolTipIdentifier")
+                    .alert(isPresented: $showAlert) {
+                        Alert(
+                            title: Text(alertMessage ?? ""),
+                            message: Text(alertDescription ?? ""),
+                            dismissButton: .default(Text("Dismiss"))
+                        )
                     }
                 }
             }
