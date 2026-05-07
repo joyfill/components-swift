@@ -98,7 +98,7 @@
               "_id": "68ccd7cd0dddaa2e1c3ed438",
               "x": 0,
               "height": 15,
-              "y": 63,
+              "y": 71,
               "width": 8,
               "field": "68ccd7a0b7ba38007ae95bbb",
               "type": "collection",
@@ -124,6 +124,16 @@
               "y": 0,
               "width": 4,
               "height": 9
+            },
+            {
+              "_id": "6822e1f0a3b4c5d6e7f80123",
+              "type": "text",
+              "field": "6822e1d2a3b4c5d6e7f80456",
+              "displayType": "original",
+              "x": 2,
+              "y": 63,
+              "width": 4,
+              "height": 8
             }
           ],
           "hidden": false,
@@ -424,6 +434,14 @@
       "tipTitle": "Tooltip Title",
       "tipDescription": "Tooltip Description",
       "tipVisible": true
+    },
+    {
+      "_id": "6822e1d2a3b4c5d6e7f80456",
+      "identifier": "field_6822e1f0a3b4c5d6e7f80789",
+      "type": "text",
+      "title": "Text Field",
+      "file": "66a14ced9dc829a95e272506",
+      "value": ""
     }
   ],
   "deleted": false
