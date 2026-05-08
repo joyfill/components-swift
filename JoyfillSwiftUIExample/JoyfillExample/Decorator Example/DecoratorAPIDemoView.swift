@@ -1134,8 +1134,8 @@ struct DecoratorLimitsSheet: View {
         NavigationView {
             Form {
                 Section {
-                    Stepper("Fields visible limit: \(fields)", value: $fields, in: 0...10)
-                    Stepper("Rows visible limit: \(rows)",   value: $rows,   in: 0...10)
+                    Stepper("Fields visible limit: \(fields)", value: $fields, in: 0...Int.max)
+                    Stepper("Rows visible limit: \(rows)",   value: $rows,   in: 0...Int.max)
                 } header: {
                     Text("Decorator Visible Limits").textCase(nil)
                 } footer: {
