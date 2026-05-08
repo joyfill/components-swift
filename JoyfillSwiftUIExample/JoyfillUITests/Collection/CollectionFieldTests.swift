@@ -1431,5 +1431,165 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertFalse(editSignatureButton.exists, "Edit button should not exist for a fresh row signature (no carry-over)")
         app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
     }
+
+    func addCollectionRowForSignatureTests() {
+        let addRowButton = app.buttons["TableAddRowIdentifier"].firstMatch
+        XCTAssertTrue(addRowButton.waitForExistence(timeout: 5), "Add row button not found in collection")
+        addRowButton.tap()
+    }
+
+    func goToCollectionDetailFieldForSignatureTests() {
+        returnToRootView()
+        dismissAnyOpenModals()
+        waitForAppToSettle()
+
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"].firstMatch
+        pageSelectionButton.waitAndTap(message: "Page navigation button not found")
+        app.swipeUp()
+        app.swipeUp()
+
+        let page16InSheet = app.buttons
+            .matching(identifier: "PageSelectionIdentifier")
+            .matching(NSPredicate(format: "label == %@", "Page 16"))
+            .firstMatch
+        XCTAssertTrue(page16InSheet.waitForExistence(timeout: 5), "Page 16 option not found in page selector")
+        page16InSheet.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.7))
+
+        for _ in 0..<24 {
+            let collectionButtons = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
+            if collectionButtons.count > 0 {
+                for index in 0..<collectionButtons.count {
+                    let target = collectionButtons.element(boundBy: index)
+                    if target.exists && target.isHittable {
+                        target.tap()
+                        return
+                    }
+                }
+            }
+            app.swipeUp()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.2))
+        }
+
+        XCTFail("CollectionDetailViewIdentifier not found for signature tests after selecting Page 16")
+    }
+
+    func swipeLeftOnCollectionGridForSignatureDiscovery() {
+        let table = app.tables.firstMatch
+        if table.waitForExistence(timeout: 1) {
+            table.swipeLeft()
+            return
+        }
+
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.waitForExistence(timeout: 5), "App window not available for collection swipe")
+        let start = window.coordinate(withNormalizedOffset: CGVector(dx: 0.85, dy: 0.55))
+        let end = window.coordinate(withNormalizedOffset: CGVector(dx: 0.15, dy: 0.55))
+        start.press(forDuration: 0.05, thenDragTo: end)
+    }
+
+    @discardableResult
+    func openLastCollectionSignatureCell() -> XCUIElement {
+        for _ in 0..<10 {
+            let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+            if signatureButtons.count > 0 {
+                let target = signatureButtons.element(boundBy: signatureButtons.count - 1)
+                if target.exists && target.isHittable {
+                    target.tap()
+                    return target
+                }
+            }
+            swipeLeftOnCollectionGridForSignatureDiscovery()
+        }
+
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        XCTAssertGreaterThan(signatureButtons.count, 0, "Collection signature button not found after swiping to last columns")
+        let fallbackTarget = signatureButtons.element(boundBy: max(signatureButtons.count - 1, 0))
+        fallbackTarget.waitAndTap(message: "Collection signature button not hittable")
+        return fallbackTarget
+    }
+
+    func switchToTypeModeInCollectionSignature() {
+        app.buttons["Type"].firstMatch.waitAndTap(message: "Type mode button not found")
+    }
+
+    func enterCollectionTypedSignature(_ text: String) {
+        let textField = app.textFields["Type Signature"].firstMatch
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Type Signature text field not found")
+        textField.tap()
+
+        if let existingValue = textField.value as? String, !existingValue.isEmpty, existingValue != "Type Signature" {
+            textField.clearText()
+        }
+
+        textField.typeText(text)
+    }
+
+    func testCollectionExistingSignatureOpensReadonlyPreviewFirst() throws {
+        goToCollectionDetailFieldForSignatureTests()
+        addCollectionRowForSignatureTests()
+
+        _ = openLastCollectionSignatureCell()
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].firstMatch.waitAndTap(message: "Save signature button not found")
+
+        _ = openLastCollectionSignatureCell()
+        XCTAssertTrue(app.buttons["TableSignatureEditButton"].firstMatch.waitForExistence(timeout: 5),
+                      "Existing collection signature should open in preview mode with Edit button")
+    }
+
+    func testCollectionSignatureModeResetsToDrawOnOpen() throws {
+        goToCollectionDetailFieldForSignatureTests()
+        addCollectionRowForSignatureTests()
+
+        _ = openLastCollectionSignatureCell()
+        let drawCanvas = app.otherElements["CanvasIdentifier"].firstMatch
+        XCTAssertTrue(drawCanvas.waitForExistence(timeout: 5), "New collection signature should open in Draw mode")
+
+        switchToTypeModeInCollectionSignature()
+        XCTAssertTrue(app.textFields["Type Signature"].firstMatch.waitForExistence(timeout: 5),
+                      "Type field should appear after switching to Type mode")
+
+        dismissSheet()
+        _ = openLastCollectionSignatureCell()
+        XCTAssertTrue(app.otherElements["CanvasIdentifier"].firstMatch.waitForExistence(timeout: 5),
+                      "Collection signature should reset to Draw mode when reopened")
+    }
+
+    func testCollectionRestoreTypedTextOnEdit() throws {
+        goToCollectionDetailFieldForSignatureTests()
+        addCollectionRowForSignatureTests()
+
+        _ = openLastCollectionSignatureCell()
+        switchToTypeModeInCollectionSignature()
+        enterCollectionTypedSignature("Collection Typed")
+        app.buttons["SaveSignatureIdentifier"].firstMatch.waitAndTap(message: "Save signature button not found")
+
+        _ = openLastCollectionSignatureCell()
+        app.buttons["TableSignatureEditButton"].firstMatch.waitAndTap(message: "Edit signature button not found")
+        switchToTypeModeInCollectionSignature()
+
+        XCTAssertEqual("Collection Typed", app.textFields["Type Signature"].firstMatch.value as? String ?? "",
+                       "Previously typed collection signature text should be restored on edit")
+    }
+
+    func testCollectionTypedSignatureIsRowScoped() throws {
+        goToCollectionDetailFieldForSignatureTests()
+        addCollectionRowForSignatureTests()
+
+        _ = openLastCollectionSignatureCell()
+        switchToTypeModeInCollectionSignature()
+        enterCollectionTypedSignature("Row One Typed")
+        app.buttons["SaveSignatureIdentifier"].firstMatch.waitAndTap(message: "Save signature button not found")
+
+        addCollectionRowForSignatureTests()
+
+        _ = openLastCollectionSignatureCell()
+        switchToTypeModeInCollectionSignature()
+
+        let typedValue = app.textFields["Type Signature"].firstMatch.value as? String ?? ""
+        XCTAssertTrue(typedValue.isEmpty || typedValue == "Type Signature",
+                      "Typed signature should be row-scoped and not carry to new row")
+    }
     
 }
