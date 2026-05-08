@@ -1,0 +1,236 @@
+{
+  "_id": "69fda955b580cf6fab953a4e",
+  "type": "template",
+  "stage": "published",
+  "identifier": "doc_pdc_mobile_001",
+  "name": "PDC Mobile",
+  "createdOn": 1758527982824,
+  "files": [
+    {
+      "_id": "file_pdc_mobile_001",
+      "metadata": {},
+      "name": "",
+      "version": 1,
+      "pages": [
+        {
+          "_id": "page_pdc_mobile_001",
+          "name": "Web Only Page",
+          "deletable": true,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ],
+          "fieldPositions": [],
+          "metadata": {},
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0
+        }
+      ],
+      "pageOrder": [
+        "page_pdc_mobile_001"
+      ],
+      "views": [
+        {
+          "_id": "view_pdc_mobile_001",
+          "type": "mobile",
+          "pages": [
+            {
+              "_id": "page_pdc_mobile_001",
+              "name": "Mobile View Page",
+              "fieldPositions": [
+                {
+                  "_id": "69fda9611467c1db59e4d3e9",
+                  "type": "block",
+                  "displayType": "original",
+                  "fontSize": 28,
+                  "fontWeight": "bold",
+                  "x": 0,
+                  "y": 0,
+                  "width": 3,
+                  "height": 4,
+                  "field": "69fda96121a7adca05d300ed"
+                },
+                {
+                  "_id": "69fda96d0c839f53f00e39fc",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 4,
+                  "width": 4,
+                  "height": 9,
+                  "field": "69fda96d180c2668269fa855"
+                },
+                {
+                  "_id": "69fda977525cf2212e2bc466",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 13,
+                  "width": 4,
+                  "height": 8,
+                  "field": "69fda9770d8a0f4198bcdd6b"
+                },
+                {
+                  "_id": "69fda97ce247af94be7fac7c",
+                  "type": "date",
+                  "displayType": "original",
+                  "format": "MM/DD/YYYY hh:mma",
+                  "x": 0,
+                  "y": 21,
+                  "width": 4,
+                  "height": 7,
+                  "field": "69fda97c01d09f836499f4d0"
+                },
+                {
+                  "_id": "69fda9833003b431d0ee26b0",
+                  "type": "table",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 28,
+                  "width": 4,
+                  "height": 15,
+                  "field": "69fda9839f94ae3df377125b"
+                }
+              ],
+              "metadata": {},
+              "hidden": false,
+              "width": 375,
+              "height": 667,
+              "cols": 4,
+              "rowHeight": 8,
+              "layout": "grid",
+              "presentation": "normal",
+              "margin": 0,
+              "padding": 16,
+              "borderWidth": 0
+            }
+          ],
+          "pageOrder": [
+            "page_pdc_mobile_001"
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "file": "file_pdc_mobile_001",
+      "_id": "69fda96121a7adca05d300ed",
+      "type": "block",
+      "title": "Heading Text",
+      "value": "Mobile View",
+      "identifier": "field_69fda96121a7adca05d300ed"
+    },
+    {
+      "file": "file_pdc_mobile_001",
+      "_id": "69fda96d180c2668269fa855",
+      "type": "text",
+      "title": "Text",
+      "identifier": "field_69fda96d180c2668269fa855",
+      "value": "Mobile View"
+    },
+    {
+      "file": "file_pdc_mobile_001",
+      "_id": "69fda9770d8a0f4198bcdd6b",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_69fda9770d8a0f4198bcdd6b",
+      "value": 999999
+    },
+    {
+      "file": "file_pdc_mobile_001",
+      "_id": "69fda97c01d09f836499f4d0",
+      "type": "date",
+      "title": "Date Time",
+      "identifier": "field_69fda97c01d09f836499f4d0",
+      "value": 1778231739198,
+      "tz": "Asia/Calcutta"
+    },
+    {
+      "file": "file_pdc_mobile_001",
+      "_id": "69fda9839f94ae3df377125b",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "69fd9b33f281c145236324f4",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "69fda9839f94ae3df377125b_column_69fd9b33f281c145236324f4"
+        },
+        {
+          "_id": "69fd9b33b274a8e580fbc89f",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "69fd9b330d0e14af562203f6",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "69fd9b338ec7e34ced2a9ae3",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "69fd9b33a67afdc2c212156d",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "69fda9839f94ae3df377125b_column_69fd9b33b274a8e580fbc89f"
+        },
+        {
+          "_id": "69fd9b33b147eebab75f60ca",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "69fda9839f94ae3df377125b_column_69fd9b33b147eebab75f60ca"
+        }
+      ],
+      "value": [
+        {
+          "_id": "69fd9b33dc3bdf3f95044b0c",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "69fd9b33d0a316b6dd9c194e",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "69fd9b33c1b3075e999de97e",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_69fda9839f94ae3df377125b",
+      "tableColumnOrder": [
+        "69fd9b33f281c145236324f4",
+        "69fd9b33b274a8e580fbc89f",
+        "69fd9b33b147eebab75f60ca"
+      ],
+      "rowOrder": [
+        "69fd9b33dc3bdf3f95044b0c",
+        "69fd9b33d0a316b6dd9c194e",
+        "69fd9b33c1b3075e999de97e"
+      ]
+    }
+  ],
+  "deleted": false
+}
