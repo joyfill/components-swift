@@ -1991,6 +1991,20 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
             return XCTFail("Missing or invalid 'change' dictionary")
         }
         XCTAssertEqual(change["rowId"] as? String, "66e3eca93796d7435b63ce9d")
+        
+        guard let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing deleted row object in 'change'")
+        }
+
+        let expectedDeletedRow: [String: Any] = [
+            "_id": "66e3eca93796d7435b63ce9d",
+            "deleted": false,
+            "cells": [
+                "66e3eca9c0c6bf8bef669d21": "Boy 3",
+                "66e3eca984ddabde6a6f469d": "66e3eca9e128bcf2e560a76e"
+            ]
+        ]
+        XCTAssertEqual(row as NSDictionary, expectedDeletedRow as NSDictionary)
     }
     
     func testTableMoveSingleRowAndCheckOnChange() throws {
