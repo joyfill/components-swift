@@ -32,7 +32,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func showSingleClickEditButton(for tableDataModel: TableDataModel) -> Bool {
-        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
+        return tableDataModel.singleClickRowEdit
     }
 
     func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {

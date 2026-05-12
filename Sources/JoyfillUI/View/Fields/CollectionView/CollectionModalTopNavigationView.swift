@@ -61,7 +61,7 @@ struct CollectionModalTopNavigationView: View {
                 })
             }
 
-            if !viewModel.tableDataModel.selectedRows.isEmpty {
+            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -316,6 +316,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         parentPath: parentPathForSelection
                     )
                 }
+                .environment(\.isEnabled, true)
             }
         }
         .padding(.bottom, -8)
@@ -362,19 +363,21 @@ struct CollectionEditMultipleRowsSheetView: View {
                             .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                             .accessibilityIdentifier("LowerRowButtonIdentifier")
                             
-                            Button(action: {
-                                viewModel.insertBelowFromBulkEdit()
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(.blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "plus")
-                                        .foregroundStyle(.blue)
-                                }
-                            })
-                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            if viewModel.tableDataModel.mode == .fill {
+                                Button(action: {
+                                    viewModel.insertBelowFromBulkEdit()
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(.blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+
+                                        Image(systemName: "plus")
+                                            .foregroundStyle(.blue)
+                                    }
+                                })
+                                .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            }
                         } else {
                             Spacer()
                         }
@@ -718,5 +721,6 @@ struct CollectionEditMultipleRowsSheetView: View {
             }
             .id(col.id)
         }
+        .disabled(viewModel.tableDataModel.mode == .readonly)
     }
 }
