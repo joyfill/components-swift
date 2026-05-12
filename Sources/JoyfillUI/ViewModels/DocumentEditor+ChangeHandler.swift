@@ -30,6 +30,7 @@ extension DocumentEditor {
         guard var lastRowOrder = field.rowOrder else {
             return elements
         }
+        var deletedRowsByID = [String: [String: Any]]()
 
         for row in rowIDs {
             guard let index = elements.firstIndex(where: { $0.id == row }) else {
@@ -37,14 +38,17 @@ extension DocumentEditor {
                 return elements
             }
             var element = elements[index]
+            if shouldSendEvent {
+                deletedRowsByID[row] = element.anyDictionary
+            }
             element.setDeleted()
             elements[index] = element
             lastRowOrder.removeAll(where: { $0 == row })
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        guard shouldSendEvent else { return  elements }
-        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
+        guard shouldSendEvent else { return elements }
+        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, rowsByID: deletedRowsByID)
         return elements
     }
     
@@ -56,40 +60,47 @@ extension DocumentEditor {
         }
         guard var elements = field.valueToValueElements else { return [] }
         guard !rowIDs.isEmpty else { return elements }
+        var deletedRowsByID = [String: [String: Any]]()
         
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
-                elements.remove(at: index)
+                let deletedElement = elements.remove(at: index)
+                if shouldSendEvent {
+                    deletedRowsByID[row] = deletedElement.anyDictionary
+                }
             } else {
-                _ = deleteRowRecursively(rowId: row, in: &elements)
+                if let deletedElement = deleteRowRecursively(rowId: row, in: &elements) {
+                    if shouldSendEvent {
+                        deletedRowsByID[row] = deletedElement.anyDictionary
+                    }
+                }
             }
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         guard shouldSendEvent else { return elements }
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
+        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey, rowsByID: deletedRowsByID)
         return elements
     }
 
-    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> Bool {
+    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
-                elements.remove(at: i)
-                return true
+                return elements.remove(at: i)
             }
             if var children = elements[i].childrens {
-                for key in children.keys {
+                for key in Array(children.keys) {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if deleteRowRecursively(rowId: rowId, in: &nestedElements) {
+                        if let deletedElement = deleteRowRecursively(rowId: rowId, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return deletedElement
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
     
     /// Duplicates specified rows in a table field.
@@ -1316,7 +1327,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
 
-    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
+    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String], rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
@@ -1324,6 +1335,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
+            let rowObject = rowsByID[targetRow.id] ?? [:]
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
@@ -1334,7 +1346,10 @@ extension DocumentEditor {
                                 fieldId: event.fieldIdentifier.fieldID,
                                 fieldIdentifier: context.fieldIdentifier,
                                 fieldPositionId: context.fieldPositionID,
-                                change: ["rowId": targetRow.id],
+                                change: [
+                                    "rowId": targetRow.id,
+                                    "row": rowObject
+                                ],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
@@ -1342,7 +1357,7 @@ extension DocumentEditor {
 //        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
     
-    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String) {
+    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String, rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
@@ -1350,6 +1365,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
+            let rowObject = rowsByID[targetRow.id] ?? [:]
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
@@ -1360,9 +1376,12 @@ extension DocumentEditor {
                                 fieldId: fieldIdentifier.fieldID,
                                 fieldIdentifier: context.fieldIdentifier,
                                 fieldPositionId: context.fieldPositionID,
-                                change: ["parentPath": parentPath,
-                                         "schemaId": schemaId,
-                                         "rowId": targetRow.id],
+                                change: [
+                                    "parentPath": parentPath,
+                                    "schemaId": schemaId,
+                                    "rowId": targetRow.id,
+                                    "row": rowObject
+                                ],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
