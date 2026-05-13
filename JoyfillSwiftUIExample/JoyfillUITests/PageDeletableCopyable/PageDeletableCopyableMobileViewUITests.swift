@@ -74,6 +74,8 @@ final class PageDeletableCopyableMobileViewUITests: JoyfillUITestsBaseClass {
         let hasWithoutValues = alert.buttons["Without Values"].exists || app.buttons["Without Values"].exists
         XCTAssertTrue(hasWithValues, "Duplicated page's copyable must include with-values.")
         XCTAssertTrue(hasWithoutValues, "Duplicated page's copyable must include without-values.")
+
+        if alert.buttons["Cancel"].exists { alert.buttons["Cancel"].tap() }
     }
 
     /// Duplicates the mobile-view page, then taps delete on the duplicate and confirms
