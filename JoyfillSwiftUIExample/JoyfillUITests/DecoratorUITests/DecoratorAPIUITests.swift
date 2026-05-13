@@ -878,3 +878,150 @@ final class DecoratorReadonlyAPIUITests: DecoratorAPIUITestsBase {
         S.run(S.removeCommand(path: rootRowsPath, action: action), in: app)
     }
 }
+
+// MARK: - Readonly Row Form: cells disabled, column-header decorators still tappable
+
+final class RowFormReadonlyUITests: DecoratorAPIUITestsBase {
+
+    override func getJSONFileNameForTest() -> String { "Decorator" }
+
+    override func getGotoLaunchArguments() -> [(String, String?)] {
+        return [("--disable-animations", nil), ("--mode", "readonly")]
+    }
+
+    /// Assert every supplied cell exists in the row form and is disabled, then actively
+    /// attempt to tap it and verify nothing interactive fires (no keyboard appears).
+    private func assertCellsNotTappable(_ cells: [(name: String, element: XCUIElement)],
+                                        file: StaticString = #file, line: UInt = #line) {
+        for (name, element) in cells {
+            XCTAssertTrue(element.waitForExistence(timeout: 2),
+                          "\(name) cell should render in readonly row form",
+                          file: file, line: line)
+            XCTAssertFalse(element.isEnabled,
+                           "\(name) cell should be disabled (not tappable) in readonly row form",
+                           file: file, line: line)
+            // Actively probe the disabled cell: tap if it is reachable and confirm the tap
+            // had no interactive effect (no keyboard opens). isHittable guard avoids
+            // coordinate errors when the cell sits below the visible viewport.
+            if element.isHittable { element.tap() }
+            XCTAssertFalse(app.keyboards.element.waitForExistence(timeout: 1),
+                           "Tapping disabled \(name) cell must not show keyboard in readonly row form",
+                           file: file, line: line)
+        }
+    }
+
+    // Table: common cell decorator on the text column appears in every row's edit form.
+    func testTable_CellDecoratorInsideRowFormStaysTappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_table_cell"
+        let commonCellPath = "\(pageID)/\(fpTable)/columns/\(tColText)"
+        let decoratorButton = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.openTableDetailView(in: app)
+        S.run(S.addCommand(path: commonCellPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        // Decorator existence also proves the row form opened.
+        XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
+                      "Cell decorator should be hittable inside readonly row form")
+
+        // Schema (Decorator.json table): text, dropdown, multiSelect, image, number,
+        // date, block, barcode, signature. Block has no editable identifier (omitted).
+        // Barcode uses TableBarcodeView which renders a static Text in readonly —
+        // checked via absence of the editable TextEditor below, like collection text.
+        assertCellsNotTappable([
+            ("text",        app.textFields["EditRowsTextFieldIdentifier"]),
+            ("dropdown",    app.buttons["EditRowsDropdownFieldIdentifier"]),
+            ("multiSelect", app.buttons["EditRowsMultiSelecionFieldIdentifier"]),
+            ("image",       app.buttons["EditRowsImageFieldIdentifier"]),
+            ("number",      app.textFields["EditRowsNumberFieldIdentifier"]),
+            ("date",        app.images["EditRowsDateFieldIdentifier"]),
+            ("signature",   app.buttons["EditRowsSignatureFieldIdentifier"]),
+        ])
+        XCTAssertFalse(app.textViews["EditRowsBarcodeFieldIdentifier"].exists,
+                       "Barcode cell should not be an editable TextEditor in readonly row form")
+        // Decorator tap still fires onFocus despite the parent .disabled wrapper.
+        decoratorButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        }, "Tapping cell decorator in readonly row form should fire onFocus")
+
+        S.dismissRowEditForm(in: app)
+    }
+
+    // Collection root: common cell decorator on the text column appears in every root row's edit form.
+    func testCollection_RootCellDecoratorInsideRowFormStaysTappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_collection_root_cell"
+        let commonRootCellPath = "\(pageID)/\(fpCollection)/columns/\(cColText)"
+        let decoratorButton = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.openCollectionDetailView(in: app)
+        S.run(S.addCommand(path: commonRootCellPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        // Decorator existence also proves the row form opened.
+        XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
+                      "Root cell decorator should be hittable inside readonly row form")
+
+        // Schema (Decorator.json collection root): text, dropdown, image.
+        // Text uses TableTextRowFormView which renders a static Text in readonly —
+        // the editable TextField never gets created, so the absence check is the
+        // appropriate "not tappable" assertion here (helper would fail to find it).
+        XCTAssertFalse(app.textFields["EditRowsTextFieldIdentifier"].exists,
+                       "Text cell should not be an editable TextField in readonly root row form")
+        assertCellsNotTappable([
+            ("dropdown", app.buttons["EditRowsDropdownFieldIdentifier"]),
+            ("image",    app.buttons["EditRowsImageFieldIdentifier"]),
+        ])
+
+        // Decorator tap still fires onFocus despite the parent .disabled wrapper.
+        decoratorButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        }, "Tapping root cell decorator in readonly row form should fire onFocus")
+
+        S.dismissRowEditForm(in: app)
+    }
+
+    // Collection nested L1: specific cell decorator on the multiSelect column under root row 2.
+    func testCollection_NestedL1CellDecoratorStaysTappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_collection_l1_cell"
+        let l1CellPath = "\(pageID)/\(fpCollection)/\(collRootRow2)/schemas/\(schemaL1)/\(l1Row1UnderRoot2)/\(cL1ColMultiSelect)"
+        let decoratorButton = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.openCollectionDetailView(in: app)
+        S.expandCollectionRootRow(at: 2, in: app)
+        S.run(S.addCommand(path: l1CellPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
+
+        // Decorator existence also proves the row form opened.
+        XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
+                      "Nested L1 cell decorator should be hittable inside readonly row form")
+
+        // Schema (Decorator.json level1Table1): multiSelect, number, date.
+        assertCellsNotTappable([
+            ("multiSelect", app.buttons["EditRowsMultiSelecionFieldIdentifier"]),
+            ("number",      app.textFields["EditRowsNumberFieldIdentifier"]),
+            ("date",        app.images["EditRowsDateFieldIdentifier"]),
+        ])
+
+        // Decorator tap still fires onFocus despite the parent .disabled wrapper.
+        decoratorButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        }, "Tapping nested L1 cell decorator in readonly row form should fire onFocus")
+
+        S.dismissRowEditForm(in: app)
+    }
+}

@@ -20,7 +20,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var uuid = UUID()
     
     var showSingleClickEditButton: Bool {
-        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
+        return tableDataModel.singleClickRowEdit
     }
 
     var showRowDecorators: Bool {
