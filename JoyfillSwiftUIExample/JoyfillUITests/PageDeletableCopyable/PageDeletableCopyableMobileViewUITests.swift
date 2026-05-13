@@ -34,18 +34,6 @@ final class PageDeletableCopyableMobileViewUITests: JoyfillUITestsBaseClass {
         return row
     }
 
-    private func tapDuplicateMode(_ title: String, file: StaticString = #filePath, line: UInt = #line) {
-        let alert = app.alerts.firstMatch
-        XCTAssertTrue(alert.waitForExistence(timeout: 3), "Duplicate mode dialog should appear.", file: file, line: line)
-        if alert.buttons[title].exists {
-            alert.buttons[title].tap()
-        } else if app.buttons[title].exists {
-            app.buttons[title].tap()
-        } else {
-            XCTFail("Could not find duplicate mode button '\(title)'.", file: file, line: line)
-        }
-    }
-
     /// Confirms that after duplicating the mobile-view page, the new page is rendered
     /// with the spec defaults: `deletable=true` (delete button visible) and
     /// `copyable=[withValues, withoutValues]` (duplicate dialog offers both modes).
