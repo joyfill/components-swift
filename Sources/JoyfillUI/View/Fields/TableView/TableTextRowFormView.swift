@@ -34,40 +34,22 @@ struct TableTextRowFormView: View {
             }
         } else {
             HStack(spacing: 0) {
-                if #available(iOS 16.0, *) {
-                    TextEditor(text: $text)
-                        .font(.system(size: 15))
-                        .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                        .scrollContentBackground(.hidden)
-                        .onChange(of: text) { newValue in
-                            updateFieldValue(newText: newValue)
+                TextField("", text: $text)
+                    .font(.system(size: 15))
+                    .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                    .padding(.horizontal, 10)
+                    .onChange(of: text) { newValue in
+                        updateFieldValue(newText: newValue)
+                    }
+                    .focused($isTextFieldFocused)
+                    .onChange(of: isTextFieldFocused) { focused in
+                        if focused {
+                            cellModel.didFocusBlur?(.focus, cellModel.data)
+                        } else {
+                            cellModel.didFocusBlur?(.blur, cellModel.data)
                         }
-                        .focused($isTextFieldFocused)
-                        .onChange(of: isTextFieldFocused) { focused in
-                            if focused {
-                                cellModel.didFocusBlur?(.focus, cellModel.data)
-                            } else {
-                                cellModel.didFocusBlur?(.blur, cellModel.data)
-                            }
-                        }
-                        .onAppear { autoFocusIfNeeded() }
-                } else {
-                    TextEditor(text: $text)
-                        .font(.system(size: 15))
-                        .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                        .onChange(of: text) { newValue in
-                            updateFieldValue(newText: newValue)
-                        }
-                        .focused($isTextFieldFocused)
-                        .onChange(of: isTextFieldFocused) { focused in
-                            if focused {
-                                cellModel.didFocusBlur?(.focus, cellModel.data)
-                            } else {
-                                cellModel.didFocusBlur?(.blur, cellModel.data)
-                            }
-                        }
-                        .onAppear { autoFocusIfNeeded() }
-                }
+                    }
+                    .onAppear { autoFocusIfNeeded() }
             }
         }
     }
