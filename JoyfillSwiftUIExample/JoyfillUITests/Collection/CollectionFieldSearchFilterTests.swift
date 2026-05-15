@@ -1738,7 +1738,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("Hello ji")
@@ -1805,7 +1805,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("Joyfill")
@@ -1863,7 +1863,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("A")
@@ -2075,7 +2075,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2191,7 +2191,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2307,7 +2307,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("qu")
@@ -2430,7 +2430,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2615,7 +2615,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2768,7 +2768,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit row text field should exist")
         textField.tap()
         
@@ -3153,7 +3153,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.press(forDuration: 1.0)
