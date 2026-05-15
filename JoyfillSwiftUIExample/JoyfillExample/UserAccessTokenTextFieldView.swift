@@ -336,8 +336,8 @@ struct FormDestinationView: View {
                         HStack {
                             Image(systemName: "list.clipboard")
                             Text("Logs")
-                            if !changeManager.displayedChangelogs.isEmpty {
-                                Text("\(changeManager.displayedChangelogs.count)")
+                            if !changeManager.displayedEntries.isEmpty {
+                                Text("\(changeManager.displayedEntries.count)")
                                     .font(.caption)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 6)
