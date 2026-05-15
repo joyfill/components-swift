@@ -59,7 +59,10 @@ struct ChangelogEntry: Identifiable {
             }
             var parts: [String] = []
             if !uniqueTargets.isEmpty { parts.append(uniqueTargets.joined(separator: ", ")) }
-            if !fields.isEmpty { parts.append("field: \(fields.first!)\(fields.count > 1 ? " (+\(fields.count - 1))" : "")") }
+            if let firstField = fields.first {
+                let extra = fields.count > 1 ? " (+\(fields.count - 1))" : ""
+                parts.append("field: \(firstField)\(extra)")
+            }
             if rowsCount > 0 { parts.append("\(rowsCount) row\(rowsCount == 1 ? "" : "s")") }
             return parts.joined(separator: " · ")
         default:
