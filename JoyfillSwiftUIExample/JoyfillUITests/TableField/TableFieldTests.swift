@@ -1998,7 +1998,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
 
         let expectedDeletedRow: [String: Any] = [
             "_id": "66e3eca93796d7435b63ce9d",
-            "deleted": false,
+            "deleted": true,
             "cells": [
                 "66e3eca9c0c6bf8bef669d21": "Boy 3",
                 "66e3eca984ddabde6a6f469d": "66e3eca9e128bcf2e560a76e"

@@ -38,10 +38,10 @@ extension DocumentEditor {
                 return elements
             }
             var element = elements[index]
+            element.setDeleted()
             if shouldSendEvent {
                 deletedRowsByID[row] = element.anyDictionary
             }
-            element.setDeleted()
             elements[index] = element
             lastRowOrder.removeAll(where: { $0 == row })
         }
