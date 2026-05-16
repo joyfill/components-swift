@@ -45,6 +45,10 @@
             {
               "_id": "page_pdc_mobile_001",
               "name": "Mobile View Page",
+              "deletable": false,
+              "copyable": [
+                "with-values"
+              ],
               "fieldPositions": [
                 {
                   "_id": "69fda9611467c1db59e4d3e9",
