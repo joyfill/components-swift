@@ -65,14 +65,16 @@ extension DocumentEditor {
 
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
-                let deletedElement = elements.remove(at: index)
+                var deletedElement = elements.remove(at: index)
                 if shouldSendEvent {
+                    deletedElement.setDeleted()
                     deletedRowsByID[row] = deletedElement.anyDictionary
                     deletedRowIDs.append(row)
                 }
             } else {
-                if let deletedElement = deleteRowRecursively(rowId: row, in: &elements) {
+                if var deletedElement = deleteRowRecursively(rowId: row, in: &elements) {
                     if shouldSendEvent {
+                        deletedElement.setDeleted()
                         deletedRowsByID[row] = deletedElement.anyDictionary
                         deletedRowIDs.append(row)
                     }

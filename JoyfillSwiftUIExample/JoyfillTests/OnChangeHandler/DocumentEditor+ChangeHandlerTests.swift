@@ -1103,6 +1103,72 @@ extension DocumentEditorChangeHandlerTests {
         }
     }
 
+    // Duplicate rowIDs in the input must produce a single rowDelete event (the second occurrence
+    // can't find the already-removed row and is filtered out before emit).
+    func testBulkDeleteNestedCollectionItemsWithDuplicateRowIDs() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        let duplicatedRowID = "67ddd18bc3a74e6b350987f9"
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+
+        _ = documentEditor.deleteNestedRows(rowIDs: [duplicatedRowID, duplicatedRowID],
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            rootSchemaKey: collectionFieldID,
+                                            nestedKey: nestedKey,
+                                            parentRowId: parentRowId)
+
+        let deleteEvents = captured.filter { $0.target == "field.value.rowDelete" }
+        XCTAssertEqual(deleteEvents.count, 1, "Duplicate rowIDs must collapse into a single rowDelete event")
+        XCTAssertEqual(deleteEvents.first?.change?["rowId"] as? String, duplicatedRowID)
+    }
+
+    // The embedded row payload in a nested rowDelete change must carry "deleted": true,
+    // matching the top-level deleteRows path. The snapshot is mutated via setDeleted() on the
+    // removed copy in deleteNestedRows; the underlying data is untouched (already removed).
+    func testDeleteNestedCollectionItemPayloadMarksDeletedTrue() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        let rowToDelete = "67ddd18bc3a74e6b350987f9"
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+
+        _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            rootSchemaKey: collectionFieldID,
+                                            nestedKey: nestedKey,
+                                            parentRowId: parentRowId)
+
+        let deleteEvents = captured.filter { $0.target == "field.value.rowDelete" }
+        XCTAssertEqual(deleteEvents.count, 1)
+        let row = deleteEvents.first?.change?["row"] as? [String: Any]
+        XCTAssertEqual(row?["deleted"] as? Bool, true, "Embedded row payload must record deleted: true")
+    }
+
     // Deleting an L1 row that owns L2 grandchildren must surface the full subtree in the
     // rowDelete change-log payload. The previous test only covers leaf deletion.
     func testDeleteNestedCollectionItemPayloadIncludesSubtree() {

@@ -3097,6 +3097,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
 
         let expectedDeletedRow: [String: Any] = [
             "_id": "68599790e8593d6d76c3a09f",
+            "deleted": true,
             "cells": [
                 "685753ce949e66c62c746f62": "A",
                 "685753ca9756907c2dd4fdca": 200,
