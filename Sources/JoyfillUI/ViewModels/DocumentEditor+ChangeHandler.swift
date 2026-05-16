@@ -89,7 +89,7 @@ extension DocumentEditor {
                 return elements.remove(at: i)
             }
             if var children = elements[i].childrens {
-                for key in Array(children.keys) {
+                for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
                         if let deletedElement = deleteRowRecursively(rowId: rowId, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
