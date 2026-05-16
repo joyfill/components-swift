@@ -981,6 +981,127 @@ extension DocumentEditorChangeHandlerTests {
         
         XCTAssertEqual(updatedNestedRows.filter { !($0.deleted ?? false) }.count, initialNestedRows.count - 1)
     }
+    
+    // Deleting only a non-existent rowID must leave the document untouched and emit no rowDelete event.
+    func testDeleteNonExistingRowNestedCollectionItem() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        let nonExistingRowID = "non-existing-row-id"
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+
+        let initialElements = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements
+
+        _ = documentEditor.deleteNestedRows(rowIDs: [nonExistingRowID],
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            rootSchemaKey: collectionFieldID,
+                                            nestedKey: nestedKey,
+                                            parentRowId: parentRowId)
+
+        XCTAssertEqual(documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements, initialElements,
+                       "Field elements must be untouched when rowID doesn't exist")
+        XCTAssertEqual(events.onChangeCallCount, 0,
+                       "onChange must not fire at all when the rowID doesn't exist")
+        XCTAssertTrue(captured.isEmpty)
+    }
+
+    // Bulk delete with a mix of existing and non-existing rowIDs: only the existing ones get a rowDelete event,
+    // and the document only loses the existing ones.
+    func testBulkDeleteNestedCollectionItemsWithOneNonExistingRowID() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        let existingRowID = "67ddd18bc3a74e6b350987f9"
+        let nonExistingRowID = "non-existing-row-id"
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+
+        _ = documentEditor.deleteNestedRows(rowIDs: [existingRowID, nonExistingRowID],
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            rootSchemaKey: collectionFieldID,
+                                            nestedKey: nestedKey,
+                                            parentRowId: parentRowId)
+
+        // Only the existing row gets removed from the tree.
+        let nestedRows = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?
+            .first(where: { $0.id == parentRowId })?.childrens?[nestedKey]?.valueToValueElements ?? []
+        XCTAssertNil(nestedRows.first(where: { $0.id == existingRowID }),
+                     "Existing row should be removed from the nested children")
+
+        // Exactly one rowDelete event fires, for the existing row only.
+        let deleteEvents = captured.filter { $0.target == "field.value.rowDelete" }
+        XCTAssertEqual(deleteEvents.count, 1, "Only one rowDelete event should fire (for the existing row)")
+        XCTAssertEqual(deleteEvents.first?.change?["rowId"] as? String, existingRowID)
+        XCTAssertFalse((deleteEvents.first?.change?["row"] as? [String: Any])?.isEmpty ?? true,
+                       "Embedded row payload must be non-empty for the existing row")
+    }
+
+    // Bulk delete with all rowIDs valid: one rowDelete event per row, each with its own payload.
+    func testBulkDeleteNestedCollectionItemsAllExisting() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        let rowIDs = ["67ddd18bc3a74e6b350987f9", "67ddd193eae737b64c24851a"]
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+
+        _ = documentEditor.deleteNestedRows(rowIDs: rowIDs,
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            rootSchemaKey: collectionFieldID,
+                                            nestedKey: nestedKey,
+                                            parentRowId: parentRowId)
+
+        // Both rows are gone from the tree.
+        let nestedRows = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements?
+            .first(where: { $0.id == parentRowId })?.childrens?[nestedKey]?.valueToValueElements ?? []
+        for id in rowIDs {
+            XCTAssertNil(nestedRows.first(where: { $0.id == id }), "Row \(id) should be removed")
+        }
+
+        // One rowDelete event per row, in input order, each with a non-empty payload.
+        let deleteEvents = captured.filter { $0.target == "field.value.rowDelete" }
+        XCTAssertEqual(deleteEvents.count, rowIDs.count, "One rowDelete event per deleted row")
+        XCTAssertEqual(deleteEvents.compactMap { $0.change?["rowId"] as? String }, rowIDs,
+                       "Events should be emitted in the same order as the input rowIDs")
+        for event in deleteEvents {
+            XCTAssertFalse((event.change?["row"] as? [String: Any])?.isEmpty ?? true,
+                           "Embedded row payload must be non-empty for each deleted row")
+        }
+    }
 
     // Deleting an L1 row that owns L2 grandchildren must surface the full subtree in the
     // rowDelete change-log payload. The previous test only covers leaf deletion.
@@ -1836,12 +1957,16 @@ extension DocumentEditorChangeHandlerTests {
 
 private final class CaptureChangeHandler: FormChangeEvent {
     private let onChanges: ([Change], JoyDoc) -> Void
+    private(set) var onChangeCallCount = 0
 
     init(_ onChange: @escaping ([Change], JoyDoc) -> Void) {
         self.onChanges = onChange
     }
 
-    func onChange(changes: [Change], document: JoyDoc) { onChanges(changes, document) }
+    func onChange(changes: [Change], document: JoyDoc) {
+        onChangeCallCount += 1
+        onChanges(changes, document)
+    }
     func onFocus(event: Joyfill.Event) {}
     func onBlur(event: Joyfill.Event) {}
     func onUpload(event: UploadEvent) {}

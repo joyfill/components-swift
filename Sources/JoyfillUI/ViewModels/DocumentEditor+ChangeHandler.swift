@@ -61,25 +61,28 @@ extension DocumentEditor {
         guard var elements = field.valueToValueElements else { return [] }
         guard !rowIDs.isEmpty else { return elements }
         var deletedRowsByID = [String: [String: Any]]()
-        
+        var deletedRowIDs = [String]()
+
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
                 let deletedElement = elements.remove(at: index)
                 if shouldSendEvent {
                     deletedRowsByID[row] = deletedElement.anyDictionary
+                    deletedRowIDs.append(row)
                 }
             } else {
                 if let deletedElement = deleteRowRecursively(rowId: row, in: &elements) {
                     if shouldSendEvent {
                         deletedRowsByID[row] = deletedElement.anyDictionary
+                        deletedRowIDs.append(row)
                     }
                 }
             }
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        guard shouldSendEvent else { return elements }
+        guard shouldSendEvent, !deletedRowIDs.isEmpty else { return elements }
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey, rowsByID: deletedRowsByID)
+        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: deletedRowIDs, parentPath: parentPath, schemaId: nestedKey, rowsByID: deletedRowsByID)
         return elements
     }
 
