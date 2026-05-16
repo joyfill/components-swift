@@ -981,7 +981,58 @@ extension DocumentEditorChangeHandlerTests {
         
         XCTAssertEqual(updatedNestedRows.filter { !($0.deleted ?? false) }.count, initialNestedRows.count - 1)
     }
-    
+
+    // Deleting an L1 row that owns L2 grandchildren must surface the full subtree in the
+    // rowDelete change-log payload. The previous test only covers leaf deletion.
+    func testDeleteNestedCollectionItemPayloadIncludesSubtree() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"          // root row owning the L1 schema
+        let nestedKey = "67ddc5c9910a394a1324bfbe"            // L1 schema key
+        let rowToDelete = "67ddd191ab6a428ea69c77ad"          // L1 row with three L2 grandchildren
+        let grandchildSchemaKey = "67ddc5f5c2477e8457956fb4"  // L2 schema key under the deleted row
+        let expectedGrandchildIDs: Set<String> = [
+            "67ddd1a5e6d0d62d55a7aaad",
+            "67ddd1a656a259a9b6ab1263",
+            "67ddd1a779642224075bf23c"
+        ]
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+
+        _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                            rootSchemaKey: collectionFieldID,
+                                            nestedKey: nestedKey,
+                                            parentRowId: parentRowId)
+
+        let deleteEvents = captured.filter { $0.target == "field.value.rowDelete" }
+        XCTAssertEqual(deleteEvents.count, 1, "Expected exactly one rowDelete change")
+
+        guard let change = deleteEvents.first?.change,
+              let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing row payload in rowDelete change")
+        }
+        XCTAssertEqual(row["_id"] as? String, rowToDelete)
+
+        guard let children = row["children"] as? [String: Any],
+              let nestedSchema = children[grandchildSchemaKey] as? [String: Any],
+              let grandchildren = nestedSchema["value"] as? [[String: Any]] else {
+            return XCTFail("Deleted row payload should embed the L2 subtree under children[\(grandchildSchemaKey)].value")
+        }
+        let ids = Set(grandchildren.compactMap { $0["_id"] as? String })
+        XCTAssertEqual(ids, expectedGrandchildIDs, "All L2 grandchildren must appear in the embedded subtree")
+    }
+
     func testDuplicateNestedCollectionItem() {
         let collectionFieldID = "67ddc52d35de157f6d7ebb63"
         let parentRowId = "67ddc537b7c2fce05d0c8615"
@@ -1781,4 +1832,19 @@ extension DocumentEditorChangeHandlerTests {
         
         XCTAssertEqual(isVisible, false)
     }
+}
+
+private final class CaptureChangeHandler: FormChangeEvent {
+    private let onChanges: ([Change], JoyDoc) -> Void
+
+    init(_ onChange: @escaping ([Change], JoyDoc) -> Void) {
+        self.onChanges = onChange
+    }
+
+    func onChange(changes: [Change], document: JoyDoc) { onChanges(changes, document) }
+    func onFocus(event: Joyfill.Event) {}
+    func onBlur(event: Joyfill.Event) {}
+    func onUpload(event: UploadEvent) {}
+    func onCapture(event: CaptureEvent) {}
+    func onError(error: JoyfillError) {}
 }
