@@ -1062,6 +1062,8 @@ extension DocumentEditor {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
+                originalAltPage.deletable = true
+                originalAltPage.copyable = [.withValues, .withoutValues]
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
