@@ -594,4 +594,225 @@ final class DecoratorPublicAPITests: XCTestCase {
         XCTAssertEqual(editor.getDecorators(path: path).count, 0,
                        "reads on the deleted row path must remain empty")
     }
+
+    // MARK: - Decorate flag normalization at load
+    //
+    // When JSON ships `rowDecorators` or row-specific `decorators.all` but omits
+    // the `decorate` flag, the editor must flip the flag to true at load so the
+    // row decorator column renders. Explicit `true` / `false` in JSON is always
+    // respected — only `nil` triggers a row scan.
+
+    private func makeMinimalJoyDocDict(fields: [[String: Any]]) -> [String: Any] {
+        let pageID = "page-1"
+        return [
+            "_id": "doc-1",
+            "type": "document",
+            "stage": "published",
+            "files": [[
+                "_id": "file-1",
+                "name": "test",
+                "version": 1,
+                "pages": [[
+                    "_id": pageID,
+                    "name": "Page 1",
+                    "fieldPositions": fields.compactMap { f -> [String: Any]? in
+                        guard let id = f["_id"] as? String else { return nil }
+                        return [
+                            "_id": "fp-\(id)",
+                            "field": id,
+                            "type": f["type"] as? String ?? "table",
+                            "x": 0, "y": 0, "width": 100, "height": 100,
+                        ]
+                    },
+                ]],
+                "pageOrder": [pageID],
+            ]],
+            "fields": fields,
+        ]
+    }
+
+    private func decoratorDict(action: String, label: String = "L") -> [String: Any] {
+        ["action": action, "label": label, "icon": "flag", "color": "#3B82F6"]
+    }
+
+    private func makeNormalizationEditor(dict: [String: Any]) -> DocumentEditor {
+        let mock = MockDecoratorEvents()
+        let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return DocumentEditor(document: JoyDoc(dictionary: dict),
+                              events: mock,
+                              validateSchema: false,
+                              license: license.isEmpty ? nil : license)
+    }
+
+    /// Builds a collection field dict with two schemas: root and one nested child.
+    private func makeCollectionDict(rootRowDecorators: [[String: Any]]? = nil,
+                                    rootDecorate: Bool? = nil,
+                                    rootRowSpecific: [[String: Any]]? = nil,
+                                    childRowDecorators: [[String: Any]]? = nil,
+                                    childDecorate: Bool? = nil,
+                                    childRowSpecific: [[String: Any]]? = nil) -> [String: Any] {
+        var rootSchema: [String: Any] = [
+            "root": true,
+            "children": ["child"],
+            "tableColumns": [],
+        ]
+        if let d = rootRowDecorators { rootSchema["rowDecorators"] = d }
+        if let d = rootDecorate { rootSchema["decorate"] = d }
+
+        var childSchema: [String: Any] = ["tableColumns": []]
+        if let d = childRowDecorators { childSchema["rowDecorators"] = d }
+        if let d = childDecorate { childSchema["decorate"] = d }
+
+        var childRow: [String: Any] = ["_id": "cr1"]
+        if let rs = childRowSpecific { childRow["decorators"] = ["all": rs] }
+
+        // ValueElement reads `dictionary["children"]` (getter is named `childrens`
+        // but wire key is "children"); Children reads rows from `dictionary["value"]`.
+        var rootRow: [String: Any] = [
+            "_id": "rr1",
+            "children": ["child": ["value": [childRow]]],
+        ]
+        if let rs = rootRowSpecific { rootRow["decorators"] = ["all": rs] }
+
+        let field: [String: Any] = [
+            "_id": "col-1",
+            "type": "collection",
+            "rowOrder": ["rr1"],
+            "value": [rootRow],
+            "schema": ["root": rootSchema, "child": childSchema],
+        ]
+        return makeMinimalJoyDocDict(fields: [field])
+    }
+
+    // -- Table
+
+    func testNormalize_table_commonRowDecoratorsPresent_noFlag_flipsToTrue() {
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [["_id": "r1"]],
+            "rowDecorators": [decoratorDict(action: "a")],
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+    }
+
+    func testNormalize_table_rowSpecificDecoratorPresent_noFlag_flipsToTrue() {
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [[
+                "_id": "r1",
+                "decorators": ["all": [decoratorDict(action: "row-a")]],
+            ]],
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+    }
+
+    func testNormalize_table_noDecoratorsAnywhere_decorateStaysNil() {
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [["_id": "r1"]],
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertNil(editor.field(fieldID: "tbl-1")?.decorate)
+    }
+
+    func testNormalize_table_decorateTrueButNoDecorators_staysTrue() {
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [["_id": "r1"]],
+            "decorate": true,
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+    }
+
+    func testNormalize_table_decorateExplicitlyFalseWithDecorators_staysFalse() {
+        // Explicit false is respected — normalization is a "fill-in-the-blank"
+        // for missing JSON, not a re-derivation that overrides intentional state.
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [["_id": "r1"]],
+            "rowDecorators": [decoratorDict(action: "a")],
+            "decorate": false,
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, false)
+    }
+
+    func testNormalize_table_nonDisplayableRowDecorator_doesNotFlip() {
+        // Decorator with no icon AND no label is not displayable.
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [["_id": "r1"]],
+            "rowDecorators": [["action": "a", "color": "#3B82F6"]],
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertNotEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+    }
+
+    // -- Collection
+
+    func testNormalize_collection_rootCommonRowDecorators_noFlag_flipsRootOnly() {
+        let dict = makeCollectionDict(rootRowDecorators: [decoratorDict(action: "a")])
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertEqual(schema?["root"]?.decorate, true)
+        XCTAssertNotEqual(schema?["child"]?.decorate, true)
+    }
+
+    func testNormalize_collection_childCommonRowDecorators_noFlag_flipsChildOnly() {
+        let dict = makeCollectionDict(childRowDecorators: [decoratorDict(action: "a")])
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertNotEqual(schema?["root"]?.decorate, true)
+        XCTAssertEqual(schema?["child"]?.decorate, true)
+    }
+
+    func testNormalize_collection_rootRowSpecificDecorator_noFlag_flipsRootOnly() {
+        let dict = makeCollectionDict(rootRowSpecific: [decoratorDict(action: "row-a")])
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertEqual(schema?["root"]?.decorate, true)
+        XCTAssertNotEqual(schema?["child"]?.decorate, true)
+    }
+
+    func testNormalize_collection_childRowSpecificDecorator_noFlag_flipsChildOnly() {
+        // A row stored under root.children.child.value with its own decorators
+        // must flip the *child* schema's decorate, not root's.
+        let dict = makeCollectionDict(childRowSpecific: [decoratorDict(action: "row-a")])
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertNotEqual(schema?["root"]?.decorate, true)
+        XCTAssertEqual(schema?["child"]?.decorate, true)
+    }
+
+    func testNormalize_collection_noDecoratorsAnywhere_bothSchemasStayUnset() {
+        let dict = makeCollectionDict()
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertNotEqual(schema?["root"]?.decorate, true)
+        XCTAssertNotEqual(schema?["child"]?.decorate, true)
+    }
+
+    func testNormalize_collection_schemaDecorateExplicitlyFalseWithDecorators_staysFalse() {
+        let dict = makeCollectionDict(rootRowDecorators: [decoratorDict(action: "a")],
+                                      rootDecorate: false)
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertEqual(schema?["root"]?.decorate, false)
+    }
 }
