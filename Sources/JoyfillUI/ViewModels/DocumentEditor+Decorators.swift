@@ -313,6 +313,55 @@ private extension DocumentEditor {
         return collected
     }
 
+    // MARK: Decorate normalization
+
+    /// Infers an effective `decorate` flag from the actual decorator data on a freshly
+    /// loaded field, but only when the JSON omits the flag entirely. If `decorate`
+    /// is explicitly set (`true` or `false`), it is respected — only `nil` triggers
+    /// a row scan. When the flag is absent and displayable row decorators exist —
+    /// either common (`field.rowDecorators` / `schema[sk].rowDecorators`) or
+    /// row-specific (`row.decorators.all`) — flips `decorate` to true so the row
+    /// decorator column renders.
+    ///
+    /// Mutates `field` in place. Returns true if anything changed.
+    internal func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
+        switch field.fieldType {
+        case .table:
+            guard field.decorate == nil,
+                  hasAnyDisplayableRowDecorator(field: field, schemaKey: nil) else { return false }
+            field.decorate = true
+            return true
+        case .collection:
+            guard var schema = field.schema else { return false }
+            var changed = false
+            for (key, var entry) in schema {
+                guard entry.decorate == nil,
+                      hasAnyDisplayableRowDecorator(field: field, schemaKey: key) else { continue }
+                entry.decorate = true
+                schema[key] = entry
+                changed = true
+            }
+            if changed { field.schema = schema }
+            return changed
+        default:
+            return false
+        }
+    }
+
+    private func hasAnyDisplayableRowDecorator(field: JoyDocField, schemaKey: String?) -> Bool {
+        let commonDecs: [Decorator]
+        if let sk = schemaKey {
+            commonDecs = field.schema?[sk]?.rowDecorators ?? []
+        } else {
+            commonDecs = field.rowDecorators ?? []
+        }
+        if commonDecs.contains(where: { $0.isDisplayable }) { return true }
+        let rows = rowsInScope(field: field, schemaKey: schemaKey)
+        return rows.contains { row in
+            (row.decorators?.all ?? []).contains(where: { $0.isDisplayable })
+        }
+    }
+
     // MARK: COW seed
 
     /// Returns the common-scope decorators to seed a specific scope with, if any.

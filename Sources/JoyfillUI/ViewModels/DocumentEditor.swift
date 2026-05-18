@@ -151,7 +151,9 @@ public class DocumentEditor: ObservableObject {
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
+            var f = field
+            _ = normalizeDecorateFlag(field: &f)
+            self.fieldMap[fieldID] = f
         }
     }
     
