@@ -583,9 +583,7 @@ final class DecoratorCollectionAPIUITests: DecoratorAPIUITestsBase {
               in: app)
         S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
         XCTAssertTrue(waitUntil(2) { flag.label == "Done" })
-        S.dismissRowEditForm(in: app)
 
-        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
         XCTAssertTrue(flag.waitForExistence(timeout: 1))
         flag.tap()
         XCTAssertTrue(waitUntil(2) {
@@ -721,9 +719,7 @@ final class DecoratorCollectionAPIUITests: DecoratorAPIUITestsBase {
               in: app)
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
         XCTAssertTrue(waitUntil(2) { flag.label == "Done" })
-        S.dismissRowEditForm(in: app)
 
-        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
         XCTAssertTrue(flag.waitForExistence(timeout: 1))
         flag.tap()
         XCTAssertTrue(waitUntil(2) {
@@ -1023,5 +1019,53 @@ final class RowFormReadonlyUITests: DecoratorAPIUITestsBase {
         }, "Tapping nested L1 cell decorator in readonly row form should fire onFocus")
 
         S.dismissRowEditForm(in: app)
+    }
+
+    // Readonly row form flow:
+    // open single-row form -> dismiss -> row stays selected contextually,
+    // and More action must stay hidden in readonly mode.
+    func testTable_ReadonlyRowFormDismiss_SelectionContextAndNoMoreButton() {
+        typealias S = DecoratorUITestSupport
+        S.openTableDetailView(in: app)
+
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        let dismissButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch
+        XCTAssertTrue(dismissButton.waitForExistence(timeout: 3),
+                      "Readonly single-row form should open")
+        XCTAssertTrue(app.staticTexts["1 row selected"].exists,
+                      "Opening single-row form should indicate exactly one selected row")
+
+        dismissButton.tap()
+        XCTAssertTrue(waitUntil(3) { !dismissButton.exists },
+                      "Readonly row form should dismiss")
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2),
+                      "More button must stay hidden in readonly mode")
+    }
+
+    // Readonly collection row form flow:
+    // open single-row form -> dismiss -> single-row context was active,
+    // and More action stays hidden in readonly mode.
+    func testCollection_ReadonlyRowFormDismiss_SelectionContextAndNoMoreButton() {
+        typealias S = DecoratorUITestSupport
+        S.openCollectionDetailView(in: app)
+
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        let dismissButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch
+        XCTAssertTrue(dismissButton.waitForExistence(timeout: 3),
+                      "Readonly collection single-row form should open")
+        XCTAssertTrue(app.buttons["UpperRowButtonIdentifier"].exists,
+                      "Opening collection single-row form should enter single-row selection context")
+
+        dismissButton.tap()
+        XCTAssertTrue(waitUntil(3) { !dismissButton.exists },
+                      "Readonly collection row form should dismiss")
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2),
+                      "More button must stay hidden in readonly mode")
     }
 }
