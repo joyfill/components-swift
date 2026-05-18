@@ -16,7 +16,7 @@ struct TableModalTopNavigationView: View {
 
             Spacer()
 
-            if !viewModel.tableDataModel.selectedRows.isEmpty {
+            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -245,6 +245,7 @@ struct EditMultipleRowsSheetView: View {
                 FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
                     viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id)
                 }
+                .environment(\.isEnabled, true)
             }
         }
         .padding(.bottom, -8)
@@ -291,19 +292,21 @@ struct EditMultipleRowsSheetView: View {
                                 .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
                                 .accessibilityIdentifier("LowerRowButtonIdentifier")
                                 
-                                Button(action: {
-                                    viewModel.insertBelowFromBulkEdit()
-                                }, label: {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: 6)
-                                            .stroke(.blue, lineWidth: 1)
-                                            .frame(width: 27, height: 27)
-                                        
-                                        Image(systemName: "plus")
-                                            .foregroundStyle(.blue)
-                                    }
-                                })
-                                .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                                if viewModel.tableDataModel.mode == .fill {
+                                    Button(action: {
+                                        viewModel.insertBelowFromBulkEdit()
+                                    }, label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(.blue, lineWidth: 1)
+                                                .frame(width: 27, height: 27)
+
+                                            Image(systemName: "plus")
+                                                .foregroundStyle(.blue)
+                                        }
+                                    })
+                                    .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                                }
                             } else {
                                 Spacer()
                             }
@@ -612,6 +615,7 @@ struct EditMultipleRowsSheetView: View {
                     }
                     .id(col.id)
                 }
+                .disabled(viewModel.tableDataModel.mode == .readonly)
                 Spacer()
             }
             .padding(.all, 16)

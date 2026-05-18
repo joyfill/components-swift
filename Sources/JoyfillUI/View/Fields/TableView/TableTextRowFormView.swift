@@ -31,6 +31,7 @@ struct TableTextRowFormView: View {
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         } else {
             HStack(spacing: 0) {
