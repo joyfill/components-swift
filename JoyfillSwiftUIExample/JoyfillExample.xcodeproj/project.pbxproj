@@ -180,6 +180,9 @@
 		BA2353392FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2353372FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift */; };
 		BA23533A2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */; };
 		BA23533B2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */; };
+		BA2353C12FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2353C42FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift */; };
+		BA2353C22FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */; };
+		BA2353C32FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */; };
 		DEC000B100000000000000A1 /* DecoratorTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F100000000000000A1 /* DecoratorTestSupport.swift */; };
 		DEC000B200000000000000A2 /* DecoratorPathResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F200000000000000A2 /* DecoratorPathResolutionTests.swift */; };
 		DEC000B300000000000000A3 /* DecoratorPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */; };
@@ -588,6 +591,8 @@
 		BA2352F12F99E9F4002D9345 /* Decorator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Decorator.json; sourceTree = "<group>"; };
 		BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageDeletableCopyable.json; sourceTree = "<group>"; };
 		BA2353372FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableUITests.swift; sourceTree = "<group>"; };
+		BA2353C42FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableMobileViewUITests.swift; sourceTree = "<group>"; };
+		BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageDeletableCopyableMobileView.json; sourceTree = "<group>"; };
 		DEC000F100000000000000A1 /* DecoratorTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorTestSupport.swift; sourceTree = "<group>"; };
 		DEC000F200000000000000A2 /* DecoratorPathResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPathResolutionTests.swift; sourceTree = "<group>"; };
 		DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPublicAPITests.swift; sourceTree = "<group>"; };
@@ -1029,6 +1034,8 @@
 			children = (
 				BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */,
 				BA2353372FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift */,
+				BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */,
+				BA2353C42FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift */,
 			);
 			path = PageDeletableCopyable;
 			sourceTree = "<group>";
@@ -1688,6 +1695,7 @@
 				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				E2C8BD2B2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */,
 				BA23533A2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
+				BA2353C22FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */,
 				36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */,
 				E29FF8692F215C9C0079A614 /* Navigation.json in Resources */,
 				36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */,
@@ -1879,6 +1887,7 @@
 			files = (
 				BA2352F32F99E9FE002D9346 /* Decorator.json in Resources */,
 				BA23533B2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
+				BA2353C32FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */,
 				E274CB532E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
 				369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
@@ -2021,6 +2030,7 @@
 				E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */,
 				E274CA382E2E60A100B35C09 /* FocusCallbackUITests.swift in Sources */,
 				BA2353392FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift in Sources */,
+				BA2353C12FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift in Sources */,
 				E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */,
 				E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */,
 				E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */,
