@@ -232,6 +232,8 @@ private extension DocumentEditor {
     /// Mirror of `ensureDecorateEnabled`. Flips `decorate` to `false` on the target's
     /// scope only when no displayable row decorators remain anywhere in that scope —
     /// neither common row decorators nor row-specific decorators on any row.
+    /// Writing `false` (rather than clearing to nil) acts as a "decided" sentinel
+    /// so the load-time normalizer skips the row scan next time.
     ///
     /// Scope:
     /// - Table fields: the entire field (checks `field.rowDecorators` + every row's `decorators.all`).
@@ -315,29 +317,28 @@ private extension DocumentEditor {
 
     // MARK: Decorate normalization
 
-    /// Infers an effective `decorate` flag from the actual decorator data on a freshly
-    /// loaded field, but only when the JSON omits the flag entirely. If `decorate`
-    /// is explicitly set (`true` or `false`), it is respected — only `nil` triggers
-    /// a row scan. When the flag is absent and displayable row decorators exist —
-    /// either common (`field.rowDecorators` / `schema[sk].rowDecorators`) or
-    /// row-specific (`row.decorators.all`) — flips `decorate` to true so the row
-    /// decorator column renders.
+    /// Infers an effective `decorate` flag from the actual decorator data on a
+    /// freshly loaded field, but only when the JSON omits the flag entirely.
+    /// Explicit `true` / `false` is always respected — only `nil` triggers a
+    /// row scan. When the flag is absent we decide it from the data: `true`
+    /// if any displayable row decorator exists (common or row-specific),
+    /// `false` otherwise. Writing `false` (rather than leaving nil) makes
+    /// subsequent loads idempotent — the guard sees the decided value and
+    /// skips the scan.
     ///
     /// Mutates `field` in place. Returns true if anything changed.
     internal func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
         switch field.fieldType {
         case .table:
-            guard field.decorate == nil,
-                  hasAnyDisplayableRowDecorator(field: field, schemaKey: nil) else { return false }
-            field.decorate = true
+            guard field.decorate == nil else { return false }
+            field.decorate = hasAnyDisplayableRowDecorator(field: field, schemaKey: nil)
             return true
         case .collection:
             guard var schema = field.schema else { return false }
             var changed = false
             for (key, var entry) in schema {
-                guard entry.decorate == nil,
-                      hasAnyDisplayableRowDecorator(field: field, schemaKey: key) else { continue }
-                entry.decorate = true
+                guard entry.decorate == nil else { continue }
+                entry.decorate = hasAnyDisplayableRowDecorator(field: field, schemaKey: key)
                 schema[key] = entry
                 changed = true
             }

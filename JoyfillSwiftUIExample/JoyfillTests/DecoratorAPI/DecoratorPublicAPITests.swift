@@ -713,7 +713,9 @@ final class DecoratorPublicAPITests: XCTestCase {
         XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
     }
 
-    func testNormalize_table_noDecoratorsAnywhere_decorateStaysNil() {
+    func testNormalize_table_noDecoratorsAnywhere_decorateBecomesFalse() {
+        // When JSON omits the flag and the scan finds nothing, we write `false`
+        // as a decided sentinel so subsequent loads skip the scan.
         let dict = makeMinimalJoyDocDict(fields: [[
             "_id": "tbl-1",
             "type": "table",
@@ -721,7 +723,7 @@ final class DecoratorPublicAPITests: XCTestCase {
             "value": [["_id": "r1"]],
         ]])
         let editor = makeNormalizationEditor(dict: dict)
-        XCTAssertNil(editor.field(fieldID: "tbl-1")?.decorate)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, false)
     }
 
     func testNormalize_table_decorateTrueButNoDecorators_staysTrue() {
@@ -751,8 +753,9 @@ final class DecoratorPublicAPITests: XCTestCase {
         XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, false)
     }
 
-    func testNormalize_table_nonDisplayableRowDecorator_doesNotFlip() {
-        // Decorator with no icon AND no label is not displayable.
+    func testNormalize_table_nonDisplayableRowDecorator_becomesFalse() {
+        // Decorator with no icon AND no label is not displayable, so the scan
+        // treats it as "nothing to show" and the flag settles at false.
         let dict = makeMinimalJoyDocDict(fields: [[
             "_id": "tbl-1",
             "type": "table",
@@ -761,7 +764,7 @@ final class DecoratorPublicAPITests: XCTestCase {
             "rowDecorators": [["action": "a", "color": "#3B82F6"]],
         ]])
         let editor = makeNormalizationEditor(dict: dict)
-        XCTAssertNotEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, false)
     }
 
     // -- Collection
@@ -771,14 +774,14 @@ final class DecoratorPublicAPITests: XCTestCase {
         let editor = makeNormalizationEditor(dict: dict)
         let schema = editor.field(fieldID: "col-1")?.schema
         XCTAssertEqual(schema?["root"]?.decorate, true)
-        XCTAssertNotEqual(schema?["child"]?.decorate, true)
+        XCTAssertEqual(schema?["child"]?.decorate, false)
     }
 
     func testNormalize_collection_childCommonRowDecorators_noFlag_flipsChildOnly() {
         let dict = makeCollectionDict(childRowDecorators: [decoratorDict(action: "a")])
         let editor = makeNormalizationEditor(dict: dict)
         let schema = editor.field(fieldID: "col-1")?.schema
-        XCTAssertNotEqual(schema?["root"]?.decorate, true)
+        XCTAssertEqual(schema?["root"]?.decorate, false)
         XCTAssertEqual(schema?["child"]?.decorate, true)
     }
 
@@ -787,7 +790,7 @@ final class DecoratorPublicAPITests: XCTestCase {
         let editor = makeNormalizationEditor(dict: dict)
         let schema = editor.field(fieldID: "col-1")?.schema
         XCTAssertEqual(schema?["root"]?.decorate, true)
-        XCTAssertNotEqual(schema?["child"]?.decorate, true)
+        XCTAssertEqual(schema?["child"]?.decorate, false)
     }
 
     func testNormalize_collection_childRowSpecificDecorator_noFlag_flipsChildOnly() {
@@ -796,16 +799,17 @@ final class DecoratorPublicAPITests: XCTestCase {
         let dict = makeCollectionDict(childRowSpecific: [decoratorDict(action: "row-a")])
         let editor = makeNormalizationEditor(dict: dict)
         let schema = editor.field(fieldID: "col-1")?.schema
-        XCTAssertNotEqual(schema?["root"]?.decorate, true)
+        XCTAssertEqual(schema?["root"]?.decorate, false)
         XCTAssertEqual(schema?["child"]?.decorate, true)
     }
 
-    func testNormalize_collection_noDecoratorsAnywhere_bothSchemasStayUnset() {
+    func testNormalize_collection_noDecoratorsAnywhere_bothSchemasBecomeFalse() {
+        // No decorators anywhere → both schemas settle at false, not nil.
         let dict = makeCollectionDict()
         let editor = makeNormalizationEditor(dict: dict)
         let schema = editor.field(fieldID: "col-1")?.schema
-        XCTAssertNotEqual(schema?["root"]?.decorate, true)
-        XCTAssertNotEqual(schema?["child"]?.decorate, true)
+        XCTAssertEqual(schema?["root"]?.decorate, false)
+        XCTAssertEqual(schema?["child"]?.decorate, false)
     }
 
     func testNormalize_collection_schemaDecorateExplicitlyFalseWithDecorators_staysFalse() {
@@ -814,5 +818,36 @@ final class DecoratorPublicAPITests: XCTestCase {
         let editor = makeNormalizationEditor(dict: dict)
         let schema = editor.field(fieldID: "col-1")?.schema
         XCTAssertEqual(schema?["root"]?.decorate, false)
+    }
+
+    func testNormalize_collection_schemaDecorateTrueButNoDecorators_staysTrue() {
+        // Mirror of the table case: explicit per-schema `decorate: true` with no
+        // row decorators must stay true. Normalization only fills in nil.
+        let dict = makeCollectionDict(rootDecorate: true)
+        let editor = makeNormalizationEditor(dict: dict)
+        let schema = editor.field(fieldID: "col-1")?.schema
+        XCTAssertEqual(schema?["root"]?.decorate, true)
+    }
+
+    // -- Stability across repeat updateFieldMap calls
+
+    func testNormalize_isIdempotent_subsequentUpdateFieldMapDoesNotReFlip() {
+        // Locks the contract that the inferred value is written back to
+        // `document.fields`, so a second `updateFieldMap` call sees the
+        // already-set flag and short-circuits without running the row scan.
+        let dict = makeMinimalJoyDocDict(fields: [[
+            "_id": "tbl-1",
+            "type": "table",
+            "rowOrder": ["r1"],
+            "value": [["_id": "r1"]],
+            "rowDecorators": [decoratorDict(action: "a")],
+        ]])
+        let editor = makeNormalizationEditor(dict: dict)
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+
+        // Re-running normalization should be a no-op now that document.fields
+        // also carries decorate=true.
+        editor.updateFieldMap()
+        XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
     }
 }
