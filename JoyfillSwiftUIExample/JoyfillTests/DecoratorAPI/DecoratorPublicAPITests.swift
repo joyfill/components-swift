@@ -832,9 +832,12 @@ final class DecoratorPublicAPITests: XCTestCase {
     // -- Stability across repeat updateFieldMap calls
 
     func testNormalize_isIdempotent_subsequentUpdateFieldMapDoesNotReFlip() {
-        // Locks the contract that the inferred value is written back to
-        // `document.fields`, so a second `updateFieldMap` call sees the
-        // already-set flag and short-circuits without running the row scan.
+        // Locks two things:
+        // 1. The inferred flag lands in `document.fields` via `fieldMap.didSet`
+        //    (which rebuilds `document.fields = allFields` on every assignment).
+        // 2. A second `updateFieldMap` call sees `decorate != nil` in
+        //    `document.fields` and short-circuits via the guard in
+        //    `normalizeDecorateFlag`, instead of re-running the row scan.
         let dict = makeMinimalJoyDocDict(fields: [[
             "_id": "tbl-1",
             "type": "table",
@@ -844,9 +847,10 @@ final class DecoratorPublicAPITests: XCTestCase {
         ]])
         let editor = makeNormalizationEditor(dict: dict)
         XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
+        // Verifies the write-back: document.fields is what updateFieldMap reads
+        // on subsequent calls. If didSet were ever removed, this would fail.
+        XCTAssertEqual(editor.document.fields.first(where: { $0.id == "tbl-1" })?.decorate, true)
 
-        // Re-running normalization should be a no-op now that document.fields
-        // also carries decorate=true.
         editor.updateFieldMap()
         XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
     }
