@@ -349,7 +349,13 @@ private extension DocumentEditor {
         }
     }
 
+    /// Load-path scan: returns true if `field` has any displayable row decorator
+    /// in scope. Used by `normalizeDecorateFlag`. Walks raw JSON dictionaries to
+    /// avoid materializing `[ValueElement]` (which `rowsInScope` does) — that
+    /// reconstruction otherwise doubles load time on docs with thousands of rows
+    /// since the view model later builds those structs again.
     private func hasAnyDisplayableRowDecorator(field: JoyDocField, schemaKey: String?) -> Bool {
+        // Common decorators at this scope — small list, cheap to deserialize.
         let commonDecs: [Decorator]
         if let sk = schemaKey {
             commonDecs = field.schema?[sk]?.rowDecorators ?? []
@@ -357,10 +363,64 @@ private extension DocumentEditor {
             commonDecs = field.rowDecorators ?? []
         }
         if commonDecs.contains(where: { $0.isDisplayable }) { return true }
-        let rows = rowsInScope(field: field, schemaKey: schemaKey)
-        return rows.contains { row in
-            (row.decorators?.all ?? []).contains(where: { $0.isDisplayable })
+
+        // Row-specific decorators via raw dict walk. Short-circuits on first match.
+        guard let topRowDicts = field.dictionary["value"] as? [[String: Any]] else { return false }
+        let isCollection = field.fieldType == .collection
+        let rootSchemaKey: String? = isCollection
+            ? (field.dictionary["schema"] as? [String: [String: Any]])?
+                .first(where: { ($0.value["root"] as? Bool) == true })?.key
+            : nil
+        return scanRawRowsForDisplayableRowDecorator(
+            rowDicts: topRowDicts,
+            currentSchemaKey: rootSchemaKey,
+            targetSchemaKey: schemaKey,
+            isCollection: isCollection
+        )
+    }
+
+    private func scanRawRowsForDisplayableRowDecorator(
+        rowDicts: [[String: Any]],
+        currentSchemaKey: String?,
+        targetSchemaKey: String?,
+        isCollection: Bool
+    ) -> Bool {
+        // Rows at this level are in scope when:
+        // - Table field (no schema concept), or
+        // - Collection field with no schema filter (caller is asking globally), or
+        // - Collection field and this level's schema matches the target.
+        let levelMatches = !isCollection
+            || targetSchemaKey == nil
+            || currentSchemaKey == targetSchemaKey
+
+        for rowDict in rowDicts {
+            if rowDict["deleted"] as? Bool == true { continue }
+
+            if levelMatches, rowDictHasAnyDisplayableDecorator(rowDict) { return true }
+
+            // Recurse into nested collection schemas to find rows in the target scope.
+            if isCollection, let childrens = rowDict["children"] as? [String: Any] {
+                for (childKey, childRaw) in childrens {
+                    guard let childDict = childRaw as? [String: Any],
+                          let childRows = childDict["value"] as? [[String: Any]] else { continue }
+                    if scanRawRowsForDisplayableRowDecorator(
+                        rowDicts: childRows,
+                        currentSchemaKey: childKey,
+                        targetSchemaKey: targetSchemaKey,
+                        isCollection: isCollection
+                    ) {
+                        return true
+                    }
+                }
+            }
         }
+        return false
+    }
+
+    private func rowDictHasAnyDisplayableDecorator(_ rowDict: [String: Any]) -> Bool {
+        guard let decoratorsDict = rowDict["decorators"] as? [String: Any],
+              let all = decoratorsDict["all"] as? [[String: Any]] else { return false }
+        return all.contains { Decorator(dictionary: $0).isDisplayable }
     }
 
     // MARK: COW seed
