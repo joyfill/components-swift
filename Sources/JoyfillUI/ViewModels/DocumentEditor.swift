@@ -151,7 +151,9 @@ public class DocumentEditor: ObservableObject {
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
+            var f = field
+            _ = normalizeDecorateFlag(field: &f)
+            self.fieldMap[fieldID] = f
         }
     }
     
@@ -1062,6 +1064,8 @@ extension DocumentEditor {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
+                originalAltPage.deletable = true
+                originalAltPage.copyable = [.withValues, .withoutValues]
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
