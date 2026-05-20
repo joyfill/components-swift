@@ -354,6 +354,14 @@ private extension DocumentEditor {
     /// avoid materializing `[ValueElement]` (which `rowsInScope` does) — that
     /// reconstruction otherwise doubles load time on docs with thousands of rows
     /// since the view model later builds those structs again.
+    ///
+    /// **Contract:** reads `field.dictionary["value"]`, `["schema"]`, and the
+    /// nested `["children"][k]["value"]` / `["decorators"]["all"]` paths
+    /// directly. Assumes the raw dict stays in lockstep with the typed model —
+    /// any mutation through the public API (`addDecorators` / `removeDecorator`
+    /// / `updateDecorator`) must keep both representations in sync, or this
+    /// scan returns the wrong answer. `testNormalize_typedAPIWrite_…` locks
+    /// that parity.
     private func hasAnyDisplayableRowDecorator(field: JoyDocField, schemaKey: String?) -> Bool {
         // Common decorators at this scope — small list, cheap to deserialize.
         let commonDecs: [Decorator]
@@ -367,6 +375,9 @@ private extension DocumentEditor {
         // Row-specific decorators via raw dict walk. Short-circuits on first match.
         guard let topRowDicts = field.dictionary["value"] as? [[String: Any]] else { return false }
         let isCollection = field.fieldType == .collection
+        // Assumes the JoyDoc invariant: a collection field's schema map contains
+        // exactly one entry with `root: true`. Iteration order would otherwise
+        // be undefined.
         let rootSchemaKey: String? = isCollection
             ? (field.dictionary["schema"] as? [String: [String: Any]])?
                 .first(where: { ($0.value["root"] as? Bool) == true })?.key
