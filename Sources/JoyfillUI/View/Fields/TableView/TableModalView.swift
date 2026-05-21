@@ -28,6 +28,7 @@ struct TableRowView : View {
                 .border(Color.tableCellBorderColor)
             }
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                let showRequired = (viewModel.tableDataModel.tableColumns.first(where: { $0.id == cellModel.data.id })?.required ?? false) && !cellModel.data.isCellFilled
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
@@ -35,6 +36,14 @@ struct TableRowView : View {
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
                     )
+                    .overlay {
+                        if showRequired {
+                            RoundedRectangle(cornerRadius: 8)
+                                .inset(by: 2)
+                                .stroke(colorScheme == .dark ? Color.pink : Color.red,
+                                        lineWidth: colorScheme == .dark ? 1 : 0.5)
+                        }
+                    }
             }
         }
     }
@@ -311,12 +320,6 @@ struct TableModalView : View {
                             .padding(.all, 8)
                             .frame(maxHeight: .infinity, alignment: .center)
                             .darkLightThemeColor()
-                    }
-                    
-                    if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
                     }
                     
                     if ![.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {

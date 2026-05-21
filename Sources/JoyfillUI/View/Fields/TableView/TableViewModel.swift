@@ -103,17 +103,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return (filledCount, requiredColumnIds.count)
     }
     
-    func isColumnFilled(columnId: String) -> Bool {
-        for rowDataModel in tableDataModel.cellModels {
-            if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
-                if !cellDataModel.data.isCellFilled {
-                    return false
-                }
-            }
-        }
-        return true
-    }
-    
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
