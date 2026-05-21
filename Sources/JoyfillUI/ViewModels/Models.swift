@@ -912,13 +912,6 @@ struct TableDataModel {
         return cell
     }
     
-    func getLongestBlockText() -> String {
-        filteredcellModels.flatMap { $0.cells }
-            .filter { $0.data.type == .block }
-            .map { $0.data.title }
-            .max(by: { $0.count < $1.count }) ?? ""
-    }
-    
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         if rowOrder.isEmpty {
             let id = generateObjectId()

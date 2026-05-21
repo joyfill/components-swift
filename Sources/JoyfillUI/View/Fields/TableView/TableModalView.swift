@@ -6,7 +6,6 @@ struct TableRowView : View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
-    var longestBlockText: String
     var isSelected: Bool = false
 
     var body: some View {
@@ -58,11 +57,9 @@ struct TableModalView : View {
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-    var longestBlockText: String = ""
 
     init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
-        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
     
@@ -400,7 +397,7 @@ struct TableModalView : View {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
                         }
@@ -444,7 +441,7 @@ struct TableModalView : View {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
                         }
