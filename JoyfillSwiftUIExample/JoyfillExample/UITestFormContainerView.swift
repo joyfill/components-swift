@@ -1,6 +1,67 @@
 import SwiftUI
+import UIKit
 import Joyfill
 import JoyfillModel
+
+/// UI-test bridge that lets out-of-process XCUITests drive DocumentEditor
+/// decorator APIs without tripping iOS 16+ pasteboard prompts. The test types
+/// a JSON command into the hidden `decorator_command_input` text field, then
+/// taps the `decorator_command_execute` button in the app, which calls
+/// `DecoratorCommandBridge.execute(json:on:)` to dispatch to the matching API.
+/// The view half of the decorator bridge: a TextField the test types JSON
+/// into, and a Button the test taps to trigger execution. We avoid the
+/// pasteboard entirely so no iOS 16+ permission prompt ever appears.
+struct DecoratorCommandBridgeView: View {
+    let documentEditor: DocumentEditor
+    @State private var commandText: String = ""
+
+    var body: some View {
+        HStack(spacing: 4) {
+            TextField("cmd", text: $commandText)
+                .textFieldStyle(.roundedBorder)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
+                .accessibilityIdentifier("decorator_command_input")
+            Button("run-decorator-command") {
+                let payload = commandText
+                commandText = ""
+                DecoratorCommandBridge.execute(json: payload, on: documentEditor)
+            }
+            .accessibilityIdentifier("decorator_command_execute")
+        }
+        .frame(height: 32)
+        .padding(.horizontal, 8)
+    }
+}
+
+enum DecoratorCommandBridge {
+    static func execute(json: String, on documentEditor: DocumentEditor) {
+        guard let data = json.data(using: .utf8),
+              let command = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let op = command["op"] as? String,
+              let path = command["path"] as? String else { return }
+
+        switch op {
+        case "add":
+            if let dicts = command["decorators"] as? [[String: Any]] {
+                let decorators = dicts.map { Decorator(dictionary: $0) }
+                documentEditor.addDecorators(path: path, decorators: decorators)
+            }
+        case "update":
+            if let actionName = command["action"] as? String,
+               let decoratorDict = command["decorator"] as? [String: Any] {
+                documentEditor.updateDecorator(path: path, action: actionName,
+                                               decorator: Decorator(dictionary: decoratorDict))
+            }
+        case "remove":
+            if let actionName = command["action"] as? String {
+                documentEditor.removeDecorator(path: path, action: actionName)
+            }
+        default:
+            break
+        }
+    }
+}
 
 func sampleJSONDocument(fileName: String? = nil) -> JoyDoc {
     let jsonFileName = fileName ?? "Joydocjson"

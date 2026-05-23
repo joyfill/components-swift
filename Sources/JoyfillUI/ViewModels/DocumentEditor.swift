@@ -32,6 +32,14 @@ public protocol DocumentEditorDelegate: AnyObject {
     func insertRow(for change: Change)
     func deleteRow(for change: Change)
     func moveRow(for change: Change)
+    func decoratorsDidChange()
+}
+
+public extension DocumentEditorDelegate {
+    /// Default no-op so external conformers don't break when the SDK adds
+    /// decorator-cache refresh hooks. Internal view models (TableViewModel,
+    /// CollectionViewModel) provide real implementations.
+    func decoratorsDidChange() {}
 }
 
 public class DocumentEditor: ObservableObject {
@@ -66,7 +74,7 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     public var events: FormChangeEvent?
-    let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
+    private(set) public var decoratorConfig: DecoratorConfig
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
@@ -81,7 +89,8 @@ public class DocumentEditor: ObservableObject {
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
                 license: String? = nil,
-                singleClickRowEdit: Bool = false) {
+                singleClickRowEdit: Bool = false,
+                decoratorConfig: DecoratorConfig = DecoratorConfig()) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -98,6 +107,7 @@ public class DocumentEditor: ObservableObject {
                 self.singleClickRowEdit = singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
+                self.decoratorConfig = decoratorConfig
                 
                 // Trigger onError callback if events handler is available
                 events?.onError(error: .schemaValidationError(error: schemaError))
@@ -116,6 +126,7 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         // Set feature flags from license
         self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
+        self.decoratorConfig = decoratorConfig
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -140,7 +151,9 @@ public class DocumentEditor: ObservableObject {
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
+            var f = field
+            _ = normalizeDecorateFlag(field: &f)
+            self.fieldMap[fieldID] = f
         }
     }
     
@@ -280,7 +293,7 @@ public class DocumentEditor: ObservableObject {
         return nil
     }
 
-    private func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
+    func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
         if let delegate = delegateMap[fieldID]?.value {
             return delegate
         }
@@ -646,7 +659,9 @@ extension DocumentEditor {
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode) : nil
+        let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+        
+        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -818,7 +833,9 @@ extension DocumentEditor {
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
             
-            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode) : nil
+            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+            
+            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -1047,6 +1064,8 @@ extension DocumentEditor {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
+                originalAltPage.deletable = true
+                originalAltPage.copyable = [.withValues, .withoutValues]
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
@@ -1100,6 +1119,10 @@ extension DocumentEditor {
 
         if !copyWithValues {
             for i in newFields.indices {
+                // Copying "without values" keeps values for read-only fields and block fields.
+                let isReadonly = newFields[i].disabled == true
+                let isDisplayText = newFields[i].fieldType == .block
+                if isReadonly || isDisplayText { continue }
                 newFields[i].value = nil
             }
         }

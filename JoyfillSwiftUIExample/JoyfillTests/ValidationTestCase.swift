@@ -4,11 +4,11 @@ import SwiftUI
 import JoyfillModel
 @testable import Joyfill
 
+let licenseKey: String = ""
+
 final class ValidationTestCase: XCTestCase {
     
     // MARK: - Test Helpers
-    let licenseKey: String = ""
-    
     /// Mock event handler to capture onChange events for testing
     class ChangeCapture: FormChangeEvent {
         var capturedChanges: [Change] = []

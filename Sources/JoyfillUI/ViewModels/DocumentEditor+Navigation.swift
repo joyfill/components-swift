@@ -205,7 +205,11 @@ extension DocumentEditor {
         }
     }
     
-    func columnExistsInField(_ field: JoyDocField, columnId: String) -> Bool {
+    /// When `schemaKey` is provided the column lookup is scoped to that single
+    /// schema entry, ensuring the column belongs to the same schema as the row.
+    /// When `nil` (the default) all schema entries are scanned, preserving the
+    /// existing behaviour for callers that have no row context.
+    func columnExistsInField(_ field: JoyDocField, columnId: String, schemaKey: String? = nil) -> Bool {
         guard let fieldID = field.id else { return false }
         switch field.fieldType {
         case .table:
@@ -213,8 +217,15 @@ extension DocumentEditor {
             return shouldShowColumn(columnID: columnId, fieldID: fieldID)
         case .collection:
             guard let schema = field.schema else { return false }
-            guard let schemaKey = schema.first(where: { $0.value.tableColumns?.contains(where: { $0.id == columnId }) == true })?.key else { return false }
-            return shouldShowColumn(columnID: columnId, fieldID: fieldID, schemaKey: schemaKey)
+            let resolvedKey: String
+            if let schemaKey = schemaKey {
+                guard schema[schemaKey]?.tableColumns?.contains(where: { $0.id == columnId }) == true else { return false }
+                resolvedKey = schemaKey
+            } else {
+                guard let key = schema.first(where: { $0.value.tableColumns?.contains(where: { $0.id == columnId }) == true })?.key else { return false }
+                resolvedKey = key
+            }
+            return shouldShowColumn(columnID: columnId, fieldID: fieldID, schemaKey: resolvedKey)
         default:
             return false
         }

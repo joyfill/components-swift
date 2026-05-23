@@ -67,6 +67,7 @@ public func Log(
     file: String = #file,
     line: Int = #line
 ) {
+    #if DEBUG
     JoyfillLogger.shared.log(
         message,
         type: type,
@@ -74,4 +75,5 @@ public func Log(
         file: file,
         line: line
     )
+    #endif
 } 
