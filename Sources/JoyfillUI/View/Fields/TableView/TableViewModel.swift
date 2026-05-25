@@ -139,10 +139,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
 
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         let tableColumns = tableDataModel.tableColumns
         var rowToCellMap = [String: (String?, [CellDataModel])]()
-        for row in sortedRows {
+        for row in nonDeletedRows {
             let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
             guard let rowID = row.id else {
                 Log("Could not find row ID for row: \(row)", type: .error)

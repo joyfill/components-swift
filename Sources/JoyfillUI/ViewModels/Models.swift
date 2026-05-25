@@ -1158,18 +1158,6 @@ struct TableDataModel {
         
         return !selectedRows.isEmpty && Set(nestedRows) == Set(selectedRows)
     }
-    
-    func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
-        guard let rowOrder = rowOrder else { return elements }
-        let sortedRows = elements.sorted { (a, b) -> Bool in
-            if let first = rowOrder.firstIndex(of: a.id ?? ""), let second = rowOrder.firstIndex(of: b.id ?? "") {
-                return first < second
-            }
-            return false
-        }
-        return sortedRows
-    }
-    
 }
 
 struct CellDataModel: Hashable, Equatable {
