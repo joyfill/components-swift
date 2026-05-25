@@ -131,11 +131,18 @@ struct TableModalView : View {
             viewModel.tableDataModel.emptySelection()
         }
         .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
+            var cellModels = viewModel.tableDataModel.cellModels
+            var indexByID: [String: Int] = [:]
+            indexByID.reserveCapacity(cellModels.count)
+            for (i, m) in cellModels.enumerated() {
+                indexByID[m.rowID] = i
+            }
             for model in viewModel.tableDataModel.filteredcellModels {
-                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
-                    viewModel.tableDataModel.cellModels[index] = model
+                if let index = indexByID[model.rowID] {
+                    cellModels[index] = model
                 }
             }
+            viewModel.tableDataModel.cellModels = cellModels
         }
         .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
             if viewModel.tableDataModel.rowOrder.isEmpty {
