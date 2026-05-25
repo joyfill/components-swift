@@ -269,14 +269,10 @@ extension DocumentEditor {
     func rowUpdateEvent(
         fieldIdentifier: FieldIdentifier,
         rowID: String,
-        cellDataModel: CellDataModel
+        cellDataModel: CellDataModel,
+        elements: [ValueElement]
     ) {
-        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder else { return }
-        let valueElement = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements?.first(where: { $0.id == rowID })
-        guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
-            Log("Row index not found: \(rowID)", type: .error)
-            return
-        }
+        let valueElement = elements.first(where: { $0.id == rowID })
         let newCell = getNewCellValue(for: cellDataModel)
         
         let cells = [
@@ -1110,7 +1106,7 @@ extension DocumentEditor {
         }
         // Fire row update event
         if callOnChange {
-            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
+            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel, elements: elements)
         }
         
         return elements
