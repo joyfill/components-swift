@@ -194,6 +194,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             return nil
         }
 
+        tableDataModel.valueToValueElements?.append(targetRows.0)
+
         seedRowDecorators(for: targetRows.0)
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
