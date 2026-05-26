@@ -42,7 +42,7 @@ extension DocumentEditor {
 
         for row in rowIDs {
             guard let index = indexByID[row] else {
-                Log("Row not found: \(row)", type: .warning)
+                Log("Row not found: \(row)", type: .error)
                 continue
             }
             var element = elements[index]
