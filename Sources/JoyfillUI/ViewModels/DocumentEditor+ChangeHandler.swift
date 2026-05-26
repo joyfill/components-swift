@@ -32,10 +32,18 @@ extension DocumentEditor {
         }
         var deletedRowsByID = [String: [String: Any]]()
 
+        // Build a rowID → index map once. Safe here because deletes are SOFT
+        // (setDeleted + in-place write); indices don't shift during the loop.
+        var indexByID: [String: Int] = [:]
+        indexByID.reserveCapacity(elements.count)
+        for (i, el) in elements.enumerated() {
+            if let id = el.id { indexByID[id] = i }
+        }
+
         for row in rowIDs {
-            guard let index = elements.firstIndex(where: { $0.id == row }) else {
-                Log("Row not found: \(row)", type: .error)
-                return elements
+            guard let index = indexByID[row] else {
+                Log("Row not found: \(row)", type: .warning)
+                continue
             }
             var element = elements[index]
             element.setDeleted()
@@ -43,8 +51,11 @@ extension DocumentEditor {
                 deletedRowsByID[row] = element.anyDictionary
             }
             elements[index] = element
-            lastRowOrder.removeAll(where: { $0 == row })
         }
+        // Single O(rowOrder) cleanup instead of O(rowOrder) per deleted row.
+        let rowIDsSet = Set(rowIDs)
+        lastRowOrder.removeAll(where: { rowIDsSet.contains($0) })
+
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         guard shouldSendEvent else { return elements }
