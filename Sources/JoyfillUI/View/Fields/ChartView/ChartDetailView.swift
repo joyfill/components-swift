@@ -57,8 +57,9 @@ struct ChartDetailView: View {
                 let fieldEvent = FieldChangeData(fieldIdentifier: chartDataModel.fieldIdentifier, updateValue: .valueElementArray(valueElements), chartData: chartData)
                 chartDataModel.documentEditor?.onChange(event: fieldEvent)
             })
-            .onChange(of: chartDataModel.valueElements ?? [], perform: { latestValueElements in
-                if latestValueElements != valueElements {
+            .onChange(of: chartDataModel.valueElements, perform: { latestValueElements in
+                if let latestValueElements = latestValueElements,
+                   latestValueElements != valueElements {
                     valueElements = latestValueElements
                 }
             })
