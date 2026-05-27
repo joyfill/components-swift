@@ -25,7 +25,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     
     private func createTableViewModel(documentEditor: DocumentEditor) -> TableViewModel {
         let field = documentEditor.field(fieldID: tableFieldID)
-        let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible)
+        let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible, visibleLimitInFields: documentEditor.decoratorConfig.visibleLimitInFields)
         let tableDataModel = TableDataModel(
             fieldHeaderModel: fieldHeaderModel,
             mode: Mode.fill,

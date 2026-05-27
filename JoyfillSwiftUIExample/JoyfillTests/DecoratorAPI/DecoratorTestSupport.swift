@@ -33,16 +33,64 @@ enum ChangerHandlerSample {
     static let collectionNestedRowID     = "68575bc1921b69c15fad6c3f"
     static let collectionNestedColumnID  = "68575394ffa57501fba78c4c"
 
-    // Path helpers
-    static func tableFieldPath()  -> String { "\(pageID)/\(tableFieldPositionID)" }
-    static func tableRowPath()    -> String { "\(pageID)/\(tableFieldPositionID)/\(tableRowID)" }
-    static func tableColumnPath() -> String { "\(pageID)/\(tableFieldPositionID)/\(tableRowID)/\(tableColumnID)" }
+    // MARK: - Path helpers (new grammar)
+    //
+    // Grammar reference:
+    //   /rows                    → common rows at that level
+    //   /columns/{col}           → common column at that level
+    //   /{rowID}                 → row-self (row's own decorators)
+    //   /{rowID}/{col}           → cell (bare column id after row)
+    //   /{rowID}/columns/{col}   → row-scoped column (aliases cell)
+    //   /schemas/{sk}/...        → descend into child schema (collection only)
 
+    // -- Field level
+    static func tableFieldPath()      -> String { "\(pageID)/\(tableFieldPositionID)" }
     static func collectionFieldPath() -> String { "\(pageID)/\(collectionFieldPositionID)" }
-    static func collectionRootRowPath() -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)" }
-    static func collectionNestedRowPath() -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionNestedRowID)" }
-    static func collectionRootColumnPath() -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/\(collectionRootColumnID)" }
-    static func collectionNestedColumnPath() -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionNestedRowID)/\(collectionNestedColumnID)" }
+
+    // -- Table: common row / column
+    static func tableCommonRowsPath()   -> String { "\(pageID)/\(tableFieldPositionID)/rows" }
+    static func tableCommonColumnPath() -> String { "\(pageID)/\(tableFieldPositionID)/columns/\(tableColumnID)" }
+
+    // -- Table: row-self / cell / row-scoped column
+    static func tableRowSelfPath()         -> String { "\(pageID)/\(tableFieldPositionID)/\(tableRowID)" }
+    static func tableCellPath()            -> String { "\(pageID)/\(tableFieldPositionID)/\(tableRowID)/\(tableColumnID)" }
+    static func tableRowScopedColumnPath() -> String { "\(pageID)/\(tableFieldPositionID)/\(tableRowID)/columns/\(tableColumnID)" }
+
+    // -- Collection root schema: common row / column
+    static func collectionRootCommonRowsPath()   -> String { "\(pageID)/\(collectionFieldPositionID)/rows" }
+    static func collectionRootCommonColumnPath() -> String { "\(pageID)/\(collectionFieldPositionID)/columns/\(collectionRootColumnID)" }
+
+    // -- Collection root schema: row-self / cell / row-scoped column
+    static func collectionRootRowSelfPath()         -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)" }
+    static func collectionRootCellPath()            -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/\(collectionRootColumnID)" }
+    static func collectionRootRowScopedColumnPath() -> String { "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/columns/\(collectionRootColumnID)" }
+
+    // -- Collection nested schema (reached via root row, full chain required)
+    static func collectionNestedCommonRowsPath() -> String {
+        "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/schemas/\(collectionNestedSchemaKey)/rows"
+    }
+    static func collectionNestedCommonColumnPath() -> String {
+        "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/schemas/\(collectionNestedSchemaKey)/columns/\(collectionNestedColumnID)"
+    }
+    static func collectionNestedRowSelfPath() -> String {
+        "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/schemas/\(collectionNestedSchemaKey)/\(collectionNestedRowID)"
+    }
+    static func collectionNestedCellPath() -> String {
+        "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/schemas/\(collectionNestedSchemaKey)/\(collectionNestedRowID)/\(collectionNestedColumnID)"
+    }
+    static func collectionNestedRowScopedColumnPath() -> String {
+        "\(pageID)/\(collectionFieldPositionID)/\(collectionRootRowID)/schemas/\(collectionNestedSchemaKey)/\(collectionNestedRowID)/columns/\(collectionNestedColumnID)"
+    }
+
+    // MARK: Deprecated compatibility aliases
+    // (the original names — kept so older tests compile while migration is in progress)
+    static func tableRowPath()                -> String { tableRowSelfPath() }
+    static func tableColumnPath()             -> String { tableCellPath() }
+    static func collectionRootRowPath()       -> String { collectionRootRowSelfPath() }
+    static func collectionRootColumnPath()    -> String { collectionRootCellPath() }
+    /// Full chain required — the old `fp/nestedRowID` spelling no longer resolves.
+    static func collectionNestedRowPath()     -> String { collectionNestedRowSelfPath() }
+    static func collectionNestedColumnPath()  -> String { collectionNestedCellPath() }
 }
 
 /// Constants for `Navigation.json` — used only for the shared-field-position-ID regression test.
@@ -77,6 +125,28 @@ class MockDecoratorEvents: FormChangeEvent {
     func onUpload(event: UploadEvent) {}
     func onCapture(event: CaptureEvent) {}
     func onError(error: JoyfillError) { capturedErrors.append(error) }
+}
+
+// MARK: - Value-element tree walker (for storage-level assertions)
+
+/// Walks the row tree in `field.valueToValueElements` by the given chain of row IDs,
+/// descending via `childrens[schemaKey]` between hops. Returns the element at the tip.
+/// Pass `hops` as `[(schemaKey?, rowID)]` — `schemaKey` is `nil` for the root hop.
+func findValueElement(in field: JoyDocField?,
+                      hops: [(schemaKey: String?, rowID: String)]) -> ValueElement? {
+    guard let field = field, !hops.isEmpty else { return nil }
+    var current: [ValueElement] = field.valueToValueElements ?? []
+    var tip: ValueElement? = nil
+    for (i, hop) in hops.enumerated() {
+        if i > 0 {
+            guard let sk = hop.schemaKey,
+                  let children = tip?.childrens?[sk]?.valueToValueElements else { return nil }
+            current = children
+        }
+        guard let el = current.first(where: { $0.id == hop.rowID }) else { return nil }
+        tip = el
+    }
+    return tip
 }
 
 // MARK: - Decorator factory

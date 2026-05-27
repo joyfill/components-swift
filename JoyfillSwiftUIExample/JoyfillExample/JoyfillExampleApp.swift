@@ -87,6 +87,10 @@ struct JoyfillExampleApp: App {
         
         // Set up crash prevention for UI tests after all properties are initialized
         setupCrashPrevention()
+
+        if CommandLine.arguments.contains("--disable-animations") {
+            UIView.setAnimationsEnabled(false)
+        }
     }
 
     var body: some Scene {
@@ -113,6 +117,10 @@ struct JoyfillExampleApp: App {
                 Text(appState.focusBlurResult)
                     .accessibilityIdentifier("focusBlurResultfield")
                     .frame(height: 10)
+                
+                if isRunningDecoratorTest() {
+                    DecoratorCommandBridgeView(documentEditor: documentEditor)
+                }
             } else if useQuickTestMode {
                 //Quick test mode: directly open template list with default token
                 NavigationView {
@@ -141,6 +149,13 @@ struct JoyfillExampleApp: App {
         return fullTestName.contains(testClass)
     }
     
+    func isRunningDecoratorTest() -> Bool {
+        let args = CommandLine.arguments
+        guard let idx = args.firstIndex(of: "--test-name"),
+              idx + 1 < args.count else { return false }
+        return args[idx + 1].contains("Decorator")
+    }
+
     func isRunningNavigationTest(_ testClass: String = "NavigationGotoUITests") -> Bool {
         // 1. Must be iPad
         guard UIDevice.current.userInterfaceIdiom == .pad else {

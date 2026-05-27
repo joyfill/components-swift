@@ -146,7 +146,7 @@ struct CollectionModalView : View {
             if viewModel.nestedTableCount > 0 {
                 Spacer()
             }
-            if viewModel.showRowSelector  {
+            if viewModel.showRowSelector(for: viewModel.tableDataModel) {
                 Image(systemName: viewModel.tableDataModel.allRowSelected ? "circle.square.fill" : "square")
                     .frame(width: 40, height: textHeight)
                     .foregroundColor(viewModel.tableDataModel.filteredcellModels.count == 0 ? Color.gray.opacity(0.4) : nil)
@@ -165,7 +165,7 @@ struct CollectionModalView : View {
                 .frame(width: 40, height: 60)
                 .border(Color.tableCellBorderColor)
             
-            if viewModel.showSingleClickEditButton {
+            if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
                 Image(systemName: "square.and.pencil")
                     .frame(width: 40, height: 60)
                     .foregroundColor(Color.gray.opacity(0.4))
@@ -180,9 +180,9 @@ struct CollectionModalView : View {
 
     private var collectionLeftColumnWidth: CGFloat {
         var width: CGFloat = 40 // # column
-        if viewModel.showRowSelector { width += 40 }
+        if viewModel.showRowSelector(for: viewModel.tableDataModel) { width += 40 }
         if viewModel.nestedTableCount > 0 { width += 40 }
-        if viewModel.showSingleClickEditButton { width += 40 }
+        if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) { width += 40 }
         return width
     }
 
@@ -377,7 +377,7 @@ struct RootTitleRowView: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .frame(minHeight: 50)
-        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0, viewModel.rootSchemaKey), height: 60)
+        .frame(width: viewModel.rowWidth(viewModel.tableDataModel.tableColumns, 0, viewModel.rootSchemaKey, tableDataModel: viewModel.tableDataModel), height: 60)
         .font(.system(size: 15, weight: .bold))
         .border(Color.tableCellBorderColor)
         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
@@ -394,10 +394,10 @@ struct CollectionColumnHeaderView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            if viewModel.showRowDecorators, !viewModel.tableDataModel.rowDecorators(forSchemaKey: schemaKey).isEmpty {
+            if viewModel.showRowDecorators(forSchemaKey: schemaKey) {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
-                    .frame(width: 40, height: 60)
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
                     .foregroundColor(Color.gray.opacity(0.4))
                     .border(Color.tableCellBorderColor)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
@@ -538,7 +538,7 @@ struct CollectionRowsHeaderView: View {
             // Selector Button View
             switch rowModel.rowType {
             case .row(let index):
-                if viewModel.showRowSelector {
+                if viewModel.showRowSelector(for: viewModel.tableDataModel) {
                     Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                         .frame(width: 40, height: 60)
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
@@ -549,7 +549,7 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("selectRowItem\(index)")
                 }
             case .header:
-                if viewModel.showRowSelector {
+                if viewModel.showRowSelector(for: viewModel.tableDataModel) {
                     Image(systemName: viewModel.tableDataModel.allNestedRowSelected(rowID: rowModel.rowID) ? "circle.square.fill" : "square")
                         .frame(width: 40, height: 60)
                         .foregroundColor(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0 ? Color.gray.opacity(0.4) : nil)
@@ -565,7 +565,7 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("selectAllNestedRows")
                 }
             case .nestedRow(let level, let index, _, _):
-                if viewModel.showRowSelector {
+                if viewModel.showRowSelector(for: viewModel.tableDataModel) {
                     Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                         .frame(width: 40, height: 60)
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
@@ -586,7 +586,7 @@ struct CollectionRowsHeaderView: View {
                     .frame(width: 40, height: 60)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
-                if viewModel.showSingleClickEditButton {
+                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
                     Image(systemName: "square.and.pencil")
                         .frame(width: 40, height: 60)
                         .foregroundColor(Color.gray.opacity(0.4))
@@ -609,7 +609,7 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.showSingleClickEditButton {
+                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
                     Image(systemName: "square.and.pencil")
                         .foregroundColor(.blue)
                         .frame(width: 40, height: 60)
@@ -623,9 +623,12 @@ struct CollectionRowsHeaderView: View {
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
-                if viewModel.showRowDecorators {
+                if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
-                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: parentSchemaKey)) { decorator in
+                    RowDecoratorMenuView(
+                        decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey),
+                        visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
+                    ) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
                             fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                             action: decorator.action ?? "",
@@ -633,6 +636,8 @@ struct CollectionRowsHeaderView: View {
                             parentPath: parentPathForNested.0
                         )
                     }
+                    .padding(.all, 4)
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)
                 }
@@ -652,7 +657,7 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.showSingleClickEditButton {
+                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
                     Image(systemName: "square.and.pencil")
                         .foregroundColor(.blue)
                         .frame(width: 40, height: 60)
@@ -666,10 +671,15 @@ struct CollectionRowsHeaderView: View {
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
                 }
-                if viewModel.showRowDecorators {
-                    RowDecoratorMenuView(decorators: viewModel.tableDataModel.rowDecorators(forSchemaKey: viewModel.rootSchemaKey)) { decorator in
+                if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
+                    RowDecoratorMenuView(
+                        decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: viewModel.rootSchemaKey),
+                        visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
+                    ) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                     }
+                    .padding(.all, 4)
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)
                 }

@@ -106,6 +106,56 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalTF.value as? String, "one")
         XCTAssertEqual(horizontalTF.value as? String, "two")
     }
+    
+    func testChartCoordinateValuesPersistAndClearToNil() {
+        goToChartDetailField(index: 0)
+
+        let horizontalPointsValue = app.textFields.matching(identifier: "HorizontalPointsValue").element(boundBy: 0)
+        let verticalPointsValue = app.textFields.matching(identifier: "VerticalPointsValue").element(boundBy: 0)
+
+        XCTAssertTrue(horizontalPointsValue.waitForExistence(timeout: 1), "Horizontal coordinate textfield not found")
+        XCTAssertTrue(verticalPointsValue.waitForExistence(timeout: 1), "Vertical coordinate textfield not found")
+
+        horizontalPointsValue.tap()
+        horizontalPointsValue.clearText()
+        horizontalPointsValue.typeText("11")
+
+        verticalPointsValue.tap()
+        verticalPointsValue.clearText()
+        verticalPointsValue.typeText("22")
+        app.dismissKeyboardIfVisible()
+
+        goBack()
+
+        goToChartDetailField(index: 0)
+        let horizontalAfterWrite = app.textFields.matching(identifier: "HorizontalPointsValue").element(boundBy: 0)
+        let verticalAfterWrite = app.textFields.matching(identifier: "VerticalPointsValue").element(boundBy: 0)
+
+        XCTAssertEqual(horizontalAfterWrite.value as? String, "11", "Horizontal coordinate did not persist after navigation")
+        XCTAssertEqual(verticalAfterWrite.value as? String, "22", "Vertical coordinate did not persist after navigation")
+
+        horizontalAfterWrite.tap()
+        horizontalAfterWrite.clearText()
+        verticalAfterWrite.tap()
+        verticalAfterWrite.clearText()
+
+        goBack()
+
+        goToChartDetailField(index: 0)
+        let horizontalAfterClear = app.textFields.matching(identifier: "HorizontalPointsValue").element(boundBy: 0)
+        let verticalAfterClear = app.textFields.matching(identifier: "VerticalPointsValue").element(boundBy: 0)
+
+        XCTAssertNil(onChangeResultValue().valueElements?.first?.points?.first?.x, "Horizontal coordinate should be nil after clearing")
+        XCTAssertNil(onChangeResultValue().valueElements?.first?.points?.first?.y, "Vertical coordinate should be nil after clearing")
+
+        // The getter returns nil for both `.null` and "key absent". Pin down the
+        // actual contract — cleared coordinates must be omitted from the point's
+        // dictionary entirely (not stored as .null or .double(0)).
+        let clearedPoint = onChangeResultValue().valueElements?.first?.points?.first
+        XCTAssertNotNil(clearedPoint, "Point should still exist after clearing coordinates")
+        XCTAssertNil(clearedPoint?.dictionary["x"], "x key should be absent from point dictionary, not stored as null or 0")
+        XCTAssertNil(clearedPoint?.dictionary["y"], "y key should be absent from point dictionary, not stored as null or 0")
+    }
 
     func testChartFieldOnFocusAndOnBlur() {
         goToChartDetailField(index: 0)
