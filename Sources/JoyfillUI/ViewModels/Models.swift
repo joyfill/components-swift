@@ -1261,7 +1261,7 @@ struct DecoratorLocal {
 struct ChartDataModel {
     var fieldIdentifier: FieldIdentifier
     var valueElements: [ValueElement]?
-    var chartCoordinates : ChartAxisConfiguration?
+    var chartCoordinates: ChartAxisConfiguration?
     var mode: Mode
     var documentEditor: DocumentEditor?
     var fieldHeaderModel: FieldHeaderModel?
