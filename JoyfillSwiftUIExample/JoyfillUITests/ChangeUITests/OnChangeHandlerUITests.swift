@@ -2557,7 +2557,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
     
-    func testChartCoordinates() throws {
+    func testChartCoordinatesMirrorAcrossPages() throws {
         let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
 
@@ -2592,8 +2592,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         minX.tap()
         minX.typeText("2")
         maxY.tap()
+        maxY.clearTextReliably()
         maxY.typeText("7")
         maxX.tap()
+        maxX.clearTextReliably()
         maxX.typeText("8")
         
         let element3 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 1)
@@ -2609,8 +2611,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
 
         XCTAssertEqual(minYOther.value as? String, "1", "MinY should match expected value.")
         XCTAssertEqual(minXOther.value as? String, "2", "MinX should match expected value.")
-        XCTAssertEqual(maxYOther.value as? String, "1007", "MaxY should match expected value.")
-        XCTAssertEqual(maxXOther.value as? String, "1008", "MaxX should match expected value.")
+        XCTAssertEqual(maxYOther.value as? String, "7", "MaxY should match expected value.")
+        XCTAssertEqual(maxXOther.value as? String, "8", "MaxX should match expected value.")
 
     }
     
