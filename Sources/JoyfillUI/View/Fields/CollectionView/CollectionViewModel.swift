@@ -1231,7 +1231,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                                childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
                                                                                rootSchemaKey: rootSchemaKey,
                                                                                nestedKey: rootSchemaKey,
-                                                                               parentRowId: "") else { return nil }
+                                                                               parentRowId: "",
+                                                                               fieldData: tableDataModel.valueToValueElements ?? []) else { return nil }
         let valueElement = result.inserted
         self.tableDataModel.valueToValueElements = result.all
         buildRowToValueElementMap()
@@ -1271,7 +1272,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                                 childrenKeys: tableDataModel.schema[selectedRow.rowType.parentSchemaKey]?.children,
                                                                                 rootSchemaKey: rootSchemaKey,
                                                                                 nestedKey: nestedKey,
-                                                                                parentRowId: parentRowID) else { return nil }
+                                                                                parentRowId: parentRowID,
+                                                                                fieldData: tableDataModel.valueToValueElements ?? []) else { return nil }
         self.tableDataModel.valueToValueElements = rowData.all
         buildRowToValueElementMap()
                 

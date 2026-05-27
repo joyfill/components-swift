@@ -474,12 +474,10 @@ extension DocumentEditor {
                                      childrenKeys: [String]? = nil,
                                      rootSchemaKey: String,
                                      nestedKey: String,
-                                     parentRowId: String) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     parentRowId: String,
+                                     fieldData: [ValueElement]) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            Log("No elements found for field: \(fieldId)", type: .error)
-            return nil
-        }
+        var elements = fieldData
 
         let newRowID = generateObjectId()
         var newRow = ValueElement(id: newRowID)
