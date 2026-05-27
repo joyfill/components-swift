@@ -95,4 +95,47 @@ final class DocumentEditorChangeHandlerChartAxisTests: XCTestCase {
         XCTAssertEqual(field?.yMin, 1.0)
         XCTAssertEqual(field?.yMax, 99.0)
     }
+
+    // Regression: a partial payload (one axis key) must NOT wipe the other
+    // axis fields. The OnChangeHandler fixture seeds the chart field with all
+    // six axis values populated; updating only xMax should leave the other
+    // five untouched.
+    func testChartAxisUpdate_PartialPayload_DoesNotWipeOtherFields() {
+        let editor = makeEditor()
+
+        let before = editor.field(fieldID: chartFieldID)
+        XCTAssertEqual(before?.xTitle, "Horizontal")
+        XCTAssertEqual(before?.yTitle, "Vertical")
+        XCTAssertEqual(before?.xMin, 0)
+        XCTAssertEqual(before?.xMax, 100)
+        XCTAssertEqual(before?.yMin, 0)
+        XCTAssertEqual(before?.yMax, 100)
+
+        editor.change(changes: [makeChange(["xMax": 50], editor: editor)])
+
+        let after = editor.field(fieldID: chartFieldID)
+        XCTAssertEqual(after?.xMax,   50,           "xMax should be updated")
+        XCTAssertEqual(after?.xTitle, "Horizontal", "xTitle absent from payload must be preserved")
+        XCTAssertEqual(after?.yTitle, "Vertical",   "yTitle absent from payload must be preserved")
+        XCTAssertEqual(after?.xMin,   0,            "xMin absent from payload must be preserved")
+        XCTAssertEqual(after?.yMin,   0,            "yMin absent from payload must be preserved")
+        XCTAssertEqual(after?.yMax,   100,          "yMax absent from payload must be preserved")
+    }
+
+    // Regression: an explicit null at one key must not wipe the other five
+    // axis fields. Behavior of `null` for the targeted key depends on
+    // contract (no-op vs. explicit clear); either way, untouched fields
+    // must survive.
+    func testChartAxisUpdate_ExplicitNullPayload_DoesNotWipeOtherFields() {
+        let editor = makeEditor()
+
+        editor.change(changes: [makeChange(["xMin": NSNull()], editor: editor)])
+
+        let after = editor.field(fieldID: chartFieldID)
+        XCTAssertEqual(after?.xTitle, "Horizontal", "xTitle absent from payload must be preserved")
+        XCTAssertEqual(after?.yTitle, "Vertical",   "yTitle absent from payload must be preserved")
+        XCTAssertEqual(after?.xMax,   100,          "xMax absent from payload must be preserved")
+        XCTAssertEqual(after?.yMin,   0,            "yMin absent from payload must be preserved")
+        XCTAssertEqual(after?.yMax,   100,          "yMax absent from payload must be preserved")
+    }
 }

@@ -58,12 +58,12 @@ extension DocumentEditor: JoyDocProvider {
             field.value = value
         }
         if let chartData = chartData {
-            field.xTitle = chartData.xTitle
-            field.yTitle = chartData.yTitle
-            field.xMin = chartData.xMin
-            field.xMax = chartData.xMax
-            field.yMin = chartData.yMin
-            field.yMax = chartData.yMax
+            if let v = chartData.xTitle { field.xTitle = v }
+            if let v = chartData.yTitle { field.yTitle = v }
+            if let v = chartData.xMin   { field.xMin   = v }
+            if let v = chartData.xMax   { field.xMax   = v }
+            if let v = chartData.yMin   { field.yMin   = v }
+            if let v = chartData.yMax   { field.yMax   = v }
         }
         fieldMap[fieldID] = field
         refreshField(fieldId: fieldID)
