@@ -2603,7 +2603,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         deleteSelectedImages()
     }
     
-    func testDropdownCoordinates() throws {
+    func testMirroredDropdownSyncsExternalSelection() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
         }
