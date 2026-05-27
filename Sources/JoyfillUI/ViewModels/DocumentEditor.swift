@@ -352,10 +352,10 @@ public class DocumentEditor: ObservableObject {
             return ChartData(
                 xTitle: change.change?["xTitle"] as? String,
                 yTitle: change.change?["yTitle"] as? String,
-                xMax: change.change?["xMax"] as? Double,
-                xMin: change.change?["xMin"] as? Double,
-                yMax: change.change?["yMax"] as? Double,
-                yMin: change.change?["yMin"] as? Double
+                xMax: (change.change?["xMax"] as? NSNumber)?.doubleValue,
+                xMin: (change.change?["xMin"] as? NSNumber)?.doubleValue,
+                yMax: (change.change?["yMax"] as? NSNumber)?.doubleValue,
+                yMin: (change.change?["yMin"] as? NSNumber)?.doubleValue
             )
         }()
         

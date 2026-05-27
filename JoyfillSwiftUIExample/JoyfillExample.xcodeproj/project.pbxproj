@@ -363,6 +363,7 @@
 		E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
 		E295FA7A2F73DAEF00C3C8C1 /* FooterExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */; };
 		E295FA7B2F73DAEF00C3C8C1 /* footer-form.json in Resources */ = {isa = PBXBuildFile; fileRef = E295FA772F73DAEF00C3C8C1 /* footer-form.json */; };
+		E29D5CDF2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D5CDE2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift */; };
 		E29FF8512F1F77C10079A614 /* SimpleNavigationTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */; };
 		E29FF8672F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
 		E29FF8682F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
@@ -668,6 +669,7 @@
 		E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ConditionalEvaluationCircularReference.json; sourceTree = "<group>"; };
 		E295FA772F73DAEF00C3C8C1 /* footer-form.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "footer-form.json"; sourceTree = "<group>"; };
 		E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterExampleView.swift; sourceTree = "<group>"; };
+		E29D5CDE2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerChartAxisTests.swift"; sourceTree = "<group>"; };
 		E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleNavigationTestView.swift; sourceTree = "<group>"; };
 		E29FF8662F215C9C0079A614 /* Navigation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Navigation.json; sourceTree = "<group>"; };
 		E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationJSONTests.swift; sourceTree = "<group>"; };
@@ -1074,6 +1076,7 @@
 			isa = PBXGroup;
 			children = (
 				E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */,
+				E29D5CDE2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift */,
 				E225D1C82F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift */,
 				E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */,
 				E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */,
@@ -2064,6 +2067,7 @@
 				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
 				E2B8E3D22E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift in Sources */,
 				E2B8E3D32E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift in Sources */,
+				E29D5CDF2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift in Sources */,
 				E2B8E3D42E43753300AC6018 /* FormulaTemplate_ConditionalEvaluationCircularReferenceTests.swift in Sources */,
 				E2B8E3EB2E43804900AC6018 /* FormulaTemplate_SignatureFieldTests.swift in Sources */,
 				E2B8E3D52E43753300AC6018 /* FormulaTemplate_ArithmeticTests.swift in Sources */,
