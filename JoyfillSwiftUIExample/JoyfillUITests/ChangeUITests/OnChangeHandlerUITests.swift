@@ -2635,6 +2635,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         saveSignatureButton.tap()
         
         XCTAssertEqual(rightSignatureButton.label, "Edit Signature", "Signature added on left should reflect on right side.")
+
+        let signatureImages = app.images.matching(identifier: "SignatureImageIdentifier")
+        let rightSignatureImage = signatureImages.element(boundBy: 1)
+        XCTAssertTrue(rightSignatureImage.waitForExistence(timeout: 5), "Mirrored signature image should render on right side.")
     }
     
     func deleteSelectedImages() {

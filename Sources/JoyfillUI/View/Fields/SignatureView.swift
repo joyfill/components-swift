@@ -41,6 +41,7 @@ struct SignatureView: View {
                         Image(uiImage: signatureImage)
                             .resizable()
                             .scaledToFit()
+                            .accessibilityIdentifier("SignatureImageIdentifier")
                     }
                     if showError {
                         VStack(spacing: 12) {
