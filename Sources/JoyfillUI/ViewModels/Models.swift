@@ -146,6 +146,7 @@ struct TableDataModel {
     let mode: Mode
     let documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
+    var decorate: Bool
     let title: String?
     let fieldType: FieldTypes
     var fieldRequired: Bool = false
@@ -158,8 +159,10 @@ struct TableDataModel {
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
-    var rowDecorators: [DecoratorLocal] = []
-    private(set) var rowDecoratorsBySchemaKey: [String: [DecoratorLocal]] = [:]
+    var tableRowDecorators: [String: [DecoratorLocal]] = [:] // Both Row specific and common row decorators are combined
+    var tableCellDecorators: [String: [DecoratorLocal]] = [:] // Both Cell specific and common column decorators are combined
+    var tableCommonCellDecorators: [String: [DecoratorLocal]] = [:] // columnId
+    private(set) var commonRowDecorators: [String: [DecoratorLocal]] = [:]
     var selectedRows = [String]()
     var cellModels = [RowDataModel]()
     var filteredcellModels = [RowDataModel]()
@@ -205,12 +208,12 @@ struct TableDataModel {
         self.documentEditor = documentEditor
         self.title = fieldData.title
         self.fieldIdentifier = fieldIdentifier
+        self.decorate = fieldData.decorate ?? false
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
-        self.rowDecorators = fieldData.fieldType == .table ? (fieldData.rowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []) : []
         self.cleanUpRowOrder()
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
@@ -246,6 +249,7 @@ struct TableDataModel {
         setupColumns()
         filterRowsIfNeeded()
         self.id = fieldIdentifier.fieldID + ":" + filterModels.map { $0.colID }.sorted().joined(separator: ",")
+        self.setTableRowDecorators(rowDecorators: fieldData.rowDecorators, rows: valueToValueElements ?? [])
     }
     
     mutating func buildFullSchemaChainMap() {
@@ -370,28 +374,76 @@ struct TableDataModel {
     private func isRootSchema(_ schemaKey: String) -> Bool {
         return schema[schemaKey]?.root == true
     }
+    
+    func getTableRowDecorators(forRowID id: String) -> [DecoratorLocal] {
+        return tableRowDecorators[id] ?? []
+    }
+    
+    func getTableCellDecorators(rowIds: [String], columnId: String) -> [DecoratorLocal] {
+        if rowIds.isEmpty { return [] }
+        if rowIds.count == 1, let singleID = rowIds.first {
+            let key = "\(singleID)/\(columnId)"
+            return tableCellDecorators[key] ?? []
+        } else {
+            return tableCommonCellDecorators[columnId] ?? []
+        }
+    }
+    
+    fileprivate mutating func setTableCellDecorators(_ row: ValueElement, _ id: String) {
+        for column in tableColumns {
+            guard let columnID = column.id else { continue }
+            let cellCommonDecorators = column.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+            let cellSpecificDecorators = row.decorators?.cells[columnID]?
+                .filter({ $0.isDisplayable })
+                .map(DecoratorLocal.init(from:)) ?? []
+            self.tableCommonCellDecorators[columnID] = cellCommonDecorators
+            let key = "\(id)/\(columnID)"
+            if cellSpecificDecorators.isEmpty {
+                self.tableCellDecorators[key] = cellCommonDecorators
+            } else {
+                self.tableCellDecorators[key] = cellSpecificDecorators
+            }
+        }
+    }
+    
+    mutating func setTableRowDecorators(rowDecorators: [Decorator]?, rows: [ValueElement]) {
+        guard fieldType == .table else { return }
+        tableRowDecorators.removeAll()
+        tableCellDecorators.removeAll()
+        tableCommonCellDecorators.removeAll()
 
+        let nonDeleteRows = rows.filter { !($0.deleted ?? false) }
+        for row in nonDeleteRows {
+            updateTableRowDecorators(for: row, fieldRowDecorators: rowDecorators)
+        }
+    }
+
+    mutating func updateTableRowDecorators(for row: ValueElement, fieldRowDecorators: [Decorator]?) {
+        guard fieldType == .table, let id = row.id, !(row.deleted ?? false) else { return }
+        let rowCommonDecorators = fieldRowDecorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+        let rowSpecificDecorators = row.decorators?.all.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+        if rowSpecificDecorators.isEmpty {
+            self.tableRowDecorators[id] = rowCommonDecorators
+        } else {
+            self.tableRowDecorators[id] = rowSpecificDecorators
+        }
+        self.setTableCellDecorators(row, id)
+    }
+    
     /// Row decorators for the given schema. Table: always returns field-level rowDecorators. Collection: returns cached decorators per schema key (built in init).
     func rowDecorators(forSchemaKey schemaKey: String) -> [DecoratorLocal] {
         if fieldType == .table {
-            return rowDecorators
+            return []
         }
-        return rowDecoratorsBySchemaKey[schemaKey] ?? []
+        return commonRowDecorators[schemaKey] ?? []
     }
 
     mutating func setRowDecorators(_ decorators: [DecoratorLocal], forSchemaKey schemaKey: String) {
-        rowDecoratorsBySchemaKey[schemaKey] = decorators
+        commonRowDecorators[schemaKey] = decorators
     }
 
     func hasAnyRowDecorators(schemaKey: String) -> Bool {
-        return !rowDecorators(forSchemaKey: schemaKey).isEmpty
-    }
-    /// True if any row decorators should be shown. Table: field has rowDecorators. Collection: any schema has rowDecorators.
-    var hasAnyRowDecorators: Bool {
-        if fieldType == .table {
-            return !rowDecorators.isEmpty
-        }
-        return schema.values.contains { !(($0.rowDecorators ?? []).filter { $0.isDisplayable }).isEmpty }
+        return schema[schemaKey]?.decorate == true
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {

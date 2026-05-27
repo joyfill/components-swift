@@ -1738,7 +1738,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("Hello ji")
@@ -1805,7 +1805,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("Joyfill")
@@ -1863,7 +1863,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("A")
@@ -2075,7 +2075,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2191,7 +2191,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2307,7 +2307,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("qu")
@@ -2430,7 +2430,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2615,7 +2615,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2768,7 +2768,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit row text field should exist")
         textField.tap()
         
@@ -3091,6 +3091,27 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let schemaId = change?["schemaId"] as? String
         XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
         
+        guard let deletedRow = change?["row"] as? [String: Any] else {
+            return XCTFail("Missing deleted row object in changelog")
+        }
+
+        let expectedDeletedRow: [String: Any] = [
+            "_id": "68599790e8593d6d76c3a09f",
+            "deleted": true,
+            "cells": [
+                "685753ce949e66c62c746f62": "A",
+                "685753ca9756907c2dd4fdca": 200,
+                "685753cd582979929e70d64e": "A",
+                "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
+                "685753be581f231c08d8f11c": "A",
+                "685753c51f0af9f46eacdb40": [
+                    "685753c5265c32e4ff94cfa4"
+                ]
+            ],
+            "children": [:]
+        ]
+        XCTAssertEqual(deletedRow as NSDictionary, expectedDeletedRow as NSDictionary)
+        
     }
     
     func testChangeLogsForAddRow() throws {
@@ -3153,7 +3174,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.press(forDuration: 1.0)
