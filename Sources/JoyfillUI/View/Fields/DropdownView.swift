@@ -51,7 +51,8 @@ struct DropdownView: View {
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
-            // Avoid echoing programmatic model syncs as user-originated changes.
+            // Skip if @State already matches the model — means this fire came from a
+            // programmatic sync, not a user tap. Prevents an echo loop.
             if newValue == dropdownDataModel.dropdownValue {
                 return
             }
