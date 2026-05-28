@@ -51,9 +51,19 @@ struct DropdownView: View {
             }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
+            // Skip if @State already matches the model — means this fire came from a
+            // programmatic sync, not a user tap. Prevents an echo loop.
+            if newValue == dropdownDataModel.dropdownValue {
+                return
+            }
             let newDrodDownValue = ValueUnion.string(newValue ?? "")
             let fieldEvent = FieldChangeData(fieldIdentifier: dropdownDataModel.fieldIdentifier, updateValue: newDrodDownValue)
             eventHandler.onChange(event: fieldEvent)
+        }
+        .onChange(of: dropdownDataModel.dropdownValue) { newValue in
+            if selectedDropdownValueID != newValue {
+                selectedDropdownValueID = newValue
+            }
         }
     }
 }
