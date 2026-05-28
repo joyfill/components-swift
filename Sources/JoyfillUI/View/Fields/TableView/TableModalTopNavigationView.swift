@@ -232,8 +232,14 @@ struct EditMultipleRowsSheetView: View {
     }
 
     @ViewBuilder
-    private func columnTitle(_ col: FieldTableColumn) -> some View {
+    private func columnTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
         HStack(alignment: .center, spacing: 4) {
+            if let required = col.required, required, !isCellFilled {
+                Image(systemName: "asterisk")
+                    .foregroundColor(.red)
+                    .imageScale(.small)
+            }
+
             Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
                 .font(.headline.bold())
             
@@ -491,40 +497,67 @@ struct EditMultipleRowsSheetView: View {
                                     }
                                 }
                             }
+                            var isFilledBasedOnChange: Bool {
+                                guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
+                                    return false
+                                }
+                                
+                                switch changeValue {
+                                case .string(let str):
+                                    return !str.isEmpty
+                                case .double:
+                                    return true
+                                case .int:
+                                    return true
+                                case .bool:
+                                    return true
+                                case .array(let arr):
+                                    return !arr.isEmpty
+                                case .valueElementArray(let arr):
+                                    return !arr.isEmpty
+                                case .null:
+                                    return false
+                                default:
+                                    return false
+                                }
+                            }
+                            
+                            let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+                            
                             switch cellModel.data.type {
                             case .text:
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
 
                             case .dropdown:
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                             case .date:
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 2)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                             case .number:
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .keyboardType(.decimalPad)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                             case .multiSelect:
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 4)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                             case .barcode:
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
@@ -538,7 +571,7 @@ struct EditMultipleRowsSheetView: View {
                                         cellModel = newValue
                                     }
                                 )
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 HStack {
                                     Spacer()
                                     TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
@@ -557,7 +590,7 @@ struct EditMultipleRowsSheetView: View {
                                         cellModel = newValue
                                     }
                                 )
-                                columnTitle(col)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 HStack {
                                     Spacer()
                                     TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
@@ -568,7 +601,7 @@ struct EditMultipleRowsSheetView: View {
                                 .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                             case .block:
                                 if !isUsedForBulkEdit {
-                                    columnTitle(col)
+                                    columnTitle(col, isCellFilled: isEffectivelyFilled)
                                     TableBlockView(cellModel: Binding.constant(cellModel))
                                         .frame(minHeight: 40)
                                         .cellBorder(isFocused: isFocused)
