@@ -2557,6 +2557,67 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
     
+    func testChartCoordinatesMirrorAcrossPages() throws {
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.buttons["ShowHideButtonIdentifier"].tap()
+
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.staticTexts["Show"].firstMatch.tap()
+        
+        let textFieldsQuery = app.textFields
+        let element1 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 0)
+        element1.tap()
+        element1.typeText("Y")
+        
+        let element2 = textFieldsQuery.matching(identifier: "HorizontalTextFieldIdentifier").element(boundBy: 0)
+        element2.tap()
+        element2.typeText("X")
+
+        let minY = textFieldsQuery.matching(identifier: "MinY").element(boundBy: 0)
+        let minX = textFieldsQuery.matching(identifier: "MinX").element(boundBy: 0)
+        let maxY = textFieldsQuery.matching(identifier: "MaxY").element(boundBy: 0)
+        let maxX = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 0)
+
+        minY.tap()
+        minY.clearTextReliably()
+        minY.typeText("1")
+        minX.tap()
+        minX.clearTextReliably()
+        minX.typeText("2")
+        maxY.tap()
+        maxY.clearTextReliably()
+        maxY.typeText("7")
+        maxX.tap()
+        maxX.clearTextReliably()
+        maxX.typeText("8")
+        
+        let element3 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 1)
+        let element4 = textFieldsQuery.matching(identifier: "HorizontalTextFieldIdentifier").element(boundBy: 1)
+
+        XCTAssertEqual(element3.value as? String, "VerticalY", "Vertical title should match expected value.")
+        XCTAssertEqual(element4.value as? String, "HorizontalX", "Horizontal title should match expected value.")
+   
+        let minYOther = textFieldsQuery.matching(identifier: "MinY").element(boundBy: 1)
+        let minXOther = textFieldsQuery.matching(identifier: "MinX").element(boundBy: 1)
+        let maxYOther = textFieldsQuery.matching(identifier: "MaxY").element(boundBy: 1)
+        let maxXOther = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 1)
+
+        XCTAssertEqual(minYOther.value as? String, "1", "MinY should match expected value.")
+        XCTAssertEqual(minXOther.value as? String, "2", "MinX should match expected value.")
+        XCTAssertEqual(maxYOther.value as? String, "7", "MaxY should match expected value.")
+        XCTAssertEqual(maxXOther.value as? String, "8", "MaxX should match expected value.")
+
+    }
+    
     func testImageField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
@@ -2601,6 +2662,69 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         clickOnThirdImage()
         clickOnFourthImage()
         deleteSelectedImages()
+    }
+    
+    func testMirroredSignatureFieldSyncsOnSave() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let firstPageNavigationButton = pageSelectionButton.element(boundBy: 0)
+        let secondPageNavigationButton = pageSelectionButton.element(boundBy: 1)
+        let pageSelectionItem = pageSheetSelectionButton.element(boundBy: 3)
+        
+        XCTAssertTrue(firstPageNavigationButton.waitForExistence(timeout: 5), "First page navigation button not found")
+        firstPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page selection item not found")
+        pageSelectionItem.tap()
+        XCTAssertTrue(secondPageNavigationButton.waitForExistence(timeout: 5), "Second page navigation button not found")
+        secondPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page selection item not found")
+        pageSelectionItem.tap()
+        
+        let signatureButtons = app.buttons.matching(identifier: "SignatureIdentifier")
+        let leftSignatureButton = signatureButtons.element(boundBy: 0)
+        let rightSignatureButton = signatureButtons.element(boundBy: 1)
+        
+        XCTAssertTrue(leftSignatureButton.waitForExistence(timeout: 5), "Left signature button not found")
+        leftSignatureButton.tap()
+        drawSignatureLine()
+        let saveSignatureButton = app.buttons["SaveSignatureIdentifier"]
+        XCTAssertTrue(saveSignatureButton.waitForExistence(timeout: 5), "Save signature button not found")
+        saveSignatureButton.tap()
+        
+        XCTAssertEqual(rightSignatureButton.label, "Edit Signature", "Signature added on left should reflect on right side.")
+
+        let signatureImages = app.images.matching(identifier: "SignatureImageIdentifier")
+        let rightSignatureImage = signatureImages.element(boundBy: 1)
+        XCTAssertTrue(rightSignatureImage.waitForExistence(timeout: 5), "Mirrored signature image should render on right side.")
+    }
+    
+    func testMirroredDropdownSyncsExternalSelection() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        
+        let dropdownFields = app.buttons.matching(identifier: "Dropdown")
+        let leftDropdownField = dropdownFields.element(boundBy: 0)
+        let rightDropdownField = dropdownFields.element(boundBy: 1)
+        
+        leftDropdownField.tap()
+        let noOption = app.buttons.matching(identifier: "DropdownoptionIdentifier")
+            .element(matching: NSPredicate(format: "label == %@", "No"))
+        XCTAssertTrue(noOption.waitForExistence(timeout: 5), "'No' option never appeared in dropdown sheet")
+        noOption.tap()
+        XCTAssertEqual(rightDropdownField.label, "No", "Dropdown value selected on left should reflect on right side.")
     }
     
     func deleteSelectedImages() {

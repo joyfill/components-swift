@@ -1242,12 +1242,7 @@ struct DecoratorLocal {
 struct ChartDataModel {
     var fieldIdentifier: FieldIdentifier
     var valueElements: [ValueElement]?
-    var yTitle: String?
-    var yMax: Double?
-    var yMin: Double?
-    var xTitle: String?
-    var xMax: Double?
-    var xMin: Double?
+    var chartCoordinates: ChartAxisConfiguration?
     var mode: Mode
     var documentEditor: DocumentEditor?
     var fieldHeaderModel: FieldHeaderModel?
