@@ -2588,8 +2588,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let maxX = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 0)
 
         minY.tap()
+        minY.clearTextReliably()
         minY.typeText("1")
         minX.tap()
+        minX.clearTextReliably()
         minX.typeText("2")
         maxY.tap()
         maxY.clearTextReliably()
