@@ -918,7 +918,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         assertTableCellFocusBlurEvents(columnId: "6875f89ffad5aad06e550a6f")
     }
     
-    func testinsertbelowthenbulkedit() throws {
+    func testInsertBelowThenBulkEdit() throws {
         goToTableDetailPage()
         
         let moreButton = app.buttons["TableMoreButtonIdentifier"]
