@@ -153,6 +153,7 @@ struct TableDataModel {
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
     var tableColumns = [FieldTableColumn]()
+    var requiredColumnIDs: Set<String> = [] // Table only
     var childrens = [String]()
     var schema: [String : Schema] = [:]
     var fieldPositionSchema: [String : FieldPositionSchema] = [:]
@@ -242,6 +243,9 @@ struct TableDataModel {
                 if let columnType = column.type {
                     if supportedColumnTypes.contains(columnType) {
                         tableColumns.append(column)
+                        if column.required == true {
+                            requiredColumnIDs.insert(colID)
+                        }
                     }
                 }
             }
