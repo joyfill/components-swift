@@ -961,29 +961,36 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.buttons["TableDeleteRowIdentifier"].tap()
 
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        let deleteResult = onChangeResult()
-        XCTAssertEqual("field.value.rowDelete", deleteResult.target, "Delete all should emit rowDelete target")
 
-        if
-            let change = deleteResult.change,
-            let value = change["value"],
-            let valueUnion = ValueUnion(value: value),
-            let valueElements = valueUnion.valueElements {
-            XCTAssertEqual(valueElements.count, insertedRowCount, "Row count after delete-all should match count captured after insert")
-            XCTAssertTrue(valueElements.allSatisfy { $0.deleted == true }, "All rows should be marked as deleted")
-        } else {
-            let rowIds = deleteResult.change?["rowIds"] as? [String]
-            let rowId = deleteResult.change?["rowId"] as? String
-            if let rowIds {
-                XCTAssertEqual(rowIds.count, insertedRowCount, "Deleted rowIds count should match count captured after insert")
-            } else {
-                XCTAssertNotNil(rowId, "Delete payload should include rowIds/rowId when valueElements is unavailable")
-                let visibleRowCountAfterDelete = barcodeFields.count
-                XCTAssertEqual(visibleRowCountBeforeDelete - visibleRowCountAfterDelete, insertedRowCount, "Deleted UI row count should match count captured after insert")
-            }
-        }
+        // SDK emits one Change per deleted row, each with change: ["rowId": <id>, "row": <dict>].
+        // Lock to that shape directly — no permissive fallback, so a regression in event
+        // emission (wrong target, missing rowId, wrong cardinality) fails this test.
+        let deleteResults = onChangeOptionalResults()
+        XCTAssertFalse(deleteResults.isEmpty, "Delete-all should emit at least one change event")
+        XCTAssertTrue(
+            deleteResults.allSatisfy { $0.target == "field.value.rowDelete" },
+            "Delete-all should emit only rowDelete events; got targets: \(deleteResults.map { $0.target ?? "nil" })"
+        )
+        XCTAssertEqual(
+            deleteResults.count, insertedRowCount,
+            "Number of rowDelete events should equal the table size captured after insert"
+        )
+
+        let deletedRowIds: [String] = deleteResults.compactMap { $0.change?["rowId"] as? String }
+        XCTAssertEqual(
+            deletedRowIds.count, deleteResults.count,
+            "Every rowDelete change must include a non-empty rowId"
+        )
+        XCTAssertEqual(
+            Set(deletedRowIds).count, deletedRowIds.count,
+            "rowIds across rowDelete events should be unique"
+        )
 
         XCTAssertEqual(0, barcodeFields.count, "All table rows should be deleted")
+        XCTAssertEqual(
+            visibleRowCountBeforeDelete - barcodeFields.count, insertedRowCount,
+            "UI row count drop should equal the captured insert-time count"
+        )
     }
 }
 
