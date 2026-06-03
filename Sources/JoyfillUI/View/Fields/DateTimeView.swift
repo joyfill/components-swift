@@ -117,6 +117,7 @@ struct DateTimeView: View {
                         selectedDate = date
                     }
                 } else {
+                    self.dateString = ""
                     ignoreOnChangeOnModelUpdate = true
                     selectedDate = Date()
                 }
