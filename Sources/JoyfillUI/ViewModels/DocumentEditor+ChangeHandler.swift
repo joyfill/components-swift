@@ -32,10 +32,18 @@ extension DocumentEditor {
         }
         var deletedRowsByID = [String: [String: Any]]()
 
+        // Build a rowID → index map once. Safe here because deletes are SOFT
+        // (setDeleted + in-place write); indices don't shift during the loop.
+        var indexByID: [String: Int] = [:]
+        indexByID.reserveCapacity(elements.count)
+        for (i, el) in elements.enumerated() {
+            if let id = el.id { indexByID[id] = i }
+        }
+
         for row in rowIDs {
-            guard let index = elements.firstIndex(where: { $0.id == row }) else {
+            guard let index = indexByID[row] else {
                 Log("Row not found: \(row)", type: .error)
-                return elements
+                continue
             }
             var element = elements[index]
             element.setDeleted()
@@ -43,8 +51,11 @@ extension DocumentEditor {
                 deletedRowsByID[row] = element.anyDictionary
             }
             elements[index] = element
-            lastRowOrder.removeAll(where: { $0 == row })
         }
+        // Single O(rowOrder) cleanup instead of O(rowOrder) per deleted row.
+        let rowIDsSet = Set(rowIDs)
+        lastRowOrder.removeAll(where: { rowIDsSet.contains($0) })
+
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
         guard shouldSendEvent else { return elements }
@@ -269,14 +280,10 @@ extension DocumentEditor {
     func rowUpdateEvent(
         fieldIdentifier: FieldIdentifier,
         rowID: String,
-        cellDataModel: CellDataModel
+        cellDataModel: CellDataModel,
+        elements: [ValueElement]
     ) {
-        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder else { return }
-        let valueElement = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements?.first(where: { $0.id == rowID })
-        guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
-            Log("Row index not found: \(rowID)", type: .error)
-            return
-        }
+        let valueElement = elements.first(where: { $0.id == rowID })
         let newCell = getNewCellValue(for: cellDataModel)
         
         let cells = [
@@ -467,12 +474,10 @@ extension DocumentEditor {
                                      childrenKeys: [String]? = nil,
                                      rootSchemaKey: String,
                                      nestedKey: String,
-                                     parentRowId: String) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     parentRowId: String,
+                                     fieldData: [ValueElement]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            Log("No elements found for field: \(fieldId)", type: .error)
-            return nil
-        }
+        var elements = fieldData ?? field(fieldID: fieldId)?.valueToValueElements ?? []
 
         let newRowID = generateObjectId()
         var newRow = ValueElement(id: newRowID)
@@ -1110,7 +1115,7 @@ extension DocumentEditor {
         }
         // Fire row update event
         if callOnChange {
-            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
+            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel, elements: elements)
         }
         
         return elements

@@ -153,6 +153,7 @@ struct TableDataModel {
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
     var tableColumns = [FieldTableColumn]()
+    var requiredColumnIDs: Set<String> = [] // Table only
     var childrens = [String]()
     var schema: [String : Schema] = [:]
     var fieldPositionSchema: [String : FieldPositionSchema] = [:]
@@ -242,6 +243,9 @@ struct TableDataModel {
                 if let columnType = column.type {
                     if supportedColumnTypes.contains(columnType) {
                         tableColumns.append(column)
+                        if column.required == true {
+                            requiredColumnIDs.insert(colID)
+                        }
                     }
                 }
             }
@@ -912,13 +916,6 @@ struct TableDataModel {
         return cell
     }
     
-    func getLongestBlockText() -> String {
-        filteredcellModels.flatMap { $0.cells }
-            .filter { $0.data.type == .block }
-            .map { $0.data.title }
-            .max(by: { $0.count < $1.count }) ?? ""
-    }
-    
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         if rowOrder.isEmpty {
             let id = generateObjectId()
@@ -1165,18 +1162,6 @@ struct TableDataModel {
         
         return !selectedRows.isEmpty && Set(nestedRows) == Set(selectedRows)
     }
-    
-    func sortElementsByRowOrder(elements: [ValueElement], rowOrder: [String]?) -> [ValueElement] {
-        guard let rowOrder = rowOrder else { return elements }
-        let sortedRows = elements.sorted { (a, b) -> Bool in
-            if let first = rowOrder.firstIndex(of: a.id ?? ""), let second = rowOrder.firstIndex(of: b.id ?? "") {
-                return first < second
-            }
-            return false
-        }
-        return sortedRows
-    }
-    
 }
 
 struct CellDataModel: Hashable, Equatable {

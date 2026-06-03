@@ -528,4 +528,49 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let rowOrderForDocument = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.rowOrder?.firstIndex(where: {$0 == "684c3fedfed2b76677110b19"})
         XCTAssertEqual(rowOrderForDocument, 3, "Value should be equal")
     }
+
+    // Regression: insertBelow() previously left tableDataModel.valueToValueElements
+    // stale relative to rowOrder. The fix appends the new element to the in-memory
+    // value array; this test pins the invariant so a future revert is caught here
+    // rather than as a confusing downstream symptom in bulk-edit / delete flows.
+    func testInsertBelow_KeepsValueElementsAndRowOrderInSync() {
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let initialNonDeletedCount = (viewModel.tableDataModel.valueToValueElements ?? [])
+            .filter { !($0.deleted ?? false) }
+            .count
+        let initialRowOrderCount = viewModel.tableDataModel.rowOrder.count
+        XCTAssertEqual(initialNonDeletedCount, initialRowOrderCount,
+                       "Precondition: non-deleted valueElements count should equal rowOrder count")
+
+        guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
+            XCTFail("Fixture has no rows to select for insertBelow")
+            return
+        }
+        viewModel.tableDataModel.selectedRows = [firstRowID]
+
+        let newRowID = viewModel.insertBelow()
+        XCTAssertNotNil(newRowID, "insertBelow should return the new row's id")
+
+        let nonDeletedCount = (viewModel.tableDataModel.valueToValueElements ?? [])
+            .filter { !($0.deleted ?? false) }
+            .count
+        let updatedRowOrderCount = viewModel.tableDataModel.rowOrder.count
+
+        XCTAssertEqual(nonDeletedCount, initialNonDeletedCount + 1,
+                       "valueToValueElements should grow by 1 after insertBelow")
+        XCTAssertEqual(updatedRowOrderCount, initialRowOrderCount + 1,
+                       "rowOrder should grow by 1 after insertBelow")
+        XCTAssertEqual(nonDeletedCount, updatedRowOrderCount,
+                       "valueToValueElements and rowOrder must stay in sync after insertBelow")
+
+        if let newID = newRowID {
+            XCTAssertTrue(viewModel.tableDataModel.rowOrder.contains(newID),
+                          "rowOrder should contain the newly inserted row id")
+            XCTAssertTrue((viewModel.tableDataModel.valueToValueElements ?? []).contains(where: { $0.id == newID }),
+                          "valueToValueElements should contain the newly inserted row")
+        }
+    }
 }

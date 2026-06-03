@@ -1154,13 +1154,14 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
             
     func reIndexingRows(rowDataModel: RowDataModel) {
+        var localModels = tableDataModel.filteredcellModels
         // find upperMost item of this level
         var startingIndex = 0
-        guard let currentIndex = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else {
+        guard let currentIndex = localModels.firstIndex(of: rowDataModel) else {
             return
         }
         for i in stride(from: currentIndex, through: 0, by: -1) {
-            let model = tableDataModel.filteredcellModels[i]
+            let model = localModels[i]
             
             if model.rowType.level < rowDataModel.rowType.level {
                 break
@@ -1172,8 +1173,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         
         var currentRowIndex = 1
-        for i in startingIndex..<tableDataModel.filteredcellModels.count {
-            var model = tableDataModel.filteredcellModels[i]
+        for i in startingIndex..<localModels.count {
+            var model = localModels[i]
             //Stop if find another level of rows
             if model.rowType.level < rowDataModel.rowType.level {
                 break
@@ -1191,8 +1192,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             default:
                 break
             }
-            tableDataModel.filteredcellModels[i] = model
+            localModels[i] = model
         }
+
+        // Single publish — replaces the array reference once instead of N times.
+        tableDataModel.filteredcellModels = localModels
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1227,7 +1231,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                                childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
                                                                                rootSchemaKey: rootSchemaKey,
                                                                                nestedKey: rootSchemaKey,
-                                                                               parentRowId: "") else { return nil }
+                                                                               parentRowId: "",
+                                                                               fieldData: tableDataModel.valueToValueElements ?? []) else { return nil }
         let valueElement = result.inserted
         self.tableDataModel.valueToValueElements = result.all
         buildRowToValueElementMap()
@@ -1267,7 +1272,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                                 childrenKeys: tableDataModel.schema[selectedRow.rowType.parentSchemaKey]?.children,
                                                                                 rootSchemaKey: rootSchemaKey,
                                                                                 nestedKey: nestedKey,
-                                                                                parentRowId: parentRowID) else { return nil }
+                                                                                parentRowId: parentRowID,
+                                                                                fieldData: tableDataModel.valueToValueElements ?? []) else { return nil }
         self.tableDataModel.valueToValueElements = rowData.all
         buildRowToValueElementMap()
                 
