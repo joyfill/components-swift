@@ -475,9 +475,9 @@ extension DocumentEditor {
                                      rootSchemaKey: String,
                                      nestedKey: String,
                                      parentRowId: String,
-                                     fieldData: [ValueElement]) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     fieldData: [ValueElement]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
-        var elements = fieldData
+        var elements = fieldData ?? field(fieldID: fieldId)?.valueToValueElements ?? []
 
         let newRowID = generateObjectId()
         var newRow = ValueElement(id: newRowID)
