@@ -111,7 +111,7 @@ struct DateTimeView: View {
         }
         .onChange(of: dateTimeDataModel.value) { newValue in
             if lastModelValue != newValue {
-                if let value = newValue {
+                if let value = newValue, !value.nullOrEmpty {
                     let dateString = value.dateTime(format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) ?? ""
                     if let date = Utility.stringToDate(dateString, format: dateTimeDataModel.format ?? .empty, tzId: dateTimeDataModel.timezoneId) {
                         selectedDate = date
