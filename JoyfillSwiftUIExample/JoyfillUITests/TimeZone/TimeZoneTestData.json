@@ -134,6 +134,16 @@
               "y": 63,
               "width": 4,
               "height": 8
+            },
+            {
+              "_id": "6822e2f0a3b4c5d6e7f80124",
+              "type": "text",
+              "field": "6822e2d2a3b4c5d6e7f80457",
+              "displayType": "original",
+              "x": 2,
+              "y": 86,
+              "width": 4,
+              "height": 8
             }
           ],
           "hidden": false,
@@ -440,6 +450,14 @@
       "identifier": "field_6822e1f0a3b4c5d6e7f80789",
       "type": "text",
       "title": "Text Field",
+      "file": "66a14ced9dc829a95e272506",
+      "value": ""
+    },
+    {
+      "_id": "6822e2d2a3b4c5d6e7f80457",
+      "identifier": "field_6822e2f0a3b4c5d6e7f80790",
+      "type": "text",
+      "title": "Text Field 2",
       "file": "66a14ced9dc829a95e272506",
       "value": ""
     }
