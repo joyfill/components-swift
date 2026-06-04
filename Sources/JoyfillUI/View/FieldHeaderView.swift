@@ -12,7 +12,11 @@ struct FieldHeaderView: View {
     let fieldHeaderModel: FieldHeaderModel?
     let isFilled: Bool
     var onDecoratorTap: ((DecoratorLocal) -> Void)?
-    
+
+    private var hasNoTitle: Bool {
+        fieldHeaderModel?.title?.isEmpty ?? true
+    }
+
     public init(_ fieldHeaderModel: FieldHeaderModel?, isFilled: Bool = false, onDecoratorTap: ((DecoratorLocal) -> Void)? = nil) {
         self.fieldHeaderModel = fieldHeaderModel
         self.isFilled = isFilled
@@ -42,7 +46,7 @@ struct FieldHeaderView: View {
                 ) { decorator in
                     onDecoratorTap?(decorator)
                 }
-                .padding(.bottom, fieldHeaderModel?.title == nil ? 8 : 0)
+                .padding(.bottom, hasNoTitle ? 8 : 0)
                 // Re-enable the header even when the parent field is .disabled() —
                 // decorators must stay interactive on readonly forms.
                 .environment(\.isEnabled, true)

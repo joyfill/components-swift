@@ -1385,7 +1385,7 @@ extension DocumentEditorChangeHandlerTests {
                                                                      childrenKeys: [nestedKey],
                                                                      rootSchemaKey: collectionFieldID,
                                                                      nestedKey: nestedKey,
-                                                                     parentRowId: parentRowId) else {
+                                                                     parentRowId: parentRowId, fieldData: field.valueToValueElements ?? []) else {
             XCTFail("Insertion failed")
             return
         }

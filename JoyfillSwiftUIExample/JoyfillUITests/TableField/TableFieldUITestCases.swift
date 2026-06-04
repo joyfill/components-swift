@@ -917,6 +917,81 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         goBack()
         assertTableCellFocusBlurEvents(columnId: "6875f89ffad5aad06e550a6f")
     }
+    
+    func testInsertBelowThenBulkEdit() throws {
+        goToTableDetailPage()
+        
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        let selectAll = app.images["SelectAllRowSelectorButton"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let barcodeFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        let visibleRowCountBeforeInsert = barcodeFields.count
+        
+        app.images["SingleClickEditButton1"].tap()
+        app.buttons["PlusTheRowButtonIdentifier"].tap()
+
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let insertResult = onChangeResult()
+        XCTAssertEqual("field.value.rowCreate", insertResult.target, "Insert below should emit rowCreate target")
+
+        let insertedRowCount: Int
+        if
+            let change = insertResult.change,
+            let value = change["value"],
+            let valueUnion = ValueUnion(value: value),
+            let valueElements = valueUnion.valueElements {
+            insertedRowCount = valueElements.count
+        } else {
+            insertedRowCount = barcodeFields.count
+            XCTAssertEqual(insertedRowCount, visibleRowCountBeforeInsert + 1, "Insert below should increase visible row count by 1")
+        }
+
+        XCTAssertGreaterThan(insertedRowCount, 0, "Inserted row count should be greater than zero")
+
+        moreButton.tap()
+        selectAll.tap()
+        moreButton.tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        textField.tap()
+        textField.typeText("BulkEdit")
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let visibleRowCountBeforeDelete = barcodeFields.count
+        selectAll.tap()
+        moreButton.tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        // SDK emits one Change per deleted row, each with change: ["rowId": <id>, "row": <dict>].
+        // Lock to that shape directly — no permissive fallback, so a regression in event
+        // emission (wrong target, missing rowId, wrong cardinality) fails this test.
+        let deleteResults = onChangeOptionalResults()
+        XCTAssertFalse(deleteResults.isEmpty, "Delete-all should emit at least one change event")
+        XCTAssertTrue(
+            deleteResults.allSatisfy { $0.target == "field.value.rowDelete" },
+            "Delete-all should emit only rowDelete events; got targets: \(deleteResults.map { $0.target ?? "nil" })"
+        )
+        XCTAssertEqual(
+            deleteResults.count, insertedRowCount,
+            "Number of rowDelete events should equal the table size captured after insert"
+        )
+
+        let deletedRowIds: [String] = deleteResults.compactMap { $0.change?["rowId"] as? String }
+        XCTAssertEqual(
+            deletedRowIds.count, deleteResults.count,
+            "Every rowDelete change must include a non-empty rowId"
+        )
+        XCTAssertEqual(
+            Set(deletedRowIds).count, deletedRowIds.count,
+            "rowIds across rowDelete events should be unique"
+        )
+
+        XCTAssertEqual(0, barcodeFields.count, "All table rows should be deleted")
+        XCTAssertEqual(
+            visibleRowCountBeforeDelete - barcodeFields.count, insertedRowCount,
+            "UI row count drop should equal the captured insert-time count"
+        )
+    }
 }
 
 extension TableFieldUITestCases {

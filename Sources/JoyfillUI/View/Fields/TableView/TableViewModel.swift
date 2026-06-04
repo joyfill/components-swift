@@ -103,17 +103,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return (filledCount, requiredColumnIds.count)
     }
     
-    func isColumnFilled(columnId: String) -> Bool {
-        for rowDataModel in tableDataModel.cellModels {
-            if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
-                if !cellDataModel.data.isCellFilled {
-                    return false
-                }
-            }
-        }
-        return true
-    }
-    
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
@@ -150,10 +139,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
 
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         let tableColumns = tableDataModel.tableColumns
         var rowToCellMap = [String: (String?, [CellDataModel])]()
-        for row in sortedRows {
+        for row in nonDeletedRows {
             let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
             guard let rowID = row.id else {
                 Log("Could not find row ID for row: \(row)", type: .error)
@@ -205,6 +193,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             Log("Could not find index of last selected row", type: .error)
             return nil
         }
+
+        tableDataModel.valueToValueElements?.append(targetRows.0)
 
         seedRowDecorators(for: targetRows.0)
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
@@ -405,10 +395,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
     }
 
-    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], tableDataModel: TableDataModel) {
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
         for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
-            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            guard let rowIndex = rowIndexMap[rowId] else { continue }
+            var rowDataModel = tableDataModel.cellModels[rowIndex]
             var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
             for (key,value) in columnIDChanges {
                 if let column = tableColumns.first(where: { $0.id == key }) {
@@ -452,15 +442,18 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
                     columnIDChanges[cellDataModelId] = value
                 }
+                let rowIndexMap = Dictionary(uniqueKeysWithValues:
+                    tableDataModel.cellModels.enumerated().map { ($1.rowID, $0) }
+                )
                 
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns, tableDataModel: tableDataModel)
+                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
 
                 let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
                 
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {
-                    guard let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) else { continue }
+                    guard let rowIndex = rowIndexMap[rowId] else { continue }
                     guard rowIndex < updatedModels.count else { continue }
                     
                     tableDataModel.tableColumns.enumerated().forEach { colIndex, column in

@@ -6,7 +6,6 @@ struct TableRowView : View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
-    var longestBlockText: String
     var isSelected: Bool = false
 
     var body: some View {
@@ -28,6 +27,7 @@ struct TableRowView : View {
                 .border(Color.tableCellBorderColor)
             }
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                let showRequired = viewModel.tableDataModel.requiredColumnIDs.contains(cellModel.data.id) && !cellModel.data.isCellFilled
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
@@ -35,6 +35,14 @@ struct TableRowView : View {
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
                     )
+                    .overlay {
+                        if showRequired {
+                            RoundedRectangle(cornerRadius: 8)
+                                .inset(by: 2)
+                                .stroke(colorScheme == .dark ? Color.pink : Color.red,
+                                        lineWidth: colorScheme == .dark ? 1 : 0.5)
+                        }
+                    }
             }
         }
     }
@@ -49,11 +57,9 @@ struct TableModalView : View {
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-    var longestBlockText: String = ""
 
     init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
-        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
     
@@ -125,11 +131,18 @@ struct TableModalView : View {
             viewModel.tableDataModel.emptySelection()
         }
         .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
+            var cellModels = viewModel.tableDataModel.cellModels
+            var indexByID: [String: Int] = [:]
+            indexByID.reserveCapacity(cellModels.count)
+            for (i, m) in cellModels.enumerated() {
+                indexByID[m.rowID] = i
+            }
             for model in viewModel.tableDataModel.filteredcellModels {
-                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
-                    viewModel.tableDataModel.cellModels[index] = model
+                if let index = indexByID[model.rowID] {
+                    cellModels[index] = model
                 }
             }
+            viewModel.tableDataModel.cellModels = cellModels
         }
         .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
             if viewModel.tableDataModel.rowOrder.isEmpty {
@@ -313,12 +326,6 @@ struct TableModalView : View {
                             .darkLightThemeColor()
                     }
                     
-                    if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
-                    }
-                    
                     if ![.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
@@ -397,7 +404,7 @@ struct TableModalView : View {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
                         }
@@ -441,7 +448,7 @@ struct TableModalView : View {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
                         }
