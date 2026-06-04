@@ -2424,6 +2424,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let leftDateField = emptyDatePlaceholders.element(boundBy: 0)
         leftDateField.tap()
 
+        // Two date buttons appear for a field that exists only once in the JSON because
+        // OnChangeHandlerTest.swift renders two DocumentEditor instances side-by-side and
+        // plumbs editor #1's onChange into editor #2. Editing/clearing on the left mirrors
+        // to the right, which is exactly what this test verifies. See OnChangeHandlerTest.swift.
         let mirroredDateButtons = self.app.buttons.matching(identifier: "ChangeDateIdentifier")
         XCTAssertTrue(
             waitUntil(5) { mirroredDateButtons.count == 2 },
