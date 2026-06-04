@@ -2393,6 +2393,69 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let dateButton2 = getDateFieldButtonByIndexAndIdentifier(0)
         XCTAssertEqual(dateButton2.label, convertedTime, "Datetime should be same after epoch convert")
     }
+
+    func testDateFieldClearSyncsAcrossMirroredViews() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let firstPageNavigationButton = pageSelectionButton.element(boundBy: 0)
+        let secondPageNavigationButton = pageSelectionButton.element(boundBy: 1)
+        let pageSelectionItem = pageSheetSelectionButton.element(boundBy: 2)
+
+        XCTAssertTrue(firstPageNavigationButton.waitForExistence(timeout: 5), "First page navigation button not found")
+        firstPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page 3 selection item not found")
+        pageSelectionItem.tap()
+
+        XCTAssertTrue(secondPageNavigationButton.waitForExistence(timeout: 5), "Second page navigation button not found")
+        secondPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page 3 selection item not found")
+        pageSelectionItem.tap()
+
+        let emptyDatePlaceholders = self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Select a Date -"))
+        XCTAssertTrue(
+            waitUntil(5) { emptyDatePlaceholders.count == 2 },
+            "Expected both mirrored empty date fields to be visible on page 3"
+        )
+
+        let leftDateField = emptyDatePlaceholders.element(boundBy: 0)
+        leftDateField.tap()
+
+        // Two date buttons appear for a field that exists only once in the JSON because
+        // OnChangeHandlerTest.swift renders two DocumentEditor instances side-by-side and
+        // plumbs editor #1's onChange into editor #2. Editing/clearing on the left mirrors
+        // to the right, which is exactly what this test verifies. See OnChangeHandlerTest.swift.
+        let mirroredDateButtons = self.app.buttons.matching(identifier: "ChangeDateIdentifier")
+        XCTAssertTrue(
+            waitUntil(5) { mirroredDateButtons.count == 2 },
+            "Expected setting the left-side date to mirror to the right side"
+        )
+
+        let leftDateButton = mirroredDateButtons.element(boundBy: 0)
+        let rightDateButton = mirroredDateButtons.element(boundBy: 1)
+        XCTAssertEqual(leftDateButton.label, rightDateButton.label, "Mirrored date value should match on both sides")
+
+        let clearButtons = self.app.buttons.matching(identifier: "DateClearIdentifier")
+        XCTAssertTrue(
+            waitUntil(5) { clearButtons.count == 2 },
+            "Expected both mirrored date fields to expose a clear button"
+        )
+
+        clearButtons.element(boundBy: 0).tap()
+
+        XCTAssertTrue(
+            waitUntil(5) { self.app.buttons.matching(identifier: "ChangeDateIdentifier").count == 0 },
+            "Expected clearing the left-side date to remove the mirrored date value on the right side"
+        )
+
+        XCTAssertTrue(
+            waitUntil(5) { emptyDatePlaceholders.count == 2 },
+            "Expected both mirrored date fields to show the empty placeholder after clearing"
+        )
+    }
     
     func testSignatureField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {

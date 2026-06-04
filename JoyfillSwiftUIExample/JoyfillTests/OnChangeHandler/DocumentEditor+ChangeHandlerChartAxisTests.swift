@@ -21,6 +21,10 @@ final class DocumentEditorChangeHandlerChartAxisTests: XCTestCase {
     private let chartFieldID = "68e34195ee0d17e732680fea"
     private let chartFieldPositionId = "68e341974a34abc01483c864"
 
+    private let datePageID = "68e33b5fc6fe3e7ece654f4d"
+    private let dateFieldID = "68e34146988ec973ec893816"
+    private let dateFieldPositionId = "68e3414d0318c1bd80740d93"
+
     private func makeEditor() -> DocumentEditor {
         DocumentEditor(document: sampleJSONDocument(fileName: "OnChangeHandler"), validateSchema: false)
     }
@@ -37,6 +41,23 @@ final class DocumentEditorChangeHandlerChartAxisTests: XCTestCase {
             fieldId: chartFieldID,
             fieldIdentifier: editor.field(fieldID: chartFieldID)?.identifier,
             fieldPositionId: chartFieldPositionId,
+            change: payload,
+            createdOn: Date().timeIntervalSince1970
+        )
+    }
+
+    private func makeDateChange(_ payload: [String: Any], editor: DocumentEditor) -> Change {
+        Change(
+            v: 1,
+            sdk: "swift",
+            target: "field.update",
+            _id: editor.documentID ?? "",
+            identifier: editor.documentIdentifier,
+            fileId: fileID,
+            pageId: datePageID,
+            fieldId: dateFieldID,
+            fieldIdentifier: editor.field(fieldID: dateFieldID)?.identifier,
+            fieldPositionId: dateFieldPositionId,
             change: payload,
             createdOn: Date().timeIntervalSince1970
         )
@@ -137,5 +158,43 @@ final class DocumentEditorChangeHandlerChartAxisTests: XCTestCase {
         XCTAssertEqual(after?.xMax,   100,          "xMax absent from payload must be preserved")
         XCTAssertEqual(after?.yMin,   0,            "yMin absent from payload must be preserved")
         XCTAssertEqual(after?.yMax,   100,          "yMax absent from payload must be preserved")
+    }
+
+    // MARK: - Date field clear via change API
+    //
+    // An incoming `{"value": null}` becomes ValueUnion.null on the field, NOT nil.
+    // DateTimeView observes `dateTimeDataModel.value` and resets its dateString
+    // only when the new value is null-or-empty — if the field were left holding
+    // a previous double, the cleared state would never reach the UI (especially
+    // on mirrored views, where the clear only arrives via the change API).
+
+    // Sanity: a numeric payload populates the date field.
+    func testDateFieldUpdate_NumericPayload_SetsFieldValue() {
+        let editor = makeEditor()
+        let timestampMs: Int64 = 1_700_000_000_000
+
+        editor.change(changes: [makeDateChange(["value": NSNumber(value: timestampMs)], editor: editor)])
+
+        let field = editor.field(fieldID: dateFieldID)
+        XCTAssertNotNil(field?.value, "date field value should be populated after numeric change")
+        XCTAssertFalse(field?.value?.nullOrEmpty ?? true, "populated date value must not report null-or-empty")
+    }
+
+    // Regression: clearing a previously-set date via `{"value": null}` must leave
+    // the field in a null-or-empty state. This pins the data-layer contract the
+    // DateTimeView guard depends on (check `nullOrEmpty`, not just `if let`).
+    func testDateFieldClearViaChangeAPI_NullPayload_ClearsFieldValue() {
+        let editor = makeEditor()
+        let timestampMs: Int64 = 1_700_000_000_000
+
+        editor.change(changes: [makeDateChange(["value": NSNumber(value: timestampMs)], editor: editor)])
+        XCTAssertFalse(editor.field(fieldID: dateFieldID)?.value?.nullOrEmpty ?? true,
+                       "precondition: date field must hold a value before the clear")
+
+        editor.change(changes: [makeDateChange(["value": NSNull()], editor: editor)])
+
+        let cleared = editor.field(fieldID: dateFieldID)?.value
+        XCTAssertTrue(cleared == nil || cleared!.nullOrEmpty,
+                      "date field value must be null-or-empty after change-API null update")
     }
 }
