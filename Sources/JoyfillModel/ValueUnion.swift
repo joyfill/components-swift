@@ -469,6 +469,7 @@ public extension ValueUnion {
     func dateTime(format: DateFormatType, tzId: String? = nil) -> String? {
         switch self {
         case .string(let string):
+            guard !string.isEmpty else { return nil }
             let date = getTimeFromISO8601Format(iso8601String: string, tzId: tzId)
             return date
         case .double(let integer):
