@@ -24,20 +24,7 @@ struct FormBuilderView: View {
     let imagePicker = ImagePicker()
     let changeManager: ChangeManager
 
-    init(fields: [BuilderField] = [], formulas: [BuilderFormula] = [], tableColumns: [FieldTableColumn] = [], showingAddField: Bool = false, showingAddFormula: Bool = false, editingField: BuilderField? = nil, editingFormula: BuilderFormula? = nil, builtDocument: JoyDoc? = nil, documentEditor: DocumentEditor? = nil, selectedTemplate: FormTemplate = .allFieldTypes, isFormulasExpanded: Bool = true, isFieldsExpanded: Bool = true, isTemplateExpanded: Bool = false) {
-        self.fields = fields
-        self.formulas = formulas
-        self.tableColumns = tableColumns
-        self.showingAddField = showingAddField
-        self.showingAddFormula = showingAddFormula
-        self.editingField = editingField
-        self.editingFormula = editingFormula
-        self.builtDocument = builtDocument
-        self.documentEditor = documentEditor
-        self.selectedTemplate = selectedTemplate
-        self.isFormulasExpanded = isFormulasExpanded
-        self.isFieldsExpanded = isFieldsExpanded
-        self.isTemplateExpanded = isTemplateExpanded
+    init() {
         self.changeManager = ChangeManager(showImagePicker: imagePicker.showPickerOptions, showScan: {_ in })
     }
     
