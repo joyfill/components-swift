@@ -38,7 +38,7 @@ jobs:
           path: 'api-references'
           ref: 'main'
           repository: 'joyfill/api-references'
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
 
       - name: 'Generate DocC documentation for Joyfill'
         working-directory: src
@@ -131,7 +131,7 @@ jobs:
         if: ${{ steps.newFiles.outputs.hasNewFiles == 'true' }}
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'api-references'
           title: 'iOS SDK API references update for (${{ inputs.version }})'
           body: |
