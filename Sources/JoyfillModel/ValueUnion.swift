@@ -470,8 +470,7 @@ public extension ValueUnion {
         switch self {
         case .string(let string):
             guard !string.isEmpty else { return nil }
-            let date = getTimeFromISO8601Format(iso8601String: string, tzId: tzId)
-            return date
+            return getTimeFromISO8601Format(iso8601String: string, format: format, tzId: tzId)
         case .double(let integer):
             let date = timestampMillisecondsToDate(value: Int(integer), format: format, tzId: tzId)
             return date
