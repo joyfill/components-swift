@@ -333,9 +333,6 @@ struct EditMultipleRowsSheetView: View {
                         .padding([.horizontal, .top], 16)
                         .padding(.bottom, 8)
                     }
-            ScrollViewReader { scrollProxy in
-            ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top) {
                     if let title = viewModel.tableDataModel.title {
                         VStack(alignment: .leading) {
@@ -392,7 +389,11 @@ struct EditMultipleRowsSheetView: View {
                         })
                     }
                 }
-
+                .padding(.horizontal, 16)
+                .padding(.top, viewModel.tableDataModel.selectedRows.count == 1 ? 0 : 16)
+            ScrollViewReader { scrollProxy in
+            ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
                     VStack(alignment: .leading, spacing: 16) {
