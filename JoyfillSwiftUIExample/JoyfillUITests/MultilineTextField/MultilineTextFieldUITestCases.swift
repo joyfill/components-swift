@@ -252,7 +252,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let longTitle = app.staticTexts["This is multiline text. Enter 'hide first' for hide first multiline"]
         XCTAssertTrue(longTitle.exists, "Multiline title should be visible")
         
-        let noTitleField = app.scrollViews["MultilineReadonlyTextIdentifier"]
+        let noTitleField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 0)
         XCTAssertTrue(noTitleField.exists, "Multiline field without title should be rendered")
     }
 
@@ -274,7 +274,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
     }
 
     func testMultilineReadonlyFieldBehavior() {
-        let readonlyField = app.scrollViews["MultilineReadonlyTextIdentifier"]
+        let readonlyField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 0)
         XCTAssertTrue(readonlyField.exists)
 
         readonlyField.tap()
@@ -476,7 +476,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         Thread.sleep(forTimeInterval: 0.5)
         app.swipeUp()
         app.swipeDown()
-        XCTAssertFalse(app.scrollViews["MultilineReadonlyTextIdentifier"].exists, "Third multiline should be hidden when first is empty and second contains 'xyz'")
+        XCTAssertEqual(app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").count, 1, "Empty readonly multiline should be hidden when first is empty and second contains 'xyz', leaving only the large readonly field")
     }
     
     func testMultilineFieldCallOnChangeAfterTwoSeconds() throws {
@@ -502,6 +502,28 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("Hello sir", onChangeResultValue().multilineText)
     }
     
+    func testReadonlyLargeMultilineIsScrollableNotEditable() {
+        // The large readonly multiline is the second readonly scrollView (boundBy 1)
+        let readonlyField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 1)
+        XCTAssertTrue(readonlyField.waitForExistence(timeout: 10), "Large readonly multiline should exist")
+
+        // Only the two editable fields are textViews; readonly fields are ScrollView + Text
+        XCTAssertEqual(app.textViews.count, 2, "Readonly fields must not be editable text views")
+
+        // Tapping must not bring up a keyboard (not editable)
+        readonlyField.tap()
+        XCTAssertFalse(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard should not appear for readonly field")
+
+        // Scroll down: the content should move up (proves it is scrollable)
+        let content = readonlyField.staticTexts.firstMatch
+        XCTAssertTrue(content.exists, "Readonly content should be rendered")
+        let beforeY = content.frame.minY
+        readonlyField.swipeUp()
+        let afterY = content.frame.minY
+        XCTAssertLessThan(afterY, beforeY, "Readonly multiline content should scroll up when swiped")
+        readonlyField.swipeDown()
+    }
+
     func dismissSheet() {
         let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
         let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
