@@ -135,3 +135,12 @@ jobs:
     with:
       version: ${{ needs.check-release-pr.outputs.version }}
 
+  create-api-references-pr:
+    name: 'Create API References PR'
+    needs: [check-release-pr, create-release]
+    if: needs.check-release-pr.outputs.is_release == 'true'
+    uses: ./.github/workflows/api-references.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.check-release-pr.outputs.version }}
+
