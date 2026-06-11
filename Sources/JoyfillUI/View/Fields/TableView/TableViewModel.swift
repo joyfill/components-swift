@@ -27,6 +27,11 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.decorate
     }
 
+    var tableContentWidth: CGFloat {
+        let decoratorsWidth = showRowDecorators ? decoratorsCellWidth() : 0
+        return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * 200
+    }
+
     private func refreshRowDecoratorMap() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
         tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])

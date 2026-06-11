@@ -407,6 +407,11 @@ struct TableModalView : View {
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
+                            if viewModel.tableDataModel.filteredcellModels.isEmpty {
+                                // Keeps all columns horizontally scrollable when a filter matches zero rows.
+                                Color.clear
+                                    .frame(width: viewModel.tableContentWidth, height: 0)
+                            }
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
@@ -450,6 +455,11 @@ struct TableModalView : View {
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
+                            }
+                            if viewModel.tableDataModel.filteredcellModels.isEmpty {
+                                // Keeps all columns horizontally scrollable when a filter matches zero rows.
+                                Color.clear
+                                    .frame(width: viewModel.tableContentWidth, height: 0)
                             }
                         }
                         .fixedSize(horizontal: false, vertical: true)
