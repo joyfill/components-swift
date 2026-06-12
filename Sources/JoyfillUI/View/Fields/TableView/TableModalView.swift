@@ -29,7 +29,7 @@ struct TableRowView : View {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let showRequired = viewModel.tableDataModel.requiredColumnIDs.contains(cellModel.data.id) && !cellModel.data.isCellFilled
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                    .frame(width: 200, height: 60)
+                    .frame(width: Utility.singleColumnWidth, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
@@ -334,7 +334,7 @@ struct TableModalView : View {
                 }
                 .padding(.all, 4)
                 .font(.system(size: 15))
-                .frame(width: 200, height: 60)
+                .frame(width: Utility.singleColumnWidth, height: 60)
                 .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 0)

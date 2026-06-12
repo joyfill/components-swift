@@ -29,7 +29,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
 
     var tableContentWidth: CGFloat {
         let decoratorsWidth = showRowDecorators ? decoratorsCellWidth() : 0
-        return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * 200
+        return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * Utility.singleColumnWidth
     }
 
     private func refreshRowDecoratorMap() {
