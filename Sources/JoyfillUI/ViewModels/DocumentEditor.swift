@@ -151,7 +151,9 @@ public class DocumentEditor: ObservableObject {
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
+            var f = field
+            _ = normalizeDecorateFlag(field: &f)
+            self.fieldMap[fieldID] = f
         }
     }
     
@@ -344,9 +346,24 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        if let value = change.change?["value"] as? Any,
+        let chartData: ChartData? = {
+            let hasAxisData = change.change?.keys.contains(where: { ["xTitle","yTitle","xMin","xMax","yMin","yMax"].contains($0) }) == true
+            guard hasAxisData else { return nil }
+            return ChartData(
+                xTitle: change.change?["xTitle"] as? String,
+                yTitle: change.change?["yTitle"] as? String,
+                xMax: (change.change?["xMax"] as? NSNumber)?.doubleValue,
+                xMin: (change.change?["xMin"] as? NSNumber)?.doubleValue,
+                yMax: (change.change?["yMax"] as? NSNumber)?.doubleValue,
+                yMin: (change.change?["yMin"] as? NSNumber)?.doubleValue
+            )
+        }()
+        
+        if let value = change.change?["value"],
            let valueUnion = ValueUnion(value: value) {
-            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
+            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false, chartData: chartData)
+        } else if let chartData = chartData {
+            updateValue(for: fieldID, shouldCallOnChange: false, chartData: chartData)
         }
         if let metadataDict = change.change?["metadata"] as? [String: Any],
            let meta = Metadata(dictionary: metadataDict),
@@ -657,7 +674,9 @@ extension DocumentEditor {
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
         let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
+        let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+        
+        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -724,14 +743,17 @@ extension DocumentEditor {
             
             dataModelType = .number(model)
         case .chart:
+            let chartCoordinates = ChartAxisConfiguration(
+                yTitle: fieldData?.yTitle,
+                yMax: fieldData?.yMax,
+                yMin: fieldData?.yMin,
+                xTitle: fieldData?.xTitle,
+                xMax: fieldData?.xMax,
+                xMin: fieldData?.xMin
+            )
             let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
                                        valueElements: fieldData?.value?.valueElements,
-                                       yTitle: fieldData?.yTitle,
-                                       yMax: fieldData?.yMax,
-                                       yMin: fieldData?.yMin,
-                                       xTitle: fieldData?.xTitle,
-                                       xMax: fieldData?.xMax,
-                                       xMin: fieldData?.xMin,
+                                       chartCoordinates: chartCoordinates,
                                        mode: fieldEditMode,
                                        documentEditor: self,
                                        fieldHeaderModel: fieldHeaderModel)
@@ -829,7 +851,9 @@ extension DocumentEditor {
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
             let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
             
-            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields) : nil
+            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+            
+            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -1058,6 +1082,8 @@ extension DocumentEditor {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
+                originalAltPage.deletable = true
+                originalAltPage.copyable = [.withValues, .withoutValues]
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
@@ -1111,6 +1137,10 @@ extension DocumentEditor {
 
         if !copyWithValues {
             for i in newFields.indices {
+                // Copying "without values" keeps values for read-only fields and block fields.
+                let isReadonly = newFields[i].disabled == true
+                let isDisplayText = newFields[i].fieldType == .block
+                if isReadonly || isDisplayText { continue }
                 newFields[i].value = nil
             }
         }
@@ -1366,4 +1396,3 @@ extension DocumentEditor {
         return true
     }
 }
-

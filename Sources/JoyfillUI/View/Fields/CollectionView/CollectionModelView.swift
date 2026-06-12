@@ -397,7 +397,7 @@ struct CollectionColumnHeaderView: View {
             if viewModel.showRowDecorators(forSchemaKey: schemaKey) {
                 Image(systemName: "ellipsis")
                     .rotationEffect(.degrees(90))
-                    .frame(width: 40, height: 60)
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
                     .foregroundColor(Color.gray.opacity(0.4))
                     .border(Color.tableCellBorderColor)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
@@ -625,7 +625,10 @@ struct CollectionRowsHeaderView: View {
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
-                    RowDecoratorMenuView(decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
+                    RowDecoratorMenuView(
+                        decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey),
+                        visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
+                    ) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
                             fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                             action: decorator.action ?? "",
@@ -633,6 +636,8 @@ struct CollectionRowsHeaderView: View {
                             parentPath: parentPathForNested.0
                         )
                     }
+                    .padding(.all, 4)
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)
                 }
@@ -667,9 +672,14 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
                 }
                 if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
-                    RowDecoratorMenuView(decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: viewModel.rootSchemaKey), visibleLimit: viewModel.decoratorConfig.visibleLimitInRows) { decorator in
+                    RowDecoratorMenuView(
+                        decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: viewModel.rootSchemaKey),
+                        visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
+                    ) { decorator in
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: [rowModel.rowID])
                     }
+                    .padding(.all, 4)
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                     .border(Color.tableCellBorderColor)
                 }

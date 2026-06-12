@@ -29,6 +29,9 @@ private let cL2ColBarcode    = "69e8827e72fb2149cfd944a4"
 
 // Text field
 private let fpTextField = "6970918d350238d0738dd5c9"
+private let fpNumberField = "69709192a4e9c0c281851275"
+private let fpDateField = "6970919451f1adb30fcff9ea"
+private let fpDropdownField = "6970919a6ce635a6b14913ed"
 
 // MARK: - Decorator base (disables animations for all decorator tests)
 
@@ -580,9 +583,7 @@ final class DecoratorCollectionAPIUITests: DecoratorAPIUITestsBase {
               in: app)
         S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
         XCTAssertTrue(waitUntil(2) { flag.label == "Done" })
-        S.dismissRowEditForm(in: app)
 
-        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
         XCTAssertTrue(flag.waitForExistence(timeout: 1))
         flag.tap()
         XCTAssertTrue(waitUntil(2) {
@@ -718,9 +719,7 @@ final class DecoratorCollectionAPIUITests: DecoratorAPIUITestsBase {
               in: app)
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
         XCTAssertTrue(waitUntil(2) { flag.label == "Done" })
-        S.dismissRowEditForm(in: app)
 
-        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
         XCTAssertTrue(flag.waitForExistence(timeout: 1))
         flag.tap()
         XCTAssertTrue(waitUntil(2) {
@@ -779,5 +778,294 @@ final class DecoratorCollectionAPIUITests: DecoratorAPIUITestsBase {
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
         XCTAssertTrue(waitUntil(2) { !flag.exists })
         S.dismissRowEditForm(in: app)
+    }
+}
+
+// MARK: - Readonly Decorator Coverage
+
+final class DecoratorReadonlyAPIUITests: DecoratorAPIUITestsBase {
+
+    override func getJSONFileNameForTest() -> String { "Decorator" }
+
+    override func getGotoLaunchArguments() -> [(String, String?)] {
+        return [("--disable-animations", nil), ("--mode", "readonly")]
+    }
+
+    private func slightSwipeUp() {
+        let start = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.72))
+        let end = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.58))
+        start.press(forDuration: 0.01, thenDragTo: end)
+    }
+
+    private func addTapAndAssertFocus(path: String, action: String) {
+        typealias S = DecoratorUITestSupport
+        let button = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.run(S.addCommand(path: path,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        XCTAssertTrue(waitUntil(3) { button.exists && button.isHittable })
+        button.tap()
+
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        })
+
+        S.run(S.removeCommand(path: path, action: action), in: app)
+    }
+
+    func testReadonly_TextDecorator_Tappable() {
+        addTapAndAssertFocus(path: "\(pageID)/\(fpTextField)", action: "ro_text")
+    }
+
+    func testReadonly_NumberDecorator_Tappable() {
+        addTapAndAssertFocus(path: "\(pageID)/\(fpNumberField)", action: "ro_number")
+    }
+
+    func testReadonly_DateDecorator_Tappable() {
+        addTapAndAssertFocus(path: "\(pageID)/\(fpDateField)", action: "ro_date")
+    }
+
+    func testReadonly_DropdownDecorator_Tappable() {
+        slightSwipeUp()
+        addTapAndAssertFocus(path: "\(pageID)/\(fpDropdownField)", action: "ro_dropdown")
+    }
+
+    func testReadonly_TableRowDecorator_Tappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_table_row"
+        let rowsPath = "\(pageID)/\(fpTable)/rows"
+
+        S.openTableDetailView(in: app)
+        let rowButton = app.buttons.matching(identifier: S.rowDecoratorID(action: action)).element(boundBy: 0)
+
+        S.run(S.addCommand(path: rowsPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+        XCTAssertTrue(waitUntil(3) { rowButton.exists && rowButton.isHittable })
+
+        rowButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        })
+
+        S.run(S.removeCommand(path: rowsPath, action: action), in: app)
+    }
+
+    func testReadonly_CollectionRowDecorator_Tappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_collection_row"
+        let rootRowsPath = "\(pageID)/\(fpCollection)/rows"
+
+        S.openCollectionDetailView(in: app)
+        let rowButton = app.buttons.matching(identifier: S.rowDecoratorID(action: action)).element(boundBy: 0)
+
+        S.run(S.addCommand(path: rootRowsPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+        XCTAssertTrue(waitUntil(3) { rowButton.exists && rowButton.isHittable })
+
+        rowButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        })
+
+        S.run(S.removeCommand(path: rootRowsPath, action: action), in: app)
+    }
+}
+
+// MARK: - Readonly Row Form: cells disabled, column-header decorators still tappable
+
+final class RowFormReadonlyUITests: DecoratorAPIUITestsBase {
+
+    override func getJSONFileNameForTest() -> String { "Decorator" }
+
+    override func getGotoLaunchArguments() -> [(String, String?)] {
+        return [("--disable-animations", nil), ("--mode", "readonly")]
+    }
+
+    /// Assert every supplied cell exists in the row form and is disabled, then actively
+    /// attempt to tap it and verify nothing interactive fires (no keyboard appears).
+    private func assertCellsNotTappable(_ cells: [(name: String, element: XCUIElement)],
+                                        file: StaticString = #file, line: UInt = #line) {
+        for (name, element) in cells {
+            XCTAssertTrue(element.waitForExistence(timeout: 2),
+                          "\(name) cell should render in readonly row form",
+                          file: file, line: line)
+            XCTAssertFalse(element.isEnabled,
+                           "\(name) cell should be disabled (not tappable) in readonly row form",
+                           file: file, line: line)
+            // Actively probe the disabled cell: tap if it is reachable and confirm the tap
+            // had no interactive effect (no keyboard opens). isHittable guard avoids
+            // coordinate errors when the cell sits below the visible viewport.
+            if element.isHittable { element.tap() }
+            XCTAssertFalse(app.keyboards.element.waitForExistence(timeout: 1),
+                           "Tapping disabled \(name) cell must not show keyboard in readonly row form",
+                           file: file, line: line)
+        }
+    }
+
+    // Table: common cell decorator on the text column appears in every row's edit form.
+    func testTable_CellDecoratorInsideRowFormStaysTappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_table_cell"
+        let commonCellPath = "\(pageID)/\(fpTable)/columns/\(tColText)"
+        let decoratorButton = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.openTableDetailView(in: app)
+        S.run(S.addCommand(path: commonCellPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        // Decorator existence also proves the row form opened.
+        XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
+                      "Cell decorator should be hittable inside readonly row form")
+
+        // Schema (Decorator.json table): text, dropdown, multiSelect, image, number,
+        // date, block, barcode, signature. Block has no editable identifier (omitted).
+        // Barcode uses TableBarcodeView which renders a static Text in readonly —
+        // checked via absence of the editable TextEditor below, like collection text.
+        assertCellsNotTappable([
+            ("text",        app.textFields["EditRowsTextFieldIdentifier"]),
+            ("dropdown",    app.buttons["EditRowsDropdownFieldIdentifier"]),
+            ("multiSelect", app.buttons["EditRowsMultiSelecionFieldIdentifier"]),
+            ("image",       app.buttons["EditRowsImageFieldIdentifier"]),
+            ("number",      app.textFields["EditRowsNumberFieldIdentifier"]),
+            ("date",        app.images["EditRowsDateFieldIdentifier"]),
+            ("signature",   app.buttons["EditRowsSignatureFieldIdentifier"]),
+        ])
+        XCTAssertFalse(app.textViews["EditRowsBarcodeFieldIdentifier"].exists,
+                       "Barcode cell should not be an editable TextEditor in readonly row form")
+        // Decorator tap still fires onFocus despite the parent .disabled wrapper.
+        decoratorButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        }, "Tapping cell decorator in readonly row form should fire onFocus")
+
+        S.dismissRowEditForm(in: app)
+    }
+
+    // Collection root: common cell decorator on the text column appears in every root row's edit form.
+    func testCollection_RootCellDecoratorInsideRowFormStaysTappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_collection_root_cell"
+        let commonRootCellPath = "\(pageID)/\(fpCollection)/columns/\(cColText)"
+        let decoratorButton = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.openCollectionDetailView(in: app)
+        S.run(S.addCommand(path: commonRootCellPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        // Decorator existence also proves the row form opened.
+        XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
+                      "Root cell decorator should be hittable inside readonly row form")
+
+        // Schema (Decorator.json collection root): text, dropdown, image.
+        // Text uses TableTextRowFormView which renders a static Text in readonly —
+        // the editable TextField never gets created, so the absence check is the
+        // appropriate "not tappable" assertion here (helper would fail to find it).
+        XCTAssertFalse(app.textFields["EditRowsTextFieldIdentifier"].exists,
+                       "Text cell should not be an editable TextField in readonly root row form")
+        assertCellsNotTappable([
+            ("dropdown", app.buttons["EditRowsDropdownFieldIdentifier"]),
+            ("image",    app.buttons["EditRowsImageFieldIdentifier"]),
+        ])
+
+        // Decorator tap still fires onFocus despite the parent .disabled wrapper.
+        decoratorButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        }, "Tapping root cell decorator in readonly row form should fire onFocus")
+
+        S.dismissRowEditForm(in: app)
+    }
+
+    // Collection nested L1: specific cell decorator on the multiSelect column under root row 2.
+    func testCollection_NestedL1CellDecoratorStaysTappable() {
+        typealias S = DecoratorUITestSupport
+        let action = "ro_collection_l1_cell"
+        let l1CellPath = "\(pageID)/\(fpCollection)/\(collRootRow2)/schemas/\(schemaL1)/\(l1Row1UnderRoot2)/\(cL1ColMultiSelect)"
+        let decoratorButton = app.buttons[S.fieldDecoratorID(action: action)]
+
+        S.openCollectionDetailView(in: app)
+        S.expandCollectionRootRow(at: 2, in: app)
+        S.run(S.addCommand(path: l1CellPath,
+                           decorators: [S.decorator(action: action, icon: "flag", label: "Flag")]),
+              in: app)
+
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
+
+        // Decorator existence also proves the row form opened.
+        XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
+                      "Nested L1 cell decorator should be hittable inside readonly row form")
+
+        // Schema (Decorator.json level1Table1): multiSelect, number, date.
+        assertCellsNotTappable([
+            ("multiSelect", app.buttons["EditRowsMultiSelecionFieldIdentifier"]),
+            ("number",      app.textFields["EditRowsNumberFieldIdentifier"]),
+            ("date",        app.images["EditRowsDateFieldIdentifier"]),
+        ])
+
+        // Decorator tap still fires onFocus despite the parent .disabled wrapper.
+        decoratorButton.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: action, in: self.focusBlurOptionalResults()) != nil
+        }, "Tapping nested L1 cell decorator in readonly row form should fire onFocus")
+
+        S.dismissRowEditForm(in: app)
+    }
+
+    // Readonly row form flow:
+    // open single-row form -> dismiss -> row stays selected contextually,
+    // and More action must stay hidden in readonly mode.
+    func testTable_ReadonlyRowFormDismiss_SelectionContextAndNoMoreButton() {
+        typealias S = DecoratorUITestSupport
+        S.openTableDetailView(in: app)
+
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        let dismissButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch
+        XCTAssertTrue(dismissButton.waitForExistence(timeout: 3),
+                      "Readonly single-row form should open")
+        XCTAssertTrue(app.staticTexts["1 row selected"].exists,
+                      "Opening single-row form should indicate exactly one selected row")
+
+        dismissButton.tap()
+        XCTAssertTrue(waitUntil(3) { !dismissButton.exists },
+                      "Readonly row form should dismiss")
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2),
+                      "More button must stay hidden in readonly mode")
+    }
+
+    // Readonly collection row form flow:
+    // open single-row form -> dismiss -> single-row context was active,
+    // and More action stays hidden in readonly mode.
+    func testCollection_ReadonlyRowFormDismiss_SelectionContextAndNoMoreButton() {
+        typealias S = DecoratorUITestSupport
+        S.openCollectionDetailView(in: app)
+
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        let dismissButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch
+        XCTAssertTrue(dismissButton.waitForExistence(timeout: 3),
+                      "Readonly collection single-row form should open")
+        XCTAssertTrue(app.buttons["UpperRowButtonIdentifier"].exists,
+                      "Opening collection single-row form should enter single-row selection context")
+
+        dismissButton.tap()
+        XCTAssertTrue(waitUntil(3) { !dismissButton.exists },
+                      "Readonly collection row form should dismiss")
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        XCTAssertTrue(moreButton.waitForNonExistence(timeout: 2),
+                      "More button must stay hidden in readonly mode")
     }
 }

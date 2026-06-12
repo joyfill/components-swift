@@ -10,6 +10,7 @@ import UIKit
 
 // MARK: - Footer coordinator (validate / navigate + FormChangeEvent)
 
+@MainActor
 final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
     weak var documentEditor: DocumentEditor?
@@ -57,39 +58,45 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
     // MARK: - FormChangeEvent
 
-    func onChange(changes: [Change], document: JoyDoc) {
-        guard let editor = self.documentEditor else { return }
-        
-        let validation = editor.validate()
-        let validities = validation.fieldValidities
-        let total = validities.count
-        let completed = validities.filter { $0.status == .valid }.count
-        
-        self.fieldPaths = Self.buildPaths(from: validities)
-        if self.currentFieldIndex >= self.fieldPaths.count {
-            self.currentFieldIndex = self.fieldPaths.isEmpty ? -1 : self.fieldPaths.count - 1
+    nonisolated func onChange(changes: [Change], document: JoyDoc) {
+        Task { @MainActor in
+            guard let editor = self.documentEditor else { return }
+
+            let validation = editor.validate()
+            let validities = validation.fieldValidities
+            let total = validities.count
+            let completed = validities.filter { $0.status == .valid }.count
+
+            self.fieldPaths = Self.buildPaths(from: validities)
+            if self.currentFieldIndex >= self.fieldPaths.count {
+                self.currentFieldIndex = self.fieldPaths.isEmpty ? -1 : self.fieldPaths.count - 1
+            }
+            self.completedText = "\(completed) of \(total) Completed"
+            self.navigationEnabled = validation.status == .invalid
         }
-        self.completedText = "\(completed) of \(total) Completed"
-        self.navigationEnabled = validation.status == .invalid
     }
 
-    func onFocus(event: Event) {
+    nonisolated func onFocus(event: Event) {
         let focusedPageID = event.pageEvent?.page.id ?? event.fieldEvent?.pageID
-        updateFooterVisibility(for: focusedPageID)
+        Task { @MainActor in
+            self.updateFooterVisibility(for: focusedPageID)
+        }
     }
 
-    func onBlur(event: Event) {
+    nonisolated func onBlur(event: Event) {
         guard let pageEvent = event.pageEvent,
               pageEvent.type == "page.blur",
               let blurredPageID = pageEvent.page.id else { return }
 
-        if blurredPageID == footerPageID {
-            isFooterVisible = false
+        Task { @MainActor in
+            if blurredPageID == self.footerPageID {
+                self.isFooterVisible = false
+            }
         }
     }
-    func onUpload(event: Joyfill.UploadEvent) {}
-    func onCapture(event: Joyfill.CaptureEvent) {}
-    func onError(error: Joyfill.JoyfillError) {}
+    nonisolated func onUpload(event: Joyfill.UploadEvent) {}
+    nonisolated func onCapture(event: Joyfill.CaptureEvent) {}
+    nonisolated func onError(error: Joyfill.JoyfillError) {}
 
     // MARK: - Paths
 

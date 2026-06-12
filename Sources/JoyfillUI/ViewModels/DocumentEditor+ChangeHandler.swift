@@ -30,21 +30,36 @@ extension DocumentEditor {
         guard var lastRowOrder = field.rowOrder else {
             return elements
         }
+        var deletedRowsByID = [String: [String: Any]]()
+
+        // Build a rowID → index map once. Safe here because deletes are SOFT
+        // (setDeleted + in-place write); indices don't shift during the loop.
+        var indexByID: [String: Int] = [:]
+        indexByID.reserveCapacity(elements.count)
+        for (i, el) in elements.enumerated() {
+            if let id = el.id { indexByID[id] = i }
+        }
 
         for row in rowIDs {
-            guard let index = elements.firstIndex(where: { $0.id == row }) else {
+            guard let index = indexByID[row] else {
                 Log("Row not found: \(row)", type: .error)
-                return elements
+                continue
             }
             var element = elements[index]
             element.setDeleted()
+            if shouldSendEvent {
+                deletedRowsByID[row] = element.anyDictionary
+            }
             elements[index] = element
-            lastRowOrder.removeAll(where: { $0 == row })
         }
+        // Single O(rowOrder) cleanup instead of O(rowOrder) per deleted row.
+        let rowIDsSet = Set(rowIDs)
+        lastRowOrder.removeAll(where: { rowIDsSet.contains($0) })
+
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        guard shouldSendEvent else { return  elements }
-        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
+        guard shouldSendEvent else { return elements }
+        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, rowsByID: deletedRowsByID)
         return elements
     }
     
@@ -56,40 +71,52 @@ extension DocumentEditor {
         }
         guard var elements = field.valueToValueElements else { return [] }
         guard !rowIDs.isEmpty else { return elements }
-        
+        var deletedRowsByID = [String: [String: Any]]()
+        var deletedRowIDs = [String]()
+
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
-                elements.remove(at: index)
+                var deletedElement = elements.remove(at: index)
+                if shouldSendEvent {
+                    deletedElement.setDeleted()
+                    deletedRowsByID[row] = deletedElement.anyDictionary
+                    deletedRowIDs.append(row)
+                }
             } else {
-                _ = deleteRowRecursively(rowId: row, in: &elements)
+                if var deletedElement = deleteRowRecursively(rowId: row, in: &elements) {
+                    if shouldSendEvent {
+                        deletedElement.setDeleted()
+                        deletedRowsByID[row] = deletedElement.anyDictionary
+                        deletedRowIDs.append(row)
+                    }
+                }
             }
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        guard shouldSendEvent else { return elements }
+        guard shouldSendEvent, !deletedRowIDs.isEmpty else { return elements }
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
+        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: deletedRowIDs, parentPath: parentPath, schemaId: nestedKey, rowsByID: deletedRowsByID)
         return elements
     }
 
-    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> Bool {
+    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
-                elements.remove(at: i)
-                return true
+                return elements.remove(at: i)
             }
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if deleteRowRecursively(rowId: rowId, in: &nestedElements) {
+                        if let deletedElement = deleteRowRecursively(rowId: rowId, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return deletedElement
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
     
     /// Duplicates specified rows in a table field.
@@ -253,14 +280,10 @@ extension DocumentEditor {
     func rowUpdateEvent(
         fieldIdentifier: FieldIdentifier,
         rowID: String,
-        cellDataModel: CellDataModel
+        cellDataModel: CellDataModel,
+        elements: [ValueElement]
     ) {
-        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder else { return }
-        let valueElement = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements?.first(where: { $0.id == rowID })
-        guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
-            Log("Row index not found: \(rowID)", type: .error)
-            return
-        }
+        let valueElement = elements.first(where: { $0.id == rowID })
         let newCell = getNewCellValue(for: cellDataModel)
         
         let cells = [
@@ -451,12 +474,10 @@ extension DocumentEditor {
                                      childrenKeys: [String]? = nil,
                                      rootSchemaKey: String,
                                      nestedKey: String,
-                                     parentRowId: String) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     parentRowId: String,
+                                     fieldData: [ValueElement]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            Log("No elements found for field: \(fieldId)", type: .error)
-            return nil
-        }
+        var elements = fieldData ?? field(fieldID: fieldId)?.valueToValueElements ?? []
 
         let newRowID = generateObjectId()
         var newRow = ValueElement(id: newRowID)
@@ -1094,7 +1115,7 @@ extension DocumentEditor {
         }
         // Fire row update event
         if callOnChange {
-            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
+            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel, elements: elements)
         }
         
         return elements
@@ -1316,7 +1337,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
 
-    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
+    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String], rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
@@ -1324,6 +1345,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
+            let rowObject = rowsByID[targetRow.id] ?? [:]
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
@@ -1334,7 +1356,10 @@ extension DocumentEditor {
                                 fieldId: event.fieldIdentifier.fieldID,
                                 fieldIdentifier: context.fieldIdentifier,
                                 fieldPositionId: context.fieldPositionID,
-                                change: ["rowId": targetRow.id],
+                                change: [
+                                    "rowId": targetRow.id,
+                                    "row": rowObject
+                                ],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
@@ -1342,7 +1367,7 @@ extension DocumentEditor {
 //        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
     
-    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String) {
+    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String, rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
@@ -1350,6 +1375,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
+            let rowObject = rowsByID[targetRow.id] ?? [:]
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
@@ -1360,9 +1386,12 @@ extension DocumentEditor {
                                 fieldId: fieldIdentifier.fieldID,
                                 fieldIdentifier: context.fieldIdentifier,
                                 fieldPositionId: context.fieldPositionID,
-                                change: ["parentPath": parentPath,
-                                         "schemaId": schemaId,
-                                         "rowId": targetRow.id],
+                                change: [
+                                    "parentPath": parentPath,
+                                    "schemaId": schemaId,
+                                    "rowId": targetRow.id,
+                                    "row": rowObject
+                                ],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }

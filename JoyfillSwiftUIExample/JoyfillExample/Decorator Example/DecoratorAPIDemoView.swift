@@ -41,6 +41,8 @@ private let iconCatalogue: [IconOption] = [
     .init(id: "circle-info", symbol: "info.circle.fill"),
     .init(id: "filter",      symbol: "line.3.horizontal.decrease.circle.fill"),
     .init(id: "paper-plane", symbol: "paperplane.fill"),
+    .init(id: "pencil",      symbol: "pencil"),
+    .init(id: "pen-to-square", symbol: "square.and.pencil"),
 ]
 
 // MARK: - Colour presets

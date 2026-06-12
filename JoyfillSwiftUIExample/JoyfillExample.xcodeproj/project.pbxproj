@@ -177,6 +177,12 @@
 		9EAAC7E22EAB3F89000B6F3C /* PageNavigationTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */; };
 		BA2352F22F99E9FE002D9345 /* Decorator.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2352F12F99E9F4002D9345 /* Decorator.json */; };
 		BA2352F32F99E9FE002D9346 /* Decorator.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2352F12F99E9F4002D9345 /* Decorator.json */; };
+		BA2353392FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2353372FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift */; };
+		BA23533A2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */; };
+		BA23533B2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */; };
+		BA2353C12FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2353C42FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift */; };
+		BA2353C22FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */; };
+		BA2353C32FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */ = {isa = PBXBuildFile; fileRef = BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */; };
 		DEC000B100000000000000A1 /* DecoratorTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F100000000000000A1 /* DecoratorTestSupport.swift */; };
 		DEC000B200000000000000A2 /* DecoratorPathResolutionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F200000000000000A2 /* DecoratorPathResolutionTests.swift */; };
 		DEC000B300000000000000A3 /* DecoratorPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */; };
@@ -357,6 +363,7 @@
 		E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */ = {isa = PBXBuildFile; fileRef = E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */; };
 		E295FA7A2F73DAEF00C3C8C1 /* FooterExampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */; };
 		E295FA7B2F73DAEF00C3C8C1 /* footer-form.json in Resources */ = {isa = PBXBuildFile; fileRef = E295FA772F73DAEF00C3C8C1 /* footer-form.json */; };
+		E29D5CDF2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D5CDE2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift */; };
 		E29FF8512F1F77C10079A614 /* SimpleNavigationTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */; };
 		E29FF8672F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
 		E29FF8682F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
@@ -583,6 +590,10 @@
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
 		9EAAC7DE2EAB3EF4000B6F3C /* ReadonlyModeUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadonlyModeUITestCases.swift; sourceTree = "<group>"; };
 		BA2352F12F99E9F4002D9345 /* Decorator.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Decorator.json; sourceTree = "<group>"; };
+		BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageDeletableCopyable.json; sourceTree = "<group>"; };
+		BA2353372FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableUITests.swift; sourceTree = "<group>"; };
+		BA2353C42FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableMobileViewUITests.swift; sourceTree = "<group>"; };
+		BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageDeletableCopyableMobileView.json; sourceTree = "<group>"; };
 		DEC000F100000000000000A1 /* DecoratorTestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorTestSupport.swift; sourceTree = "<group>"; };
 		DEC000F200000000000000A2 /* DecoratorPathResolutionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPathResolutionTests.swift; sourceTree = "<group>"; };
 		DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPublicAPITests.swift; sourceTree = "<group>"; };
@@ -658,6 +669,7 @@
 		E28D10AC2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ConditionalEvaluationCircularReference.json; sourceTree = "<group>"; };
 		E295FA772F73DAEF00C3C8C1 /* footer-form.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "footer-form.json"; sourceTree = "<group>"; };
 		E295FA782F73DAEF00C3C8C1 /* FooterExampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FooterExampleView.swift; sourceTree = "<group>"; };
+		E29D5CDE2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DocumentEditor+ChangeHandlerChartAxisTests.swift"; sourceTree = "<group>"; };
 		E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleNavigationTestView.swift; sourceTree = "<group>"; };
 		E29FF8662F215C9C0079A614 /* Navigation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Navigation.json; sourceTree = "<group>"; };
 		E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationJSONTests.swift; sourceTree = "<group>"; };
@@ -836,6 +848,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */,
 				BA2352F02F99E9DB002D9345 /* DecoratorUITests */,
 				E24089FE2F7CEFA1005C4885 /* Navigation Goto tests */,
 				1307CF1B2BE36ECE00B19FBA /* JoyfillUITests.swift */,
@@ -1018,6 +1031,17 @@
 			path = DecoratorUITests;
 			sourceTree = "<group>";
 		};
+		BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */ = {
+			isa = PBXGroup;
+			children = (
+				BA2353362FA1DFEF002D9345 /* PageDeletableCopyable.json */,
+				BA2353372FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift */,
+				BA2353C52FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json */,
+				BA2353C42FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift */,
+			);
+			path = PageDeletableCopyable;
+			sourceTree = "<group>";
+		};
 		DEC000A000000000000000A0 /* DecoratorAPI */ = {
 			isa = PBXGroup;
 			children = (
@@ -1052,6 +1076,7 @@
 			isa = PBXGroup;
 			children = (
 				E27061C72E797E56006BAD18 /* TableViewModelDocumentEditorDelegateTests.swift */,
+				E29D5CDE2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift */,
 				E225D1C82F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift */,
 				E27061C92E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift */,
 				E27061CB2E797E68006BAD18 /* DocumentEditor+ChangeHandlerTests.swift */,
@@ -1672,6 +1697,8 @@
 				36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */,
 				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				E2C8BD2B2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */,
+				BA23533A2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
+				BA2353C22FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */,
 				36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */,
 				E29FF8692F215C9C0079A614 /* Navigation.json in Resources */,
 				36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */,
@@ -1862,6 +1889,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				BA2352F32F99E9FE002D9346 /* Decorator.json in Resources */,
+				BA23533B2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
+				BA2353C32FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */,
 				E274CB532E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
 				369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */,
 				362746572E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
@@ -2003,6 +2032,8 @@
 				E2B4CFD32F99F54500F2128D /* DecoratorAPIUITests.swift in Sources */,
 				E274CA312E2E60A000B35C09 /* OnChangeHandlerUITests.swift in Sources */,
 				E274CA382E2E60A100B35C09 /* FocusCallbackUITests.swift in Sources */,
+				BA2353392FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift in Sources */,
+				BA2353C12FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift in Sources */,
 				E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */,
 				E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */,
 				E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */,
@@ -2036,6 +2067,7 @@
 				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
 				E2B8E3D22E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift in Sources */,
 				E2B8E3D32E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift in Sources */,
+				E29D5CDF2FC6FCE000993290 /* DocumentEditor+ChangeHandlerChartAxisTests.swift in Sources */,
 				E2B8E3D42E43753300AC6018 /* FormulaTemplate_ConditionalEvaluationCircularReferenceTests.swift in Sources */,
 				E2B8E3EB2E43804900AC6018 /* FormulaTemplate_SignatureFieldTests.swift in Sources */,
 				E2B8E3D52E43753300AC6018 /* FormulaTemplate_ArithmeticTests.swift in Sources */,

@@ -100,10 +100,20 @@
               "displayType" : "original"
             },
             {
+              "_id" : "6a2b0d11a1b2c3d4e5f60721",
+              "x" : 0,
+              "height" : 8,
+              "y" : 128,
+              "width" : 4,
+              "field" : "6a2b0d11a1b2c3d4e5f60722",
+              "type" : "text",
+              "displayType" : "original"
+            },
+            {
               "_id" : "6970a3eceab9374076e43a0b",
               "x" : 0,
               "height" : 27,
-              "y" : 128,
+              "y" : 136,
               "width" : 8,
               "field" : "6970a3ec734506f1afc2f7ee",
               "type" : "collection",
@@ -129,6 +139,16 @@
               "width" : 2,
               "field" : "699dc392acb30df81f5a694a",
               "type" : "image",
+              "displayType" : "original"
+            },
+            {
+              "_id" : "6a1f0c00a1b2c3d4e5f60718",
+              "x" : 0,
+              "height" : 8,
+              "y" : 170,
+              "width" : 4,
+              "field" : "6a1f0c00a1b2c3d4e5f60719",
+              "type" : "text",
               "displayType" : "original"
             }
           ],
@@ -605,6 +625,15 @@
       "identifier" : "field_6970a3ec734506f1afc2f7ee"
     },
     {
+      "title" : "Between Table And Collection",
+      "identifier" : "field_6a2b0d11a1b2c3d4e5f60722",
+      "value" : "",
+      "type" : "text",
+      "file" : "691f3762c80bfb0005c57b48",
+      "_id" : "6a2b0d11a1b2c3d4e5f60722",
+      "hidden" : false
+    },
+    {
       "title" : "Number",
       "identifier" : "field_6970919241e6da770b498311",
       "value" : "",
@@ -795,6 +824,15 @@
       "title" : "Multiple Choice",
       "_id" : "69709dc240f1e385f35abd36",
       "multi" : true
+    },
+    {
+      "title" : "Extra Text",
+      "identifier" : "field_6a1f0c00a1b2c3d4e5f60719",
+      "value" : "",
+      "type" : "text",
+      "file" : "691f3762c80bfb0005c57b48",
+      "_id" : "6a1f0c00a1b2c3d4e5f60719",
+      "hidden" : false
     }
   ]
 }

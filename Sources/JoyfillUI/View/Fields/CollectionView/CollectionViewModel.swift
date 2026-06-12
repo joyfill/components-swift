@@ -32,11 +32,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func showSingleClickEditButton(for tableDataModel: TableDataModel) -> Bool {
-        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
+        return tableDataModel.singleClickRowEdit
     }
 
     func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
-        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey) && tableDataModel.mode == .fill
+        return tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)
     }
 
     func getCollectionRowDecorators(forRowID rowID: String, schemaKey: String) -> [DecoratorLocal] {
@@ -503,7 +503,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int, _ schemaKey: String, tableDataModel: TableDataModel) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey)) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey), rowDecoratorsCellWidth: decoratorsCellWidth()) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
@@ -788,7 +788,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey))),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey), rowDecoratorsCellWidth: decoratorsCellWidth())),
                                                    isExpanded: true, // Mark as expanded since we're showing content
                                                    rowWidth: rowWidth(filteredTableColumns, level, childSchemaKey, tableDataModel: tableDataModel))
                     cellModels.append(expanderRow)
@@ -974,7 +974,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id))),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id), rowDecoratorsCellWidth: decoratorsCellWidth())),
                                                             rowWidth: rowWidth(filteredTableColumns, level, id, tableDataModel: tableDataModel)
                             )
                             rowDataModel.isExpanded = false
@@ -1154,13 +1154,14 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
             
     func reIndexingRows(rowDataModel: RowDataModel) {
+        var localModels = tableDataModel.filteredcellModels
         // find upperMost item of this level
         var startingIndex = 0
-        guard let currentIndex = tableDataModel.filteredcellModels.firstIndex(of: rowDataModel) else {
+        guard let currentIndex = localModels.firstIndex(of: rowDataModel) else {
             return
         }
         for i in stride(from: currentIndex, through: 0, by: -1) {
-            let model = tableDataModel.filteredcellModels[i]
+            let model = localModels[i]
             
             if model.rowType.level < rowDataModel.rowType.level {
                 break
@@ -1172,8 +1173,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         
         var currentRowIndex = 1
-        for i in startingIndex..<tableDataModel.filteredcellModels.count {
-            var model = tableDataModel.filteredcellModels[i]
+        for i in startingIndex..<localModels.count {
+            var model = localModels[i]
             //Stop if find another level of rows
             if model.rowType.level < rowDataModel.rowType.level {
                 break
@@ -1191,8 +1192,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             default:
                 break
             }
-            tableDataModel.filteredcellModels[i] = model
+            localModels[i] = model
         }
+
+        // Single publish — replaces the array reference once instead of N times.
+        tableDataModel.filteredcellModels = localModels
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1227,7 +1231,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                                childrenKeys: tableDataModel.schema[rootSchemaKey]?.children,
                                                                                rootSchemaKey: rootSchemaKey,
                                                                                nestedKey: rootSchemaKey,
-                                                                               parentRowId: "") else { return nil }
+                                                                               parentRowId: "",
+                                                                               fieldData: tableDataModel.valueToValueElements ?? []) else { return nil }
         let valueElement = result.inserted
         self.tableDataModel.valueToValueElements = result.all
         buildRowToValueElementMap()
@@ -1267,7 +1272,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                                 childrenKeys: tableDataModel.schema[selectedRow.rowType.parentSchemaKey]?.children,
                                                                                 rootSchemaKey: rootSchemaKey,
                                                                                 nestedKey: nestedKey,
-                                                                                parentRowId: parentRowID) else { return nil }
+                                                                                parentRowId: parentRowID,
+                                                                                fieldData: tableDataModel.valueToValueElements ?? []) else { return nil }
         self.tableDataModel.valueToValueElements = rowData.all
         buildRowToValueElementMap()
                 
@@ -2254,6 +2260,16 @@ protocol TableDataViewModelProtocol {
 extension TableDataViewModelProtocol {
     var decoratorConfig: DecoratorConfig {
         tableDataModel.documentEditor?.decoratorConfig ?? DecoratorConfig()
+    }
+
+    func decoratorsCellWidth() -> CGFloat {
+        if decoratorConfig.visibleLimitInRows <= 1 {
+            return 40
+        } else if decoratorConfig.visibleLimitInRows == 2 {
+            return 80
+        } else {
+            return 100
+        }
     }
 }
 

@@ -7,13 +7,96 @@ import JoyfillModel
 import JoyfillAPIService
 import Joyfill
 
+/// Kinds of events surfaced in the test changelog view.
+enum ChangelogKind: String {
+    case change
+    case focus
+    case blur
+    case pageFocus
+    case pageBlur
+    case upload
+    case capture
+
+    var label: String {
+        switch self {
+        case .change:    return "Change"
+        case .focus:     return "Focus"
+        case .blur:      return "Blur"
+        case .pageFocus: return "Page Focus"
+        case .pageBlur:  return "Page Blur"
+        case .upload:    return "Upload"
+        case .capture:   return "Capture"
+        }
+    }
+}
+
+/// One entry per event callback. A single `onChange` invocation — including
+/// a bulk edit that produces many `Change` rows — collapses to ONE entry.
+struct ChangelogEntry: Identifiable {
+    let id = UUID()
+    let timestamp: Date
+    let kind: ChangelogKind
+    /// Structured payload entries displayed in the expanded view (each item is
+    /// rendered as its own row card). For `change`, this is the list of changes.
+    /// For single events (focus/blur/upload/capture), it has one item.
+    let items: [[String: Any]]
+
+    var count: Int { items.count }
+
+    /// Compact one-line summary shown on the collapsed card.
+    var summary: String {
+        switch kind {
+        case .change:
+            let targets = items.compactMap { $0["target"] as? String }
+            let uniqueTargets = Array(Set(targets)).sorted()
+            let fields = Array(Set(items.compactMap { $0["fieldId"] as? String })).sorted()
+            let rowsCount = items.reduce(0) { acc, item in
+                if let inner = item["change"] as? [String: Any] {
+                    if let rowIds = inner["rowIds"] as? [String] { return acc + rowIds.count }
+                    if inner["rowId"] != nil { return acc + 1 }
+                }
+                return acc
+            }
+            var parts: [String] = []
+            if !uniqueTargets.isEmpty { parts.append(uniqueTargets.joined(separator: ", ")) }
+            if let firstField = fields.first {
+                let extra = fields.count > 1 ? " (+\(fields.count - 1))" : ""
+                parts.append("field: \(firstField)\(extra)")
+            }
+            if rowsCount > 0 { parts.append("\(rowsCount) row\(rowsCount == 1 ? "" : "s")") }
+            return parts.joined(separator: " · ")
+        default:
+            let first = items.first ?? [:]
+            if let fieldID = first["fieldID"] as? String { return "field: \(fieldID)" }
+            if let pageDict = first["page"] as? [String: Any], let pageName = pageDict["name"] as? String {
+                return "page: \(pageName)"
+            }
+            return ""
+        }
+    }
+
+    /// Multi-line plain-text dump used by Copy / Export.
+    var copyText: String {
+        let ts = DateFormatter.timestamp.string(from: timestamp)
+        let header = "[\(ts)] \(kind.label)\(count > 1 ? " (\(count))" : "")"
+        let body = items.enumerated().map { idx, item -> String in
+            let prefix = count > 1 ? "  #\(idx + 1) " : "  "
+            let json = (try? JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys]))
+                .flatMap { String(data: $0, encoding: .utf8) } ?? "<unserializable>"
+            return prefix + json.replacingOccurrences(of: "\n", with: "\n  ")
+        }.joined(separator: "\n")
+        return header + "\n" + body
+    }
+}
+
 class ChangeManager: ObservableObject {
     private let apiService: APIService?
     var showScan: (@escaping (ValueUnion) -> Void) -> Void
     private let showImagePicker:  (@escaping ([String]) -> Void) -> Void
-    
-    // Published property to display changelogs on screen
-    @Published var displayedChangelogs: [String] = []
+
+    /// Structured entries — one per event callback. Bulk `onChange` (many
+    /// changes in one call) shows up as a single entry with `items.count > 1`.
+    @Published var displayedEntries: [ChangelogEntry] = []
     @Published var showChangelogView: Bool = false
 
     init(apiService: APIService? = nil, showImagePicker:  @escaping(@escaping ([String]) -> Void) -> Void, showScan: @escaping (@escaping (ValueUnion) -> Void) -> Void) {
@@ -50,6 +133,12 @@ class ChangeManager: ObservableObject {
             }
         }
     }
+
+    private func append(_ entry: ChangelogEntry) {
+        DispatchQueue.main.async {
+            self.displayedEntries.append(entry)
+        }
+    }
 }
 
 extension ChangeManager: FormChangeEvent {
@@ -67,229 +156,107 @@ extension ChangeManager: FormChangeEvent {
 
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         if let firstChange = changes.first {
-            print(">>>>>>>>onChange", firstChange.fieldId ?? "")
+            print(">>>>>>>>onChange", firstChange.fieldId ?? "", "count:", changes.count)
         } else {
             print(">>>>>>>>onChange: no changes")
         }
-        
-        // Format changelogs for display
-        let timestamp = DateFormatter.timestamp.string(from: Date())
-        let changelogEntries = changes.map { change in
-            let changeDict = change.dictionary
-            let changeJson = try? JSONSerialization.data(withJSONObject: changeDict, options: .prettyPrinted)
-            let changeString = changeJson.flatMap { String(data: $0, encoding: .utf8) } ?? "Invalid change data"
-            return "[\(timestamp)] Change: \(changeString)"
-        }
-        
-        DispatchQueue.main.async {
-            self.displayedChangelogs.append(contentsOf: changelogEntries)
-        }
-        
-        let changeLogs = ["changelogs": changes.map { $0.dictionary }]
 
+        let items = changes.map { $0.dictionary }
+        append(ChangelogEntry(timestamp: Date(), kind: .change, items: items))
+
+        let changeLogs = ["changelogs": items]
         if let identifier = document.identifier, let apiService = apiService, apiService.hasValidToken {
             updateDocument(identifier: identifier, changeLogs: changeLogs)
         }
     }
 
     func onFocus(event: Event) {
-        let timestamp = DateFormatter.timestamp.string(from: Date())
-        
         if let fieldEvent = event.fieldEvent {
             let fieldDict = createFieldIdentifierDict(fieldEvent)
             print(">>>>>>>>onFocus", formatDictionary(fieldDict))
-            
-            if let jsonData = try? JSONSerialization.data(withJSONObject: fieldDict, options: .prettyPrinted),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                DispatchQueue.main.async {
-                    self.displayedChangelogs.append("[\(timestamp)] Focus: \(jsonString)")
-                }
-            }
+            append(ChangelogEntry(timestamp: Date(), kind: .focus, items: [fieldDict]))
         } else if let pageEvent = event.pageEvent {
             print(">>>>>>>>onPageFocus", pageEvent.type, pageEvent.page.id ?? "unknown", pageEvent.page.name ?? "Untitled")
-            
-            // Create proper JSON string for the viewer
             var eventDict: [String: Any] = [:]
             eventDict["type"] = pageEvent.type
             eventDict["page"] = pageEvent.page.dictionary
-            
-            if let jsonData = try? JSONSerialization.data(withJSONObject: eventDict, options: .prettyPrinted),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                DispatchQueue.main.async {
-                    self.displayedChangelogs.append("[\(timestamp)] PageEvent: \(jsonString)")
-                }
-            }
+            append(ChangelogEntry(timestamp: Date(), kind: .pageFocus, items: [eventDict]))
         }
     }
 
     func onBlur(event: Event) {
-        let timestamp = DateFormatter.timestamp.string(from: Date())
-        
         if let fieldEvent = event.fieldEvent {
             let fieldDict = createFieldIdentifierDict(fieldEvent)
             print(">>>>>>>>onBlur", formatDictionary(fieldDict))
-            
-            if let jsonData = try? JSONSerialization.data(withJSONObject: fieldDict, options: .prettyPrinted),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                DispatchQueue.main.async {
-                    self.displayedChangelogs.append("[\(timestamp)] Blur: \(jsonString)")
-                }
-            }
+            append(ChangelogEntry(timestamp: Date(), kind: .blur, items: [fieldDict]))
         } else if let pageEvent = event.pageEvent {
             print(">>>>>>>>onPageBlur", pageEvent.type, pageEvent.page.id ?? "unknown", pageEvent.page.name ?? "Untitled")
-            
-            // Create proper JSON string for the viewer
             var eventDict: [String: Any] = [:]
             eventDict["type"] = pageEvent.type
             eventDict["page"] = pageEvent.page.dictionary
-            
-            if let jsonData = try? JSONSerialization.data(withJSONObject: eventDict, options: .prettyPrinted),
-               let jsonString = String(data: jsonData, encoding: .utf8) {
-                DispatchQueue.main.async {
-                    self.displayedChangelogs.append("[\(timestamp)] PageEvent: \(jsonString)")
-                }
-            }
+            append(ChangelogEntry(timestamp: Date(), kind: .pageBlur, items: [eventDict]))
         }
     }
 
     func onUpload(event: UploadEvent) {
         print(">>>>>>>>onUpload", event.fieldEvent.fieldID)
-        let timestamp = DateFormatter.timestamp.string(from: Date())
-        DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Upload: \(self.formatUploadEvent(event))")
-        }
+        append(ChangelogEntry(timestamp: Date(), kind: .upload, items: [uploadEventDict(event)]))
         showImagePicker(event.uploadHandler)
     }
-    
+
     func onCapture(event: CaptureEvent) {
         print(">>>>>>>>onCapture", event.fieldEvent.fieldID)
-        let timestamp = DateFormatter.timestamp.string(from: Date())
-        DispatchQueue.main.async {
-            self.displayedChangelogs.append("[\(timestamp)] Capture: \(self.formatCaptureEvent(event))")
-        }
+        append(ChangelogEntry(timestamp: Date(), kind: .capture, items: [captureEventDict(event)]))
         showScan(event.captureHandler)
     }
-    
+
     // MARK: - Event Formatting Helpers
-    
-    private func formatUploadEvent(_ event: UploadEvent) -> String {
+
+    private func uploadEventDict(_ event: UploadEvent) -> [String: Any] {
         var eventDict: [String: Any] = [:]
-        
-        // Add fieldEvent details as nested dictionary
         eventDict["fieldEvent"] = createFieldIdentifierDict(event.fieldEvent)
-        
-        // Add non-nil optional values
-        if let target = event.target {
-            eventDict["target"] = target
-        }
-        
+        if let target = event.target { eventDict["target"] = target }
         eventDict["multi"] = event.multi
-        
-        if let schemaId = event.schemaId {
-            eventDict["schemaId"] = schemaId
-        }
-        
-        if let parentPath = event.parentPath, !parentPath.isEmpty {
-            eventDict["parentPath"] = parentPath
-        }
-        
-        if let rowIds = event.rowIds, !rowIds.isEmpty {
-            eventDict["rowIds"] = rowIds
-        }
-        
-        if let columnId = event.columnId {
-            eventDict["columnId"] = columnId
-        }
-        
-        return "UploadEvent: \(formatDictionary(eventDict))"
+        if let schemaId = event.schemaId { eventDict["schemaId"] = schemaId }
+        if let parentPath = event.parentPath, !parentPath.isEmpty { eventDict["parentPath"] = parentPath }
+        if let rowIds = event.rowIds, !rowIds.isEmpty { eventDict["rowIds"] = rowIds }
+        if let columnId = event.columnId { eventDict["columnId"] = columnId }
+        return eventDict
     }
-    
-    private func formatCaptureEvent(_ event: CaptureEvent) -> String {
+
+    private func captureEventDict(_ event: CaptureEvent) -> [String: Any] {
         var eventDict: [String: Any] = [:]
-        
-        // Add fieldEvent details as nested dictionary
         eventDict["fieldEvent"] = createFieldIdentifierDict(event.fieldEvent)
-        
-        // Add non-nil optional values
-        if let target = event.target {
-            eventDict["target"] = target
-        }
-        
-        if let schemaId = event.schemaId {
-            eventDict["schemaId"] = schemaId
-        }
-        
-        if let parentPath = event.parentPath, !parentPath.isEmpty {
-            eventDict["parentPath"] = parentPath
-        }
-        
-        if let rowIds = event.rowIds, !rowIds.isEmpty {
-            eventDict["rowIds"] = rowIds
-        }
-        
-        if let columnId = event.columnId {
-            eventDict["columnId"] = columnId
-        }
-        
-        return "CaptureEvent: \(formatDictionary(eventDict))"
+        if let target = event.target { eventDict["target"] = target }
+        if let schemaId = event.schemaId { eventDict["schemaId"] = schemaId }
+        if let parentPath = event.parentPath, !parentPath.isEmpty { eventDict["parentPath"] = parentPath }
+        if let rowIds = event.rowIds, !rowIds.isEmpty { eventDict["rowIds"] = rowIds }
+        if let columnId = event.columnId { eventDict["columnId"] = columnId }
+        return eventDict
     }
-    
+
     private func createFieldIdentifierDict(_ fieldEvent: FieldIdentifier) -> [String: Any] {
         var fieldDict: [String: Any] = [:]
-        
-        // Always include fieldID (required)
         fieldDict["fieldID"] = fieldEvent.fieldID
-        
-        // Add optional properties if they exist
-        if let id = fieldEvent._id {
-            fieldDict["_id"] = id
-        }
-        
-        if let identifier = fieldEvent.identifier {
-            fieldDict["identifier"] = identifier
-        }
-        
-        if let fieldIdentifier = fieldEvent.fieldIdentifier {
-            fieldDict["fieldIdentifier"] = fieldIdentifier
-        }
-        
-        if let pageID = fieldEvent.pageID {
-            fieldDict["pageID"] = pageID
-        }
-        
-        if let fileID = fieldEvent.fileID {
-            fieldDict["fileID"] = fileID
-        }
-        
-        if let fieldPositionId = fieldEvent.fieldPositionId {
-            fieldDict["fieldPositionId"] = fieldPositionId
-        }
-        
-        if let type = fieldEvent.type {
-            fieldDict["type"] = type
-        }
-        if let target = fieldEvent.target {
-            fieldDict["target"] = target
-        }
-        if let rowIDs = fieldEvent.rowIds, !rowIDs.isEmpty {
-            fieldDict["rowIds"] = rowIDs
-        }
-        if let parentPath = fieldEvent.parentPath {
-            fieldDict["parentPath"] = parentPath
-        }
-        if let columnId = fieldEvent.columnId {
-            fieldDict["columnId"] = columnId
-        }
+        if let id = fieldEvent._id { fieldDict["_id"] = id }
+        if let identifier = fieldEvent.identifier { fieldDict["identifier"] = identifier }
+        if let fieldIdentifier = fieldEvent.fieldIdentifier { fieldDict["fieldIdentifier"] = fieldIdentifier }
+        if let pageID = fieldEvent.pageID { fieldDict["pageID"] = pageID }
+        if let fileID = fieldEvent.fileID { fieldDict["fileID"] = fileID }
+        if let fieldPositionId = fieldEvent.fieldPositionId { fieldDict["fieldPositionId"] = fieldPositionId }
+        if let type = fieldEvent.type { fieldDict["type"] = type }
+        if let target = fieldEvent.target { fieldDict["target"] = target }
+        if let rowIDs = fieldEvent.rowIds, !rowIDs.isEmpty { fieldDict["rowIds"] = rowIDs }
+        if let parentPath = fieldEvent.parentPath { fieldDict["parentPath"] = parentPath }
+        if let columnId = fieldEvent.columnId { fieldDict["columnId"] = columnId }
         return fieldDict
     }
-    
+
     private func formatDictionary(_ dict: [String: Any], indent: String = "") -> String {
         var result = "{\n"
         let nextIndent = indent + "  "
-        
         for (key, value) in dict.sorted(by: { $0.key < $1.key }) {
             result += "\(nextIndent)\"\(key)\": "
-            
             if let nestedDict = value as? [String: Any] {
                 result += formatDictionary(nestedDict, indent: nextIndent)
             } else if let stringValue = value as? String {
@@ -299,19 +266,14 @@ extension ChangeManager: FormChangeEvent {
             } else {
                 result += "\(value)"
             }
-            
             result += ",\n"
         }
-        
-        // Remove last comma and newline, then close bracket
         if result.hasSuffix(",\n") {
             result = String(result.dropLast(2)) + "\n"
         }
         result += "\(indent)}"
-        
         return result
     }
-    
 }
 
 extension DateFormatter {

@@ -61,7 +61,7 @@ struct CollectionModalTopNavigationView: View {
                 })
             }
 
-            if !viewModel.tableDataModel.selectedRows.isEmpty {
+            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -294,27 +294,29 @@ struct CollectionEditMultipleRowsSheetView: View {
                     .foregroundColor(.red)
                     .imageScale(.small)
             }
+            
             Text(col.title)
                 .font(.headline.bold())
+            
             Spacer()
-            if viewModel.tableDataModel.mode == .fill {
-                let decorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
-                if !decorators.isEmpty {
-                    let parentPathForSelection: String? = {
-                        guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }
-                        let (path, _) = viewModel.getParenthPath(rowId: firstRowId)
-                        return path.isEmpty ? nil : path
-                    }()
-                    FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
-                        viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
-                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                            action: decorator.action ?? "",
-                            rowIds: viewModel.tableDataModel.selectedRows,
-                            columnId: col.id,
-                            parentPath: parentPathForSelection
-                        )
-                    }
+            
+            let decorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
+            if !decorators.isEmpty {
+                let parentPathForSelection: String? = {
+                    guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }
+                    let (path, _) = viewModel.getParenthPath(rowId: firstRowId)
+                    return path.isEmpty ? nil : path
+                }()
+                FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
+                    viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                        action: decorator.action ?? "",
+                        rowIds: viewModel.tableDataModel.selectedRows,
+                        columnId: col.id,
+                        parentPath: parentPathForSelection
+                    )
                 }
+                .environment(\.isEnabled, true)
             }
         }
         .padding(.bottom, -8)
@@ -361,19 +363,21 @@ struct CollectionEditMultipleRowsSheetView: View {
                             .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                             .accessibilityIdentifier("LowerRowButtonIdentifier")
                             
-                            Button(action: {
-                                viewModel.insertBelowFromBulkEdit()
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(.blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "plus")
-                                        .foregroundStyle(.blue)
-                                }
-                            })
-                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            if viewModel.tableDataModel.mode == .fill {
+                                Button(action: {
+                                    viewModel.insertBelowFromBulkEdit()
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(.blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+
+                                        Image(systemName: "plus")
+                                            .foregroundStyle(.blue)
+                                    }
+                                })
+                                .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            }
                         } else {
                             Spacer()
                         }
@@ -717,5 +721,6 @@ struct CollectionEditMultipleRowsSheetView: View {
             }
             .id(col.id)
         }
+        .disabled(viewModel.tableDataModel.mode == .readonly)
     }
 }
