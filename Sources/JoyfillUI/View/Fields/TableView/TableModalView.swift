@@ -411,6 +411,7 @@ struct TableModalView : View {
                                 // Keeps all columns horizontally scrollable when a filter matches zero rows.
                                 Color.clear
                                     .frame(width: viewModel.tableContentWidth)
+                                    .frame(minHeight: geometry.size.height)
                             }
                         }
                         .fixedSize(horizontal: false, vertical: true)
@@ -460,6 +461,7 @@ struct TableModalView : View {
                                 // Keeps all columns horizontally scrollable when a filter matches zero rows.
                                 Color.clear
                                     .frame(width: viewModel.tableContentWidth)
+                                    .frame(minHeight: geometry.size.height)
                             }
                         }
                         .fixedSize(horizontal: false, vertical: true)
