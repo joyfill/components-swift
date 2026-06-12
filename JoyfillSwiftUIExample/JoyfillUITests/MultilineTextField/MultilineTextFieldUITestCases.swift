@@ -503,25 +503,31 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func testReadonlyLargeMultilineIsScrollableNotEditable() {
-        // The large readonly multiline is the second readonly scrollView (boundBy 1)
-        let readonlyField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 1)
-        XCTAssertTrue(readonlyField.waitForExistence(timeout: 10), "Large readonly multiline should exist")
-
-        // Only the two editable fields are textViews; readonly fields are ScrollView + Text
+        // Readonly fields render as ScrollView + Text, not editable text views.
         XCTAssertEqual(app.textViews.count, 2, "Readonly fields must not be editable text views")
 
-        // Tapping must not bring up a keyboard (not editable)
+        // Scroll the bottom readonly field into the accessibility tree.
+        let readonlyField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 1)
+        var findAttempts = 0
+        while !readonlyField.exists && findAttempts < 10 {
+            app.swipeUp()
+            findAttempts += 1
+        }
+        XCTAssertTrue(readonlyField.waitForExistence(timeout: 10), "Large readonly multiline should exist")
+
         readonlyField.tap()
         XCTAssertFalse(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard should not appear for readonly field")
 
-        // Scroll down: the content should move up (proves it is scrollable)
         let content = readonlyField.staticTexts.firstMatch
         XCTAssertTrue(content.exists, "Readonly content should be rendered")
-        let beforeY = content.frame.minY
+
+        // Measure content offset relative to its field frame: outer-form scrolling
+        // moves both together, so only the inner ScrollView changes this delta.
+        readonlyField.swipeDown() // reset inner scroll to the top
+        let relBefore = content.frame.minY - readonlyField.frame.minY
         readonlyField.swipeUp()
-        let afterY = content.frame.minY
-        XCTAssertLessThan(afterY, beforeY, "Readonly multiline content should scroll up when swiped")
-        readonlyField.swipeDown()
+        let relAfter = content.frame.minY - readonlyField.frame.minY
+        XCTAssertLessThan(relAfter, relBefore, "Inner readonly ScrollView should scroll independently of the outer form")
     }
 
     func dismissSheet() {
