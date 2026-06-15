@@ -1289,6 +1289,35 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let endPoint = canvas.coordinate(withNormalizedOffset: CGVector(dx: 1, dy: 1))
         startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
     }
+
+    // When a filter matches zero rows the table area (and its column headers) must stay
+    // horizontally scrollable, so swiping across the empty body scrolls the columns.
+    func testHeaderRemainsHorizontallyScrollableWhenFilterReturnsZeroRows() throws {
+        goToTableDetailPage()
+
+        // Filter the Number Column with a value that matches no rows.
+        tapOnNumberFieldColumn()
+        tapOnSearchBarTextField(value: "9999999")
+
+        // No rows should be rendered for the empty filter result.
+        let numberCells = app.textFields.matching(identifier: "TabelNumberFieldIdentifier")
+        XCTAssertEqual(0, numberCells.count, "Filter should match zero rows")
+
+        let tableScrollView = app.scrollViews.matching(identifier: "TableScrollView").element(boundBy: 0)
+        XCTAssertTrue(tableScrollView.waitForExistence(timeout: 5), "Table scroll view should exist with zero rows")
+
+        // Capture the Number Column header position before scrolling.
+        let numberColumnHeader = app.images.matching(identifier: "Number Column/ColumnButtonIdentifier").element(boundBy: 0)
+        XCTAssertTrue(numberColumnHeader.waitForExistence(timeout: 5), "Column header should be visible with zero rows")
+        let originX = numberColumnHeader.frame.origin.x
+
+        // Swiping the (empty) table body horizontally must scroll the columns.
+        tableScrollView.swipeLeft()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
+
+        let scrolledX = numberColumnHeader.frame.origin.x
+        XCTAssertLessThan(scrolledX, originX, "Header should scroll horizontally when the filter returns zero rows")
+    }
 }
 
 

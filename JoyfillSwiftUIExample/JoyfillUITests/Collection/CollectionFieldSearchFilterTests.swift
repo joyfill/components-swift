@@ -401,11 +401,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func editSingleRowUpperButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"]
+        app.buttons["UpperRowButtonIdentifier"]
     }
     
     func editSingleRowLowerButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"]
+        app.buttons["LowerRowButtonIdentifier"]
     }
     
     func editRowsButton() -> XCUIElement {
@@ -413,7 +413,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func editInsertRowPlusButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"]
+        app.buttons["PlusTheRowButtonIdentifier"]
     }
     
     func selectNestedRow(number: Int) {

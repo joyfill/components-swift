@@ -50,8 +50,8 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         
-        // Check if field is hidden
-        XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be hidden when condition is met.")
+        // Check if field is hidden (2 editable fields; readonly field is not a textView)
+        XCTAssertEqual(app.textViews.count, 1, "Target multiline text field should be hidden when condition is met.")
         
         
                                         
@@ -116,8 +116,8 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
     }
 
     func testFieldVisibilityToggleBackAndForth() {
-        // Initially all 3 fields should be visible
-        XCTAssertEqual(app.textViews.count, 3, "All fields should be visible initially.")
+        // Initially 2 editable fields are textViews (readonly field is not a textView)
+        XCTAssertEqual(app.textViews.count, 2, "All fields should be visible initially.")
         
         // Step 1: Use the second field (index 1) as trigger to hide the first field
         let triggerField = app.textViews.element(boundBy: 1)
@@ -131,9 +131,9 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         
         app.swipeUp()
         app.swipeDown()
-        
-        XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be hidden when condition is met.")
-        
+
+        XCTAssertEqual(app.textViews.count, 1, "Target multiline text field should be hidden when condition is met.")
+
         // Step 2: Reset the trigger field (now at index 0 since first field is hidden)
         let resetTriggerField = app.textViews.element(boundBy: 0)
         XCTAssertTrue(resetTriggerField.exists, "Reset trigger field should exist")
@@ -147,12 +147,12 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         
-        XCTAssertEqual(app.textViews.count, 3, "Target multiline text field should be shown when condition is met.")
+        XCTAssertEqual(app.textViews.count, 2, "Target multiline text field should be shown when condition is met.")
     }
 
     func testHideDisplayTextThenMultilineFieldAndUnhideAll() {
-        // Start fresh - check initial state
-        XCTAssertEqual(app.textViews.count, 3, "Should start with 3 text views")
+        // Start fresh - check initial state (2 editable fields; readonly field is not a textView)
+        XCTAssertEqual(app.textViews.count, 2, "Should start with 2 editable text views")
         
         let firstField = app.textViews.element(boundBy: 0)
         let secondField = app.textViews.element(boundBy: 1)
@@ -200,7 +200,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeUp()
         app.swipeDown()
         
-        XCTAssertEqual(app.textViews.count, 2, "First multiline field should be hidden, leaving 2 fields.")
+        XCTAssertEqual(app.textViews.count, 1, "First multiline field should be hidden, leaving 1 editable field.")
         
         // Step 3: Unhide the first field by changing second field value
         let remainingSecondField = app.textViews.element(boundBy: 0) // Now at index 0 since first field is hidden
@@ -215,7 +215,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeDown()
         
         // Verify first field is visible again
-        XCTAssertEqual(app.textViews.count, 3, "First multiline field should be visible again.")
+        XCTAssertEqual(app.textViews.count, 2, "First multiline field should be visible again.")
         
         // Step 4: Unhide display text by changing the first field value
         let restoredFirstField = app.textViews.element(boundBy: 0)
@@ -252,7 +252,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let longTitle = app.staticTexts["This is multiline text. Enter 'hide first' for hide first multiline"]
         XCTAssertTrue(longTitle.exists, "Multiline title should be visible")
         
-        let noTitleField = app.textViews.element(boundBy: 2)
+        let noTitleField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 0)
         XCTAssertTrue(noTitleField.exists, "Multiline field without title should be rendered")
     }
 
@@ -274,7 +274,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
     }
 
     func testMultilineReadonlyFieldBehavior() {
-        let readonlyField = app.textViews.element(boundBy: 2)
+        let readonlyField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 0)
         XCTAssertTrue(readonlyField.exists)
 
         readonlyField.tap()
@@ -476,7 +476,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         Thread.sleep(forTimeInterval: 0.5)
         app.swipeUp()
         app.swipeDown()
-        XCTAssertEqual(app.textViews.count, 2, "Third multiline should be hidden when first is empty and second contains 'xyz'")
+        XCTAssertEqual(app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").count, 1, "Empty readonly multiline should be hidden when first is empty and second contains 'xyz', leaving only the large readonly field")
     }
     
     func testMultilineFieldCallOnChangeAfterTwoSeconds() throws {
@@ -502,6 +502,34 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("Hello sir", onChangeResultValue().multilineText)
     }
     
+    func testReadonlyLargeMultilineIsScrollableNotEditable() {
+        // Readonly fields render as ScrollView + Text, not editable text views.
+        XCTAssertEqual(app.textViews.count, 2, "Readonly fields must not be editable text views")
+
+        // Scroll the bottom readonly field into the accessibility tree.
+        let readonlyField = app.scrollViews.matching(identifier: "MultilineReadonlyTextIdentifier").element(boundBy: 1)
+        var findAttempts = 0
+        while !readonlyField.exists && findAttempts < 10 {
+            app.swipeUp()
+            findAttempts += 1
+        }
+        XCTAssertTrue(readonlyField.waitForExistence(timeout: 10), "Large readonly multiline should exist")
+
+        readonlyField.tap()
+        XCTAssertFalse(app.keyboards.element.waitForExistence(timeout: 2), "Keyboard should not appear for readonly field")
+
+        let content = readonlyField.staticTexts.firstMatch
+        XCTAssertTrue(content.exists, "Readonly content should be rendered")
+
+        // Measure content offset relative to its field frame: outer-form scrolling
+        // moves both together, so only the inner ScrollView changes this delta.
+        readonlyField.swipeDown() // reset inner scroll to the top
+        let relBefore = content.frame.minY - readonlyField.frame.minY
+        readonlyField.swipeUp()
+        let relAfter = content.frame.minY - readonlyField.frame.minY
+        XCTAssertLessThan(relAfter, relBefore, "Inner readonly ScrollView should scroll independently of the outer form")
+    }
+
     func dismissSheet() {
         let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
         let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
