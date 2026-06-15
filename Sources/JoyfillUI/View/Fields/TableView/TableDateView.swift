@@ -58,35 +58,38 @@ struct TableDateView: View {
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                             isDatePickerPresented = true
                         } label: {
-                            if isSingleLineLayout {
-                                Text(dateString)
-                                    .darkLightThemeColor()
-                                    .font(.system(size: 16))
-                            } else {
-                                let parts = dateString.split(separator: " ")
-                                
-                                VStack(alignment: .leading, spacing: 3) {
-                                    if parts.count >= 1 {
-                                        Text(parts[0])
-                                            .darkLightThemeColor()
-                                            .font(.system(size: 16))
-                                    }
-                                    if parts.count >= 2 {
-                                        Text(parts[1...].joined(separator: " "))
-                                            .darkLightThemeColor()
-                                            .font(.system(size: 16))
+                            Group {
+                                if isSingleLineLayout {
+                                    Text(dateString)
+                                        .darkLightThemeColor()
+                                        .font(.system(size: 16))
+                                } else {
+                                    let parts = dateString.split(separator: " ")
+
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        if parts.count >= 1 {
+                                            Text(parts[0])
+                                                .darkLightThemeColor()
+                                                .font(.system(size: 16))
+                                        }
+                                        if parts.count >= 2 {
+                                            Text(parts[1...].joined(separator: " "))
+                                                .darkLightThemeColor()
+                                                .font(.system(size: 16))
+                                        }
                                     }
                                 }
                             }
+                            .frame(maxWidth: .infinity, alignment: isSingleLineLayout ? .leading : .center)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, isSingleLineLayout ? 8 : 4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(Color(uiColor: .secondarySystemFill))
+                            )
+                            .contentShape(Rectangle())
                         }
-                        .contentShape(Rectangle())
-                        .frame(maxWidth: .infinity, alignment: isSingleLineLayout ? .leading : .center)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(Color(uiColor: .secondarySystemFill))
-                        )
+                        .buttonStyle(.plain)
                         .accessibilityIdentifier("ChangeCellDateIdentifier")
                         
                         Image(systemName: "xmark.circle")
