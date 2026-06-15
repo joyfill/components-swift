@@ -396,6 +396,17 @@ struct TableModalView : View {
         }
     }
     
+    // Keeps all columns horizontally scrollable when a filter matches zero rows.
+    // minHeight fills the empty body so the whole area catches the horizontal swipe.
+    @ViewBuilder
+    private func emptyFilterSpacer(geometry: GeometryProxy) -> some View {
+        if viewModel.tableDataModel.filteredcellModels.isEmpty {
+            Color.clear
+                .frame(width: viewModel.tableContentWidth)
+                .frame(minHeight: geometry.size.height)
+        }
+    }
+
     var table: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
@@ -407,12 +418,7 @@ struct TableModalView : View {
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
-                            if viewModel.tableDataModel.filteredcellModels.isEmpty {
-                                // Keeps all columns horizontally scrollable when a filter matches zero rows.
-                                Color.clear
-                                    .frame(width: viewModel.tableContentWidth)
-                                    .frame(minHeight: geometry.size.height)
-                            }
+                            emptyFilterSpacer(geometry: geometry)
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
@@ -457,12 +463,7 @@ struct TableModalView : View {
                                 TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
-                            if viewModel.tableDataModel.filteredcellModels.isEmpty {
-                                // Keeps all columns horizontally scrollable when a filter matches zero rows.
-                                Color.clear
-                                    .frame(width: viewModel.tableContentWidth)
-                                    .frame(minHeight: geometry.size.height)
-                            }
+                            emptyFilterSpacer(geometry: geometry)
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
