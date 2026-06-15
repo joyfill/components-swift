@@ -113,11 +113,9 @@ struct PagesView: View {
     @Binding var pageFieldModels: [String: PageModel]
     @ObservedObject var documentEditor: DocumentEditor
 
-    init(isSheetPresented: Bool = false,
-         pageOrder: [String]?,
+    init(pageOrder: [String]?,
          pageFieldModels: Binding<[String : PageModel]>,
          documentEditor: DocumentEditor) {
-        self.isSheetPresented = isSheetPresented
         self.pageOrder = pageOrder
         _pageFieldModels = pageFieldModels
         self.documentEditor = documentEditor
