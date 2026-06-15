@@ -12,15 +12,15 @@ struct TableDateView: View {
     @State private var selectedDate: Date = Date()
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
-    private var isUsedForFilter = false
+    private var isSingleLineLayout = false
     let datePickerComponent: DatePickerComponents
     @State var dateString: String = ""
     @State var eraseDate: Bool = false
     
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "", isUsedForFilter: Bool = false) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "", isSingleLineLayout: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
-        self.isUsedForFilter = isUsedForFilter
+        self.isSingleLineLayout = isSingleLineLayout
         datePickerComponent = Utility.getDateType(format: cellModel.wrappedValue.data.format ?? .empty)
         func setupDate(dateValue: Double) {
             if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
@@ -45,7 +45,7 @@ struct TableDateView: View {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     Text(dateString)
                         .padding(.horizontal, 8)
-                        .font(.system(size: 15))
+                        .font(.system(size: 16))
                 }
             } else {
                 Image(systemName: "calendar")
@@ -58,14 +58,10 @@ struct TableDateView: View {
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                             isDatePickerPresented = true
                         } label: {
-                            if isUsedForFilter {
+                            if isSingleLineLayout {
                                 Text(dateString)
                                     .darkLightThemeColor()
-                                    .font(.system(size: 20))
-                                    .lineLimit(2)
-                                    .minimumScaleFactor(0.7)
-                                    .allowsTightening(true)
-                                    .layoutPriority(1)
+                                    .font(.system(size: 16))
                             } else {
                                 let parts = dateString.split(separator: " ")
                                 
@@ -81,12 +77,10 @@ struct TableDateView: View {
                                             .font(.system(size: 16))
                                     }
                                 }
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.85)
                             }
                         }
                         .contentShape(Rectangle())
-                        .frame(maxWidth: .infinity, alignment: .center)
+                        .frame(maxWidth: .infinity, alignment: isSingleLineLayout ? .leading : .center)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 8)
                         .background(

@@ -539,7 +539,7 @@ struct EditMultipleRowsSheetView: View {
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                             case .date:
                                 columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, isSingleLineLayout: true)
                                     .padding(.vertical, 2)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
