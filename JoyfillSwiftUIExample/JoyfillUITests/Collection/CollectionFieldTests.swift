@@ -205,15 +205,15 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func editSingleRowUpperButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"]
+        app.buttons["UpperRowButtonIdentifier"]
     }
     
     func editSingleRowLowerButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"]
+        app.buttons["LowerRowButtonIdentifier"]
     }
     
     func editInsertRowPlusButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"]
+        app.buttons["PlusTheRowButtonIdentifier"]
     }
     
     func deleteRowButton() -> XCUIElement {
@@ -1432,4 +1432,87 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
     }
     
+    // MARK: - Pinned row form header tests
+
+    private func scrollRowFormUp() {
+        app.swipeUp()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+    }
+
+    /// The collection single-row form's navigation header (chevrons + close) must stay pinned while the fields scroll.
+    func testRowFormHeaderStaysPinnedWhileScrolling() throws {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        let closeButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"]
+        XCTAssertTrue(closeButton.waitForExistence(timeout: 5), "Single-row form should open")
+        XCTAssertTrue(app.buttons["UpperRowButtonIdentifier"].exists, "Up nav button should be in the pinned header")
+        XCTAssertTrue(app.buttons["LowerRowButtonIdentifier"].exists, "Down nav button should be in the pinned header")
+
+        let field = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "A scrollable field should be present")
+
+        let headerYBefore = closeButton.frame.minY
+        let fieldYBefore = field.frame.minY
+
+        scrollRowFormUp()
+        scrollRowFormUp()
+
+        XCTAssertTrue(closeButton.exists && closeButton.isHittable,
+                      "Header close button should stay visible and tappable after scrolling")
+        XCTAssertEqual(closeButton.frame.minY, headerYBefore, accuracy: 5.0,
+                       "Collection row form header should stay pinned, not scroll with the fields")
+        XCTAssertLessThan(field.frame.minY, fieldYBefore,
+                          "Fields should scroll underneath the pinned header")
+
+        // The pinned buttons must still be functional after scrolling.
+        let upButton = app.buttons["UpperRowButtonIdentifier"]
+        let downButton = app.buttons["LowerRowButtonIdentifier"]
+        XCTAssertFalse(upButton.isEnabled, "Up should be disabled on the first row")
+        XCTAssertTrue(downButton.isEnabled, "Down should be enabled while rows exist below")
+        downButton.tap()
+        XCTAssertTrue(waitUntil(3) { upButton.isEnabled },
+                      "Up should become enabled after the Down button navigates to the next row")
+
+        closeButton.tap()
+        XCTAssertTrue(waitUntil(3) { !closeButton.exists },
+                      "Row form should dismiss when the pinned close button is tapped")
+    }
+
+    /// The collection bulk-edit form's "Apply All" header must stay pinned while the fields scroll.
+    func testBulkEditRowFormHeaderStaysPinnedWhileScrolling() throws {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        selectRow(number: 2)
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        let applyAll = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAll.waitForExistence(timeout: 5), "Bulk-edit form should open with Apply All header")
+
+        let field = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "A scrollable field should be present")
+
+        let headerYBefore = applyAll.frame.minY
+        let fieldYBefore = field.frame.minY
+
+        scrollRowFormUp()
+        scrollRowFormUp()
+
+        XCTAssertTrue(applyAll.exists && applyAll.isHittable,
+                      "Apply All header button should stay visible and tappable after scrolling")
+        XCTAssertEqual(applyAll.frame.minY, headerYBefore, accuracy: 5.0,
+                       "Collection bulk-edit header should stay pinned, not scroll with the fields")
+        XCTAssertLessThan(field.frame.minY, fieldYBefore,
+                          "Fields should scroll underneath the pinned header")
+
+        // The pinned Apply All button must still be functional after scrolling.
+        XCTAssertTrue(applyAll.isHittable, "Apply All should be tappable after scrolling")
+        applyAll.tap()
+        XCTAssertTrue(waitUntil(3) { !applyAll.exists },
+                      "Bulk-edit form should dismiss after tapping the pinned Apply All button")
+    }
+
 }
