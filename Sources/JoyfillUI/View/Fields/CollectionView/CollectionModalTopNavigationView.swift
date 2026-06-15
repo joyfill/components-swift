@@ -323,9 +323,7 @@ struct CollectionEditMultipleRowsSheetView: View {
     }
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
                 if viewModel.tableDataModel.selectedRows.count == 1 {
                     HStack(alignment: .top) {
                         if !viewModel.tableDataModel.navigationIntent.rowFormOpenedViaGoto {
@@ -398,6 +396,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                         })
                         .accessibilityIdentifier("DismissEditSingleRowSheetButtonIdentifier")
                     }
+                    .padding([.horizontal, .top], 16)
+                    .padding(.bottom, 8)
                 }
                 
                 HStack(alignment: .top) {
@@ -461,7 +461,11 @@ struct CollectionEditMultipleRowsSheetView: View {
                         })
                     }
                 }
-
+                .padding(.horizontal, 16)
+                .padding(.top, viewModel.tableDataModel.selectedRows.count == 1 ? 0 : 16)
+            ScrollViewReader { scrollProxy in
+            ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
                 if !viewModel.tableDataModel.selectedRows.isEmpty {
                     selectedRowsHeaderColumns
                 }
@@ -485,6 +489,7 @@ struct CollectionEditMultipleRowsSheetView: View {
         }))
         .onTapGesture {
             viewModel.tableDataModel.navigationIntent.focusColumnId = nil
+        }
         }
         }
         .safeAreaInset(edge: .bottom) {
