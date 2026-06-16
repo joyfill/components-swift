@@ -89,6 +89,8 @@ struct TableDateView: View {
                                     .fill(Color(uiColor: .secondarySystemFill))
                             )
                             .contentShape(Rectangle())
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(dateString)
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("ChangeCellDateIdentifier")
