@@ -64,6 +64,7 @@ struct TableDateView: View {
                                         .darkLightThemeColor()
                                         .font(.system(size: 16))
                                 } else {
+                                    // Single space = date/time separator for all current DateFormatType values; revisit with a format-derived split if a format with intra-date spaces is added.
                                     let parts = dateString.split(separator: " ")
 
                                     VStack(alignment: .leading, spacing: 3) {
