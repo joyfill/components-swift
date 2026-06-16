@@ -31,6 +31,16 @@
               "width": 8,
               "height": 15,
               "field": "6a313d862372abbb3635f6cf"
+            },
+            {
+              "_id": "6a317df7587195e4f2dc3723",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 15,
+              "width": 8,
+              "height": 29,
+              "field": "6a317df785e63c7788ff5ad5"
             }
           ],
           "hidden": false,
@@ -281,6 +291,278 @@
         "6a2f8df96db27802eadf2863",
         "6a2f8df992e40d2d6d551821"
       ]
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "6a317df785e63c7788ff5ad5",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6a317e07f5a0a2c074ad1a33",
+          "cells": {},
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "_id": "6a317e6068ce87bd8d4897a8",
+                  "cells": {},
+                  "children": {
+                    "level2Table1": {
+                      "value": [
+                        {
+                          "_id": "6a317e681184d4c2dd99552b",
+                          "cells": {},
+                          "children": {}
+                        },
+                        {
+                          "_id": "6a317e69cba959dfd316d8ee",
+                          "cells": {},
+                          "children": {}
+                        },
+                        {
+                          "_id": "6a317e6a3a5b924687b04519",
+                          "cells": {},
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "_id": "6a317e6337f92d73d48c3673",
+                  "cells": {},
+                  "children": {}
+                },
+                {
+                  "_id": "6a317e642e6edd3fdfaf0aa0",
+                  "cells": {},
+                  "children": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "6a317e5c298dd8d4c2bbceb2",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a317e5d5c6b1ecde6362778",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [
+            "level1Table1"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a317df785e63c7788ff5ad5_column_6813008e76da519a97819c69",
+              "width": 0,
+              "decorators": [
+                {
+                  "_id": "6a317e6e264868234365e987",
+                  "icon": "flag",
+                  "label": "flag",
+                  "action": "flag",
+                  "color": "#71352b"
+                }
+              ]
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a317df785e63c7788ff5ad5_column_6813008e36be88d98ed5a90a",
+              "width": 0,
+              "decorators": [
+                {
+                  "_id": "6a317e948fe8459748620436",
+                  "icon": "plus",
+                  "label": "plus",
+                  "action": "plus",
+                  "color": "#d7d01d"
+                }
+              ]
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a317df785e63c7788ff5ad5_column_6813008ea26d706f2a5db2d5",
+              "width": 0,
+              "decorators": [
+                {
+                  "_id": "6a317ea8344e306e83349492",
+                  "icon": "circle-info",
+                  "label": "info",
+                  "action": "info",
+                  "color": "#1bb1a0"
+                }
+              ]
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "New Table",
+          "children": [
+            "level2Table1"
+          ],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6a317e24f9e79ac5d161dc65",
+              "type": "multiSelect",
+              "title": "MultiSelect Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a317e24909df704788ee5f1",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a317e2454f86a60012073b6",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a317e24dd08a3986595389a",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a317df785e63c7788ff5ad5_column_6a317e24f9e79ac5d161dc65",
+              "decorators": [
+                {
+                  "_id": "6a317ebbaadaf129019e0e14",
+                  "icon": "eye",
+                  "label": "eye",
+                  "action": "eye",
+                  "color": "#1a567e"
+                }
+              ]
+            },
+            {
+              "_id": "6a317e316d2da50f698c4652",
+              "type": "number",
+              "title": "Number Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a317df785e63c7788ff5ad5_column_6a317e316d2da50f698c4652",
+              "decorators": [
+                {
+                  "_id": "6a317ed0473f343cfba33d13",
+                  "icon": "magnet",
+                  "label": "magnet",
+                  "action": "magnet",
+                  "color": "#8733be"
+                }
+              ]
+            },
+            {
+              "_id": "6a317e340190b92f973ca8d9",
+              "type": "date",
+              "title": "Date Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a317df785e63c7788ff5ad5_column_6a317e340190b92f973ca8d9",
+              "decorators": [
+                {
+                  "_id": "6a317eebd5fd3010f6952f21",
+                  "icon": "folder-open",
+                  "label": "folder open",
+                  "action": "folderopen",
+                  "color": "#3f2d54"
+                }
+              ]
+            }
+          ]
+        },
+        "level2Table1": {
+          "title": "New Table",
+          "children": [],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6a317e405e2f8eb7ebce253c",
+              "type": "signature",
+              "title": "Signature Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a317df785e63c7788ff5ad5_column_6a317e405e2f8eb7ebce253c",
+              "decorators": [
+                {
+                  "_id": "6a317f00fc4609a5c2ca0bcd",
+                  "icon": "paper-plane",
+                  "label": "paper",
+                  "action": "paper",
+                  "color": "#1fbe75"
+                }
+              ]
+            },
+            {
+              "_id": "6a317e48f3c62f60451ac148",
+              "type": "barcode",
+              "title": "Barcode Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a317df785e63c7788ff5ad5_column_6a317e48f3c62f60451ac148",
+              "decorators": [
+                {
+                  "_id": "6a317f169cd3d5ba05181c86",
+                  "icon": "filter",
+                  "label": "filter",
+                  "action": "filter",
+                  "color": "#564e5c"
+                }
+              ]
+            },
+            {
+              "_id": "6a317e57d183652cf12449cf",
+              "type": "block",
+              "title": "Label Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a317df785e63c7788ff5ad5_column_6a317e57d183652cf12449cf",
+              "decorators": [
+                {
+                  "_id": "6a317f294e06d3a0cee1de5b",
+                  "icon": "rotate",
+                  "label": "rotate",
+                  "action": "rotate",
+                  "color": "#ad1c90"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a317df785e63c7788ff5ad5"
     }
   ],
   "_id": "68d101ee8f5793b7cd6031fc",

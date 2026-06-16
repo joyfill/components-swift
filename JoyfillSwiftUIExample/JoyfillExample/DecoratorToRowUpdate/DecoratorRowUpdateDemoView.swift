@@ -49,7 +49,7 @@ struct DecoratorRowUpdateDemoView: View {
     }
 
     private var instructions: some View {
-        Text("Open a row, then tap any column’s decorator (Comment, Camera, Import, Image, File, Download, Claud, Filter, Share). The app catches onFocus and sets that column’s cell for the open row via the Change API — watch the editor update.")
+        Text("Open a row in the Table or Collection (including nested rows), then tap any column’s decorator. The app catches onFocus and sets that column’s cell for the open row via the Change API — watch the editor update live.")
             .font(.footnote)
             .foregroundColor(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,31 +109,26 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
     weak var editor: DocumentEditor?
     var onStatus: ((String) -> Void)?
 
-    // Valid decorator action strings in the doc (built once). Lets us react to
-    // decorator taps and ignore ordinary cell focus/blur (target == "focus"/"blur").
-    private var decoratorActions: Set<String>?
-
     // Per-column tap counter so repeated taps produce a visibly different value.
     private var tapCounts: [String: Int] = [:]
 
     func onFocus(event: Event) {
         guard let editor = editor, let f = event.fieldEvent else { return }
+        // A decorator tap arrives via onFocus with the action in `target` and the
+        // tapped cell's row + column. Ordinary cell focus uses target "focus"/"blur",
+        // which won't match any column decorator, so those are ignored below.
+        guard let action = f.target,
+              let rowID = f.rowIds?.first,
+              let columnID = f.columnId else { return }
 
-        if decoratorActions == nil {
-            decoratorActions = Self.collectDecoratorActions(editor: editor, fieldID: f.fieldID)
-        }
-        // Only react to decorator taps, not normal cell focus/blur events.
-        guard let action = f.target, decoratorActions?.contains(action) == true else { return }
-
-        guard let rowID = f.rowIds?.first, let columnID = f.columnId else {
-            report("“\(f.target ?? "?")” fired but event lacked rowId/columnId")
+        // Resolve the column — and, for collection fields, the schema it lives in.
+        guard let resolved = Self.resolveColumn(editor: editor, fieldID: f.fieldID, columnID: columnID) else {
             return
         }
-        guard let column = (editor.field(fieldID: f.fieldID)?.tableColumns ?? [])
-            .first(where: { $0.id == columnID }) else {
-            report("Column \(columnID) not found")
-            return
-        }
+        let column = resolved.column
+
+        // Confirm this column actually carries a decorator with this action.
+        guard (column.decorators ?? []).contains(where: { $0.action == action }) else { return }
 
         let tap = tapCounts[columnID] ?? 0
         tapCounts[columnID] = tap + 1
@@ -151,7 +146,8 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
             fieldPositionID: f.fieldPositionId ?? "",
             rowID: rowID,
             columnID: columnID,
-            columnTitle: column.title.isEmpty ? (column.type?.rawValue ?? "column") : column.title
+            columnTitle: column.title.isEmpty ? (column.type?.rawValue ?? "column") : column.title,
+            schemaKey: resolved.schemaKey
         )
 
         report("“\(action)” on \(target.columnTitle) — calling Change API…")
@@ -228,13 +224,17 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         guard let editor = editor else { return }
         let doc = editor.document
 
-        let payload: [String: Any] = [
+        var payload: [String: Any] = [
             "rowId": target.rowID,
             "row": [
                 "_id": target.rowID,
                 "cells": [target.columnID: cellValue]
             ]
         ]
+        // Collection rows carry their schema id so the change resolves to the right schema.
+        if let schemaKey = target.schemaKey {
+            payload["schemaId"] = schemaKey
+        }
 
         let change = Change(
             v: 1,
@@ -266,11 +266,24 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         let rowID: String
         let columnID: String
         let columnTitle: String
+        let schemaKey: String?   // nil for table fields; schema key for collection rows
     }
 
-    private static func collectDecoratorActions(editor: DocumentEditor, fieldID: String) -> Set<String> {
-        let columns = editor.field(fieldID: fieldID)?.tableColumns ?? []
-        return Set(columns.flatMap { $0.decorators ?? [] }.compactMap { $0.action })
+    /// Resolves the tapped column and, for collection fields, the schema key it lives in.
+    private static func resolveColumn(editor: DocumentEditor, fieldID: String, columnID: String) -> (column: FieldTableColumn, schemaKey: String?)? {
+        guard let field = editor.field(fieldID: fieldID) else { return nil }
+        if field.fieldType == .collection {
+            for (key, schema) in field.schema ?? [:] {
+                if let col = schema.tableColumns?.first(where: { $0.id == columnID }) {
+                    return (col, key)
+                }
+            }
+            return nil
+        }
+        if let col = field.tableColumns?.first(where: { $0.id == columnID }) {
+            return (col, nil)
+        }
+        return nil
     }
 
     private static func randomObjectID() -> String {
