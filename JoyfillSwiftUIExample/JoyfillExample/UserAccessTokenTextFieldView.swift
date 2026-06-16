@@ -508,6 +508,7 @@ struct OptionSelectionView: View {
         case createRowUISample
         case metadataChangeAPIDemo
         case decoratorAPIDemo
+        case decoratorRowUpdateDemo
         case simpleForm
         case simpleNavigationTest
         case footerExample
@@ -542,6 +543,8 @@ struct OptionSelectionView: View {
                 return "Metadata Change API Demo"
             case .decoratorAPIDemo:
                 return "Decorator API Demo"
+            case .decoratorRowUpdateDemo:
+                return "Decorator → Row Change"
             case .simpleForm:
                 return "Simple example Form"
             case .simpleNavigationTest:
@@ -581,6 +584,8 @@ struct OptionSelectionView: View {
                 return "Set field and row metadata via Change API (field.update, rowCreate, rowUpdate)"
             case .decoratorAPIDemo:
                 return "Add, remove and update decorators on any field at runtime"
+            case .decoratorRowUpdateDemo:
+                return "Tap a column decorator in an open row, set its dropdown via the Change API, and watch the UI update"
             case .simpleForm:
                 return "Simple example Form"
             case .simpleNavigationTest:
@@ -620,6 +625,8 @@ struct OptionSelectionView: View {
                 return "tag.fill"
             case .decoratorAPIDemo:
                 return "paintbrush.pointed.fill"
+            case .decoratorRowUpdateDemo:
+                return "arrow.triangle.2.circlepath"
             case .simpleForm:
                 return "slider.horizontal.3"
             case .simpleNavigationTest:
@@ -659,6 +666,8 @@ struct OptionSelectionView: View {
                 return .orange
             case .decoratorAPIDemo:
                 return .blue
+            case .decoratorRowUpdateDemo:
+                return .purple
             case .simpleForm:
                 return .blue
             case .simpleNavigationTest:
@@ -810,6 +819,8 @@ struct OptionSelectionView: View {
             MetadataChangeAPIDemoView()
         case .decoratorAPIDemo:
             DecoratorAPIDemoView()
+        case .decoratorRowUpdateDemo:
+            DecoratorRowUpdateDemoView()
         case .simpleForm:
             SimpleFormExampleView()
         case .simpleNavigationTest:

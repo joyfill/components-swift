@@ -1,0 +1,290 @@
+{
+  "files": [
+    {
+      "_id": "68d101cf56b1d0b1393bb36a",
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "padding": 24,
+          "layout": "grid",
+          "deletable": true,
+          "metadata": {},
+          "width": 816,
+          "_id": "68d101cf609190215b11e750",
+          "presentation": "normal",
+          "cols": 8,
+          "margin": 0,
+          "borderWidth": 0,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ],
+          "fieldPositions": [
+            {
+              "_id": "6a313d864e24b43684cd3794",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 15,
+              "field": "6a313d862372abbb3635f6cf"
+            }
+          ],
+          "hidden": false,
+          "height": 1056,
+          "rowHeight": 8,
+          "name": "Survey Form"
+        }
+      ],
+      "pageOrder": [
+        "68d101cf609190215b11e750"
+      ],
+      "version": 1,
+      "views": [],
+      "metadata": {},
+      "name": "New File"
+    }
+  ],
+  "metadata": {},
+  "stage": "published",
+  "deleted": false,
+  "type": "template",
+  "source": "template_68d101cff84d57b1b3466679",
+  "fields": [
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "6a313d862372abbb3635f6cf",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "6a2f8df94368bf03f840d993",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a2f8df9bee9a9fa2d659d3f",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6a2f8df92f5d205149a81cf2",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6a2f8df9359c931017ab2cad",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a313d862372abbb3635f6cf_column_6a2f8df94368bf03f840d993",
+          "decorators": [
+            {
+              "_id": "6a3140a8889eb55cc3e66c16",
+              "icon": "comment",
+              "label": "comment",
+              "action": "Comment",
+              "color": "#4a018f"
+            }
+          ]
+        },
+        {
+          "_id": "6a2f8df9a0e2bdba1341ea03",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a2f8df9a0e2bdba1341ea03",
+          "decorators": [
+            {
+              "_id": "6a3147d907e1fc3b56218cb6",
+              "icon": "camera",
+              "label": "Camera",
+              "action": "Camera",
+              "color": "#a44d1c"
+            }
+          ]
+        },
+        {
+          "_id": "6a3147def8cfe74d2e38597f",
+          "type": "multiSelect",
+          "title": "MultiSelect Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a3147de8f50c344d0eecf84",
+              "value": "Option 1",
+              "deleted": false
+            },
+            {
+              "_id": "6a3147deb2913c1615de2330",
+              "value": "Option 2",
+              "deleted": false
+            },
+            {
+              "_id": "6a3147de7b009f981b80b152",
+              "value": "Option 3",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a313d862372abbb3635f6cf_column_6a3147def8cfe74d2e38597f",
+          "decorators": [
+            {
+              "_id": "6a3147efed761e5e541c96a0",
+              "icon": "import",
+              "label": "Import",
+              "action": "Import",
+              "color": "#5c8b12"
+            }
+          ]
+        },
+        {
+          "_id": "6a3147f2d0a36d3df3b9f0b8",
+          "type": "image",
+          "title": "Image Column",
+          "deleted": false,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a3147f2d0a36d3df3b9f0b8",
+          "decorators": [
+            {
+              "_id": "6a3148011fd190bc4940efb7",
+              "icon": "image",
+              "label": "Image",
+              "action": "Image",
+              "color": "#b53822"
+            }
+          ]
+        },
+        {
+          "_id": "6a31480657d219ed143d005c",
+          "type": "number",
+          "title": "Number Column",
+          "deleted": false,
+          "width": 0,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a31480657d219ed143d005c",
+          "decorators": [
+            {
+              "_id": "6a31481747a185c44a549628",
+              "icon": "file",
+              "label": "File",
+              "action": "File",
+              "color": "#2594b5"
+            }
+          ]
+        },
+        {
+          "_id": "6a31481bafd339dd92cb2de0",
+          "type": "date",
+          "title": "Date Column",
+          "deleted": false,
+          "width": 0,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a31481bafd339dd92cb2de0",
+          "decorators": [
+            {
+              "_id": "6a31483728ffec83e743277b",
+              "icon": "download",
+              "label": "Download",
+              "action": "Download",
+              "color": "#a019be"
+            }
+          ]
+        },
+        {
+          "_id": "6a31481c63508bbc9f978741",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a31481c63508bbc9f978741",
+          "decorators": [
+            {
+              "_id": "6a314849954cf6698c5b3018",
+              "icon": "cloud",
+              "label": "Claud",
+              "action": "Claud",
+              "color": "#0d4b3f"
+            }
+          ]
+        },
+        {
+          "_id": "6a31481e11b16a15b119ce55",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a31481e11b16a15b119ce55",
+          "decorators": [
+            {
+              "_id": "6a3148591569ce160ca900ab",
+              "icon": "filter",
+              "label": "Filter",
+              "action": "Filter",
+              "color": "#a92170"
+            }
+          ]
+        },
+        {
+          "_id": "6a31481f73b6d006304084d4",
+          "type": "signature",
+          "title": "Signature Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a313d862372abbb3635f6cf_column_6a31481f73b6d006304084d4",
+          "decorators": [
+            {
+              "_id": "6a3148691c3f45586270041e",
+              "icon": "share",
+              "label": "Share",
+              "action": "Share",
+              "color": "#b5a922"
+            }
+          ]
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a2f8df910ebe1b7a93ca1be",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6a2f8df96db27802eadf2863",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6a2f8df992e40d2d6d551821",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_6a313d862372abbb3635f6cf",
+      "tableColumnOrder": [
+        "6a2f8df94368bf03f840d993",
+        "6a2f8df9a0e2bdba1341ea03",
+        "6a3147def8cfe74d2e38597f",
+        "6a3147f2d0a36d3df3b9f0b8",
+        "6a31480657d219ed143d005c",
+        "6a31481bafd339dd92cb2de0",
+        "6a31481c63508bbc9f978741",
+        "6a31481e11b16a15b119ce55",
+        "6a31481f73b6d006304084d4"
+      ],
+      "rowOrder": [
+        "6a2f8df910ebe1b7a93ca1be",
+        "6a2f8df96db27802eadf2863",
+        "6a2f8df992e40d2d6d551821"
+      ]
+    }
+  ],
+  "_id": "68d101ee8f5793b7cd6031fc",
+  "identifier": "doc_68d101ee8f5793b7cd6031fc",
+  "createdOn": 1758527982824,
+  "name": "New Template"
+}
