@@ -651,7 +651,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                         case .date:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                            TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, isSingleLineLayout: true)
                                 .padding(.vertical, 2)
                                 .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsDateFieldIdentifier")
