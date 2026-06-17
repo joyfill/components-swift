@@ -96,7 +96,108 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         // Signature → field container renders after URL is set
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
-        S.dismissRowEditForm(in: app)
+        dismissSheet()
+
+        assertGridTextView(identifier: "TabelTextFieldIdentifier", expected: "Updated #1")
+        assertGridTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertGridButtonContains(identifier: "TableDropdownIdentifier", text: "Yes")
+        assertGridButtonContains(identifier: "TableMultiSelectionFieldIdentifier", text: "Option 1")
+        assertGridButtonHasValue(identifier: "ChangeCellDateIdentifier")
+        assertGridButtonExists(identifier: "TableSignatureOpenSheetButton")
+    }
+    
+    // MARK: - Add Row / Insert Below persistence
+
+    /// Opens row 1's form, sets every column via decorator taps, dismisses,
+    /// taps Add Row, then re-opens row 1 and verifies all values survive.
+    func testTableDecoratorValuesPreservedAfterAddRow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openTableDetailView(in: app)
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        tapDecoratorAndAssertStaticText(action: tableDropdownAction, expected: "Yes")
+        tapDecoratorAndAssertTextField(action: tableTextAction, identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertStaticText(action: tableMultiSelectAction, expected: "Option 1")
+        tapDecoratorAndAssertExists(action: tableImageAction, identifier: "EditRowsImageFieldIdentifier")
+        tapDecoratorAndAssertTextField(action: tableNumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
+        tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
+        tapDecoratorDisplayOnly(action: tableBlockAction)
+        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
+
+        dismissSheet()
+
+        // Add Row is in the table view (accessible once the row-form sheet is dismissed)
+        let addRowBtn = app.buttons["TableAddRowIdentifier"]
+        XCTAssertTrue(addRowBtn.waitForExistence(timeout: 3), "Add Row button not found")
+        addRowBtn.tap()
+        spinRunloop(0.5)
+
+        // Row 1 is still at index 0 (new row was appended at the end)
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        assertRowFormStaticText("Yes")
+        assertRowFormTextField(identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        assertRowFormStaticText("Option 1")
+        assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
+        assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
+        assertRowFormTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
+
+        dismissSheet()
+
+        assertGridTextView(identifier: "TabelTextFieldIdentifier", expected: "Updated #1")
+        assertGridTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertGridButtonContains(identifier: "TableDropdownIdentifier", text: "Yes")
+        assertGridButtonContains(identifier: "TableMultiSelectionFieldIdentifier", text: "Option 1")
+        assertGridButtonHasValue(identifier: "ChangeCellDateIdentifier")
+        assertGridButtonExists(identifier: "TableSignatureOpenSheetButton")
+    }
+
+    /// Opens row 1's form, sets every column via decorator taps, then taps the
+    /// "+" (Insert Below) button — which inserts a row below and navigates to it.
+    /// Navigates back to row 1 and verifies all values survive.
+    func testTableDecoratorValuesPreservedAfterInsertBelow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openTableDetailView(in: app)
+        S.openTableRowEditForm(rowIndex: 1, in: app)
+
+        tapDecoratorAndAssertStaticText(action: tableDropdownAction, expected: "Yes")
+        tapDecoratorAndAssertTextField(action: tableTextAction, identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertStaticText(action: tableMultiSelectAction, expected: "Option 1")
+        tapDecoratorAndAssertExists(action: tableImageAction, identifier: "EditRowsImageFieldIdentifier")
+        tapDecoratorAndAssertTextField(action: tableNumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
+        tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
+        tapDecoratorDisplayOnly(action: tableBlockAction)
+        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
+
+        // "+" button inserts a row below and navigates the form to the new row
+        let plusBtn = app.buttons["PlusTheRowButtonIdentifier"]
+        XCTAssertTrue(plusBtn.waitForExistence(timeout: 3), "Plus (Insert Below) button not found in row form")
+        plusBtn.tap()
+        spinRunloop(0.5)
+
+        // Navigate back to row 1 (the < chevron goes to the row above the newly-selected one)
+        let upperBtn = app.buttons["UpperRowButtonIdentifier"]
+        XCTAssertTrue(upperBtn.waitForExistence(timeout: 3), "Upper row (←) button not found")
+        upperBtn.tap()
+        spinRunloop(0.5)
+
+        // All values must survive the insert-below + row-navigation cycle
+        assertRowFormStaticText("Yes")
+        assertRowFormTextField(identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        assertRowFormStaticText("Option 1")
+        assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
+        assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
+        assertRowFormTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
+
+        dismissSheet()
 
         assertGridTextView(identifier: "TabelTextFieldIdentifier", expected: "Updated #1")
         assertGridTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
@@ -123,7 +224,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         // Image → container exists
         tapDecoratorAndAssertExists(action: collRootImageAction, identifier: "EditRowsImageFieldIdentifier")
 
-        S.dismissRowEditForm(in: app)
+        dismissSheet()
 
         assertGridTextView(identifier: "TabelTextFieldIdentifier", expected: "Updated #1")
         assertGridButtonContains(identifier: "TableDropdownIdentifier", text: "High")
@@ -147,7 +248,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         // Date → inner button has a non-empty label
         tapDecoratorAndAssertButtonHasValue(action: collL1DateAction, identifier: "ChangeCellDateIdentifier")
 
-        S.dismissRowEditForm(in: app)
+        dismissSheet()
 
         assertGridButtonContains(identifier: "TableMultiSelectionFieldIdentifier", text: "Option 1")
         assertGridTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
@@ -174,7 +275,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         // Block → display-only, no row-form editor
         tapDecoratorDisplayOnly(action: collL2BlockAction)
 
-        S.dismissRowEditForm(in: app)
+        dismissSheet()
 
         assertGridButtonExists(identifier: "TableSignatureOpenSheetButton")
         assertGridTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
@@ -243,6 +344,47 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         spinRunloop(1.5)
     }
 
+    // MARK: - Row-form assert helpers (no decorator tap — used after add/insert row)
+
+    private func assertRowFormTextField(identifier: String, expected: String) {
+        let field = app.textFields.matching(identifier: identifier).firstMatch
+        XCTAssertTrue(
+            waitUntil(3) { field.exists && field.value as? String == expected },
+            "Row form '\(identifier)' should show '\(expected)'"
+        )
+    }
+
+    private func assertRowFormTextView(identifier: String, expected: String) {
+        let field = app.textViews.matching(identifier: identifier).firstMatch
+        XCTAssertTrue(
+            waitUntil(3) { field.exists && field.value as? String == expected },
+            "Row form '\(identifier)' should show '\(expected)'"
+        )
+    }
+
+    private func assertRowFormStaticText(_ expected: String) {
+        XCTAssertTrue(
+            waitUntil(3) { self.app.staticTexts[expected].exists },
+            "Row form should show '\(expected)' as static text"
+        )
+    }
+
+    private func assertRowFormButtonHasValue(identifier: String) {
+        let btn = app.buttons.matching(identifier: identifier).firstMatch
+        XCTAssertTrue(
+            waitUntil(3) { btn.exists && !btn.label.isEmpty },
+            "Row form '\(identifier)' button should have a non-empty value"
+        )
+    }
+
+    private func assertRowFormExists(identifier: String) {
+        let el = app.descendants(matching: .any).matching(identifier: identifier).firstMatch
+        XCTAssertTrue(
+            waitUntil(3) { el.exists },
+            "Row form '\(identifier)' should exist"
+        )
+    }
+
     // MARK: - Grid cell assert helpers
 
     /// Grid text cell (UITextView wrapper, identifier "TabelTextFieldIdentifier").
@@ -289,6 +431,14 @@ final class DecoratorRowUpdateUITests: XCTestCase {
             "Grid '\(identifier)'[0] should exist"
         )
     }
+    
+    private func dismissSheet() {
+        let bottomCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
+    }
+
+
 
     // MARK: - Decorator tap helper
 
