@@ -169,6 +169,7 @@
 		36CFA05B2CE4936100B7DE34 /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 36CFA05A2CE4936100B7DE34 /* JoyfillAPIService */; };
 		36DEC0DA2E30000000F23702 /* DecoratorRowUpdateDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36DEC0DA2E30000000F23701 /* DecoratorRowUpdateDemoView.swift */; };
 		36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */; };
+		95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288E7D2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
 		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -589,6 +590,7 @@
 		36CE14682DB7F90100799B25 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		36DEC0DA2E30000000F23701 /* DecoratorRowUpdateDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorRowUpdateDemoView.swift; sourceTree = "<group>"; };
 		36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseValidatorTests.swift; sourceTree = "<group>"; };
+		95288E7D2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorRowUpdateUITests.swift; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
@@ -1032,6 +1034,7 @@
 			isa = PBXGroup;
 			children = (
 				E2B4CFD22F99F54500F2128D /* DecoratorAPIUITests.swift */,
+				95288E7D2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift */,
 				E2B4CFD82F9A060700F2128D /* DecoratorUITestSupport.swift */,
 				BA2352F12F99E9F4002D9345 /* Decorator.json */,
 			);
@@ -2032,6 +2035,7 @@
 				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
 				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
 				E2B4CFD92F9A060700F2128D /* DecoratorUITestSupport.swift in Sources */,
+				95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */,
 				E2408A022F7CF023005C4885 /* NavigationGotoUITests.swift in Sources */,
 				E29FF8822F2527790079A614 /* TestMobileViewDuplicateLogic.swift in Sources */,
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
