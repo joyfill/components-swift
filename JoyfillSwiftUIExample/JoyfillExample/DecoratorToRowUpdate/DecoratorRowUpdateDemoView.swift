@@ -118,7 +118,7 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         // tapped cell's row + column. Ordinary cell focus uses target "focus"/"blur",
         // which won't match any column decorator, so those are ignored below.
         guard let action = f.target,
-              let rowID = f.rowIds?.first,
+              let rowIDs = f.rowIds, !rowIDs.isEmpty,
               let columnID = f.columnId else { return }
 
         // Resolve the column — and, for collection fields, the schema it lives in.
@@ -144,7 +144,7 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
             fileID: f.fileID ?? "",
             pageID: f.pageID ?? "",
             fieldPositionID: f.fieldPositionId ?? "",
-            rowID: rowID,
+            rowIDs: rowIDs,
             columnID: columnID,
             columnTitle: column.title.isEmpty ? (column.type?.rawValue ?? "column") : column.title,
             schemaKey: resolved.schemaKey
@@ -224,35 +224,38 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         guard let editor = editor else { return }
         let doc = editor.document
 
-        var payload: [String: Any] = [
-            "rowId": target.rowID,
-            "row": [
-                "_id": target.rowID,
-                "cells": [target.columnID: cellValue]
+        // One rowUpdate per selected row — covers single edit (1 row) and bulk edit (N rows).
+        let changes: [Change] = target.rowIDs.map { rowID in
+            var payload: [String: Any] = [
+                "rowId": rowID,
+                "row": [
+                    "_id": rowID,
+                    "cells": [target.columnID: cellValue]
+                ]
             ]
-        ]
-        // Collection rows carry their schema id so the change resolves to the right schema.
-        if let schemaKey = target.schemaKey {
-            payload["schemaId"] = schemaKey
+            // Collection rows carry their schema id so the change resolves to the right schema.
+            if let schemaKey = target.schemaKey {
+                payload["schemaId"] = schemaKey
+            }
+            return Change(
+                v: 1,
+                sdk: "swift",
+                target: "field.value.rowUpdate",
+                _id: doc.id ?? "",
+                identifier: doc.identifier ?? "",
+                fileId: target.fileID,
+                pageId: target.pageID,
+                fieldId: target.fieldID,
+                fieldIdentifier: target.fieldIdentifier,
+                fieldPositionId: target.fieldPositionID,
+                change: payload,
+                createdOn: Date().timeIntervalSince1970
+            )
         }
 
-        let change = Change(
-            v: 1,
-            sdk: "swift",
-            target: "field.value.rowUpdate",
-            _id: doc.id ?? "",
-            identifier: doc.identifier ?? "",
-            fileId: target.fileID,
-            pageId: target.pageID,
-            fieldId: target.fieldID,
-            fieldIdentifier: target.fieldIdentifier,
-            fieldPositionId: target.fieldPositionID,
-            change: payload,
-            createdOn: Date().timeIntervalSince1970
-        )
-
-        editor.change(changes: [change])
-        report("Set \(target.columnTitle) → \(summary)")
+        editor.change(changes: changes)
+        let scope = target.rowIDs.count == 1 ? "" : " (\(target.rowIDs.count) rows)"
+        report("Set \(target.columnTitle) → \(summary)\(scope)")
     }
 
     // MARK: Helpers
@@ -263,7 +266,7 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         let fileID: String
         let pageID: String
         let fieldPositionID: String
-        let rowID: String
+        let rowIDs: [String]
         let columnID: String
         let columnTitle: String
         let schemaKey: String?   // nil for table fields; schema key for collection rows
