@@ -525,14 +525,16 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         )
     }
 
-    /// Taps decorator, waits for a button with the given identifier to have a non-empty label.
+    /// Taps decorator, waits for a button with the given identifier to have a non-empty label
+    /// that also differs from its pre-tap label (guards against a non-empty placeholder passing).
     /// Used for: date column (ChangeCellDateIdentifier shows the formatted date).
     private func tapDecoratorAndAssertButtonHasValue(action: String, identifier: String) {
-        tapDecorator(action: action)
         let button = app.buttons.matching(identifier: identifier).firstMatch
+        let labelBefore = button.exists ? button.label : ""
+        tapDecorator(action: action)
         XCTAssertTrue(
-            waitUntil(3) { button.exists && !button.label.isEmpty },
-            "'\(identifier)' button should have a value after tapping '\(action)' decorator"
+            waitUntil(3) { button.exists && !button.label.isEmpty && button.label != labelBefore },
+            "'\(identifier)' button label should change and be non-empty after tapping '\(action)' decorator"
         )
     }
 
