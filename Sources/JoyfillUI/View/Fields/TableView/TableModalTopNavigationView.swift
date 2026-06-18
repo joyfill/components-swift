@@ -231,6 +231,10 @@ struct EditMultipleRowsSheetView: View {
         self.viewModel =  viewModel
     }
 
+    private func refreshViewID() {
+        viewID = UUID()
+    }
+
     @ViewBuilder
     private func columnTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
         HStack(alignment: .center, spacing: 4) {
@@ -623,15 +627,18 @@ struct EditMultipleRowsSheetView: View {
             }
             .padding(.all, 16)
             .environment(\.navigationFocusColumnId, viewModel.tableDataModel.navigationIntent.focusColumnId)
+            .id(viewID)
         }
-        .id(viewID)
         .onAppear {
             if let columnId = viewModel.tableDataModel.navigationIntent.scrollToColumnId {
                 scrollProxy.scrollTo(columnId, anchor: .top)
             }
         }
-        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
-            viewID = UUID()
+        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ _ in
+            refreshViewID()
+        }
+        .onChange(of: viewModel.uuid) { _ in
+            refreshViewID()
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
