@@ -281,6 +281,216 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         assertGridTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
     }
 
+    // MARK: - Collection Add Row / Insert Below persistence
+
+    // MARK: Root level
+
+    /// Root row 1 form → tap text/dropdown/image decorators → dismiss →
+    /// Add Row → re-open root row 1 → all values survive.
+    func testCollectionRootDecoratorValuesPreservedAfterAddRow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openCollectionDetailView(in: app)
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        tapDecoratorAndAssertTextField(action: collRootTextAction, identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertStaticText(action: collRootDropdownAction, expected: "High")
+        tapDecoratorAndAssertExists(action: collRootImageAction, identifier: "EditRowsImageFieldIdentifier")
+
+        dismissSheet()
+        spinRunloop(0.3)
+
+        let addRowBtn = app.buttons["TableAddRowIdentifier"]
+        XCTAssertTrue(addRowBtn.waitForExistence(timeout: 3), "Collection Add Row button not found")
+        addRowBtn.tap()
+        spinRunloop(0.5)
+
+        // Root row 1 is still at index 1 (SingleClickEditButton1)
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        assertRowFormTextField(identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        assertRowFormStaticText("High")
+        assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
+
+        dismissSheet()
+
+        assertGridTextView(identifier: "TabelTextFieldIdentifier", expected: "Updated #1")
+        assertGridButtonContains(identifier: "TableDropdownIdentifier", text: "High")
+    }
+
+    /// Root row 1 form → tap text/dropdown/image decorators → Insert Below ("+") →
+    /// navigate back (←) → all values survive.
+    func testCollectionRootDecoratorValuesPreservedAfterInsertBelow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openCollectionDetailView(in: app)
+        S.openCollectionRootRowEditForm(rowIndex: 1, in: app)
+
+        tapDecoratorAndAssertTextField(action: collRootTextAction, identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertStaticText(action: collRootDropdownAction, expected: "High")
+        tapDecoratorAndAssertExists(action: collRootImageAction, identifier: "EditRowsImageFieldIdentifier")
+
+        let plusBtn = app.buttons["PlusTheRowButtonIdentifier"]
+        XCTAssertTrue(plusBtn.waitForExistence(timeout: 3), "Plus button not found in row form")
+        plusBtn.tap()
+        spinRunloop(0.5)
+
+        let upperBtn = app.buttons["UpperRowButtonIdentifier"]
+        XCTAssertTrue(upperBtn.waitForExistence(timeout: 3), "Upper row (←) button not found")
+        upperBtn.tap()
+        spinRunloop(0.5)
+
+        assertRowFormTextField(identifier: "EditRowsTextFieldIdentifier", expected: "Updated #1")
+        assertRowFormStaticText("High")
+        assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
+
+        dismissSheet()
+
+        assertGridTextView(identifier: "TabelTextFieldIdentifier", expected: "Updated #1")
+        assertGridButtonContains(identifier: "TableDropdownIdentifier", text: "High")
+    }
+
+    // MARK: Level 1
+
+    /// L1 row 1 form → tap multiSelect/number/date decorators → dismiss →
+    /// Add Row (L1 schema button) → re-open L1 row 1 → all values survive.
+    func testCollectionLevel1DecoratorValuesPreservedAfterAddRow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openCollectionDetailView(in: app)
+        S.expandCollectionRootRow(at: 1, in: app)
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
+
+        tapDecoratorAndAssertStaticText(action: collL1MultiSelectAction, expected: "Option 1")
+        tapDecoratorAndAssertTextField(action: collL1NumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
+        tapDecoratorAndAssertButtonHasValue(action: collL1DateAction, identifier: "ChangeCellDateIdentifier")
+
+        dismissSheet()
+        spinRunloop(0.3)
+
+        // "collectionSchemaAddRowButton" (firstMatch) is the L1 schema add-row button
+        let addRowBtn = app.buttons.matching(identifier: "collectionSchemaAddRowButton").firstMatch
+        XCTAssertTrue(addRowBtn.waitForExistence(timeout: 3), "L1 schema Add Row button not found")
+        addRowBtn.tap()
+        spinRunloop(0.5)
+
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
+
+        assertRowFormStaticText("Option 1")
+        assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
+
+        dismissSheet()
+
+        assertGridButtonContains(identifier: "TableMultiSelectionFieldIdentifier", text: "Option 1")
+        assertGridTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertGridButtonHasValue(identifier: "ChangeCellDateIdentifier")
+    }
+
+    /// L1 row 1 form → tap multiSelect/number/date decorators → Insert Below ("+") →
+    /// navigate back (←) → all values survive.
+    func testCollectionLevel1DecoratorValuesPreservedAfterInsertBelow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openCollectionDetailView(in: app)
+        S.expandCollectionRootRow(at: 1, in: app)
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 0, in: app)
+
+        tapDecoratorAndAssertStaticText(action: collL1MultiSelectAction, expected: "Option 1")
+        tapDecoratorAndAssertTextField(action: collL1NumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
+        tapDecoratorAndAssertButtonHasValue(action: collL1DateAction, identifier: "ChangeCellDateIdentifier")
+
+        let plusBtn = app.buttons["PlusTheRowButtonIdentifier"]
+        XCTAssertTrue(plusBtn.waitForExistence(timeout: 3), "Plus button not found in row form")
+        plusBtn.tap()
+        spinRunloop(0.5)
+
+        let upperBtn = app.buttons["UpperRowButtonIdentifier"]
+        XCTAssertTrue(upperBtn.waitForExistence(timeout: 3), "Upper row (←) button not found")
+        upperBtn.tap()
+        spinRunloop(0.5)
+
+        assertRowFormStaticText("Option 1")
+        assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
+
+        dismissSheet()
+
+        assertGridButtonContains(identifier: "TableMultiSelectionFieldIdentifier", text: "Option 1")
+        assertGridTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
+        assertGridButtonHasValue(identifier: "ChangeCellDateIdentifier")
+    }
+
+    // MARK: Level 2
+
+    /// L2 row 1 form → tap signature/barcode/block decorators → dismiss →
+    /// Add Row (L2 schema button, boundBy:1) → re-open L2 row 1 → all values survive.
+    func testCollectionLevel2DecoratorValuesPreservedAfterAddRow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openCollectionDetailView(in: app)
+        S.expandCollectionRootRow(at: 1, in: app)
+        S.expandCollectionNestedRow(at: 1, in: app)
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
+
+        tapDecoratorAndAssertExists(action: collL2SignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
+        tapDecoratorAndAssertTextView(action: collL2BarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorDisplayOnly(action: collL2BlockAction)
+
+        dismissSheet()
+        spinRunloop(0.3)
+
+        // With root row 1 + L1 row 1 expanded, two "collectionSchemaAddRowButton" appear:
+        // boundBy:0 = L1 schema, boundBy:1 = L2 schema
+        let addRowBtn = app.buttons.matching(identifier: "collectionSchemaAddRowButton").element(boundBy: 1)
+        XCTAssertTrue(addRowBtn.waitForExistence(timeout: 3), "L2 schema Add Row button not found")
+        addRowBtn.tap()
+        spinRunloop(0.5)
+
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
+
+        assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
+        assertRowFormTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+
+        dismissSheet()
+
+        assertGridButtonExists(identifier: "TableSignatureOpenSheetButton")
+        assertGridTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+    }
+
+    /// L2 row 1 form → tap signature/barcode/block decorators → Insert Below ("+") →
+    /// navigate back (←) → all values survive.
+    func testCollectionLevel2DecoratorValuesPreservedAfterInsertBelow() {
+        typealias S = DecoratorUITestSupport
+
+        S.openCollectionDetailView(in: app)
+        S.expandCollectionRootRow(at: 1, in: app)
+        S.expandCollectionNestedRow(at: 1, in: app)
+        S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
+
+        tapDecoratorAndAssertExists(action: collL2SignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
+        tapDecoratorAndAssertTextView(action: collL2BarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorDisplayOnly(action: collL2BlockAction)
+
+        let plusBtn = app.buttons["PlusTheRowButtonIdentifier"]
+        XCTAssertTrue(plusBtn.waitForExistence(timeout: 3), "Plus button not found in row form")
+        plusBtn.tap()
+        spinRunloop(0.5)
+
+        let upperBtn = app.buttons["UpperRowButtonIdentifier"]
+        XCTAssertTrue(upperBtn.waitForExistence(timeout: 3), "Upper row (←) button not found")
+        upperBtn.tap()
+        spinRunloop(0.5)
+
+        assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
+        assertRowFormTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+
+        dismissSheet()
+
+        assertGridButtonExists(identifier: "TableSignatureOpenSheetButton")
+        assertGridTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+    }
+
     // MARK: - Row-form tap + assert helpers
 
     /// Taps decorator, waits for a SwiftUI TextField (→ .textField) to show expected value.
