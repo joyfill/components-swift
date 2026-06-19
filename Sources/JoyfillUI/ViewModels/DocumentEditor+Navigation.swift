@@ -95,8 +95,10 @@ extension DocumentEditor {
     func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
         if let currentFieldID = openedNavigationFieldID,
            currentFieldID != event.fieldID {
-            pendingNavigationTarget = event
-            sendDismissNavigation(fieldID: currentFieldID)
+            runOnMain {
+                self.pendingNavigationTarget = event
+                self.sendDismissNavigation(fieldID: currentFieldID)
+            }
             return status
         }
 
