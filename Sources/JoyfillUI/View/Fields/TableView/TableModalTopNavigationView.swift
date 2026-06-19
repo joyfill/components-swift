@@ -231,6 +231,10 @@ struct EditMultipleRowsSheetView: View {
         self.viewModel =  viewModel
     }
 
+    private func refreshViewID() {
+        viewID = UUID()
+    }
+
     @ViewBuilder
     private func columnTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
         HStack(alignment: .center, spacing: 4) {
@@ -257,9 +261,7 @@ struct EditMultipleRowsSheetView: View {
     }
 
     var body: some View {
-        ScrollViewReader { scrollProxy in
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
                     if viewModel.tableDataModel.selectedRows.count == 1 {
                         HStack(alignment: .top) {
                             if !viewModel.tableDataModel.navigationIntent.rowFormOpenedViaGoto {
@@ -332,6 +334,8 @@ struct EditMultipleRowsSheetView: View {
                             })
                             .accessibilityIdentifier("DismissEditSingleRowSheetButtonIdentifier")
                         }
+                        .padding([.horizontal, .top], 16)
+                        .padding(.bottom, 8)
                     }
                 HStack(alignment: .top) {
                     if let title = viewModel.tableDataModel.title {
@@ -389,7 +393,11 @@ struct EditMultipleRowsSheetView: View {
                         })
                     }
                 }
-
+                .padding(.horizontal, 16)
+                .padding(.top, viewModel.tableDataModel.selectedRows.count == 1 ? 0 : 16)
+            ScrollViewReader { scrollProxy in
+            ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
                     VStack(alignment: .leading, spacing: 16) {
@@ -539,7 +547,7 @@ struct EditMultipleRowsSheetView: View {
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                             case .date:
                                 columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, isSingleLineLayout: true)
                                     .padding(.vertical, 2)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
@@ -619,15 +627,18 @@ struct EditMultipleRowsSheetView: View {
             }
             .padding(.all, 16)
             .environment(\.navigationFocusColumnId, viewModel.tableDataModel.navigationIntent.focusColumnId)
+            .id(viewID)
         }
-        .id(viewID)
         .onAppear {
             if let columnId = viewModel.tableDataModel.navigationIntent.scrollToColumnId {
                 scrollProxy.scrollTo(columnId, anchor: .top)
             }
         }
-        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
-            viewID = UUID()
+        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ _ in
+            refreshViewID()
+        }
+        .onChange(of: viewModel.uuid) { _ in
+            refreshViewID()
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
@@ -635,6 +646,7 @@ struct EditMultipleRowsSheetView: View {
         }))
         .onTapGesture {
             viewModel.tableDataModel.navigationIntent.focusColumnId = nil
+        }
         }
         }
         .safeAreaInset(edge: .bottom) {

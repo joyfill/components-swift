@@ -278,25 +278,35 @@ public enum DateFormatType: String {
     }
 }
 
-/// Converts an ISO8601 formatted string to a time string.
+/// Converts an ISO8601 formatted string to a formatted date/time string.
 ///
 /// - Parameters:
 ///   - iso8601String: The ISO8601 formatted string representing a date and time.
+///   - format: The desired output format. Defaults to `.empty` (MM/dd/yyyy hh:mma).
+///   - tzId: Optional timezone identifier to render the value in.
 ///
-/// - Returns: A formatted time string in the format "hh:mm a".
-public func getTimeFromISO8601Format(iso8601String: String, tzId: String? = nil) -> String {
-    let dateFormatter = ISO8601DateFormatter()
-    let instant = dateFormatter.date(from: iso8601String)
-    
+/// - Returns: A formatted date/time string honoring `format`, or `nil` if the
+///   input is not a valid ISO8601 string. Returning `nil` (rather than falling
+///   back to the current date) lets callers render an empty state for invalid input.
+public func getTimeFromISO8601Format(iso8601String: String, format: DateFormatType = .empty, tzId: String? = nil) -> String? {
+    guard let instant = ISO8601DateFormatter().date(from: iso8601String) else {
+        return nil
+    }
+
     let timeZone = TimeZone(identifier: tzId ?? TimeZone.current.identifier)
-    let zonedDateTime = instant ?? Date()
-    
     let formatter = DateFormatter()
-    formatter.dateFormat = "hh:mm a"
     formatter.timeZone = timeZone
-    
-    let timeString = formatter.string(from: zonedDateTime)
-    return timeString
+    formatter.dateFormat = format.dateFormat
+
+    // Match the locale handling used by timestampMillisecondsToDate so the
+    // string and numeric value paths format 12h/24h identically.
+    if format.rawValue.contains("HH") {
+        formatter.locale = Locale(identifier: "en_GB")
+    } else if format == .empty || format.rawValue.contains("hh") {
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+    }
+
+    return formatter.string(from: instant)
 }
 
 /// Converts a timestamp value in milliseconds to a formatted date string.

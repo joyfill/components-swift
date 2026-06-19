@@ -12,13 +12,15 @@ struct TableDateView: View {
     @State private var selectedDate: Date = Date()
     @Binding var cellModel: TableCellModel
     private var isUsedForBulkEdit = false
+    private var isSingleLineLayout = false
     let datePickerComponent: DatePickerComponents
     @State var dateString: String = ""
     @State var eraseDate: Bool = false
     
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "") {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, initialFilterText: String = "", isSingleLineLayout: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
+        self.isSingleLineLayout = isSingleLineLayout
         datePickerComponent = Utility.getDateType(format: cellModel.wrappedValue.data.format ?? .empty)
         func setupDate(dateValue: Double) {
             if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.wrappedValue.data.format ?? .empty, tzId: cellModel.wrappedValue.timezoneId) {
@@ -43,7 +45,7 @@ struct TableDateView: View {
                 if let dateString = ValueUnion.double(dateValue).dateTime(format: cellModel.data.format ?? .empty, tzId: cellModel.timezoneId) {
                     Text(dateString)
                         .padding(.horizontal, 8)
-                        .font(.system(size: 15))
+                        .font(.system(size: 16))
                 }
             } else {
                 Image(systemName: "calendar")
@@ -56,27 +58,46 @@ struct TableDateView: View {
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                             isDatePickerPresented = true
                         } label: {
-                            Text(dateString)
-                                .darkLightThemeColor()
-                                .font(.system(size: 16))
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.7)
-                                .allowsTightening(true)
-                                .layoutPriority(1)
+                            Group {
+                                if isSingleLineLayout {
+                                    Text(dateString)
+                                        .darkLightThemeColor()
+                                        .font(.system(size: 16))
+                                } else {
+                                    // Single space = date/time separator for all current DateFormatType values; revisit with a format-derived split if a format with intra-date spaces is added.
+                                    let parts = dateString.split(separator: " ")
+
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        if parts.count >= 1 {
+                                            Text(parts[0])
+                                                .darkLightThemeColor()
+                                                .font(.system(size: 16))
+                                        }
+                                        if parts.count >= 2 {
+                                            Text(parts[1...].joined(separator: " "))
+                                                .darkLightThemeColor()
+                                                .font(.system(size: 16))
+                                        }
+                                    }
+                                }
+                            }
+                            .frame(maxWidth: .infinity, alignment: isSingleLineLayout ? .leading : .center)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, isSingleLineLayout ? 8 : 4)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                    .fill(Color(uiColor: .secondarySystemFill))
+                            )
+                            .contentShape(Rectangle())
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel(dateString)
                         }
-                        .contentShape(Rectangle())
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(Color(uiColor: .secondarySystemFill))
-                        )
+                        .buttonStyle(.plain)
                         .accessibilityIdentifier("ChangeCellDateIdentifier")
-                        
-                        Spacer()
                         
                         Image(systemName: "xmark.circle")
                             .foregroundStyle(.blue)
+                            .padding(.trailing, 8)
                             .onTapGesture {
                                 selectedDate = Date()
                                 eraseDate = true
@@ -92,8 +113,10 @@ struct TableDateView: View {
                             Spacer()
                         }
                         .contentShape(Rectangle())
+                        .frame(maxWidth: .infinity)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.all, 8)
             }
             .contentShape(Rectangle())

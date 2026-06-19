@@ -27,6 +27,11 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.decorate
     }
 
+    var tableContentWidth: CGFloat {
+        let decoratorsWidth = showRowDecorators ? decoratorsCellWidth() : 0
+        return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * Utility.singleColumnWidth
+    }
+
     private func refreshRowDecoratorMap() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
         tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])
@@ -385,11 +390,11 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil) -> [ValueElement] {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil, isBulkEdit: Bool = false) -> [ValueElement] {
         if isNestedCell {
-            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         } else {
-            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         }
         
         return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
@@ -636,7 +641,8 @@ extension TableViewModel: DocumentEditorDelegate {
                 cellDataModel: cell,
                 isNestedCell: false,
                 callOnChange: false,
-                metadata: row.metadata
+                metadata: row.metadata,
+                isBulkEdit: true
             )
         }
     }

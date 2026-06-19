@@ -117,6 +117,14 @@
       "identifier": "field_695cb7ba2bb03caceb8ae978",
       "value": 1767252026000,
       "tz": "Asia/Calcutta"
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6a27d28b656b1bbecbb2a956",
+      "type": "date",
+      "title": "Test empty date string",
+      "value": "",
+      "identifier": "field_6a27d28b656b1bbecbb2a956"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -273,6 +281,17 @@
               "width": 4,
               "height": 8,
               "field": "695cb7ba2bb03caceb8ae978"
+            },
+            {
+              "_id": "6a27d28b81ee0056ebf9f314",
+              "type": "date",
+              "displayType": "original",
+              "format": "MM/DD/YYYY hh:mma",
+              "x": 1,
+              "y": 96,
+              "width": 4,
+              "height": 8,
+              "field": "6a27d28b656b1bbecbb2a956"
             }
           ],
           "hidden": false,
@@ -281,7 +300,12 @@
           "_id": "66a14ced15a9dc96374e091e",
           "width": 816,
           "name": "Every Field Type",
-          "margin": 0
+          "margin": 0,
+          "deletable": true,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ]
         }
       ]
     }

@@ -12,8 +12,8 @@ import Joyfill
 
 final class SchemaValidationTests: XCTestCase {
     /// The schema version expected in `SchemaValidationError.details`.
-    private let expectedSchemaVersion = "1.0.1"
-    private let sdkVersion = "3.0.0-rc19"
+    private let expectedSchemaVersion = "1.0.4"
+    private let sdkVersion = "3.0.0-rc21"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document)

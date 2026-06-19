@@ -529,6 +529,82 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(rowOrderForDocument, 3, "Value should be equal")
     }
 
+    // Regression: applyRowEditChanges must bump the target cell's id in cellModels
+    // (via isBulkEdit: true) so the updated value survives the next filterRowsIfNeeded()
+    // call (e.g. Insert Below). Without the id bump, SwiftUI reuses the old cell view
+    // and the value appears to vanish from the grid after a row operation.
+    func testApplyRowEditChanges_CellIdIsBumpedAndValueSurvivesFilterRowsIfNeeded() {
+        // Arrange
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let rowID = "684c3fedfed2b76677110b19"
+        let colID = "684c3fedce82027a49234dd3"
+        let newValue = "CellIdBumpTest"
+
+        guard let rowIndex = viewModel.tableDataModel.rowOrder.firstIndex(of: rowID) else {
+            XCTFail("Row '\(rowID)' not found in rowOrder"); return
+        }
+        guard let colIndex = viewModel.tableDataModel.tableColumns.firstIndex(where: { $0.id == colID }) else {
+            XCTFail("Column '\(colID)' not found in tableColumns"); return
+        }
+
+        // Snapshot cell id before the change
+        let cellIDBefore = viewModel.tableDataModel.cellModels[rowIndex].cells[colIndex].id
+
+        let changeDict: [String: Any] = [
+            "target": "field.value.rowUpdate",
+            "pageId": pageID,
+            "fileId": fileID,
+            "fieldId": tableFieldID,
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "sdk": "swift",
+            "v": 1,
+            "createdOn": 1756788529.0,
+            "change": [
+                "rowId": rowID,
+                "row": [
+                    "_id": rowID,
+                    "cells": [colID: newValue]
+                ] as [String: Any]
+            ] as [String: Any]
+        ]
+
+        // Act — applyRowEditChanges is the path taken when the row edit form is open
+        viewModel.applyRowEditChanges(change: Change(dictionary: changeDict))
+
+        // Assert 1: cellModels cell id was bumped (isBulkEdit: true → UUID())
+        let cellIDAfter = viewModel.tableDataModel.cellModels[rowIndex].cells[colIndex].id
+        XCTAssertNotEqual(cellIDBefore, cellIDAfter,
+            "applyRowEditChanges should bump cell id in cellModels (isBulkEdit: true)")
+
+        // Assert 2: value updated in cellModels
+        XCTAssertEqual(viewModel.tableDataModel.cellModels[rowIndex].cells[colIndex].data.title, newValue,
+            "cellModels should reflect the Change-API value after applyRowEditChanges")
+
+        // Assert 3: simulate a row operation (Insert Below / move) — filterRowsIfNeeded()
+        // for table fields sets filteredcellModels = cellModels; the bumped id + value must survive
+        viewModel.tableDataModel.filterRowsIfNeeded()
+
+        guard let filteredIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) else {
+            XCTFail("Row '\(rowID)' not found in filteredcellModels after filterRowsIfNeeded()"); return
+        }
+
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels[filteredIndex].cells[colIndex].id,
+            cellIDAfter,
+            "filteredcellModels should carry the bumped cell id after filterRowsIfNeeded()")
+
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels[filteredIndex].cells[colIndex].data.title,
+            newValue,
+            "filteredcellModels should retain the Change-API value after filterRowsIfNeeded()")
+    }
+
     // Regression: insertBelow() previously left tableDataModel.valueToValueElements
     // stale relative to rowOrder. The fix appends the new element to the in-memory
     // value array; this test pins the invariant so a future revert is caught here

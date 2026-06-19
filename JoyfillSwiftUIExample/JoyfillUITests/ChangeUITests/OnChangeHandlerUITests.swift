@@ -131,15 +131,15 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func editSingleRowUpperButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"].firstMatch
+        app.buttons["UpperRowButtonIdentifier"].firstMatch
     }
     
     func editSingleRowLowerButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"].firstMatch
+        app.buttons["LowerRowButtonIdentifier"].firstMatch
     }
     
     func editInsertRowPlusButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"].firstMatch
+        app.buttons["PlusTheRowButtonIdentifier"].firstMatch
     }
     
     func deleteRowButton() -> XCUIElement {
