@@ -245,6 +245,14 @@
         "69d337ccc0e4d42566be94cd",
         "69d337cc12404b8241bb3ce0"
       ]
+    },
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "6a35073a49eb2de132410241",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_6a35073a49eb2de132410241",
+      "required": true
     }
   ],
   "_id": "695e36f2ec467a1860e1cac8",
@@ -309,11 +317,26 @@
               "width": 8,
               "height": 20,
               "field": "69d3455047872828fd96de60"
+            },
+            {
+              "_id": "6a35073addf3cc44c712fbae",
+              "type": "number",
+              "displayType": "original",
+              "x": 0,
+              "y": 60,
+              "width": 4,
+              "height": 8,
+              "field": "6a35073a49eb2de132410241"
             }
           ],
           "padding": 24,
           "name": "Collections",
-          "rowHeight": 8
+          "rowHeight": 8,
+          "deletable": true,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ]
         }
       ],
       "pageOrder": [
