@@ -233,7 +233,6 @@ struct FormDestinationView: View {
     @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
     @State private var showDecoratorManager      = false
-    @State private var showDecoratorLimits       = false
     @State private var decoratorPageID:          String = ""
     @State private var decoratorFieldPositionID: String = ""
     @State private var decoratorError:           DecoratorErrorAlert? = nil
@@ -269,26 +268,6 @@ struct FormDestinationView: View {
         self._showPublicApis = showPublicApis
         self._document = State(initialValue: editor.document)
         self.license = license
-    }
-
-    /// Rebuild the editor with a new `DecoratorConfig`, preserving the current
-    /// document state so any in-session edits survive.
-    private func rebuildEditorWithDecoratorConfig(_ config: DecoratorConfig) {
-        guard let current = documentEditor else { return }
-        let newEditor = DocumentEditor(
-            document: current.document,
-            mode: current.mode,
-            events: enableChangelogs ? changeManager : nil,
-            pageID: "",
-            navigation: true,
-            isPageDuplicateEnabled: isPageDuplicated,
-            isPageDeleteEnabled: isPageDelete,
-            validateSchema: validateSchema,
-            license: license,
-            singleClickRowEdit: singleClickRowEdit,
-            decoratorConfig: config
-        )
-        documentEditor = newEditor
     }
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
@@ -328,18 +307,9 @@ struct FormDestinationView: View {
 
     var body: some View {
         VStack {
-            HStack {
-                Spacer()
-                Button(action: {
-                    showDecoratorLimits = true
-                }) {
-                    Image(systemName: "slider.horizontal.3")
-                }
-                .buttonStyle(.bordered)
-                .padding(.trailing, 16)
-                .padding(.top, 8)
-
-                if enableChangelogs {
+            if enableChangelogs {
+                HStack {
+                    Spacer()
                     Button(action: {
                         showPublicApis = true
                     }) {
@@ -385,7 +355,7 @@ struct FormDestinationView: View {
 
             if let editor = documentEditor {
                 Form(documentEditor: editor)
-                    .id("\(editor.singleClickRowEdit)\(editor.mode)\(editor.decoratorConfig.visibleLimitInFields)-\(editor.decoratorConfig.visibleLimitInRows)")
+                    .id("\(editor.singleClickRowEdit)\(editor.mode)")
                 SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
                     // Only show validation results if there are field validities
                     guard !validation.fieldValidities.isEmpty else {
@@ -408,18 +378,6 @@ struct FormDestinationView: View {
         }
         .sheet(isPresented: $showChangelogView) {
             ChangelogView(changeManager: changeManager)
-        }
-        .sheet(isPresented: $showDecoratorLimits) {
-            if let editor = documentEditor {
-                DecoratorLimitsSheet(
-                    currentFields: editor.decoratorConfig.visibleLimitInFields,
-                    currentRows:   editor.decoratorConfig.visibleLimitInRows
-                ) { fields, rows in
-                    rebuildEditorWithDecoratorConfig(
-                        DecoratorConfig(visibleLimitInFields: fields, visibleLimitInRows: rows)
-                    )
-                }
-            }
         }
         .sheet(isPresented: $showDecoratorManager) {
             if let editor = documentEditor {

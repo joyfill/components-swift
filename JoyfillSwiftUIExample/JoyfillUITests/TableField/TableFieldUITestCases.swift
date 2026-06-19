@@ -289,11 +289,9 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let multiSelectButton = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
         XCTAssertFalse(multiSelectButton.isEnabled)
         
-        app.swipeLeft()
-        // Image is the 4th column; cells render lazily in a horizontal LazyHStack,
-        // so it only enters the accessibility tree after scrolling it into view.
         let imageButton = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
         XCTAssertFalse(imageButton.isEnabled)
+        app.swipeLeft()
         
         let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
         XCTAssertFalse(numberField.isEnabled)
@@ -302,9 +300,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeLeft()
         let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
         XCTAssertFalse(barcodeField.isEnabled)
-        // Readonly barcode renders an empty static Text (zero frame); only tap if it is
-        // actually reachable, then confirm tapping still opens no keyboard.
-        if barcodeField.isHittable { barcodeField.tap() }
+        barcodeField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         
         let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
