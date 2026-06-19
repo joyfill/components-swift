@@ -103,6 +103,10 @@ final class NavigationGotoUITests: XCTestCase {
         let tableRowDismissButton = app.buttons.matching(identifier: "DismissEditSingleRowSheetButtonIdentifier").firstMatch
         XCTAssertTrue(tableRowDismissButton.waitForExistence(timeout: 5),
                       "Table row form sheet should open after goto navigates into the table field")
+        XCTAssertFalse(app.staticTexts["Child table"].exists,
+                       "Collection row form should be fully dismissed")
+        XCTAssertFalse(app.staticTexts["Parent table"].exists,
+                       "Collection row form should be fully dismissed")
         XCTAssertTrue(app.staticTexts["1 row selected"].exists)
 
     }
