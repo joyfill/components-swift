@@ -50,6 +50,7 @@ struct CollectionModalView : View {
     @State private var showFilterModal: Bool = false
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
+    @State private var isDismissingForNavigation = false
     
     init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
@@ -65,7 +66,12 @@ struct CollectionModalView : View {
                     showEditMultipleRowsSheetView = true
                 },
                 onFilterTap: { showFilterModal = true })
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
+            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+                if isDismissingForNavigation {
+                    isDismissingForNavigation = false
+                    dismiss()
+                }
+            }) {
                 CollectionEditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
@@ -110,8 +116,12 @@ struct CollectionModalView : View {
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
             if targetFieldID == viewModel.tableDataModel.fieldIdentifier.fieldID {
-                showEditMultipleRowsSheetView = false
-                dismiss()
+                if showEditMultipleRowsSheetView {
+                    isDismissingForNavigation = true
+                    showEditMultipleRowsSheetView = false
+                } else {
+                    dismiss()
+                }
             }
         }
         .onDisappear(perform: {

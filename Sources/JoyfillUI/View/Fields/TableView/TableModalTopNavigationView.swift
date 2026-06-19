@@ -634,6 +634,11 @@ struct EditMultipleRowsSheetView: View {
                 scrollProxy.scrollTo(columnId, anchor: .top)
             }
         }
+        .onChange(of: viewModel.tableDataModel.navigationIntent.scrollToColumnId) { columnId in
+            if let columnId = columnId {
+                scrollProxy.scrollTo(columnId, anchor: .top)
+            }
+        }
         .onChange(of: viewModel.tableDataModel.selectedRows.first ){ _ in
             refreshViewID()
         }

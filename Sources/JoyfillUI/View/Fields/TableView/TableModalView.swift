@@ -57,6 +57,7 @@ struct TableModalView : View {
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
+    @State private var isDismissingForNavigation = false
 
     init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
@@ -71,7 +72,12 @@ struct TableModalView : View {
                 viewModel.tableDataModel.navigationIntent = .none
                 showEditMultipleRowsSheetView = true
             })
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
+            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+                if isDismissingForNavigation {
+                    isDismissingForNavigation = false
+                    dismiss()
+                }
+            }) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
@@ -113,8 +119,12 @@ struct TableModalView : View {
         }
         .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
             if targetFieldID == viewModel.tableDataModel.fieldIdentifier.fieldID {
-                showEditMultipleRowsSheetView = false
-                dismiss()
+                if showEditMultipleRowsSheetView {
+                    isDismissingForNavigation = true
+                    showEditMultipleRowsSheetView = false
+                } else {
+                    dismiss()
+                }
             }
         }
         .onDisappear(perform: {
