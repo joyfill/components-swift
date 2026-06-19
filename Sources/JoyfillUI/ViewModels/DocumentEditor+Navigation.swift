@@ -95,14 +95,8 @@ extension DocumentEditor {
     func executeNavigation(pageId: String, event: NavigationTarget, status: NavigationStatus, pageChanged: Bool) -> NavigationStatus {
         if let currentFieldID = openedNavigationFieldID,
            currentFieldID != event.fieldID {
+            pendingNavigationTarget = event
             sendDismissNavigation(fieldID: currentFieldID)
-            let execute = { [self] in
-                if pageChanged { self.currentPageID = pageId }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {
-                    self.sendNavigation(event)
-                }
-            }
-            runOnMain(execute)
             return status
         }
 
@@ -112,6 +106,17 @@ extension DocumentEditor {
             sendNavigation(event)
         }
         return status
+    }
+
+    func dispatchPendingNavigationIfNeeded() {
+        guard let event = pendingNavigationTarget else { return }
+        pendingNavigationTarget = nil
+
+        if currentPageID != event.pageId {
+            changePageAndNavigate(pageId: event.pageId, event: event)
+        } else {
+            sendNavigation(event)
+        }
     }
     
     /// Navigates to a specific page, field, row, or cell

@@ -55,6 +55,7 @@ public class DocumentEditor: ObservableObject {
     let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
     let dismissNavigationPublisher = PassthroughSubject<String, Never>()
     public private(set) var openedNavigationFieldID: String? = nil
+    var pendingNavigationTarget: NavigationTarget? = nil
     public private(set) var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
@@ -801,7 +802,12 @@ extension DocumentEditor {
     }
 
     func setOpenNavigationFieldID(_ fieldID: String?) {
-        runOnMain { self.openedNavigationFieldID = fieldID }
+        runOnMain {
+            self.openedNavigationFieldID = fieldID
+            if fieldID == nil {
+                self.dispatchPendingNavigationIfNeeded()
+            }
+        }
     }
 }
 
