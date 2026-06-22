@@ -831,7 +831,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-//        textField.clearText()
+        textField.clearText()
         textField.typeText("E")
         textField.typeText("d")
         textField.typeText("i")
@@ -845,7 +845,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         let firstCellTextValue = app.textViews.matching(identifier: "TabelTextFieldIdentifier")
         let cell = firstCellTextValue.element(boundBy: 0)
-        XCTAssertEqual(cell.value as! String, "EditA")
+        XCTAssertEqual(cell.value as! String, "Edit")
         XCTAssertEqual(firstCellTextValue.count, 5)
     }
     
@@ -2500,9 +2500,9 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
 
         verticalTitleTextFieldIdentifier.tap()
-        verticalTitleTextFieldIdentifier.typeText(" Label Y")
+        verticalTitleTextFieldIdentifier.typeTextCharByChar(" Label Y")
         horizontalTitleTextFieldIdentifier.tap()
-        horizontalTitleTextFieldIdentifier.typeText(" Label X")
+        horizontalTitleTextFieldIdentifier.typeTextCharByChar(" Label X")
 
         let minYValuesTextField = app.textFields["MinY"]
         let minXValuesTextField = app.textFields["MinX"]
@@ -2511,18 +2511,18 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
 
         minYValuesTextField.tap()
         minYValuesTextField.clearText()
-        minYValuesTextField.typeText("10")
+        minYValuesTextField.typeTextCharByChar("10")
         minXValuesTextField.tap()
         minXValuesTextField.clearText()
-        minXValuesTextField.typeText("20")
+        minXValuesTextField.typeTextCharByChar("20")
         maxYValuesTextField.tap()
         maxYValuesTextField.clearText()
-        maxYValuesTextField.typeText("700")
+        maxYValuesTextField.typeTextCharByChar("700")
         maxXValuesTextField.tap()
         maxXValuesTextField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         maxXValuesTextField.clearText()
-        maxXValuesTextField.typeText("800")
+        maxXValuesTextField.typeTextCharByChar("800")
         
         let addLineButtonIdentifier = app.buttons.matching(identifier: "AddLineIdentifier")
         let addLineButton = addLineButtonIdentifier.element(boundBy: 0)
@@ -2531,12 +2531,12 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
         titleTextFieldIdentifier.tap()
         titleTextFieldIdentifier.clearText()
-        titleTextFieldIdentifier.typeText("Line Title")
+        titleTextFieldIdentifier.typeTextCharByChar("Line Title")
 
         let descriptionTextFieldIdentifier = app.textFields["DescriptionTextFieldIdentifier"]
         descriptionTextFieldIdentifier.tap()
         descriptionTextFieldIdentifier.clearText()
-        descriptionTextFieldIdentifier.typeText("Line Description")
+        descriptionTextFieldIdentifier.typeTextCharByChar("Line Description")
         
         let textFields = app.textFields.matching(identifier: "PointLabelTextFieldIdentifier")
         let texts = ["PointLabel1", "PointLabel2", "PointLabel3"]
@@ -2549,7 +2549,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
             }
             textField.tap()
             if i < texts.count {
-                textField.typeText("\(texts[i])")
+                textField.typeTextCharByChar("\(texts[i])")
                 RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
                 app.dismissKeyboardIfVisible()
             } else {
@@ -2562,33 +2562,33 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
         horizontalPointsValue.tap()
         horizontalPointsValue.clearText()
-        horizontalPointsValue.typeText("10")
+        horizontalPointsValue.typeTextCharByChar("10")
  
         let horizontalPointsValue1 = horizontalPointsValueIdentifier.element(boundBy: 1)
         horizontalPointsValue1.tap()
         horizontalPointsValue1.clearText()
-        horizontalPointsValue1.typeText("20")
+        horizontalPointsValue1.typeTextCharByChar("20")
 
         let verticalPointsValueIdentifier = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue = verticalPointsValueIdentifier.element(boundBy: 0)
         verticalPointsValue.tap()
         verticalPointsValue.clearText()
-        verticalPointsValue.typeText("30")
+        verticalPointsValue.typeTextCharByChar("30")
         app.swipeUp()
         let verticalPointsValue1 = verticalPointsValueIdentifier.element(boundBy: 1)
         verticalPointsValue1.tap()
         verticalPointsValue1.clearText()
-        verticalPointsValue1.typeText("40")
+        verticalPointsValue1.typeTextCharByChar("40")
  
         let horizontalPointsValue2 = horizontalPointsValueIdentifier.element(boundBy: 2)
         horizontalPointsValue2.tap()
         horizontalPointsValue2.clearText()
-        horizontalPointsValue2.typeText("50")
+        horizontalPointsValue2.typeTextCharByChar("50")
  
         let verticalPointsValue2 = verticalPointsValueIdentifier.element(boundBy: 2)
         verticalPointsValue2.tap()
         verticalPointsValue2.clearText()
-        verticalPointsValue2.typeText("60")
+        verticalPointsValue2.typeTextCharByChar("60")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
         pageSelectionButton.element(boundBy: 0).tap()

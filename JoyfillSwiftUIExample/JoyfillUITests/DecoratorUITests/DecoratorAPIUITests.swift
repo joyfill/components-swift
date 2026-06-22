@@ -924,12 +924,9 @@ final class RowFormReadonlyUITests: DecoratorAPIUITestsBase {
         XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
                       "Cell decorator should be hittable inside readonly row form")
 
-        // Schema (Decorator.json table): text, dropdown, multiSelect, image, number,
-        // date, block, barcode, signature. Block has no editable identifier (omitted).
-        // Barcode uses TableBarcodeView which renders a static Text in readonly —
-        // checked via absence of the editable TextEditor below, like collection text.
+        XCTAssertFalse(app.textFields["EditRowsTextFieldIdentifier"].exists,
+                               "Text cell should not be an editable TextField in readonly row form")
         assertCellsNotTappable([
-            ("text",        app.textFields["EditRowsTextFieldIdentifier"]),
             ("dropdown",    app.buttons["EditRowsDropdownFieldIdentifier"]),
             ("multiSelect", app.buttons["EditRowsMultiSelecionFieldIdentifier"]),
             ("image",       app.buttons["EditRowsImageFieldIdentifier"]),

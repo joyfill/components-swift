@@ -25,9 +25,9 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
 
         verticalTitleTextFieldIdentifier.tap()
-        verticalTitleTextFieldIdentifier.typeText(" Label Y")
+        verticalTitleTextFieldIdentifier.typeTextCharByChar(" Label Y")
         horizontalTitleTextFieldIdentifier.tap()
-        horizontalTitleTextFieldIdentifier.typeText(" Label X")
+        horizontalTitleTextFieldIdentifier.typeTextCharByChar(" Label X")
 
         let minYValuesTextField = app.textFields["MinY"]
         let minXValuesTextField = app.textFields["MinX"]
@@ -36,18 +36,18 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
 
         minYValuesTextField.tap()
         minYValuesTextField.clearText()
-        minYValuesTextField.typeText("10")
+        minYValuesTextField.typeTextCharByChar("10")
         minXValuesTextField.tap()
         minXValuesTextField.clearText()
-        minXValuesTextField.typeText("20")
+        minXValuesTextField.typeTextCharByChar("20")
         maxYValuesTextField.tap()
         maxYValuesTextField.clearText()
-        maxYValuesTextField.typeText("700")
+        maxYValuesTextField.typeTextCharByChar("700")
         maxXValuesTextField.tap()
         maxXValuesTextField.press(forDuration: 1.0)
         app.menuItems["Select All"].tap()
         maxXValuesTextField.clearText()
-        maxXValuesTextField.typeText("800")
+        maxXValuesTextField.typeTextCharByChar("800")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
 
@@ -85,9 +85,9 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let horizontalTitleTextFieldIdentifier = app.textFields["HorizontalTextFieldIdentifier"]
 
         verticalTitleTextFieldIdentifier.tap()
-        verticalTitleTextFieldIdentifier.typeText(" Label Y")
+        verticalTitleTextFieldIdentifier.typeTextCharByChar(" Label Y")
         horizontalTitleTextFieldIdentifier.tap()
-        horizontalTitleTextFieldIdentifier.typeText(" Label X")
+        horizontalTitleTextFieldIdentifier.typeTextCharByChar(" Label X")
 
         let minYValuesTextField = app.textFields["MinY"]
         let minXValuesTextField = app.textFields["MinX"]
@@ -97,19 +97,19 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(minYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         minYValuesTextField.tap()
         minYValuesTextField.clearText()
-        minYValuesTextField.typeText("10")
+        minYValuesTextField.typeTextCharByChar("10")
         XCTAssertTrue(minXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         minXValuesTextField.tap()
         minXValuesTextField.clearText()
-        minXValuesTextField.typeText("20")
+        minXValuesTextField.typeTextCharByChar("20")
         XCTAssertTrue(maxYValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         maxYValuesTextField.tap()
         maxYValuesTextField.clearText()
-        maxYValuesTextField.typeText("700")
+        maxYValuesTextField.typeTextCharByChar("700")
         XCTAssertTrue(maxXValuesTextField.waitForExistence(timeout: 5),"minYValuesTextField field not found")
         maxXValuesTextField.tap()
         maxXValuesTextField.clearText()
-        maxXValuesTextField.typeText("800")
+        maxXValuesTextField.typeTextCharByChar("800")
 
         goBack()
 
@@ -155,12 +155,12 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let titleTextFieldIdentifier = app.textFields["TitleTextFieldIdentifier"]
         titleTextFieldIdentifier.tap()
         titleTextFieldIdentifier.clearText()
-        titleTextFieldIdentifier.typeText("Line Title")
+        titleTextFieldIdentifier.typeTextCharByChar("Line Title")
 
         let descriptionTextFieldIdentifier = app.textFields["DescriptionTextFieldIdentifier"]
         descriptionTextFieldIdentifier.tap()
         descriptionTextFieldIdentifier.clearText()
-        descriptionTextFieldIdentifier.typeText("Line Description")
+        descriptionTextFieldIdentifier.typeTextCharByChar("Line Description")
 
         goBack()
 
@@ -188,7 +188,7 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
             }
             textField.tap()
             if i < texts.count {
-                textField.typeText("\(texts[i])")
+                textField.typeTextCharByChar("\(texts[i])")
                 RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
                 app.dismissKeyboardIfVisible()
             } else {
@@ -217,37 +217,37 @@ final class ChartFieldTests: JoyfillUITestsBaseClass {
         let horizontalPointsValue = horizontalPointsValueIdentifier.element(boundBy: 0)
         horizontalPointsValue.tap()
         horizontalPointsValue.clearText()
-        horizontalPointsValue.typeText("10")
+        horizontalPointsValue.typeTextCharByChar("10")
 
         let horizontalPointsValueIdentifier1 = app.textFields.matching(identifier: "HorizontalPointsValue")
         let horizontalPointsValue1 = horizontalPointsValueIdentifier1.element(boundBy: 1)
         horizontalPointsValue1.tap()
         horizontalPointsValue1.clearText()
-        horizontalPointsValue1.typeText("20")
+        horizontalPointsValue1.typeTextCharByChar("20")
 
         let verticalPointsValueIdentifier = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue = verticalPointsValueIdentifier.element(boundBy: 0)
         verticalPointsValue.tap()
         verticalPointsValue.clearText()
-        verticalPointsValue.typeText("30")
+        verticalPointsValue.typeTextCharByChar("30")
         app.swipeUp()
         let verticalPointsValueIdentifier1 = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue1 = verticalPointsValueIdentifier1.element(boundBy: 1)
         verticalPointsValue1.tap()
         verticalPointsValue1.clearText()
-        verticalPointsValue1.typeText("40")
+        verticalPointsValue1.typeTextCharByChar("40")
 
         let horizontalPointsValueIdentifier2 = app.textFields.matching(identifier: "HorizontalPointsValue")
         let horizontalPointsValue2 = horizontalPointsValueIdentifier2.element(boundBy: 2)
         horizontalPointsValue2.tap()
         horizontalPointsValue2.clearText()
-        horizontalPointsValue2.typeText("50")
+        horizontalPointsValue2.typeTextCharByChar("50")
 
         let verticalPointsValueIdentifier2 = app.textFields.matching(identifier: "VerticalPointsValue")
         let verticalPointsValue2 = verticalPointsValueIdentifier2.element(boundBy: 2)
         verticalPointsValue2.tap()
         verticalPointsValue2.clearText()
-        verticalPointsValue2.typeText("60")
+        verticalPointsValue2.typeTextCharByChar("60")
 
         goBack()
 
