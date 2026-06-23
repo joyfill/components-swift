@@ -42,6 +42,54 @@ public extension DocumentEditorDelegate {
     func decoratorsDidChange() {}
 }
 
+public struct PageConfig {
+    public var navigation: Bool          // was `navigation`
+    public var enableDuplicates: Bool    // was `isPageDuplicateEnabled`
+    public var enableDeletes: Bool       // was `isPageDeleteEnabled`
+    public var currentPageID: String?    // was `pageID`
+
+    public init(navigation: Bool = true,
+                enableDuplicates: Bool = false,
+                enableDeletes: Bool = false,
+                currentPageID: String? = nil) {
+        self.navigation = navigation
+        self.enableDuplicates = enableDuplicates
+        self.enableDeletes = enableDeletes
+        self.currentPageID = currentPageID
+    }
+}
+
+public struct DisplayConfig {
+    public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
+    public var decorators: DecoratorConfig      // was `decoratorConfig`
+
+    public init(singleClickRowEdit: Bool = false,
+                decorators: DecoratorConfig = DecoratorConfig()) {
+        self.singleClickRowEdit = singleClickRowEdit
+        self.decorators = decorators
+    }
+}
+
+public struct DocumentEditorConfig {
+    public var mode: Mode
+    public var license: String?
+    public var validateSchema: Bool
+    public var page: PageConfig
+    public var display: DisplayConfig
+
+    public init(mode: Mode = .fill,
+                license: String? = nil,
+                validateSchema: Bool = true,
+                page: PageConfig = .init(),
+                display: DisplayConfig = .init()) {
+        self.mode = mode
+        self.license = license
+        self.validateSchema = validateSchema
+        self.page = page
+        self.display = display
+    }
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
@@ -145,6 +193,22 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
+    public convenience init(document: JoyDoc,
+                            events: FormChangeEvent? = nil,
+                            config: DocumentEditorConfig = DocumentEditorConfig()) {
+        self.init(document: document,
+                  mode: config.mode,
+                  events: events,
+                  pageID: config.page.currentPageID,
+                  navigation: config.page.navigation,
+                  isPageDuplicateEnabled: config.page.enableDuplicates,
+                  isPageDeleteEnabled: config.page.enableDeletes,
+                  validateSchema: config.validateSchema,
+                  license: config.license,
+                  singleClickRowEdit: config.display.singleClickRowEdit,
+                  decoratorConfig: config.display.decorators)
+    }
+
     public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
         delegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
