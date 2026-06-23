@@ -1,0 +1,264 @@
+{
+  "fields": [
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "69d3455047872828fd96de60",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "69d337cc9b831b58582a05b9",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "69d3455047872828fd96de60_column_69d337cc9b831b58582a05b9"
+        },
+        {
+          "_id": "69d337ccd10629a7701dc731",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "69d337ccc122c9b7539df9e1",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "69d337cc3ca51f195f2eab6e",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "69d337ccbf3414c1609d60a1",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "69d3455047872828fd96de60_column_69d337ccd10629a7701dc731",
+          "required": false
+        },
+        {
+          "_id": "69d337cc0d7d1d99446a8754",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "69d3455047872828fd96de60_column_69d337cc0d7d1d99446a8754"
+        }
+      ],
+      "value": [
+        {
+          "_id": "69d337cc0a8f58a5566fb164",
+          "deleted": false,
+          "cells": {
+            "69d337ccd10629a7701dc731": "69d337cc3ca51f195f2eab6e"
+          }
+        },
+        {
+          "_id": "69d337ccc0e4d42566be94cd",
+          "deleted": false,
+          "cells": {
+            "69d337ccd10629a7701dc731": "69d337ccbf3414c1609d60a1"
+          }
+        },
+        {
+          "_id": "69d337cc12404b8241bb3ce0",
+          "deleted": false,
+          "cells": {
+            "69d337cc9b831b58582a05b9": "second page table"
+          }
+        }
+      ],
+      "identifier": "field_69d3455047872828fd96de60",
+      "tableColumnOrder": [
+        "69d337cc9b831b58582a05b9",
+        "69d337ccd10629a7701dc731",
+        "69d337cc0d7d1d99446a8754"
+      ],
+      "rowOrder": [
+        "69d337cc0a8f58a5566fb164",
+        "69d337ccc0e4d42566be94cd",
+        "69d337cc12404b8241bb3ce0"
+      ]
+    },
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "6a38d632d3267f61016a9a55",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "6a28ea9bb86c6b561795fa75",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a38d632d3267f61016a9a55_column_6a28ea9bb86c6b561795fa75"
+        },
+        {
+          "_id": "6a28ea9baa38ed887857f06b",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a28ea9b4ec573d13948fc91",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6a28ea9bc2d4bd499b7fc8b0",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6a28ea9b1668902d79d716a0",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a38d632d3267f61016a9a55_column_6a28ea9baa38ed887857f06b"
+        },
+        {
+          "_id": "6a28ea9bfe47c8f0a4e04c07",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a38d632d3267f61016a9a55_column_6a28ea9bfe47c8f0a4e04c07"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a28ea9b8bc4e96446a55034",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6a28ea9b95003458b33b364a",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6a28ea9bb47ba82bac092b95",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_6a38d632d3267f61016a9a55",
+      "tableColumnOrder": [
+        "6a28ea9bb86c6b561795fa75",
+        "6a28ea9baa38ed887857f06b",
+        "6a28ea9bfe47c8f0a4e04c07"
+      ],
+      "rowOrder": [
+        "6a28ea9b8bc4e96446a55034",
+        "6a28ea9b95003458b33b364a",
+        "6a28ea9bb47ba82bac092b95"
+      ]
+    }
+  ],
+  "_id": "695e36f2ec467a1860e1cac8",
+  "deleted": false,
+  "identifier": "doc_695e36f2ec467a1860e1cac8",
+  "createdOn": 1767782130528,
+  "type": "template",
+  "name": "New Doc",
+  "files": [
+    {
+      "styles": {
+        "margin": 4
+      },
+      "_id": "695e36f283142b6b2f8bf493",
+      "header": {
+        "fields": [],
+        "layout": "grid",
+        "height": 50,
+        "fieldPositions": [
+          {
+            "fontSize": 28,
+            "_id": "695e3700a5132e55cf90d4a3",
+            "x": 0,
+            "y": 0,
+            "fontWeight": "bold",
+            "width": 12,
+            "height": 40,
+            "field": "block3",
+            "type": "block",
+            "displayType": "original"
+          }
+        ],
+        "cols": 24,
+        "padding": 0,
+        "rowHeight": 1
+      },
+      "pages": [
+        {
+          "layout": "grid",
+          "height": 1056,
+          "_id": "695e375da819cd4e2da9161f",
+          "cols": 8,
+          "presentation": "normal",
+          "width": 816,
+          "fieldPositions": [
+            {
+              "_id": "69d3455048a7267e6b36eeb9",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 20,
+              "field": "69d3455047872828fd96de60"
+            }
+          ],
+          "padding": 24,
+          "name": "Collections",
+          "rowHeight": 8,
+          "deletable": true,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ]
+        },
+        {
+          "_id": "6a38d62f705e07300ec8f311",
+          "name": "",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "6a38d632c0b9a4b9e45c001a",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 35,
+              "field": "6a38d632d3267f61016a9a55"
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "deletable": true,
+          "copyable": [
+            "with-values"
+          ]
+        }
+      ],
+      "pageOrder": [
+        "695e375da819cd4e2da9161f",
+        "6a38d62f705e07300ec8f311"
+      ],
+      "views": [],
+      "name": "New File"
+    }
+  ]
+}

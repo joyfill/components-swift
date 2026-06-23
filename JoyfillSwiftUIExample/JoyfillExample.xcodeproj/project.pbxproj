@@ -777,6 +777,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		95288E8B2FE93FA2000A2CC1 /* testdropdown */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = testdropdown; sourceTree = "<group>"; };
 		E22516822E8B9C610089E2D2 /* Public Apis Example */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Public Apis Example"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -1478,6 +1479,7 @@
 		FA529C4C2BA1D251000200F5 /* JoyfillExample */ = {
 			isa = PBXGroup;
 			children = (
+				95288E8B2FE93FA2000A2CC1 /* testdropdown */,
 				369D451C2E0E51AC00677280 /* Sample JSONs */,
 				FA529C4D2BA1D251000200F5 /* JoyfillExampleApp.swift */,
 				FA529C792BA1D28B000200F5 /* TemplateListView.swift */,
@@ -1590,6 +1592,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				95288E8B2FE93FA2000A2CC1 /* testdropdown */,
 				E22516822E8B9C610089E2D2 /* Public Apis Example */,
 			);
 			name = JoyfillExample;

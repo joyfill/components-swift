@@ -512,6 +512,7 @@ struct OptionSelectionView: View {
         case simpleForm
         case simpleNavigationTest
         case footerExample
+        case dropdownToTable
 
         var title: String {
             switch self {
@@ -551,6 +552,8 @@ struct OptionSelectionView: View {
                 return "Navigation Test"
             case .footerExample:
                 return "Footer Example"
+            case .dropdownToTable:
+                return "Dropdown To Table"
             }
         }
 
@@ -592,6 +595,8 @@ struct OptionSelectionView: View {
                 return "Navigate to any page or field in the form"
             case .footerExample:
                 return "Test footer show/hide, expand, and keyboard behaviour"
+            case .dropdownToTable:
+                return "Select \"Yes\" in page 1's table dropdown to add a row in page 2's table"
             }
         }
 
@@ -633,6 +638,8 @@ struct OptionSelectionView: View {
                 return "location.circle.fill"
             case .footerExample:
                 return "dock.rectangle"
+            case .dropdownToTable:
+                return "tablecells.fill.badge.ellipsis"
             }
         }
 
@@ -674,6 +681,8 @@ struct OptionSelectionView: View {
                 return .indigo
             case .footerExample:
                 return .mint
+            case .dropdownToTable:
+                return .pink
             }
         }
     }
@@ -827,6 +836,8 @@ struct OptionSelectionView: View {
             SimpleNavigationTestView(showAlert: $showNavigationAlert, alertMessage: $navigationAlertMessage)
         case .footerExample:
             FooterExampleView()
+        case .dropdownToTable:
+            DropdownTableDemoView()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
