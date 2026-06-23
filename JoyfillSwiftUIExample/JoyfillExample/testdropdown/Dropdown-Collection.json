@@ -1,0 +1,234 @@
+{
+  "fields": [
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "6a3a86b5ef84e04b356ea1b6",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6a3a86b70824f118419d65ef",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a3a86b866d0e3f824d106e7",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a3a86b5ef84e04b356ea1b6_column_6813008e76da519a97819c69",
+              "width": 0
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a3a86b5ef84e04b356ea1b6_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a3a86b5ef84e04b356ea1b6_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a3a86b5ef84e04b356ea1b6"
+    },
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "6a3a86c7eb7c6217ebb41636",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6a3a86cb99fba9b76e5d52d9",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a3a86cc8fa0b9948d478d2c",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a3a86cc9b1795912102ac63",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a3a86c7eb7c6217ebb41636_column_6813008e76da519a97819c69",
+              "width": 0
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a3a86c7eb7c6217ebb41636_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a3a86c7eb7c6217ebb41636_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a3a86c7eb7c6217ebb41636"
+    }
+  ],
+  "_id": "695e36f2ec467a1860e1cac8",
+  "deleted": false,
+  "identifier": "doc_695e36f2ec467a1860e1cac8",
+  "createdOn": 1767782130528,
+  "type": "template",
+  "name": "New Doc",
+  "files": [
+    {
+      "styles": {
+        "margin": 4
+      },
+      "_id": "695e36f283142b6b2f8bf493",
+      "header": {
+        "fields": [],
+        "layout": "grid",
+        "height": 50,
+        "fieldPositions": [
+          {
+            "fontSize": 28,
+            "_id": "695e3700a5132e55cf90d4a3",
+            "x": 0,
+            "y": 0,
+            "fontWeight": "bold",
+            "width": 12,
+            "height": 40,
+            "field": "block3",
+            "type": "block",
+            "displayType": "original"
+          }
+        ],
+        "cols": 24,
+        "padding": 0,
+        "rowHeight": 1
+      },
+      "pages": [
+        {
+          "layout": "grid",
+          "height": 1056,
+          "_id": "695e375da819cd4e2da9161f",
+          "cols": 8,
+          "presentation": "normal",
+          "width": 816,
+          "fieldPositions": [
+            {
+              "_id": "6a3a86c79fa347d8573a47bf",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 28,
+              "field": "6a3a86c7eb7c6217ebb41636"
+            }
+          ],
+          "padding": 24,
+          "name": "Page 1",
+          "rowHeight": 8,
+          "deletable": true,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ]
+        },
+        {
+          "_id": "6a38d62f705e07300ec8f311",
+          "name": "Page 2",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "6a3a86b5378b534cbf154bd1",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 28,
+              "field": "6a3a86b5ef84e04b356ea1b6"
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "deletable": true,
+          "copyable": [
+            "with-values"
+          ]
+        }
+      ],
+      "pageOrder": [
+        "695e375da819cd4e2da9161f",
+        "6a38d62f705e07300ec8f311"
+      ],
+      "views": [],
+      "name": "New File"
+    }
+  ]
+}
