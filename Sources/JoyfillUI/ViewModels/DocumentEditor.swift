@@ -130,18 +130,10 @@ public class DocumentEditor: ObservableObject {
     private var JoyfillDocContext: JoyfillDocContext!
 
     public init(document: JoyDoc,
-                mode: Mode = .fill,
                 events: FormChangeEvent? = nil,
-                pageID: String? = nil,
-                navigation: Bool = true,
-                isPageDuplicateEnabled: Bool = false,
-                isPageDeleteEnabled: Bool = false,
-                validateSchema: Bool = true,
-                license: String? = nil,
-                singleClickRowEdit: Bool = false,
-                decoratorConfig: DecoratorConfig = DecoratorConfig()) {
+                config: DocumentEditorConfig = DocumentEditorConfig()) {
         // Perform schema validation first
-        if validateSchema {
+        if config.validateSchema {
             // Check for schema validation errors
             let schemaManager = JoyfillSchemaManager()
             if let schemaError = schemaManager.validateSchema(document: document) {
@@ -149,14 +141,14 @@ public class DocumentEditor: ObservableObject {
                 self.schemaError = schemaError
                 // Set empty document
                 self.document = JoyDoc()
-                self.mode = mode
-                self.isPageDuplicateEnabled = isPageDuplicateEnabled
-                self.isPageDeleteEnabled = isPageDeleteEnabled
-                self.showPageNavigationView = navigation
-                self.singleClickRowEdit = singleClickRowEdit
+                self.mode = config.mode
+                self.isPageDuplicateEnabled = config.page.enableDuplicates
+                self.isPageDeleteEnabled = config.page.enableDeletes
+                self.showPageNavigationView = config.page.navigation
+                self.singleClickRowEdit = config.display.singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
-                self.decoratorConfig = decoratorConfig
+                self.decoratorConfig = config.display.decorators
                 
                 // Trigger onError callback if events handler is available
                 events?.onError(error: .schemaValidationError(error: schemaError))
@@ -166,16 +158,16 @@ public class DocumentEditor: ObservableObject {
         
         // Schema validation passed - proceed with normal initialization
         self.document = document
-        self.mode = mode
-        self.isPageDuplicateEnabled = mode == .readonly ? false : isPageDuplicateEnabled
-        self.isPageDeleteEnabled = mode == .readonly ? false : isPageDeleteEnabled
-        self.showPageNavigationView = navigation
-        self.singleClickRowEdit = singleClickRowEdit
+        self.mode = config.mode
+        self.isPageDuplicateEnabled = config.mode == .readonly ? false : config.page.enableDuplicates
+        self.isPageDeleteEnabled = config.mode == .readonly ? false : config.page.enableDeletes
+        self.showPageNavigationView = config.page.navigation
+        self.singleClickRowEdit = config.display.singleClickRowEdit
         self.currentPageID = ""
         self.events = events
         // Set feature flags from license
-        self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
-        self.decoratorConfig = decoratorConfig
+        self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: config.license)
+        self.decoratorConfig = config.display.decorators
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -188,25 +180,35 @@ public class DocumentEditor: ObservableObject {
             updatePageFieldModels(page, pageID, fileID)
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
-        self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
+        self.currentPageID = document.firstValidPageID(for: config.page.currentPageID, conditionalLogicHandler: conditionalLogicHandler)
         self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
+    @available(*, deprecated, message: "Use init(document:events:config:) with DocumentEditorConfig instead.")
     public convenience init(document: JoyDoc,
+                            mode: Mode = .fill,
                             events: FormChangeEvent? = nil,
-                            config: DocumentEditorConfig = DocumentEditorConfig()) {
+                            pageID: String? = nil,
+                            navigation: Bool = true,
+                            isPageDuplicateEnabled: Bool = false,
+                            isPageDeleteEnabled: Bool = false,
+                            validateSchema: Bool = true,
+                            license: String? = nil,
+                            singleClickRowEdit: Bool = false,
+                            decoratorConfig: DecoratorConfig = DecoratorConfig()) {
         self.init(document: document,
-                  mode: config.mode,
                   events: events,
-                  pageID: config.page.currentPageID,
-                  navigation: config.page.navigation,
-                  isPageDuplicateEnabled: config.page.enableDuplicates,
-                  isPageDeleteEnabled: config.page.enableDeletes,
-                  validateSchema: config.validateSchema,
-                  license: config.license,
-                  singleClickRowEdit: config.display.singleClickRowEdit,
-                  decoratorConfig: config.display.decorators)
+                  config: DocumentEditorConfig(
+                    mode: mode,
+                    license: license,
+                    validateSchema: validateSchema,
+                    page: PageConfig(navigation: navigation,
+                                     enableDuplicates: isPageDuplicateEnabled,
+                                     enableDeletes: isPageDeleteEnabled,
+                                     currentPageID: pageID),
+                    display: DisplayConfig(singleClickRowEdit: singleClickRowEdit,
+                                           decorators: decoratorConfig)))
     }
 
     public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
