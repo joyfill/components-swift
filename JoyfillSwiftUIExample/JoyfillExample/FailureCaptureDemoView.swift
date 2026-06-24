@@ -63,8 +63,8 @@ class FailureCaptureEventHandler: FormChangeEvent {
         }
     }
     
-    func onFocus(event: FieldIdentifier) { }
-    func onBlur(event: FieldIdentifier) { }
+    func onFocus(event: Joyfill.Event) { }
+    func onBlur(event: Joyfill.Event) { }
     func onCapture(event: CaptureEvent) { }
     func onUpload(event: UploadEvent) { }
     func onError(error: Joyfill.JoyfillError) { }

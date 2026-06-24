@@ -1186,7 +1186,7 @@ extension DocumentEditor {
             }
         }
         
-        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
+        self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         
         if let views = document.files.first?.views, !views.isEmpty {
             guard let targetIndex = document.files.first?.pageOrder?.firstIndex(of: newPageID) else {
