@@ -13,9 +13,9 @@ struct SimpleFormExampleView: View {
     let documentEditor: DocumentEditor
     let changeHandler = ChangeHandler()
     let document = loadDoc(named: "first-form")
-    
+
     init() {
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, validateSchema: true)
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, isPageDeleteEnabled: true, validateSchema: true, singleClickRowEdit: true)
     }
 
     var body: some View {
@@ -25,8 +25,8 @@ struct SimpleFormExampleView: View {
 
 class ChangeHandler: FormChangeEvent {
     func onChange(changes: [Joyfill.Change], document: JoyfillModel.JoyDoc) {}
-    func onFocus(event: Joyfill.FieldIdentifier) {}
-    func onBlur(event: Joyfill.FieldIdentifier) {}
+    func onFocus(event: Joyfill.Event) {}
+    func onBlur(event: Joyfill.Event) {}
     func onUpload(event: Joyfill.UploadEvent) {}
     func onCapture(event: Joyfill.CaptureEvent) {}
     func onError(error: Joyfill.JoyfillError) {}

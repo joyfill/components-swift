@@ -113,6 +113,15 @@
           }
         ]
       }
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6870c873000000000000aaaa",
+      "type": "textarea",
+      "title": "Readonly Large Multiline",
+      "identifier": "field_readonly_large_multiline",
+      "disabled": true,
+      "value": "Readonly line 01: the quick brown fox jumps over the lazy dog\nReadonly line 02: the quick brown fox jumps over the lazy dog\nReadonly line 03: the quick brown fox jumps over the lazy dog\nReadonly line 04: the quick brown fox jumps over the lazy dog\nReadonly line 05: the quick brown fox jumps over the lazy dog\nReadonly line 06: the quick brown fox jumps over the lazy dog\nReadonly line 07: the quick brown fox jumps over the lazy dog\nReadonly line 08: the quick brown fox jumps over the lazy dog\nReadonly line 09: the quick brown fox jumps over the lazy dog\nReadonly line 10: the quick brown fox jumps over the lazy dog\nReadonly line 11: the quick brown fox jumps over the lazy dog\nReadonly line 12: the quick brown fox jumps over the lazy dog\nReadonly line 13: the quick brown fox jumps over the lazy dog\nReadonly line 14: the quick brown fox jumps over the lazy dog\nReadonly line 15: the quick brown fox jumps over the lazy dog\nReadonly line 16: the quick brown fox jumps over the lazy dog\nReadonly line 17: the quick brown fox jumps over the lazy dog\nReadonly line 18: the quick brown fox jumps over the lazy dog\nReadonly line 19: the quick brown fox jumps over the lazy dog\nReadonly line 20: the quick brown fox jumps over the lazy dog\nReadonly line 21: the quick brown fox jumps over the lazy dog\nReadonly line 22: the quick brown fox jumps over the lazy dog\nReadonly line 23: the quick brown fox jumps over the lazy dog\nReadonly line 24: the quick brown fox jumps over the lazy dog\nReadonly line 25: the quick brown fox jumps over the lazy dog\nReadonly line 26: the quick brown fox jumps over the lazy dog\nReadonly line 27: the quick brown fox jumps over the lazy dog\nReadonly line 28: the quick brown fox jumps over the lazy dog\nReadonly line 29: the quick brown fox jumps over the lazy dog\nReadonly line 30: the quick brown fox jumps over the lazy dog\nReadonly line 31: the quick brown fox jumps over the lazy dog\nReadonly line 32: the quick brown fox jumps over the lazy dog\nReadonly line 33: the quick brown fox jumps over the lazy dog\nReadonly line 34: the quick brown fox jumps over the lazy dog\nReadonly line 35: the quick brown fox jumps over the lazy dog\nReadonly line 36: the quick brown fox jumps over the lazy dog\nReadonly line 37: the quick brown fox jumps over the lazy dog\nReadonly line 38: the quick brown fox jumps over the lazy dog\nReadonly line 39: the quick brown fox jumps over the lazy dog\nReadonly line 40: the quick brown fox jumps over the lazy dog"
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -177,6 +186,16 @@
               "displayType": "original",
               "x": 2,
               "y": 57,
+              "width": 4,
+              "height": 23
+            },
+            {
+              "_id": "6870c873000000000000bbbb",
+              "type": "textarea",
+              "field": "6870c873000000000000aaaa",
+              "displayType": "original",
+              "x": 2,
+              "y": 80,
               "width": 4,
               "height": 23
             }

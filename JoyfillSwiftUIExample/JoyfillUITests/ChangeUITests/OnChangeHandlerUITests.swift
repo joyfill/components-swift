@@ -131,15 +131,15 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func editSingleRowUpperButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"].firstMatch
+        app.buttons["UpperRowButtonIdentifier"].firstMatch
     }
     
     func editSingleRowLowerButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"].firstMatch
+        app.buttons["LowerRowButtonIdentifier"].firstMatch
     }
     
     func editInsertRowPlusButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"].firstMatch
+        app.buttons["PlusTheRowButtonIdentifier"].firstMatch
     }
     
     func deleteRowButton() -> XCUIElement {
@@ -591,7 +591,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
@@ -827,7 +827,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
@@ -919,7 +919,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
     }
     
     func tapOnNumberFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 2)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Number Column/ColumnButtonIdentifier").element.firstMatch
         textFieldColumnTitleButton.tap()
     }
     
@@ -927,19 +927,6 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let textField = app.textViews.matching(identifier: "SearchBarCodeFieldIdentifier").element(boundBy: 0)
         textField.tap()
         textField.typeText("Row")
-    }
-    
-    func tapOnBarcodeFieldColumn() {
-        let textFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
-        textFieldColumnTitleButton.tap()
-    }
-    
-    func tapOnMultiSelectionFieldColumn() {
-        guard let multiFieldColumnTitleButton = app.swipeToFindElement(identifier: "ColumnButtonIdentifier", type: .button, direction: "left") else {
-            XCTFail("Failed to find multifield column after swiping")
-            return
-        }
-        multiFieldColumnTitleButton.tap()
     }
     
     func tapOnSearchBarTextField(value: String) {
@@ -1148,7 +1135,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage(index: 0)
-        
+        firstScrollLeft()
+        secScrollLeft()
         let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertGreaterThan(multiSelectionButtons.count, 0)
         let firstButton = multiSelectionButtons.element(boundBy: 0)
@@ -1621,7 +1609,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         goToTableDetailPage()
         goToTableDetailPage()
-        
+        firstScrollLeft()
+        secScrollLeft()
         // Access identifier
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 0).label)
@@ -1673,10 +1662,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         
         dismissSheet()
-        
+        firstScrollLeft()
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
         goBack()
+        firstScrollLeft()
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 3).label)
     }
     
@@ -1701,7 +1691,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         }
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         app.buttons["ApplyAllButtonIdentifier"].tap()
-        
+        firstScrollLeft()
         let multiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 0).label)
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 1).label)
@@ -1711,6 +1701,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual("Yes, +2", multiFieldIdentifier.element(boundBy: 5).label)
         
         goBack()
+        firstScrollLeft()
         let secondMultiFieldIdentifier = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
         XCTAssertEqual("Yes, +2", secondMultiFieldIdentifier.element(boundBy: 0).label)
         XCTAssertEqual("Yes, +2", secondMultiFieldIdentifier.element(boundBy: 1).label)
@@ -1742,9 +1733,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
+        firstScrollLeft()
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 6).label)
+        firstScrollRight()
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
     
@@ -1758,7 +1751,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 0).tap()
         app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
         app.buttons["TableInsertRowIdentifier"].firstMatch.tap()
-        
+        firstScrollLeft()
         let addedCellBlockValue = app.staticTexts.matching(identifier: "TabelBlockFieldIdentifier").element(boundBy: 1)
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         
@@ -1773,9 +1766,11 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         goBack()
+        firstScrollLeft()
         XCTAssertEqual("Block Column Value", addedCellBlockValue.label)
         XCTAssertEqual("12345", addedCellNumberValue.value as! String)
         XCTAssertEqual("Yes", multiFieldIdentifier.element(boundBy: 1).label)
+        firstScrollRight()
         XCTAssertEqual("Default value", barcodeFieldIdentifier.value as! String)
     }
     
@@ -2149,6 +2144,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let firstScroll = app.scrollViews.matching(identifier: "TableScrollView").element(boundBy: 0)
         firstScroll.swipeLeft()
     }
+    func firstScrollRight() {
+        let firstScroll = app.scrollViews.matching(identifier: "TableScrollView").element(boundBy: 0)
+        firstScroll.swipeRight()
+    }
     
     func secScrollLeft() {
         let firstScroll = app.scrollViews.matching(identifier: "TableScrollView").element(boundBy: 1)
@@ -2394,6 +2393,69 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         let dateButton2 = getDateFieldButtonByIndexAndIdentifier(0)
         XCTAssertEqual(dateButton2.label, convertedTime, "Datetime should be same after epoch convert")
     }
+
+    func testDateFieldClearSyncsAcrossMirroredViews() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let firstPageNavigationButton = pageSelectionButton.element(boundBy: 0)
+        let secondPageNavigationButton = pageSelectionButton.element(boundBy: 1)
+        let pageSelectionItem = pageSheetSelectionButton.element(boundBy: 2)
+
+        XCTAssertTrue(firstPageNavigationButton.waitForExistence(timeout: 5), "First page navigation button not found")
+        firstPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page 3 selection item not found")
+        pageSelectionItem.tap()
+
+        XCTAssertTrue(secondPageNavigationButton.waitForExistence(timeout: 5), "Second page navigation button not found")
+        secondPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page 3 selection item not found")
+        pageSelectionItem.tap()
+
+        let emptyDatePlaceholders = self.app.staticTexts.matching(NSPredicate(format: "label == %@", "Select a Date -"))
+        XCTAssertTrue(
+            waitUntil(5) { emptyDatePlaceholders.count == 2 },
+            "Expected both mirrored empty date fields to be visible on page 3"
+        )
+
+        let leftDateField = emptyDatePlaceholders.element(boundBy: 0)
+        leftDateField.tap()
+
+        // Two date buttons appear for a field that exists only once in the JSON because
+        // OnChangeHandlerTest.swift renders two DocumentEditor instances side-by-side and
+        // plumbs editor #1's onChange into editor #2. Editing/clearing on the left mirrors
+        // to the right, which is exactly what this test verifies. See OnChangeHandlerTest.swift.
+        let mirroredDateButtons = self.app.buttons.matching(identifier: "ChangeDateIdentifier")
+        XCTAssertTrue(
+            waitUntil(5) { mirroredDateButtons.count == 2 },
+            "Expected setting the left-side date to mirror to the right side"
+        )
+
+        let leftDateButton = mirroredDateButtons.element(boundBy: 0)
+        let rightDateButton = mirroredDateButtons.element(boundBy: 1)
+        XCTAssertEqual(leftDateButton.label, rightDateButton.label, "Mirrored date value should match on both sides")
+
+        let clearButtons = self.app.buttons.matching(identifier: "DateClearIdentifier")
+        XCTAssertTrue(
+            waitUntil(5) { clearButtons.count == 2 },
+            "Expected both mirrored date fields to expose a clear button"
+        )
+
+        clearButtons.element(boundBy: 0).tap()
+
+        XCTAssertTrue(
+            waitUntil(5) { self.app.buttons.matching(identifier: "ChangeDateIdentifier").count == 0 },
+            "Expected clearing the left-side date to remove the mirrored date value on the right side"
+        )
+
+        XCTAssertTrue(
+            waitUntil(5) { emptyDatePlaceholders.count == 2 },
+            "Expected both mirrored date fields to show the empty placeholder after clearing"
+        )
+    }
     
     func testSignatureField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
@@ -2558,6 +2620,67 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         XCTAssertEqual(verticalPointsValue2.value as? String, "60", "TextField value is incorrect after navigation")
     }
     
+    func testChartCoordinatesMirrorAcrossPages() throws {
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.buttons["ShowHideButtonIdentifier"].tap()
+
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 3).tap()
+        
+        goToChartDetailField()
+        app.staticTexts["Show"].firstMatch.tap()
+        
+        let textFieldsQuery = app.textFields
+        let element1 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 0)
+        element1.tap()
+        element1.typeText("Y")
+        
+        let element2 = textFieldsQuery.matching(identifier: "HorizontalTextFieldIdentifier").element(boundBy: 0)
+        element2.tap()
+        element2.typeText("X")
+
+        let minY = textFieldsQuery.matching(identifier: "MinY").element(boundBy: 0)
+        let minX = textFieldsQuery.matching(identifier: "MinX").element(boundBy: 0)
+        let maxY = textFieldsQuery.matching(identifier: "MaxY").element(boundBy: 0)
+        let maxX = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 0)
+
+        minY.tap()
+        minY.clearTextReliably()
+        minY.typeText("1")
+        minX.tap()
+        minX.clearTextReliably()
+        minX.typeText("2")
+        maxY.tap()
+        maxY.clearTextReliably()
+        maxY.typeText("7")
+        maxX.tap()
+        maxX.clearTextReliably()
+        maxX.typeText("8")
+        
+        let element3 = textFieldsQuery.matching(identifier: "VerticalTextFieldIdentifier").element(boundBy: 1)
+        let element4 = textFieldsQuery.matching(identifier: "HorizontalTextFieldIdentifier").element(boundBy: 1)
+
+        XCTAssertEqual(element3.value as? String, "VerticalY", "Vertical title should match expected value.")
+        XCTAssertEqual(element4.value as? String, "HorizontalX", "Horizontal title should match expected value.")
+   
+        let minYOther = textFieldsQuery.matching(identifier: "MinY").element(boundBy: 1)
+        let minXOther = textFieldsQuery.matching(identifier: "MinX").element(boundBy: 1)
+        let maxYOther = textFieldsQuery.matching(identifier: "MaxY").element(boundBy: 1)
+        let maxXOther = textFieldsQuery.matching(identifier: "MaxX").element(boundBy: 1)
+
+        XCTAssertEqual(minYOther.value as? String, "1", "MinY should match expected value.")
+        XCTAssertEqual(minXOther.value as? String, "2", "MinX should match expected value.")
+        XCTAssertEqual(maxYOther.value as? String, "7", "MaxY should match expected value.")
+        XCTAssertEqual(maxXOther.value as? String, "8", "MaxX should match expected value.")
+
+    }
+    
     func testImageField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
@@ -2602,6 +2725,69 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         clickOnThirdImage()
         clickOnFourthImage()
         deleteSelectedImages()
+    }
+    
+    func testMirroredSignatureFieldSyncsOnSave() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let firstPageNavigationButton = pageSelectionButton.element(boundBy: 0)
+        let secondPageNavigationButton = pageSelectionButton.element(boundBy: 1)
+        let pageSelectionItem = pageSheetSelectionButton.element(boundBy: 3)
+        
+        XCTAssertTrue(firstPageNavigationButton.waitForExistence(timeout: 5), "First page navigation button not found")
+        firstPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page selection item not found")
+        pageSelectionItem.tap()
+        XCTAssertTrue(secondPageNavigationButton.waitForExistence(timeout: 5), "Second page navigation button not found")
+        secondPageNavigationButton.tap()
+        XCTAssertTrue(pageSelectionItem.waitForExistence(timeout: 5), "Page selection item not found")
+        pageSelectionItem.tap()
+        
+        let signatureButtons = app.buttons.matching(identifier: "SignatureIdentifier")
+        let leftSignatureButton = signatureButtons.element(boundBy: 0)
+        let rightSignatureButton = signatureButtons.element(boundBy: 1)
+        
+        XCTAssertTrue(leftSignatureButton.waitForExistence(timeout: 5), "Left signature button not found")
+        leftSignatureButton.tap()
+        drawSignatureLine()
+        let saveSignatureButton = app.buttons["SaveSignatureIdentifier"]
+        XCTAssertTrue(saveSignatureButton.waitForExistence(timeout: 5), "Save signature button not found")
+        saveSignatureButton.tap()
+        
+        XCTAssertEqual(rightSignatureButton.label, "Edit Signature", "Signature added on left should reflect on right side.")
+
+        let signatureImages = app.images.matching(identifier: "SignatureImageIdentifier")
+        let rightSignatureImage = signatureImages.element(boundBy: 1)
+        XCTAssertTrue(rightSignatureImage.waitForExistence(timeout: 5), "Mirrored signature image should render on right side.")
+    }
+    
+    func testMirroredDropdownSyncsExternalSelection() throws {
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return
+        }
+        
+        let pageSelectionButton = app.buttons.matching(identifier: "PageNavigationIdentifier")
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        
+        pageSelectionButton.element(boundBy: 0).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        pageSelectionButton.element(boundBy: 1).tap()
+        pageSheetSelectionButton.element(boundBy: 2).tap()
+        
+        let dropdownFields = app.buttons.matching(identifier: "Dropdown")
+        let leftDropdownField = dropdownFields.element(boundBy: 0)
+        let rightDropdownField = dropdownFields.element(boundBy: 1)
+        
+        leftDropdownField.tap()
+        let noOption = app.buttons.matching(identifier: "DropdownoptionIdentifier")
+            .element(matching: NSPredicate(format: "label == %@", "No"))
+        XCTAssertTrue(noOption.waitForExistence(timeout: 5), "'No' option never appeared in dropdown sheet")
+        noOption.tap()
+        XCTAssertEqual(rightDropdownField.label, "No", "Dropdown value selected on left should reflect on right side.")
     }
     
     func deleteSelectedImages() {

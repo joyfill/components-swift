@@ -419,6 +419,9 @@ public var joyfillSchema = """
           "columnTitlePadding": {
             "type": "number"
           },
+          "columnTitleTextOverflow": {
+            "type": "string"
+          },
           "titleDisplay": {
             "type": "string"
           },
@@ -676,6 +679,12 @@ public var joyfillSchema = """
           },
           "multi": {
             "type": "boolean"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -783,6 +792,12 @@ public var joyfillSchema = """
           },
           "multi": {
             "type": "boolean"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -883,6 +898,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -962,6 +983,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1041,6 +1068,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1128,6 +1161,12 @@ public var joyfillSchema = """
                 "const": ""
               }
             ]
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1221,6 +1260,12 @@ public var joyfillSchema = """
           },
           "format": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1300,6 +1345,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1382,6 +1433,12 @@ public var joyfillSchema = """
           },
           "signer": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1473,6 +1530,12 @@ public var joyfillSchema = """
           },
           "multi": {
             "type": "boolean"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1594,6 +1657,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1695,6 +1764,21 @@ public var joyfillSchema = """
             "items": {
               "type": "string"
             }
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
+          },
+          "rowDecorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
+          },
+          "decorate": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -1719,6 +1803,9 @@ public var joyfillSchema = """
           },
           "cells": {
             "type": "object"
+          },
+          "decorators": {
+            "$ref": "#/definitions/RowDecorators"
           }
         },
         "required": [
@@ -1784,6 +1871,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1821,6 +1914,12 @@ public var joyfillSchema = """
             "type": "array",
             "items": {
               "$ref": "#/definitions/Option"
+            }
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
             }
           }
         },
@@ -1863,6 +1962,12 @@ public var joyfillSchema = """
             "items": {
               "$ref": "#/definitions/Option"
             }
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1876,6 +1981,9 @@ public var joyfillSchema = """
           "_id": {
             "type": "string",
             "minLength": 1
+          },
+          "multi": {
+            "type": "boolean"
           },
           "type": {
             "type": "string",
@@ -1899,6 +2007,12 @@ public var joyfillSchema = """
           },
           "maxImageHeight": {
             "type": "number"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1931,6 +2045,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "number"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1963,6 +2083,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "number"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -1995,6 +2121,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -2027,6 +2159,12 @@ public var joyfillSchema = """
           },
           "value": {
             "type": "string"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -2063,6 +2201,12 @@ public var joyfillSchema = """
           },
           "maxImageHeight": {
             "type": "number"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -2105,7 +2249,13 @@ public var joyfillSchema = """
           "identifier": {
             "type": "string"
           },
-          "value": {}
+          "value": {},
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
+          }
         },
         "required": [
           "_id",
@@ -2204,6 +2354,12 @@ public var joyfillSchema = """
           },
           "xMin": {
             "type": "number"
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -2257,16 +2413,14 @@ public var joyfillSchema = """
             "type": "string"
           },
           "y": {
-            "type": "number"
+            "type": ["number", "null"]
           },
           "x": {
-            "type": "number"
+            "type": ["number", "null"]
           }
         },
         "required": [
-          "_id",
-          "y",
-          "x"
+          "_id"
         ]
       },
       "CollectionField": {
@@ -2346,6 +2500,18 @@ public var joyfillSchema = """
             "items": {
               "$ref": "#/definitions/CollectionItem"
             }
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
+          },
+          "rowDecorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -2388,6 +2554,15 @@ public var joyfillSchema = """
             "items": {
               "type": "string"
             }
+          },
+          "rowDecorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
+          },
+          "decorate": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -2465,6 +2640,9 @@ public var joyfillSchema = """
                 }
               }
             }
+          },
+          "decorators": {
+            "$ref": "#/definitions/RowDecorators"
           }
         },
         "required": [
@@ -2556,6 +2734,12 @@ public var joyfillSchema = """
                 "formula"
               ]
             }
+          },
+          "decorators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
           }
         },
         "required": [
@@ -2563,6 +2747,54 @@ public var joyfillSchema = """
           "file",
           "type"
         ]
+      },
+      "Decorator": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "minLength": 24
+          },
+          "action": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "anyOf": [
+          { "required": ["icon"] },
+          { "required": ["label"] }
+        ]
+      },
+      "RowDecorators": {
+        "type": "object",
+        "properties": {
+          "cells": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Decorator"
+              }
+            }
+          },
+          "all": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Decorator"
+            }
+          }
+        }
       },
       "Formula": {
         "type": "object",
@@ -2593,7 +2825,7 @@ public var joyfillSchema = """
         ]
       }
     },
-    "$joyfillSchemaVersion": "1.0.0"
+    "$joyfillSchemaVersion": "1.0.4"
   }
 
 """

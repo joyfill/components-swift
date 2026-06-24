@@ -5,6 +5,7 @@ struct MultiSelectionView: View {
     @State var singleSelectedOptionArray: [String] = []
     @State var multiSelectedOptionArray: [String] = []
     
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private let multiSelectionDataModel: MultiSelectionDataModel
     private let currentFocusedFielsID: String?
     let eventHandler: FieldChangeEvents
@@ -27,7 +28,9 @@ struct MultiSelectionView: View {
     var body: some View {
         VStack(alignment: .leading) {
             let isFilled = (multiSelectionDataModel.multi ?? false) ? !(multiSelectedOptionArray.isEmpty) : !(singleSelectedOptionArray.isEmpty)
-            FieldHeaderView(multiSelectionDataModel.fieldHeaderModel, isFilled: isFilled)
+            FieldHeaderView(multiSelectionDataModel.fieldHeaderModel, isFilled: isFilled) { decorator in
+                eventHandler.onDecoratorAction(event: multiSelectionDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             VStack {
                 if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
@@ -62,7 +65,7 @@ struct MultiSelectionView: View {
             }
             .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    .stroke(navigationFocusFieldId == multiSelectionDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                     .padding(.vertical, -10)
             )
             .padding(.vertical, 10)

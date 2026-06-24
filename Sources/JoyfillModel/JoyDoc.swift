@@ -1,5 +1,13 @@
 import Foundation
 
+// MARK: - ViewType
+/// View type for view-based hiding (e.g. hiddenViews). Used to force-hide fields/columns per view.
+public enum ViewType: String, CaseIterable {
+    case mobile
+    case desktop
+    case pdf
+}
+
 /// Converts any numeric value to Double.
 /// Handles Double, Int64, and Int types.
 /// - Parameter value: The value to convert
@@ -9,6 +17,88 @@ func asDouble(_ value: Any?) -> Double? {
     if let intValue = value as? Int64 { return Double(intValue) }
     if let intValue = value as? Int { return Double(intValue) }
     return nil
+}
+
+// MARK: - Decorator
+public struct Decorator: Equatable {
+    public var dictionary: [String: Any]
+
+    public init(dictionary: [String: Any] = [:]) {
+        self.dictionary = dictionary
+    }
+
+    public var icon: String? {
+        get { dictionary["icon"] as? String }
+        set { dictionary["icon"] = newValue }
+    }
+
+    public var label: String? {
+        get { dictionary["label"] as? String }
+        set { dictionary["label"] = newValue }
+    }
+
+    public var color: String? {
+        get { dictionary["color"] as? String }
+        set { dictionary["color"] = newValue }
+    }
+
+    public var action: String? {
+        get { dictionary["action"] as? String }
+        set { dictionary["action"] = newValue }
+    }
+
+    public var isDisplayable: Bool {
+        let hasIcon = icon != nil && !(icon?.isEmpty ?? true)
+        let hasLabel = label != nil && !(label?.isEmpty ?? true)
+        return hasIcon || hasLabel
+    }
+
+    public static func == (lhs: Decorator, rhs: Decorator) -> Bool {
+        lhs.icon == rhs.icon && lhs.label == rhs.label && lhs.color == rhs.color && lhs.action == rhs.action
+    }
+}
+
+extension Array where Element == Decorator {
+    /// Returns the first decorator per action, preserving order. Decorators without an action are always kept.
+    func deduplicatedByAction() -> [Decorator] {
+        var seen = Set<String>()
+        return filter { dec in
+            guard let action = dec.action, !action.isEmpty else { return true }
+            return seen.insert(action).inserted
+        }
+    }
+}
+
+// MARK: - RowDecorators
+public struct Decorators {
+    public var dictionary: [String: Any]
+
+    public init(dictionary: [String: Any] = [:]) {
+        self.dictionary = dictionary
+    }
+
+    /// Row-level decorators that apply to the entire row.
+    public var all: [Decorator] {
+        get {
+            let raw = (dictionary["all"] as? [[String: Any]])?.compactMap(Decorator.init) ?? []
+            return raw.deduplicatedByAction()
+        }
+        set { dictionary["all"] = newValue.map { $0.dictionary } }
+    }
+
+    /// Per-cell decorators keyed by column ID.
+    public var cells: [String: [Decorator]] {
+        get {
+            guard let raw = dictionary["cells"] as? [String: Any] else { return [:] }
+            return raw.compactMapValues { value -> [Decorator]? in
+                guard let list = (value as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+                return list.deduplicatedByAction()
+            }
+        }
+        set {
+            dictionary["cells"] = newValue.mapValues { $0.map { $0.dictionary } }
+        }
+    }
 }
 
 /// Represents a Joy document.
@@ -110,6 +200,8 @@ public struct JoyDoc {
             guard let firstFile = self.files.first else { return [] } 
             
             var pages: [Page] = []
+            // Note: pageOrder always uses firstFile.pageOrder regardless of the views/pages branch below.
+            // pageOrderForCurrentView correctly reads view.pageOrder when views are active — this property should mirror that logic.
             let pageOrder = firstFile.pageOrder ?? []
             
             if let views = firstFile.views, !views.isEmpty, let view = views.first {
@@ -117,10 +209,12 @@ public struct JoyDoc {
             } else {
                 pages = firstFile.pages ?? []
             }
-            
+
+            // Pre-build index once — O(n log n) sort vs O(n² log n) with firstIndex; pays off at ~100+ pages
+            let pageOrderIndex = Dictionary(pageOrder.enumerated().map { ($1, $0) }, uniquingKeysWith: { first, _ in first })
             return pages.sorted { page1, page2 in
-                let index1 = pageOrder.firstIndex(of: page1.id ?? "") ?? Int.max
-                let index2 = pageOrder.firstIndex(of: page2.id ?? "") ?? Int.max
+                let index1 = pageOrderIndex[page1.id ?? ""] ?? Int.max
+                let index2 = pageOrderIndex[page2.id ?? ""] ?? Int.max
                 return index1 < index2
             }
         }
@@ -375,6 +469,13 @@ public struct JoyDocField: Equatable {
         set { dictionary["hidden"] = newValue }
     }
     
+    /// View types in which this field is force-hidden. Takes precedence over conditional logic.
+    /// e.g. ["mobile"] = never render on mobile; ["desktop","mobile","pdf"] = hidden in all views.
+    public var hiddenViews: [String]? {
+        get { dictionary["hiddenViews"] as? [String] }
+        set { dictionary["hiddenViews"] = newValue }
+    }
+    
     /// The timezone of the date field.
     public var tz: String? {
         get { dictionary["tz"] as? String }
@@ -438,6 +539,29 @@ public struct JoyDocField: Equatable {
         set { dictionary["xMin"] = newValue }
     }
     
+    /// Decorators attached to this field. Rendered inline next to the field title.
+    public var decorators: [Decorator]? {
+        get {
+            guard let raw = (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
+        set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    public var decorate: Bool? {
+        get { dictionary["decorate"] as? Bool }
+        set { dictionary["decorate"] = newValue }
+    }
+
+    /// Row-level decorators for table/collection fields. Rendered per-row via a kebab menu column.
+    public var rowDecorators: [Decorator]? {
+        get {
+            guard let raw = (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
+        set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
     /// The order of the rows in the table field.
     public var rowOrder: [String]? {
         get { dictionary["rowOrder"] as? [String] }
@@ -1054,6 +1178,34 @@ public struct FieldTableColumn {
         get { dictionary["multiSelectValues"] as? [String] }
         set { dictionary["multiSelectValues"] = newValue }
     }
+    
+    /// Indicates whether the column is hidden.
+    public var hidden: Bool? {
+        get { dictionary["hidden"] as? Bool }
+        set { dictionary["hidden"] = newValue }
+    }
+
+    /// Decorators attached to this column. Rendered in the column header area.
+    public var decorators: [Decorator]? {
+        get {
+            guard let raw = (dictionary["decorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
+        set { dictionary["decorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    /// Conditional logic to show/hide this column based on external field values (same structure as field/page logic).
+    public var logic: Logic? {
+        get { Logic.init(field: dictionary["logic"] as? [String: Any]) }
+        set { dictionary["logic"] = newValue?.dictionary }
+    }
+
+    /// View types in which this column is force-hidden. Takes precedence over conditional logic.
+    /// e.g. ["mobile"] = never show this column on mobile.
+    public var hiddenViews: [String]? {
+        get { dictionary["hiddenViews"] as? [String] }
+        set { dictionary["hiddenViews"] = newValue }
+    }
 }
 
 public struct Schema {
@@ -1101,6 +1253,20 @@ public struct Schema {
     public var hidden: Bool? {
         get { dictionary["hidden"] as? Bool }
         set { dictionary["hidden"] = newValue }
+    }
+
+    /// Row-level decorators for this collection schema. Rendered per-row via kebab menu (collection only; table uses field-level rowDecorators).
+    public var rowDecorators: [Decorator]? {
+        get {
+            guard let raw = (dictionary["rowDecorators"] as? [[String: Any]])?.compactMap(Decorator.init) else { return nil }
+            return raw.deduplicatedByAction()
+        }
+        set { dictionary["rowDecorators"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    public var decorate: Bool? {
+        get { dictionary["decorate"] as? Bool }
+        set { dictionary["decorate"] = newValue }
     }
 }
 
@@ -1179,7 +1345,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
 
     /// The coding keys used for encoding and decoding the value element.
     enum CodingKeys: String, CodingKey {
-        case _id, url, fileName, filePath, deleted, title, description, points, cells
+        case _id, url, fileName, filePath, deleted, title, description, points, cells, metadata, decorators
     }
 
     /// Initializes a value element with an ID, deleted flag, description, title, and points.
@@ -1316,6 +1482,23 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
         }
     }
     
+    /// Optional metadata for the row (e.g. deficiency linkage: linkedPageId, linkedFieldId, linkedRowId).
+    /// Supports access and updating for workflows that reference a specific field or row.
+    public var metadata: Metadata? {
+        get {
+            guard let valueUnion = dictionary["metadata"] as? ValueUnion,
+                  let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
+            return Metadata(dictionary: anyDict)
+        }
+        set {
+            if let meta = newValue {
+                dictionary["metadata"] = ValueUnion(anyDictionary: meta.dictionary)
+            } else {
+                dictionary.removeValue(forKey: "metadata")
+            }
+        }
+    }
+    
     public var childrens: [String: Children]? {
         get {
             guard let value = dictionary["children"] as? ValueUnion,
@@ -1344,6 +1527,22 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     public var tz: String? {
         get { (dictionary["tz"] as? ValueUnion)?.text }
         set { setValue(newValue, key: "tz") }
+    }
+
+    /// Per-row decorators: `all` for row-level, `cells` for per-cell keyed by column ID.
+    public var decorators: Decorators? {
+        get {
+            guard let valueUnion = dictionary["decorators"] as? ValueUnion,
+                  let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
+            return Decorators(dictionary: anyDict)
+        }
+        set {
+            if let decs = newValue {
+                dictionary["decorators"] = ValueUnion(anyDictionary: decs.dictionary)
+            } else {
+                dictionary.removeValue(forKey: "decorators")
+            }
+        }
     }
 }
 
@@ -1434,8 +1633,8 @@ public struct Point: Codable,Hashable, Equatable {
     /// - Parameter id: The id of the `Point`.
     public init(id: String) {
         self.id = id
-        self.x = 0
-        self.y = 0
+        self.x = nil
+        self.y = nil
         self.label = ""
     }
 
@@ -1457,6 +1656,7 @@ public struct Point: Codable,Hashable, Equatable {
     ///   - key: The key to set the value for.
     mutating func setValue(_ value: CGFloat?, key: String) {
         guard let value = value else {
+            self.dictionary[key] = nil
             return
         }
         self.dictionary[key] = .double(value)
@@ -1491,6 +1691,14 @@ public struct Point: Codable,Hashable, Equatable {
         }
         set { setValue(newValue, key: "x") }
     }
+}
+
+// MARK: - CopyMode
+/// Represents the allowed duplication modes for a page.
+public enum CopyMode: String {
+    case none = "none"
+    case withValues = "with-values"
+    case withoutValues = "without-values"
 }
 
 // MARK: - Page
@@ -1602,6 +1810,27 @@ public struct Page {
     public var formulas: [AppliedFormula]? {
         get { (dictionary["formulas"] as? [[String: Any]])?.compactMap(AppliedFormula.init) }
         set { dictionary["formulas"] = newValue?.compactMap { $0.dictionary } }
+    }
+
+    /// Whether this page can be deleted. Defaults to true when not set or when set to null.
+    public var deletable: Bool {
+        get {
+            guard let value = dictionary["deletable"] else { return true }
+            if let boolValue = value as? Bool { return boolValue }
+            return true
+        }
+        set { dictionary["deletable"] = newValue }
+    }
+
+    /// The copy modes allowed for this page.
+    /// Defaults to [.withValues] when not set, null, or contains no valid values.
+    public var copyable: [CopyMode] {
+        get {
+            guard let arr = dictionary["copyable"] as? [String] else { return [.withValues] }
+            let valid = arr.compactMap { CopyMode(rawValue: $0) }
+            return valid.isEmpty ? [.withValues] : valid
+        }
+        set { dictionary["copyable"] = newValue.map { $0.rawValue } }
     }
 }
 
@@ -1846,8 +2075,32 @@ public struct FieldPositionSchema {
     }
     
     public var tableColumns: [TableColumn]? {
-        get { (dictionary["tableColumns"] as? [[String: Any]])?.compactMap(TableColumn.init) ?? [] }
-        set { dictionary["tableColumns"] = newValue?.compactMap{ $0.dictionary } }
+        get {
+            if let arr = dictionary["tableColumns"] as? [[String: Any]] {
+                return arr.compactMap(TableColumn.init)
+            }
+            if let dict = dictionary["tableColumns"] as? [String: [String: Any]] {
+                return dict.map { (id, payload) in
+                    var merged = payload
+                    if merged["_id"] == nil { merged["_id"] = id }
+                    return TableColumn(dictionary: merged)
+                }
+            }
+            return nil
+        }
+        set {
+            guard let newValue = newValue else {
+                dictionary["tableColumns"] = nil
+                return
+            }
+            var dict = [String: [String: Any]]()
+            for col in newValue {
+                if let id = col.id {
+                    dict[id] = col.dictionary
+                }
+            }
+            dictionary["tableColumns"] = dict
+        }
     }
 }
 
@@ -2042,6 +2295,7 @@ public struct SortModel {
 }
 
 public struct FilterModel: Equatable {
+    public static let emptyDateSentinel = "null"
     public var filterText: String = ""
     public var colIndex: Int
     public var colID: String

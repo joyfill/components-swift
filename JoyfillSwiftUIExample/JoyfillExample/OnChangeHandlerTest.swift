@@ -50,8 +50,8 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
         }
     }
 
-    func onFocus(event: FieldIdentifier) { }
-    func onBlur(event:  FieldIdentifier) { }
+    func onFocus(event: Event) { }
+    func onBlur(event:  Event) { }
     func onCapture(event: CaptureEvent) { }
     func onUpload(event: UploadEvent) {
         event.uploadHandler(["https://app.joyfill.io/static/img/joyfill_logo_w.png"])

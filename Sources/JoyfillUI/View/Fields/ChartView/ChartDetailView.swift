@@ -6,6 +6,7 @@
 
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct ChartDetailView: View {
 //    var chartData: MultiLineChartData
@@ -13,18 +14,20 @@ struct ChartDetailView: View {
     @State var valueElements: [ValueElement] = []
     @State var isCoordinateVisible: Bool = false
     @State var chartCoordinatesData: ChartAxisConfiguration
+    @Environment(\.dismiss) private var dismiss
     
 //    public init(chartData: MultiLineChartData,fieldDependency: FieldDependency) {
     public init(chartDataModel: ChartDataModel) {
 //        self.chartData = chartData
         self.chartDataModel = chartDataModel
         _valueElements = State(initialValue: chartDataModel.valueElements ?? [])
-        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(yTitle: chartDataModel.yTitle,
-                                                                           yMax: chartDataModel.yMax,
-                                                                           yMin: chartDataModel.yMin,
-                                                                           xTitle: chartDataModel.xTitle,
-                                                                           xMax: chartDataModel.xMax,
-                                                                           xMin: chartDataModel.xMin))
+        _chartCoordinatesData = State(initialValue: ChartAxisConfiguration(
+            yTitle: chartDataModel.chartCoordinates?.yTitle,
+            yMax: chartDataModel.chartCoordinates?.yMax,
+            yMin: chartDataModel.chartCoordinates?.yMin,
+            xTitle: chartDataModel.chartCoordinates?.xTitle,
+            xMax: chartDataModel.chartCoordinates?.xMax,
+            xMin: chartDataModel.chartCoordinates?.xMin))
     }
     
     var body: some View {
@@ -54,9 +57,33 @@ struct ChartDetailView: View {
                 let fieldEvent = FieldChangeData(fieldIdentifier: chartDataModel.fieldIdentifier, updateValue: .valueElementArray(valueElements), chartData: chartData)
                 chartDataModel.documentEditor?.onChange(event: fieldEvent)
             })
+            .onChange(of: chartDataModel.valueElements, perform: { latestValueElements in
+                if let latestValueElements = latestValueElements,
+                   latestValueElements != valueElements {
+                    valueElements = latestValueElements
+                }
+            })
+            .onChange(of: chartDataModel.chartCoordinates, perform: { latestChartCoordinates in
+                if let latestChartCoordinates = latestChartCoordinates {
+                    if latestChartCoordinates != chartCoordinatesData {
+                        chartCoordinatesData = latestChartCoordinates
+                    }
+                }
+            })
             .modifier(KeyboardDismissModifier())
             .onTapGesture {
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
+        .onDisappear {
+            chartDataModel.documentEditor?.setOpenNavigationFieldID(nil)
+        }
+        .onReceive(chartDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == chartDataModel.fieldIdentifier.fieldID {
+                dismiss()
             }
         }
     }
@@ -452,10 +479,11 @@ struct PointView: View {
                 HStack {
                     var xBinding : Binding<String> {
                            Binding {
+                               guard let x = point.x else { return "" }
                                let formatter = NumberFormatter()
                                formatter.numberStyle = .decimal
                                formatter.usesGroupingSeparator = false
-                               let formattedNumberString = formatter.string(from: NSNumber(value: point.x ?? 0)) ?? ""
+                               let formattedNumberString = formatter.string(from: NSNumber(value: x)) ?? ""
                                return formattedNumberString
                            } set: { newX in
                                setX(x: newX)
@@ -463,10 +491,11 @@ struct PointView: View {
                        }
                     var yBinding : Binding<String> {
                            Binding {
+                               guard let y = point.y else { return "" }
                                let formatter = NumberFormatter()
                                formatter.numberStyle = .decimal
                                formatter.usesGroupingSeparator = false
-                               let formattedNumberString = formatter.string(from: NSNumber(value: point.y ?? 0)) ?? ""
+                               let formattedNumberString = formatter.string(from: NSNumber(value: y)) ?? ""
                                return formattedNumberString
                            } set: { newY in
                                setY(y: newY)
@@ -493,7 +522,7 @@ struct PointView: View {
         formatter.usesGroupingSeparator = false
         let number = formatter.number(from: y)
         var point = self.point
-        point.y = CGFloat(number?.doubleValue ?? 0)
+        point.y = number.map { CGFloat($0.doubleValue) }
         updatePoint(point)
     }
     
@@ -503,7 +532,7 @@ struct PointView: View {
         formatter.usesGroupingSeparator = false
         let number = formatter.number(from: x)
         var point = self.point
-        point.x = CGFloat(number?.doubleValue ?? 0)
+        point.x = number.map { CGFloat($0.doubleValue) }
         updatePoint(point)
     }
 }
@@ -526,4 +555,3 @@ struct xAndYAxisCoordinateView: View {
             .cornerRadius(10)
     }
 }
-

@@ -93,6 +93,12 @@ class JoyfillUITestsBaseClass: XCTestCase {
         app.launchArguments.append("--json-file")
         app.launchArguments.append(getJSONFileNameForTest())
         
+        // Optional: goto path and flags for focus-callback UI tests
+        for (key, value) in getGotoLaunchArguments() {
+            app.launchArguments.append(key)
+            if let value = value { app.launchArguments.append(value) }
+        }
+        
         // Pass the current test name to the app
         app.launchArguments.append("--test-name")
         app.launchArguments.append(self.name)
@@ -196,6 +202,11 @@ class JoyfillUITestsBaseClass: XCTestCase {
     // Override this method in test classes to specify a custom JSON file
     func getJSONFileNameForTest() -> String {
         return "Joydocjson" // Default JSON file
+    }
+    
+    /// Override to add goto launch args (e.g. for focus callback tests). Return (key, value) pairs; value nil = flag-only.
+    func getGotoLaunchArguments() -> [(String, String?)] {
+        return []
     }
     
     func goBack() {
@@ -556,6 +567,61 @@ extension JoyfillUITestsBaseClass {
         return []
     }
     
+    // MARK: - Focus / Blur result helpers
+
+    func focusBlurOptionalResults() -> [[String: Any]] {
+        let el = app.staticTexts["focusBlurResultfield"]
+        guard el.exists, !el.label.isEmpty, el.label != "[]" else { return [] }
+        guard let data = el.label.data(using: .utf8),
+              let array = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return [] }
+        return array
+    }
+
+    func focusBlurOptionalResult() -> [String: Any]? {
+        return focusBlurOptionalResults().first
+    }
+
+    func focusOptionalResult() -> [String: Any]? {
+        return focusBlurOptionalResults().first { $0["kind"] as? String == "focus" }
+    }
+
+    func blurOptionalResult() -> [String: Any]? {
+        return focusBlurOptionalResults().first { $0["kind"] as? String == "blur" }
+    }
+
+    func focusResult() -> [String: Any] {
+        return focusOptionalResult() ?? [:]
+    }
+
+    func blurResult() -> [String: Any] {
+        return blurOptionalResult() ?? [:]
+    }
+
+    func waitForFocusBlurResult(timeout: TimeInterval = 3) {
+        _ = waitUntil(timeout) { self.focusBlurOptionalResults().isEmpty == false }
+    }
+    
+    func focusBlurValuesMatch(actual: Any?, expected: Any) -> Bool {
+        switch expected {
+        case let string as String:
+            return (actual as? String) == string
+        case let strings as [String]:
+            return (actual as? [String]) == strings
+        case let bool as Bool:
+            return (actual as? Bool) == bool
+        case let int as Int:
+            return (actual as? Int) == int
+        case let double as Double:
+            if let actualDouble = actual as? Double { return actualDouble == double }
+            if let actualNumber = actual as? NSNumber { return actualNumber.doubleValue == double }
+            return false
+        case is NSNull:
+            return actual == nil || actual is NSNull
+        default:
+            return String(describing: actual) == String(describing: expected)
+        }
+    }
+
     func onUploadOptionalResults() -> [Change] {
         let resultField = app.staticTexts["resultUploadfield"]
 

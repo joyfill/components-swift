@@ -13,6 +13,7 @@ import Joyfill
 class AppState: ObservableObject {
     @Published var changeResult: String = ""
     @Published var uploadResult: String = ""
+    @Published var focusBlurResult: String = "[]"
 }
 
 // MARK: - Quick Configuration
@@ -36,6 +37,10 @@ struct JoyfillExampleApp: App {
         } setUploadResult: { change in
             DispatchQueue.main.async {
                 appState.uploadResult = change
+            }
+        } setFocusBlurResult: { json in
+            DispatchQueue.main.async {
+                appState.focusBlurResult = json
             }
         }
         _appState = StateObject(wrappedValue: appState)
@@ -61,7 +66,8 @@ struct JoyfillExampleApp: App {
                 isPageDuplicateEnabled: isPageDuplicateEnabled,
                 isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
-                license: licenseKey
+                license: licenseKey,
+                singleClickRowEdit: true
             )
         } catch {
             print("⚠️  Error creating document editor: \(error)")
@@ -74,17 +80,27 @@ struct JoyfillExampleApp: App {
                 isPageDuplicateEnabled: isPageDuplicateEnabled,
                 isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
-                license: licenseKey
+                license: licenseKey,
+                singleClickRowEdit: true
             )
         }
         
         // Set up crash prevention for UI tests after all properties are initialized
         setupCrashPrevention()
+
+        if CommandLine.arguments.contains("--disable-animations") {
+            UIView.setAnimationsEnabled(false)
+        }
     }
 
     var body: some Scene {
         WindowGroup {
-            if joyfillUITestsMode && isRunOnChangeHandler() {
+            if joyfillUITestsMode && isRunningNavigationTest() {
+                NavigationView {
+                    FooterExampleView()
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+            } else if joyfillUITestsMode && isRunOnChangeHandler() {
                 OnChangeHandlerTest()
                     .navigationViewStyle(StackNavigationViewStyle())
             } else if joyfillUITestsMode {
@@ -98,6 +114,13 @@ struct JoyfillExampleApp: App {
                 Text(appState.uploadResult)
                     .accessibilityIdentifier("resultUploadfield")
                     .frame(height: 10)
+                Text(appState.focusBlurResult)
+                    .accessibilityIdentifier("focusBlurResultfield")
+                    .frame(height: 10)
+                
+                if isRunningDecoratorTest() {
+                    DecoratorCommandBridgeView(documentEditor: documentEditor)
+                }
             } else if useQuickTestMode {
                 //Quick test mode: directly open template list with default token
                 NavigationView {
@@ -111,6 +134,29 @@ struct JoyfillExampleApp: App {
     }
     
     func isRunOnChangeHandler(_ testClass: String = "OnChangeHandlerUITests") -> Bool {
+        // 1. Must be iPad
+        guard UIDevice.current.userInterfaceIdiom == .pad else {
+            return false
+        }
+        // 2. Pull the full test name from CLI args
+        let args = CommandLine.arguments
+        guard let idx = args.firstIndex(of: "--test-name"),
+              idx + 1 < args.count else {
+            return false
+        }
+        let fullTestName = args[idx + 1]
+        // 3. Check if it contains our test class
+        return fullTestName.contains(testClass)
+    }
+    
+    func isRunningDecoratorTest() -> Bool {
+        let args = CommandLine.arguments
+        guard let idx = args.firstIndex(of: "--test-name"),
+              idx + 1 < args.count else { return false }
+        return args[idx + 1].contains("Decorator")
+    }
+
+    func isRunningNavigationTest(_ testClass: String = "NavigationGotoUITests") -> Bool {
         // 1. Must be iPad
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return false

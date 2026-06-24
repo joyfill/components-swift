@@ -30,21 +30,36 @@ extension DocumentEditor {
         guard var lastRowOrder = field.rowOrder else {
             return elements
         }
+        var deletedRowsByID = [String: [String: Any]]()
+
+        // Build a rowID → index map once. Safe here because deletes are SOFT
+        // (setDeleted + in-place write); indices don't shift during the loop.
+        var indexByID: [String: Int] = [:]
+        indexByID.reserveCapacity(elements.count)
+        for (i, el) in elements.enumerated() {
+            if let id = el.id { indexByID[id] = i }
+        }
 
         for row in rowIDs {
-            guard let index = elements.firstIndex(where: { $0.id == row }) else {
+            guard let index = indexByID[row] else {
                 Log("Row not found: \(row)", type: .error)
-                return elements
+                continue
             }
             var element = elements[index]
             element.setDeleted()
+            if shouldSendEvent {
+                deletedRowsByID[row] = element.anyDictionary
+            }
             elements[index] = element
-            lastRowOrder.removeAll(where: { $0 == row })
         }
+        // Single O(rowOrder) cleanup instead of O(rowOrder) per deleted row.
+        let rowIDsSet = Set(rowIDs)
+        lastRowOrder.removeAll(where: { rowIDsSet.contains($0) })
+
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
-        guard shouldSendEvent else { return  elements }
-        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs)
+        guard shouldSendEvent else { return elements }
+        onChangeForDelete(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, rowsByID: deletedRowsByID)
         return elements
     }
     
@@ -56,40 +71,52 @@ extension DocumentEditor {
         }
         guard var elements = field.valueToValueElements else { return [] }
         guard !rowIDs.isEmpty else { return elements }
-        
+        var deletedRowsByID = [String: [String: Any]]()
+        var deletedRowIDs = [String]()
+
         for row in rowIDs {
             if let index = elements.firstIndex(where: { $0.id == row }) {
-                elements.remove(at: index)
+                var deletedElement = elements.remove(at: index)
+                if shouldSendEvent {
+                    deletedElement.setDeleted()
+                    deletedRowsByID[row] = deletedElement.anyDictionary
+                    deletedRowIDs.append(row)
+                }
             } else {
-                _ = deleteRowRecursively(rowId: row, in: &elements)
+                if var deletedElement = deleteRowRecursively(rowId: row, in: &elements) {
+                    if shouldSendEvent {
+                        deletedElement.setDeleted()
+                        deletedRowsByID[row] = deletedElement.anyDictionary
+                        deletedRowIDs.append(row)
+                    }
+                }
             }
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
-        guard shouldSendEvent else { return elements }
+        guard shouldSendEvent, !deletedRowIDs.isEmpty else { return elements }
         var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: rowIDs, parentPath: parentPath, schemaId: nestedKey)
+        onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: deletedRowIDs, parentPath: parentPath, schemaId: nestedKey, rowsByID: deletedRowsByID)
         return elements
     }
 
-    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> Bool {
+    private func deleteRowRecursively(rowId: String, in elements: inout [ValueElement]) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
-                elements.remove(at: i)
-                return true
+                return elements.remove(at: i)
             }
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if deleteRowRecursively(rowId: rowId, in: &nestedElements) {
+                        if let deletedElement = deleteRowRecursively(rowId: rowId, in: &nestedElements) {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return true
+                            return deletedElement
                         }
                     }
                 }
             }
         }
-        return false
+        return nil
     }
     
     /// Duplicates specified rows in a table field.
@@ -253,14 +280,10 @@ extension DocumentEditor {
     func rowUpdateEvent(
         fieldIdentifier: FieldIdentifier,
         rowID: String,
-        cellDataModel: CellDataModel
+        cellDataModel: CellDataModel,
+        elements: [ValueElement]
     ) {
-        guard var rowOrder = fieldMap[fieldIdentifier.fieldID]?.rowOrder else { return }
-        let valueElement = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements?.first(where: { $0.id == rowID })
-        guard let rowIndex = rowOrder.firstIndex(of: rowID) else {
-            Log("Row index not found: \(rowID)", type: .error)
-            return
-        }
+        let valueElement = elements.first(where: { $0.id == rowID })
         let newCell = getNewCellValue(for: cellDataModel)
         
         let cells = [
@@ -272,6 +295,9 @@ extension DocumentEditor {
         ]
         if cellDataModel.type == .date {
             row["tz"] = valueElement?.tz
+        }
+        if valueElement?.metadata != nil {
+            row["metadata"] = valueElement?.metadata?.dictionary
         }
         sendRowUpdateEvent(for: fieldIdentifier, with: [row])
     }
@@ -448,12 +474,10 @@ extension DocumentEditor {
                                      childrenKeys: [String]? = nil,
                                      rootSchemaKey: String,
                                      nestedKey: String,
-                                     parentRowId: String) -> (all: [ValueElement], inserted: ValueElement)? {
+                                     parentRowId: String,
+                                     fieldData: [ValueElement]? = nil) -> (all: [ValueElement], inserted: ValueElement)? {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
-            Log("No elements found for field: \(fieldId)", type: .error)
-            return nil
-        }
+        var elements = fieldData ?? field(fieldID: fieldId)?.valueToValueElements ?? []
 
         let newRowID = generateObjectId()
         var newRow = ValueElement(id: newRowID)
@@ -520,12 +544,15 @@ extension DocumentEditor {
     ///   - cellValues: A dictionary mapping column IDs to their values in ValueUnion format.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     /// - Returns: The newly created ValueElement if successful, nil otherwise.
-    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement) {
+    public func insertRowWithFilter(id: String, cellValues: [String: ValueUnion], metadata: Metadata? = nil, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement) {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
 
         var newRow = ValueElement(id: id)
         if newRow.cells == nil {
             newRow.cells = [:]
+        }
+        if let metadata = metadata {
+            newRow.metadata = metadata
         }
         for cellValue in cellValues {
             newRow.cells![cellValue.key] = cellValue.value
@@ -547,6 +574,7 @@ extension DocumentEditor {
     public func insertRow(at index: Int,
                           id: String,
                           cellValues: [String: ValueUnion],
+                          metadata: Metadata? = nil,
                           fieldIdentifier: FieldIdentifier,
                           shouldSendEvent: Bool = true) -> ([ValueElement], ValueElement)? {
         var elements = field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? []
@@ -564,7 +592,9 @@ extension DocumentEditor {
         for (key, value) in cellValues {
             newRow.cells?[key] = value
         }
-        
+        if let metadata = metadata {
+            newRow.metadata = metadata
+        }
         // Insert into the elements array
         elements.insert(newRow, at: index)
         
@@ -628,6 +658,7 @@ extension DocumentEditor {
     
     func insertRowWithFilterWithAnyIndex(id: String,
                                                 cellValues: [String: ValueUnion],
+                                                metadata: Metadata? = nil,
                                                 fieldIdentifier: FieldIdentifier,
                                                 parentRowId: String? = nil,
                                                 schemaKey: String? = nil,
@@ -639,7 +670,9 @@ extension DocumentEditor {
         if newRow.cells == nil {
             newRow.cells = [:]
         }
-        
+        if let metadata = metadata {
+            newRow.metadata = metadata
+        }
         for (key, value) in cellValues {
             newRow.cells![key] = value
         }
@@ -810,7 +843,8 @@ extension DocumentEditor {
     ///   - changes: A dictionary of String keys and values representing the changes to be made.
     ///   - selectedRows: An array of String identifiers for the rows to be edited.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) {
+    @discardableResult
+    public func bulkEdit(changes: [String: [String: ValueUnion]], selectedRows: [String], fieldIdentifier: FieldIdentifier, fieldData: [ValueElement]) -> [ValueElement] {
         var elements = fieldData
         let columns = field(fieldID: fieldIdentifier.fieldID)?.tableColumns ?? []
         var isDateColumn: Bool = false
@@ -844,6 +878,9 @@ extension DocumentEditor {
             if isDateColumn {
                 if let idx = indexMap[rowID] {
                     row["tz"] = elements[idx].tz
+                    if elements[idx].metadata != nil {
+                        row["metadata"] = elements[idx].metadata?.dictionary
+                    }
                 }
             }
             rows.append(row)
@@ -852,6 +889,7 @@ extension DocumentEditor {
         fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
         
         sendRowUpdateEvent(for: fieldIdentifier, with: rows)
+        return elements
     }
     
     public func bulkEditForNested(changes: [String: [String : ValueUnion]],
@@ -893,6 +931,9 @@ extension DocumentEditor {
                         var row: [String: Any] = ["_id": rowId, "cells": changeToSend]
                         if isDateColumn {
                             row["tz"] = updated.tz
+                        }
+                        if updated.metadata != nil {
+                            row["metadata"] = updated.metadata?.dictionary
                         }
                         rows.append(row)
                     }
@@ -1038,7 +1079,7 @@ extension DocumentEditor {
         ])
     }
 
-    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, callOnChange: Bool = true) -> [ValueElement] {
+    func cellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, callOnChange: Bool = true, metadata: Metadata? = nil) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return []
@@ -1050,31 +1091,31 @@ extension DocumentEditor {
         
         switch cellDataModel.type {
         case .text:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
         case .dropdown:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId, metadata: metadata)
         case .image:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId, metadata: metadata)
         case .date:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId, metadata: metadata)
         case .number:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.number.map(ValueUnion.double), fieldId: fieldId, metadata: metadata)
         case .multiSelect:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId, metadata: metadata)
         case .barcode:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
         case .table:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId, metadata: metadata)
         case .signature:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
         case .block:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
         default:
             return []
         }
         // Fire row update event
         if callOnChange {
-            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel)
+            rowUpdateEvent(fieldIdentifier: fieldIdentifier, rowID: rowId, cellDataModel: cellDataModel, elements: elements)
         }
         
         return elements
@@ -1105,7 +1146,7 @@ extension DocumentEditor {
         return newCell
     }
     
-    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool, valueElements: [ValueElement], isRootRow: Bool) -> ([ValueElement], ValueElement?) {
+    func nestedCellDidChange(rowId: String, cellDataModel: CellDataModel, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, callOnChange: Bool, valueElements: [ValueElement], isRootRow: Bool, metadata: Metadata? = nil) -> ([ValueElement], ValueElement?) {
         let fieldId = fieldIdentifier.fieldID
         var elements = valueElements
         var newCell: ValueUnion?
@@ -1113,31 +1154,31 @@ extension DocumentEditor {
         switch cellDataModel.type {
         case .text:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .dropdown:
             newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .image:
             newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .date:
             newCell = cellDataModel.date.map(ValueUnion.double)
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .number:
             newCell = cellDataModel.number.map(ValueUnion.double)
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .multiSelect:
             newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .barcode:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .signature:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .block:
             newCell = ValueUnion.string(cellDataModel.title ?? "")
-            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell)
+            updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         default:
             return ([], nil)
         }
@@ -1154,6 +1195,9 @@ extension DocumentEditor {
             ]
             if cellDataModel.type == .date {
                 row["tz"] = updatedElement?.tz
+            }
+            if updatedElement?.metadata != nil {
+                row["metadata"] = updatedElement?.metadata?.dictionary
             }
             guard let currentField = fieldMap[fieldId] else {
                 Log("Failed to find field \(fieldId)", type: .error)
@@ -1205,11 +1249,21 @@ extension DocumentEditor {
     }
 
     func onFocus(event: FieldIdentifier) {
-        events?.onFocus(event: event)
+        events?.onFocus(event: Event(fieldEvent: event))
+    }
+
+    func reportDecoratorAction(fieldIdentifier: FieldIdentifier, action: String, rowIds: [String]? = nil, columnId: String? = nil, parentPath: String? = nil) {
+        var fieldEvent = fieldIdentifier
+        fieldEvent.type = action
+        fieldEvent.target = action
+        if let rowIds = rowIds { fieldEvent.rowIds = rowIds }
+        if let columnId = columnId { fieldEvent.columnId = columnId }
+        if let parentPath = parentPath { fieldEvent.parentPath = parentPath }
+        onFocus(event: fieldEvent)
     }
 
     func onBlur(event: FieldIdentifier) {
-        events?.onBlur(event: event)
+        events?.onBlur(event: Event(fieldEvent: event))
     }
 
     func onUpload(event: UploadEvent) {
@@ -1218,6 +1272,14 @@ extension DocumentEditor {
     
     func onCapture(event: CaptureEvent) {
         events?.onCapture(event: event)
+    }
+    
+    func onFocus(event: PageEvent) {
+        events?.onFocus(event: Event(pageEvent: event))
+    }
+    
+    func onBlur(event: PageEvent) {
+        events?.onBlur(event: Event(pageEvent: event))
     }
 }
 
@@ -1275,7 +1337,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
 
-    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String]) {
+    private func onChangeForDelete(fieldIdentifier: FieldIdentifier, rowIDs: [String], rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
@@ -1283,6 +1345,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
+            let rowObject = rowsByID[targetRow.id] ?? [:]
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
@@ -1293,7 +1356,10 @@ extension DocumentEditor {
                                 fieldId: event.fieldIdentifier.fieldID,
                                 fieldIdentifier: context.fieldIdentifier,
                                 fieldPositionId: context.fieldPositionID,
-                                change: ["rowId": targetRow.id],
+                                change: [
+                                    "rowId": targetRow.id,
+                                    "row": rowObject
+                                ],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
@@ -1301,7 +1367,7 @@ extension DocumentEditor {
 //        refreshField(fieldId: fieldIdentifier.fieldID, fieldIdentifier: fieldIdentifier)
     }
     
-    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String) {
+    private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String, rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
@@ -1309,6 +1375,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
+            let rowObject = rowsByID[targetRow.id] ?? [:]
             var change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
@@ -1319,9 +1386,12 @@ extension DocumentEditor {
                                 fieldId: fieldIdentifier.fieldID,
                                 fieldIdentifier: context.fieldIdentifier,
                                 fieldPositionId: context.fieldPositionID,
-                                change: ["parentPath": parentPath,
-                                         "schemaId": schemaId,
-                                         "rowId": targetRow.id],
+                                change: [
+                                    "parentPath": parentPath,
+                                    "schemaId": schemaId,
+                                    "rowId": targetRow.id,
+                                    "row": rowObject
+                                ],
                                 createdOn: Date().timeIntervalSince1970)
             changes.append(change)
         }
@@ -1459,17 +1529,22 @@ extension DocumentEditor {
     }
 
     private func changes(fieldData: JoyDocField) -> [String: Any] {
+        var base: [String: Any]
         switch fieldData.type {
         case "chart":
             return chartChanges(fieldData: fieldData)
         case "date":
-            return [
+            base = [
                 "value": fieldData.value?.dictionary,
                 "tz": fieldData.tz
             ]
         default:
-            return ["value": fieldData.value?.dictionary]
+            base = ["value": fieldData.value?.dictionary]
         }
+        if let meta = fieldData.metadata?.dictionary {
+            base["metadata"] = meta
+        }
+        return base
     }
 
     private func chartChanges(fieldData: JoyDocField) -> [String: Any] {
@@ -1485,6 +1560,9 @@ extension DocumentEditor {
         valueDict["xTitle"] = fieldData.xTitle
         valueDict["xMin"] = fieldData.xMin
         valueDict["xMax"] = fieldData.xMax
+        if let meta = fieldData.metadata?.dictionary {
+            valueDict["metadata"] = meta
+        }
         return valueDict
     }
 
@@ -1510,7 +1588,7 @@ extension DocumentEditor {
         return valueDict
     }
 
-    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String) -> [ValueElement] {
+    private func changeCell(elements: [ValueElement], index: Int, cellDataModelId: String, newCell: ValueUnion?, fieldId: String, metadata: Metadata? = nil) -> [ValueElement] {
         var elements = elements
         
         if var cells = elements[index].cells {
@@ -1520,9 +1598,11 @@ extension DocumentEditor {
                 cells.removeValue(forKey: cellDataModelId)
             }
             updateTimeZoneIfNeeded(&elements[index])
+            elements[index].metadata = metadata
             elements[index].cells = cells
         } else if let newCell = newCell {
             updateTimeZoneIfNeeded(&elements[index])
+            elements[index].metadata = metadata
             elements[index].cells = [cellDataModelId: newCell]
         }
         
@@ -1540,7 +1620,7 @@ extension DocumentEditor {
         }
     }
     
-    private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?) -> ValueElement? {
+    private func recursiveChangeCell(in elements: inout [ValueElement], rowId: String, cellDataModelId: String, newCell: ValueUnion?, metadata: Metadata? = nil) -> ValueElement? {
         for i in 0..<elements.count {
             if elements[i].id == rowId {
                 if var cells = elements[i].cells {
@@ -1553,13 +1633,16 @@ extension DocumentEditor {
                 } else if let newCell = newCell {
                     elements[i].cells = [cellDataModelId: newCell]
                 }
+                if let metadata = metadata {
+                    elements[i].metadata = metadata
+                }
                 updateTimeZoneIfNeeded(&elements[i])
                 return elements[i]
             }
             if var childrenDict = elements[i].childrens {
                 for (key, var child) in childrenDict {
                     if var nestedElements = child.valueToValueElements {
-                        if let updated = recursiveChangeCell(in: &nestedElements, rowId: rowId, cellDataModelId: cellDataModelId, newCell: newCell) {
+                        if let updated = recursiveChangeCell(in: &nestedElements, rowId: rowId, cellDataModelId: cellDataModelId, newCell: newCell, metadata: metadata) {
                             child.value = ValueUnion.valueElementArray(nestedElements)
                             childrenDict[key] = child
                             elements[i].childrens = childrenDict
@@ -1670,6 +1753,22 @@ extension DocumentEditor {
         }
         
         // Generate page.delete event for the main page
+        if !viewId.isEmpty {
+            // Delete mobile view page
+            changes.append(Change(
+                v: 1,
+                sdk: "swift",
+                id: documentID,
+                identifier: documentIdentifier,
+                target: "page.delete",
+                fileId: fileId,
+                viewType: "mobile",
+                pageId: pageID,
+                createdOn: Date().timeIntervalSince1970
+            ))
+        }
+        
+        // Delete main page on change
         changes.append(Change(
             v: 1,
             sdk: "swift",
@@ -1677,7 +1776,6 @@ extension DocumentEditor {
             identifier: documentIdentifier,
             target: "page.delete",
             fileId: fileId,
-            viewType: viewId.isEmpty ? "web" : "mobile",
             pageId: pageID,
             createdOn: Date().timeIntervalSince1970
         ))

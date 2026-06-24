@@ -401,11 +401,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func editSingleRowUpperButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"]
+        app.buttons["UpperRowButtonIdentifier"]
     }
     
     func editSingleRowLowerButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"]
+        app.buttons["LowerRowButtonIdentifier"]
     }
     
     func editRowsButton() -> XCUIElement {
@@ -413,7 +413,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
     
     func editInsertRowPlusButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"]
+        app.buttons["PlusTheRowButtonIdentifier"]
     }
     
     func selectNestedRow(number: Int) {
@@ -805,8 +805,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
                 foundColumns += 1
             }
         }
-        
-        XCTAssertEqual(foundColumns, 5, "Should find at least some nested columns in Depth 3 schema")
+        //Changing 5 to 6 because of date column filter
+        XCTAssertEqual(foundColumns, 6, "Should find at least some nested columns in Depth 3 schema")
         
         closeFilterModal()
     }
@@ -1637,7 +1637,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let barcodeField = app.textViews["TableBarcodeFieldIdentifier"].firstMatch
         barcodeField.tap()
         barcodeField.typeText("ab")
-        if isAddMoreFilterButtonEnabled() {
+        //after date column filters it should be enabled 
+        if !isAddMoreFilterButtonEnabled() {
             XCTFail("Add More Filter button should be disabled")
         }
         tapApplyButton()
@@ -1737,7 +1738,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("Hello ji")
@@ -1804,7 +1805,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("Joyfill")
@@ -1862,7 +1863,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, true)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("A")
@@ -2016,9 +2017,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let columnSelectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
         let firstSelectorLabel = columnSelectors.element(boundBy: 0).label
         XCTAssertEqual(firstSelectorLabel, "Select column type", "Column selector should reset after schema change")
-        if isAddMoreFilterButtonEnabled() {
-            XCTFail("Add More Filter button should be disabled")
-        }
+        
+        XCTAssertFalse(isAddMoreFilterButtonEnabled(), "Add More Filter button should be disabled")
         tapApplyButton()
         closeFilterModal()
     }
@@ -2075,7 +2075,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2191,7 +2191,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2307,7 +2307,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowUpperButton().isEnabled, false)
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.clearText()
         textField.typeText("qu")
@@ -2430,7 +2430,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("one")
@@ -2615,7 +2615,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         editRowsButton().tap()
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.typeText("hide depth2")
@@ -2758,6 +2758,275 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertFalse(app.keyboards.element.exists)
     }
     
+    func testCollectionFieldOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        app.images["selectNestedRowItem3"].firstMatch.tap()
+        tapOnMoreButton()
+        editRowsButton().tap()
+        
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit row text field should exist")
+        textField.tap()
+        
+        dismissSheet()
+        
+        assertCollectionCellFocusBlurEvents(
+            columnId: "685753be581f231c08d8f11c",
+            rowIds: ["68599790e8593d6d76c3a09f"],
+            parentPath: "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        )
+    }
+    
+    func testCollectionFieldMultiSelectOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        app.swipeLeft()
+        
+        let expectedColumnId = "685753c51f0af9f46eacdb40"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let multiSelectionButtons = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertGreaterThan(multiSelectionButtons.count, 7, "Expected at least 8 multi-select cells to tap index 7")
+        let multiSelectionButton = multiSelectionButtons.element(boundBy: 7)
+        XCTAssertTrue(multiSelectionButton.waitForExistence(timeout: 5), "Multi-select cell at index 7 should exist")
+        multiSelectionButton.tap()
+        dismissSheet()
+        
+        assertCollectionCellFocusBlurEvents(
+            columnId: expectedColumnId,
+            rowIds: expectedRowIds,
+            parentPath: expectedParentPath
+        )
+    }
+
+    func testCollectionFieldDropdownOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        
+        let expectedColumnId = "685753c1b072d80a56f775b7"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let dropdownFields = app.buttons.matching(identifier: "TableDropdownIdentifier")
+        XCTAssertGreaterThan(dropdownFields.count, 7, "Expected at least 8 dropdown cells to tap index 7")
+        let dropdownField = dropdownFields.element(boundBy: 7)
+        XCTAssertTrue(dropdownField.waitForExistence(timeout: 5), "Dropdown cell at index 7 should exist")
+        dropdownField.tap()
+        dismissSheet()
+        
+        waitForFocusBlurResult(timeout: 5)
+        assertCollectionCellFocusBlurEvents(
+            columnId: expectedColumnId,
+            rowIds: expectedRowIds,
+            parentPath: expectedParentPath
+        )
+    }
+    
+    func testCollectionFieldNumberOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        app.swipeLeft()
+        
+        let expectedColumnId = "685753ca9756907c2dd4fdca"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let numberFields = app.textFields.matching(identifier: "TabelNumberFieldIdentifier")
+        XCTAssertGreaterThan(numberFields.count, 7, "Expected at least 8 number cells to tap index 7")
+        let targetNumberField = numberFields.element(boundBy: 7)
+        XCTAssertTrue(targetNumberField.waitForExistence(timeout: 5), "Number cell at index 7 should exist")
+        targetNumberField.tap()
+        app.dismissKeyboardIfVisible()
+        
+        waitForFocusBlurResult(timeout: 5)
+        assertCollectionCellFocusBlurEvents(
+            columnId: expectedColumnId,
+            rowIds: expectedRowIds,
+            parentPath: expectedParentPath
+        )
+    }
+
+    func testCollectionFieldImageOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        app.swipeLeft()
+        
+        let expectedColumnId = "685753c79f2f26b2e1e5ea7f"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let imageFields = app.buttons.matching(identifier: "TableImageIdentifier")
+        XCTAssertGreaterThan(imageFields.count, 7, "Expected at least 8 image cells to tap index 7")
+        let imageField = imageFields.element(boundBy: 7)
+        XCTAssertTrue(imageField.waitForExistence(timeout: 5), "Image cell at index 7 should exist")
+        imageField.tap()
+        dismissSheet()
+        
+        waitForFocusBlurResult(timeout: 5)
+        assertCollectionCellFocusBlurEvents(
+            columnId: expectedColumnId,
+            rowIds: expectedRowIds,
+            parentPath: expectedParentPath
+        )
+    }
+
+    func testCollectionFieldDateOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        app.swipeLeft()
+        
+        let expectedColumnId = "685753cb9f6ba585df048173"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let dateButtons = app.buttons.matching(identifier: "ChangeCellDateIdentifier")
+        let dateIcons = app.images.matching(identifier: "CalendarImageIdentifier")
+        let targetIndex = 7
+        let totalDateElements = dateButtons.count + dateIcons.count
+        XCTAssertGreaterThan(
+            totalDateElements,
+            targetIndex,
+            "Expected at least 8 date elements to tap index 7. buttons: \(dateButtons.count), icons: \(dateIcons.count)"
+        )
+        
+        let dateField: XCUIElement
+        if targetIndex < dateButtons.count {
+            dateField = dateButtons.element(boundBy: targetIndex)
+        } else {
+            dateField = dateIcons.element(boundBy: targetIndex - dateButtons.count)
+        }
+        
+        XCTAssertTrue(dateField.waitForExistence(timeout: 5), "Date cell at index 7 should exist")
+        dateField.tap()
+        
+        let closeDatePopupButton = app.buttons["Close"].firstMatch
+        if closeDatePopupButton.waitForExistence(timeout: 1.0) {
+            closeDatePopupButton.tap()
+        } else {
+            dismissSheet()
+        }
+        
+        waitForFocusBlurResult(timeout: 5)
+        let results = focusBlurOptionalResults()
+        XCTAssertFalse(results.isEmpty, "Expected focus events but found none")
+        
+        let focusEvent: [String: Any] = [
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fieldID": "6857510fbfed1553e168161b",
+            "fieldIdentifier": "field_68575112847f32f878c77daf",
+            "pageID": "685750efeb612f4fac5819dd",
+            "fileID": "685750ef698da1ab427761ba",
+            "fieldPositionId": "68575112158ff5dbaa9f78e1",
+            "rowIds": expectedRowIds,
+            "columnId": expectedColumnId,
+            "parentPath": expectedParentPath,
+            "type": "field.focus",
+            "target": "field.focus"
+        ]
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: focusEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"]
+        )
+    }
+
+    func testCollectionFieldBarcodeOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        app.swipeLeft()
+        app.swipeLeft()
+        
+        let expectedColumnId = "685753ce949e66c62c746f62"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let barcodeFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        XCTAssertGreaterThan(barcodeFields.count, 7, "Expected at least 8 barcode cells to tap index 7")
+        let barcodeField = barcodeFields.element(boundBy: 7)
+        XCTAssertTrue(barcodeField.waitForExistence(timeout: 5), "Barcode cell at index 7 should exist")
+        barcodeField.tap()
+        app.dismissKeyboardIfVisible()
+        
+        waitForFocusBlurResult(timeout: 5)
+        assertCollectionCellFocusBlurEvents(
+            columnId: expectedColumnId,
+            rowIds: expectedRowIds,
+            parentPath: expectedParentPath
+        )
+    }
+
+    func testCollectionFieldSignatureOnFocusOnBlur() throws {
+        goToCollectionDetailField()
+        
+        expandRow(number: 3)
+        expandNestedRow(number: 2)
+        app.swipeUp()
+        let selectedNestedRow = app.images["selectNestedRowItem3"].firstMatch
+        XCTAssertTrue(selectedNestedRow.waitForExistence(timeout: 5), "Nested row selector should exist")
+        selectedNestedRow.tap()
+        app.swipeLeft()
+        app.swipeLeft()
+        
+        let expectedColumnId = "685753d19cc6b6d14388c50d"
+        let expectedRowIds = ["68599790e8593d6d76c3a09f"]
+        let expectedParentPath = "2.685753949107b403e2e4a949.1.685753be00360cf5d545a89e"
+        
+        let signatureFields = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        XCTAssertGreaterThan(signatureFields.count, 7, "Expected at least 8 signature cells to tap index 7")
+        let signatureField = signatureFields.element(boundBy: 7)
+        XCTAssertTrue(signatureField.waitForExistence(timeout: 5), "Signature cell at index 7 should exist")
+        signatureField.tap()
+        dismissSheet()
+        
+        waitForFocusBlurResult(timeout: 5)
+        assertCollectionCellFocusBlurEvents(
+            columnId: expectedColumnId,
+            rowIds: expectedRowIds,
+            parentPath: expectedParentPath
+        )
+    }
     
     func testCheckLabelName() throws {
         goToCollectionDetailField()
@@ -2822,6 +3091,27 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let schemaId = change?["schemaId"] as? String
         XCTAssertEqual("685753be00360cf5d545a89e", schemaId)
         
+        guard let deletedRow = change?["row"] as? [String: Any] else {
+            return XCTFail("Missing deleted row object in changelog")
+        }
+
+        let expectedDeletedRow: [String: Any] = [
+            "_id": "68599790e8593d6d76c3a09f",
+            "deleted": true,
+            "cells": [
+                "685753ce949e66c62c746f62": "A",
+                "685753ca9756907c2dd4fdca": 200,
+                "685753cd582979929e70d64e": "A",
+                "685753c1b072d80a56f775b7": "685753c1372bdec00abf169b",
+                "685753be581f231c08d8f11c": "A",
+                "685753c51f0af9f46eacdb40": [
+                    "685753c5265c32e4ff94cfa4"
+                ]
+            ],
+            "children": [:]
+        ]
+        XCTAssertEqual(deletedRow as NSDictionary, expectedDeletedRow as NSDictionary)
+        
     }
     
     func testChangeLogsForAddRow() throws {
@@ -2884,7 +3174,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         textField.press(forDuration: 1.0)
@@ -3610,3 +3900,138 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
     }
 }
 
+extension CollectionFieldSearchFilterTests {
+    
+    @discardableResult
+    func assertFocusBlurFieldEvent(
+        in results: [[String: Any]],
+        expectedFieldEvent: [String: Any],
+        expectedAbsentFieldEventKeys: Set<String> = ["type", "target"],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> [String: Any] {
+        guard let matchedEvent = results.first(where: { event in
+            guard let fieldEvent = event["fieldEvent"] as? [String: Any] else {
+                return false
+            }
+            for (key, expectedValue) in expectedFieldEvent {
+                if !focusBlurValuesMatch(actual: fieldEvent[key], expected: expectedValue) {
+                    return false
+                }
+            }
+            return true
+        }) else {
+            XCTFail("Missing event matching expected payload: \(expectedFieldEvent). Available events: \(results)", file: file, line: line)
+            return [:]
+        }
+
+        XCTAssertNil(matchedEvent["pageEvent"], "Did not expect pageEvent", file: file, line: line)
+
+        guard let fieldEvent = matchedEvent["fieldEvent"] as? [String: Any] else {
+            XCTFail("Missing fieldEvent dictionary", file: file, line: line)
+            return matchedEvent
+        }
+
+        let expectedFieldEventKeys = Set(expectedFieldEvent.keys)
+        let nullableExpectedKeys = Set(
+            expectedFieldEvent.compactMap { key, value in
+                value is NSNull ? key : nil
+            }
+        )
+        let requiredExpectedKeys = expectedFieldEventKeys.subtracting(nullableExpectedKeys)
+        let fieldEventKeys = Set(fieldEvent.keys)
+        let absentKeysToAssert = expectedAbsentFieldEventKeys.subtracting(expectedFieldEventKeys)
+        XCTAssertTrue(
+            fieldEventKeys.isSuperset(of: requiredExpectedKeys),
+            "Missing required fieldEvent keys. Required: \(requiredExpectedKeys), got: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            fieldEventKeys.isSubset(of: expectedFieldEventKeys),
+            "Unexpected fieldEvent keys: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            absentKeysToAssert.isDisjoint(with: fieldEventKeys),
+            "Did not expect optional keys \(absentKeysToAssert), got \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+
+        for (key, expectedValue) in expectedFieldEvent {
+            let actualValue = fieldEvent[key]
+            if expectedValue is NSNull {
+                XCTAssertTrue(
+                    actualValue == nil || actualValue is NSNull,
+                    "Expected key '\(key)' to be nil/missing, got \(String(describing: actualValue))",
+                    file: file,
+                    line: line
+                )
+                continue
+            }
+            XCTAssertTrue(
+                focusBlurValuesMatch(actual: actualValue, expected: expectedValue),
+                "Mismatch for key '\(key)'. Expected \(expectedValue), got \(String(describing: actualValue))",
+                file: file,
+                line: line
+            )
+        }
+
+        for key in absentKeysToAssert {
+            XCTAssertFalse(fieldEvent.keys.contains(key), "\(key) should be absent", file: file, line: line)
+            XCTAssertNil(fieldEvent[key], "\(key) should be nil", file: file, line: line)
+        }
+
+        return matchedEvent
+    }
+    
+    func assertCollectionCellFocusBlurEvents(
+        columnId: String,
+        rowIds: [String],
+        parentPath: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let results = focusBlurOptionalResults()
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none", file: file, line: line)
+        
+        let base: [String: Any] = [
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fieldID": "6857510fbfed1553e168161b",
+            "fieldIdentifier": "field_68575112847f32f878c77daf",
+            "pageID": "685750efeb612f4fac5819dd",
+            "fileID": "685750ef698da1ab427761ba",
+            "fieldPositionId": "68575112158ff5dbaa9f78e1",
+            "rowIds": rowIds,
+            "columnId": columnId,
+            "parentPath": parentPath
+        ]
+
+        var focusEvent = base
+        focusEvent["type"] = "field.focus"
+        focusEvent["target"] = "field.focus"
+
+        var blurEvent = base
+        blurEvent["type"] = "field.blur"
+        blurEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: focusEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"],
+            file: file,
+            line: line
+        )
+        assertFocusBlurFieldEvent(
+            in: results,
+            expectedFieldEvent: blurEvent,
+            expectedAbsentFieldEventKeys: ["type", "target"],
+            file: file,
+            line: line
+        )
+    }
+    
+}

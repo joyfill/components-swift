@@ -75,7 +75,8 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
         usleep(500000) // 0.5 second to allow UI to settle
     }
-    
+
+
     func ensureCleanCollectionState() {
         returnToRootView()
         dismissAnyOpenModals()
@@ -108,8 +109,10 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         pageSelectionButton.tap()
         app.swipeUp()
         app.swipeUp()
-        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        app.buttons["Page 16"].tap()
+//        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        app.buttons.matching(NSPredicate(format: "label == %@", "Page 16"))
+            .firstMatch
+            .tap()
         
         let goToTableDetailView = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
         let tapOnSecondTableView = goToTableDetailView.element(boundBy: 0)
@@ -202,15 +205,15 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     }
     
     func editSingleRowUpperButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["UpperRowButtonIdentifier"]
+        app.buttons["UpperRowButtonIdentifier"]
     }
     
     func editSingleRowLowerButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["LowerRowButtonIdentifier"]
+        app.buttons["LowerRowButtonIdentifier"]
     }
     
     func editInsertRowPlusButton() -> XCUIElement {
-        app.scrollViews.otherElements.buttons["PlusTheRowButtonIdentifier"]
+        app.buttons["PlusTheRowButtonIdentifier"]
     }
     
     func deleteRowButton() -> XCUIElement {
@@ -807,7 +810,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5), "Edit text field did not appear")
         textField.tap()
@@ -1019,7 +1022,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, false)
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         textField.tap()
         textField.typeText("A")
         app.dismissKeyboardIfVisible()
@@ -1190,6 +1193,34 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
             // No change event received, which is the expected behavior for this test.
         }
     }
+
+    func testBulkEditApplyAllClearsSelection() throws {
+        goToCollectionDetailField()
+
+        selectAllParentRows()
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "More button should appear after selecting rows")
+
+        tapOnMoreButton()
+        let editRowsMenuBefore = editRowsButton()
+        XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
+        XCTAssertTrue(editRowsMenuBefore.label.contains("rows"), "This should be a bulk edit flow, but got: \(editRowsMenuBefore.label)")
+
+        editRowsMenuBefore.tap()
+
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 1), "Bulk edit text field should be visible")
+        textField.tap()
+        textField.typeText("BulkSelectionPersistence")
+
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 1), "Apply All button should be visible in bulk edit")
+        applyAllButton.tap()
+
+        XCTAssertTrue(waitUntil(2) { !applyAllButton.exists }, "Bulk edit sheet should be dismissed after applying")
+        XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
+        XCTAssertFalse(moreButton.exists, "Selection should be cleared after Apply All")
+    }
     
     // Edit all Nested rows
     func testBulkEditNestedRows() throws {
@@ -1205,7 +1236,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         textField.tap()
         waitForAppToSettle()
@@ -1325,7 +1356,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         // Textfield
-        let textField = app.textViews["EditRowsTextFieldIdentifier"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
         waitForAppToSettle()
         XCTAssertTrue(textField.waitForExistence(timeout: 5))
         textField.tap()
@@ -1401,5 +1432,87 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         app.buttons["SaveSignatureIdentifier"].firstMatch.tap()
     }
     
-}
+    // MARK: - Pinned row form header tests
 
+    private func scrollRowFormUp() {
+        app.swipeUp()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+    }
+
+    /// The collection single-row form's navigation header (chevrons + close) must stay pinned while the fields scroll.
+    func testRowFormHeaderStaysPinnedWhileScrolling() throws {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        let closeButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"]
+        XCTAssertTrue(closeButton.waitForExistence(timeout: 5), "Single-row form should open")
+        XCTAssertTrue(app.buttons["UpperRowButtonIdentifier"].exists, "Up nav button should be in the pinned header")
+        XCTAssertTrue(app.buttons["LowerRowButtonIdentifier"].exists, "Down nav button should be in the pinned header")
+
+        let field = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "A scrollable field should be present")
+
+        let headerYBefore = closeButton.frame.minY
+        let fieldYBefore = field.frame.minY
+
+        scrollRowFormUp()
+        scrollRowFormUp()
+
+        XCTAssertTrue(closeButton.exists && closeButton.isHittable,
+                      "Header close button should stay visible and tappable after scrolling")
+        XCTAssertEqual(closeButton.frame.minY, headerYBefore, accuracy: 5.0,
+                       "Collection row form header should stay pinned, not scroll with the fields")
+        XCTAssertLessThan(field.frame.minY, fieldYBefore,
+                          "Fields should scroll underneath the pinned header")
+
+        // The pinned buttons must still be functional after scrolling.
+        let upButton = app.buttons["UpperRowButtonIdentifier"]
+        let downButton = app.buttons["LowerRowButtonIdentifier"]
+        XCTAssertFalse(upButton.isEnabled, "Up should be disabled on the first row")
+        XCTAssertTrue(downButton.isEnabled, "Down should be enabled while rows exist below")
+        downButton.tap()
+        XCTAssertTrue(waitUntil(3) { upButton.isEnabled },
+                      "Up should become enabled after the Down button navigates to the next row")
+
+        closeButton.tap()
+        XCTAssertTrue(waitUntil(3) { !closeButton.exists },
+                      "Row form should dismiss when the pinned close button is tapped")
+    }
+
+    /// The collection bulk-edit form's "Apply All" header must stay pinned while the fields scroll.
+    func testBulkEditRowFormHeaderStaysPinnedWhileScrolling() throws {
+        goToCollectionDetailField()
+        selectRow(number: 1)
+        selectRow(number: 2)
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        let applyAll = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAll.waitForExistence(timeout: 5), "Bulk-edit form should open with Apply All header")
+
+        let field = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "A scrollable field should be present")
+
+        let headerYBefore = applyAll.frame.minY
+        let fieldYBefore = field.frame.minY
+
+        scrollRowFormUp()
+        scrollRowFormUp()
+
+        XCTAssertTrue(applyAll.exists && applyAll.isHittable,
+                      "Apply All header button should stay visible and tappable after scrolling")
+        XCTAssertEqual(applyAll.frame.minY, headerYBefore, accuracy: 5.0,
+                       "Collection bulk-edit header should stay pinned, not scroll with the fields")
+        XCTAssertLessThan(field.frame.minY, fieldYBefore,
+                          "Fields should scroll underneath the pinned header")
+
+        // The pinned Apply All button must still be functional after scrolling.
+        XCTAssertTrue(applyAll.isHittable, "Apply All should be tappable after scrolling")
+        applyAll.tap()
+        XCTAssertTrue(waitUntil(3) { !applyAll.exists },
+                      "Bulk-edit form should dismiss after tapping the pinned Apply All button")
+    }
+
+}

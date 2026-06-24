@@ -20,9 +20,33 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var uuid = UUID()
     
     var showSingleClickEditButton: Bool {
-        return tableDataModel.singleClickRowEdit && tableDataModel.mode == .fill
+        return tableDataModel.singleClickRowEdit
     }
-    
+
+    var showRowDecorators: Bool {
+        return tableDataModel.decorate
+    }
+
+    var tableContentWidth: CGFloat {
+        let decoratorsWidth = showRowDecorators ? decoratorsCellWidth() : 0
+        return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * Utility.singleColumnWidth
+    }
+
+    private func refreshRowDecoratorMap() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+        tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])
+    }
+
+    /// Seeds the row + cell decorator caches for a single newly-inserted
+    /// row so common `rowDecorators` show up immediately without rebuilding
+    /// the cache for every existing row in the table.
+    private func seedRowDecorators(for row: ValueElement) {
+        let fieldRowDecorators = tableDataModel.documentEditor?
+            .field(fieldID: tableDataModel.fieldIdentifier.fieldID)?
+            .rowDecorators
+        tableDataModel.updateTableRowDecorators(for: row, fieldRowDecorators: fieldRowDecorators)
+    }
+
     init(tableDataModel: TableDataModel) {
         self.tableDataModel = tableDataModel
         self.showRowSelector = tableDataModel.mode == .fill
@@ -46,7 +70,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                                               editMode: tableDataModel.mode,
+                                               didFocusBlur: { [weak self] action, cellDataModel in
+                    self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                }) { [weak self] cellDataModel in
                     if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
@@ -81,17 +108,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return (filledCount, requiredColumnIds.count)
     }
     
-    func isColumnFilled(columnId: String) -> Bool {
-        for rowDataModel in tableDataModel.cellModels {
-            if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
-                if !cellDataModel.data.isCellFilled {
-                    return false
-                }
-            }
-        }
-        return true
-    }
-    
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
@@ -104,10 +120,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: timezoneId,
                                                    data: columnModel,
-                                                   documentEditor: tableDataModel.documentEditor,
-                                                   fieldIdentifier: tableDataModel.fieldIdentifier,
-                                                   viewMode: .modalView,
-                                                   editMode: tableDataModel.mode) { [weak self] cellDataModel in
+                                                    documentEditor: tableDataModel.documentEditor,
+                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
+                                                    viewMode: .modalView,
+                                                    editMode: tableDataModel.mode,
+                                                   didFocusBlur: { [weak self] action, cellDataModel in
+                        self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
+                    }) { [weak self] cellDataModel in
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
@@ -125,10 +144,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
 
         let nonDeletedRows = valueElements.filter { !($0.deleted ?? false) }
-        let sortedRows = tableDataModel.sortElementsByRowOrder(elements: nonDeletedRows, rowOrder: tableDataModel.rowOrder)
         let tableColumns = tableDataModel.tableColumns
         var rowToCellMap = [String: (String?, [CellDataModel])]()
-        for row in sortedRows {
+        for row in nonDeletedRows {
             let cellRowModel = tableDataModel.buildAllCellsForRow(tableColumns: tableColumns, row)
             guard let rowID = row.id else {
                 Log("Could not find row ID for row: \(row)", type: .error)
@@ -180,6 +198,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             Log("Could not find index of last selected row", type: .error)
             return nil
         }
+
+        tableDataModel.valueToValueElements?.append(targetRows.0)
+
+        seedRowDecorators(for: targetRows.0)
         updateRow(valueElement: targetRows.0, at: lastRowIndex+1)
         tableDataModel.emptySelection()
         return targetRows.0.id
@@ -291,16 +313,17 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
 
-    func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
+    func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, metadata: Metadata? = nil, shouldSendEvent: Bool = true) {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues()
         
         if let result = tableDataModel.documentEditor?.insertRowWithFilter(
-            id: id, cellValues: cellValues,
+            id: id, cellValues: cellValues, metadata: metadata,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent
         ) {
             tableDataModel.valueToValueElements = result.0
+            seedRowDecorators(for: result.1)
             updateRow(valueElement: result.1, at: tableDataModel.rowOrder.count)
         } else {
             Log("Row data is nil", type: .error)
@@ -308,12 +331,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
     }
     
-    func addRowAtIndex(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true, index: Int) {
+    func addRowAtIndex(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, metadata: Metadata? = nil, shouldSendEvent: Bool = true, index: Int) {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues()
         
-        if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
+        if let result = tableDataModel.documentEditor?.insertRow(at: index, id: id, cellValues: cellValues, metadata: metadata, fieldIdentifier: tableDataModel.fieldIdentifier, shouldSendEvent: shouldSendEvent) {
             tableDataModel.valueToValueElements = result.0
+            seedRowDecorators(for: result.1)
             updateRow(valueElement: result.1, at: index)
         } else {
             Log("Row data is nil", type: .error)
@@ -352,6 +376,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     cellValues[columnId] = ValueUnion.string(change)
                 case .signature:
                     cellValues[columnId] = ValueUnion.string(change)
+                case .date:
+                    if let doubleChange = Double(change) {
+                        cellValues[columnId] = ValueUnion.double(doubleChange)
+                    } else {
+                        cellValues[columnId] = ValueUnion.null
+                    }
                 default:
                     break
                 }
@@ -360,20 +390,20 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true) -> [ValueElement] {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil, isBulkEdit: Bool = false) -> [ValueElement] {
         if isNestedCell {
-            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+            tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         } else {
-            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
+            tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         }
         
-        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange) ?? []
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
     }
 
-    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn]) {
+    fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
         for rowId in tableDataModel.selectedRows {
-            let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) ?? 0
-            var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
+            guard let rowIndex = rowIndexMap[rowId] else { continue }
+            var rowDataModel = tableDataModel.cellModels[rowIndex]
             var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
             for (key,value) in columnIDChanges {
                 if let column = tableColumns.first(where: { $0.id == key }) {
@@ -403,28 +433,32 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func bulkEdit(changes: [Int: ValueUnion]) async {
         if changes.count == 0 { return }
         isBulkLoading = true
-        
+        let tableDataModel = self.tableDataModel
+
         // Perform heavy processing on background thread
-        let updatedCellModels: [RowDataModel] = await withCheckedContinuation { cont in
+        let (newValueToValueElements, updatedCellModels): ([ValueElement]?, [RowDataModel]) = await withCheckedContinuation { cont in
             dispatchQueue.async { [weak self] in
                 guard let self else {
-                    cont.resume(returning: [])
+                    cont.resume(returning: (nil, []))
                     return
                 }
                 var columnIDChanges = [String: ValueUnion]()
                 changes.forEach { (colIndex: Int, value: ValueUnion) in
-                    guard let cellDataModelId = self.tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
+                    guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
                     columnIDChanges[cellDataModelId] = value
                 }
+                let rowIndexMap = Dictionary(uniqueKeysWithValues:
+                    tableDataModel.cellModels.enumerated().map { ($1.rowID, $0) }
+                )
                 
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns)
-                
-                tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
+                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
+
+                let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
                 
                 var updatedModels = tableDataModel.cellModels
                 for rowId in tableDataModel.selectedRows {
-                    guard let rowIndex = tableDataModel.rowOrder.firstIndex(of: rowId) else { continue }
+                    guard let rowIndex = rowIndexMap[rowId] else { continue }
                     guard rowIndex < updatedModels.count else { continue }
                     
                     tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
@@ -462,18 +496,45 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     }
                 }
                 
-                cont.resume(returning: updatedModels)
+                cont.resume(returning: (result, updatedModels))
             }
         }
         
-        tableDataModel.cellModels = updatedCellModels
-        tableDataModel.filterRowsIfNeeded()
+        if let newValueToValueElements = newValueToValueElements {
+            self.tableDataModel.valueToValueElements = newValueToValueElements
+        }
+        self.tableDataModel.cellModels = updatedCellModels
+        self.tableDataModel.filterRowsIfNeeded()
         isBulkLoading = false
     }
     
     func sendEventsIfNeeded() {
         if tableDataModel.mode == .fill {
             tableDataModel.documentEditor?.onChange(fieldIdentifier: tableDataModel.fieldIdentifier)
+        }
+        tableDataModel.documentEditor?.setOpenNavigationFieldID(nil)
+    }
+
+    private func makeCellFieldEvent(rowID: String, columnID: String) -> FieldIdentifier? {
+        guard !rowID.isEmpty, !columnID.isEmpty else { return nil }
+        var fieldEvent = tableDataModel.fieldIdentifier
+        fieldEvent.rowIds = [rowID]
+        fieldEvent.columnId = columnID
+        return fieldEvent
+    }
+
+    func emitCellFocusBlur(action: FocusBlurAction, rowID: String, columnID: String) {
+        guard var event = makeCellFieldEvent(rowID: rowID, columnID: columnID) else { return }
+        guard tableDataModel.mode == .fill else { return }
+
+        event.type = action.rawValue
+        event.target = action.rawValue
+
+        switch action {
+        case .focus:
+            tableDataModel.documentEditor?.onFocus(event: event)
+        case .blur:
+            tableDataModel.documentEditor?.onBlur(event: event)
         }
     }
     
@@ -490,11 +551,12 @@ extension TableViewModel: DocumentEditorDelegate {
         var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
         cellValues = newRow.cells ?? [:]
+        let metadata = newRow.metadata
         guard let newRowID = newRow.id else { return }
         if let targetRowIndex = change.change?["targetRowIndex"] as? Int {
-            addRowAtIndex(with: newRowID, and: cellValues, shouldSendEvent: false,  index: targetRowIndex)
+            addRowAtIndex(with: newRowID, and: cellValues, metadata: metadata, shouldSendEvent: false,  index: targetRowIndex)
         } else {
-            addRow(with: newRowID, and: newRow.cells, shouldSendEvent: false)
+            addRow(with: newRowID, and: newRow.cells, metadata: metadata, shouldSendEvent: false)
         }
     }
 
@@ -547,12 +609,17 @@ extension TableViewModel: DocumentEditorDelegate {
     
     private func mergedRow(from change: Change, existingRow: ValueElement) -> ValueElement {
         var updatedRow = existingRow
-        guard let rowDict = change.change?["row"] as? [String: Any],
-              let cellsDict = rowDict["cells"] as? [String: Any] else {
+        guard let rowDict = change.change?["row"] as? [String: Any] else {
             return updatedRow
         }
-        for (key, value) in cellsDict {
-            updatedRow.cells?[key] = ValueUnion(value: value)
+        if let cellsDict = rowDict["cells"] as? [String: Any] {
+            for (key, value) in cellsDict {
+                if updatedRow.cells == nil { updatedRow.cells = [:] }
+                updatedRow.cells?[key] = ValueUnion(value: value)
+            }
+        }
+        if let metadataDict = rowDict["metadata"] as? [String: Any] {
+            updatedRow.metadata = Metadata(dictionary: metadataDict)
         }
         return updatedRow
     }
@@ -573,11 +640,33 @@ extension TableViewModel: DocumentEditorDelegate {
                 colIndex: colIndex,
                 cellDataModel: cell,
                 isNestedCell: false,
-                callOnChange: false
+                callOnChange: false,
+                metadata: row.metadata,
+                isBulkEdit: true
             )
         }
     }
     
+    func decoratorsDidChange() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+
+        // Column decorators — refresh first so the row/cell maps below read fresh common column decorators
+        if let freshColumns = field.tableColumns {
+            for (i, col) in tableDataModel.tableColumns.enumerated() {
+                if let freshCol = freshColumns.first(where: { $0.id == col.id }) {
+                    tableDataModel.tableColumns[i].decorators = freshCol.decorators
+                }
+            }
+        }
+
+        // Row + cell decorator maps
+        if field.fieldType == .table {
+            tableDataModel.decorate = field.decorate ?? false
+            tableDataModel.valueToValueElements = field.valueToValueElements
+            refreshRowDecoratorMap()
+        }
+    }
+
     func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String else {
             Log("RowID not found or no cached ValueElement", type: .error)

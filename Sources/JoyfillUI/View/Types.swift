@@ -17,8 +17,18 @@ public struct FieldIdentifier: Equatable {
     public var pageID: String?
     public var fileID: String?
     public var fieldPositionId: String?
-    
-    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil) {
+    /// When set, indicates this event was triggered by a decorator action.
+    public var type: String?
+    /// Decorator target; sent with same value as type in onFocus for decorator taps.
+    public var target: String?
+    /// Row IDs for bulk edit or single-row context (table/collection).
+    public var rowIds: [String]?
+    /// Parent path for nested table/collection.
+    public var parentPath: String?
+    /// Column ID when event is scoped to a column/cell.
+    public var columnId: String?
+
+    public init(_id: String? = nil, identifier: String? = nil, fieldID: String, fieldIdentifier: String? = nil, pageID: String? = nil, fileID: String? = nil, fieldPositionId: String? = nil, type: String? = nil, target: String? = nil, rowIds: [String]? = nil, parentPath: String? = nil, columnId: String? = nil) {
         self._id = _id
         self.identifier = identifier
         self.fieldID = fieldID
@@ -26,6 +36,21 @@ public struct FieldIdentifier: Equatable {
         self.pageID = pageID
         self.fileID = fileID
         self.fieldPositionId = fieldPositionId
+        self.type = type
+        self.target = target
+        self.rowIds = rowIds
+        self.parentPath = parentPath
+        self.columnId = columnId
+    }
+}
+
+public struct Event {
+    public var fieldEvent: FieldIdentifier?
+    public var pageEvent: PageEvent?
+    
+    public init(fieldEvent: FieldIdentifier? = nil, pageEvent: PageEvent? = nil) {
+        self.fieldEvent = fieldEvent
+        self.pageEvent = pageEvent
     }
 }
 
@@ -77,6 +102,16 @@ public struct CaptureEvent {
         self.parentPath = parentPath
         self.rowIds = rowIds
         self.columnId = columnId
+    }
+}
+
+public struct PageEvent {
+    public let type: String  // "page.focus" or "page.blur"
+    public let page: Page
+    
+    public init(type: String, page: Page) {
+        self.type = type
+        self.page = page
     }
 }
 
@@ -220,10 +255,12 @@ public struct Change {
         dictionary["createdOn"] = createdOn
     }
     // instance for the page.delete
-    public init(v: Int, sdk: String, id: String, identifier: String, target: String, fileId: String, viewType: String, pageId: String, createdOn: Double) {
+    public init(v: Int, sdk: String, id: String, identifier: String, target: String, fileId: String, viewType: String? = nil, pageId: String, createdOn: Double) {
         dictionary["v"] = v
         dictionary["sdk"] = sdk
-        dictionary["view"] = viewType
+        if viewType != nil {
+            dictionary["view"] = viewType
+        }
         dictionary["target"] = target
         dictionary["_id"] = id
         dictionary["identifier"] = identifier
@@ -260,7 +297,7 @@ public protocol FormChangeEvent {
     ///     - Triggers the field blur event for the focused field.
     ///     - If there are pending changes in the field that have not triggered the `onChange` event yet then the `e.blur()` function will trigger both the change and blur events in the following order: 1) `onChange` 2) `onBlur`.
     ///     - If the focused field utilizes a modal for field modification, ie. signature, image, tables, etc. the `e.blur()` will close the modal.
-    func onFocus(event: FieldIdentifier)
+    func onFocus(event: Event)
 
     /// Used to listen to field focus events.
     ///
@@ -268,7 +305,7 @@ public protocol FormChangeEvent {
     ///
     ///  params: object :
     ///  - Specifies information about the blurred field.
-    func onBlur(event: FieldIdentifier)
+    func onBlur(event: Event)
 
     /// Used to listen to file upload events.
     ///
@@ -284,12 +321,21 @@ public protocol FormChangeEvent {
 public enum JoyfillError: Error {
     case schemaValidationError(error: SchemaValidationError)
     case schemaVersionError(error: SchemaValidationError)
+    case decoratorError(error: DecoratorError)
+}
+
+public struct DecoratorError: Error {
+    public let message: String
+    
+    public init(message: String) {
+        self.message = message
+    }
 }
 
 public struct SchemaValidationError: Error {
     public let code: String
     public let message: String
-    public let error: [JSONSchema.ValidationError]?
+    public let error: [ValidationError]?
     public let details: Details
 
     public struct Details {
@@ -305,7 +351,7 @@ public struct SchemaValidationError: Error {
     public init(
         code: String,
         message: String,
-        error: [JSONSchema.ValidationError]?,
+        error: [ValidationError]?,
         details: Details
     ) {
         self.code = code

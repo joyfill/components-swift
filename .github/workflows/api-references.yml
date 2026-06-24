@@ -38,76 +38,46 @@ jobs:
           path: 'api-references'
           ref: 'main'
           repository: 'joyfill/api-references'
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
 
-      - name: 'Generate DocC documentation for Joyfill'
+      - name: 'Generate DocC documentation'
         working-directory: src
         run: |
-          # Generate DocC archive for Joyfill (main UI library)
-          xcodebuild docbuild \
-            -scheme Joyfill \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath ./DerivedData
-          
-          # Find the generated .doccarchive
-          DOCC_ARCHIVE=$(find ./DerivedData -name "Joyfill.doccarchive" | head -n 1)
-          
-          # Convert to static HTML
-          xcrun docc process-archive transform-for-static-hosting \
-            "$DOCC_ARCHIVE" \
-            --output-path ./docs-output/Joyfill \
-            --hosting-base-path /api-references/ios/Joyfill
+          set -eu
 
-      - name: 'Generate DocC documentation for JoyfillModel'
-        working-directory: src
-        run: |
-          xcodebuild docbuild \
-            -scheme JoyfillModel \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath ./DerivedData
-          
-          DOCC_ARCHIVE=$(find ./DerivedData -name "JoyfillModel.doccarchive" | head -n 1)
-          
-          xcrun docc process-archive transform-for-static-hosting \
-            "$DOCC_ARCHIVE" \
-            --output-path ./docs-output/JoyfillModel \
-            --hosting-base-path /api-references/ios/JoyfillModel
+          MODULES="Joyfill JoyfillModel JoyfillFormulas JoyfillAPIService"
 
-      - name: 'Generate DocC documentation for JoyfillFormulas'
-        working-directory: src
-        run: |
-          xcodebuild docbuild \
-            -scheme JoyfillFormulas \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath ./DerivedData
-          
-          DOCC_ARCHIVE=$(find ./DerivedData -name "JoyfillFormulas.doccarchive" | head -n 1)
-          
-          xcrun docc process-archive transform-for-static-hosting \
-            "$DOCC_ARCHIVE" \
-            --output-path ./docs-output/JoyfillFormulas \
-            --hosting-base-path /api-references/ios/JoyfillFormulas
+          # Ensure the output parent directory exists before docc writes into it.
+          mkdir -p ./docs-output
 
-      - name: 'Generate DocC documentation for JoyfillAPIService'
-        working-directory: src
-        run: |
-          xcodebuild docbuild \
-            -scheme JoyfillAPIService \
-            -destination 'generic/platform=iOS' \
-            -derivedDataPath ./DerivedData
-          
-          DOCC_ARCHIVE=$(find ./DerivedData -name "JoyfillAPIService.doccarchive" | head -n 1)
-          
-          xcrun docc process-archive transform-for-static-hosting \
-            "$DOCC_ARCHIVE" \
-            --output-path ./docs-output/JoyfillAPIService \
-            --hosting-base-path /api-references/ios/JoyfillAPIService
+          for MODULE in $MODULES; do
+            echo "::group::Building DocC for $MODULE"
+
+            xcodebuild docbuild \
+              -scheme "$MODULE" \
+              -destination 'generic/platform=iOS' \
+              -derivedDataPath ./DerivedData
+
+            DOCC_ARCHIVE=$(find ./DerivedData -name "$MODULE.doccarchive" | head -n 1)
+            : "${DOCC_ARCHIVE:?Could not find $MODULE.doccarchive under ./DerivedData}"
+            echo "Found archive: $DOCC_ARCHIVE"
+
+            xcrun docc process-archive transform-for-static-hosting \
+              "$DOCC_ARCHIVE" \
+              --output-path "./docs-output/$MODULE" \
+              --hosting-base-path "/api-references/ios/$MODULE"
+
+            echo "::endgroup::"
+          done
+
+          echo "Generated documentation for: $MODULES"
+          ls -la ./docs-output
 
       - name: 'Copy generated docs to api-references repository'
         run: |
           # Create ios directory if it doesn't exist
           mkdir -p api-references/ios
-          
+
           # Remove old docs and copy new ones
           rm -rf api-references/ios/Joyfill api-references/ios/JoyfillModel api-references/ios/JoyfillFormulas api-references/ios/JoyfillAPIService
           cp -r src/docs-output/* api-references/ios/
@@ -131,7 +101,7 @@ jobs:
         if: ${{ steps.newFiles.outputs.hasNewFiles == 'true' }}
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'api-references'
           title: 'iOS SDK API references update for (${{ inputs.version }})'
           body: |
@@ -148,7 +118,7 @@ jobs:
             - Static HTML documentation ready for hosting
 
             ### Context
-            This PR is automatically created as part of the release preparation process for [components-swift](https://github.com/${{ github.repository }}).
+            This PR is automatically created as part of the release process for [components-swift](https://github.com/${{ github.repository }}).
 
             ### Next Steps
             - Review the generated API reference documentation
@@ -156,14 +126,12 @@ jobs:
 
             ---
 
-            *This PR was automatically generated by the release preparation workflow.*
+            *This PR was automatically generated by the release workflow.*
           commit-message: 'docs: update ios api references for ${{ inputs.version }}'
           branch: 'docs/ios-api-references-${{ inputs.version }}'
-          reviewers: ${{ github.actor }}
           assignees: ${{ github.actor }}
           labels: |
             ios
             documentation
             api-references
           base: 'main'
-

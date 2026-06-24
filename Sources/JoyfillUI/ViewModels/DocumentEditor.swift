@@ -8,6 +8,7 @@
 import Foundation
 import JoyfillModel
 import JSONSchema
+import Combine
 
 private enum ChangeTargetType: String {
     case fieldUpdate = "field.update"
@@ -31,14 +32,31 @@ public protocol DocumentEditorDelegate: AnyObject {
     func insertRow(for change: Change)
     func deleteRow(for change: Change)
     func moveRow(for change: Change)
+    func decoratorsDidChange()
+}
+
+public extension DocumentEditorDelegate {
+    /// Default no-op so external conformers don't break when the SDK adds
+    /// decorator-cache refresh hooks. Internal view models (TableViewModel,
+    /// CollectionViewModel) provide real implementations.
+    func decoratorsDidChange() {}
 }
 
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
-    @Published public var currentPageID: String
+    @Published public var currentPageID: String {
+        didSet {
+            handlePageChange(from: oldValue, to: currentPageID)
+        }
+    }
     @Published var currentPageOrder: [String] = []
-    private var isCollectionFieldEnabled: Bool = false
+    @Published var navigationFocusFieldId: String?
+    let navigationPublisher = PassthroughSubject<NavigationTarget, Never>()
+    let dismissNavigationPublisher = PassthroughSubject<String, Never>()
+    public private(set) var openedNavigationFieldID: String? = nil
+    var pendingNavigationTarget: NavigationTarget? = nil
+    public private(set) var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
     public var isPageDuplicateEnabled: Bool = true
@@ -57,7 +75,7 @@ public class DocumentEditor: ObservableObject {
     private var fieldPositionMap = [String: FieldPosition]()
     private var fieldIndexMap = [String: String]()
     public var events: FormChangeEvent?
-    let backgroundQueue = DispatchQueue(label: "documentEditor.background", qos: .userInitiated)
+    private(set) public var decoratorConfig: DecoratorConfig
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
@@ -72,7 +90,8 @@ public class DocumentEditor: ObservableObject {
                 isPageDeleteEnabled: Bool = false,
                 validateSchema: Bool = true,
                 license: String? = nil,
-                singleClickRowEdit: Bool = false) {
+                singleClickRowEdit: Bool = false,
+                decoratorConfig: DecoratorConfig = DecoratorConfig()) {
         // Perform schema validation first
         if validateSchema {
             // Check for schema validation errors
@@ -89,6 +108,7 @@ public class DocumentEditor: ObservableObject {
                 self.singleClickRowEdit = singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
+                self.decoratorConfig = decoratorConfig
                 
                 // Trigger onError callback if events handler is available
                 events?.onError(error: .schemaValidationError(error: schemaError))
@@ -107,9 +127,10 @@ public class DocumentEditor: ObservableObject {
         self.events = events
         // Set feature flags from license
         self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
+        self.decoratorConfig = decoratorConfig
         updateFieldMap()
         updateFieldPositionMap()
-
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         guard let firstFile = files.first, let fileID = firstFile.id else {
             return
         }
@@ -119,7 +140,6 @@ public class DocumentEditor: ObservableObject {
             updatePageFieldModels(page, pageID, fileID)
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
-        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
         self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
@@ -132,7 +152,9 @@ public class DocumentEditor: ObservableObject {
     public func updateFieldMap() {
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
-            self.fieldMap[fieldID] =  field
+            var f = field
+            _ = normalizeDecorateFlag(field: &f)
+            self.fieldMap[fieldID] = f
         }
     }
     
@@ -146,9 +168,31 @@ public class DocumentEditor: ObservableObject {
     public func validate() -> Validation {
         return validationHandler.validate()
     }
+
+    /// Validates based on a path string, returning a result scoped to the path depth.
+    /// - `""` (or only whitespace): validates all pages and fields → `.page(Validation)`
+    /// - `"pageId"`: validates all fields on the given page → `.page(Validation)`
+    /// - `"pageId/fieldPositionId"`: validates the specific field → `.field(FieldValidity)` only when `pageId` matches the page that contains that field position; otherwise falls back to `.page` for `pageId`.
+    /// - `"pageId/fieldPositionId/rowId"`: validates a specific row for table/collection fields → `.row(RowValidity)`; if row is not found → `.notFound`.
+    /// - `"pageId/fieldPositionId/rowId/columnId"`: validates a specific row cell for table/collection fields → `.cell(CellValidity)`; if cell is not found → `.notFound`.
+    /// - If `fieldPositionId` is provided but not found on the given page → `.notFound`.
+    /// - Parameter path: Leading, trailing, and segment-adjacent whitespace (per segment) are ignored; other characters must match ids exactly.
+    public func validate(path: String) -> ComponentValidity {
+        return validationHandler.validate(path: path)
+    }
     
     public func shouldShow(fieldID: String?) -> Bool {
         return conditionalLogicHandler.shouldShow(fieldID: fieldID)
+    }
+    
+    public func shouldShowColumn(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        return conditionalLogicHandler.shouldShow(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
+    }
+    
+    /// Returns true if the field is force-hidden for the current view via hiddenViews. Takes precedence over conditional logic.
+    public func isFieldForceHiddenByView(field: JoyDocField) -> Bool {
+        guard let views = field.hiddenViews, !views.isEmpty else { return false }
+        return views.contains(ViewType.mobile.rawValue)
     }
     
     public func shouldShow(pageID: String?) -> Bool {
@@ -250,7 +294,7 @@ public class DocumentEditor: ObservableObject {
         return nil
     }
 
-    private func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
+    func valueDelegate(for fieldID: String, fieldType: FieldTypes) -> DocumentEditorDelegate? {
         if let delegate = delegateMap[fieldID]?.value {
             return delegate
         }
@@ -303,12 +347,33 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        guard let value = change.change?["value"] as? Any,
-              let valueUnion = ValueUnion(value: value) else {
-            logChangeError(for: change)
-            return
+        let chartData: ChartData? = {
+            let hasAxisData = change.change?.keys.contains(where: { ["xTitle","yTitle","xMin","xMax","yMin","yMax"].contains($0) }) == true
+            guard hasAxisData else { return nil }
+            return ChartData(
+                xTitle: change.change?["xTitle"] as? String,
+                yTitle: change.change?["yTitle"] as? String,
+                xMax: (change.change?["xMax"] as? NSNumber)?.doubleValue,
+                xMin: (change.change?["xMin"] as? NSNumber)?.doubleValue,
+                yMax: (change.change?["yMax"] as? NSNumber)?.doubleValue,
+                yMin: (change.change?["yMin"] as? NSNumber)?.doubleValue
+            )
+        }()
+        
+        if let value = change.change?["value"],
+           let valueUnion = ValueUnion(value: value) {
+            updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false, chartData: chartData)
+        } else if let chartData = chartData {
+            updateValue(for: fieldID, shouldCallOnChange: false, chartData: chartData)
         }
-        updateValue(for: fieldID, value: valueUnion, shouldCallOnChange: false)
+        if let metadataDict = change.change?["metadata"] as? [String: Any],
+           let meta = Metadata(dictionary: metadataDict),
+           var field = fieldMap[fieldID] {
+            field.metadata = meta
+            updateField(field: field)
+            refreshField(fieldId: fieldID)
+            refreshDependent(for: fieldID)
+        }
     }
     
     private func logChangeError(for change: Change) {
@@ -400,7 +465,7 @@ extension DocumentEditor {
         document.pagesForCurrentView
     }
     
-    public func updatefield(field: JoyDocField?) {
+    public func updateField(field: JoyDocField?) {
         guard let fieldID = field?.id else { return }
         fieldMap[fieldID] = field
     }
@@ -467,6 +532,17 @@ extension DocumentEditor {
 
         return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: fieldIdentifier, fileID: fileID)
     }
+
+    public func getFieldIdentifier(forFieldPositionID fieldPositionID: String) -> FieldIdentifier? {
+        for page in pagesForCurrentView {
+            if let position = page.fieldPositions?.first(where: { $0.id == fieldPositionID }),
+               let fieldID = position.field {
+                let field = field(fieldID: fieldID)
+                return FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldID, fieldIdentifier: field?.identifier, pageID: page.id, fileID: field?.file, fieldPositionId: position.id)
+            }
+        }
+        return nil
+    }
 }
 
 extension DocumentEditor {
@@ -506,7 +582,7 @@ extension DocumentEditor {
                 field.yTitle = chartData.yTitle
             }
             updateTimeZoneIfNeeded(&field)
-            updatefield(field: field)
+            updateField(field: field)
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
             if let identifier = field.id {
@@ -597,8 +673,11 @@ extension DocumentEditor {
         let fieldData = fieldMap[fieldPositionFieldID]
         var dataModelType: FieldListModelType = .none
         let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+        let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
         
-        var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+        let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+        
+        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -654,7 +733,8 @@ extension DocumentEditor {
         case .signature:
             let model = SignatureDataModel(fieldIdentifier: fieldIdentifier,
                                            signatureURL: fieldData?.value?.signatureURL ?? "",
-                                           fieldHeaderModel: fieldHeaderModel)
+                                           fieldHeaderModel: fieldHeaderModel,
+                                           documentEditor: self)
             dataModelType = .signature(model)
         case .number:
             let model = NumberDataModel(fieldIdentifier: fieldIdentifier,
@@ -664,14 +744,17 @@ extension DocumentEditor {
             
             dataModelType = .number(model)
         case .chart:
+            let chartCoordinates = ChartAxisConfiguration(
+                yTitle: fieldData?.yTitle,
+                yMax: fieldData?.yMax,
+                yMin: fieldData?.yMin,
+                xTitle: fieldData?.xTitle,
+                xMax: fieldData?.xMax,
+                xMin: fieldData?.xMin
+            )
             let model = ChartDataModel(fieldIdentifier: fieldIdentifier,
                                        valueElements: fieldData?.value?.valueElements,
-                                       yTitle: fieldData?.yTitle,
-                                       yMax: fieldData?.yMax,
-                                       yMin: fieldData?.yMin,
-                                       xTitle: fieldData?.xTitle,
-                                       xMax: fieldData?.xMax,
-                                       xMin: fieldData?.xMin,
+                                       chartCoordinates: chartCoordinates,
                                        mode: fieldEditMode,
                                        documentEditor: self,
                                        fieldHeaderModel: fieldHeaderModel)
@@ -708,6 +791,23 @@ extension DocumentEditor {
             dataModelType = .none
         }
         return dataModelType
+    }
+    
+    func runOnMain(_ block: @escaping () -> Void) {
+        if Thread.isMainThread {
+            block()
+        } else {
+            DispatchQueue.main.async { block() }
+        }
+    }
+
+    func setOpenNavigationFieldID(_ fieldID: String?) {
+        runOnMain {
+            self.openedNavigationFieldID = fieldID
+            if fieldID == nil {
+                self.dispatchPendingNavigationIfNeeded()
+            }
+        }
     }
 }
 
@@ -755,8 +855,11 @@ extension DocumentEditor {
             let fieldIdentifier = FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldPositionFieldID, fieldIdentifier: fieldData?.identifier, pageID: newPageID, fileID: fileId, fieldPositionId: fieldPosition.id)
             var dataModelType: FieldListModelType = .none
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
+            let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
             
-            var fieldHeaderModel = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none") ? FieldHeaderModel(title: fieldData?.title, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible) : nil
+            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+            
+            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -766,12 +869,71 @@ extension DocumentEditor {
         pageFieldModels[newPageID] = PageModel(id: newPageID, fields: fieldListModels)
     }
     
+    /// Remaps conditional logic conditions for duplicated fields, including field-level, tableColumn-level, and schema tableColumn-level logic.
+    fileprivate func remapConditionalLogic(fields: inout [JoyDocField], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        for i in 0..<fields.count {
+            // 1. Remap field-level logic
+            if var logic = fields[i].logic, var conditions = logic.conditions {
+                remapConditions(&conditions, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                logic.conditions = conditions
+                fields[i].logic = logic
+            }
+            
+            // 2. Remap tableColumns logic (for table fields)
+            if fields[i].fieldType == .table, var tableColumns = fields[i].tableColumns {
+                remapTableColumnsLogic(&tableColumns, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                fields[i].tableColumns = tableColumns
+            }
+            
+            // 3. Remap schema tableColumns logic (for collection fields)
+            if fields[i].fieldType == .collection, var schema = fields[i].schema {
+                for (key, var schemaEntry) in schema {
+                    if var schemaColumns = schemaEntry.tableColumns {
+                        remapTableColumnsLogic(&schemaColumns, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                        schemaEntry.tableColumns = schemaColumns
+                        schema[key] = schemaEntry
+                    }
+                }
+                fields[i].schema = schema
+            }
+        }
+    }
+    
+    /// Remaps conditions array to point to new duplicated field IDs and page ID.
+    private func remapConditions(_ conditions: inout [Condition], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        for j in conditions.indices {
+            if let origPage = origPageID, conditions[j].page == origPage {
+                conditions[j].page = newPageID
+            }
+            if let origFieldRef = conditions[j].field,
+               let newFieldRef = fieldMapping[origFieldRef] {
+                conditions[j].field = newFieldRef
+            }
+        }
+    }
+    
+    /// Remaps logic conditions inside an array of FieldTableColumn.
+    private func remapTableColumnsLogic(_ tableColumns: inout [FieldTableColumn], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        for k in tableColumns.indices {
+            if var colLogic = tableColumns[k].logic, var colConditions = colLogic.conditions {
+                remapConditions(&colConditions, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+                colLogic.conditions = colConditions
+                tableColumns[k].logic = colLogic
+            }
+        }
+    }
+    
     fileprivate func addFieldAndFieldPositionForWeb(_ originalPage: Page, _ fieldMapping: inout [String : String], _ newFields: inout [JoyDocField], _ newFieldPositions: inout [FieldPosition], _ newPageID: String) {
         for var fieldPos in originalPage.fieldPositions ?? [] {
             guard let origFieldID = fieldPos.field else { continue }
             if let origField = field(fieldID: origFieldID) {
+                if fieldMapping[origFieldID] != nil {
+                    fieldPos.field = fieldMapping[origFieldID]
+                    newFieldPositions.append(fieldPos)
+                    continue
+                }
                 var duplicateField = origField
-                let newFieldID = generateObjectId()
+                let newFieldID = "field_\(generateObjectId())"
                 fieldMapping[origFieldID] = newFieldID
                 
                 duplicateField.id = newFieldID
@@ -781,73 +943,153 @@ extension DocumentEditor {
             }
         }
         // apply conditional logic here
-        for i in 0..<newFields.count {
-            if var logic = newFields[i].logic, var conditions = logic.conditions {
-                for j in conditions.indices {
-                    if let origPageID = originalPage.id, conditions[j].page == origPageID {
-                        conditions[j].page = newPageID
-                    }
-                    if let origFieldRef = conditions[j].field,
-                       let newFieldRef = fieldMapping[origFieldRef] {
-                        conditions[j].field = newFieldRef
-                    }
-                }
-                logic.conditions = conditions
-                newFields[i].logic = logic
-            }
-        }
+        remapConditionalLogic(fields: &newFields, fieldMapping: fieldMapping, origPageID: originalPage.id, newPageID: newPageID)
     }
     
-    public func duplicatePage(pageID: String) {
+    /// Duplicates formulas and updates field references for duplicated page
+    /// - Parameters:
+    ///   - newFields: Array of duplicated fields
+    ///   - fieldMapping: Mapping of old field IDs to new field IDs
+    /// - Returns: Mapping of old formula IDs to new formula IDs
+    fileprivate func duplicateFormulasForPage(_ newFields: inout [JoyDocField], fieldMapping: [String: String]) -> [String: String] {
+        var formulaMapping: [String: String] = [:]
+        var newFormulas: [Formula] = []
+        
+        // Step 1: Collect all formula IDs referenced by duplicated fields
+        var referencedFormulaIDs = Set<String>()
+        for field in newFields {
+            if let appliedFormulas = field.formulas {
+                for appliedFormula in appliedFormulas {
+                    if let formulaID = appliedFormula.formula {
+                        referencedFormulaIDs.insert(formulaID)
+                    }
+                }
+            }
+        }
+        
+        // Step 2: Duplicate each referenced formula
+        let existingFormulas = document.formulas
+        for originalFormulaID in referencedFormulaIDs {
+            guard let originalFormula = existingFormulas.first(where: { $0.id == originalFormulaID }) else {
+                continue
+            }
+            
+            // Create a copy of the formula
+            var duplicatedFormula = originalFormula
+            let newFormulaID = generateObjectId()
+            duplicatedFormula.id = newFormulaID
+            formulaMapping[originalFormulaID] = newFormulaID
+            
+            // Step 3: Update field IDs in the expression using regex
+            if let originalExpression = originalFormula.expression {
+                var updatedExpression = originalExpression
+                
+                Log("🔄 Duplicating formula \(originalFormulaID) -> \(newFormulaID)", type: .debug)
+                Log("   Original expression: \(originalExpression)", type: .debug)
+                
+                // Sort field IDs by length (longest first) to avoid partial replacements
+                // This ensures that "number11" is replaced before "number1" if both exist
+                let sortedFieldMappings = fieldMapping.sorted { $0.key.count > $1.key.count }
+                
+                // Replace each old field ID with new field ID using negative lookahead/lookbehind
+                // This ensures we only match complete identifiers, not partial matches
+                for (oldFieldID, newFieldID) in sortedFieldMappings {
+                    // Escape the field ID for use in regex
+                    let escapedFieldID = NSRegularExpression.escapedPattern(for: oldFieldID)
+                    
+                    // Escape the replacement field ID to prevent regex interpretation
+                    let escapedNewFieldID = newFieldID.replacingOccurrences(of: "\\", with: "\\\\")
+                                                       .replacingOccurrences(of: "$", with: "\\$")
+                    
+                    // Pattern explanation:
+                    // (?<![a-zA-Z0-9_]) = negative lookbehind: not preceded by alphanumeric or underscore
+                    // (fieldID) = the actual field ID
+                    // (?![a-zA-Z0-9_]) = negative lookahead: not followed by alphanumeric or underscore
+                    // This prevents "number1" from matching in "number11" or "thenumber1"
+                    let pattern = "(?<![a-zA-Z0-9_])\(escapedFieldID)(?![a-zA-Z0-9_])"
+                    
+                    if let regex = try? NSRegularExpression(pattern: pattern, options: []) {
+                        let range = NSRange(updatedExpression.startIndex..., in: updatedExpression)
+                        let beforeReplace = updatedExpression
+                        updatedExpression = regex.stringByReplacingMatches(
+                            in: updatedExpression,
+                            options: [],
+                            range: range,
+                            withTemplate: escapedNewFieldID
+                        )
+                        
+                        if beforeReplace != updatedExpression {
+                            Log("   Replaced '\(oldFieldID)' with '\(newFieldID)'", type: .debug)
+                        }
+                    }
+                }
+                
+                Log("   Updated expression: \(updatedExpression)", type: .debug)
+                duplicatedFormula.expression = updatedExpression
+            }
+            
+            newFormulas.append(duplicatedFormula)
+        }
+        
+        // Step 4: Add new formulas to document
+        if !newFormulas.isEmpty {
+            var allFormulas = document.formulas
+            allFormulas.append(contentsOf: newFormulas)
+            document.formulas = allFormulas
+        }
+        
+        // Step 5: Update field.formulas references to point to new formula IDs
+        for i in 0..<newFields.count {
+            if var appliedFormulas = newFields[i].formulas {
+                for j in 0..<appliedFormulas.count {
+                    if let oldFormulaID = appliedFormulas[j].formula,
+                       let newFormulaID = formulaMapping[oldFormulaID] {
+                        appliedFormulas[j].formula = newFormulaID
+                        // Also update the applied formula's own ID
+                        appliedFormulas[j].id = generateObjectId()
+                    }
+                }
+                newFields[i].formulas = appliedFormulas
+            }
+        }
+        
+        return formulaMapping
+    }
+    
+    public func duplicatePage(pageID: String, copyWithValues: Bool = true) {
         guard var firstFile = document.files.first else {
             Log("No file found in document.", type: .error)
             return
         }
-        
-        guard let originalPageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) else {
-            Log("Page with id \(pageID) not found in file.pages.", type: .error)
+        let originalPage: Page
+        if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+            originalPage = mainPage
+        } else {
+            Log("Page with id \(pageID) not found in views or pages.", type: .error)
             return
         }
-        guard let pages = firstFile.pages else {
-            Log("No pages found in file", type: .error)
-            return
-        }
-        let originalPage = pages[originalPageIndex]
+
         let newPageID = generateObjectId()
         
         var duplicatedPage = originalPage
         duplicatedPage.id = newPageID
+        // Copied pages are always fully editable per spec
+        duplicatedPage.deletable = true
+        duplicatedPage.copyable = [.withValues, .withoutValues]
         
         var fieldMapping: [String: String] = [:]
         var newFields: [JoyDocField] = []
         var newFieldPositions: [FieldPosition] = []
-        
-        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
-        
-        document.fields = newFields
-        duplicatedPage.fieldPositions = newFieldPositions
-        
-        if firstFile.pages == nil {
-            firstFile.pages = []
-        }
-        firstFile.pages!.append(duplicatedPage)
-        
-        if var pageOrder = firstFile.pageOrder {
-            if let index = pageOrder.firstIndex(of: pageID) {
-                pageOrder.insert(newPageID, at: index + 1)
-            } else {
-                pageOrder.append(newPageID)
-            }
-            firstFile.pageOrder = pageOrder
-            self.currentPageOrder = pageOrder
-        }
         
         // duplicate views page
         if let altViews = firstFile.views, !altViews.isEmpty {
             var altView = altViews[0]
             if let originalAlternatePageIndex = altView.pages?.firstIndex(where: { $0.id == pageID }) {
                 var originalAltPage = altView.pages![originalAlternatePageIndex]
+                let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
+                originalAltPage.deletable = true
+                originalAltPage.copyable = [.withValues, .withoutValues]
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
@@ -855,41 +1097,25 @@ extension DocumentEditor {
                 
                 for var fieldPos in originalAltPage.fieldPositions ?? [] {
                     guard let origFieldID = fieldPos.field else { continue }
-                    if let newField = fieldMapping[origFieldID] {
-                        fieldPos.field = newField
-                    }else {
                         if let origField = field(fieldID: origFieldID) {
                             var duplicateField = origField
-                            let newFieldID = generateObjectId()
+                            let newFieldID = "field_\(generateObjectId())"
                             alternateFieldMapping[origFieldID] = newFieldID
                             
                             duplicateField.id = newFieldID
                             alternateNewFields.append(duplicateField)
                             fieldPos.field = newFieldID
                         }
-                    }
                     alternateNewFieldPositions.append(fieldPos)
                 }
                 // apply conditional logic here
-                for i in 0..<alternateNewFields.count {
-                    if var logic = alternateNewFields[i].logic, var conditions = logic.conditions {
-                        for j in conditions.indices {
-                            if let origPageID = originalAltPage.id, conditions[j].page == origPageID {
-                                conditions[j].page = newPageID
-                            }
-                            if let origFieldRef = conditions[j].field,
-                               let newFieldRef = alternateFieldMapping[origFieldRef] {
-                                conditions[j].field = newFieldRef
-                            }
-                        }
-                        logic.conditions = conditions
-                        alternateNewFields[i].logic = logic
-                    }
-                }
+                remapConditionalLogic(fields: &alternateNewFields, fieldMapping: alternateFieldMapping, origPageID: originalAltPageID, newPageID: newPageID)
+                fieldMapping = alternateFieldMapping
+                // Duplicate formulas for the alternate view fields
+                let _ = duplicateFormulasForPage(&alternateNewFields, fieldMapping: alternateFieldMapping)
                 
                 originalAltPage.fieldPositions = alternateNewFieldPositions
                 newFields.append(contentsOf: alternateNewFields)
-                document.fields = newFields
                 if altView.pages == nil {
                     altView.pages = [originalAltPage]
                 } else {
@@ -911,6 +1137,38 @@ extension DocumentEditor {
             }
         }
         
+        addFieldAndFieldPositionForWeb(originalPage, &fieldMapping, &newFields, &newFieldPositions, newPageID)
+        
+        let _ = duplicateFormulasForPage(&newFields, fieldMapping: fieldMapping)
+
+        if !copyWithValues {
+            for i in newFields.indices {
+                // Copying "without values" keeps values for read-only fields and block fields.
+                let isReadonly = newFields[i].disabled == true
+                let isDisplayText = newFields[i].fieldType == .block
+                if isReadonly || isDisplayText { continue }
+                newFields[i].value = nil
+            }
+        }
+
+        document.fields.append(contentsOf: newFields)
+        duplicatedPage.fieldPositions = newFieldPositions
+        
+        if firstFile.pages == nil {
+            firstFile.pages = []
+        }
+        firstFile.pages!.append(duplicatedPage)
+        
+        if var pageOrder = firstFile.pageOrder {
+            if let index = pageOrder.firstIndex(of: pageID) {
+                pageOrder.insert(newPageID, at: index + 1)
+            } else {
+                pageOrder.append(newPageID)
+            }
+            firstFile.pageOrder = pageOrder
+            self.currentPageOrder = pageOrder
+        }
+
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
@@ -918,13 +1176,17 @@ extension DocumentEditor {
         document.files = files
         updateFieldMap()
         updateFieldPositionMap()
-        updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        if !isMobileViewActive {
+            updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
+        }
         if let views = document.files.first?.views, !views.isEmpty {
             if let page = views.first?.pages?.first(where: { $0.id == newPageID }) {
                 updatePageFieldModels(page, newPageID, firstFile.id ?? "")
             }
         }
-        self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        
+        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         
         if let views = document.files.first?.views, !views.isEmpty {
             guard let targetIndex = document.files.first?.pageOrder?.firstIndex(of: newPageID) else {
@@ -964,10 +1226,15 @@ extension DocumentEditor {
         }
         
         // Check 2: Page must exist
-        guard firstFile.pages?.contains(where: { $0.id == pageID }) == true else {
+        guard let page = firstFile.pages?.first(where: { $0.id == pageID }) else {
             return (false, ["Page with ID \(pageID) not found"])
         }
-        
+
+        // Check 3: Page-level deletable property
+        if !page.deletable {
+            return (false, [])
+        }
+
         return (true, warnings)
     }
     /// Determines the next page to navigate to after deleting a page
@@ -997,42 +1264,52 @@ extension DocumentEditor {
     ///   - pageID: The ID of the page to delete
     ///   - force: If true, bypasses warnings and deletes anyway
     /// - Returns: Tuple with success flag and message
-    public func deletePage(pageID: String, force: Bool = false) -> (success: Bool, message: String) {
+    public func deletePage(pageID: String) -> Bool {
         // 1. Validate
         let (canDelete, warnings) = canDeletePage(pageID: pageID)
         
         guard canDelete else {
             let message = warnings.first ?? "Cannot delete page"
             Log(message, type: .error)
-            return (false, message)
-        }
-        
-        if !warnings.isEmpty && !force {
-            let message = warnings.joined(separator: "\n")
-            Log("Page deletion requires confirmation: \(message)", type: .warning)
-            return (false, message)
+            return false
         }
         
         guard var firstFile = document.files.first else {
             Log("No file found in document", type: .error)
-            return (false, "No file found in document")
+            return false
         }
         
-        // 2. Find page and collect field IDs and data BEFORE deletion
-        guard let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }),
-              let page = firstFile.pages?[pageIndex] else {
-            Log("Page with id \(pageID) not found", type: .error)
-            return (false, "Page not found")
+        // 2. Find page in either views or main pages (check both locations)
+        var fieldsToDelete = Set<String>()
+        var viewId: String? = nil
+        var mobileViewFieldPositions: [FieldPosition] = []
+        // 1) Collect from view page (if exists)
+        if let view = firstFile.views?.first,
+           let viewPage = view.pages?.first(where: { $0.id == pageID }) {
+            viewId = view.id
+            mobileViewFieldPositions = viewPage.fieldPositions ?? []
+            for fPosition in mobileViewFieldPositions {
+                guard let fieldID = fPosition.field else { continue }
+                fieldsToDelete.insert(fieldID)
+            }
+        }
+        var webFieldPositions: [FieldPosition] = []
+        // 2) Collect from main page (if exists)
+        if let mainPage = firstFile.pages?.first(where: { $0.id == pageID }) {
+            webFieldPositions = mainPage.fieldPositions ?? []
+            for fPosition in webFieldPositions {
+                guard let fieldID = fPosition.field else { continue }
+                fieldsToDelete.insert(fieldID)
+            }
         }
         
-        let fieldsToDelete = page.fieldPositions?.compactMap { $0.field } ?? []
-        
-        // Collect field data BEFORE deletion (while fields still exist)
-        let fieldsData = fieldsToDelete.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
-            guard let field = field(fieldID: fieldID) else { return nil }
-            return (fieldID, field.identifier, fieldPosition(fieldID: fieldID)?.id)
+        // Fire blur event for page to delete only if current page == pageID
+        if currentPageID == pageID {
+            if let previousPage = firstPageFor(currentPageID: pageID) {
+                onPageBlur(page: previousPage)
+            }
         }
-        
+                
         // 3. Handle navigation before deletion
         let shouldNavigate = currentPageID == pageID
         let nextPageID = shouldNavigate ? determineNextPage(after: pageID) : currentPageID
@@ -1042,7 +1319,9 @@ extension DocumentEditor {
         self.currentPageOrder.removeAll(where: { $0 == pageID })
         
         // 5. Remove page from pages array
-        firstFile.pages?.remove(at: pageIndex)
+        if let pageIndex = firstFile.pages?.firstIndex(where: { $0.id == pageID }) {
+            firstFile.pages?.remove(at: pageIndex)
+        }
         
         // 6. Handle views
         if var views = firstFile.views, !views.isEmpty {
@@ -1054,32 +1333,60 @@ extension DocumentEditor {
             }
             firstFile.views = views
         }
-        
-        // 7. Remove fields completely
-        if !fieldsToDelete.isEmpty {
-            // Remove from document.fields
-            document.fields.removeAll { field in
-                guard let fieldID = field.id else { return false }
-                let shouldRemove = fieldsToDelete.contains(fieldID)
-                return shouldRemove
-            }
-            
-            // Remove from fieldMap (important: prevents didSet from restoring them)
-            for fieldID in fieldsToDelete {
-                fieldMap.removeValue(forKey: fieldID)
-            }
-        }
-        
-        // 8. Update document state
+                
+        // 7. Update document state
         var files = document.files
         if let fileIndex = files.firstIndex(where: { $0.id == firstFile.id }) {
             files[fileIndex] = firstFile
         }
         document.files = files
+                
+        // 9. Filter out orphaned fields (fields that are still referenced by other fieldPositions)
+        let remainingFieldIDs: Set<String> = {
+            var ids = Set<String>()
+            // Remaining pages
+            for page in firstFile.pages ?? [] {
+                for fp in page.fieldPositions ?? [] {
+                    if let fid = fp.field {
+                        ids.insert(fid)
+                    }
+                }
+            }
+            // Remaining view pages
+            for view in firstFile.views ?? [] {
+                for page in view.pages ?? [] {
+                    for fp in page.fieldPositions ?? [] {
+                        if let fid = fp.field {
+                            ids.insert(fid)
+                        }
+                    }
+                }
+            }
+            return ids
+        }()
+
+        let fieldsToRemove = fieldsToDelete.filter { id in
+            !remainingFieldIDs.contains(id)
+        }
+
+        // Collect field data BEFORE deletion (while fields still exist)
+        let fieldsData = fieldsToRemove.compactMap { fieldID -> (id: String, identifier: String?, positionId: String?)? in
+            guard let field = field(fieldID: fieldID) else { return nil }
+            let fieldPositionID =
+                    webFieldPositions.first { $0.field == fieldID }?.id ??
+                    mobileViewFieldPositions.first { $0.field == fieldID }?.id
+            
+            return (fieldID, field.identifier, fieldPositionID)
+        }
         
-        // 10. Update internal state
+        // 8. Update internal state
         updateFieldPositionMap()
         pageFieldModels.removeValue(forKey: pageID)
+        
+        // 10. Remove fields from fieldMap (didSet will automatically update document.fields)
+        for fieldID in fieldsToRemove {
+            fieldMap.removeValue(forKey: fieldID)
+        }
         
         // 11. Reinitialize conditional logic handler
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -1090,8 +1397,8 @@ extension DocumentEditor {
         }
         
         // 13. Fire change events with pre-collected field data
-        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: "")
+        onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: viewId ?? "")
 
-        return (true, "Page deleted successfully")
+        return true
     }
 }

@@ -1,6 +1,67 @@
 import SwiftUI
+import UIKit
 import Joyfill
 import JoyfillModel
+
+/// UI-test bridge that lets out-of-process XCUITests drive DocumentEditor
+/// decorator APIs without tripping iOS 16+ pasteboard prompts. The test types
+/// a JSON command into the hidden `decorator_command_input` text field, then
+/// taps the `decorator_command_execute` button in the app, which calls
+/// `DecoratorCommandBridge.execute(json:on:)` to dispatch to the matching API.
+/// The view half of the decorator bridge: a TextField the test types JSON
+/// into, and a Button the test taps to trigger execution. We avoid the
+/// pasteboard entirely so no iOS 16+ permission prompt ever appears.
+struct DecoratorCommandBridgeView: View {
+    let documentEditor: DocumentEditor
+    @State private var commandText: String = ""
+
+    var body: some View {
+        HStack(spacing: 4) {
+            TextField("cmd", text: $commandText)
+                .textFieldStyle(.roundedBorder)
+                .autocorrectionDisabled(true)
+                .textInputAutocapitalization(.never)
+                .accessibilityIdentifier("decorator_command_input")
+            Button("run-decorator-command") {
+                let payload = commandText
+                commandText = ""
+                DecoratorCommandBridge.execute(json: payload, on: documentEditor)
+            }
+            .accessibilityIdentifier("decorator_command_execute")
+        }
+        .frame(height: 32)
+        .padding(.horizontal, 8)
+    }
+}
+
+enum DecoratorCommandBridge {
+    static func execute(json: String, on documentEditor: DocumentEditor) {
+        guard let data = json.data(using: .utf8),
+              let command = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let op = command["op"] as? String,
+              let path = command["path"] as? String else { return }
+
+        switch op {
+        case "add":
+            if let dicts = command["decorators"] as? [[String: Any]] {
+                let decorators = dicts.map { Decorator(dictionary: $0) }
+                documentEditor.addDecorators(path: path, decorators: decorators)
+            }
+        case "update":
+            if let actionName = command["action"] as? String,
+               let decoratorDict = command["decorator"] as? [String: Any] {
+                documentEditor.updateDecorator(path: path, action: actionName,
+                                               decorator: Decorator(dictionary: decoratorDict))
+            }
+        case "remove":
+            if let actionName = command["action"] as? String {
+                documentEditor.removeDecorator(path: path, action: actionName)
+            }
+        default:
+            break
+        }
+    }
+}
 
 func sampleJSONDocument(fileName: String? = nil) -> JoyDoc {
     let jsonFileName = fileName ?? "Joydocjson"
@@ -71,6 +132,21 @@ struct UITestFormContainerView: View {
                     self.onChangeFlag = didChange
                 }
             }
+            triggerGotoFromLaunchArgumentsIfNeeded()
+        }
+    }
+    
+    /// When running under UI tests with --goto-path, perform navigation after a short delay so the form is ready.
+    private func triggerGotoFromLaunchArgumentsIfNeeded() {
+        let args = CommandLine.arguments
+        guard let pathIndex = args.firstIndex(of: "--goto-path"),
+              pathIndex + 1 < args.count else { return }
+        let path = args[pathIndex + 1]
+        let open = args.contains("--goto-open")
+        let focus = args.contains("--goto-focus")
+        let gotoConfig = GotoConfig(open: open, focus: focus)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            _ = self.documentEditor.goto(path, gotoConfig: gotoConfig)
         }
     }
 }
@@ -78,13 +154,16 @@ struct UITestFormContainerView: View {
 class UITestFormContainerViewHandler: FormChangeEvent {
     var setResult: (String) -> Void
     var setUploadResult: (String) -> Void
+    var setFocusBlurResult: (String) -> Void
     var didReceiveChange = false
     var didReceiveUploadEvent = false
     var uploadCallback: ((Bool, Bool) -> Void)?
+    private var focusBlurEvents: [[String: Any]] = []
     
-    init(setResult: @escaping (String) -> Void, setUploadResult: @escaping (String) -> Void) {
+    init(setResult: @escaping (String) -> Void, setUploadResult: @escaping (String) -> Void, setFocusBlurResult: @escaping (String) -> Void) {
         self.setResult = setResult
         self.setUploadResult = setUploadResult
+        self.setFocusBlurResult = setFocusBlurResult
     }
     
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
@@ -100,12 +179,29 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         }
     }
     
-    func onFocus(event: FieldIdentifier) {
-        
+    func onFocus(event: Event) {
+        guard !Self.shouldSkipFocusBlurHandler else { return }
+        appendFocusBlurEvent(kind: "focus", event: event)
+    }
+
+    func onBlur(event: Event) {
+        guard !Self.shouldSkipFocusBlurHandler else { return }
+        appendFocusBlurEvent(kind: "blur", event: event)
     }
     
-    func onBlur(event: FieldIdentifier) {
-        
+    private func appendFocusBlurEvent(kind: String, event: Event) {
+        var dict: [String: Any] = ["kind": kind]
+        if let field = event.fieldEvent {
+            dict["fieldEvent"] = field.dictionary
+        }
+        if let pageEv = event.pageEvent {
+            dict["pageEvent"] = ["type": pageEv.type, "pageId": pageEv.page.id ?? ""]
+        }
+        focusBlurEvents.append(dict)
+        if let data = try? JSONSerialization.data(withJSONObject: focusBlurEvents),
+           let json = String(data: data, encoding: .utf8) {
+            setFocusBlurResult(json)
+        }
     }
     
     func onUpload(event: UploadEvent) {
@@ -151,6 +247,29 @@ class UITestFormContainerViewHandler: FormChangeEvent {
         return false
     }
     
+    private static let shouldSkipFocusBlurHandler: Bool = {
+        let arguments = CommandLine.arguments
+        guard arguments.contains("JoyfillUITests") else {
+            return false
+        }
+
+        if arguments.contains("--skip-focus-blur-handler") {
+            return true
+        }
+
+        if let testNameIndex = arguments.firstIndex(of: "--test-name"),
+           testNameIndex + 1 < arguments.count {
+            let fullTestName = arguments[testNameIndex + 1]
+
+            // OnChangeHandlerUITests renders a different test host view and does not
+            // read focus/blur payloads from this handler. Skipping here avoids
+            // unnecessary UI churn from result text updates during those tests.
+            return fullTestName.contains("OnChangeHandlerUITests")
+        }
+
+        return false
+    }()
+    
     func onCapture(event: CaptureEvent) {
         event.captureHandler(.string("Scan Button Clicked"))
     }
@@ -183,6 +302,11 @@ extension FieldIdentifier {
         dict["pageID"] = pageID
         dict["fileID"] = fileID
         dict["fieldPositionId"] = fieldPositionId
+        dict["type"] = type
+        dict["target"] = target
+        dict["rowIds"] = rowIds
+        dict["parentPath"] = parentPath
+        dict["columnId"] = columnId
         return dict
     }
 }

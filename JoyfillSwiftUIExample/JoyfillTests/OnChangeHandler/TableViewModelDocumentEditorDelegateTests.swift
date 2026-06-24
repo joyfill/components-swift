@@ -25,7 +25,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     
     private func createTableViewModel(documentEditor: DocumentEditor) -> TableViewModel {
         let field = documentEditor.field(fieldID: tableFieldID)
-        let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible)
+        let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible, visibleLimitInFields: documentEditor.decoratorConfig.visibleLimitInFields)
         let tableDataModel = TableDataModel(
             fieldHeaderModel: fieldHeaderModel,
             mode: Mode.fill,
@@ -527,5 +527,126 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         
         let rowOrderForDocument = documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.rowOrder?.firstIndex(where: {$0 == "684c3fedfed2b76677110b19"})
         XCTAssertEqual(rowOrderForDocument, 3, "Value should be equal")
+    }
+
+    // Regression: applyRowEditChanges must bump the target cell's id in cellModels
+    // (via isBulkEdit: true) so the updated value survives the next filterRowsIfNeeded()
+    // call (e.g. Insert Below). Without the id bump, SwiftUI reuses the old cell view
+    // and the value appears to vanish from the grid after a row operation.
+    func testApplyRowEditChanges_CellIdIsBumpedAndValueSurvivesFilterRowsIfNeeded() {
+        // Arrange
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let rowID = "684c3fedfed2b76677110b19"
+        let colID = "684c3fedce82027a49234dd3"
+        let newValue = "CellIdBumpTest"
+
+        guard let rowIndex = viewModel.tableDataModel.rowOrder.firstIndex(of: rowID) else {
+            XCTFail("Row '\(rowID)' not found in rowOrder"); return
+        }
+        guard let colIndex = viewModel.tableDataModel.tableColumns.firstIndex(where: { $0.id == colID }) else {
+            XCTFail("Column '\(colID)' not found in tableColumns"); return
+        }
+
+        // Snapshot cell id before the change
+        let cellIDBefore = viewModel.tableDataModel.cellModels[rowIndex].cells[colIndex].id
+
+        let changeDict: [String: Any] = [
+            "target": "field.value.rowUpdate",
+            "pageId": pageID,
+            "fileId": fileID,
+            "fieldId": tableFieldID,
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "sdk": "swift",
+            "v": 1,
+            "createdOn": 1756788529.0,
+            "change": [
+                "rowId": rowID,
+                "row": [
+                    "_id": rowID,
+                    "cells": [colID: newValue]
+                ] as [String: Any]
+            ] as [String: Any]
+        ]
+
+        // Act — applyRowEditChanges is the path taken when the row edit form is open
+        viewModel.applyRowEditChanges(change: Change(dictionary: changeDict))
+
+        // Assert 1: cellModels cell id was bumped (isBulkEdit: true → UUID())
+        let cellIDAfter = viewModel.tableDataModel.cellModels[rowIndex].cells[colIndex].id
+        XCTAssertNotEqual(cellIDBefore, cellIDAfter,
+            "applyRowEditChanges should bump cell id in cellModels (isBulkEdit: true)")
+
+        // Assert 2: value updated in cellModels
+        XCTAssertEqual(viewModel.tableDataModel.cellModels[rowIndex].cells[colIndex].data.title, newValue,
+            "cellModels should reflect the Change-API value after applyRowEditChanges")
+
+        // Assert 3: simulate a row operation (Insert Below / move) — filterRowsIfNeeded()
+        // for table fields sets filteredcellModels = cellModels; the bumped id + value must survive
+        viewModel.tableDataModel.filterRowsIfNeeded()
+
+        guard let filteredIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) else {
+            XCTFail("Row '\(rowID)' not found in filteredcellModels after filterRowsIfNeeded()"); return
+        }
+
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels[filteredIndex].cells[colIndex].id,
+            cellIDAfter,
+            "filteredcellModels should carry the bumped cell id after filterRowsIfNeeded()")
+
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels[filteredIndex].cells[colIndex].data.title,
+            newValue,
+            "filteredcellModels should retain the Change-API value after filterRowsIfNeeded()")
+    }
+
+    // Regression: insertBelow() previously left tableDataModel.valueToValueElements
+    // stale relative to rowOrder. The fix appends the new element to the in-memory
+    // value array; this test pins the invariant so a future revert is caught here
+    // rather than as a confusing downstream symptom in bulk-edit / delete flows.
+    func testInsertBelow_KeepsValueElementsAndRowOrderInSync() {
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let initialNonDeletedCount = (viewModel.tableDataModel.valueToValueElements ?? [])
+            .filter { !($0.deleted ?? false) }
+            .count
+        let initialRowOrderCount = viewModel.tableDataModel.rowOrder.count
+        XCTAssertEqual(initialNonDeletedCount, initialRowOrderCount,
+                       "Precondition: non-deleted valueElements count should equal rowOrder count")
+
+        guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
+            XCTFail("Fixture has no rows to select for insertBelow")
+            return
+        }
+        viewModel.tableDataModel.selectedRows = [firstRowID]
+
+        let newRowID = viewModel.insertBelow()
+        XCTAssertNotNil(newRowID, "insertBelow should return the new row's id")
+
+        let nonDeletedCount = (viewModel.tableDataModel.valueToValueElements ?? [])
+            .filter { !($0.deleted ?? false) }
+            .count
+        let updatedRowOrderCount = viewModel.tableDataModel.rowOrder.count
+
+        XCTAssertEqual(nonDeletedCount, initialNonDeletedCount + 1,
+                       "valueToValueElements should grow by 1 after insertBelow")
+        XCTAssertEqual(updatedRowOrderCount, initialRowOrderCount + 1,
+                       "rowOrder should grow by 1 after insertBelow")
+        XCTAssertEqual(nonDeletedCount, updatedRowOrderCount,
+                       "valueToValueElements and rowOrder must stay in sync after insertBelow")
+
+        if let newID = newRowID {
+            XCTAssertTrue(viewModel.tableDataModel.rowOrder.contains(newID),
+                          "rowOrder should contain the newly inserted row id")
+            XCTAssertTrue((viewModel.tableDataModel.valueToValueElements ?? []).contains(where: { $0.id == newID }),
+                          "valueToValueElements should contain the newly inserted row")
+        }
     }
 }

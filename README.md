@@ -2,7 +2,7 @@
 
 # @joyfill/components-swift
 
-Keep this README simple. For full setup and details, see the official Swift guide: https://docs.joyfill.io/docs/swift
+Keep this README simple. For full setup and details, see the official Swift guide: https://docs.joyfill.io/ios/getting-started
 
 ## Overview
 
@@ -13,7 +13,7 @@ This repo provides Joyfill SDKs for Apple platforms (Swift, SwiftUI):
 - JoyfillFormulas: Formula engine for calculations, strings, dates, arrays, and logic.
 - JoyfillAPIService: Networking for the Joyfill API.
 
-More APIs and concepts: https://docs.joyfill.io/docs
+More APIs and concepts: https://docs.joyfill.io/ios/getting-started
 
 ## Requirements
 
@@ -62,7 +62,7 @@ struct FormContainerView: View {
 ## Key APIs
 
 - JoyDoc
-  - Standardized JSON structure used by Joyfill components, APIs, and exports. Guide: [JoyDoc usage](https://docs.joyfill.io/docs/joydoc-usage)
+  - Standardized JSON structure used by Joyfill components, APIs, and exports. Guide: [JoyDoc usage](https://docs.joyfill.io/joyfill/joydoc-usage)
 
 - DocumentEditor
   - Core editor for a `JoyDoc`; pass to `Form` to render.
@@ -82,7 +82,7 @@ For parameters, properties, events, tables, charts, and formulas, see the docs b
 
 ## Learn More
 
-- Swift setup: https://docs.joyfill.io/docs/swift
-- API reference: https://docs.joyfill.io/docs
-- Formulas: https://docs.joyfill.io/docs/formulas
-- Changelogs: https://docs.joyfill.io/docs/changelogs
+- Swift setup: https://docs.joyfill.io/ios/getting-started
+- API reference: https://docs.joyfill.io/ios/api-reference/overview
+- Formulas: https://docs.joyfill.io/web/guides/formulas#enabling-formulas
+- Changelogs: https://docs.joyfill.io/ios/changelogs/RELEASE_NOTES

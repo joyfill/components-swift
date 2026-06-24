@@ -16,7 +16,7 @@ struct TableModalTopNavigationView: View {
 
             Spacer()
 
-            if !viewModel.tableDataModel.selectedRows.isEmpty {
+            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     showingPopover = true
                 }) {
@@ -231,58 +231,92 @@ struct EditMultipleRowsSheetView: View {
         self.viewModel =  viewModel
     }
 
+    private func refreshViewID() {
+        viewID = UUID()
+    }
+
+    @ViewBuilder
+    private func columnTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
+        HStack(alignment: .center, spacing: 4) {
+            if let required = col.required, required, !isCellFilled {
+                Image(systemName: "asterisk")
+                    .foregroundColor(.red)
+                    .imageScale(.small)
+            }
+
+            Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
+                .font(.headline.bold())
+            
+            Spacer()
+            
+            let decorators = viewModel.tableDataModel.getTableCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "")
+            if !decorators.isEmpty {
+                FieldDecoratorsView(decorators: decorators, visibleLimit: viewModel.decoratorConfig.visibleLimitInFields) { decorator in
+                    viewModel.tableDataModel.documentEditor?.reportDecoratorAction(fieldIdentifier: viewModel.tableDataModel.fieldIdentifier, action: decorator.action ?? "", rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id)
+                }
+                .environment(\.isEnabled, true)
+            }
+        }
+        .padding(.bottom, -8)
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 0) {
                     if viewModel.tableDataModel.selectedRows.count == 1 {
                         HStack(alignment: .top) {
-                            Button(action: {
-                                viewModel.selectUpperRow()
-                                changes = [:]
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "chevron.left")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                            if !viewModel.tableDataModel.navigationIntent.rowFormOpenedViaGoto {
+                                Button(action: {
+                                    viewModel.selectUpperRow()
+                                    changes = [:]
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+                                        
+                                        Image(systemName: "chevron.left")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveUp ? .gray : .blue)
+                                    }
+                                })
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
+                                .accessibilityIdentifier("UpperRowButtonIdentifier")
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    viewModel.selectBelowRow()
+                                    changes = [:]
+                                }, label: {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
+                                            .frame(width: 27, height: 27)
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
+                                    }
+                                })
+                                .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
+                                .accessibilityIdentifier("LowerRowButtonIdentifier")
+                                
+                                if viewModel.tableDataModel.mode == .fill {
+                                    Button(action: {
+                                        viewModel.insertBelowFromBulkEdit()
+                                    }, label: {
+                                        ZStack {
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(.blue, lineWidth: 1)
+                                                .frame(width: 27, height: 27)
+
+                                            Image(systemName: "plus")
+                                                .foregroundStyle(.blue)
+                                        }
+                                    })
+                                    .accessibilityIdentifier("PlusTheRowButtonIdentifier")
                                 }
-                            })
-                            .disabled(viewModel.tableDataModel.shouldDisableMoveUp)
-                            .accessibilityIdentifier("UpperRowButtonIdentifier")
-                            
-                            Spacer()
-                            
-                            Button(action: {
-                                viewModel.selectBelowRow()
-                                changes = [:]
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .foregroundStyle(viewModel.tableDataModel.shouldDisableMoveDown ? .gray : .blue)
-                                }
-                            })
-                            .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
-                            .accessibilityIdentifier("LowerRowButtonIdentifier")
-                            
-                            Button(action: {
-                                viewModel.insertBelowFromBulkEdit()
-                            }, label: {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(.blue, lineWidth: 1)
-                                        .frame(width: 27, height: 27)
-                                    
-                                    Image(systemName: "plus")
-                                        .foregroundStyle(.blue)
-                                }
-                            })
-                            .accessibilityIdentifier("PlusTheRowButtonIdentifier")
+                            } else {
+                                Spacer()
+                            }
                             
                             Button(action: {
                                 presentationMode.wrappedValue.dismiss()
@@ -300,6 +334,8 @@ struct EditMultipleRowsSheetView: View {
                             })
                             .accessibilityIdentifier("DismissEditSingleRowSheetButtonIdentifier")
                         }
+                        .padding([.horizontal, .top], 16)
+                        .padding(.bottom, 8)
                     }
                 HStack(alignment: .top) {
                     if let title = viewModel.tableDataModel.title {
@@ -357,8 +393,14 @@ struct EditMultipleRowsSheetView: View {
                         })
                     }
                 }
-
+                .padding(.horizontal, 16)
+                .padding(.top, viewModel.tableDataModel.selectedRows.count == 1 ? 0 : 16)
+            ScrollViewReader { scrollProxy in
+            ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
+                    let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
+                    VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
@@ -369,7 +411,9 @@ struct EditMultipleRowsSheetView: View {
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
                                                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
-                                                       editMode: viewModel.tableDataModel.mode)
+                                                       editMode: viewModel.tableDataModel.mode,
+                                                       didFocusBlur: { action, cellDataModel in
+                            viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id) })
                             { cellDataModel in
                                 switch cell.type {
                                 case .text:
@@ -461,110 +505,70 @@ struct EditMultipleRowsSheetView: View {
                                     }
                                 }
                             }
+                            var isFilledBasedOnChange: Bool {
+                                guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
+                                    return false
+                                }
+                                
+                                switch changeValue {
+                                case .string(let str):
+                                    return !str.isEmpty
+                                case .double:
+                                    return true
+                                case .int:
+                                    return true
+                                case .bool:
+                                    return true
+                                case .array(let arr):
+                                    return !arr.isEmpty
+                                case .valueElementArray(let arr):
+                                    return !arr.isEmpty
+                                case .null:
+                                    return false
+                                default:
+                                    return false
+                                }
+                            }
+                            
+                            let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+                            
                             switch cellModel.data.type {
                             case .text:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
-                                
-                                var str = !isUsedForBulkEdit ? cellModel.data.title : ""
-                                let binding = Binding<String>(
-                                    get: {
-                                        if isUsedForBulkEdit {
-                                            if case .string(let changedStr) = changes[colIndex] { return changedStr }
-                                            return ""
-                                        } else {
-                                            return str
-                                        }
-                                    },
-                                    set: { newValue in
-                                        str = newValue
-                                        if isUsedForBulkEdit {
-                                            if !str.isEmpty {
-                                                self.changes[colIndex] = ValueUnion.string(newValue)
-                                            } else {
-                                                self.changes.removeValue(forKey: colIndex)
-                                            }
-                                        } else {
-                                            self.changes[colIndex] = ValueUnion.string(newValue)
-                                        }
-                                        
-                                        Task { @MainActor in
-                                            if !isUsedForBulkEdit {
-                                                await viewModel.bulkEdit(changes: changes)
-                                            }
-                                        }
-                                    }
-                                )
-                                TextField("", text: binding)
-                                    .font(.system(size: 15))
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
+                                TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                    .frame(minHeight: 40)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                                    .padding(.horizontal, 10)
-                                    .frame(height: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+
                             case .dropdown:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
                             case .date:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
-                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
+                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, isSingleLineLayout: true)
                                     .padding(.vertical, 2)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsDateFieldIdentifier")
                             case .number:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .keyboardType(.decimalPad)
                                     .frame(minHeight: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
                             case .multiSelect:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
                                     .padding(.vertical, 4)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                             case .barcode:
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10)
-                                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                    )
-                                    .cornerRadius(10)
+                                    .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                             case .image:
                                 let bindingCellModel = Binding<TableCellModel>(
@@ -575,9 +579,7 @@ struct EditMultipleRowsSheetView: View {
                                         cellModel = newValue
                                     }
                                 )
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 HStack {
                                     Spacer()
                                     TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
@@ -585,11 +587,7 @@ struct EditMultipleRowsSheetView: View {
                                     Spacer()
                                 }
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsImageFieldIdentifier")
                             case .signature:
                                 let bindingCellModel = Binding<TableCellModel>(
@@ -600,50 +598,65 @@ struct EditMultipleRowsSheetView: View {
                                         cellModel = newValue
                                     }
                                 )
-                                Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                    .font(.headline.bold())
-                                    .padding(.bottom, -8)
+                                columnTitle(col, isCellFilled: isEffectivelyFilled)
                                 HStack {
                                     Spacer()
                                     TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
                                     Spacer()
                                 }
                                 .frame(minHeight: 40)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                )
-                                .cornerRadius(10)
+                                .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                             case .block:
                                 if !isUsedForBulkEdit {
-                                    Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
-                                        .font(.headline.bold())
-                                        .padding(.bottom, -8)
+                                    columnTitle(col, isCellFilled: isEffectivelyFilled)
                                     TableBlockView(cellModel: Binding.constant(cellModel))
                                         .frame(minHeight: 40)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 10)
-                                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                                        )
-                                        .cornerRadius(10)
+                                        .cellBorder(isFocused: isFocused)
                                 }
                             default:
                                 Text("")
                             }
                         }
                     }
+                    }
+                    .id(col.id)
                 }
+                .disabled(viewModel.tableDataModel.mode == .readonly)
                 Spacer()
             }
             .padding(.all, 16)
+            .environment(\.navigationFocusColumnId, viewModel.tableDataModel.navigationIntent.focusColumnId)
+            .id(viewID)
         }
-        .id(viewID)
-        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ newValue in
-            viewID = UUID()
+        .onAppear {
+            if let columnId = viewModel.tableDataModel.navigationIntent.scrollToColumnId {
+                scrollProxy.scrollTo(columnId, anchor: .top)
+            }
+        }
+        .onChange(of: viewModel.tableDataModel.navigationIntent.scrollToColumnId) { columnId in
+            if let columnId = columnId {
+                scrollProxy.scrollTo(columnId, anchor: .top)
+            }
+        }
+        .onChange(of: viewModel.tableDataModel.selectedRows.first ){ _ in
+            refreshViewID()
+        }
+        .onChange(of: viewModel.uuid) { _ in
+            refreshViewID()
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
+            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
         }))
+        .onTapGesture {
+            viewModel.tableDataModel.navigationIntent.focusColumnId = nil
+        }
+        }
+        }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
     }
+
 }

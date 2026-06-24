@@ -25,5 +25,12 @@ struct TableCellModel: Identifiable, Equatable, Hashable {
     var fieldIdentifier: FieldIdentifier
     let viewMode: TableViewMode
     let editMode: Mode
+    let didFocusBlur: ((_ action: FocusBlurAction, _ cell: CellDataModel) -> Void)?
     let didChange: ((_ cell: CellDataModel) -> Void)?
 }
+
+enum FocusBlurAction: String {
+    case focus = "field.focus"
+    case blur = "field.blur"
+}
+

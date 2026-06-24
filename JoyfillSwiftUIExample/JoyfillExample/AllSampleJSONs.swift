@@ -135,7 +135,7 @@ struct AllSampleJSONs: View, FormChangeEvent {
             do {
                 let document = sampleJSONDocument(fileName: fileName)
                 // Construct the editor off the main thread to avoid UI hitching
-                let editor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
+                let editor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, isPageDeleteEnabled: true, validateSchema: false, license: licenseKey, singleClickRowEdit: true)
                 DispatchQueue.main.async {
                     self.documentEditor = editor
                     self.isLoading = false
@@ -154,8 +154,8 @@ struct AllSampleJSONs: View, FormChangeEvent {
     func onChange(changes: [Change], document: JoyDoc) {
 //        print("->>>>>>>>", changes)
     }
-    func onFocus(event: FieldIdentifier) { }
-    func onBlur(event: FieldIdentifier) { }
+    func onFocus(event: Event) { }
+    func onBlur(event: Event) { }
     func onCapture(event: CaptureEvent) { }
 
     func onUpload(event: UploadEvent) {

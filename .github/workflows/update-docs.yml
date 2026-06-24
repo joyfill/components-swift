@@ -3,25 +3,28 @@ name: Update Docs on Release
 on:
   release:
     types: [published]
-  # 👇 Allows you to test manually
+  # 👇 Manual Trigger with Custom Inputs for Testing
   workflow_dispatch:
     inputs:
       test_tag:
-        description: 'Test Version (must exist in CHANGELOG)'
-        default: '1.0.0'
+        description: 'Test Version (e.g. 3.0.0-beta)'
+        default: '3.0.0-test'
         required: true
+      test_body:
+        description: 'Release Notes (Paste your content here)'
+        required: true
+        default: "### Added\n- Custom test feature 1\n- Custom test feature 2"
 
 jobs:
   create-docs-pr:
     name: 'Create Docs PR'
     runs-on: 'ubuntu-latest'
     steps:
-      # 1. Checkout iOS SDK (Source)
+      # 1. Checkout iOS SDK (Source) - Needed to get the script
       - name: Checkout SDK
         uses: actions/checkout@v4
         with:
           path: ios-sdk
-          # If manual test, use main. If real release, use the tag.
           ref: ${{ github.event_name == 'workflow_dispatch' && 'main' || github.ref }}
 
       # 2. Checkout Docs Repo (Destination)
@@ -29,52 +32,55 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'joyfill/docs'
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'
 
-      # 3. Extract Latest Entry
-      - name: Extract Latest Changelog Entry
+      # 3. Get Release Notes (From Release UI or Manual Input)
+      - name: Get Release Notes
+        env:
+          TARGET_VER: ${{ github.event_name == 'workflow_dispatch' && inputs.test_tag || github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event_name == 'workflow_dispatch' && inputs.test_body || github.event.release.body }}
         run: |
-          # Determine which version to look for (Real Tag vs Test Input)
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            TARGET_VER="${{ inputs.test_tag }}"
-          else
-            TARGET_VER="${{ github.event.release.tag_name }}"
-          fi
-          
-          echo "Processing version: $TARGET_VER"
           echo "VERSION=$TARGET_VER" >> $GITHUB_ENV
 
-          cd ios-sdk
-          # Extract the specific block for this version
-          awk -v ver="$TARGET_VER" '$0 ~ "## " ver {found=1} found && /^## / && $0 !~ "## " ver {exit} found {print}' CHANGELOG.md > ../latest_release_note.md
-          
-          echo "--- Extracted Content ---"
-          cat ../latest_release_note.md
+          # Python writes the file — guaranteed newline preservation + auto date
+          # NOTE: Do NOT include "**Release Date:**" in your release notes; it is auto-generated here.
+          python3 - <<'PYEOF'
+          import os
+          from datetime import datetime
+          ver = os.environ['TARGET_VER']
+          body = os.environ['RELEASE_BODY']
+          now = datetime.now()
+          date_str = '{} {}, {}'.format(now.strftime('%B'), now.day, now.year)
+          with open('release_notes_input.md', 'w') as f:
+              f.write('## ' + ver + '\n\n')
+              f.write('**Release Date:** ' + date_str + '\n\n')
+              f.write(body)
+              if not body.endswith('\n'):
+                  f.write('\n')
+          PYEOF
+          echo "--- Content to be inserted ---"
+          cat release_notes_input.md
 
-      # 4. Run the Insert Script
+      # 4. Insert styled entry (Python: badges for Added/Changed/Fixed, GitHub body cleanup)
       - name: Insert into Docs
         run: |
-          # Ensure the folder exists in docs repo to prevent errors
           mkdir -p docs/ios/changelogs
-
           chmod +x ios-sdk/scripts/update_release_mdx.sh
-          
-          # Run the script
-          ./ios-sdk/scripts/update_release_mdx.sh latest_release_note.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
+          ./ios-sdk/scripts/update_release_mdx.sh release_notes_input.md 'docs/ios/changelogs/RELEASE_NOTES.mdx'
 
       # 5. Create Pull Request
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.API_REF_REPO_TOKEN }}
+          token: ${{ secrets.UPDATE_DOCS_TOKEN }}
           path: 'docs'
           commit-message: 'docs: add release notes for ${{ env.VERSION }}'
           title: 'docs: add release notes for ${{ env.VERSION }}'
           body: |
             Automated PR adding release notes for **${{ env.VERSION }}**.
             
-            Generated from iOS SDK Changelog.
+            Generated from GitHub Release description.
           branch: 'docs-update-${{ env.VERSION }}'
           base: 'main'
           delete-branch: true

@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 import JoyfillModel
 
 struct SignatureView: View {
@@ -13,6 +14,8 @@ struct SignatureView: View {
     @State private var ignoreOnChangeOnDefaultImageLoad: Bool = false
     @State var showError: Bool = false
 
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @Environment(\.footerContainer) private var footerContainer
     private var signatureDataModel: SignatureDataModel
     let eventHandler: FieldChangeEvents
 
@@ -23,9 +26,11 @@ struct SignatureView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty)
+            FieldHeaderView(signatureDataModel.fieldHeaderModel, isFilled: !signatureURL.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: signatureDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                .stroke(navigationFocusFieldId == signatureDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                 .frame(height: 150)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
@@ -36,6 +41,7 @@ struct SignatureView: View {
                         Image(uiImage: signatureImage)
                             .resizable()
                             .scaledToFit()
+                            .accessibilityIdentifier("SignatureImageIdentifier")
                     }
                     if showError {
                         VStack(spacing: 12) {
@@ -53,6 +59,7 @@ struct SignatureView: View {
             
             Button(action: {
                 showCanvasSignatureView = true
+                signatureDataModel.documentEditor?.setOpenNavigationFieldID(signatureDataModel.fieldIdentifier.fieldID)
                 eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)
             }, label: {
                 Text("\(!signatureURL.isEmpty ? "Edit Signature" : "Add Signature")")
@@ -62,13 +69,13 @@ struct SignatureView: View {
                     .cornerRadius(10)
                     .overlay(
                         RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                            .stroke(navigationFocusFieldId == signatureDataModel.fieldIdentifier.fieldID ? Color.focusedFieldBorderColor : Color.allFieldBorderColor, lineWidth: 1)
                     )
             })
             .accessibilityIdentifier("SignatureIdentifier")
             .padding(.top, 6)
             
-            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable), isActive: $showCanvasSignatureView) {
+            NavigationLink(destination: CanvasSignatureView(lines: $lines, savedLines: $savedLines, signatureImage: $signatureImage, signatureURL: $signatureURL, showError: $showError, isEditable: $isEditable, documentEditor: signatureDataModel.documentEditor, fieldID: signatureDataModel.fieldIdentifier.fieldID).environment(\.footerContainer, footerContainer), isActive: $showCanvasSignatureView) {
                 EmptyView()
             }
             .frame(width: 0, height: 0)
@@ -101,9 +108,21 @@ struct SignatureView: View {
             }
         }
         .onChange(of: signatureURL) { newValue in
+            guard newValue != (signatureDataModel.signatureURL ?? "") else { return }
             let newSignatureImageValue = ValueUnion.string(newValue)
             let fieldEvent = FieldChangeData(fieldIdentifier: signatureDataModel.fieldIdentifier, updateValue: newSignatureImageValue)
             eventHandler.onChange(event: fieldEvent)
+        }
+        .onChange(of: signatureDataModel.signatureURL ?? "") { latestURL in
+            guard latestURL != signatureURL else {
+                return
+            }
+            signatureURL = latestURL
+            if latestURL.isEmpty {
+                signatureImage = nil
+            } else {
+                loadImageFromURL()
+            }
         }
     }
     
@@ -200,6 +219,8 @@ struct CanvasSignatureView: View {
     @Binding var signatureURL: String
     @Binding var showError: Bool
     @Binding var isEditable: Bool
+    var documentEditor: DocumentEditor?
+    var fieldID: String?
     @Environment(\.presentationMode) private var presentationMode
     let screenWidth = UIScreen.main.bounds.width
     
@@ -327,11 +348,22 @@ struct CanvasSignatureView: View {
             }
             Spacer()
         }
+        .padding(.horizontal, 16.0)
         .onAppear {
             signatureCanvasImage = signatureImage
             showCanvasError = showError
         }
-        .padding(.horizontal, 16.0)
+        .onDisappear {
+            documentEditor?.setOpenNavigationFieldID(nil)
+        }
+        .onReceive(documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == fieldID {
+                presentationMode.wrappedValue.dismiss()
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
     }
 }
 extension View {

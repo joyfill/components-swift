@@ -27,8 +27,8 @@ struct ImageReplacementTest: View, FormChangeEvent {
     }
 
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {}
-    func onFocus(event: FieldIdentifier) { }
-    func onBlur(event: FieldIdentifier) { }
+    func onFocus(event: Event) { }
+    func onBlur(event: Event) { }
     func onCapture(event: CaptureEvent) { }
     func onError(error: JoyfillError) { }
     func onUpload(event: UploadEvent) {

@@ -1,23 +1,48 @@
 import SwiftUI
 import JoyfillModel
+import Combine
 
 struct TableRowView : View {
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: TableViewModel
     @Binding var rowDataModel: RowDataModel
-    var longestBlockText: String
     var isSelected: Bool = false
 
     var body: some View {
         LazyHStack(alignment: .top, spacing: 0) {
+            if viewModel.showRowDecorators {
+                RowDecoratorMenuView(
+                    decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowDataModel.rowID),
+                    visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
+                ) { decorator in
+                    viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
+                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                        action: decorator.action ?? "",
+                        rowIds: [rowDataModel.rowID]
+                    )
+                }
+                .padding(.all, 4)
+                .frame(width: viewModel.decoratorsCellWidth(), height: 60)
+                .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
+                .border(Color.tableCellBorderColor)
+            }
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                let showRequired = viewModel.tableDataModel.requiredColumnIDs.contains(cellModel.data.id) && !cellModel.data.isCellFilled
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                    .frame(width: 200, height: 60)
+                    .frame(width: Utility.singleColumnWidth, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 0)
                             .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
                     )
+                    .overlay {
+                        if showRequired {
+                            RoundedRectangle(cornerRadius: 8)
+                                .inset(by: 2)
+                                .stroke(colorScheme == .dark ? Color.pink : Color.red,
+                                        lineWidth: colorScheme == .dark ? 1 : 0.5)
+                        }
+                    }
             }
         }
     }
@@ -27,23 +52,32 @@ struct TableModalView : View {
     @State private var offset = CGPoint.zero
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.colorScheme) var colorScheme
-    @State private var showEditMultipleRowsSheetView: Bool = false
+    @Environment(\.dismiss) private var dismiss
+    @State var showEditMultipleRowsSheetView: Bool
     @State private var columnHeights: [Int: CGFloat] = [:] // Dictionary to hold the heights for each column
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
-    var longestBlockText: String = ""
+    @State private var isDismissingForNavigation = false
 
-    init(viewModel: TableViewModel) {
+    init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
-        longestBlockText = viewModel.tableDataModel.getLongestBlockText()
+        self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
     
     var body: some View {
         VStack {
             TableModalTopNavigationView(
                 viewModel: viewModel,
-                onEditTap: { showEditMultipleRowsSheetView = true })
-            .sheet(isPresented: $showEditMultipleRowsSheetView) {
+                onEditTap: {
+                viewModel.tableDataModel.navigationIntent = .none
+                showEditMultipleRowsSheetView = true
+            })
+            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+                if isDismissingForNavigation {
+                    isDismissingForNavigation = false
+                    dismiss()
+                }
+            }) {
                 EditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
@@ -55,12 +89,41 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
         }
+        .safeAreaInset(edge: .bottom) {
+            FormFooterView()
+        }
         .background(colorScheme == .dark ? Color.black : Color.white)
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    dismissKeyboard()
+        .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
+            guard let fieldID = event.fieldID,
+                  fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
+                dismiss()
+                return
+            }
+            
+            // Same table, handle row change
+            if let rowId = event.rowId, !rowId.isEmpty {
+                let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
+                if rowIdExists {
+                    viewModel.tableDataModel.selectedRows = [rowId]
+                    viewModel.tableDataModel.navigationIntent = NavigationIntent(
+                        rowFormOpenedViaGoto: event.openRowForm,
+                        scrollToColumnId: event.columnId,
+                        focusColumnId: event.focus ? event.columnId : nil
+                    )
+                    showEditMultipleRowsSheetView = event.openRowForm
+                } else {
+                    viewModel.tableDataModel.navigationIntent = .none
+                    showEditMultipleRowsSheetView = false
+                }
+            }
+        }
+        .onReceive(viewModel.tableDataModel.documentEditor?.dismissNavigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { targetFieldID in
+            if targetFieldID == viewModel.tableDataModel.fieldIdentifier.fieldID {
+                if showEditMultipleRowsSheetView {
+                    isDismissingForNavigation = true
+                    showEditMultipleRowsSheetView = false
+                } else {
+                    dismiss()
                 }
             }
         }
@@ -78,11 +141,18 @@ struct TableModalView : View {
             viewModel.tableDataModel.emptySelection()
         }
         .onChange(of: viewModel.tableDataModel.filteredcellModels) { _ in
+            var cellModels = viewModel.tableDataModel.cellModels
+            var indexByID: [String: Int] = [:]
+            indexByID.reserveCapacity(cellModels.count)
+            for (i, m) in cellModels.enumerated() {
+                indexByID[m.rowID] = i
+            }
             for model in viewModel.tableDataModel.filteredcellModels {
-                if let index = viewModel.tableDataModel.cellModels.firstIndex(of: model) {
-                    viewModel.tableDataModel.cellModels[index] = model
+                if let index = indexByID[model.rowID] {
+                    cellModels[index] = model
                 }
             }
+            viewModel.tableDataModel.cellModels = cellModels
         }
         .onChange(of: viewModel.tableDataModel.rowOrder) { _ in
             if viewModel.tableDataModel.rowOrder.isEmpty {
@@ -143,11 +213,27 @@ struct TableModalView : View {
                     case .none:
                         return true
                     }
+                case .date:
+                    switch viewModel.tableDataModel.sortModel.order {
+                    case .ascending:
+                        return (column1.date ?? -.infinity) < (column2.date ?? -.infinity)
+                    case .descending:
+                        return (column1.date ?? -.infinity) > (column2.date ?? -.infinity)
+                    case .none:
+                        return true
+                    }
                 default:
                     return false
                 }
             }
         }
+    }
+
+    private var leftColumnWidth: CGFloat {
+        var width: CGFloat = 40 // # column
+        if viewModel.showRowSelector { width += 40 }
+        if viewModel.showSingleClickEditButton { width += 40 }
+        return width
     }
 
     var scrollArea: some View {
@@ -179,7 +265,7 @@ struct TableModalView : View {
                     }
                 }
                 .frame(minHeight: 50)
-                .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40), height: 60)
+                .frame(width: leftColumnWidth, height: 60)
                 .border(Color.tableCellBorderColor)
                 .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
@@ -187,7 +273,7 @@ struct TableModalView : View {
                 if #available(iOS 16, *) {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40))
+                            .frame(width: leftColumnWidth)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -195,7 +281,7 @@ struct TableModalView : View {
                 } else {
                     ScrollView([.vertical], showsIndicators: false) {
                         rowsHeader
-                            .frame(width: viewModel.showRowSelector ? (viewModel.showSingleClickEditButton ? 120 : 80) : (viewModel.showSingleClickEditButton ? 80 : 40))
+                            .frame(width: leftColumnWidth)
                             .offset(y: offset.y)
                     }
                     .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
@@ -228,6 +314,18 @@ struct TableModalView : View {
 
     var colsHeader: some View {
         HStack(alignment: .top, spacing: 0) {
+            if viewModel.showRowDecorators {
+                Image(systemName: "ellipsis")
+                    .rotationEffect(.degrees(90))
+                    .foregroundColor(Color.gray.opacity(0.4))
+                    .frame(width: viewModel.decoratorsCellWidth(), height: 60)
+                    .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 0)
+                            .inset(by: 1)
+                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                    )
+            }
             ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { index, column in
                 HStack {
                     ScrollView {
@@ -238,13 +336,7 @@ struct TableModalView : View {
                             .darkLightThemeColor()
                     }
                     
-                    if let required = column.required, required, !viewModel.isColumnFilled(columnId: column.id ?? "") {
-                        Image(systemName: "asterisk")
-                            .foregroundColor(.red)
-                            .imageScale(.small)
-                    }
-                    
-                    if ![.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
+                    if ![.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) {
                         Image(systemName: "line.3.horizontal.decrease.circle")
                             .foregroundColor(viewModel.tableDataModel.filterModels[index].filterText.isEmpty ? Color.gray : Color.blue)
                     }
@@ -252,17 +344,17 @@ struct TableModalView : View {
                 }
                 .padding(.all, 4)
                 .font(.system(size: 15))
-                .frame(width: 200, height: 60)
+                .frame(width: Utility.singleColumnWidth, height: 60)
                 .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 .overlay(
                     RoundedRectangle(cornerRadius: 0)
                         .inset(by: 1)
                         .stroke(currentSelectedCol != index ? Color.tableCellBorderColor : Color.blue, lineWidth: 1.5)
                 )
-                .accessibilityIdentifier("ColumnButtonIdentifier")
+                .accessibilityIdentifier("\(column.title ?? "")/ColumnButtonIdentifier")
                 .zIndex(currentSelectedCol == index ? 1 : 0)
                 .onTapGesture {
-                    if !([.image, .block, .date, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0) {
+                    if !([.image, .block, .progress, .signature].contains(viewModel.tableDataModel.getColumnType(columnId: column.id ?? "")) || viewModel.tableDataModel.rowOrder.count == 0) {
                         currentSelectedCol = currentSelectedCol == index ? Int.min : index
                     }
                 }
@@ -304,6 +396,7 @@ struct TableModalView : View {
                             .onTapGesture {
                                 viewModel.tableDataModel.emptySelection()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
+                                viewModel.tableDataModel.navigationIntent = .none
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
@@ -313,6 +406,17 @@ struct TableModalView : View {
         }
     }
     
+    // Keeps all columns horizontally scrollable when a filter matches zero rows.
+    // minHeight fills the empty body so the whole area catches the horizontal swipe.
+    @ViewBuilder
+    private func emptyFilterSpacer(geometry: GeometryProxy) -> some View {
+        if viewModel.tableDataModel.filteredcellModels.isEmpty {
+            Color.clear
+                .frame(width: viewModel.tableContentWidth)
+                .frame(minHeight: geometry.size.height)
+        }
+    }
+
     var table: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
@@ -321,9 +425,10 @@ struct TableModalView : View {
                         LazyVStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
+                            emptyFilterSpacer(geometry: geometry)
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
@@ -341,6 +446,16 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
+//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                                cellProxy.scrollTo(columnId, anchor: .leading)
+//                            }
+                        }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                         // Scroll to keep selected row in view when navigating with arrows
@@ -350,17 +465,15 @@ struct TableModalView : View {
                             }
                         }
                     }
-                    .gesture(DragGesture().onChanged({ _ in
-                        dismissKeyboard()
-                    }))
                 } else {
                     ScrollView([.vertical, .horizontal], showsIndicators: false) {
                         VStack(alignment: .leading, spacing: 0) {
                             ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
                                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, longestBlockText: longestBlockText, isSelected: isRowSelected)
+                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
                                     .frame(height: 60)
                             }
+                            emptyFilterSpacer(geometry: geometry)
                         }
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
@@ -377,6 +490,16 @@ struct TableModalView : View {
                         DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                             cellProxy.scrollTo(0, anchor: .leading)
                         })
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
+//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
+//                                cellProxy.scrollTo(columnId, anchor: .leading)
+//                            }
+                        }
                     }
                     .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                         // Scroll to keep selected row in view when navigating with arrows
@@ -389,6 +512,9 @@ struct TableModalView : View {
                 }
             }
         }
+        .simultaneousGesture(DragGesture().onChanged({ _ in
+            dismissKeyboard()
+        }))
     }
 
     private func dismissKeyboard() {

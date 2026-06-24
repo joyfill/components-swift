@@ -15,7 +15,7 @@ struct FormContainerView: View {
 
     init(document: JoyDoc, pageID: String, changeManager: ChangeManager, enableChangelogs: Bool = true, customLicense: String? = nil) {
         let license = customLicense ?? licenseKey
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true, license: license)
+        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeManager, pageID: pageID, navigation: true, isPageDuplicateEnabled: true, isPageDeleteEnabled: true, license: license, singleClickRowEdit: true)
         self.changeManager = changeManager
         self.enableChangelogs = enableChangelogs
     }
@@ -33,8 +33,8 @@ struct FormContainerView: View {
                         HStack {
                             Image(systemName: "list.clipboard")
                             Text("Logs")
-                            if !changeManager.displayedChangelogs.isEmpty {
-                                Text("\(changeManager.displayedChangelogs.count)")
+                            if !changeManager.displayedEntries.isEmpty {
+                                Text("\(changeManager.displayedEntries.count)")
                                     .font(.caption)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 6)

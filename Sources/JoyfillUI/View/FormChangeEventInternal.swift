@@ -40,5 +40,6 @@ public struct ChartData {
 protocol FieldChangeEvents {
     func onChange(event: FieldChangeData)
     func onFocus(event: FieldIdentifier)
+    func onDecoratorAction(event: FieldIdentifier, action: String)
     func onUpload(event: UploadEvent)
 }

@@ -6,6 +6,7 @@ struct NumberView: View {
     // Use a binding that we control rather than a State variable
     private let numberDataModel: NumberDataModel
     @FocusState private var isFocused: Bool
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
     // Use local state for value tracking instead of frequent model updates
     @State private var displayText: String = ""
@@ -43,7 +44,9 @@ struct NumberView: View {
         )
 
         return VStack(alignment: .leading) {
-            FieldHeaderView(numberDataModel.fieldHeaderModel, isFilled: !(displayText.isEmpty))
+            FieldHeaderView(numberDataModel.fieldHeaderModel, isFilled: !(displayText.isEmpty)) { decorator in
+                eventHandler.onDecoratorAction(event: numberDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
             // Use the custom binding for more controlled updates
             TextField("", text: textBinding)
                 .accessibilityIdentifier("Number")
@@ -51,11 +54,8 @@ struct NumberView: View {
                 .padding(.horizontal, 10)
                 .keyboardType(.decimalPad)
                 .frame(minHeight: 40)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
                 .cornerRadius(10)
+                .fieldBorder(isFocused: navigationFocusFieldId == numberDataModel.fieldIdentifier.fieldID)
                 .focused($isFocused)
                 .onChange(of: isFocused) { focused in
                     if focused {
@@ -76,6 +76,11 @@ struct NumberView: View {
                 displayText = formatNumber(numberDataModel.number)
             }
             lastModelValue = numberDataModel.number
+        }
+        .onChange(of: navigationFocusFieldId) { newValue in
+            if newValue == numberDataModel.fieldIdentifier.fieldID {
+                isFocused = true
+            }
         }
         .onChange(of: numberDataModel.number) { newValue in
             // Only update if not focused and value has actually changed

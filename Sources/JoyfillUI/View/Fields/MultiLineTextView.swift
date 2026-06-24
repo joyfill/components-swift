@@ -8,6 +8,7 @@ struct MultiLineTextView: View {
     @State private var debounceTask: Task<Void, Never>?
     private var multiLineDataModel: MultiLineDataModel
     @FocusState private var isFocused: Bool
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     let eventHandler: FieldChangeEvents
 
     public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
@@ -17,6 +18,7 @@ struct MultiLineTextView: View {
     }
 
     var body: some View {
+        let isReadonly = multiLineDataModel.mode == .readonly
         // Create a custom binding that gives us more control
         let textBinding = Binding<String>(
             get: { displayText },
@@ -28,31 +30,40 @@ struct MultiLineTextView: View {
             }
         )
         return VStack(alignment: .leading) {
-            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty)
-            TextEditor(text: textBinding)
-                .accessibilityIdentifier("MultilineTextFieldIdentifier")
-                .disabled(multiLineDataModel.mode == .readonly)
-                .padding(.horizontal, 10)
-                .autocorrectionDisabled()
-                .frame(minHeight: 200, maxHeight: 200)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                )
-                .cornerRadius(10)
-                .focused($isFocused)
-                .onChange(of: isFocused) { focused in
-                    if focused {
-                        eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
-                    } else {
-                        updateFieldValue()
+            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty) { decorator in
+                eventHandler.onDecoratorAction(event: multiLineDataModel.fieldIdentifier, action: decorator.action ?? "")
+            }
+            Group {
+                if isReadonly {
+                    ScrollView {
+                        Text(displayText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.vertical, 8)
                     }
+                    .accessibilityIdentifier("MultilineReadonlyTextIdentifier")
+                } else {
+                    TextEditor(text: textBinding)
+                        .accessibilityIdentifier("MultilineTextFieldIdentifier")
+                        .autocorrectionDisabled()
+                        .focused($isFocused)
+                        .onChange(of: isFocused) { focused in
+                            if focused {
+                                eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
+                            } else {
+                                updateFieldValue()
+                            }
+                        }
+                        .onChange(of: displayText) { newValue in
+                            if isFocused {
+                                debounceTextChange(newValue: newValue)
+                            }
+                        }
                 }
-                .onChange(of: displayText) { newValue in
-                    if isFocused {
-                        debounceTextChange(newValue: newValue)
-                    }
-                }
+            }
+            .padding(.horizontal, 10)
+            .frame(minHeight: 200, maxHeight: 200)
+            .cornerRadius(10)
+            .fieldBorder(isFocused: navigationFocusFieldId == multiLineDataModel.fieldIdentifier.fieldID)
         }
         .onAppear {
             // Initialize on first appear
@@ -60,6 +71,11 @@ struct MultiLineTextView: View {
                 displayText = multiLineDataModel.multilineText ?? ""
             }
             lastModelText = multiLineDataModel.multilineText
+        }
+        .onChange(of: navigationFocusFieldId) { newValue in
+            if newValue == multiLineDataModel.fieldIdentifier.fieldID {
+                isFocused = true
+            }
         }
         .onChange(of: multiLineDataModel.multilineText) { newValue in
             // Only update if not focused and value has actually changed

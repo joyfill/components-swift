@@ -26,13 +26,8 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
     }
     
     func tapOnTextFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Text Column/ColumnButtonIdentifier").element(boundBy: 0)
         textFieldColumnTitleButton.tap()
-    }
-    
-    func tapOnDropdownFieldColumn() {
-        let dropdownFieldColumnTitleButton = app.buttons.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 1)
-        dropdownFieldColumnTitleButton.tap()
     }
     
     func dismissSheet() {
@@ -831,4 +826,385 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         }
         return outputFormatter.string(from: date)
     }
+    
+    func testTableFieldOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let textField = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(textField.exists, "Text field should exist")
+        textField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "687478ee0b423b73bb24cafa")
+    }
+
+    func testTableDropdownOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let dropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
+        scrollToElement(dropdownField)
+        XCTAssertTrue(dropdownField.exists, "Dropdown field should exist")
+        dropdownField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f786e39a025afbe7d481")
+    }
+
+    func testTableMultiSelectOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let multiSelectField = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
+        scrollToElement(multiSelectField)
+        XCTAssertTrue(multiSelectField.exists, "Multi-select field should exist")
+        multiSelectField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f780cf958bc05e29aa23")
+    }
+
+    func testTableImageOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let imageField = app.buttons.matching(identifier: "TableImageIdentifier").firstMatch
+        scrollToElement(imageField)
+        XCTAssertTrue(imageField.exists, "Image field should exist")
+        imageField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f77d94bf1a887629d6c1")
+    }
+
+    func testTableNumberOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let numberField = app.textFields.matching(identifier: "TabelNumberFieldIdentifier").firstMatch
+        scrollToElement(numberField)
+        XCTAssertTrue(numberField.exists, "Number field should exist")
+        numberField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f868ebe7eede60eb0f7c")
+    }
+
+    func testTableDateOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let dateField = app.buttons.matching(identifier: "ChangeCellDateIdentifier").firstMatch
+        scrollToElement(dateField)
+        if dateField.exists {
+            dateField.tap()
+        } else {
+            let dateIcon = app.images.matching(identifier: "CalendarImageIdentifier").firstMatch
+            XCTAssertTrue(dateIcon.exists, "Date field should exist")
+            dateIcon.tap()
+        }
+        let closeDatePopupButton = app.buttons["Close"].firstMatch
+        if closeDatePopupButton.waitForExistence(timeout: 1.0) {
+            closeDatePopupButton.tap()
+        } else {
+            dismissSheet()
+        }
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f873e4ac8460314997f8")
+    }
+
+    func testTableBarcodeOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let barcodeField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").firstMatch
+        scrollToElement(barcodeField)
+        XCTAssertTrue(barcodeField.exists, "Barcode field should exist")
+        barcodeField.tap()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f89d075904bfa381619b")
+    }
+
+    func testTableSignatureOnFocusOnBlur() throws {
+        goToTableDetailPage()
+        let signatureField = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
+        scrollToElement(signatureField)
+        XCTAssertTrue(signatureField.exists, "Signature field should exist")
+        signatureField.tap()
+        dismissSheet()
+        goBack()
+        assertTableCellFocusBlurEvents(columnId: "6875f89ffad5aad06e550a6f")
+    }
+    
+    func testInsertBelowThenBulkEdit() throws {
+        goToTableDetailPage()
+        
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        let selectAll = app.images["SelectAllRowSelectorButton"]
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        let barcodeFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        let visibleRowCountBeforeInsert = barcodeFields.count
+        
+        app.images["SingleClickEditButton1"].tap()
+        app.buttons["PlusTheRowButtonIdentifier"].tap()
+
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        let insertResult = onChangeResult()
+        XCTAssertEqual("field.value.rowCreate", insertResult.target, "Insert below should emit rowCreate target")
+
+        let insertedRowCount: Int
+        if
+            let change = insertResult.change,
+            let value = change["value"],
+            let valueUnion = ValueUnion(value: value),
+            let valueElements = valueUnion.valueElements {
+            insertedRowCount = valueElements.count
+        } else {
+            insertedRowCount = barcodeFields.count
+            XCTAssertEqual(insertedRowCount, visibleRowCountBeforeInsert + 1, "Insert below should increase visible row count by 1")
+        }
+
+        XCTAssertGreaterThan(insertedRowCount, 0, "Inserted row count should be greater than zero")
+
+        moreButton.tap()
+        selectAll.tap()
+        moreButton.tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+        textField.tap()
+        textField.typeText("BulkEdit")
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let visibleRowCountBeforeDelete = barcodeFields.count
+        selectAll.tap()
+        moreButton.tap()
+        app.buttons["TableDeleteRowIdentifier"].tap()
+
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        // SDK emits one Change per deleted row, each with change: ["rowId": <id>, "row": <dict>].
+        // Lock to that shape directly — no permissive fallback, so a regression in event
+        // emission (wrong target, missing rowId, wrong cardinality) fails this test.
+        let deleteResults = onChangeOptionalResults()
+        XCTAssertFalse(deleteResults.isEmpty, "Delete-all should emit at least one change event")
+        XCTAssertTrue(
+            deleteResults.allSatisfy { $0.target == "field.value.rowDelete" },
+            "Delete-all should emit only rowDelete events; got targets: \(deleteResults.map { $0.target ?? "nil" })"
+        )
+        XCTAssertEqual(
+            deleteResults.count, insertedRowCount,
+            "Number of rowDelete events should equal the table size captured after insert"
+        )
+
+        let deletedRowIds: [String] = deleteResults.compactMap { $0.change?["rowId"] as? String }
+        XCTAssertEqual(
+            deletedRowIds.count, deleteResults.count,
+            "Every rowDelete change must include a non-empty rowId"
+        )
+        XCTAssertEqual(
+            Set(deletedRowIds).count, deletedRowIds.count,
+            "rowIds across rowDelete events should be unique"
+        )
+
+        XCTAssertEqual(0, barcodeFields.count, "All table rows should be deleted")
+        XCTAssertEqual(
+            visibleRowCountBeforeDelete - barcodeFields.count, insertedRowCount,
+            "UI row count drop should equal the captured insert-time count"
+        )
+    }
+}
+
+extension TableFieldUITestCases {
+    
+    @discardableResult
+    func assertFocusBlurFieldEvent(
+        in results: [[String: Any]],
+        expectedFieldEvent: [String: Any],
+        expectedAbsentFieldEventKeys: Set<String> = ["type", "target"],
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> [String: Any] {
+        guard let matchedEvent = results.first(where: { event in
+            guard let fieldEvent = event["fieldEvent"] as? [String: Any] else {
+                return false
+            }
+            for (key, expectedValue) in expectedFieldEvent {
+                if !focusBlurValuesMatch(actual: fieldEvent[key], expected: expectedValue) {
+                    return false
+                }
+            }
+            return true
+        }) else {
+            XCTFail("Missing event matching expected payload: \(expectedFieldEvent)", file: file, line: line)
+            return [:]
+        }
+
+        XCTAssertNil(matchedEvent["pageEvent"], "Did not expect pageEvent", file: file, line: line)
+
+        guard let fieldEvent = matchedEvent["fieldEvent"] as? [String: Any] else {
+            XCTFail("Missing fieldEvent dictionary", file: file, line: line)
+            return matchedEvent
+        }
+
+        let expectedFieldEventKeys = Set(expectedFieldEvent.keys)
+        let nullableExpectedKeys = Set(
+            expectedFieldEvent.compactMap { key, value in
+                value is NSNull ? key : nil
+            }
+        )
+        let requiredExpectedKeys = expectedFieldEventKeys.subtracting(nullableExpectedKeys)
+        let fieldEventKeys = Set(fieldEvent.keys)
+        let absentKeysToAssert = expectedAbsentFieldEventKeys.subtracting(expectedFieldEventKeys)
+        XCTAssertTrue(
+            fieldEventKeys.isSuperset(of: requiredExpectedKeys),
+            "Missing required fieldEvent keys. Required: \(requiredExpectedKeys), got: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            fieldEventKeys.isSubset(of: expectedFieldEventKeys),
+            "Unexpected fieldEvent keys: \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+        XCTAssertTrue(
+            absentKeysToAssert.isDisjoint(with: fieldEventKeys),
+            "Did not expect optional keys \(absentKeysToAssert), got \(fieldEventKeys)",
+            file: file,
+            line: line
+        )
+
+        for (key, expectedValue) in expectedFieldEvent {
+            let actualValue = fieldEvent[key]
+            if expectedValue is NSNull {
+                XCTAssertTrue(
+                    actualValue == nil || actualValue is NSNull,
+                    "Expected key '\(key)' to be nil/missing, got \(String(describing: actualValue))",
+                    file: file,
+                    line: line
+                )
+                continue
+            }
+            XCTAssertTrue(
+                focusBlurValuesMatch(actual: actualValue, expected: expectedValue),
+                "Mismatch for key '\(key)'. Expected \(expectedValue), got \(String(describing: actualValue))",
+                file: file,
+                line: line
+            )
+        }
+
+        for key in absentKeysToAssert {
+            XCTAssertFalse(fieldEvent.keys.contains(key), "\(key) should be absent", file: file, line: line)
+            XCTAssertNil(fieldEvent[key], "\(key) should be nil", file: file, line: line)
+        }
+
+        return matchedEvent
+    }
+
+    func scrollToElement(_ element: XCUIElement, maxSwipes: Int = 4) {
+        if !element.waitForExistence(timeout: 1.5) {
+            for _ in 0..<maxSwipes where !element.exists {
+                app.swipeLeft()
+                RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+            }
+        }
+    }
+
+    func assertTableCellFocusBlurEvents(
+        columnId: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let results = focusBlurOptionalResults()
+        XCTAssertFalse(results.isEmpty, "Expected focus/blur events but found none", file: file, line: line)
+
+        let base: [String: Any] = [
+            "_id": "66a14cedd6e1ebcdf176a8da",
+            "identifier": "template_6849dbb509ede5510725c910",
+            "fieldID": "6875c7c5e988bf485f897df6",
+            "fieldIdentifier": "field_6875c7ccc7953a86420924d9",
+            "pageID": "66a14ced15a9dc96374e091e",
+            "fileID": "66a14ced9dc829a95e272506",
+            "fieldPositionId": "6875c7ccc68951e6aff6ebea",
+            "rowIds": ["687478ee886e5d76ed0b3d1c"],
+            "columnId": columnId
+        ]
+
+        var focusEvent = base
+        focusEvent["type"] = "field.focus"
+        focusEvent["target"] = "field.focus"
+
+        var blurEvent = base
+        blurEvent["type"] = "field.blur"
+        blurEvent["target"] = "field.blur"
+
+        assertFocusBlurFieldEvent(in: results, expectedFieldEvent: focusEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
+        assertFocusBlurFieldEvent(in: results, expectedFieldEvent: blurEvent, expectedAbsentFieldEventKeys: ["type", "target"], file: file, line: line)
+    }
+
+    // MARK: - Pinned row form header tests
+
+    private func scrollRowFormUp() {
+        app.swipeUp()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+    }
+
+    /// The single-row form's navigation header (chevrons + close) must stay pinned while the fields scroll.
+    func testRowFormHeaderStaysPinnedWhileScrolling() throws {
+        goToTableDetailPage()
+
+        // Open the single-row edit form for the first row.
+        let rowSelector = app.images.matching(identifier: "MyButton").element(boundBy: 0)
+        XCTAssertTrue(rowSelector.waitForExistence(timeout: 5), "Row selector should exist")
+        rowSelector.tap()
+        app.buttons["TableMoreButtonIdentifier"].tap()
+        app.buttons["TableEditRowsIdentifier"].tap()
+
+        let closeButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"]
+        XCTAssertTrue(closeButton.waitForExistence(timeout: 5), "Single-row form should open")
+        XCTAssertTrue(app.buttons["UpperRowButtonIdentifier"].exists, "Up nav button should be in the pinned header")
+        XCTAssertTrue(app.buttons["LowerRowButtonIdentifier"].exists, "Down nav button should be in the pinned header")
+
+        let field = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "A scrollable field should be present")
+
+        let headerYBefore = closeButton.frame.minY
+        let fieldYBefore = field.frame.minY
+
+        scrollRowFormUp()
+        scrollRowFormUp()
+
+        XCTAssertTrue(closeButton.exists && closeButton.isHittable,
+                      "Header close button should stay visible and tappable after scrolling")
+        XCTAssertEqual(closeButton.frame.minY, headerYBefore, accuracy: 5.0,
+                       "Row form header should stay pinned, not scroll with the fields")
+        XCTAssertLessThan(field.frame.minY, fieldYBefore,
+                          "Fields should scroll underneath the pinned header")
+
+        // The pinned buttons must still be functional after scrolling.
+        let upButton = app.buttons["UpperRowButtonIdentifier"]
+        let downButton = app.buttons["LowerRowButtonIdentifier"]
+        XCTAssertFalse(upButton.isEnabled, "Up should be disabled on the first row")
+        XCTAssertTrue(downButton.isEnabled, "Down should be enabled while rows exist below")
+        downButton.tap()
+        XCTAssertTrue(waitUntil(3) { upButton.isEnabled },
+                      "Up should become enabled after the Down button navigates to the next row")
+
+        closeButton.tap()
+        XCTAssertTrue(waitUntil(3) { !closeButton.exists },
+                      "Row form should dismiss when the pinned close button is tapped")
+    }
+
+    /// The bulk-edit form's "Apply All" header must stay pinned while the fields scroll.
+    func testBulkEditRowFormHeaderStaysPinnedWhileScrolling() throws {
+        goToTableDetailPage()
+        tapOnMoreButton()
+        app.buttons["TableEditRowsIdentifier"].tap()
+
+        let applyAll = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAll.waitForExistence(timeout: 5), "Bulk-edit form should open with Apply All header")
+
+        let field = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "A scrollable field should be present")
+
+        let headerYBefore = applyAll.frame.minY
+        let fieldYBefore = field.frame.minY
+
+        scrollRowFormUp()
+        scrollRowFormUp()
+
+        XCTAssertTrue(applyAll.exists && applyAll.isHittable,
+                      "Apply All header button should stay visible and tappable after scrolling")
+        XCTAssertEqual(applyAll.frame.minY, headerYBefore, accuracy: 5.0,
+                       "Bulk-edit header should stay pinned, not scroll with the fields")
+        XCTAssertLessThan(field.frame.minY, fieldYBefore,
+                          "Fields should scroll underneath the pinned header")
+
+        // The pinned Apply All button must still be functional after scrolling.
+        XCTAssertTrue(applyAll.isHittable, "Apply All should be tappable after scrolling")
+        applyAll.tap()
+        XCTAssertTrue(waitUntil(3) { !applyAll.exists },
+                      "Bulk-edit form should dismiss after tapping the pinned Apply All button")
+    }
+
 }

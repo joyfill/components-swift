@@ -6,7 +6,8 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     override func getJSONFileNameForTest() -> String {
         return "Joydocjson"
     }
-    
+
+
     func goToTableDetailPage() {
         app.swipeUp()
         app.swipeUp()
@@ -43,12 +44,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     }
     
     func tapOnTextFieldColumn() {
-        let textFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let textFieldColumnTitleButton = app.images.matching(identifier: "Text Column/ColumnButtonIdentifier").element(boundBy: 0)
         textFieldColumnTitleButton.tap()
     }
     
     func tapOnDropdownFieldColumn() {
-        let dropdownFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 1)
+        let dropdownFieldColumnTitleButton = app.images.matching(identifier: "Dropdown Column/ColumnButtonIdentifier").element(boundBy: 0)
         dropdownFieldColumnTitleButton.tap()
     }
     
@@ -81,7 +82,7 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
     // Test case for check dropdown is in First Place or not - because check column order work fine or not
     func testSearchFilterForDropdownFieldPageFirst() throws {
         goToTableDetailPage()
-        let dropdownFieldColumnTitleButton = app.images.matching(identifier: "ColumnButtonIdentifier").element(boundBy: 0)
+        let dropdownFieldColumnTitleButton = app.images.matching(identifier: "Dropdown Column/ColumnButtonIdentifier").element(boundBy: 0)
         dropdownFieldColumnTitleButton.tap()
         
         tapOnDropdownFieldFilter()
@@ -384,6 +385,37 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
             XCTAssertTrue(button.exists, "Button \(index + 1) does not exist")
             XCTAssertEqual(button.label, dropdownValueLabel, "The label on button \(index + 1) is incorrect")
         }
+    }
+
+    func testBulkEditApplyAllClearsSelection() throws {
+        navigateToTableViewOnSecondPage()
+
+        let selectAllButton = app.images["SelectAllRowSelectorButton"]
+        XCTAssertTrue(selectAllButton.waitForExistence(timeout: 1), "Select all row button should be visible")
+        selectAllButton.tap()
+
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 1), "More button should be visible after selecting rows")
+        moreButton.tap()
+
+        let editRowsMenuBefore = app.buttons["TableEditRowsIdentifier"]
+        XCTAssertTrue(editRowsMenuBefore.waitForExistence(timeout: 1), "Edit rows option should be visible in More menu")
+        XCTAssertTrue(editRowsMenuBefore.label.contains("rows"), "Expected bulk edit menu label, got: \(editRowsMenuBefore.label)")
+
+        editRowsMenuBefore.tap()
+
+        let textField = app.textFields["EditRowsTextFieldIdentifier"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 1), "Bulk edit text field should be visible")
+        textField.tap()
+        textField.typeText("KeepSelection")
+
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 1), "Apply All button should be visible in bulk edit")
+        applyAllButton.tap()
+
+        XCTAssertTrue(waitUntil(2) { !applyAllButton.exists }, "Bulk edit sheet should be dismissed after applying")
+        XCTAssertNotNil(onChangeOptionalResult(), "Bulk edit should produce a change event after editing data")
+        XCTAssertFalse(moreButton.exists, "Selection should be cleared after Apply All")
     }
     
     func testEditSingleRow() throws {
@@ -1205,7 +1237,9 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(enterDateInInsertedField.waitForExistence(timeout: 5),
                       "Inserted text field never appeared")
         XCTAssertEqual("", enterDateInInsertedField.value as! String)
-        app.enterTextReliably("quick", into: enterDateInInsertedField)
+//        app.enterTextReliably("quick", into: enterDateInInsertedField)
+        enterDateInInsertedField.tap()
+        enterDateInInsertedField.typeText("quick")
         
         // Select first option in dropdown field
         let selectDropdownField = app.buttons.matching(identifier: "TableDropdownIdentifier").element(boundBy: 1)
@@ -1957,6 +1991,20 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
             return XCTFail("Missing or invalid 'change' dictionary")
         }
         XCTAssertEqual(change["rowId"] as? String, "66e3eca93796d7435b63ce9d")
+        
+        guard let row = change["row"] as? [String: Any] else {
+            return XCTFail("Missing deleted row object in 'change'")
+        }
+
+        let expectedDeletedRow: [String: Any] = [
+            "_id": "66e3eca93796d7435b63ce9d",
+            "deleted": true,
+            "cells": [
+                "66e3eca9c0c6bf8bef669d21": "Boy 3",
+                "66e3eca984ddabde6a6f469d": "66e3eca9e128bcf2e560a76e"
+            ]
+        ]
+        XCTAssertEqual(row as NSDictionary, expectedDeletedRow as NSDictionary)
     }
     
     func testTableMoveSingleRowAndCheckOnChange() throws {

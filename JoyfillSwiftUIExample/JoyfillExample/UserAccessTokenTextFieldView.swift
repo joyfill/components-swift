@@ -232,11 +232,18 @@ struct FormDestinationView: View {
     @Binding var showPublicApis: Bool
     @State private var lastValidation: Validation? = nil
     @State private var documentEditor: DocumentEditor? = nil
+    @State private var showDecoratorManager      = false
+    @State private var decoratorPageID:          String = ""
+    @State private var decoratorFieldPositionID: String = ""
+    @State private var decoratorError:           DecoratorErrorAlert? = nil
+    @State private var decoratorHopChain:        [DecoratorHopStep] = []
+    @State private var decoratorPendingSchema:   String = ""
+    @State private var decoratorColumnID:        String = ""
     let enableChangelogs: Bool
     @State var validateSchema: Bool = false
-    @State var isPageDuplicated: Bool = false
-    @State var isPageDelete: Bool = false
-    @State var singleClickRowEdit: Bool = false
+    @State var isPageDuplicated: Bool = true
+    @State var isPageDelete: Bool = true
+    @State var singleClickRowEdit: Bool = true
     @State var document = JoyDoc()
     @State var license: String
 
@@ -265,6 +272,14 @@ struct FormDestinationView: View {
 
     // Build the DocumentEditor off the main thread and assign it on the main thread
     private func buildDocumentEditorInBackground() {
+        // Capture @State values on the main actor before entering the detached task,
+        // so the correct initial values are used regardless of concurrency timing.
+        let isDuplicate = isPageDuplicated
+        let isDelete = isPageDelete
+        let isSingleClick = singleClickRowEdit
+        let currentSchema = validateSchema
+        let currentLicense = license
+
         // Heavy work (JSON parse + DocumentEditor construction) off the main thread
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
@@ -275,11 +290,11 @@ struct FormDestinationView: View {
                 events: changeManager,
                 pageID: "",
                 navigation: true,
-                isPageDuplicateEnabled: isPageDuplicated,
-                isPageDeleteEnabled: isPageDelete,
-                validateSchema: validateSchema,
-                license: license,
-                singleClickRowEdit: singleClickRowEdit
+                isPageDuplicateEnabled: isDuplicate,
+                isPageDeleteEnabled: isDelete,
+                validateSchema: currentSchema,
+                license: currentLicense,
+                singleClickRowEdit: isSingleClick
             )
 
             // Publish to UI on the main actor
@@ -305,15 +320,24 @@ struct FormDestinationView: View {
                     .buttonStyle(.bordered)
                     .padding(.trailing, 16)
                     .padding(.top, 8)
-                    
+
+                    Button(action: {
+                        showDecoratorManager = true
+                    }) {
+                        Image(systemName: "paintbrush.pointed.fill")
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.trailing, 16)
+                    .padding(.top, 8)
+
                     Button(action: {
                         showChangelogView = true
                     }) {
                         HStack {
                             Image(systemName: "list.clipboard")
                             Text("Logs")
-                            if !changeManager.displayedChangelogs.isEmpty {
-                                Text("\(changeManager.displayedChangelogs.count)")
+                            if !changeManager.displayedEntries.isEmpty {
+                                Text("\(changeManager.displayedEntries.count)")
                                     .font(.caption)
                                     .foregroundColor(.white)
                                     .padding(.horizontal, 6)
@@ -355,6 +379,19 @@ struct FormDestinationView: View {
         .sheet(isPresented: $showChangelogView) {
             ChangelogView(changeManager: changeManager)
         }
+        .sheet(isPresented: $showDecoratorManager) {
+            if let editor = documentEditor {
+                DecoratorManagerView(
+                    editor: editor,
+                    selectedPageID: $decoratorPageID,
+                    selectedFieldPositionID: $decoratorFieldPositionID,
+                    decoratorError: $decoratorError,
+                    hopChain: $decoratorHopChain,
+                    pendingSchema: $decoratorPendingSchema,
+                    selectedColumnID: $decoratorColumnID
+                )
+            }
+        }
         .sheet(isPresented: $showPublicApis) {
             PublicApiExamples(documentEditor: $documentEditor, licenseKey: $license, validateSchema: $validateSchema, isPageDuplicate: $isPageDuplicated, isPageDelete: $isPageDelete, singleClickRowEdit: $singleClickRowEdit, document: documentEditor?.document ?? JoyDoc())
         }
@@ -369,7 +406,12 @@ struct FormDestinationView: View {
             )
         ) {
             if let validation = self.lastValidation {
-                ValidationResultsView(validation: validation)
+                ValidationResultsView(
+                    validation: validation,
+                    documentEditor: documentEditor
+                ) {
+                    self.lastValidation = nil
+                }
             }
         }
         // Kick off background creation once the view appears
@@ -448,7 +490,9 @@ class ChangeManagerWrapper: ObservableObject {
 struct OptionSelectionView: View {
     @State private var selectedOption: OptionType? = nil
     @State private var isNavigating: Bool = false
-    
+    @State private var showNavigationAlert: Bool = false
+    @State private var navigationAlertMessage: String = ""
+
     enum OptionType: CaseIterable {
         case token
         case jsonToForm
@@ -464,7 +508,12 @@ struct OptionSelectionView: View {
         case manipulateDataOnChangeView
         case createRowUISample
         case failureCaptureDemo
+        case metadataChangeAPIDemo
+        case decoratorAPIDemo
+        case decoratorRowUpdateDemo
         case simpleForm
+        case simpleNavigationTest
+        case footerExample
 
         var title: String {
             switch self {
@@ -496,11 +545,21 @@ struct OptionSelectionView: View {
                 return "Create Row UI Sample"
             case .failureCaptureDemo:
                 return "Failure Capture Demo"
+            case .metadataChangeAPIDemo:
+                return "Metadata Change API Demo"
+            case .decoratorAPIDemo:
+                return "Decorator API Demo"
+            case .decoratorRowUpdateDemo:
+                return "Decorator → Row Change"
             case .simpleForm:
                 return "Simple example Form"
+            case .simpleNavigationTest:
+                return "Navigation Test"
+            case .footerExample:
+                return "Footer Example"
             }
         }
-        
+
         var description: String {
             switch self {
             case .token:
@@ -531,11 +590,21 @@ struct OptionSelectionView: View {
                 return "Create a row UI sample"
             case .failureCaptureDemo:
                 return "Capture deficiency details when failure options are selected"
+            case .metadataChangeAPIDemo:
+                return "Set field and row metadata via Change API (field.update, rowCreate, rowUpdate)"
+            case .decoratorAPIDemo:
+                return "Add, remove and update decorators on any field at runtime"
+            case .decoratorRowUpdateDemo:
+                return "Tap a column decorator in an open row, set its dropdown via the Change API, and watch the UI update"
             case .simpleForm:
                 return "Simple example Form"
+            case .simpleNavigationTest:
+                return "Navigate to any page or field in the form"
+            case .footerExample:
+                return "Test footer show/hide, expand, and keyboard behaviour"
             }
         }
-        
+
         var icon: String {
             switch self {
             case .token:
@@ -566,11 +635,21 @@ struct OptionSelectionView: View {
                 return "slider.horizontal.3"
             case .failureCaptureDemo:
                 return "exclamationmark.triangle.fill"
+            case .metadataChangeAPIDemo:
+                return "tag.fill"
+            case .decoratorAPIDemo:
+                return "paintbrush.pointed.fill"
+            case .decoratorRowUpdateDemo:
+                return "arrow.triangle.2.circlepath"
             case .simpleForm:
                 return "slider.horizontal.3"
+            case .simpleNavigationTest:
+                return "location.circle.fill"
+            case .footerExample:
+                return "dock.rectangle"
             }
         }
-        
+
         var color: Color {
             switch self {
             case .token:
@@ -601,8 +680,18 @@ struct OptionSelectionView: View {
                 return .red
             case .failureCaptureDemo:
                 return .orange
+            case .metadataChangeAPIDemo:
+                return .orange
+            case .decoratorAPIDemo:
+                return .blue
+            case .decoratorRowUpdateDemo:
+                return .purple
             case .simpleForm:
                 return .blue
+            case .simpleNavigationTest:
+                return .indigo
+            case .footerExample:
+                return .mint
             }
         }
     }
@@ -699,6 +788,11 @@ struct OptionSelectionView: View {
             .navigationBarHidden(true)
         }
         .navigationViewStyle(StackNavigationViewStyle()) // Force stack style
+        .alert("Navigation Error", isPresented: $showNavigationAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(navigationAlertMessage)
+        }
     }
     
     @ViewBuilder
@@ -741,8 +835,18 @@ struct OptionSelectionView: View {
             CreateRowUISample()
         case .failureCaptureDemo:
             FailureCaptureDemoView()
+        case .metadataChangeAPIDemo:
+            MetadataChangeAPIDemoView()
+        case .decoratorAPIDemo:
+            DecoratorAPIDemoView()
+        case .decoratorRowUpdateDemo:
+            DecoratorRowUpdateDemoView()
         case .simpleForm:
             SimpleFormExampleView()
+        case .simpleNavigationTest:
+            SimpleNavigationTestView(showAlert: $showNavigationAlert, alertMessage: $navigationAlertMessage)
+        case .footerExample:
+            FooterExampleView()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):

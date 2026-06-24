@@ -11,6 +11,8 @@ struct TableTextRowFormView: View {
     @Binding var cellModel: TableCellModel
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
+    @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
+    @FocusState private var isTextFieldFocused: Bool
 
     public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
@@ -29,25 +31,26 @@ struct TableTextRowFormView: View {
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         } else {
             HStack(spacing: 0) {
-                if #available(iOS 16.0, *) {
-                    TextEditor(text: $text)
-                        .font(.system(size: 15))
-                        .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                        .scrollContentBackground(.hidden)
-                        .onChange(of: text) { newValue in
-                            updateFieldValue(newText: newValue)
+                TextField("", text: $text)
+                    .font(.system(size: 15))
+                    .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                    .padding(.horizontal, 10)
+                    .onChange(of: text) { newValue in
+                        updateFieldValue(newText: newValue)
+                    }
+                    .focused($isTextFieldFocused)
+                    .onChange(of: isTextFieldFocused) { focused in
+                        if focused {
+                            cellModel.didFocusBlur?(.focus, cellModel.data)
+                        } else {
+                            cellModel.didFocusBlur?(.blur, cellModel.data)
                         }
-                } else {
-                    TextEditor(text: $text)
-                        .font(.system(size: 15))
-                        .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                        .onChange(of: text) { newValue in
-                            updateFieldValue(newText: newValue)
-                        }
-                }
+                    }
+                    .onAppear { autoFocusIfNeeded() }
             }
         }
     }
@@ -58,6 +61,11 @@ struct TableTextRowFormView: View {
         cellModel.data = cellModelData
         cellModel.didChange?(cellModelData)
     }
+    
+    private func autoFocusIfNeeded() {
+        if navigationFocusColumnId == cellModel.data.id {
+            isTextFieldFocused = true
+        }
+    }
 }
-
 

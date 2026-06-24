@@ -181,8 +181,11 @@ struct UserJsonTextFieldView: View {
                             events: cm,
                             pageID: "",
                             navigation: true,
+                            isPageDuplicateEnabled: true,
+                            isPageDeleteEnabled: true,
                             validateSchema: false,
-                            license: license
+                            license: license,
+                            singleClickRowEdit: true
                         )
                         await MainActor.run {
                             self.preparedEditor = editor
