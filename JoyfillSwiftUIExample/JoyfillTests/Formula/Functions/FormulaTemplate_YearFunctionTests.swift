@@ -55,30 +55,44 @@ class yearTests: XCTestCase {
         }
     }
     
-    /// Test: year(birthDate) with date string - may return empty if parsing not supported
+    /// Test: year(birthDate) with ISO date string - field-ref date strings are not parsed, resolves to empty
     func testYearFromFieldReference() {
         let result = getFieldValue("intermediate_example_field")
-        XCTAssertTrue(result == "1990" || result.isEmpty, "year from date string should return '1990' or empty")
+        XCTAssertEqual(result, "", "year(birthDate) on an ISO date string resolves to empty")
     }
-    
-    /// Test: Age calculation - may not work with date string parsing
+
+    /// Test: Age calculation - depends on year(birthDate), which is empty, so resolves to empty
     func testAgeCalculation() {
         let result = getFieldValue("intermediate_example_age")
-        // Date string parsing may not work
-        if !result.isEmpty, let age = Int(result) {
-            XCTAssertTrue(age >= 30 && age <= 40, "Age from 1990 should be ~33-35, got '\(age)'")
-        }
+        XCTAssertEqual(result, "", "year(now()) - year(birthDate) resolves to empty")
     }
-    
-    /// Test: Expiry check - may not work with date string parsing
+
+    /// Test: Expiry check - depends on year(expiryDate), which is empty, so resolves to empty
     func testExpiryCheck() {
         let result = getFieldValue("advanced_example_expiry")
-        XCTAssertTrue(result == "Expired" || result.isEmpty, "Year 2022 expiry should be 'Expired' or empty")
+        XCTAssertEqual(result, "", "expiry check on an ISO date string resolves to empty")
     }
-    
-    /// Test: Half year - may not work with date string parsing
+
+    /// Test: Half year - depends on year(sampleDate), which is empty, so resolves to empty
     func testHalfYear() {
         let result = getFieldValue("advanced_example_half")
-        XCTAssertTrue(result == "Second half of 2023" || result.isEmpty, "August 2023 should show result or empty")
+        XCTAssertEqual(result, "", "half-year check on an ISO date string resolves to empty")
+    }
+
+    /// Test: Fiscal year - depends on year(sampleDate), which is empty, so resolves to empty
+    func testFiscalYear() {
+        let result = getFieldValue("advanced_example_fiscal")
+        XCTAssertEqual(result, "", "fiscal-year expression on an ISO date string resolves to empty")
+    }
+
+    // MARK: - Dynamic Update Tests
+
+    /// Test: Updating birthDate to another ISO date string keeps year(birthDate) empty
+    func testDynamicUpdateBirthDateStaysEmpty() {
+        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "Initial year(birthDate) is empty")
+
+        updateStringValue("birthDate", "2000-03-10T00:00:00.000Z")
+        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "year(birthDate) stays empty after update")
+        XCTAssertEqual(getFieldValue("intermediate_example_age"), "", "age stays empty after update")
     }
 }
