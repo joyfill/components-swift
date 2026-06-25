@@ -202,9 +202,9 @@
       "disabled": false,
       "required": false,
       "formulas": [],
-      "type": "text",
+      "type": "number",
       "file": "691acd93a0d4b658f8cd4fff",
-      "value": "2023-05-15T00:00:00.000Z"
+      "value": 478623784678234
     },
     {
       "_id": "durationValue",
