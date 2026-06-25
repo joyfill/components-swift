@@ -42,7 +42,7 @@ public extension DocumentEditorDelegate {
     func decoratorsDidChange() {}
 }
 
-public struct PageConfig {
+public struct PageConfig: Equatable, Sendable {
     public var navigation: Bool          // was `navigation`
     public var enableDuplicates: Bool    // was `isPageDuplicateEnabled`
     public var enableDeletes: Bool       // was `isPageDeleteEnabled`
@@ -59,7 +59,7 @@ public struct PageConfig {
     }
 }
 
-public struct DisplayConfig {
+public struct DisplayConfig: Equatable, Sendable {
     public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
     public var decorators: DecoratorConfig      // was `decoratorConfig`
 
@@ -70,7 +70,7 @@ public struct DisplayConfig {
     }
 }
 
-public struct DocumentEditorConfig {
+public struct DocumentEditorConfig: Equatable, Sendable {
     public var mode: Mode
     public var license: String?
     public var validateSchema: Bool
