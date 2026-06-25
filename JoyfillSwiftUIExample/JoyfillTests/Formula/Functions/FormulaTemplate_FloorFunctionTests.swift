@@ -36,6 +36,10 @@ class floorTests: XCTestCase {
         documentEditor.updateValue(for: fieldId, value: .double(value))
     }
     
+    private func updateStringValue(_ fieldId: String, _ value: String) {
+        documentEditor.updateValue(for: fieldId, value: .string(value))
+    }
+
     // MARK: - Static Tests: Basic floor() Function
     
     /// Test: floor(4.9) should return 4
@@ -62,11 +66,12 @@ class floorTests: XCTestCase {
         XCTAssertEqual(result, "3", "floor(50 / 12.99) should return '3'")
     }
     
-    /// Test: Advanced formula - dropdown comparison may not evaluate correctly
+    /// Test: Advanced formula with the perishable branch.
+    /// inventoryType == "perishable" -> floor(daysRemaining / 7) * weeklyDiscount
+    /// = floor(17 / 7) * 5 = floor(2.43) * 5 = 2 * 5 = 10
     func testAdvancedFormulaResult() {
         let result = getFieldValue("advanced_example")
-        // Dropdown comparison in formula may not work as expected
-        XCTAssertTrue(!result.isEmpty, "Advanced example should produce a result")
+        XCTAssertEqual(result, "10", "perishable branch: floor(17 / 7) * 5 should be 10")
     }
     
     // MARK: - Dynamic Tests: Total Amount / Item Price
@@ -120,5 +125,28 @@ class floorTests: XCTestCase {
         updateNumberValue("itemPrice", 10)
         let result = getFieldValue("intermediate_example_items")
         XCTAssertEqual(result, "5", "floor(50 / 10) should return '5'")
+    }
+
+    // MARK: - Dynamic Tests: Advanced Branching Formula
+
+    /// Test: Switching inventoryType to the seasonal option takes the seasonal branch.
+    /// floor(monthsRemaining) * monthlyDiscount = floor(2.7) * 10 = 2 * 10 = 20
+    func testDynamicUpdateSeasonalBranch() {
+        XCTAssertEqual(getFieldValue("advanced_example"), "10", "Baseline is the perishable branch")
+
+        updateStringValue("inventoryType", "691acd93e21a5122c7a1a798") // seasonal
+
+        let result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "20", "seasonal branch: floor(2.7) * 10 should be 20")
+    }
+
+    /// Test: Switching inventoryType to the "other" option falls through to 0.
+    func testDynamicUpdateOtherBranch() {
+        XCTAssertEqual(getFieldValue("advanced_example"), "10", "Baseline is the perishable branch")
+
+        updateStringValue("inventoryType", "691acd93e21a5122c7a1a799") // other
+
+        let result = getFieldValue("advanced_example")
+        XCTAssertEqual(result, "0", "non-perishable, non-seasonal branch should be 0")
     }
 }
