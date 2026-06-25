@@ -83,6 +83,20 @@ class flatMapTests: XCTestCase {
                       "Should contain shipped order items")
     }
     
+    /// Test: flatMap(["Hello", "world"], (word) -> word.split("")) resolves to empty.
+    /// split("") is unsupported in this engine, so the formula yields no characters.
+    func testIntermediateFlatMapSplit() {
+        let result = getFieldValue("intermediate_example_split")
+        XCTAssertEqual(result, "", "split(\"\") produces nothing, so flatMap resolves to empty")
+    }
+
+    /// Test: flatMap(sentences, (s) -> filter(s.split(" "), (w) -> length(w) > 3)) resolves to empty.
+    /// split(" ") is unsupported in this engine, so the inner filter has nothing to keep.
+    func testAdvancedFlatMapWords() {
+        let result = getFieldValue("advanced_example_words")
+        XCTAssertEqual(result, "", "split(\" \") produces nothing, so flatMap resolves to empty")
+    }
+
     // MARK: - Dynamic Update Tests
     
     /// Test: Update products to change in-stock items
