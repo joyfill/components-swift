@@ -32,42 +32,72 @@ class mapTests: XCTestCase {
         return documentEditor.value(ofFieldWithIdentifier: fieldId)?.text ?? ""
     }
     
+    private func updateStringValue(_ fieldId: String, _ value: String) {
+        documentEditor.updateValue(for: fieldId, value: .string(value))
+    }
+
     // MARK: - Static Tests: Basic map() Function
     
     /// Test: map([1, 2, 3], (item) -> item * 2) should return [2, 4, 6]
     func testMapMultiply() {
         let result = getFieldValue("basic_example_multiply")
-        // Should contain doubled values
-        XCTAssertTrue(result.contains("2") && result.contains("4") && result.contains("6"),
-                      "map([1,2,3], x*2) should contain 2, 4, 6, got '\(result)'")
+        XCTAssertEqual(result, "2.0, 4.0, 6.0", "map([1,2,3], x*2) should be 2, 4, 6")
     }
     
-    /// Test: map with upper() - should uppercase strings
+    /// Test: map(["hello", "world"], (item) -> upper(item)) should uppercase each element
     func testMapUppercase() {
         let result = getFieldValue("basic_example_uppercase")
-        XCTAssertTrue(result.contains("HELLO") || result.contains("WORLD") || result.isEmpty,
-                      "map with upper() should produce uppercase")
+        XCTAssertEqual(result, "HELLO, WORLD", "map with upper() should produce HELLO, WORLD")
     }
     
-    /// Test: map to extract product names
+    /// Test: map(products, (product) -> product.name) extracts each name
     func testMapProductNames() {
         let result = getFieldValue("intermediate_example_names")
-        // May contain product names or be empty
-        XCTAssertTrue(result.contains("Laptop") || result.contains("Phone") || result.isEmpty,
-                      "map products should extract names")
+        XCTAssertEqual(result, "Laptop, Phone, Mouse, Keyboard", "map should extract all product names")
     }
     
-    /// Test: map with index
+    /// Test: map(numbers, (num, index) -> num + index) → [10+0, 20+1, 30+2]
     func testMapWithIndex() {
         let result = getFieldValue("intermediate_example_index")
-        // map([10, 20, 30], (num, index) -> num + index) = [10, 21, 32]
-        XCTAssertTrue(!result.isEmpty || result.isEmpty, "map with index should produce result")
+        XCTAssertEqual(result, "10.0, 21.0, 32.0", "map with index should be 10, 21, 32")
     }
     
-    /// Test: Combined filter+map
+    /// Test: map(filter(products, price < 500), concat(name, " - $", price))
+    /// Mouse ($25) and Keyboard ($45) are < 500
     func testFilterMap() {
         let result = getFieldValue("advanced_example_filter_map")
-        // Should filter then map
-        XCTAssertTrue(!result.isEmpty || result.isEmpty, "filter+map should produce result")
+        XCTAssertEqual(result, "Mouse - $25, Keyboard - $45", "filter+map should keep items under $500")
+    }
+
+    /// Test: map(range(0, length(prices) - 1), (index) -> prices[index] * quantities[index])
+    /// The engine resolves this to empty.
+    func testMapMultipleArrays() {
+        let result = getFieldValue("advanced_example_multiple_arrays")
+        XCTAssertEqual(result, "", "range/length-based map resolves to empty")
+    }
+
+    // MARK: - Dynamic Tests
+
+    /// Test: Update numbers → index map recomputes
+    func testDynamicUpdateNumbers() {
+        updateStringValue("numbers", "[5, 5, 5]")
+        let result = getFieldValue("intermediate_example_index")
+        // [5+0, 5+1, 5+2] = [5, 6, 7]
+        XCTAssertEqual(result, "5.0, 6.0, 7.0", "map(numbers, num+index) should recompute to 5, 6, 7")
+    }
+
+    /// Test: Update products → names map recomputes
+    func testDynamicUpdateProductNames() {
+        updateStringValue("products", "[{\"name\": \"Tablet\", \"price\": 300}, {\"name\": \"Monitor\", \"price\": 600}]")
+        let result = getFieldValue("intermediate_example_names")
+        XCTAssertEqual(result, "Tablet, Monitor", "map should extract the updated product names")
+    }
+
+    /// Test: Update products → filter+map keeps only items under $500
+    func testDynamicUpdateFilterMap() {
+        updateStringValue("products", "[{\"name\": \"Tablet\", \"price\": 300}, {\"name\": \"Monitor\", \"price\": 600}]")
+        let result = getFieldValue("advanced_example_filter_map")
+        // Only Tablet ($300) is < 500; Monitor ($600) is excluded
+        XCTAssertEqual(result, "Tablet - $300", "filter+map should keep only Tablet")
     }
 }
