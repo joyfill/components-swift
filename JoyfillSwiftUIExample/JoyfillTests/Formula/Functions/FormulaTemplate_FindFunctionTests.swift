@@ -37,155 +37,117 @@ class findTests: XCTestCase {
     }
     
     // MARK: - Static Tests
-    
+    // Note: find() returns the FIRST matching element. Scalars render plainly ("12"); object
+    // matches render as "{key: value, ...}" with non-deterministic key order, so object results
+    // are asserted on stable kept/dropped tokens rather than an exact string.
+
     /// Test: Document loads successfully
     func testDocumentLoads() {
         XCTAssertNotNil(documentEditor, "DocumentEditor should load successfully")
     }
     
-    /// Test: Basic find with number - find([5, 12, 8, 130, 44], (num) -> num > 10)
+    /// Test: find([5, 12, 8, 130, 44], num > 10) returns the first match, 12.
     func testBasicFindNumber() {
         let result = getFieldValue("basic_example_number")
-        // First number > 10 is 12
-        XCTAssertFalse(result.isEmpty, "find() should return a result")
-        if let num = Int(result) {
-            XCTAssertEqual(num, 12, "First number > 10 should be 12")
-        }
+        XCTAssertEqual(result, "12", "First number > 10 should be exactly 12")
     }
-    
-    /// Test: Basic find with user object - find(users, (user) -> user.id == "user123")
+
+    /// Test: find(users, user.id == "user123") returns Alice's record.
     func testBasicFindUser() {
         let result = getFieldValue("basic_example_user")
-        // Should find Alice with id "user123"
-        XCTAssertFalse(result.isEmpty, "find() should return user object")
-        XCTAssertTrue(result.contains("Alice") || result.contains("user123"), "Should find user with id 'user123'")
+        XCTAssertTrue(result.contains("Alice") && result.contains("user123"), "Should find Alice/user123, got '\(result)'")
+        XCTAssertFalse(result.contains("Bob"), "Should not return Bob, got '\(result)'")
+        XCTAssertFalse(result.contains("Charlie"), "Should not return Charlie, got '\(result)'")
     }
-    
-    /// Test: Intermediate find product - find(products, (product) -> product.price < 50)
+
+    /// Test: find(products, price < 50) returns the first match, Mouse(25).
     func testIntermediateFindProduct() {
         let result = getFieldValue("intermediate_example_product")
-        // First product < $50 is Mouse ($25)
-        XCTAssertFalse(result.isEmpty, "find() should return a product")
-        XCTAssertTrue(result.contains("Mouse") || result.contains("25"), "Should find Mouse with price 25")
+        XCTAssertTrue(result.contains("Mouse") && result.contains("25"), "Should find Mouse(25), got '\(result)'")
+        XCTAssertFalse(result.contains("Keyboard"), "Keyboard(45) comes later, should not be the first match, got '\(result)'")
     }
-    
-    /// Test: Intermediate find with index - find([10, 20, 30, 40, 50], (num, index) -> num > 25 && mod(index, 2) == 0)
+
+    /// Test: find([10,20,30,40,50], num > 25 && even index) returns 30 (index 2).
     func testIntermediateFindWithIndex() {
         let result = getFieldValue("intermediate_example_index")
-        // index 0: 10 (not > 25), index 2: 30 (> 25 ✓ and even index ✓), index 4: 50 (> 25 ✓ and even index ✓)
-        // First match is 30 at index 2
-        XCTAssertFalse(result.isEmpty, "find() should return a result")
-        if let num = Int(result) {
-            XCTAssertEqual(num, 30, "First number > 25 at even index should be 30")
-        }
+        XCTAssertEqual(result, "30", "First number > 25 at an even index should be exactly 30")
     }
     
-    /// Test: Advanced complex find - find(inventory, (product) -> product.inStock && product.onSale && product.price < 100)
+    /// Test: find(inventory, inStock && onSale && price < 100) returns Mouse(25).
     func testAdvancedComplexFind() {
         let result = getFieldValue("advanced_example_complex")
-        // Mouse: inStock: true, onSale: true, price: 25 < 100 ✓
-        XCTAssertFalse(result.isEmpty, "find() should return a product")
-        XCTAssertTrue(result.contains("Mouse") || result.contains("25"), "Should find Mouse meeting all conditions")
+        XCTAssertTrue(result.contains("Mouse") && result.contains("25"), "Should find Mouse meeting all conditions, got '\(result)'")
+        XCTAssertFalse(result.contains("Laptop"), "Laptop(onSale=false) should not match, got '\(result)'")
     }
     
-    /// Test: Advanced nested find - find(departments, (dept) -> !empty(find(dept.employees, (emp) -> emp.salary > 50000)))
+    /// Test: find(departments, any employee salary > 50000) returns the first match, Engineering.
     func testAdvancedNestedFind() {
         let result = getFieldValue("advanced_example_nested")
-        // Engineering has Alice with 75000, Marketing has Diana with 60000
-        // First department with an employee > 50000 is Engineering
-        XCTAssertFalse(result.isEmpty, "find() should return a department")
-        XCTAssertTrue(result.contains("Engineering"), "Should find Engineering department")
+        XCTAssertTrue(result.contains("Engineering"), "Should find Engineering (Alice 75000), got '\(result)'")
+        XCTAssertFalse(result.contains("Marketing"), "Engineering is first, Marketing should not be returned, got '\(result)'")
+        XCTAssertFalse(result.contains("Sales"), "Sales has no employee > 50000, got '\(result)'")
     }
     
-    /// Test: Advanced date find - find(tasks, (task) -> task.dueDate == "2023-12-05")
+    /// Test: find(tasks, dueDate == "2023-12-05") returns the "Review code" task.
     func testAdvancedDateFind() {
         let result = getFieldValue("advanced_example_date")
-        // Task "Review code" has dueDate "2023-12-05"
-        // Result might be empty if formula engine doesn't support date comparison
-        // or it should contain the matching task
-        if !result.isEmpty {
-            XCTAssertTrue(result.contains("Review") || result.contains("2023-12-05") || result.contains("task"),
-                         "If result is returned, should find task with due date 2023-12-05")
-        }
+        XCTAssertTrue(result.contains("Review code") && result.contains("2023-12-05"), "Should find the 2023-12-05 task, got '\(result)'")
+        XCTAssertFalse(result.contains("Complete project"), "Should not return the 2023-12-15 task, got '\(result)'")
     }
     
     // MARK: - Dynamic Update Tests
-    
-    /// Test: basic_example_number uses literal array, so we just verify it evaluates correctly
-    func testBasicFindNumberEvaluation() {
-        // basic_example_number uses literal array find([5, 12, 8, 130, 44], ...)
-        // so updating "numbers" field won't affect it
-        let result = getFieldValue("basic_example_number")
-        if let num = Int(result) {
-            XCTAssertEqual(num, 12, "First number > 10 in [5, 12, 8, 130, 44] should be 12")
-        }
-    }
-    
-    /// Test: Update users so different user matches
+
+    /// Test: Update users so a different record carries id "user123".
     func testDynamicUpdateUsersMatch() {
-        // Initial: Alice with user123
-        let initialResult = getFieldValue("basic_example_user")
-        XCTAssertTrue(initialResult.contains("Alice") || initialResult.contains("user123"))
-        
-        // Update to have different user with user123
+        XCTAssertTrue(getFieldValue("basic_example_user").contains("Alice"), "Baseline finds Alice")
+
         updateFieldValue("users", "[{\"id\": \"user456\", \"name\": \"Bob\"}, {\"id\": \"user123\", \"name\": \"Charlie\"}, {\"id\": \"user789\", \"name\": \"Diana\"}]")
         
         let updatedResult = getFieldValue("basic_example_user")
-        XCTAssertTrue(updatedResult.contains("Charlie") || updatedResult.contains("user123"), "Should find Charlie with user123")
+        XCTAssertTrue(updatedResult.contains("Charlie") && updatedResult.contains("user123"), "Should now find Charlie/user123, got '\(updatedResult)'")
+        XCTAssertFalse(updatedResult.contains("Alice"), "Alice no longer present, got '\(updatedResult)'")
     }
     
-    /// Test: Update products to change first cheap product
+    /// Test: Update products so Keyboard becomes the first match under $50.
     func testDynamicUpdateProductsFirstCheap() {
-        // Initial: Mouse ($25) is first < $50
-        let initialResult = getFieldValue("intermediate_example_product")
-        XCTAssertTrue(initialResult.contains("Mouse") || initialResult.contains("25"))
-        
-        // Update to have Keyboard be the first < $50
+        XCTAssertTrue(getFieldValue("intermediate_example_product").contains("Mouse"), "Baseline finds Mouse")
+
         updateFieldValue("products", "[{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Phone\", \"price\": 699}, {\"name\": \"Keyboard\", \"price\": 45}, {\"name\": \"Mouse\", \"price\": 55}]")
         
         let updatedResult = getFieldValue("intermediate_example_product")
-        XCTAssertTrue(updatedResult.contains("Keyboard") || updatedResult.contains("45"), "First product < $50 should now be Keyboard")
+        XCTAssertTrue(updatedResult.contains("Keyboard") && updatedResult.contains("45"), "First < $50 should now be Keyboard(45), got '\(updatedResult)'")
+        XCTAssertFalse(updatedResult.contains("Mouse"), "Mouse(55) no longer matches < 50, got '\(updatedResult)'")
     }
     
-    /// Test: Update inventory so different product matches complex condition
+    /// Test: Update inventory so Phone is the first product meeting the complex condition.
     func testDynamicUpdateInventoryComplexMatch() {
-        // Initial: Mouse matches all conditions
-        let initialResult = getFieldValue("advanced_example_complex")
-        XCTAssertTrue(initialResult.contains("Mouse"))
-        
-        // Update to have Phone match (inStock: true, onSale: true, price: 49)
+        XCTAssertTrue(getFieldValue("advanced_example_complex").contains("Mouse"), "Baseline finds Mouse")
+
         updateFieldValue("inventory", "[{\"name\": \"Laptop\", \"price\": 999, \"inStock\": true, \"onSale\": false}, {\"name\": \"Phone\", \"price\": 49, \"inStock\": true, \"onSale\": true}, {\"name\": \"Mouse\", \"price\": 25, \"inStock\": false, \"onSale\": true}, {\"name\": \"Keyboard\", \"price\": 45, \"inStock\": false, \"onSale\": true}]")
         
         let updatedResult = getFieldValue("advanced_example_complex")
-        XCTAssertTrue(updatedResult.contains("Phone") || updatedResult.contains("49"), "First matching product should now be Phone")
+        XCTAssertTrue(updatedResult.contains("Phone") && updatedResult.contains("49"), "First match should now be Phone(49), got '\(updatedResult)'")
+        XCTAssertFalse(updatedResult.contains("Mouse"), "Mouse is now out of stock, got '\(updatedResult)'")
     }
     
-    /// Test: Update departments to change first matching department
+    /// Test: Update departments so Marketing becomes the first with a high earner.
     func testDynamicUpdateDepartmentsMatch() {
-        // Initial: Engineering has Alice > 50000
-        let initialResult = getFieldValue("advanced_example_nested")
-        XCTAssertTrue(initialResult.contains("Engineering"))
-        
-        // Update to have Marketing be first with high salary
+        XCTAssertTrue(getFieldValue("advanced_example_nested").contains("Engineering"), "Baseline finds Engineering")
+
         updateFieldValue("departments", "[{\"name\": \"Engineering\", \"employees\": [{\"name\": \"Alice\", \"salary\": 45000}, {\"name\": \"Bob\", \"salary\": 45000}]}, {\"name\": \"Marketing\", \"employees\": [{\"name\": \"Charlie\", \"salary\": 40000}, {\"name\": \"Diana\", \"salary\": 60000}]}, {\"name\": \"Sales\", \"employees\": [{\"name\": \"Eve\", \"salary\": 35000}, {\"name\": \"Frank\", \"salary\": 30000}]}]")
         
         let updatedResult = getFieldValue("advanced_example_nested")
-        XCTAssertTrue(updatedResult.contains("Marketing"), "First department with high salary should now be Marketing")
+        XCTAssertTrue(updatedResult.contains("Marketing"), "First dept with salary > 50000 should now be Marketing, got '\(updatedResult)'")
     }
     
-    /// Test: Update tasks to change matching task
+    /// Test: Update tasks so a different task carries the matching due date.
     func testDynamicUpdateTasksMatch() {
-        // This test updates the tasks field and checks if the formula re-evaluates
-        // The formula finds a task with dueDate == "2023-12-05"
-        
-        // Update to have different task with the matching date
+        XCTAssertTrue(getFieldValue("advanced_example_date").contains("Review code"), "Baseline finds Review code")
+
         updateFieldValue("tasks", "[{\"title\": \"Complete project\", \"dueDate\": \"2023-12-15\"}, {\"title\": \"Submit report\", \"dueDate\": \"2023-12-05\"}, {\"title\": \"Update documentation\", \"dueDate\": \"2023-12-20\"}]")
         
         let updatedResult = getFieldValue("advanced_example_date")
-        // Result might be empty if formula engine doesn't support this, or should contain the match
-        if !updatedResult.isEmpty {
-            XCTAssertTrue(updatedResult.contains("Submit") || updatedResult.contains("2023-12-05") || updatedResult.contains("task"),
-                         "If result is returned, should find the matching task")
-        }
+        XCTAssertTrue(updatedResult.contains("Submit report") && updatedResult.contains("2023-12-05"), "Should now find Submit report, got '\(updatedResult)'")
+        XCTAssertFalse(updatedResult.contains("Review code"), "Review code no longer present, got '\(updatedResult)'")
     }
 }

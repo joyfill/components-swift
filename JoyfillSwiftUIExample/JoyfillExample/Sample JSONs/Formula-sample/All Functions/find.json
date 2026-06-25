@@ -414,7 +414,7 @@
       "desc": "formular-7",
       "scope": "private",
       "type": "calc",
-      "expression": "// This is a simplified example since we can't use actual dates in the test\nfind(tasks, (task) -> task.dueDate == \"2023-12-05\")"
+      "expression": "find(tasks, (task) -> task.dueDate == \"2023-12-05\")"
     }
   ]
 }
