@@ -170,6 +170,41 @@
 		36DEC0DA2E30000000F23702 /* DecoratorRowUpdateDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36DEC0DA2E30000000F23701 /* DecoratorRowUpdateDemoView.swift */; };
 		36F4DB782E6F394500C9AD4A /* LicenseValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */; };
 		95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288E7D2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift */; };
+		95288F2D2FECEB73000A2CC1 /* FormulaTemplate_SumFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F282FECEB73000A2CC1 /* FormulaTemplate_SumFunctionTests.swift */; };
+		95288F2E2FECEB73000A2CC1 /* FormulaTemplate_CeilFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F0A2FECEB73000A2CC1 /* FormulaTemplate_CeilFunctionTests.swift */; };
+		95288F2F2FECEB73000A2CC1 /* FormulaTemplate_DayFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F112FECEB73000A2CC1 /* FormulaTemplate_DayFunctionTests.swift */; };
+		95288F302FECEB73000A2CC1 /* FormulaTemplate_FindFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F152FECEB73000A2CC1 /* FormulaTemplate_FindFunctionTests.swift */; };
+		95288F312FECEB73000A2CC1 /* FormulaTemplate_SomeFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F262FECEB73000A2CC1 /* FormulaTemplate_SomeFunctionTests.swift */; };
+		95288F322FECEB73000A2CC1 /* FormulaTemplate_LengthFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1A2FECEB73000A2CC1 /* FormulaTemplate_LengthFunctionTests.swift */; };
+		95288F332FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F2A2FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift */; };
+		95288F342FECEB73000A2CC1 /* FormulaTemplate_PowFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F232FECEB73000A2CC1 /* FormulaTemplate_PowFunctionTests.swift */; };
+		95288F352FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */; };
+		95288F362FECEB73000A2CC1 /* FormulaTemplate_ConcatFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F0B2FECEB73000A2CC1 /* FormulaTemplate_ConcatFunctionTests.swift */; };
+		95288F372FECEB73000A2CC1 /* FormulaTemplate_FilterFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F142FECEB73000A2CC1 /* FormulaTemplate_FilterFunctionTests.swift */; };
+		95288F382FECEB73000A2CC1 /* FormulaTemplate_NotFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F202FECEB73000A2CC1 /* FormulaTemplate_NotFunctionTests.swift */; };
+		95288F392FECEB73000A2CC1 /* FormulaTemplate_MaxFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1D2FECEB73000A2CC1 /* FormulaTemplate_MaxFunctionTests.swift */; };
+		95288F3A2FECEB73000A2CC1 /* FormulaTemplate_MonthFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1F2FECEB73000A2CC1 /* FormulaTemplate_MonthFunctionTests.swift */; };
+		95288F3B2FECEB73000A2CC1 /* FormulaTemplate_DateSubtractFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F102FECEB73000A2CC1 /* FormulaTemplate_DateSubtractFunctionTests.swift */; };
+		95288F3C2FECEB73000A2CC1 /* FormulaTemplate_AndFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F092FECEB73000A2CC1 /* FormulaTemplate_AndFunctionTests.swift */; };
+		95288F3D2FECEB73000A2CC1 /* FormulaTemplate_FloorFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F182FECEB73000A2CC1 /* FormulaTemplate_FloorFunctionTests.swift */; };
+		95288F3E2FECEB73000A2CC1 /* FormulaTemplate_SqrtFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F272FECEB73000A2CC1 /* FormulaTemplate_SqrtFunctionTests.swift */; };
+		95288F3F2FECEB73000A2CC1 /* FormulaTemplate_FlatMapFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F172FECEB73000A2CC1 /* FormulaTemplate_FlatMapFunctionTests.swift */; };
+		95288F402FECEB73000A2CC1 /* FormulaTemplate_CountIfFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F0D2FECEB73000A2CC1 /* FormulaTemplate_CountIfFunctionTests.swift */; };
+		95288F412FECEB73000A2CC1 /* FormulaTemplate_IfFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F192FECEB73000A2CC1 /* FormulaTemplate_IfFunctionTests.swift */; };
+		95288F422FECEB73000A2CC1 /* FormulaTemplate_ModFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1E2FECEB73000A2CC1 /* FormulaTemplate_ModFunctionTests.swift */; };
+		95288F432FECEB73000A2CC1 /* FormulaTemplate_DateFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F0F2FECEB73000A2CC1 /* FormulaTemplate_DateFunctionTests.swift */; };
+		95288F442FECEB73000A2CC1 /* FormulaTemplate_OrFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F222FECEB73000A2CC1 /* FormulaTemplate_OrFunctionTests.swift */; };
+		95288F452FECEB73000A2CC1 /* FormulaTemplate_DateAddFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F0E2FECEB73000A2CC1 /* FormulaTemplate_DateAddFunctionTests.swift */; };
+		95288F462FECEB73000A2CC1 /* FormulaTemplate_LowerFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1B2FECEB73000A2CC1 /* FormulaTemplate_LowerFunctionTests.swift */; };
+		95288F472FECEB73000A2CC1 /* FormulaTemplate_ContainsFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F0C2FECEB73000A2CC1 /* FormulaTemplate_ContainsFunctionTests.swift */; };
+		95288F482FECEB73000A2CC1 /* FormulaTemplate_ReduceFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F242FECEB73000A2CC1 /* FormulaTemplate_ReduceFunctionTests.swift */; };
+		95288F492FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F292FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift */; };
+		95288F4A2FECEB73000A2CC1 /* FormulaTemplate_EmptyFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F122FECEB73000A2CC1 /* FormulaTemplate_EmptyFunctionTests.swift */; };
+		95288F4B2FECEB73000A2CC1 /* FormulaTemplate_FlatFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F162FECEB73000A2CC1 /* FormulaTemplate_FlatFunctionTests.swift */; };
+		95288F4C2FECEB73000A2CC1 /* FormulaTemplate_EveryFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F132FECEB73000A2CC1 /* FormulaTemplate_EveryFunctionTests.swift */; };
+		95288F4D2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1C2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift */; };
+		95288F4E2FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F252FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift */; };
+		95288F4F2FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F212FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
 		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -908,6 +943,41 @@
 		36DEC0DA2E30000000F23701 /* DecoratorRowUpdateDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorRowUpdateDemoView.swift; sourceTree = "<group>"; };
 		36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseValidatorTests.swift; sourceTree = "<group>"; };
 		95288E7D2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorRowUpdateUITests.swift; sourceTree = "<group>"; };
+		95288F092FECEB73000A2CC1 /* FormulaTemplate_AndFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_AndFunctionTests.swift; sourceTree = "<group>"; };
+		95288F0A2FECEB73000A2CC1 /* FormulaTemplate_CeilFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_CeilFunctionTests.swift; sourceTree = "<group>"; };
+		95288F0B2FECEB73000A2CC1 /* FormulaTemplate_ConcatFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ConcatFunctionTests.swift; sourceTree = "<group>"; };
+		95288F0C2FECEB73000A2CC1 /* FormulaTemplate_ContainsFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ContainsFunctionTests.swift; sourceTree = "<group>"; };
+		95288F0D2FECEB73000A2CC1 /* FormulaTemplate_CountIfFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_CountIfFunctionTests.swift; sourceTree = "<group>"; };
+		95288F0E2FECEB73000A2CC1 /* FormulaTemplate_DateAddFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_DateAddFunctionTests.swift; sourceTree = "<group>"; };
+		95288F0F2FECEB73000A2CC1 /* FormulaTemplate_DateFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_DateFunctionTests.swift; sourceTree = "<group>"; };
+		95288F102FECEB73000A2CC1 /* FormulaTemplate_DateSubtractFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_DateSubtractFunctionTests.swift; sourceTree = "<group>"; };
+		95288F112FECEB73000A2CC1 /* FormulaTemplate_DayFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_DayFunctionTests.swift; sourceTree = "<group>"; };
+		95288F122FECEB73000A2CC1 /* FormulaTemplate_EmptyFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_EmptyFunctionTests.swift; sourceTree = "<group>"; };
+		95288F132FECEB73000A2CC1 /* FormulaTemplate_EveryFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_EveryFunctionTests.swift; sourceTree = "<group>"; };
+		95288F142FECEB73000A2CC1 /* FormulaTemplate_FilterFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_FilterFunctionTests.swift; sourceTree = "<group>"; };
+		95288F152FECEB73000A2CC1 /* FormulaTemplate_FindFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_FindFunctionTests.swift; sourceTree = "<group>"; };
+		95288F162FECEB73000A2CC1 /* FormulaTemplate_FlatFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_FlatFunctionTests.swift; sourceTree = "<group>"; };
+		95288F172FECEB73000A2CC1 /* FormulaTemplate_FlatMapFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_FlatMapFunctionTests.swift; sourceTree = "<group>"; };
+		95288F182FECEB73000A2CC1 /* FormulaTemplate_FloorFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_FloorFunctionTests.swift; sourceTree = "<group>"; };
+		95288F192FECEB73000A2CC1 /* FormulaTemplate_IfFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_IfFunctionTests.swift; sourceTree = "<group>"; };
+		95288F1A2FECEB73000A2CC1 /* FormulaTemplate_LengthFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_LengthFunctionTests.swift; sourceTree = "<group>"; };
+		95288F1B2FECEB73000A2CC1 /* FormulaTemplate_LowerFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_LowerFunctionTests.swift; sourceTree = "<group>"; };
+		95288F1C2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_MapFunctionTests.swift; sourceTree = "<group>"; };
+		95288F1D2FECEB73000A2CC1 /* FormulaTemplate_MaxFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_MaxFunctionTests.swift; sourceTree = "<group>"; };
+		95288F1E2FECEB73000A2CC1 /* FormulaTemplate_ModFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ModFunctionTests.swift; sourceTree = "<group>"; };
+		95288F1F2FECEB73000A2CC1 /* FormulaTemplate_MonthFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_MonthFunctionTests.swift; sourceTree = "<group>"; };
+		95288F202FECEB73000A2CC1 /* FormulaTemplate_NotFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_NotFunctionTests.swift; sourceTree = "<group>"; };
+		95288F212FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_NowFunctionTests.swift; sourceTree = "<group>"; };
+		95288F222FECEB73000A2CC1 /* FormulaTemplate_OrFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_OrFunctionTests.swift; sourceTree = "<group>"; };
+		95288F232FECEB73000A2CC1 /* FormulaTemplate_PowFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_PowFunctionTests.swift; sourceTree = "<group>"; };
+		95288F242FECEB73000A2CC1 /* FormulaTemplate_ReduceFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ReduceFunctionTests.swift; sourceTree = "<group>"; };
+		95288F252FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_RoundFunctionTests.swift; sourceTree = "<group>"; };
+		95288F262FECEB73000A2CC1 /* FormulaTemplate_SomeFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_SomeFunctionTests.swift; sourceTree = "<group>"; };
+		95288F272FECEB73000A2CC1 /* FormulaTemplate_SqrtFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_SqrtFunctionTests.swift; sourceTree = "<group>"; };
+		95288F282FECEB73000A2CC1 /* FormulaTemplate_SumFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_SumFunctionTests.swift; sourceTree = "<group>"; };
+		95288F292FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ToNumberFunctionTests.swift; sourceTree = "<group>"; };
+		95288F2A2FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_UpperFunctionTests.swift; sourceTree = "<group>"; };
+		95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_YearFunctionTests.swift; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
@@ -1438,6 +1508,48 @@
 			path = others;
 			sourceTree = "<group>";
 		};
+		95288F2C2FECEB73000A2CC1 /* Functions */ = {
+			isa = PBXGroup;
+			children = (
+				95288F092FECEB73000A2CC1 /* FormulaTemplate_AndFunctionTests.swift */,
+				95288F0A2FECEB73000A2CC1 /* FormulaTemplate_CeilFunctionTests.swift */,
+				95288F0B2FECEB73000A2CC1 /* FormulaTemplate_ConcatFunctionTests.swift */,
+				95288F0C2FECEB73000A2CC1 /* FormulaTemplate_ContainsFunctionTests.swift */,
+				95288F0D2FECEB73000A2CC1 /* FormulaTemplate_CountIfFunctionTests.swift */,
+				95288F0E2FECEB73000A2CC1 /* FormulaTemplate_DateAddFunctionTests.swift */,
+				95288F0F2FECEB73000A2CC1 /* FormulaTemplate_DateFunctionTests.swift */,
+				95288F102FECEB73000A2CC1 /* FormulaTemplate_DateSubtractFunctionTests.swift */,
+				95288F112FECEB73000A2CC1 /* FormulaTemplate_DayFunctionTests.swift */,
+				95288F122FECEB73000A2CC1 /* FormulaTemplate_EmptyFunctionTests.swift */,
+				95288F132FECEB73000A2CC1 /* FormulaTemplate_EveryFunctionTests.swift */,
+				95288F142FECEB73000A2CC1 /* FormulaTemplate_FilterFunctionTests.swift */,
+				95288F152FECEB73000A2CC1 /* FormulaTemplate_FindFunctionTests.swift */,
+				95288F162FECEB73000A2CC1 /* FormulaTemplate_FlatFunctionTests.swift */,
+				95288F172FECEB73000A2CC1 /* FormulaTemplate_FlatMapFunctionTests.swift */,
+				95288F182FECEB73000A2CC1 /* FormulaTemplate_FloorFunctionTests.swift */,
+				95288F192FECEB73000A2CC1 /* FormulaTemplate_IfFunctionTests.swift */,
+				95288F1A2FECEB73000A2CC1 /* FormulaTemplate_LengthFunctionTests.swift */,
+				95288F1B2FECEB73000A2CC1 /* FormulaTemplate_LowerFunctionTests.swift */,
+				95288F1C2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift */,
+				95288F1D2FECEB73000A2CC1 /* FormulaTemplate_MaxFunctionTests.swift */,
+				95288F1E2FECEB73000A2CC1 /* FormulaTemplate_ModFunctionTests.swift */,
+				95288F1F2FECEB73000A2CC1 /* FormulaTemplate_MonthFunctionTests.swift */,
+				95288F202FECEB73000A2CC1 /* FormulaTemplate_NotFunctionTests.swift */,
+				95288F212FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift */,
+				95288F222FECEB73000A2CC1 /* FormulaTemplate_OrFunctionTests.swift */,
+				95288F232FECEB73000A2CC1 /* FormulaTemplate_PowFunctionTests.swift */,
+				95288F242FECEB73000A2CC1 /* FormulaTemplate_ReduceFunctionTests.swift */,
+				95288F252FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift */,
+				95288F262FECEB73000A2CC1 /* FormulaTemplate_SomeFunctionTests.swift */,
+				95288F272FECEB73000A2CC1 /* FormulaTemplate_SqrtFunctionTests.swift */,
+				95288F282FECEB73000A2CC1 /* FormulaTemplate_SumFunctionTests.swift */,
+				95288F292FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift */,
+				95288F2A2FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift */,
+				95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */,
+			);
+			path = Functions;
+			sourceTree = "<group>";
+		};
 		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
 			isa = PBXGroup;
 			children = (
@@ -1673,6 +1785,7 @@
 		E2B8E3BC2E4361DF00AC6018 /* Formula */ = {
 			isa = PBXGroup;
 			children = (
+				95288F2C2FECEB73000A2CC1 /* Functions */,
 				3682A4C32E153DA0005B73C3 /* FormulaTemplate_Read_ChartField.swift */,
 				E2B8E3D12E43753300AC6018 /* Resolver */,
 				E2B8E3E12E4378D200AC6018 /* Parser */,
@@ -2993,6 +3106,41 @@
 				DEC000B200000000000000A2 /* DecoratorPathResolutionTests.swift in Sources */,
 				DEC000B300000000000000A3 /* DecoratorPublicAPITests.swift in Sources */,
 				DEC000B400000000000000A4 /* DecoratorErrorHandlingTests.swift in Sources */,
+				95288F2D2FECEB73000A2CC1 /* FormulaTemplate_SumFunctionTests.swift in Sources */,
+				95288F2E2FECEB73000A2CC1 /* FormulaTemplate_CeilFunctionTests.swift in Sources */,
+				95288F2F2FECEB73000A2CC1 /* FormulaTemplate_DayFunctionTests.swift in Sources */,
+				95288F302FECEB73000A2CC1 /* FormulaTemplate_FindFunctionTests.swift in Sources */,
+				95288F312FECEB73000A2CC1 /* FormulaTemplate_SomeFunctionTests.swift in Sources */,
+				95288F322FECEB73000A2CC1 /* FormulaTemplate_LengthFunctionTests.swift in Sources */,
+				95288F332FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift in Sources */,
+				95288F342FECEB73000A2CC1 /* FormulaTemplate_PowFunctionTests.swift in Sources */,
+				95288F352FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift in Sources */,
+				95288F362FECEB73000A2CC1 /* FormulaTemplate_ConcatFunctionTests.swift in Sources */,
+				95288F372FECEB73000A2CC1 /* FormulaTemplate_FilterFunctionTests.swift in Sources */,
+				95288F382FECEB73000A2CC1 /* FormulaTemplate_NotFunctionTests.swift in Sources */,
+				95288F392FECEB73000A2CC1 /* FormulaTemplate_MaxFunctionTests.swift in Sources */,
+				95288F3A2FECEB73000A2CC1 /* FormulaTemplate_MonthFunctionTests.swift in Sources */,
+				95288F3B2FECEB73000A2CC1 /* FormulaTemplate_DateSubtractFunctionTests.swift in Sources */,
+				95288F3C2FECEB73000A2CC1 /* FormulaTemplate_AndFunctionTests.swift in Sources */,
+				95288F3D2FECEB73000A2CC1 /* FormulaTemplate_FloorFunctionTests.swift in Sources */,
+				95288F3E2FECEB73000A2CC1 /* FormulaTemplate_SqrtFunctionTests.swift in Sources */,
+				95288F3F2FECEB73000A2CC1 /* FormulaTemplate_FlatMapFunctionTests.swift in Sources */,
+				95288F402FECEB73000A2CC1 /* FormulaTemplate_CountIfFunctionTests.swift in Sources */,
+				95288F412FECEB73000A2CC1 /* FormulaTemplate_IfFunctionTests.swift in Sources */,
+				95288F422FECEB73000A2CC1 /* FormulaTemplate_ModFunctionTests.swift in Sources */,
+				95288F432FECEB73000A2CC1 /* FormulaTemplate_DateFunctionTests.swift in Sources */,
+				95288F442FECEB73000A2CC1 /* FormulaTemplate_OrFunctionTests.swift in Sources */,
+				95288F452FECEB73000A2CC1 /* FormulaTemplate_DateAddFunctionTests.swift in Sources */,
+				95288F462FECEB73000A2CC1 /* FormulaTemplate_LowerFunctionTests.swift in Sources */,
+				95288F472FECEB73000A2CC1 /* FormulaTemplate_ContainsFunctionTests.swift in Sources */,
+				95288F482FECEB73000A2CC1 /* FormulaTemplate_ReduceFunctionTests.swift in Sources */,
+				95288F492FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift in Sources */,
+				95288F4A2FECEB73000A2CC1 /* FormulaTemplate_EmptyFunctionTests.swift in Sources */,
+				95288F4B2FECEB73000A2CC1 /* FormulaTemplate_FlatFunctionTests.swift in Sources */,
+				95288F4C2FECEB73000A2CC1 /* FormulaTemplate_EveryFunctionTests.swift in Sources */,
+				95288F4D2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift in Sources */,
+				95288F4E2FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift in Sources */,
+				95288F4F2FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift in Sources */,
 				DEC000B500000000000000A5 /* DecoratorLiveUpdateTests.swift in Sources */,
 				E2459A7D2F442B4B000504A3 /* ColumnConditionalLogicTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
