@@ -457,111 +457,6 @@
 		E2C8BD2D2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */; };
 		E2C8BD2E2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */; };
 		E2C8BD2F2E462A8F00B93B9E /* FieldTitleNotDisplayed.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */; };
-		E2C903AF2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039D2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json */; };
-		E2C903B02FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AA2FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json */; };
-		E2C903B12FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903932FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json */; };
-		E2C903B22FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json */; };
-		E2C903B32FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903972FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json */; };
-		E2C903B42FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903942FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json */; };
-		E2C903B52FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038F2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json */; };
-		E2C903B62FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AD2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json */; };
-		E2C903B72FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038C2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json */; };
-		E2C903B82FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903912FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json */; };
-		E2C903B92FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039F2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json */; };
-		E2C903BA2FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A22FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json */; };
-		E2C903BB2FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A62FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json */; };
-		E2C903BC2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039B2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json */; };
-		E2C903BD2FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A32FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json */; };
-		E2C903BE2FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A52FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json */; };
-		E2C903BF2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039A2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json */; };
-		E2C903C02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json */; };
-		E2C903C12FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A92FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json */; };
-		E2C903C22FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903962FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json */; };
-		E2C903C32FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A12FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json */; };
-		E2C903C42FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038B2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json */; };
-		E2C903C52FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903952FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json */; };
-		E2C903C62FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A42FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json */; };
-		E2C903C72FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903902FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json */; };
-		E2C903C82FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A72FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json */; };
-		E2C903C92FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903992FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json */; };
-		E2C903CA2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039E2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json */; };
-		E2C903CB2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AC2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json */; };
-		E2C903CC2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038D2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json */; };
-		E2C903CD2FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903982FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json */; };
-		E2C903CE2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AB2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json */; };
-		E2C903CF2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038E2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json */; };
-		E2C903D02FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039C2FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json */; };
-		E2C903D12FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903922FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json */; };
-		E2C903D22FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039D2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json */; };
-		E2C903D32FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AA2FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json */; };
-		E2C903D42FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903932FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json */; };
-		E2C903D52FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json */; };
-		E2C903D62FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903972FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json */; };
-		E2C903D72FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903942FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json */; };
-		E2C903D82FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038F2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json */; };
-		E2C903D92FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AD2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json */; };
-		E2C903DA2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038C2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json */; };
-		E2C903DB2FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903912FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json */; };
-		E2C903DC2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039F2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json */; };
-		E2C903DD2FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A22FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json */; };
-		E2C903DE2FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A62FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json */; };
-		E2C903DF2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039B2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json */; };
-		E2C903E02FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A32FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json */; };
-		E2C903E12FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A52FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json */; };
-		E2C903E22FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039A2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json */; };
-		E2C903E32FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json */; };
-		E2C903E42FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A92FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json */; };
-		E2C903E52FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903962FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json */; };
-		E2C903E62FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A12FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json */; };
-		E2C903E72FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038B2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json */; };
-		E2C903E82FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903952FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json */; };
-		E2C903E92FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A42FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json */; };
-		E2C903EA2FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903902FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json */; };
-		E2C903EB2FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A72FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json */; };
-		E2C903EC2FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903992FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json */; };
-		E2C903ED2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039E2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json */; };
-		E2C903EE2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AC2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json */; };
-		E2C903EF2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038D2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json */; };
-		E2C903F02FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903982FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json */; };
-		E2C903F12FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AB2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json */; };
-		E2C903F22FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038E2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json */; };
-		E2C903F32FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039C2FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json */; };
-		E2C903F42FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903922FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json */; };
-		E2C903F52FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039D2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json */; };
-		E2C903F62FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AA2FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json */; };
-		E2C903F72FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903932FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json */; };
-		E2C903F82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json */; };
-		E2C903F92FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903972FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json */; };
-		E2C903FA2FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903942FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json */; };
-		E2C903FB2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038F2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json */; };
-		E2C903FC2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AD2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json */; };
-		E2C903FD2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038C2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json */; };
-		E2C903FE2FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903912FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json */; };
-		E2C903FF2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039F2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json */; };
-		E2C904002FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A22FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json */; };
-		E2C904012FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A62FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json */; };
-		E2C904022FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039B2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json */; };
-		E2C904032FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A32FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json */; };
-		E2C904042FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A52FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json */; };
-		E2C904052FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039A2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json */; };
-		E2C904062FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json */; };
-		E2C904072FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A92FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json */; };
-		E2C904082FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903962FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json */; };
-		E2C904092FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A12FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json */; };
-		E2C9040A2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038B2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json */; };
-		E2C9040B2FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903952FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json */; };
-		E2C9040C2FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A42FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json */; };
-		E2C9040D2FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903902FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json */; };
-		E2C9040E2FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903A72FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json */; };
-		E2C9040F2FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903992FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json */; };
-		E2C904102FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039E2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json */; };
-		E2C904112FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AC2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json */; };
-		E2C904122FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038D2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json */; };
-		E2C904132FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903982FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json */; };
-		E2C904142FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903AB2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json */; };
-		E2C904152FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9038E2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json */; };
-		E2C904162FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C9039C2FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json */; };
-		E2C904172FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json in Resources */ = {isa = PBXBuildFile; fileRef = E2C903922FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json */; };
 		E2C9045F2FEBDEB700DF0F92 /* every.md in Resources */ = {isa = PBXBuildFile; fileRef = E2C9042D2FEBDEB700DF0F92 /* every.md */; };
 		E2C904602FEBDEB700DF0F92 /* lower.md in Resources */ = {isa = PBXBuildFile; fileRef = E2C9043D2FEBDEB700DF0F92 /* lower.md */; };
 		E2C904612FEBDEB700DF0F92 /* countIf.md in Resources */ = {isa = PBXBuildFile; fileRef = E2C904212FEBDEB700DF0F92 /* countIf.md */; };
@@ -1107,41 +1002,6 @@
 		E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileTitleDisplayTests.swift; sourceTree = "<group>"; };
 		E2C8BD282E462A8800B93B9E /* AllFieldTitleDispalayed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = AllFieldTitleDispalayed.json; sourceTree = "<group>"; };
 		E2C8BD2C2E462A8F00B93B9E /* FieldTitleNotDisplayed.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTitleNotDisplayed.json; sourceTree = "<group>"; };
-		E2C9038B2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_AndFunction.json; sourceTree = "<group>"; };
-		E2C9038C2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_CeilFunction.json; sourceTree = "<group>"; };
-		E2C9038D2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ConcatFunction.json; sourceTree = "<group>"; };
-		E2C9038E2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ContainsFunction.json; sourceTree = "<group>"; };
-		E2C9038F2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_CountIfFunction.json; sourceTree = "<group>"; };
-		E2C903902FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_DateAddFunction.json; sourceTree = "<group>"; };
-		E2C903912FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_DateFunction.json; sourceTree = "<group>"; };
-		E2C903922FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_DateSubtractFunction.json; sourceTree = "<group>"; };
-		E2C903932FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_DayFunction.json; sourceTree = "<group>"; };
-		E2C903942FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_EmptyFunction.json; sourceTree = "<group>"; };
-		E2C903952FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_EveryFunction.json; sourceTree = "<group>"; };
-		E2C903962FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_FilterFunction.json; sourceTree = "<group>"; };
-		E2C903972FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_FindFunction.json; sourceTree = "<group>"; };
-		E2C903982FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_FlatFunction.json; sourceTree = "<group>"; };
-		E2C903992FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_FlatMapFunction.json; sourceTree = "<group>"; };
-		E2C9039A2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_FloorFunction.json; sourceTree = "<group>"; };
-		E2C9039B2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_IfFunction.json; sourceTree = "<group>"; };
-		E2C9039C2FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_LengthFunction.json; sourceTree = "<group>"; };
-		E2C9039D2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_LowerFunction.json; sourceTree = "<group>"; };
-		E2C9039E2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_MapFunction.json; sourceTree = "<group>"; };
-		E2C9039F2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_MaxFunction.json; sourceTree = "<group>"; };
-		E2C903A02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ModFunction.json; sourceTree = "<group>"; };
-		E2C903A12FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_MonthFunction.json; sourceTree = "<group>"; };
-		E2C903A22FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_NotFunction.json; sourceTree = "<group>"; };
-		E2C903A32FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_NowFunction.json; sourceTree = "<group>"; };
-		E2C903A42FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_OrFunction.json; sourceTree = "<group>"; };
-		E2C903A52FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_PowFunction.json; sourceTree = "<group>"; };
-		E2C903A62FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ReduceFunction.json; sourceTree = "<group>"; };
-		E2C903A72FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_RoundFunction.json; sourceTree = "<group>"; };
-		E2C903A82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_SomeFunction.json; sourceTree = "<group>"; };
-		E2C903A92FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_SqrtFunction.json; sourceTree = "<group>"; };
-		E2C903AA2FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_SumFunction.json; sourceTree = "<group>"; };
-		E2C903AB2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_ToNumberFunction.json; sourceTree = "<group>"; };
-		E2C903AC2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_UpperFunction.json; sourceTree = "<group>"; };
-		E2C903AD2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_YearFunction.json; sourceTree = "<group>"; };
 		E2C904182FEBDEB700DF0F92 /* and.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = and.json; sourceTree = "<group>"; };
 		E2C904192FEBDEB700DF0F92 /* and.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = and.md; sourceTree = "<group>"; };
 		E2C9041A2FEBDEB700DF0F92 /* ceil.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ceil.json; sourceTree = "<group>"; };
@@ -1468,7 +1328,6 @@
 			isa = PBXGroup;
 			children = (
 				E2C9045E2FEBDEB700DF0F92 /* All Functions */,
-				E2C903AE2FEBDEA800DF0F92 /* Functions */,
 				362746442E24F0BF005B0FA7 /* Parser */,
 				369D45112E0E51AC00677280 /* Fields */,
 				369D45172E0E51AC00677280 /* Resolver */,
@@ -1834,48 +1693,6 @@
 				E2B8E3E02E4378D200AC6018 /* FormulaTemplate_UnequalOperatorTests.swift */,
 			);
 			path = Parser;
-			sourceTree = "<group>";
-		};
-		E2C903AE2FEBDEA800DF0F92 /* Functions */ = {
-			isa = PBXGroup;
-			children = (
-				E2C9038B2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json */,
-				E2C9038C2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json */,
-				E2C9038D2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json */,
-				E2C9038E2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json */,
-				E2C9038F2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json */,
-				E2C903902FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json */,
-				E2C903912FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json */,
-				E2C903922FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json */,
-				E2C903932FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json */,
-				E2C903942FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json */,
-				E2C903952FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json */,
-				E2C903962FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json */,
-				E2C903972FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json */,
-				E2C903982FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json */,
-				E2C903992FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json */,
-				E2C9039A2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json */,
-				E2C9039B2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json */,
-				E2C9039C2FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json */,
-				E2C9039D2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json */,
-				E2C9039E2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json */,
-				E2C9039F2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json */,
-				E2C903A02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json */,
-				E2C903A12FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json */,
-				E2C903A22FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json */,
-				E2C903A32FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json */,
-				E2C903A42FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json */,
-				E2C903A52FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json */,
-				E2C903A62FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json */,
-				E2C903A72FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json */,
-				E2C903A82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json */,
-				E2C903A92FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json */,
-				E2C903AA2FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json */,
-				E2C903AB2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json */,
-				E2C903AC2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json */,
-				E2C903AD2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json */,
-			);
-			path = Functions;
 			sourceTree = "<group>";
 		};
 		E2C9045E2FEBDEB700DF0F92 /* All Functions */ = {
@@ -2435,24 +2252,6 @@
 				369D45492E0E51AC00677280 /* FormulaTemplate_MultiSelectField.json in Resources */,
 				369D454B2E0E51AC00677280 /* FormulaTemplate_TableField.json in Resources */,
 				E27061D02E797F3B006BAD18 /* ChangerHandlerUnit.json in Resources */,
-				E2C903F52FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json in Resources */,
-				E2C903F62FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json in Resources */,
-				E2C903F72FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json in Resources */,
-				E2C903F82FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json in Resources */,
-				E2C903F92FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json in Resources */,
-				E2C903FA2FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json in Resources */,
-				E2C903FB2FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json in Resources */,
-				E2C903FC2FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json in Resources */,
-				E2C903FD2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json in Resources */,
-				E2C903FE2FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json in Resources */,
-				E2C903FF2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json in Resources */,
-				E2C904002FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json in Resources */,
-				E2C904012FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json in Resources */,
-				E2C904022FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json in Resources */,
-				E2C904032FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json in Resources */,
-				E2C904042FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json in Resources */,
-				E2C904052FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json in Resources */,
-				E2C904062FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json in Resources */,
 				E2C904A52FEBDEB700DF0F92 /* every.md in Resources */,
 				E2C904A62FEBDEB700DF0F92 /* lower.md in Resources */,
 				E2C904A72FEBDEB700DF0F92 /* countIf.md in Resources */,
@@ -2523,23 +2322,6 @@
 				E2C904E82FEBDEB700DF0F92 /* pow.json in Resources */,
 				E2C904E92FEBDEB700DF0F92 /* max.md in Resources */,
 				E2C904EA2FEBDEB700DF0F92 /* year.json in Resources */,
-				E2C904072FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json in Resources */,
-				E2C904082FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json in Resources */,
-				E2C904092FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json in Resources */,
-				E2C9040A2FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json in Resources */,
-				E2C9040B2FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json in Resources */,
-				E2C9040C2FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json in Resources */,
-				E2C9040D2FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json in Resources */,
-				E2C9040E2FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json in Resources */,
-				E2C9040F2FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json in Resources */,
-				E2C904102FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json in Resources */,
-				E2C904112FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json in Resources */,
-				E2C904122FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json in Resources */,
-				E2C904132FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json in Resources */,
-				E2C904142FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json in Resources */,
-				E2C904152FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json in Resources */,
-				E2C904162FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json in Resources */,
-				E2C904172FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json in Resources */,
 				369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
 				362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
 				E2F568852E2A45BC005216A6 /* ChartFieldTestData.json in Resources */,
@@ -2720,41 +2502,6 @@
 				3627464D2E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
 				3627464E2E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
 				E28D109E2E2E08A600E59B5F /* ReservedWordMisuse_FormulaTemplate.json in Resources */,
-				E2C903AF2FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json in Resources */,
-				E2C903B02FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json in Resources */,
-				E2C903B12FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json in Resources */,
-				E2C903B22FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json in Resources */,
-				E2C903B32FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json in Resources */,
-				E2C903B42FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json in Resources */,
-				E2C903B52FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json in Resources */,
-				E2C903B62FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json in Resources */,
-				E2C903B72FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json in Resources */,
-				E2C903B82FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json in Resources */,
-				E2C903B92FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json in Resources */,
-				E2C903BA2FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json in Resources */,
-				E2C903BB2FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json in Resources */,
-				E2C903BC2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json in Resources */,
-				E2C903BD2FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json in Resources */,
-				E2C903BE2FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json in Resources */,
-				E2C903BF2FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json in Resources */,
-				E2C903C02FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json in Resources */,
-				E2C903C12FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json in Resources */,
-				E2C903C22FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json in Resources */,
-				E2C903C32FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json in Resources */,
-				E2C903C42FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json in Resources */,
-				E2C903C52FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json in Resources */,
-				E2C903C62FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json in Resources */,
-				E2C903C72FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json in Resources */,
-				E2C903C82FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json in Resources */,
-				E2C903C92FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json in Resources */,
-				E2C903CA2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json in Resources */,
-				E2C903CB2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json in Resources */,
-				E2C903CC2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json in Resources */,
-				E2C903CD2FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json in Resources */,
-				E2C903CE2FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json in Resources */,
-				E2C903CF2FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json in Resources */,
-				E2C903D02FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json in Resources */,
-				E2C903D12FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json in Resources */,
 				362746712E26DDC7005B0FA7 /* FormulaTemplate_SignatureField.json in Resources */,
 				E274CA802E2E7FF000B35C09 /* metadataTemplate.json in Resources */,
 				E274CA5D2E2E7FB000B35C09 /* chartField.json in Resources */,
@@ -2918,41 +2665,6 @@
 				E274CB202E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
 				E274CB212E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
 				E274CB222E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
-				E2C903D22FEBDEA800DF0F92 /* FormulaTemplate_LowerFunction.json in Resources */,
-				E2C903D32FEBDEA800DF0F92 /* FormulaTemplate_SumFunction.json in Resources */,
-				E2C903D42FEBDEA800DF0F92 /* FormulaTemplate_DayFunction.json in Resources */,
-				E2C903D52FEBDEA800DF0F92 /* FormulaTemplate_SomeFunction.json in Resources */,
-				E2C903D62FEBDEA800DF0F92 /* FormulaTemplate_FindFunction.json in Resources */,
-				E2C903D72FEBDEA800DF0F92 /* FormulaTemplate_EmptyFunction.json in Resources */,
-				E2C903D82FEBDEA800DF0F92 /* FormulaTemplate_CountIfFunction.json in Resources */,
-				E2C903D92FEBDEA800DF0F92 /* FormulaTemplate_YearFunction.json in Resources */,
-				E2C903DA2FEBDEA800DF0F92 /* FormulaTemplate_CeilFunction.json in Resources */,
-				E2C903DB2FEBDEA800DF0F92 /* FormulaTemplate_DateFunction.json in Resources */,
-				E2C903DC2FEBDEA800DF0F92 /* FormulaTemplate_MaxFunction.json in Resources */,
-				E2C903DD2FEBDEA800DF0F92 /* FormulaTemplate_NotFunction.json in Resources */,
-				E2C903DE2FEBDEA800DF0F92 /* FormulaTemplate_ReduceFunction.json in Resources */,
-				E2C903DF2FEBDEA800DF0F92 /* FormulaTemplate_IfFunction.json in Resources */,
-				E2C903E02FEBDEA800DF0F92 /* FormulaTemplate_NowFunction.json in Resources */,
-				E2C903E12FEBDEA800DF0F92 /* FormulaTemplate_PowFunction.json in Resources */,
-				E2C903E22FEBDEA800DF0F92 /* FormulaTemplate_FloorFunction.json in Resources */,
-				E2C903E32FEBDEA800DF0F92 /* FormulaTemplate_ModFunction.json in Resources */,
-				E2C903E42FEBDEA800DF0F92 /* FormulaTemplate_SqrtFunction.json in Resources */,
-				E2C903E52FEBDEA800DF0F92 /* FormulaTemplate_FilterFunction.json in Resources */,
-				E2C903E62FEBDEA800DF0F92 /* FormulaTemplate_MonthFunction.json in Resources */,
-				E2C903E72FEBDEA800DF0F92 /* FormulaTemplate_AndFunction.json in Resources */,
-				E2C903E82FEBDEA800DF0F92 /* FormulaTemplate_EveryFunction.json in Resources */,
-				E2C903E92FEBDEA800DF0F92 /* FormulaTemplate_OrFunction.json in Resources */,
-				E2C903EA2FEBDEA800DF0F92 /* FormulaTemplate_DateAddFunction.json in Resources */,
-				E2C903EB2FEBDEA800DF0F92 /* FormulaTemplate_RoundFunction.json in Resources */,
-				E2C903EC2FEBDEA800DF0F92 /* FormulaTemplate_FlatMapFunction.json in Resources */,
-				E2C903ED2FEBDEA800DF0F92 /* FormulaTemplate_MapFunction.json in Resources */,
-				E2C903EE2FEBDEA800DF0F92 /* FormulaTemplate_UpperFunction.json in Resources */,
-				E2C903EF2FEBDEA800DF0F92 /* FormulaTemplate_ConcatFunction.json in Resources */,
-				E2C903F02FEBDEA800DF0F92 /* FormulaTemplate_FlatFunction.json in Resources */,
-				E2C903F12FEBDEA800DF0F92 /* FormulaTemplate_ToNumberFunction.json in Resources */,
-				E2C903F22FEBDEA800DF0F92 /* FormulaTemplate_ContainsFunction.json in Resources */,
-				E2C903F32FEBDEA800DF0F92 /* FormulaTemplate_LengthFunction.json in Resources */,
-				E2C903F42FEBDEA800DF0F92 /* FormulaTemplate_DateSubtractFunction.json in Resources */,
 				E274CB232E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
 				E274CB242E2E84F700B35C09 /* signatureFieldValidation.json in Resources */,
 				E274CB252E2E84F700B35C09 /* inputGroupFieldValidation.json in Resources */,
