@@ -35,21 +35,29 @@ class dateTests: XCTestCase {
     private func updateNumberValue(_ fieldId: String, _ value: Double) {
         documentEditor.updateValue(for: fieldId, value: .double(value))
     }
+
+    /// Mirrors the engine's date() rendering: UTC Gregorian calendar, epoch-millis as a Double string.
+    /// Returns "" when the components don't form a valid date (matching the engine's empty-field fallback).
+    private func expectedDateText(_ year: Int, _ month: Int, _ day: Int) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let comps = DateComponents(year: year, month: month, day: day)
+        guard let date = calendar.date(from: comps) else { return "" }
+        return String(date.timeIntervalSince1970 * 1000.0)
+    }
     
     // MARK: - Static Tests: Basic date() Function
     
     /// Test: date(2023, 5, 15) creates a date
     func testDateCreation() {
         let result = getFieldValue("basic_example_specific")
-        // Should produce some date representation
-        XCTAssertTrue(!result.isEmpty, "date(2023, 5, 15) should produce a result")
+        XCTAssertEqual(result, expectedDateText(2023, 5, 15), "date(2023, 5, 15) should resolve to the UTC epoch-millis for that date")
     }
     
     /// Test: date with variables
     func testDateWithVariables() {
         let result = getFieldValue("basic_example_variables")
-        // date(2023, 7, 4) from variables
-        XCTAssertTrue(!result.isEmpty, "date(yearValue, monthValue, dayValue) should produce a result")
+        XCTAssertEqual(result, expectedDateText(2023, 7, 4), "date(yearValue, monthValue, dayValue) should resolve to the UTC epoch-millis for 2023-07-04")
     }
     
     /// Test: year(date(2023, 5, 15)) = 2023
@@ -76,22 +84,21 @@ class dateTests: XCTestCase {
     func testDynamicUpdateYear() {
         updateNumberValue("yearValue", 2024)
         let result = getFieldValue("basic_example_variables")
-        // Should produce updated date
-        XCTAssertTrue(!result.isEmpty, "Updated year should produce a result")
+        XCTAssertEqual(result, expectedDateText(2024, 7, 4), "Updated year should produce date(2024, 7, 4)")
     }
     
     /// Test: Update month value
     func testDynamicUpdateMonth() {
         updateNumberValue("monthValue", 12)
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Updated month should produce a result")
+        XCTAssertEqual(result, expectedDateText(2023, 12, 4), "Updated month should produce date(2023, 12, 4)")
     }
     
     /// Test: Update day value
     func testDynamicUpdateDay() {
         updateNumberValue("dayValue", 25)
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Updated day should produce a result")
+        XCTAssertEqual(result, expectedDateText(2023, 7, 25), "Updated day should produce date(2023, 7, 25)")
     }
     
     // MARK: - Additional Static Tests
@@ -138,7 +145,7 @@ class dateTests: XCTestCase {
         updateNumberValue("yearValue", 2025)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Updated year should produce date with 2025")
+        XCTAssertEqual(result, expectedDateText(2025, 7, 4), "Updated year should produce date(2025, 7, 4)")
     }
     
     /// Test: Update month and verify extraction
@@ -146,7 +153,7 @@ class dateTests: XCTestCase {
         updateNumberValue("monthValue", 12)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Updated month should produce date with December")
+        XCTAssertEqual(result, expectedDateText(2023, 12, 4), "Updated month should produce date(2023, 12, 4)")
     }
     
     /// Test: Update day and verify extraction
@@ -154,7 +161,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 31)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Updated day should produce date with day 31")
+        XCTAssertEqual(result, expectedDateText(2023, 7, 31), "Updated day should produce date(2023, 7, 31)")
     }
     
     /// Test: Update all components together
@@ -164,7 +171,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 31)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "date(2025, 12, 31) should produce a result")
+        XCTAssertEqual(result, expectedDateText(2025, 12, 31), "date(2025, 12, 31) should resolve to the matching UTC epoch-millis")
     }
     
     // MARK: - Edge Case Tests
@@ -176,7 +183,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 29)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Feb 29, 2024 should be valid (leap year)")
+        XCTAssertEqual(result, expectedDateText(2024, 2, 29), "Feb 29, 2024 should resolve to the matching UTC epoch-millis (leap year)")
     }
     
     /// Test: Invalid date - February 30
@@ -186,8 +193,8 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 30)  // Invalid
         
         let result = getFieldValue("basic_example_variables")
-        // Behavior depends on implementation - may clamp or error
-        XCTAssertTrue(true, "Should handle invalid date somehow")
+        // The engine normalizes out-of-range components via the UTC Gregorian calendar (Feb 30 -> Mar 2).
+        XCTAssertEqual(result, expectedDateText(2023, 2, 30), "Feb 30, 2023 should normalize identically to the engine")
     }
     
     /// Test: Month 0 (boundary)
@@ -197,8 +204,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 15)
         
         let result = getFieldValue("basic_example_variables")
-        // Should handle gracefully
-        XCTAssertTrue(true, "Should handle month 0")
+        XCTAssertEqual(result, expectedDateText(2023, 0, 15), "Month 0 should normalize identically to the engine")
     }
     
     /// Test: Month 13 (boundary)
@@ -208,8 +214,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 15)
         
         let result = getFieldValue("basic_example_variables")
-        // Should handle gracefully
-        XCTAssertTrue(true, "Should handle month 13")
+        XCTAssertEqual(result, expectedDateText(2023, 13, 15), "Month 13 should normalize identically to the engine (Jan 2024)")
     }
     
     /// Test: Day 0 (boundary)
@@ -219,8 +224,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 0)  // Invalid
         
         let result = getFieldValue("basic_example_variables")
-        // Should handle gracefully
-        XCTAssertTrue(true, "Should handle day 0")
+        XCTAssertEqual(result, expectedDateText(2023, 5, 0), "Day 0 should normalize identically to the engine (Apr 30)")
     }
     
     /// Test: Day 32 (boundary)
@@ -230,8 +234,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 32)  // Invalid
         
         let result = getFieldValue("basic_example_variables")
-        // Should handle gracefully
-        XCTAssertTrue(true, "Should handle day 32")
+        XCTAssertEqual(result, expectedDateText(2023, 5, 32), "Day 32 should normalize identically to the engine (Jun 1)")
     }
     
     /// Test: Negative year
@@ -241,8 +244,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 15)
         
         let result = getFieldValue("basic_example_variables")
-        // Should handle gracefully
-        XCTAssertTrue(true, "Should handle negative year")
+        XCTAssertEqual(result, expectedDateText(-1, 5, 15), "Negative year should resolve identically to the engine")
     }
     
     /// Test: Year 0
@@ -252,8 +254,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 15)
         
         let result = getFieldValue("basic_example_variables")
-        // Should handle gracefully
-        XCTAssertTrue(true, "Should handle year 0")
+        XCTAssertEqual(result, expectedDateText(0, 5, 15), "Year 0 should resolve identically to the engine")
     }
     
     /// Test: Very large year
@@ -263,7 +264,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 31)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Should handle year 9999")
+        XCTAssertEqual(result, expectedDateText(9999, 12, 31), "Year 9999 should resolve to the matching UTC epoch-millis")
     }
     
     /// Test: January 1st (boundary)
@@ -273,7 +274,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 1)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Jan 1, 2023 should be valid")
+        XCTAssertEqual(result, expectedDateText(2023, 1, 1), "Jan 1, 2023 should resolve to the matching UTC epoch-millis")
     }
     
     /// Test: December 31st (boundary)
@@ -283,7 +284,7 @@ class dateTests: XCTestCase {
         updateNumberValue("dayValue", 31)
         
         let result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Dec 31, 2023 should be valid")
+        XCTAssertEqual(result, expectedDateText(2023, 12, 31), "Dec 31, 2023 should resolve to the matching UTC epoch-millis")
     }
     
     /// Test: Sequence - multiple date updates
@@ -293,26 +294,26 @@ class dateTests: XCTestCase {
         updateNumberValue("monthValue", 1)
         updateNumberValue("dayValue", 1)
         var result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Step 1: Jan 1, 2023")
-        
+        XCTAssertEqual(result, expectedDateText(2023, 1, 1), "Step 1: Jan 1, 2023")
+
         // Step 2: Update to Dec 31, 2023
         updateNumberValue("monthValue", 12)
         updateNumberValue("dayValue", 31)
         result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Step 2: Dec 31, 2023")
-        
+        XCTAssertEqual(result, expectedDateText(2023, 12, 31), "Step 2: Dec 31, 2023")
+
         // Step 3: Update to Feb 29, 2024 (leap year)
         updateNumberValue("yearValue", 2024)
         updateNumberValue("monthValue", 2)
         updateNumberValue("dayValue", 29)
         result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Step 3: Feb 29, 2024")
-        
+        XCTAssertEqual(result, expectedDateText(2024, 2, 29), "Step 3: Feb 29, 2024")
+
         // Step 4: Back to July 4, 2023
         updateNumberValue("yearValue", 2023)
         updateNumberValue("monthValue", 7)
         updateNumberValue("dayValue", 4)
         result = getFieldValue("basic_example_variables")
-        XCTAssertTrue(!result.isEmpty, "Step 4: July 4, 2023")
+        XCTAssertEqual(result, expectedDateText(2023, 7, 4), "Step 4: July 4, 2023")
     }
 }
