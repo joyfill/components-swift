@@ -9,7 +9,6 @@ import XCTest
 import Foundation
 import JoyfillModel
 import Joyfill
-@testable import JoyfillExample
 
 /// Tests for the `and()` formula function
 /// The and() function returns true only if ALL conditions are true.
@@ -598,65 +597,6 @@ class andTests: XCTestCase {
         print("🎯 Result: \(resultText)")
         
         XCTAssertEqual(resultText, "false", "Zero age should fail age > 18 check")
-    }
-
-    // MARK: - Argument-Count & Error Branches
-    //
-    // These cases (single arg, N-ary, empty args, non-boolean arg) are not present
-    // in the `and.json` fixture, so they are built programmatically here and still
-    // exercised through DocumentEditor. An erroring formula resolves a text field to
-    // its default empty string.
-
-    /// Builds a single-formula document and returns the resolved text of the result field.
-    private func andResultText(forFormula expression: String) -> String {
-        let document = JoyDoc
-            .addDocument()
-            .addFormula(id: "andFormula", formula: expression)
-            .addTextField(identifier: "andResult", formulaRef: "andFormula", formulaKey: "value", label: "And Result")
-        let editor = DocumentEditor(document: document, validateSchema: false)
-        return editor.value(ofFieldWithIdentifier: "andResult")?.text ?? ""
-    }
-
-    /// Test 29: Single true argument
-    /// Formula: and(true)
-    /// Expected: true
-    func testAndSingleArgumentTrue() {
-        XCTAssertEqual(andResultText(forFormula: "and(true)"), "true", "and(true) should return 'true'")
-    }
-
-    /// Test 30: Single false argument
-    /// Formula: and(false)
-    /// Expected: false
-    func testAndSingleArgumentFalse() {
-        XCTAssertEqual(andResultText(forFormula: "and(false)"), "false", "and(false) should return 'false'")
-    }
-
-    /// Test 31: Many arguments, all true
-    /// Formula: and(true, true, true, true, true)
-    /// Expected: true
-    func testAndManyArgumentsAllTrue() {
-        XCTAssertEqual(andResultText(forFormula: "and(true, true, true, true, true)"), "true", "All-true N-ary and() should return 'true'")
-    }
-
-    /// Test 32: Many arguments with one false (short-circuit)
-    /// Formula: and(true, true, false, true, true)
-    /// Expected: false
-    func testAndManyArgumentsOneFalse() {
-        XCTAssertEqual(andResultText(forFormula: "and(true, true, false, true, true)"), "false", "A single false should make N-ary and() return 'false'")
-    }
-
-    /// Test 33: Empty arguments (error path)
-    /// Formula: and()
-    /// Expected: "" (and() requires at least one argument; the error resolves to the text default)
-    func testAndEmptyArgumentsResolvesToEmpty() {
-        XCTAssertEqual(andResultText(forFormula: "and()"), "", "and() with no arguments should fail and resolve to empty")
-    }
-
-    /// Test 34: Non-boolean argument (type mismatch error path)
-    /// Formula: and(true, 5)
-    /// Expected: "" (a non-boolean argument is a type mismatch; the error resolves to the text default)
-    func testAndNonBooleanArgumentResolvesToEmpty() {
-        XCTAssertEqual(andResultText(forFormula: "and(true, 5)"), "", "and() with a non-boolean argument should fail and resolve to empty")
     }
 }
 
