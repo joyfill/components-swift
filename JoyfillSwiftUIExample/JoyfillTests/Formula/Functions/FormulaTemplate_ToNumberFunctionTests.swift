@@ -70,16 +70,14 @@ class toNumberTests: XCTestCase {
     func testToNumberInvalid() {
         let result = getFieldValue("invalid_example")
         // Invalid number conversion - may return NaN or empty
-        XCTAssertTrue(result == "NaN" || result.isEmpty || result == "0", 
-                      "toNumber('n100') should return NaN or empty, got '\(result)'")
+        XCTAssertEqual(result, "", "toNumber('n100') should resolve to empty, got '\(result)'")
     }
     
     /// Test: Validation with valid number
     /// NOTE: This formula uses isNaN() which is not yet implemented, so it may return empty
     func testAdvancedValidation() {
         let result = getFieldValue("advanced_example")
-        XCTAssertTrue(result.contains("42") || result.isEmpty, 
-                      "Validation should show number 42 or empty (isNaN not implemented), got '\(result)'")
+        XCTAssertEqual(result, "", "validation resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     // MARK: - Dynamic Tests: Price Updates
@@ -105,8 +103,7 @@ class toNumberTests: XCTestCase {
     func testDynamicUpdateUserInputValid() {
         updateStringValue("userInput", "100")
         let result = getFieldValue("advanced_example")
-        XCTAssertTrue(result.contains("100") || result.isEmpty, 
-                      "Valid input should show number 100 or empty (isNaN not implemented), got '\(result)'")
+        XCTAssertEqual(result, "", "validation resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     // MARK: - Edge Cases
@@ -132,13 +129,12 @@ class toNumberTests: XCTestCase {
     func testDynamicUpdate_UserInputInvalid() {
         // Initial: "Valid number: 42" or empty (if isNaN not implemented)
         var result = getFieldValue("advanced_example")
-        XCTAssertTrue(result.contains("42") || result.isEmpty, "Initial should show valid number 42 or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Initial validation resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Update to invalid input
         updateStringValue("userInput", "abc")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Please enter a valid number" || result.isEmpty, 
-                       "Invalid input 'abc' should show error message or empty (isNaN not implemented), got '\(result)'")
+        XCTAssertEqual(result, "", "validation resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     /// Test: Negative userInput
@@ -147,8 +143,7 @@ class toNumberTests: XCTestCase {
         // Update to negative number
         updateStringValue("userInput", "-5")
         let result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Number cannot be negative" || result.isEmpty, 
-                       "Negative input '-5' should show error message or empty (isNaN not implemented), got '\(result)'")
+        XCTAssertEqual(result, "", "validation resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     /// Test: Zero userInput (valid)
@@ -156,8 +151,7 @@ class toNumberTests: XCTestCase {
     func testDynamicUpdate_UserInputZero() {
         updateStringValue("userInput", "0")
         let result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Valid number: 0" || result.isEmpty, 
-                       "Zero should be valid or empty (isNaN not implemented), got '\(result)'")
+        XCTAssertEqual(result, "", "validation resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     /// Test: Update both priceField and quantity
@@ -289,27 +283,27 @@ class toNumberTests: XCTestCase {
         
         // Step 1: Initial valid number
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result.contains("42") || result.isEmpty, "Step 1: Initial should be valid or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Step 1: validation resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Step 2: Negative number
         updateStringValue("userInput", "-10")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Number cannot be negative" || result.isEmpty, "Step 2: Negative check or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Step 2: validation resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Step 3: Invalid (not a number)
         updateStringValue("userInput", "abc")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Please enter a valid number" || result.isEmpty, "Step 3: Invalid check or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Step 3: validation resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Step 4: Zero (valid)
         updateStringValue("userInput", "0")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Valid number: 0" || result.isEmpty, "Step 4: Zero should be valid or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Step 4: validation resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Step 5: Positive number (valid)
         updateStringValue("userInput", "100")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result.contains("100") || result.isEmpty, "Step 5: Valid number or empty, got '\(result)'")
+        XCTAssertEqual(result, "", "Step 5: validation resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     /// Test: Multiple priceField updates
@@ -355,20 +349,17 @@ class toNumberTests: XCTestCase {
         // Test branch 1: Invalid (NaN)
         updateStringValue("userInput", "xyz")
         var result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Please enter a valid number" || result.isEmpty, 
-                       "Branch 1 (isNaN) or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Branch 1 resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Test branch 2: Negative
         updateStringValue("userInput", "-99")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Number cannot be negative" || result.isEmpty, 
-                       "Branch 2 (negative) or empty, got '\(result)'")
-        
+        XCTAssertEqual(result, "", "Branch 2 resolves to empty (isNaN unsupported), got '\(result)'")
+
         // Test branch 3: Valid positive
         updateStringValue("userInput", "123")
         result = getFieldValue("advanced_example")
-        XCTAssertTrue(result == "Valid number: 123" || result.isEmpty, 
-                       "Branch 3 (valid) or empty, got '\(result)'")
+        XCTAssertEqual(result, "", "Branch 3 resolves to empty (isNaN unsupported), got '\(result)'")
     }
     
     /// Test: Decimal precision
