@@ -41,86 +41,72 @@ class flatTests: XCTestCase {
     }
     
     // MARK: - Static Tests
-    
+    // Note: scalar arrays render as "1.0, 2.0, ..."; a sub-array that remains nested after a
+    // bounded flatten renders via its debug form "array([JoyfillFormulas.FormulaValue.number(4.0), ...])".
+
     /// Test: Document loads successfully
     func testDocumentLoads() {
         XCTAssertNotNil(documentEditor, "DocumentEditor should load successfully")
     }
-    
-    /// Test: Basic flat simple nested array - flat([1, [2, 3]])
+
+    /// Test: flat([1, [2, 3]]) fully flattens to [1, 2, 3].
     func testBasicFlatSimple() {
         let result = getFieldValue("basic_example_simple")
-        // flat([1, [2, 3]]) -> [1, 2, 3]
-        XCTAssertFalse(result.isEmpty, "flat() should return a result")
-        XCTAssertTrue(result.contains("1") && result.contains("2") && result.contains("3"), 
-                      "flat([1, [2, 3]]) should contain 1, 2, 3")
+        XCTAssertEqual(result, "1.0, 2.0, 3.0", "flat([1, [2, 3]]) should be exactly 1, 2, 3")
     }
-    
-    /// Test: Basic flat already flat array - flat([1, 2, 3])
+
+    /// Test: flat([1, 2, 3]) leaves an already-flat array unchanged.
     func testBasicFlatUnchanged() {
         let result = getFieldValue("basic_example_unchanged")
-        // flat([1, 2, 3]) -> [1, 2, 3] (unchanged)
-        XCTAssertFalse(result.isEmpty, "flat() should return a result")
-        XCTAssertTrue(result.contains("1") && result.contains("2") && result.contains("3"),
-                      "flat([1, 2, 3]) should remain [1, 2, 3]")
+        XCTAssertEqual(result, "1.0, 2.0, 3.0", "flat([1, 2, 3]) should remain exactly 1, 2, 3")
     }
-    
-    /// Test: Intermediate flat with depth - flat([0, 1, [2, [3, [4, 5]]]], 2)
+
+    /// Test: flat([0, 1, [2, [3, [4, 5]]]], 2) flattens exactly 2 levels, leaving [4, 5] nested.
     func testIntermediateFlatWithDepth() {
         let result = getFieldValue("intermediate_example_depth")
-        // flat([0, 1, [2, [3, [4, 5]]]], 2) -> [0, 1, 2, 3, [4, 5]]
-        // Flattens 2 levels deep
-        XCTAssertFalse(result.isEmpty, "flat() with depth should return a result")
-        XCTAssertTrue(result.contains("0") && result.contains("1") && result.contains("2") && result.contains("3"),
-                      "flat() with depth 2 should flatten first 2 levels")
+        XCTAssertEqual(result,
+                       "0.0, 1.0, 2.0, 3.0, array([JoyfillFormulas.FormulaValue.number(4.0), JoyfillFormulas.FormulaValue.number(5.0)])",
+                       "depth 2 should flatten 0,1,2,3 but leave [4, 5] nested")
     }
-    
-    /// Test: Intermediate flat with field reference - flat(nestedData, flattenDepth)
+
+    /// Test: flat(nestedData, flattenDepth) = flat([[1,2],[3,[4,5]],6], 2) flattens to [1..6].
     func testIntermediateFlatDynamic() {
         let result = getFieldValue("intermediate_example_dynamic")
-        // nestedData = [[1, 2], [3, [4, 5]], 6], flattenDepth = 2
-        // Should flatten completely: [1, 2, 3, 4, 5, 6]
-        XCTAssertFalse(result.isEmpty, "flat() with field reference should return a result")
+        XCTAssertEqual(result, "1.0, 2.0, 3.0, 4.0, 5.0, 6.0", "depth 2 fully flattens nestedData to 1..6")
     }
-    
-    /// Test: Advanced flat with condition - if(length(flat(responses, 1)) > 0, ...)
+
+    /// Test: if(length(flat(responses, 1)) > 0, ...) with [[], ["response1"], []] takes the true branch.
     func testAdvancedFlatResponses() {
         let result = getFieldValue("advanced_example_responses")
-        // responses = [[], ["response1"], []]
-        // flat(responses, 1) -> ["response1"], length > 0, so "At least one response received"
         XCTAssertEqual(result, "At least one response received", "Flat array with one response should indicate responses received")
     }
-    
-    /// Test: Advanced flat with concat - concat("All categories: ", flat(categories, 2))
+
+    /// Test: concat("All categories: ", flat(categories, 2)) joins the depth-2 flattened labels.
     func testAdvancedFlatCategories() {
         let result = getFieldValue("advanced_example_categories")
-        // categories = [["Electronics", ["Phones", "Computers"]], ["Clothing", ["Shirts", "Pants"]]]
-        // flat(categories, 2) -> ["Electronics", "Phones", "Computers", "Clothing", "Shirts", "Pants"]
-        XCTAssertFalse(result.isEmpty, "Concatenated flat categories should return a result")
-        XCTAssertTrue(result.contains("All categories:"), "Result should start with 'All categories:'")
+        XCTAssertEqual(result,
+                       "All categories: Electronics, Phones, Computers, Clothing, Shirts, Pants",
+                       "flat(categories, 2) should fully flatten the category labels in order")
     }
     
     // MARK: - Dynamic Update Tests
     
-    /// Test: Update nestedData to change flattened result
+    /// Test: Updating nestedData recomputes flat(nestedData, 2).
     func testDynamicUpdateNestedData() {
-        // Update with simpler nested data
         updateFieldValue("nestedData", "[[10, 20], [30, 40]]")
-        
+
         let result = getFieldValue("intermediate_example_dynamic")
-        XCTAssertFalse(result.isEmpty, "Updated flat() should return a result")
-        XCTAssertTrue(result.contains("10") && result.contains("20") && result.contains("30") && result.contains("40"),
-                      "Flattened [[10, 20], [30, 40]] should contain all numbers")
+        XCTAssertEqual(result, "10.0, 20.0, 30.0, 40.0", "flat([[10,20],[30,40]], 2) should be exactly 10,20,30,40")
     }
-    
-    /// Test: Update flattenDepth to change how much is flattened
+
+    /// Test: Lowering flattenDepth to 1 leaves [4, 5] nested in flat(nestedData, 1).
     func testDynamicUpdateFlattenDepth() {
-        // Initial depth is 2
-        // Change to depth 1 - should leave some nesting
         updateNumberValue("flattenDepth", 1)
-        
+
         let result = getFieldValue("intermediate_example_dynamic")
-        XCTAssertFalse(result.isEmpty, "flat() with updated depth should return a result")
+        XCTAssertEqual(result,
+                       "1.0, 2.0, 3.0, array([JoyfillFormulas.FormulaValue.number(4.0), JoyfillFormulas.FormulaValue.number(5.0)]), 6.0",
+                       "depth 1 should flatten one level, leaving [4, 5] nested")
     }
     
     /// Test: Update responses to have no responses
@@ -145,13 +131,13 @@ class flatTests: XCTestCase {
         XCTAssertEqual(result, "At least one response received", "Multiple responses should still show 'At least one response received'")
     }
     
-    /// Test: Update categories with different structure
+    /// Test: Updating categories recomputes concat + flat(categories, 2) in order.
     func testDynamicUpdateCategories() {
-        // Update with different categories
         updateFieldValue("categories", "[[\"Books\", [\"Fiction\", \"Non-Fiction\"]], [\"Music\", [\"Rock\", \"Jazz\"]]]")
-        
+
         let result = getFieldValue("advanced_example_categories")
-        XCTAssertFalse(result.isEmpty, "Updated categories should return a result")
-        XCTAssertTrue(result.contains("All categories:"), "Result should start with 'All categories:'")
+        XCTAssertEqual(result,
+                       "All categories: Books, Fiction, Non-Fiction, Music, Rock, Jazz",
+                       "flat(categories, 2) should fully flatten the updated labels in order")
     }
 }
