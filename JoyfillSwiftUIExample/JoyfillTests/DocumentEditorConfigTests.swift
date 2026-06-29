@@ -184,19 +184,24 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertFalse(editor.isCollectionFieldEnabled)
     }
 
-    /// The license is routed through the same validator as the legacy init: a config
-    /// editor and a legacy editor given the same token must agree on the flag.
-    func testConfigInit_licensePassthrough_matchesLegacyInit() {
-        let token = "not-a-valid-license-token"
+    /// A *valid* license supplied through the config must actually flip
+    /// `isCollectionFieldEnabled` to `true`. Paired with the nil-license test above,
+    /// this guards the config → license mapping in both directions: dropping or
+    /// zeroing `license` on the config path would leave the flag `false` and fail here.
+    func testConfigInit_validLicense_enablesCollectionField() {
+        let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        XCTAssertFalse(license.isEmpty,
+                       "Missing license: set JOYFILL_TEST_LICENSE env var or check licenseKey")
+        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license),
+                      "License verification failed — the token does not match the public key in LicenseValidator")
 
-        let legacy = DocumentEditor(document: JoyDoc(),
-                                    validateSchema: false,
-                                    license: token)
-        let viaConfig = DocumentEditor(document: JoyDoc(),
-                                       config: DocumentEditorConfig(license: token,
-                                                                    validateSchema: false))
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(license: license,
+                                                                 validateSchema: false))
 
-        XCTAssertEqual(legacy.isCollectionFieldEnabled, viaConfig.isCollectionFieldEnabled)
+        XCTAssertTrue(editor.isCollectionFieldEnabled,
+                      "A valid license passed via DocumentEditorConfig must enable collection fields.")
     }
 
     // MARK: - validateSchema behaviour
