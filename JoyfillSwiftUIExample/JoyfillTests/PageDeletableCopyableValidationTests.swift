@@ -425,6 +425,74 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
         XCTAssertTrue(valueArray?.isEmpty ?? false, "Collection field items must be cleared when copied without values.")
     }
 
+    /// End-to-end regression: build a fully schema-valid document containing both a table and a
+    /// collection field, copy the page WITHOUT values, then run the real JSON-schema validation
+    /// (`JoyfillSchemaManager.validateSchema`) on the resulting document. This guards the actual
+    /// bug this fix addresses — the mechanism tests above only assert the `value` key survives,
+    /// they never run schema validation (they use `validateSchema: false`).
+    ///
+    /// The fixture is intentionally schema-complete: `TableField` requires
+    /// `tableColumns`/`tableColumnOrder` and `CollectionField` requires `schema`, so those keys
+    /// are all present here.
+    func testDuplicatePage_WithoutValues_PassesRealSchemaValidation() {
+        let documentDictionary: [String: Any] = [
+            "_id": "schema_e2e_doc",
+            "type": "document",
+            "stage": "published",
+            "identifier": "schema_e2e_identifier",
+            "name": "Schema E2E Doc",
+            "files": [[
+                "_id": "schema_e2e_file",
+                "pageOrder": ["schema_e2e_page"],
+                "pages": [[
+                    "_id": "schema_e2e_page",
+                    "name": "Page 1",
+                    "width": 816, "height": 1056, "cols": 24, "rowHeight": 8,
+                    "layout": "grid", "presentation": "normal",
+                    "fieldPositions": [
+                        ["_id": "pos_table", "field": "e2e_table_field", "displayType": "original",
+                         "width": 12, "height": 8, "x": 0, "y": 0, "type": "table"],
+                        ["_id": "pos_collection", "field": "e2e_collection_field", "displayType": "original",
+                         "width": 12, "height": 10, "x": 0, "y": 8, "type": "collection"]
+                    ]
+                ]]
+            ]],
+            "fields": [
+                [
+                    "_id": "e2e_table_field",
+                    "type": "table",
+                    "file": "schema_e2e_file",
+                    "rowOrder": ["e2e_row_1"],
+                    "tableColumnOrder": ["e2e_col_1"],
+                    "tableColumns": [["_id": "e2e_col_1", "type": "text"]],
+                    "value": [["_id": "e2e_row_1"]]
+                ],
+                [
+                    "_id": "e2e_collection_field",
+                    "type": "collection",
+                    "file": "schema_e2e_file",
+                    "schema": [String: Any](),
+                    "value": [["_id": "e2e_item_1"]]
+                ]
+            ]
+        ]
+
+        let document = JoyDoc(dictionary: documentDictionary)
+        let schemaManager = JoyfillSchemaManager()
+
+        // Sanity: the hand-built base document must itself be schema-valid, otherwise the
+        // post-copy assertion below would be meaningless.
+        XCTAssertNil(schemaManager.validateSchema(document: document),
+                     "Base fixture must be schema-valid before exercising the copy.")
+
+        let editor = makeEditor(document: document)
+        editor.duplicatePage(pageID: "schema_e2e_page", copyWithValues: false)
+
+        // The whole point of the fix: the duplicated document still passes real schema validation.
+        XCTAssertNil(schemaManager.validateSchema(document: editor.document),
+                     "Document must remain schema-valid after copying a page without values.")
+    }
+
     // MARK: - copyWithValues=false: original page fields untouched
 
     /// `copyWithValues=false` must only clear the NEW page's fields — the original page's
