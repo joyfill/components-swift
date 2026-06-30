@@ -1147,7 +1147,17 @@ extension DocumentEditor {
                 let isReadonly = newFields[i].disabled == true
                 let isDisplayText = newFields[i].fieldType == .block
                 if isReadonly || isDisplayText { continue }
-                newFields[i].value = nil
+                // Table and collection fields mark `value` as required in the schema, so clearing
+                // them to nil (which drops the key) would fail validation. Empty them instead.
+                switch newFields[i].fieldType {
+                case .table:
+                    newFields[i].value = .valueElementArray([])
+                    newFields[i].rowOrder = []
+                case .collection:
+                    newFields[i].value = .valueElementArray([])
+                default:
+                    newFields[i].value = nil
+                }
             }
         }
 
