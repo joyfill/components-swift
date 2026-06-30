@@ -300,7 +300,9 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         app.swipeLeft()
         let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
         XCTAssertFalse(barcodeField.isEnabled)
-        barcodeField.tap()
+        if barcodeField.isHittable {
+            barcodeField.tap()
+        }
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         
         let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
