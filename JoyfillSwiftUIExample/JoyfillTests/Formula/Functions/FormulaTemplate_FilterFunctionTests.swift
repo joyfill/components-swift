@@ -41,13 +41,13 @@ class filterTests: XCTestCase {
     /// Test: filter([2, 5, 8, 12, 3], (num) -> num > 5) keeps exactly [8, 12].
     func testFilterNumbers() {
         let result = getFieldValue("basic_example_numbers")
-        XCTAssertEqual(result, "8.0, 12.0", "filter(num > 5) should keep exactly 8 and 12")
+        XCTAssertEqual(result, "[8.0, 12.0]", "filter(num > 5) should keep exactly 8 and 12")
     }
 
     /// Test: filter(["apple", "", "banana", "", "cherry"], !empty) drops the empty strings.
     func testFilterNonEmptyStrings() {
         let result = getFieldValue("basic_example_strings")
-        XCTAssertEqual(result, "apple, banana, cherry", "filter(!empty) should keep only the non-empty strings")
+        XCTAssertEqual(result, "[apple, banana, cherry]", "filter(!empty) should keep only the non-empty strings")
     }
 
     /// Test: filter(products, price < 50) keeps Mouse(25) and Keyboard(45), drops Laptop/Phone.
@@ -64,13 +64,13 @@ class filterTests: XCTestCase {
     /// Test: filter(numbers, even index) keeps indices 0,2,4 → values 10, 30, 50.
     func testFilterByEvenIndex() {
         let result = getFieldValue("intermediate_example_even_indices")
-        XCTAssertEqual(result, "10.0, 30.0, 50.0", "filter(even index) should keep 10, 30, 50")
+        XCTAssertEqual(result, "[10.0, 30.0, 50.0]", "filter(even index) should keep 10, 30, 50")
     }
 
     /// Test: map(filter(products, price < 100), .name) → ["Mouse", "Keyboard"].
     func testFilterMapCombined() {
         let result = getFieldValue("advanced_example_filter_map")
-        XCTAssertEqual(result, "Mouse, Keyboard", "filter(price < 100) + map(name) should be Mouse, Keyboard")
+        XCTAssertEqual(result, "[Mouse, Keyboard]", "filter(price < 100) + map(name) should be Mouse, Keyboard")
     }
 
     /// Test: filter(inventory, inStock && onSale) keeps Phone and Mouse, drops Laptop(onSale=false)
@@ -113,10 +113,10 @@ class filterTests: XCTestCase {
     /// Test: Mutating numbers recomputes filter(numbers, even index).
     func testDynamicUpdateNumbersRecomputes() {
         // Baseline: [10,20,30,40,50] -> even indices -> 10, 30, 50
-        XCTAssertEqual(getFieldValue("intermediate_example_even_indices"), "10.0, 30.0, 50.0", "Baseline even indices")
+        XCTAssertEqual(getFieldValue("intermediate_example_even_indices"), "[10.0, 30.0, 50.0]", "Baseline even indices")
 
         // New array [1,2,3,4] -> even indices 0,2 -> 1, 3
         updateStringValue("numbers", "[1, 2, 3, 4]")
-        XCTAssertEqual(getFieldValue("intermediate_example_even_indices"), "1.0, 3.0", "Even indices of [1,2,3,4] are 1, 3")
+        XCTAssertEqual(getFieldValue("intermediate_example_even_indices"), "[1.0, 3.0]", "Even indices of [1,2,3,4] are 1, 3")
     }
 }

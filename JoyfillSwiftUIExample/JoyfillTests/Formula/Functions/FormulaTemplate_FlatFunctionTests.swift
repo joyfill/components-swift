@@ -52,27 +52,27 @@ class flatTests: XCTestCase {
     /// Test: flat([1, [2, 3]]) fully flattens to [1, 2, 3].
     func testBasicFlatSimple() {
         let result = getFieldValue("basic_example_simple")
-        XCTAssertEqual(result, "1.0, 2.0, 3.0", "flat([1, [2, 3]]) should be exactly 1, 2, 3")
+        XCTAssertEqual(result, "[1.0, 2.0, 3.0]", "flat([1, [2, 3]]) should be exactly 1, 2, 3")
     }
 
     /// Test: flat([1, 2, 3]) leaves an already-flat array unchanged.
     func testBasicFlatUnchanged() {
         let result = getFieldValue("basic_example_unchanged")
-        XCTAssertEqual(result, "1.0, 2.0, 3.0", "flat([1, 2, 3]) should remain exactly 1, 2, 3")
+        XCTAssertEqual(result, "[1.0, 2.0, 3.0]", "flat([1, 2, 3]) should remain exactly 1, 2, 3")
     }
 
     /// Test: flat([0, 1, [2, [3, [4, 5]]]], 2) flattens exactly 2 levels, leaving [4, 5] nested.
     func testIntermediateFlatWithDepth() {
         let result = getFieldValue("intermediate_example_depth")
         XCTAssertEqual(result,
-                       "0.0, 1.0, 2.0, 3.0, array([JoyfillFormulas.FormulaValue.number(4.0), JoyfillFormulas.FormulaValue.number(5.0)])",
+                       "[0.0, 1.0, 2.0, 3.0, array([JoyfillFormulas.FormulaValue.number(4.0), JoyfillFormulas.FormulaValue.number(5.0)])]",
                        "depth 2 should flatten 0,1,2,3 but leave [4, 5] nested")
     }
 
     /// Test: flat(nestedData, flattenDepth) = flat([[1,2],[3,[4,5]],6], 2) flattens to [1..6].
     func testIntermediateFlatDynamic() {
         let result = getFieldValue("intermediate_example_dynamic")
-        XCTAssertEqual(result, "1.0, 2.0, 3.0, 4.0, 5.0, 6.0", "depth 2 fully flattens nestedData to 1..6")
+        XCTAssertEqual(result, "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0]", "depth 2 fully flattens nestedData to 1..6")
     }
 
     /// Test: if(length(flat(responses, 1)) > 0, ...) with [[], ["response1"], []] takes the true branch.
@@ -96,7 +96,7 @@ class flatTests: XCTestCase {
         updateFieldValue("nestedData", "[[10, 20], [30, 40]]")
 
         let result = getFieldValue("intermediate_example_dynamic")
-        XCTAssertEqual(result, "10.0, 20.0, 30.0, 40.0", "flat([[10,20],[30,40]], 2) should be exactly 10,20,30,40")
+        XCTAssertEqual(result, "[10.0, 20.0, 30.0, 40.0]", "flat([[10,20],[30,40]], 2) should be exactly 10,20,30,40")
     }
 
     /// Test: Lowering flattenDepth to 1 leaves [4, 5] nested in flat(nestedData, 1).
@@ -105,7 +105,7 @@ class flatTests: XCTestCase {
 
         let result = getFieldValue("intermediate_example_dynamic")
         XCTAssertEqual(result,
-                       "1.0, 2.0, 3.0, array([JoyfillFormulas.FormulaValue.number(4.0), JoyfillFormulas.FormulaValue.number(5.0)]), 6.0",
+                       "[1.0, 2.0, 3.0, array([JoyfillFormulas.FormulaValue.number(4.0), JoyfillFormulas.FormulaValue.number(5.0)]), 6.0]",
                        "depth 1 should flatten one level, leaving [4, 5] nested")
     }
     
