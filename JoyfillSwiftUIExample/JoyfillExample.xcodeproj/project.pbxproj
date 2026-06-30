@@ -18,6 +18,7 @@
 		1324937A2BA570F9002C6ADC /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 132493792BA570F9002C6ADC /* Joyfill */; };
 		1324937D2BAD5A42002C6ADC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 1324937C2BAD5A42002C6ADC /* JoyfillModel */; };
 		134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134FC0792BDA82E9008B7030 /* JoyfillTests.swift */; };
+		DEC0F11000000000000000F2 /* DocumentEditorConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */; };
 		136D3DBF2C103BD8008B1CA3 /* PageNavigationFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */; };
 		13A3F8EA2C34171A00B0A255 /* ConditionalLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */; };
 		13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */; };
@@ -531,6 +532,7 @@
 		1307CF1D2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		134FC0772BDA82E9008B7030 /* JoyfillTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JoyfillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		134FC0792BDA82E9008B7030 /* JoyfillTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoyfillTests.swift; sourceTree = "<group>"; };
+		DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEditorConfigTests.swift; sourceTree = "<group>"; };
 		136D3DBE2C103BD8008B1CA3 /* PageNavigationFieldTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageNavigationFieldTest.swift; sourceTree = "<group>"; };
 		13A3F8E92C34171A00B0A255 /* ConditionalLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalLogicTests.swift; sourceTree = "<group>"; };
 		13A3F8EB2C356DB800B0A255 /* ConditinalPageLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditinalPageLogicTests.swift; sourceTree = "<group>"; };
@@ -898,6 +900,7 @@
 				E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */,
 				E27061C62E797E12006BAD18 /* OnChangeHandler */,
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
+				DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */,
 				E2CC9FEC2E375DE500797331 /* SchemaValidation */,
 				DEC000A000000000000000A0 /* DecoratorAPI */,
 				E2B8E3BC2E4361DF00AC6018 /* Formula */,
@@ -2136,6 +2139,7 @@
 				E2B8E3C42E436F3300AC6018 /* FormulaTemplate_MultiSelectFieldTests.swift in Sources */,
 				0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */,
 				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
+				DEC0F11000000000000000F2 /* DocumentEditorConfigTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
