@@ -298,12 +298,10 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         numberField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         app.swipeLeft()
-        let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
-        XCTAssertFalse(barcodeField.isEnabled)
-        if barcodeField.isHittable {
-            barcodeField.tap()
-        }
-        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
+        let barcodeReadonly = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
+        XCTAssertTrue(barcodeReadonly.waitForExistence(timeout: 5), "Readonly barcode label should be present")
+        XCTAssertFalse(app.textViews["TableBarcodeFieldIdentifier"].exists,
+                       "Barcode cell should not be an editable TextEditor in readonly mode")
         
         let signatureButton = app.buttons.matching(identifier: "TableSignatureOpenSheetButton").firstMatch
         XCTAssertFalse(signatureButton.isEnabled)
