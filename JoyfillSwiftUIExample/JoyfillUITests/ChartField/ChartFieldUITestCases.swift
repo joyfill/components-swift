@@ -93,10 +93,10 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         let horizontalTF = app.textFields["HorizontalTextFieldIdentifier"]
         verticalTF.tap()
         app.selectAllInTextField(in: verticalTF, app: app)
-        verticalTF.typeText("one")
+        verticalTF.typeTextCharByChar("one")
         horizontalTF.tap()
         app.selectAllInTextField(in: horizontalTF, app: app)
-        horizontalTF.typeText("two")
+        horizontalTF.typeTextCharByChar("two")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         // Navigate away
         goBack()

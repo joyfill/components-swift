@@ -1311,7 +1311,12 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
     }
     
     func goToTableDetailPage() {
-        app.buttons["TableDetailViewIdentifier"].firstMatch.tap()
+        let btn = app.buttons["TableDetailViewIdentifier"].firstMatch
+        if !btn.waitForExistence(timeout: 3) {
+            app.swipeUp()
+            _ = btn.waitForExistence(timeout: 3)
+        }
+        btn.tap()
     }
     
     func goToCollectionDetailPage() {

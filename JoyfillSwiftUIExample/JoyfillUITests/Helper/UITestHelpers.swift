@@ -165,6 +165,15 @@ extension XCUIApplication {
 // MARK: - New Helper Methods for Robust UI Testing
 
 extension XCUIElement {
+    /// Types text one character at a time with a short yield between characters.
+    /// More reliable than `typeText` for fields where fast input drops characters.
+    func typeTextCharByChar(_ text: String, delay: TimeInterval = 0.05) {
+        for character in text {
+            self.typeText(String(character))
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: delay))
+        }
+    }
+
     /// Clears text from text fields and text views using backspace deletion
     func clearText() {
         guard let stringValue = self.value as? String else {
