@@ -153,6 +153,8 @@ final class DecoratorAllFieldTypesAPIUITests: DecoratorAPIUITestsBase {
     func testDropdownFieldDecoratorLifecycle()    { runFieldDecoratorLifecycle(fpId: fpDropdownField) }
     func testMultiSelectFieldDecoratorLifecycle() { runFieldDecoratorLifecycle(fpId: fpMultiSelectField) }
     func testTextareaFieldDecoratorLifecycle()    { runFieldDecoratorLifecycle(fpId: fpTextareaField) }
+    // NOTE: Known pre-existing failure — left in for visibility, not a regression from this PR.
+    // The image-field decorator lifecycle isn't wired yet; re-enable once fixed.
     func testImageFieldDecoratorLifecycle()       { runFieldDecoratorLifecycle(fpId: fpImageField) }
     func testSignatureFieldDecoratorLifecycle()   { runFieldDecoratorLifecycle(fpId: fpSignatureField) }
     func testChartFieldDecoratorLifecycle()       { runFieldDecoratorLifecycle(fpId: fpChartField) }
