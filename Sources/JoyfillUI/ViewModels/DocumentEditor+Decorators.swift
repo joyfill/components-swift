@@ -739,7 +739,7 @@ private extension DocumentEditor {
     }
 }
 
-public struct DecoratorConfig {
+public struct DecoratorConfig: Equatable, Sendable {
     /// Maximum number of field-level decorators (`field.decorators`) shown
     /// inline next to the field title before the rest move into a kebab menu.
     public var visibleLimitInFields: Int

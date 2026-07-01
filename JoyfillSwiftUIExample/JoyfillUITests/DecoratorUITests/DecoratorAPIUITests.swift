@@ -27,11 +27,16 @@ private let l1Row1UnderRoot3 = "69e9b835b226373e47bf8f30"
 private let l2Row1           = "69e9b8384eb45bbdf1de3d97"
 private let cL2ColBarcode    = "69e8827e72fb2149cfd944a4"
 
-// Text field
-private let fpTextField = "6970918d350238d0738dd5c9"
-private let fpNumberField = "69709192a4e9c0c281851275"
-private let fpDateField = "6970919451f1adb30fcff9ea"
-private let fpDropdownField = "6970919a6ce635a6b14913ed"
+// Standalone field positions (page order)
+private let fpTextField        = "6970918d350238d0738dd5c9"
+private let fpNumberField      = "69709192a4e9c0c281851275"
+private let fpDateField        = "6970919451f1adb30fcff9ea"
+private let fpDropdownField    = "6970919a6ce635a6b14913ed"
+private let fpMultiSelectField = "6970919b1dae0701c3bc081a"
+private let fpTextareaField    = "6970926d749c733958ca8d87"
+private let fpImageField       = "699dc39215368dcda91a60a6"
+private let fpSignatureField   = "6a439422c1e81b1155bf7ad4"
+private let fpChartField       = "6a43942794934312822eed01"
 
 // MARK: - Decorator base (disables animations for all decorator tests)
 
@@ -77,6 +82,83 @@ final class DecoratorTextFieldAPIUITests: DecoratorAPIUITestsBase {
         S.run(S.removeCommand(path: fieldPath, action: "flag"), in: app)
         XCTAssertTrue(waitUntil(2) { !flag.exists })
     }
+}
+
+// MARK: - All standalone field types: full decorator lifecycle (add → update → tap → remove)
+
+final class DecoratorAllFieldTypesAPIUITests: DecoratorAPIUITestsBase {
+
+    override func getJSONFileNameForTest() -> String { "Decorator" }
+
+    @discardableResult
+    private func scrollUntilHittable(_ element: XCUIElement, maxSwipes: Int = 8) -> Bool {
+        if element.exists && element.isHittable { return true }
+        for _ in 0..<maxSwipes {
+            app.swipeUp()
+            spinRunloop(0.2)
+            if element.exists && element.isHittable { return true }
+        }
+        return element.exists && element.isHittable
+    }
+
+    private func runFieldDecoratorLifecycle(fpId: String,
+                                            file: StaticString = #file, line: UInt = #line) {
+        typealias S = DecoratorUITestSupport
+        let path = "\(pageID)/\(fpId)"
+        let flag = app.buttons[S.fieldDecoratorID(action: "flag")]
+
+        // add → appears with initial label
+        // S.run types into the bridge TextField, leaving the keyboard up; dismiss it
+        // so it doesn't cover the lower fields (e.g. chart, the last field on the page).
+        S.run(S.addCommand(path: path,
+                           decorators: [S.decorator(action: "flag", icon: "flag", label: "Flag")]),
+              in: app)
+        app.dismissKeyboardIfVisible()
+        XCTAssertTrue(scrollUntilHittable(flag),
+                      "flag decorator should appear and be hittable for fpId \(fpId)",
+                      file: file, line: line)
+        XCTAssertEqual(flag.label, "Flag", file: file, line: line)
+
+        // update → label changes
+        S.run(S.updateCommand(path: path, action: "flag",
+                              decorator: S.decorator(action: "flag", icon: "flag", label: "Done")),
+              in: app)
+        app.dismissKeyboardIfVisible()
+        XCTAssertTrue(waitUntil(2) { flag.label == "Done" },
+                      "decorator label should update to Done for fpId \(fpId)",
+                      file: file, line: line)
+
+        // tap → decorator-scoped focus event carries the field position
+        XCTAssertTrue(scrollUntilHittable(flag),
+                      "flag decorator should be hittable before tap for fpId \(fpId)",
+                      file: file, line: line)
+        flag.tap()
+        XCTAssertTrue(waitUntil(2) {
+            S.decoratorFocusEvent(action: "flag", in: self.focusBlurOptionalResults()) != nil
+        }, "tapping decorator should fire onFocus for fpId \(fpId)", file: file, line: line)
+        let fe = S.decoratorFocusEvent(action: "flag", in: focusBlurOptionalResults()) ?? [:]
+        XCTAssertEqual(fe["type"] as? String, "flag", file: file, line: line)
+        XCTAssertEqual(fe["target"] as? String, "flag", file: file, line: line)
+        XCTAssertEqual(fe["pageID"] as? String, pageID, file: file, line: line)
+        XCTAssertEqual(fe["fieldPositionId"] as? String, fpId, file: file, line: line)
+
+        // remove → disappears
+        S.run(S.removeCommand(path: path, action: "flag"), in: app)
+        XCTAssertTrue(waitUntil(2) { !flag.exists },
+                      "decorator should be removed for fpId \(fpId)", file: file, line: line)
+    }
+
+    func testNumberFieldDecoratorLifecycle()      { runFieldDecoratorLifecycle(fpId: fpNumberField) }
+    func testDateFieldDecoratorLifecycle()        { runFieldDecoratorLifecycle(fpId: fpDateField) }
+    func testDropdownFieldDecoratorLifecycle()    { runFieldDecoratorLifecycle(fpId: fpDropdownField) }
+    func testMultiSelectFieldDecoratorLifecycle() { runFieldDecoratorLifecycle(fpId: fpMultiSelectField) }
+    func testTextareaFieldDecoratorLifecycle()    { runFieldDecoratorLifecycle(fpId: fpTextareaField) }
+    // NOTE: Known pre-existing failure — left in for visibility, not a regression from this PR.
+    // The image-field decorator lifecycle isn't wired yet; re-enable once fixed.
+    func testImageFieldDecoratorLifecycle()       { runFieldDecoratorLifecycle(fpId: fpImageField) }
+    func testSignatureFieldDecoratorLifecycle()   { runFieldDecoratorLifecycle(fpId: fpSignatureField) }
+    func testChartFieldDecoratorLifecycle()       { runFieldDecoratorLifecycle(fpId: fpChartField) }
+    
 }
 
 // MARK: - Table (Common Row / Specific Row / Cell)
@@ -924,12 +1006,9 @@ final class RowFormReadonlyUITests: DecoratorAPIUITestsBase {
         XCTAssertTrue(waitUntil(3) { decoratorButton.exists && decoratorButton.isHittable },
                       "Cell decorator should be hittable inside readonly row form")
 
-        // Schema (Decorator.json table): text, dropdown, multiSelect, image, number,
-        // date, block, barcode, signature. Block has no editable identifier (omitted).
-        // Barcode uses TableBarcodeView which renders a static Text in readonly —
-        // checked via absence of the editable TextEditor below, like collection text.
+        XCTAssertFalse(app.textFields["EditRowsTextFieldIdentifier"].exists,
+                               "Text cell should not be an editable TextField in readonly row form")
         assertCellsNotTappable([
-            ("text",        app.textFields["EditRowsTextFieldIdentifier"]),
             ("dropdown",    app.buttons["EditRowsDropdownFieldIdentifier"]),
             ("multiSelect", app.buttons["EditRowsMultiSelecionFieldIdentifier"]),
             ("image",       app.buttons["EditRowsImageFieldIdentifier"]),

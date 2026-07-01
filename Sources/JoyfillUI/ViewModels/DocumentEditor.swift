@@ -42,6 +42,54 @@ public extension DocumentEditorDelegate {
     func decoratorsDidChange() {}
 }
 
+public struct PageConfig: Equatable, Sendable {
+    public var navigation: Bool          // was `navigation`
+    public var enableDuplicates: Bool    // was `isPageDuplicateEnabled`
+    public var enableDeletes: Bool       // was `isPageDeleteEnabled`
+    public var currentPageID: String?    // was `pageID`
+
+    public init(navigation: Bool = true,
+                enableDuplicates: Bool = false,
+                enableDeletes: Bool = false,
+                currentPageID: String? = nil) {
+        self.navigation = navigation
+        self.enableDuplicates = enableDuplicates
+        self.enableDeletes = enableDeletes
+        self.currentPageID = currentPageID
+    }
+}
+
+public struct DisplayConfig: Equatable, Sendable {
+    public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
+    public var decorators: DecoratorConfig      // was `decoratorConfig`
+
+    public init(singleClickRowEdit: Bool = false,
+                decorators: DecoratorConfig = DecoratorConfig()) {
+        self.singleClickRowEdit = singleClickRowEdit
+        self.decorators = decorators
+    }
+}
+
+public struct DocumentEditorConfig: Equatable, Sendable {
+    public var mode: Mode
+    public var license: String?
+    public var validateSchema: Bool
+    public var page: PageConfig
+    public var display: DisplayConfig
+
+    public init(mode: Mode = .fill,
+                license: String? = nil,
+                validateSchema: Bool = true,
+                page: PageConfig = .init(),
+                display: DisplayConfig = .init()) {
+        self.mode = mode
+        self.license = license
+        self.validateSchema = validateSchema
+        self.page = page
+        self.display = display
+    }
+}
+
 public class DocumentEditor: ObservableObject {
     private(set) public var document: JoyDoc
     public var schemaError: SchemaValidationError?
@@ -82,18 +130,10 @@ public class DocumentEditor: ObservableObject {
     internal var joyDocContext: JoyfillDocContext!
 
     public init(document: JoyDoc,
-                mode: Mode = .fill,
                 events: FormChangeEvent? = nil,
-                pageID: String? = nil,
-                navigation: Bool = true,
-                isPageDuplicateEnabled: Bool = false,
-                isPageDeleteEnabled: Bool = false,
-                validateSchema: Bool = true,
-                license: String? = nil,
-                singleClickRowEdit: Bool = false,
-                decoratorConfig: DecoratorConfig = DecoratorConfig()) {
+                config: DocumentEditorConfig = DocumentEditorConfig()) {
         // Perform schema validation first
-        if validateSchema {
+        if config.validateSchema {
             // Check for schema validation errors
             let schemaManager = JoyfillSchemaManager()
             if let schemaError = schemaManager.validateSchema(document: document) {
@@ -101,14 +141,14 @@ public class DocumentEditor: ObservableObject {
                 self.schemaError = schemaError
                 // Set empty document
                 self.document = JoyDoc()
-                self.mode = mode
-                self.isPageDuplicateEnabled = isPageDuplicateEnabled
-                self.isPageDeleteEnabled = isPageDeleteEnabled
-                self.showPageNavigationView = navigation
-                self.singleClickRowEdit = singleClickRowEdit
+                self.mode = config.mode
+                self.isPageDuplicateEnabled = config.page.enableDuplicates
+                self.isPageDeleteEnabled = config.page.enableDeletes
+                self.showPageNavigationView = config.page.navigation
+                self.singleClickRowEdit = config.display.singleClickRowEdit
                 self.currentPageID = ""
                 self.events = events
-                self.decoratorConfig = decoratorConfig
+                self.decoratorConfig = config.display.decorators
                 
                 // Trigger onError callback if events handler is available
                 events?.onError(error: .schemaValidationError(error: schemaError))
@@ -118,16 +158,16 @@ public class DocumentEditor: ObservableObject {
         
         // Schema validation passed - proceed with normal initialization
         self.document = document
-        self.mode = mode
-        self.isPageDuplicateEnabled = mode == .readonly ? false : isPageDuplicateEnabled
-        self.isPageDeleteEnabled = mode == .readonly ? false : isPageDeleteEnabled
-        self.showPageNavigationView = navigation
-        self.singleClickRowEdit = singleClickRowEdit
+        self.mode = config.mode
+        self.isPageDuplicateEnabled = config.mode == .readonly ? false : config.page.enableDuplicates
+        self.isPageDeleteEnabled = config.mode == .readonly ? false : config.page.enableDeletes
+        self.showPageNavigationView = config.page.navigation
+        self.singleClickRowEdit = config.display.singleClickRowEdit
         self.currentPageID = ""
         self.events = events
         // Set feature flags from license
-        self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: license)
-        self.decoratorConfig = decoratorConfig
+        self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: config.license)
+        self.decoratorConfig = config.display.decorators
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
@@ -145,6 +185,32 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
+    @available(*, deprecated, message: "Use init(document:events:config:) with DocumentEditorConfig instead.")
+    public convenience init(document: JoyDoc,
+                            mode: Mode = .fill,
+                            events: FormChangeEvent? = nil,
+                            pageID: String? = nil,
+                            navigation: Bool = true,
+                            isPageDuplicateEnabled: Bool = false,
+                            isPageDeleteEnabled: Bool = false,
+                            validateSchema: Bool = true,
+                            license: String? = nil,
+                            singleClickRowEdit: Bool = false,
+                            decoratorConfig: DecoratorConfig = DecoratorConfig()) {
+        self.init(document: document,
+                  events: events,
+                  config: DocumentEditorConfig(
+                    mode: mode,
+                    license: license,
+                    validateSchema: validateSchema,
+                    page: PageConfig(navigation: navigation,
+                                     enableDuplicates: isPageDuplicateEnabled,
+                                     enableDeletes: isPageDeleteEnabled,
+                                     currentPageID: pageID),
+                    display: DisplayConfig(singleClickRowEdit: singleClickRowEdit,
+                                           decorators: decoratorConfig)))
+    }
+
     public func registerDelegate(_ delegate: DocumentEditorDelegate, for fieldID: String) {
         delegateMap[fieldID] = WeakDocumentEditorDelegate(delegate)
     }
@@ -1147,7 +1213,17 @@ extension DocumentEditor {
                 let isReadonly = newFields[i].disabled == true
                 let isDisplayText = newFields[i].fieldType == .block
                 if isReadonly || isDisplayText { continue }
-                newFields[i].value = nil
+                // Table and collection fields mark `value` as required in the schema, so clearing
+                // them to nil (which drops the key) would fail validation. Empty them instead.
+                switch newFields[i].fieldType {
+                case .table:
+                    newFields[i].value = .valueElementArray([])
+                    newFields[i].rowOrder = []
+                case .collection:
+                    newFields[i].value = .valueElementArray([])
+                default:
+                    newFields[i].value = nil
+                }
             }
         }
 

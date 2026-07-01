@@ -115,7 +115,7 @@ public struct PageEvent {
     }
 }
 
-public enum Mode {
+public enum Mode: Equatable, Sendable {
     case fill
     case readonly
 }
