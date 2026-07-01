@@ -22,7 +22,7 @@ This will return `"joyfill"` by combining the two strings.
 ```
 concat("joy", " ", "fill", " ", "rocks")
 ```
-This will return `"joyfill rocks"` by combining all the strings.
+This will return `"joy fill rocks"` by combining all the strings.
 
 ### Intermediate Example
 ```
