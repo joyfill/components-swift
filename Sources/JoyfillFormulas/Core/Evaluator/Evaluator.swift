@@ -339,9 +339,13 @@ public class Evaluator {
         case .string(let s): return s
         case .boolean(let b): return String(b)
         case .date(let d):
-             let formatter = ISO8601DateFormatter()
-             formatter.formatOptions = [.withInternetDateTime] // Common format
-             return formatter.string(from: d)
+             // Render dates as epoch milliseconds for string concatenation
+             let millis = d.timeIntervalSince1970 * 1000.0
+             if millis.truncatingRemainder(dividingBy: 1) == 0 {
+                 return String(format: "%.0f", millis)
+             } else {
+                 return String(millis)
+             }
         case .array(let a): return "[" + a.map { stringify($0) }.joined(separator: ", ") + "]"
         case .dictionary(let d): 
              let pairs = d.map { key, value in "\"\(key)\": \(stringify(value))" }.sorted()

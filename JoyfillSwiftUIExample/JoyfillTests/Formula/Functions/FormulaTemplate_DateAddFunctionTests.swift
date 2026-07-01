@@ -122,11 +122,13 @@ class dateAddTests: XCTestCase {
     }
 
     /// Test: Advanced subscription - "Your subscription expires on " + dateAdd(subscriptionStartDate, 1, "years")
-    /// subscriptionStartDate is the ISO string "2023-01-01T00:00:00.000Z". extractDate() only parses
-    /// numeric strings, so dateAdd receives nil, the formula errors, and the field resolves to empty.
-    func testAdvancedSubscriptionWithISOStringIsEmpty() {
+    /// subscriptionStartDate is the ISO string "2023-01-01T00:00:00.000Z". Per the date spec, a string
+    /// input is parsed into a timestamp, so dateAdd adds one year and the date renders as epoch-millis.
+    func testAdvancedSubscriptionAddsYear() {
         let result = getFieldValue("advanced_example_subscription")
-        XCTAssertEqual(result, "", "ISO-string subscriptionStartDate is unparseable, so the formula resolves to empty")
+        let expectedMillis = Int64(adding(makeDate(2023, 1, 1), 1, .year).timeIntervalSince1970 * 1000.0)
+        XCTAssertEqual(result, "Your subscription expires on \(expectedMillis)",
+                       "ISO-string subscriptionStartDate is parsed, +1 year -> 2024-01-01 epoch-millis")
     }
 
     // MARK: - Dynamic Update Tests
