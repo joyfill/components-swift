@@ -51,12 +51,12 @@ class nowTests: XCTestCase {
         XCTAssertEqual(ms, nowMs, accuracy: toleranceMs, "now() should be the current epoch ms")
     }
 
-    /// Test: "Document created on: " + now() renders the prefix plus an ISO timestamp for today
+    /// Test: "Document created on: " + now() renders the prefix plus now() as an epoch-ms timestamp.
     func testTimestampText() {
         let result = getFieldValue("intermediate_example_timestamp")
         XCTAssertTrue(result.hasPrefix("Document created on: "), "Timestamp should have the prefix, got '\(result)'")
-        let currentYear = Calendar.current.component(.year, from: Date())
-        XCTAssertTrue(result.contains("\(currentYear)"), "Timestamp should contain the current year, got '\(result)'")
+        let suffix = String(result.dropFirst("Document created on: ".count))
+        XCTAssertNotNil(Double(suffix), "now() should render as an epoch-ms value in the concatenation, got '\(result)'")
     }
 
     /// Test: year(now()) returns the current year

@@ -54,6 +54,11 @@ class dateSubtractTests: XCTestCase {
         return String(date.timeIntervalSince1970 * 1000.0)
     }
 
+    /// Integer epoch-millis, matching how a date is rendered inside string concatenation ("+").
+    private func dateTextInt(_ date: Date) -> String {
+        return String(Int64(date.timeIntervalSince1970 * 1000.0))
+    }
+
     private func makeDate(_ year: Int, _ month: Int, _ day: Int) -> Date {
         return utcCalendar().date(from: DateComponents(year: year, month: month, day: day))!
     }
@@ -92,18 +97,20 @@ class dateSubtractTests: XCTestCase {
     }
 
     /// Test: Intermediate dateSubtract with field inputs - dateSubtract(startDate, durationValue, durationUnit)
-    /// startDate is the ISO string "2023-05-15T00:00:00.000Z". extractDate() only parses numeric
-    /// strings, so dateSubtract receives nil, the formula errors, and the field resolves to empty.
-    func testIntermediateDateSubtractFieldWithISOStringIsEmpty() {
+    /// startDate "2023-05-15T00:00:00.000Z" now parses; subtract 14 days -> 2023-05-01 epoch-millis.
+    func testIntermediateDateSubtractField() {
         let result = getFieldValue("intermediate_example_field")
-        XCTAssertEqual(result, "", "ISO-string startDate is unparseable, so the formula resolves to empty")
+        let expected = dateText(subtracting(makeDate(2023, 5, 15), 14, .day))
+        XCTAssertEqual(result, expected, "dateSubtract(startDate, 14, \"days\") -> 2023-05-01 epoch-millis")
     }
 
     /// Test: Advanced invoice check - if(dateSubtract(dueDate, 30, "days") < now(), ...)
-    /// dueDate is an ISO string, so dateSubtract errors and the whole comparison resolves to empty.
-    func testAdvancedInvoiceWithISOStringIsEmpty() {
+    /// dueDate 2023-08-15 minus 30 days = 2023-07-16, before now() -> "less than 30 days".
+    func testAdvancedInvoiceCheck() {
         let result = getFieldValue("advanced_example_invoice")
-        XCTAssertEqual(result, "", "ISO-string dueDate is unparseable, so the formula resolves to empty")
+        let dueMinus30 = subtracting(makeDate(2023, 8, 15), 30, .day)
+        let expected = dueMinus30 < Date() ? "Invoice is due in less than 30 days" : "Invoice due date is more than 30 days away"
+        XCTAssertEqual(result, expected, "dueDate minus 30 days compared against now()")
     }
 
     /// Test: Advanced planning check - if(month(dateSubtract(now(), 3, "months")) == 1, ...)
@@ -115,29 +122,35 @@ class dateSubtractTests: XCTestCase {
     }
 
     /// Test: Advanced deadline - "Planning must start by " + dateSubtract(projectDeadline, 3, "months")
-    /// projectDeadline is an ISO string, so dateSubtract errors and the concat resolves to empty.
-    func testAdvancedDeadlineWithISOStringIsEmpty() {
+    /// projectDeadline 2023-12-31 now parses; minus 3 months, rendered as epoch-millis in the concat.
+    func testAdvancedDeadline() {
         let result = getFieldValue("advanced_example_deadline")
-        XCTAssertEqual(result, "", "ISO-string projectDeadline is unparseable, so the formula resolves to empty")
+        let expected = "Planning must start by " + dateTextInt(subtracting(makeDate(2023, 12, 31), 3, .month))
+        XCTAssertEqual(result, expected, "deadline concat renders dateSubtract as epoch-millis")
     }
 
     // MARK: - Dynamic Update Tests
 
     /// Test: Mutating the duration drivers recomputes dateSubtract(startDate, durationValue, durationUnit).
-    /// startDate keeps its fixture ISO-string value (unparseable by extractDate), so the formula
-    /// recomputes on every update but stays empty regardless of the duration inputs.
+    /// startDate "2023-05-15" now parses, so the result tracks the duration inputs.
     func testDynamicUpdateDurationRecomputes() {
-        // Baseline: 14 days, but startDate ISO string is unparseable -> empty
-        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "Baseline is empty (ISO startDate)")
+        // Baseline: 14 days
+        XCTAssertEqual(getFieldValue("intermediate_example_field"),
+                       dateText(subtracting(makeDate(2023, 5, 15), 14, .day)),
+                       "Baseline subtracts 14 days")
 
-        // Update to 3 months -> still empty
+        // Update to 3 months
         updateNumberValue("durationValue", 3)
         updateStringValue("durationUnit", "months")
-        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "Recompute stays empty: ISO startDate is unparseable")
+        XCTAssertEqual(getFieldValue("intermediate_example_field"),
+                       dateText(subtracting(makeDate(2023, 5, 15), 3, .month)),
+                       "Updated drivers subtract 3 months")
 
-        // Update to 5 years -> still empty
+        // Update to 5 years
         updateNumberValue("durationValue", 5)
         updateStringValue("durationUnit", "years")
-        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "Recompute stays empty: ISO startDate is unparseable")
+        XCTAssertEqual(getFieldValue("intermediate_example_field"),
+                       dateText(subtracting(makeDate(2023, 5, 15), 5, .year)),
+                       "Updated drivers subtract 5 years")
     }
 }

@@ -35,7 +35,18 @@ class dayTests: XCTestCase {
     private func updateStringValue(_ fieldId: String, _ value: String) {
         documentEditor.updateValue(for: fieldId, value: .string(value))
     }
-    
+
+    // MARK: - Engine-mirroring helpers
+    // Per the date spec, ISO date strings now parse, so day() returns real values.
+    private func utcCalendar() -> Calendar { var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(secondsFromGMT: 0)!; return c }
+    private func parseISO(_ iso: String) -> Date {
+        let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]; return f.date(from: iso)!
+    }
+    private func dayOf(_ iso: String) -> Int { utcCalendar().component(.day, from: parseISO(iso)) }
+    private func monthOf(_ iso: String) -> Int { utcCalendar().component(.month, from: parseISO(iso)) }
+    private func yearOf(_ iso: String) -> Int { utcCalendar().component(.year, from: parseISO(iso)) }
+    private var todayUTC: DateComponents { utcCalendar().dateComponents([.day, .month, .year], from: Date()) }
+
     // MARK: - Static Tests: Basic day() Function
     
     /// Test: day(date(2023, 5, 15)) should return 15
@@ -55,32 +66,31 @@ class dayTests: XCTestCase {
         }
     }
     
-    /// Test: day(invoiceDate) where invoiceDate is the ISO string "2023-03-15T00:00:00.000Z".
-    /// extractDate() only parses numeric strings, so day() receives nil, errors, and the field is empty.
+    /// Test: day(invoiceDate) parses the ISO string "2023-03-15..." -> 15
     func testDayFromFieldReference() {
         let result = getFieldValue("intermediate_example_field")
-        XCTAssertEqual(result, "", "ISO-string invoiceDate is unparseable, so day(invoiceDate) resolves to empty")
+        XCTAssertEqual(result, String(dayOf("2023-03-15T00:00:00.000Z")), "day(invoiceDate) should parse the ISO string to 15")
     }
 
-    /// Test: if(day(sampleDate) <= 15, ...) where sampleDate is an ISO string.
-    /// day(sampleDate) errors, so the whole if resolves to empty.
+    /// Test: if(day(sampleDate) <= 15, ...) - sampleDate day is 20 -> "Second half of month"
     func testHalfMonthSecondHalf() {
         let result = getFieldValue("intermediate_example_half")
-        XCTAssertEqual(result, "", "ISO-string sampleDate is unparseable, so the formula resolves to empty")
+        XCTAssertEqual(result, "Second half of month", "sampleDate day 20 > 15 -> Second half of month")
     }
 
-    /// Test: if(day(dueDate) == day(now()) && ..., ...) where dueDate is an ISO string.
-    /// day(dueDate) errors, so the whole comparison resolves to empty.
+    /// Test: due today - dueDate is 2023-07-15; unless run on that exact day -> "Not due today"
     func testDueTodayCheck() {
         let result = getFieldValue("advanced_example_due")
-        XCTAssertEqual(result, "", "ISO-string dueDate is unparseable, so the formula resolves to empty")
+        let iso = "2023-07-15T00:00:00.000Z"
+        let t = todayUTC
+        let expected = (dayOf(iso) == t.day && monthOf(iso) == t.month && yearOf(iso) == t.year) ? "Due today!" : "Not due today"
+        XCTAssertEqual(result, expected, "dueDate 2023-07-15 compared against now()")
     }
 
-    /// Test: if(day(sampleDate) == 1, ...) where sampleDate is an ISO string.
-    /// day(sampleDate) errors, so the whole if resolves to empty.
+    /// Test: position - sampleDate day is 20 (not 1, not > 25) -> "Middle of month"
     func testPositionInMonth() {
         let result = getFieldValue("advanced_example_position")
-        XCTAssertEqual(result, "", "ISO-string sampleDate is unparseable, so the formula resolves to empty")
+        XCTAssertEqual(result, "Middle of month", "sampleDate day 20 -> Middle of month")
     }
 
     /// Test: if(day(now()) % 7 == 0, ...). day(now()) parses fine, but the % modulo operator
@@ -93,18 +103,17 @@ class dayTests: XCTestCase {
     // MARK: - Dynamic Update Tests
 
     /// Test: Mutating sampleDate recomputes if(day(sampleDate) <= 15, ...).
-    /// sampleDate stays an ISO string (unparseable by extractDate), so the formula recomputes
-    /// on every update but stays empty regardless of the date value.
+    /// ISO date strings now parse, so the branch tracks the day of month.
     func testDynamicUpdateSampleDateRecomputes() {
-        // Baseline: fixture ISO string -> empty
-        XCTAssertEqual(getFieldValue("intermediate_example_half"), "", "Baseline is empty (ISO sampleDate)")
+        // Baseline: sampleDate 2023-02-20 -> day 20 -> Second half
+        XCTAssertEqual(getFieldValue("intermediate_example_half"), "Second half of month", "Baseline: day 20 -> Second half")
 
-        // Update to a first-half ISO date -> still empty (ISO unparseable)
+        // First-half date
         updateStringValue("sampleDate", "2023-04-10T00:00:00.000Z")
-        XCTAssertEqual(getFieldValue("intermediate_example_half"), "", "Recompute stays empty: ISO sampleDate is unparseable")
+        XCTAssertEqual(getFieldValue("intermediate_example_half"), "First half of month", "day 10 -> First half of month")
 
-        // Update to a second-half ISO date -> still empty
+        // Second-half date
         updateStringValue("sampleDate", "2023-04-28T00:00:00.000Z")
-        XCTAssertEqual(getFieldValue("intermediate_example_half"), "", "Recompute stays empty: ISO sampleDate is unparseable")
+        XCTAssertEqual(getFieldValue("intermediate_example_half"), "Second half of month", "day 28 -> Second half of month")
     }
 }

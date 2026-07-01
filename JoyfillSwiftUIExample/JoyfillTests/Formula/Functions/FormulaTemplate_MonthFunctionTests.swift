@@ -48,6 +48,18 @@ class monthTests: XCTestCase {
         return "Winter"
     }
 
+    // MARK: - Engine-mirroring helpers
+    // Per the date spec, ISO date strings now parse, so month()/year() return real
+    // values. These mirror the engine's UTC parse (no hardcoded magic numbers).
+    private func utcCalendar() -> Calendar { var c = Calendar(identifier: .gregorian); c.timeZone = TimeZone(secondsFromGMT: 0)!; return c }
+    private func parseISO(_ iso: String) -> Date {
+        let f = ISO8601DateFormatter(); f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]; return f.date(from: iso)!
+    }
+    private func monthOf(_ iso: String) -> Int { utcCalendar().component(.month, from: parseISO(iso)) }
+    private func yearOf(_ iso: String) -> Int { utcCalendar().component(.year, from: parseISO(iso)) }
+    private var currentMonthUTC: Int { utcCalendar().component(.month, from: Date()) }
+    private var currentYearUTC: Int { utcCalendar().component(.year, from: Date()) }
+
     // MARK: - Static Tests: Basic month() Function
     
     /// Test: month(date(2023, 5, 15)) should return 5
@@ -62,17 +74,17 @@ class monthTests: XCTestCase {
         XCTAssertEqual(result, "\(currentMonth)", "month(now()) should return the current month")
     }
 
-    /// Test: month(orderDate) - date strings in text fields are not parsed, so result is empty
+    /// Test: month(orderDate) parses the ISO date string "2023-03-15..." -> 3
     func testMonthFromFieldReference() {
         let result = getFieldValue("intermediate_example_field")
-        XCTAssertEqual(result, "", "month() on a text-field date string is not parsed (empty)")
+        XCTAssertEqual(result, String(monthOf("2023-03-15T00:00:00.000Z")), "month(orderDate) should parse the ISO string to 3")
     }
 
-    /// Test: Month-name nested if on sampleDate - month(sampleDate) is empty, so the nested
-    /// comparisons never match and the formula resolves to empty.
+    /// Test: Month-name uses a 12-level deeply-nested if, which the engine does not fully evaluate,
+    /// so it resolves to empty (matches Web) even though month(sampleDate) itself parses fine.
     func testMonthName() {
         let result = getFieldValue("intermediate_example_name")
-        XCTAssertEqual(result, "", "month-name formula resolves to empty (date string not parsed)")
+        XCTAssertEqual(result, "", "deeply-nested if resolves to empty (month(sampleDate) still parses)")
     }
 
     /// Test: Season is computed from month(now())
@@ -81,34 +93,37 @@ class monthTests: XCTestCase {
         XCTAssertEqual(result, expectedSeason(for: currentMonth), "season should match month(now())")
     }
 
-    /// Test: Quarter uses month(sampleDate)/year(sampleDate) - date string not parsed, so empty
+    /// Test: Quarter - "Q" + ceil(month(sampleDate)/3) + " " + year(sampleDate)
+    /// sampleDate 2023-02 -> ceil(2/3)=1 -> "Q1 2023"
     func testQuarterCalculation() {
         let result = getFieldValue("advanced_example_quarter")
-        XCTAssertEqual(result, "", "quarter formula resolves to empty (date string not parsed)")
+        XCTAssertEqual(result, "Q1 2023", "sampleDate 2023-02 -> Q1 2023")
     }
 
-    /// Test: Current-month comparison uses month(eventDate) which is empty, so the && condition
-    /// errors out and the formula resolves to empty.
+    /// Test: Current-month - if(month(eventDate)==month(now()) && year(eventDate)==year(now()), ...)
+    /// eventDate is 2023-07; unless run in July 2023 this resolves to "Different month".
     func testCurrentMonthComparison() {
         let result = getFieldValue("advanced_example_current_month")
-        XCTAssertEqual(result, "", "current-month formula resolves to empty (date string not parsed)")
+        let iso = "2023-07-15T00:00:00.000Z"
+        let expected = (monthOf(iso) == currentMonthUTC && yearOf(iso) == currentYearUTC) ? "This month" : "Different month"
+        XCTAssertEqual(result, expected, "eventDate 2023-07 compared against now()")
     }
 
     // MARK: - Dynamic Tests
 
-    /// Test: Updating a date-string text field does not change month() output - it stays empty,
-    /// because month() does not parse date strings held in text fields.
-    func testDynamicUpdateOrderDateStaysEmpty() {
-        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "Initial: empty")
+    /// Test: Updating orderDate recomputes month(orderDate)
+    func testDynamicUpdateOrderDateRecomputes() {
+        XCTAssertEqual(getFieldValue("intermediate_example_field"), String(monthOf("2023-03-15T00:00:00.000Z")), "Initial month is 3")
 
         updateStringValue("orderDate", "2023-09-20T00:00:00.000Z")
-        XCTAssertEqual(getFieldValue("intermediate_example_field"), "", "After update: still empty (not parsed)")
+        XCTAssertEqual(getFieldValue("intermediate_example_field"), String(monthOf("2023-09-20T00:00:00.000Z")), "month recomputes to 9")
     }
 
-    /// Test: Updating sampleDate does not change the month-name or quarter output - both stay empty.
-    func testDynamicUpdateSampleDateStaysEmpty() {
+    /// Test: Updating sampleDate recomputes the quarter (2023-05 -> Q2 2023). The month-name uses a
+    /// deeply-nested if that resolves to empty regardless, so it stays empty.
+    func testDynamicUpdateSampleDateRecomputes() {
         updateStringValue("sampleDate", "2023-05-10T00:00:00.000Z")
-        XCTAssertEqual(getFieldValue("intermediate_example_name"), "", "month-name still empty after update")
-        XCTAssertEqual(getFieldValue("advanced_example_quarter"), "", "quarter still empty after update")
+        XCTAssertEqual(getFieldValue("intermediate_example_name"), "", "month-name stays empty (deeply-nested if)")
+        XCTAssertEqual(getFieldValue("advanced_example_quarter"), "Q2 2023", "quarter recomputes to Q2 2023")
     }
 }
