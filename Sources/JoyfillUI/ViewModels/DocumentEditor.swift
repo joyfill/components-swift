@@ -180,7 +180,7 @@ public class DocumentEditor: ObservableObject {
             updatePageFieldModels(page, pageID, fileID)
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
-        self.currentPageID = document.firstValidPageID(for: pageID, conditionalLogicHandler: conditionalLogicHandler)
+        self.currentPageID = document.firstValidPageID(for: currentPageID, conditionalLogicHandler: conditionalLogicHandler)
         self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
