@@ -110,8 +110,10 @@ public class Evaluator {
                 return .failure(.typeMismatch(expected: "Integer for array index", actual: typeDescription(indexValue)))
             }
             
-            let index = Int(indexNumber)
-            
+            guard let index = indexNumber.safeInt else {
+                return .failure(.invalidArguments(function: "arrayAccess", reason: "Array index out of bounds: \(indexNumber)"))
+            }
+
             switch arrayValue {
             case .array(let array):
                 guard index >= 0 && index < array.count else {

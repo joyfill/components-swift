@@ -176,11 +176,16 @@ public struct DateFunctions {
             return .failure(.typeMismatch(expected: "Number for day", actual: "Argument 3: \(typeDescription(dayValue))"))
         }
         
+        // Out-of-range year/month/day -> invalid date
+        guard let yearInt = year.safeInt, let monthInt = month.safeInt, let dayInt = day.safeInt else {
+            return .failure(.unknownError("Invalid date: year=\(year), month=\(month), day=\(day)"))
+        }
+
         // Create date components using UTC calendar
         var components = DateComponents()
-        components.year = Int(year)
-        components.month = Int(month)
-        components.day = Int(day)
+        components.year = yearInt
+        components.month = monthInt
+        components.day = dayInt
         
         // Create date using UTC calendar
         let calendar = utcCalendar
@@ -225,9 +230,14 @@ public struct DateFunctions {
             return .success(.number(0))
         }
 
+        // Amount out of Int range -> invalid timestamp (0)
+        guard let intAmount = amount.safeInt else {
+            return .success(.number(0))
+        }
+
         // Add to date using UTC calendar; a failed computation -> 0
         let calendar = utcCalendar
-        guard let newDate = calendar.date(byAdding: component, value: Int(amount), to: date) else {
+        guard let newDate = calendar.date(byAdding: component, value: intAmount, to: date) else {
             return .success(.number(0))
         }
 
@@ -268,9 +278,14 @@ public struct DateFunctions {
             return .failure(.invalidArguments(function: "DATESUBTRACT", reason: "Invalid unit: \(unitString). Valid units are: 'years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'"))
         }
         
+        // Amount out of Int range -> invalid timestamp (0)
+        guard let intAmount = amount.safeInt else {
+            return .success(.number(0))
+        }
+
         // Subtract from date (add negative amount) using UTC calendar
         let calendar = utcCalendar
-        guard let newDate = calendar.date(byAdding: component, value: -Int(amount), to: date) else {
+        guard let newDate = calendar.date(byAdding: component, value: -intAmount, to: date) else {
             return .failure(.unknownError("Failed to subtract \(amount) \(unitString) from date: \(date)"))
         }
         

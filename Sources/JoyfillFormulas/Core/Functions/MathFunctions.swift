@@ -99,7 +99,12 @@ public struct MathFunctions {
                 return .failure(.typeMismatch(expected: "Number for digits", actual: "Argument 2: \(typeDescription(digitsValue))"))
             }
             
-            digits = Int(digitsDouble)
+            // digits beyond Int range: huge positive -> no effective rounding;
+            // huge negative -> round to nearest integer
+            guard let d = digitsDouble.safeInt else {
+                return .success(.number(digitsDouble > 0 ? number : Foundation.round(number)))
+            }
+            digits = d
         }
         
         // Perform rounding based on digits

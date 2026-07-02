@@ -446,7 +446,12 @@ public struct ArrayFunctions {
                 return .failure(.typeMismatch(expected: "Number", actual: "Argument 2: \(typeDescription(depthValue))"))
             }
             
-            depth = max(0, Int(depthNum))
+            // depth beyond Int range: huge positive -> flatten fully; negative -> no flatten
+            if let d = depthNum.safeInt {
+                depth = max(0, d)
+            } else {
+                depth = depthNum > 0 ? Int.max : 0
+            }
         }
         
         return .success(.array(flattenArray(array, depth: depth)))
