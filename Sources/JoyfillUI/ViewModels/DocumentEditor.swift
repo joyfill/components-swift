@@ -70,14 +70,16 @@ public struct DisplayConfig: Equatable, Sendable {
     }
 }
 
-public struct DocumentEditorConfig: Equatable, Sendable {
+public struct DocumentEditorConfig {
     public var mode: Mode
     public var license: String?
     public var validateSchema: Bool
     public var page: PageConfig
     public var display: DisplayConfig
+    public var events: FormChangeEvent?
 
     public init(mode: Mode = .fill,
+                events: FormChangeEvent? = nil,
                 license: String? = nil,
                 validateSchema: Bool = true,
                 page: PageConfig = .init(),
@@ -87,6 +89,7 @@ public struct DocumentEditorConfig: Equatable, Sendable {
         self.validateSchema = validateSchema
         self.page = page
         self.display = display
+        self.events = events
     }
 }
 
@@ -130,7 +133,6 @@ public class DocumentEditor: ObservableObject {
     internal var joyDocContext: JoyfillDocContext!
 
     public init(document: JoyDoc,
-                events: FormChangeEvent? = nil,
                 config: DocumentEditorConfig = DocumentEditorConfig()) {
         // Perform schema validation first
         if config.validateSchema {
@@ -147,11 +149,11 @@ public class DocumentEditor: ObservableObject {
                 self.showPageNavigationView = config.page.navigation
                 self.singleClickRowEdit = config.display.singleClickRowEdit
                 self.currentPageID = ""
-                self.events = events
+                self.events = config.events
                 self.decoratorConfig = config.display.decorators
                 
                 // Trigger onError callback if events handler is available
-                events?.onError(error: .schemaValidationError(error: schemaError))
+                config.events?.onError(error: .schemaValidationError(error: schemaError))
                 return
             }
         }
@@ -164,7 +166,7 @@ public class DocumentEditor: ObservableObject {
         self.showPageNavigationView = config.page.navigation
         self.singleClickRowEdit = config.display.singleClickRowEdit
         self.currentPageID = ""
-        self.events = events
+        self.events = config.events
         // Set feature flags from license
         self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: config.license)
         self.decoratorConfig = config.display.decorators
@@ -185,7 +187,7 @@ public class DocumentEditor: ObservableObject {
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
-    @available(*, deprecated, message: "Use init(document:events:config:) with DocumentEditorConfig instead.")
+    @available(*, deprecated, message: "Use init(document:config:) with DocumentEditorConfig instead.")
     public convenience init(document: JoyDoc,
                             mode: Mode = .fill,
                             events: FormChangeEvent? = nil,
@@ -198,9 +200,9 @@ public class DocumentEditor: ObservableObject {
                             singleClickRowEdit: Bool = false,
                             decoratorConfig: DecoratorConfig = DecoratorConfig()) {
         self.init(document: document,
-                  events: events,
                   config: DocumentEditorConfig(
                     mode: mode,
+                    events: events,
                     license: license,
                     validateSchema: validateSchema,
                     page: PageConfig(navigation: navigation,
