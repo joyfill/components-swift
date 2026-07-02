@@ -2595,26 +2595,56 @@ public var joyfillSchema = """
         ]
       },
       "SchemaLogicCondition": {
-        "type": "object",
-        "properties": {
-          "_id": {
-            "type": "string"
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "schema": {
+                "type": "string"
+              },
+              "column": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "string"
+              },
+              "value": {}
+            },
+            "required": [
+              "schema",
+              "column",
+              "condition"
+            ]
           },
-          "schema": {
-            "type": "string"
-          },
-          "column": {
-            "type": "string"
-          },
-          "condition": {
-            "type": "string"
-          },
-          "value": {}
-        },
-        "required": [
-          "schema",
-          "column",
-          "condition"
+          {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "file": {
+                "type": "string"
+              },
+              "page": {
+                "type": "string"
+              },
+              "field": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "string"
+              },
+              "value": {}
+            },
+            "required": [
+              "file",
+              "field",
+              "condition"
+            ]
+          }
         ]
       },
       "CollectionItem": {
@@ -2825,7 +2855,7 @@ public var joyfillSchema = """
         ]
       }
     },
-    "$joyfillSchemaVersion": "1.0.4"
+    "$joyfillSchemaVersion": "1.0.5"
   }
 
 """
