@@ -374,6 +374,99 @@ final class SchemaValidationTests: XCTestCase {
             XCTAssertNil(err, "ChartPoint with \(label) should validate against the relaxed schema")
         }
     }
+
+    // MARK: - Schema 1.0.5: SchemaLogicCondition oneOf (collection vs field form)
+
+    /// Builds a valid document whose collection field carries a `SchemaDefinition.logic`
+    /// with a single `SchemaLogicCondition` equal to `condition`, so the `oneOf`
+    /// definition at `SchemaLogicCondition` is actually exercised.
+    private func documentWithSchemaLogicCondition(_ condition: [String: Any]) -> JoyDoc {
+        var docDict = minimalValidDocumentDictionary()
+        let collectionField: [String: Any] = [
+            "_id": "collection1",
+            "type": "collection",
+            "file": "file1",
+            "value": [],
+            "schema": [
+                "schema1": [
+                    "root": true,
+                    "tableColumns": [],
+                    "logic": [
+                        "action": "show",
+                        "eval": "and",
+                        "conditions": [condition]
+                    ]
+                ]
+            ]
+        ]
+        docDict["fields"] = [collectionField]
+        return JoyDoc(dictionary: docDict)
+    }
+
+    // (b) Collection form (schema/column/condition) still validates — regression guard.
+    func testSchemaLogicCondition_CollectionForm_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "schema": "schema1",
+            "column": "col1",
+            "condition": "=",
+            "value": "foo"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
+        XCTAssertNil(err, "Collection-form SchemaLogicCondition (schema/column/condition) should validate")
+    }
+
+    // (a) New field form (file/field/condition) validates.
+    func testSchemaLogicCondition_FieldForm_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "field": "field1",
+            "condition": "=",
+            "value": "foo"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
+        XCTAssertNil(err, "Field-form SchemaLogicCondition (file/field/condition) should validate")
+    }
+
+    // (a') Field form with optional `page` omitted still validates.
+    func testSchemaLogicCondition_FieldForm_WithoutOptionalPage_ShouldValidate() {
+        let condition: [String: Any] = [
+            "file": "file1",
+            "field": "field1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
+        XCTAssertNil(err, "Field-form condition without optional `page` should validate")
+    }
+
+    // (c) A mixed object matches BOTH oneOf branches → exactly-one semantics must reject it.
+    func testSchemaLogicCondition_MixedForm_ShouldFail() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "schema": "schema1",
+            "column": "col1",
+            "file": "file1",
+            "field": "field1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "A condition satisfying both oneOf branches must fail (oneOf = exactly one)")
+        XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
+
+    // (d) An object matching neither branch (missing required keys) must fail.
+    func testSchemaLogicCondition_MissingRequiredKeys_ShouldFail() {
+        // Only `field` present: satisfies neither the collection form (needs schema/column)
+        // nor the field form (needs file + condition).
+        let condition: [String: Any] = [
+            "field": "field1"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "A condition matching neither oneOf branch must fail")
+        XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
 }
 
 private class MockFormChangeEvent: FormChangeEvent {
