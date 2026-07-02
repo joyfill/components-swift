@@ -42,24 +42,33 @@ public struct DateFunctions {
         }
     }
 
+    private static let isoFractionalFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static let dateOnlyFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
     /// Parses common date string formats (ISO 8601 with/without fractional
     /// seconds, and date-only "yyyy-MM-dd"). Returns nil if unparseable.
     private static func parseDateString(_ str: String) -> Date? {
-        let isoFractional = ISO8601DateFormatter()
-        isoFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = isoFractional.date(from: str) { return date }
-
-        let iso = ISO8601DateFormatter()
-        iso.formatOptions = [.withInternetDateTime]
-        if let date = iso.date(from: str) { return date }
-
-        let dateOnly = DateFormatter()
-        dateOnly.calendar = Calendar(identifier: .gregorian)
-        dateOnly.timeZone = TimeZone(secondsFromGMT: 0)
-        dateOnly.locale = Locale(identifier: "en_US_POSIX")
-        dateOnly.dateFormat = "yyyy-MM-dd"
-        if let date = dateOnly.date(from: str) { return date }
-
+        if let date = isoFractionalFormatter.date(from: str) { return date }
+        if let date = isoFormatter.date(from: str) { return date }
+        if let date = dateOnlyFormatter.date(from: str) { return date }
         return nil
     }
     
