@@ -211,8 +211,7 @@ final class DocumentEditorConfigTests: XCTestCase {
     func testConfigInit_validateSchemaTrue_invalidDoc_setsErrorAndFiresOnError() {
         let events = MockFormChangeEvent()
         let editor = DocumentEditor(document: invalidDocument(),
-                                    events: events,
-                                    config: DocumentEditorConfig(validateSchema: true))
+                                    config: DocumentEditorConfig(events: events, validateSchema: true))
 
         XCTAssertNotNil(editor.schemaError)
         XCTAssertEqual(editor.schemaError?.code, "ERROR_SCHEMA_VALIDATION")
@@ -229,8 +228,7 @@ final class DocumentEditorConfigTests: XCTestCase {
     func testConfigInit_validateSchemaFalse_invalidDoc_skipsValidation() {
         let events = MockFormChangeEvent()
         let editor = DocumentEditor(document: invalidDocument(),
-                                    events: events,
-                                    config: DocumentEditorConfig(validateSchema: false))
+                                    config: DocumentEditorConfig(events: events, validateSchema: false))
 
         XCTAssertNil(editor.schemaError)
         XCTAssertFalse(events.didReceiveError)
@@ -268,8 +266,7 @@ final class DocumentEditorConfigTests: XCTestCase {
     func testConfigInit_eventsArePassedThrough() {
         let events = MockFormChangeEvent()
         let editor = DocumentEditor(document: JoyDoc(),
-                                    events: events,
-                                    config: DocumentEditorConfig(validateSchema: false))
+                                    config: DocumentEditorConfig(events: events, validateSchema: false))
 
         XCTAssertNotNil(editor.events)
         XCTAssertTrue((editor.events as AnyObject) === events)
