@@ -1,0 +1,304 @@
+{
+  "_id": "691acd933d90ecfb16a51b74",
+  "identifier": "document-countif-function-test",
+  "name": "CountIf Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd49ff",
+      "name": "CountIf Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903814",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731266e",
+              "field": "basic_example",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfa5",
+              "field": "selectedOptions",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe519",
+              "field": "intermediate_example_yes",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfa6",
+              "field": "productCategories",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe51a",
+              "field": "intermediate_example_electronics",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfa7",
+              "field": "responses",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d963",
+              "field": "advanced_example_feedback",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfa8",
+              "field": "answers",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d964",
+              "field": "advanced_example_percentage",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903814"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example",
+      "title": "Basic Example: countIf([\"joy\", \"Joyfill\", \"hello\"], \"joy\")",
+      "identifier": "field-basic-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3087",
+          "formula": "691acd93bab5a640f289ddbc",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff"
+    },
+    {
+      "_id": "selectedOptions",
+      "title": "Selected Options",
+      "identifier": "field-selected-options",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff",
+      "value": "[\"Yes\", \"No\", \"Yes\", \"Maybe\", \"Yes\"]"
+    },
+    {
+      "_id": "intermediate_example_yes",
+      "title": "Intermediate Example (Yes): countIf(selectedOptions, \"Yes\")",
+      "identifier": "field-intermediate-example-yes",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a2b",
+          "formula": "691acd93f6346774b0b9d06f",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff"
+    },
+    {
+      "_id": "productCategories",
+      "title": "Product Categories",
+      "identifier": "field-product-categories",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff",
+      "value": "[\"electronics - smartphones\", \"clothing\", \"electronics - laptops\", \"home goods\", \"electronics - accessories\"]"
+    },
+    {
+      "_id": "intermediate_example_electronics",
+      "title": "Intermediate Example (Electronics): countIf(productCategories, \"electronics\")",
+      "identifier": "field-intermediate-example-electronics",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a2c",
+          "formula": "691acd93f6346774b0b9d070",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff"
+    },
+    {
+      "_id": "responses",
+      "title": "Survey Responses",
+      "identifier": "field-responses",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff",
+      "value": "[\"Positive\", \"Negative\", \"Positive\", \"Neutral\", \"Positive\", \"Negative\"]"
+    },
+    {
+      "_id": "advanced_example_feedback",
+      "title": "Advanced Example (Feedback): if(countIf(responses, \"Positive\") > countIf(responses, \"Negative\"), \"Overall Positive Feedback\", \"Needs Improvement\")",
+      "identifier": "field-advanced-example-feedback",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae5",
+          "formula": "691acd93f033ed54812dc63b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff"
+    },
+    {
+      "_id": "answers",
+      "title": "Test Answers",
+      "identifier": "field-answers",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff",
+      "value": "[\"Correct\", \"Incorrect\", \"Correct\", \"Correct\", \"Incorrect\", \"Correct\", \"Correct\", \"Incorrect\", \"Correct\", \"Correct\"]"
+    },
+    {
+      "_id": "advanced_example_percentage",
+      "title": "Advanced Example (Percentage): (countIf(answers, \"Correct\") / length(answers)) * 100",
+      "identifier": "field-advanced-example-percentage",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ae6",
+          "formula": "691acd93f033ed54812dc63c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd49ff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243736,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddbc",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "countIf([\"joy\", \"Joyfill\", \"hello\"], \"joy\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d06f",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "countIf(selectedOptions, \"Yes\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d070",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "countIf(productCategories, \"electronics\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc63b",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(countIf(responses, \"Positive\") > countIf(responses, \"Negative\"), \"Overall Positive Feedback\", \"Needs Improvement\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc63c",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "(countIf(answers, \"Correct\") / length(answers)) * 100"
+    }
+  ]
+}

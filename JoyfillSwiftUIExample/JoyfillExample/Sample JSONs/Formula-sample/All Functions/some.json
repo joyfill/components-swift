@@ -1,0 +1,397 @@
+{
+  "_id": "691acd933d90ecfb16a51b84",
+  "identifier": "document-some-function-test",
+  "name": "Some Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd5009",
+      "name": "Some Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90381a",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab70731268e",
+              "field": "basic_example_true",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab70731268f",
+              "field": "basic_example_false",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfe4",
+              "field": "products",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe53a",
+              "field": "intermediate_example_products",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfe5",
+              "field": "numbers_with_indices",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe53b",
+              "field": "intermediate_example_indices",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfe6",
+              "field": "departments",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d98e",
+              "field": "advanced_example_nested",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfe7",
+              "field": "data_points",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d98f",
+              "field": "advanced_example_error_detection",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfe8",
+              "field": "electronics",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d990",
+              "field": "advanced_example_combined",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90381a"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_true",
+      "title": "Basic Example (True): some([2, 5, 12, 8], (num) -> num > 10)",
+      "identifier": "field-basic-example-true",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b30a7",
+          "formula": "691acd93bab5a640f289dddc",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    },
+    {
+      "_id": "basic_example_false",
+      "title": "Basic Example (False): some([2, 5, 8, 9], (num) -> num > 10)",
+      "identifier": "field-basic-example-false",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b30a8",
+          "formula": "691acd93bab5a640f289dddd",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    },
+    {
+      "_id": "products",
+      "title": "Products",
+      "identifier": "field-products",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009",
+      "value": "[{\"name\": \"Laptop\", \"price\": 999, \"inStock\": true}, {\"name\": \"Phone\", \"price\": 699, \"inStock\": true}, {\"name\": \"Mouse\", \"price\": 25, \"inStock\": false}, {\"name\": \"Keyboard\", \"price\": 45, \"inStock\": true}]"
+    },
+    {
+      "_id": "intermediate_example_products",
+      "title": "Intermediate Example (Products): some(products, (product) -> !product.inStock)",
+      "identifier": "field-intermediate-example-products",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a4c",
+          "formula": "691acd93f6346774b0b9d090",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    },
+    {
+      "_id": "numbers_with_indices",
+      "title": "Numbers with Indices",
+      "identifier": "field-numbers-with-indices",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009",
+      "value": "[5, 25, 10, 30, 15, 35]"
+    },
+    {
+      "_id": "intermediate_example_indices",
+      "title": "Intermediate Example (Indices): some(numbers_with_indices, (num, index) -> mod(index, 2) == 1 && num > 20)",
+      "identifier": "field-intermediate-example-indices",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a4d",
+          "formula": "691acd93f6346774b0b9d091",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    },
+    {
+      "_id": "departments",
+      "title": "Departments",
+      "identifier": "field-departments",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009",
+      "value": "[{\"name\": \"Engineering\", \"employees\": [{\"name\": \"Alice\", \"salary\": 75000}, {\"name\": \"Bob\", \"salary\": 45000}]}, {\"name\": \"Marketing\", \"employees\": [{\"name\": \"Charlie\", \"salary\": 40000}, {\"name\": \"Diana\", \"salary\": 60000}]}, {\"name\": \"Sales\", \"employees\": [{\"name\": \"Eve\", \"salary\": 35000}, {\"name\": \"Frank\", \"salary\": 28000}]}]"
+    },
+    {
+      "_id": "advanced_example_nested",
+      "title": "Advanced Example (Nested): some(departments, (dept) -> some(dept.employees, (emp) -> emp.salary > 70000))",
+      "identifier": "field-advanced-example-nested",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b10",
+          "formula": "691acd93f033ed54812dc666",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    },
+    {
+      "_id": "data_points",
+      "title": "Data Points",
+      "identifier": "field-data-points",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009",
+      "value": "[{\"id\": 1, \"value\": 10, \"label\": \"Point A\", \"hasError\": false}, {\"id\": 2, \"value\": -5, \"label\": \"Point B\", \"hasError\": false}, {\"id\": 3, \"value\": 15, \"label\": \"\", \"hasError\": false}, {\"id\": 4, \"value\": 20, \"label\": \"Point D\", \"hasError\": true}]"
+    },
+    {
+      "_id": "advanced_example_error_detection",
+      "title": "Advanced Example (Error Detection): some(data_points, (point) -> point.hasError || point.value < 0 || empty(point.label))",
+      "identifier": "field-advanced-example-error-detection",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b11",
+          "formula": "691acd93f033ed54812dc667",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    },
+    {
+      "_id": "electronics",
+      "title": "Electronics",
+      "identifier": "field-electronics",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009",
+      "value": "[{\"name\": \"Laptop\", \"category\": \"Electronics\", \"price\": 999}, {\"name\": \"Phone\", \"category\": \"Electronics\", \"price\": 699}, {\"name\": \"Headphones\", \"category\": \"Electronics\", \"price\": 45}, {\"name\": \"Mouse\", \"category\": \"Accessories\", \"price\": 25}]"
+    },
+    {
+      "_id": "advanced_example_combined",
+      "title": "Advanced Example (Combined): some(filter(electronics, (product) -> product.category == \"Electronics\"), (product) -> product.price < 50)",
+      "identifier": "field-advanced-example-combined",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522b12",
+          "formula": "691acd93f033ed54812dc668",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd5009"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243747,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dddc",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some([2, 5, 12, 8], (num) -> num > 10)"
+    },
+    {
+      "_id": "691acd93bab5a640f289dddd",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some([2, 5, 8, 9], (num) -> num > 10)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d090",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some(products, (product) -> !product.inStock)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d091",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some(numbers_with_indices, (num, index) -> mod(index, 2) == 1 && num > 20)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc666",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some(departments, (dept) -> some(dept.employees, (emp) -> emp.salary > 70000))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc667",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some(data_points, (point) -> point.hasError || point.value < 0 || empty(point.label))"
+    },
+    {
+      "_id": "691acd93f033ed54812dc668",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "some(filter(electronics, (product) -> product.category == \"Electronics\"), (product) -> product.price < 50)"
+    }
+  ]
+}

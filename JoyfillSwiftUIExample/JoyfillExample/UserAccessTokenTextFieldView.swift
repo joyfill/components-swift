@@ -501,11 +501,13 @@ struct OptionSelectionView: View {
         case imageReplacementTest
         case liveViewTest
         case allFormulaJSONs
+        case formulaFunctionTests
         case tenKRowsCollection
         case schemaValidationExampleView
         case oChangeHandlerTest
         case manipulateDataOnChangeView
         case createRowUISample
+        case failureCaptureDemo
         case metadataChangeAPIDemo
         case decoratorAPIDemo
         case decoratorRowUpdateDemo
@@ -529,6 +531,8 @@ struct OptionSelectionView: View {
                 return "Formulas"
             case .allFormulaJSONs:
                 return "All Formula JSONs"
+            case .formulaFunctionTests:
+                return "Formula Function Tests"
             case .tenKRowsCollection:
                 return "10k Rows Collection"
             case .schemaValidationExampleView:
@@ -539,6 +543,8 @@ struct OptionSelectionView: View {
                 return "Change Handler Test"
             case .createRowUISample:
                 return "Create Row UI Sample"
+            case .failureCaptureDemo:
+                return "Failure Capture Demo"
             case .metadataChangeAPIDemo:
                 return "Metadata Change API Demo"
             case .decoratorAPIDemo:
@@ -570,6 +576,8 @@ struct OptionSelectionView: View {
                 return "Test formula calculations and expressions"
             case .allFormulaJSONs:
                 return "Test formula calculations and expressions"
+            case .formulaFunctionTests:
+                return "Test individual formula functions (if, sum, etc.)"
             case .tenKRowsCollection:
                 return "Open heavy sample JSON with 10k rows to stress test"
             case .schemaValidationExampleView:
@@ -580,6 +588,8 @@ struct OptionSelectionView: View {
                 return "Test change event handling and validation workflows"
             case .createRowUISample:
                 return "Create a row UI sample"
+            case .failureCaptureDemo:
+                return "Capture deficiency details when failure options are selected"
             case .metadataChangeAPIDemo:
                 return "Set field and row metadata via Change API (field.update, rowCreate, rowUpdate)"
             case .decoratorAPIDemo:
@@ -611,6 +621,8 @@ struct OptionSelectionView: View {
                 return "function"
             case .allFormulaJSONs:
                 return "function"
+            case .formulaFunctionTests:
+                return "f.cursive"
             case .tenKRowsCollection:
                 return "square.grid.3x3"
             case .schemaValidationExampleView:
@@ -621,6 +633,8 @@ struct OptionSelectionView: View {
                 return "arrow.triangle.2.circlepath"
             case .createRowUISample:
                 return "slider.horizontal.3"
+            case .failureCaptureDemo:
+                return "exclamationmark.triangle.fill"
             case .metadataChangeAPIDemo:
                 return "tag.fill"
             case .decoratorAPIDemo:
@@ -652,6 +666,8 @@ struct OptionSelectionView: View {
                 return .red
             case .allFormulaJSONs:
                 return .yellow
+            case .formulaFunctionTests:
+                return .indigo
             case .schemaValidationExampleView:
                 return .red
             case .manipulateDataOnChangeView:
@@ -662,6 +678,8 @@ struct OptionSelectionView: View {
                 return .green
             case .createRowUISample:
                 return .red
+            case .failureCaptureDemo:
+                return .orange
             case .metadataChangeAPIDemo:
                 return .orange
             case .decoratorAPIDemo:
@@ -815,6 +833,8 @@ struct OptionSelectionView: View {
             OnChangeHandlerTest()
         case .createRowUISample:
             CreateRowUISample()
+        case .failureCaptureDemo:
+            FailureCaptureDemoView()
         case .metadataChangeAPIDemo:
             MetadataChangeAPIDemoView()
         case .decoratorAPIDemo:
@@ -831,6 +851,8 @@ struct OptionSelectionView: View {
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
             AllSampleJSONs()
+        case .some(.formulaFunctionTests):
+            FormulaFunctionTestsView()
         case .some(.tenKRowsCollection):
             AllSampleJSONs(initialFileName: "10kRowsCollection", lockToFileName: true)
         }

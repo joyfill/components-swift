@@ -1,0 +1,316 @@
+{
+  "_id": "691acd933d90ecfb16a51b6b",
+  "identifier": "document-toNumber-function-test",
+  "name": "ToNumber Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd45fa",
+      "name": "ToNumber Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f90380b",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312655",
+              "field": "basic_example_integer",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312656",
+              "field": "basic_example_decimal",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312657",
+              "field": "intermediate_example_negative",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf69",
+              "field": "priceField",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf6a",
+              "field": "quantity",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe50f",
+              "field": "intermediate_example_calculation",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312658",
+              "field": "invalid_example",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdf6b",
+              "field": "userInput",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d956",
+              "field": "advanced_example",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f90380b"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_integer",
+      "title": "Basic Example (Integer): toNumber(\"100\")",
+      "identifier": "field-basic-example-integer",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3068",
+          "formula": "691acd93bab5a640f289dda3",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa"
+    },
+    {
+      "_id": "basic_example_decimal",
+      "title": "Basic Example (Decimal): toNumber(\"100.11\")",
+      "identifier": "field-basic-example-decimal",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3069",
+          "formula": "691acd93bab5a640f289dda4",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa"
+    },
+    {
+      "_id": "intermediate_example_negative",
+      "title": "Intermediate Example (Negative): toNumber(\"-1\")",
+      "identifier": "field-intermediate-example-negative",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b306a",
+          "formula": "691acd93bab5a640f289dda5",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa"
+    },
+    {
+      "_id": "priceField",
+      "title": "Price Field",
+      "identifier": "field-price-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa",
+      "value": "25.99"
+    },
+    {
+      "_id": "quantity",
+      "title": "Quantity",
+      "identifier": "field-quantity",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd45fa",
+      "value": 3
+    },
+    {
+      "_id": "intermediate_example_calculation",
+      "title": "Intermediate Example (Calculation): toNumber(priceField) * quantity",
+      "identifier": "field-intermediate-example-calculation",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a21",
+          "formula": "691acd93f6346774b0b9d065",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa"
+    },
+    {
+      "_id": "invalid_example",
+      "title": "Invalid Example: toNumber(\"n100\")",
+      "identifier": "field-invalid-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b306b",
+          "formula": "691acd93bab5a640f289dda6",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa"
+    },
+    {
+      "_id": "userInput",
+      "title": "User Input",
+      "identifier": "field-user-input",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa",
+      "value": "42"
+    },
+    {
+      "_id": "advanced_example",
+      "title": "Advanced Example: Validation with toNumber",
+      "identifier": "field-advanced-example",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522ad8",
+          "formula": "691acd93f033ed54812dc62e",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd45fa"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243727,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289dda3",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "toNumber(\"100\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dda4",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "toNumber(\"100.11\")"
+    },
+    {
+      "_id": "691acd93bab5a640f289dda5",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "toNumber(\"-1\")"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d065",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "toNumber(priceField) * quantity"
+    },
+    {
+      "_id": "691acd93bab5a640f289dda6",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "toNumber(\"n100\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc62e",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(isNaN(toNumber(userInput)), \"Please enter a valid number\", if(toNumber(userInput) < 0, \"Number cannot be negative\", concat(\"Valid number: \", userInput)))"
+    }
+  ]
+}

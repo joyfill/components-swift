@@ -1,0 +1,351 @@
+{
+  "_id": "691acd933d90ecfb16a51b76",
+  "identifier": "document-year-function-test",
+  "name": "Year Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd4bff",
+      "name": "Year Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903816",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312670",
+              "field": "basic_example_specific",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312671",
+              "field": "basic_example_current",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfaa",
+              "field": "birthDate",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe51e",
+              "field": "intermediate_example_field",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe51f",
+              "field": "intermediate_example_age",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfab",
+              "field": "expiryDate",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d968",
+              "field": "advanced_example_expiry",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfac",
+              "field": "sampleDate",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d969",
+              "field": "advanced_example_half",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d96a",
+              "field": "advanced_example_fiscal",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903816"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_specific",
+      "title": "Basic Example (Specific Date): year(date(2023, 5, 15))",
+      "identifier": "field-basic-example-specific",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3089",
+          "formula": "691acd93bab5a640f289ddbe",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    },
+    {
+      "_id": "basic_example_current",
+      "title": "Basic Example (Current Date): year(now())",
+      "identifier": "field-basic-example-current",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b308a",
+          "formula": "691acd93bab5a640f289ddbf",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    },
+    {
+      "_id": "birthDate",
+      "title": "Birth Date",
+      "identifier": "field-birth-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff",
+      "value": "1990-06-20T00:00:00.000Z"
+    },
+    {
+      "_id": "intermediate_example_field",
+      "title": "Intermediate Example (Field): year(birthDate)",
+      "identifier": "field-intermediate-example-field",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a30",
+          "formula": "691acd93f6346774b0b9d074",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    },
+    {
+      "_id": "intermediate_example_age",
+      "title": "Intermediate Example (Age): year(now()) - year(birthDate)",
+      "identifier": "field-intermediate-example-age",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a31",
+          "formula": "691acd93f6346774b0b9d075",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    },
+    {
+      "_id": "expiryDate",
+      "title": "Expiry Date",
+      "identifier": "field-expiry-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff",
+      "value": "2022-12-31T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_expiry",
+      "title": "Advanced Example (Expiry): if(year(expiryDate) < year(now()), \"Expired\", \"Valid\")",
+      "identifier": "field-advanced-example-expiry",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aea",
+          "formula": "691acd93f033ed54812dc640",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    },
+    {
+      "_id": "sampleDate",
+      "title": "Sample Date",
+      "identifier": "field-sample-date",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff",
+      "value": "2023-08-15T00:00:00.000Z"
+    },
+    {
+      "_id": "advanced_example_half",
+      "title": "Advanced Example (Half Year): if(year(sampleDate) == 2023 && month(sampleDate) > 6, \"Second half of 2023\", \"First half of 2023 or different year\")",
+      "identifier": "field-advanced-example-half",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aeb",
+          "formula": "691acd93f033ed54812dc641",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    },
+    {
+      "_id": "advanced_example_fiscal",
+      "title": "Advanced Example (Fiscal Year): \"FY\" + (year(sampleDate) + (month(sampleDate) > 6 ? 1 : 0))",
+      "identifier": "field-advanced-example-fiscal",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522aec",
+          "formula": "691acd93f033ed54812dc642",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4bff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243738,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddbe",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "year(date(2023, 5, 15))"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddbf",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "year(now())"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d074",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "year(birthDate)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d075",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "year(now()) - year(birthDate)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc640",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(year(expiryDate) < year(now()), \"Expired\", \"Valid\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc641",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(year(sampleDate) == 2023 && month(sampleDate) > 6, \"Second half of 2023\", \"First half of 2023 or different year\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc642",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "\"FY\" + (year(sampleDate) + (month(sampleDate) > 6 ? 1 : 0))"
+    }
+  ]
+}

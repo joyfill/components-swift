@@ -127,7 +127,7 @@ public class DocumentEditor: ObservableObject {
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
-    private var JoyfillDocContext: JoyfillDocContext!
+    internal var joyDocContext: JoyfillDocContext!
 
     public init(document: JoyDoc,
                 events: FormChangeEvent? = nil,
@@ -181,7 +181,7 @@ public class DocumentEditor: ObservableObject {
         }
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: config.page.currentPageID, conditionalLogicHandler: conditionalLogicHandler)
-        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
+        self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         self.currentPageOrder = document.pageOrderForCurrentView ?? []
     }
     
@@ -652,7 +652,7 @@ extension DocumentEditor {
             refreshField(fieldId: event.fieldIdentifier.fieldID)
             refreshDependent(for: event.fieldIdentifier.fieldID)
             if let identifier = field.id {
-                self.JoyfillDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
+                self.joyDocContext.updateDependentFormulas(forFieldIdentifier: identifier)
             }
         }
     }
@@ -1262,7 +1262,7 @@ extension DocumentEditor {
             }
         }
         
-        self.JoyfillDocContext = Joyfill.JoyfillDocContext(docProvider: self)
+        self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
         
         if let views = document.files.first?.views, !views.isEmpty {
             guard let targetIndex = document.files.first?.pageOrder?.firstIndex(of: newPageID) else {

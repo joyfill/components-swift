@@ -10,32 +10,66 @@ public struct DateFunctions {
         return calendar
     }
     
-    /// Helper function to convert a FormulaValue to a Date
+    /// Helper function to convert a FormulaValue to a Date.
+    /// Per spec: a string is parsed into a timestamp (numeric) or a date string
+    /// (ISO 8601, with or without fractional seconds, or date-only). Returns nil
+    /// only when the value cannot be interpreted as a date at all.
     private static func extractDate(from value: FormulaValue) -> Date? {
         switch value {
         case .date(let date):
             return date
         case .number(let timestamp):
-            // Handle both seconds and milliseconds timestamps
-            // If the number is very large, it's likely milliseconds
-            if timestamp > 1000000000000 { // Milliseconds (> year 2001 in milliseconds)
-                return Date(timeIntervalSince1970: timestamp / 1000.0)
-            } else { // Seconds
-                return Date(timeIntervalSince1970: timestamp)
+            return dateFromTimestamp(timestamp)
+        case .string(let raw):
+            let str = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            // Numeric string -> treat as a timestamp
+            if let timestamp = Double(str) {
+                return dateFromTimestamp(timestamp)
             }
-        case .string(let timestampString):
-            // Try to parse as timestamp
-            if let timestamp = Double(timestampString) {
-                if timestamp > 1000000000000 { // Milliseconds
-                    return Date(timeIntervalSince1970: timestamp / 1000.0)
-                } else { // Seconds
-                    return Date(timeIntervalSince1970: timestamp)
-                }
-            }
-            return nil
+            // Otherwise try to parse it as a date string
+            return parseDateString(str)
         default:
             return nil
         }
+    }
+
+    /// Interprets a numeric timestamp, using a milliseconds/seconds heuristic.
+    private static func dateFromTimestamp(_ timestamp: Double) -> Date {
+        if timestamp > 1000000000000 { // Milliseconds (> ~year 2001 in milliseconds)
+            return Date(timeIntervalSince1970: timestamp / 1000.0)
+        } else { // Seconds
+            return Date(timeIntervalSince1970: timestamp)
+        }
+    }
+
+    private static let isoFractionalFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    private static let isoFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
+    private static let dateOnlyFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
+    /// Parses common date string formats (ISO 8601 with/without fractional
+    /// seconds, and date-only "yyyy-MM-dd"). Returns nil if unparseable.
+    private static func parseDateString(_ str: String) -> Date? {
+        if let date = isoFractionalFormatter.date(from: str) { return date }
+        if let date = isoFormatter.date(from: str) { return date }
+        if let date = dateOnlyFormatter.date(from: str) { return date }
+        return nil
     }
     
     /// Implements the NOW function: NOW()
@@ -142,11 +176,16 @@ public struct DateFunctions {
             return .failure(.typeMismatch(expected: "Number for day", actual: "Argument 3: \(typeDescription(dayValue))"))
         }
         
+        // Out-of-range year/month/day -> invalid date
+        guard let yearInt = year.safeInt, let monthInt = month.safeInt, let dayInt = day.safeInt else {
+            return .failure(.unknownError("Invalid date: year=\(year), month=\(month), day=\(day)"))
+        }
+
         // Create date components using UTC calendar
         var components = DateComponents()
-        components.year = Int(year)
-        components.month = Int(month)
-        components.day = Int(day)
+        components.year = yearInt
+        components.month = monthInt
+        components.day = dayInt
         
         // Create date using UTC calendar
         let calendar = utcCalendar
@@ -167,36 +206,41 @@ public struct DateFunctions {
         let dateResult = evaluator.evaluate(node: args[0], context: context)
         guard case .success(let dateValue) = dateResult else { return dateResult }
         
-        // Extract date from the value (handles both Date objects and timestamps)
+        // Bad date argument -> invalid timestamp (0)
         guard let date = extractDate(from: dateValue) else {
-            return .failure(.typeMismatch(expected: "Date or timestamp", actual: "Argument 1: \(typeDescription(dateValue))"))
+            return .success(.number(0))
         }
-        
+
         // Evaluate amount
         let amountResult = evaluator.evaluate(node: args[1], context: context)
         guard case .success(let amountValue) = amountResult else { return amountResult }
-        guard case .number(let amount) = amountValue else {
-            return .failure(.typeMismatch(expected: "Number for amount", actual: "Argument 2: \(typeDescription(amountValue))"))
+        guard case .number(let amount) = amountValue, amount.isFinite else {
+            return .success(.number(0))
         }
-        
+
         // Evaluate unit
         let unitResult = evaluator.evaluate(node: args[2], context: context)
         guard case .success(let unitValue) = unitResult else { return unitResult }
         guard case .string(let unitString) = unitValue else {
-            return .failure(.typeMismatch(expected: "String for unit", actual: "Argument 3: \(typeDescription(unitValue))"))
+            return .success(.number(0))
         }
-        
-        // Convert unit string to Calendar.Component
+
+        // Bad/invalid unit -> invalid timestamp (0)
         guard let component = getCalendarComponent(from: unitString) else {
-            return .failure(.invalidArguments(function: "DATEADD", reason: "Invalid unit: \(unitString). Valid units are: 'years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'"))
+            return .success(.number(0))
         }
-        
-        // Add to date using UTC calendar
+
+        // Amount out of Int range -> invalid timestamp (0)
+        guard let intAmount = amount.safeInt else {
+            return .success(.number(0))
+        }
+
+        // Add to date using UTC calendar; a failed computation -> 0
         let calendar = utcCalendar
-        guard let newDate = calendar.date(byAdding: component, value: Int(amount), to: date) else {
-            return .failure(.unknownError("Failed to add \(amount) \(unitString) to date: \(date)"))
+        guard let newDate = calendar.date(byAdding: component, value: intAmount, to: date) else {
+            return .success(.number(0))
         }
-        
+
         return .success(.date(newDate))
     }
     
@@ -234,9 +278,14 @@ public struct DateFunctions {
             return .failure(.invalidArguments(function: "DATESUBTRACT", reason: "Invalid unit: \(unitString). Valid units are: 'years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'"))
         }
         
+        // Amount out of Int range -> invalid timestamp (0)
+        guard let intAmount = amount.safeInt else {
+            return .success(.number(0))
+        }
+
         // Subtract from date (add negative amount) using UTC calendar
         let calendar = utcCalendar
-        guard let newDate = calendar.date(byAdding: component, value: -Int(amount), to: date) else {
+        guard let newDate = calendar.date(byAdding: component, value: -intAmount, to: date) else {
             return .failure(.unknownError("Failed to subtract \(amount) \(unitString) from date: \(date)"))
         }
         

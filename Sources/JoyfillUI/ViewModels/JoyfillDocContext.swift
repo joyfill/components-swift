@@ -1918,7 +1918,7 @@ class JoyfillDocContext: EvaluationContext {
             if let fieldType = fieldType, fieldType == .chart {
                 return convertChartArrayToValueUnion(array)
             }
-            return .array(array.map { formulaValue in
+            let stringElements = array.map { formulaValue -> String in
                 switch formulaValue {
                 case .number(let number):
                     return "\(number)"
@@ -1927,7 +1927,14 @@ class JoyfillDocContext: EvaluationContext {
                 default:
                     return "\(formulaValue)" // Convert other types to string
                 }
-            })
+            }
+            // For free-text display fields, render a non-empty array result as a
+            // bracketed string (e.g. "[8.0, 12.0]") to match cross-platform rendering.
+            if let fieldType = fieldType,
+               fieldType == .text || fieldType == .textarea || fieldType == .richText || fieldType == .block {
+                return .string(stringElements.isEmpty ? "" : "[" + stringElements.joined(separator: ", ") + "]")
+            }
+            return .array(stringElements)
         case .dictionary(let dict):
             var result: [String: ValueUnion] = [:]
             for (key, value) in dict {

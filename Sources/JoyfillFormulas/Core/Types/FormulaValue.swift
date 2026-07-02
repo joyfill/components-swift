@@ -69,3 +69,12 @@ public enum FormulaError: Error, Equatable {
 // Initial placeholder - we might remove or refine this later.
 // This file will be the central definition for types.
 // We might move FormulaError to its own file if it grows complex. 
+
+extension Double {
+    /// Truncating conversion to `Int` that never traps.
+    /// Returns nil when the value is non-finite or outside the `Int` range,
+    /// so callers can soft-fail instead of crashing on `Int(_:)`.
+    var safeInt: Int? {
+        return Int(exactly: self.rounded(.towardZero))
+    }
+} 

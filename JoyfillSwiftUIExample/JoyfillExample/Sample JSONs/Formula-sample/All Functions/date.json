@@ -1,0 +1,421 @@
+{
+  "_id": "691acd933d90ecfb16a51b79",
+  "identifier": "document-date-function-test",
+  "name": "Date Function Test",
+  "files": [
+    {
+      "_id": "691acd93a0d4b658f8cd4eff",
+      "name": "Date Function Test",
+      "pages": [
+        {
+          "_id": "691acd93d713c2867f903819",
+          "name": "Test Page",
+          "hidden": false,
+          "width": 800.0,
+          "height": 1000.0,
+          "rowHeight": 0.5,
+          "layout": "grid",
+          "presentation": "normal",
+          "cols": 8.0,
+          "fieldPositions": [
+            {
+              "_id": "691acd938c809ab707312676",
+              "field": "basic_example_specific",
+              "x": 0.0,
+              "y": 0.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb3",
+              "field": "yearValue",
+              "x": 0.0,
+              "y": 100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb4",
+              "field": "monthValue",
+              "x": 0.0,
+              "y": 200.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd932899d4b4597fdfb5",
+              "field": "dayValue",
+              "x": 0.0,
+              "y": 300.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "number",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd938c809ab707312677",
+              "field": "basic_example_variables",
+              "x": 0.0,
+              "y": 400.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe524",
+              "field": "intermediate_example_year",
+              "x": 0.0,
+              "y": 500.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe525",
+              "field": "intermediate_example_month",
+              "x": 0.0,
+              "y": 600.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe526",
+              "field": "intermediate_example_day",
+              "x": 0.0,
+              "y": 700.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd9345ecf6c3c2ffe527",
+              "field": "intermediate_example_days_between",
+              "x": 0.0,
+              "y": 800.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d971",
+              "field": "advanced_example_christmas",
+              "x": 0.0,
+              "y": 900.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d972",
+              "field": "advanced_example_tax_deadline",
+              "x": 0.0,
+              "y": 1000.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            },
+            {
+              "_id": "691acd931de704757740d973",
+              "field": "advanced_example_halloween",
+              "x": 0.0,
+              "y": 1100.0,
+              "width": 800.0,
+              "height": 100.0,
+              "type": "text",
+              "tableColumns": {},
+              "displayType": "original"
+            }
+          ]
+        }
+      ],
+      "pageOrder": [
+        "691acd93d713c2867f903819"
+      ],
+      "styles": {}
+    }
+  ],
+  "fields": [
+    {
+      "_id": "basic_example_specific",
+      "title": "Basic Example (Specific Date): date(2023, 5, 15)",
+      "identifier": "field-basic-example-specific",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b308f",
+          "formula": "691acd93bab5a640f289ddc4",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "yearValue",
+      "title": "Year Value",
+      "identifier": "field-year-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd4eff",
+      "value": 2023
+    },
+    {
+      "_id": "monthValue",
+      "title": "Month Value",
+      "identifier": "field-month-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd4eff",
+      "value": 7
+    },
+    {
+      "_id": "dayValue",
+      "title": "Day Value",
+      "identifier": "field-day-value",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [],
+      "type": "number",
+      "file": "691acd93a0d4b658f8cd4eff",
+      "value": 4
+    },
+    {
+      "_id": "basic_example_variables",
+      "title": "Basic Example (Variables): date(yearValue, monthValue, dayValue)",
+      "identifier": "field-basic-example-variables",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd93675e9b29653b3090",
+          "formula": "691acd93bab5a640f289ddc5",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "intermediate_example_year",
+      "title": "Intermediate Example (Year): year(date(2023, 5, 15))",
+      "identifier": "field-intermediate-example-year",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a36",
+          "formula": "691acd93f6346774b0b9d07a",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "intermediate_example_month",
+      "title": "Intermediate Example (Month): month(date(2023, 5, 15))",
+      "identifier": "field-intermediate-example-month",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a37",
+          "formula": "691acd93f6346774b0b9d07b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "intermediate_example_day",
+      "title": "Intermediate Example (Day): day(date(2023, 5, 15))",
+      "identifier": "field-intermediate-example-day",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a38",
+          "formula": "691acd93f6346774b0b9d07c",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "intermediate_example_days_between",
+      "title": "Intermediate Example (Days Between): (date(2023, 5, 15) - date(2023, 1, 1)) / (1000 * 60 * 60 * 24)",
+      "identifier": "field-intermediate-example-days-between",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd9347c3d405f83f7a39",
+          "formula": "691acd93f6346774b0b9d07d",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "advanced_example_christmas",
+      "title": "Advanced Example (Christmas): if(date(year(now()), month(now()), day(now())) == date(2023, 12, 25), \"Merry Christmas!\", \"Not Christmas yet\")",
+      "identifier": "field-advanced-example-christmas",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af3",
+          "formula": "691acd93f033ed54812dc649",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "advanced_example_tax_deadline",
+      "title": "Advanced Example (Tax Deadline): if(now() > date(year(now()), 4, 15), \"Tax filing deadline has passed\", \"You still have time to file taxes\")",
+      "identifier": "field-advanced-example-tax-deadline",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af4",
+          "formula": "691acd93f033ed54812dc64a",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    },
+    {
+      "_id": "advanced_example_halloween",
+      "title": "Advanced Example (Halloween): if(month(now()) == 10 && day(now()) == 31, \"Happy Halloween!\", \"Not Halloween\")",
+      "identifier": "field-advanced-example-halloween",
+      "hidden": false,
+      "disabled": false,
+      "required": false,
+      "formulas": [
+        {
+          "_id": "691acd933cc432acc6522af5",
+          "formula": "691acd93f033ed54812dc64b",
+          "key": "value"
+        }
+      ],
+      "type": "text",
+      "file": "691acd93a0d4b658f8cd4eff"
+    }
+  ],
+  "type": "document",
+  "deleted": false,
+  "createdOn": 1763364243741,
+  "formulas": [
+    {
+      "_id": "691acd93bab5a640f289ddc4",
+      "desc": "formular-1",
+      "scope": "private",
+      "type": "calc",
+      "expression": "date(2023, 5, 15)"
+    },
+    {
+      "_id": "691acd93bab5a640f289ddc5",
+      "desc": "formular-2",
+      "scope": "private",
+      "type": "calc",
+      "expression": "date(yearValue, monthValue, dayValue)"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d07a",
+      "desc": "formular-3",
+      "scope": "private",
+      "type": "calc",
+      "expression": "year(date(2023, 5, 15))"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d07b",
+      "desc": "formular-4",
+      "scope": "private",
+      "type": "calc",
+      "expression": "month(date(2023, 5, 15))"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d07c",
+      "desc": "formular-5",
+      "scope": "private",
+      "type": "calc",
+      "expression": "day(date(2023, 5, 15))"
+    },
+    {
+      "_id": "691acd93f6346774b0b9d07d",
+      "desc": "formular-6",
+      "scope": "private",
+      "type": "calc",
+      "expression": "(date(2023, 5, 15) - date(2023, 1, 1)) / (1000 * 60 * 60 * 24)"
+    },
+    {
+      "_id": "691acd93f033ed54812dc649",
+      "desc": "formular-7",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(date(year(now()), month(now()), day(now())) == date(2023, 12, 25), \"Merry Christmas!\", \"Not Christmas yet\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc64a",
+      "desc": "formular-8",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(now() > date(year(now()), 4, 15), \"Tax filing deadline has passed\", \"You still have time to file taxes\")"
+    },
+    {
+      "_id": "691acd93f033ed54812dc64b",
+      "desc": "formular-9",
+      "scope": "private",
+      "type": "calc",
+      "expression": "if(month(now()) == 10 && day(now()) == 31, \"Happy Halloween!\", \"Not Halloween\")"
+    }
+  ]
+}
