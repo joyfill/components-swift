@@ -49,7 +49,7 @@ struct ImageView: View {
         if case .image(let model) = listModel.model {
             return model.fieldHeaderModel
         }
-        return imageDataModel.fieldHeaderModel
+        return nil
     }
 
     var body: some View {
