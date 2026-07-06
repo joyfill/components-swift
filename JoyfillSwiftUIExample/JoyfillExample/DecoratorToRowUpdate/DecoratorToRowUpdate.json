@@ -47,10 +47,38 @@
           "height": 1056,
           "rowHeight": 8,
           "name": "Survey Form"
+        },
+        {
+          "_id": "6a491a2ffa0c49f30d295dc3",
+          "name": "",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "6a491a31034f06aa32fb71a5",
+              "type": "number",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "field": "6a491a31651358fff2003fe9"
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "deletable": true,
+          "copyable": [
+            "with-values"
+          ]
         }
       ],
       "pageOrder": [
-        "68d101cf609190215b11e750"
+        "68d101cf609190215b11e750",
+        "6a491a2ffa0c49f30d295dc3"
       ],
       "version": 1,
       "views": [],
@@ -261,17 +289,38 @@
         {
           "_id": "6a2f8df910ebe1b7a93ca1be",
           "deleted": false,
-          "cells": {}
+          "cells": {
+            "6a3147f2d0a36d3df3b9f0b8": [
+              {
+                "_id": "img00seed000000000000000",
+                "url": "https://picsum.photos/seed/row0/300/200"
+              }
+            ]
+          }
         },
         {
           "_id": "6a2f8df96db27802eadf2863",
           "deleted": false,
-          "cells": {}
+          "cells": {
+            "6a3147f2d0a36d3df3b9f0b8": [
+              {
+                "_id": "img01seed000000000000000",
+                "url": "https://picsum.photos/seed/row1/300/200"
+              }
+            ]
+          }
         },
         {
           "_id": "6a2f8df992e40d2d6d551821",
           "deleted": false,
-          "cells": {}
+          "cells": {
+            "6a3147f2d0a36d3df3b9f0b8": [
+              {
+                "_id": "img02seed000000000000000",
+                "url": "https://picsum.photos/seed/row2/300/200"
+              }
+            ]
+          }
         }
       ],
       "identifier": "field_6a313d862372abbb3635f6cf",
@@ -290,6 +339,16 @@
         "6a2f8df910ebe1b7a93ca1be",
         "6a2f8df96db27802eadf2863",
         "6a2f8df992e40d2d6d551821"
+      ],
+      "decorate": true,
+      "rowDecorators": [
+        {
+          "_id": "6adecrowedit0001",
+          "icon": "pencil",
+          "label": "Edit Row",
+          "action": "row-edit",
+          "color": "#1565C0"
+        }
       ]
     },
     {
@@ -360,6 +419,15 @@
           "root": true,
           "children": [
             "level1Table1"
+          ],
+          "rowDecorators": [
+            {
+              "_id": "6adecrowedit0002",
+              "icon": "pencil",
+              "label": "Edit Row",
+              "action": "row-edit",
+              "color": "#1565C0"
+            }
           ],
           "tableColumns": [
             {
@@ -563,6 +631,13 @@
         }
       },
       "identifier": "field_6a317df785e63c7788ff5ad5"
+    },
+    {
+      "file": "68d101cf56b1d0b1393bb36a",
+      "_id": "6a491a31651358fff2003fe9",
+      "type": "number",
+      "title": "Number",
+      "identifier": "field_6a491a31651358fff2003fe9"
     }
   ],
   "_id": "68d101ee8f5793b7cd6031fc",
