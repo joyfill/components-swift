@@ -45,9 +45,16 @@ struct ImageView: View {
         }
     }
     
+    private var headerModel: FieldHeaderModel? {
+        if case .image(let model) = listModel.model {
+            return model.fieldHeaderModel
+        }
+        return nil
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
-            FieldHeaderView(imageDataModel.fieldHeaderModel, isFilled: !valueElements.isEmpty) { decorator in
+            FieldHeaderView(headerModel, isFilled: !valueElements.isEmpty) { decorator in
                 eventHandler.onDecoratorAction(event: imageDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
             if let uiImage = uiImagesArray.first {
