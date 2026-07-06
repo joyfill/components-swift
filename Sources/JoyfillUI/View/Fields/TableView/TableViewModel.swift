@@ -687,4 +687,15 @@ extension TableViewModel: DocumentEditorDelegate {
         updateUIModels(for: rowID, using: merged)
         uuid = UUID()
     }
+
+    func reloadFieldValue() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+        tableDataModel.valueToValueElements = field.valueToValueElements
+        tableDataModel.rowOrder = field.rowOrder ?? []
+        tableDataModel.cleanUpRowOrder()
+        refreshRowDecoratorMap()
+        setupCellModels()
+        tableDataModel.filterRowsIfNeeded()
+        uuid = UUID()
+    }
 }

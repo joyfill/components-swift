@@ -2102,6 +2102,14 @@ extension CollectionViewModel: DocumentEditorDelegate {
         buildRowToValueElementMap()
     }
 
+    func reloadFieldValue() {
+        guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
+        tableDataModel.schema = field.schema ?? [:]
+        tableDataModel.valueToValueElements = field.valueToValueElements
+        tableDataModel.rowOrder = field.rowOrder ?? []
+        initializeAsync(tableDataModel: tableDataModel)
+        uuid = UUID()
+    }
 
     func applyRowEditChanges(change: Change) {
         guard let rowID = change.change?["rowId"] as? String,
