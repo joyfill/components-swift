@@ -200,6 +200,15 @@ extension XCUIElement {
         }
     }
     
+    func focusAndClear(in app: XCUIApplication, timeout: TimeInterval = 5) {
+        self.tap()
+        if !app.keyboards.element.waitForExistence(timeout: timeout) {
+            self.tap()
+            _ = app.keyboards.element.waitForExistence(timeout: timeout)
+        }
+        self.clearText()
+    }
+
     /// Waits for element to exist and be hittable, then taps it
     func waitAndTap(timeout: TimeInterval = 5, message: String? = nil) {
         let waitMessage = message ?? "Element '\(self.identifier)' did not appear in time"
