@@ -2252,6 +2252,7 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
 }
 
+// `AnyObject` + `{ get set }` are required so clearFocusColumnIfNeeded() (below) can write tableDataModel back.
 protocol TableDataViewModelProtocol: AnyObject {
     var tableDataModel: TableDataModel { get set }
     func getParenthPath(rowId: String) -> (String, String)
