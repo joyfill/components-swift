@@ -647,14 +647,10 @@ struct EditMultipleRowsSheetView: View {
         }
         .simultaneousGesture(DragGesture().onChanged({ _ in
             dismissKeyboard()
-            if viewModel.tableDataModel.navigationIntent.focusColumnId != nil {
-                viewModel.tableDataModel.navigationIntent.focusColumnId = nil
-            }
+            viewModel.clearFocusColumnIfNeeded()
         }))
         .onTapGesture {
-            if viewModel.tableDataModel.navigationIntent.focusColumnId != nil {
-                viewModel.tableDataModel.navigationIntent.focusColumnId = nil
-            }
+            viewModel.clearFocusColumnIfNeeded()
         }
         }
         }
