@@ -545,12 +545,12 @@ extension DocumentEditor {
     
     public func field(identifier: String?) -> JoyDocField? {
         guard let identifier = identifier else { return nil }
-        return allFields.first(where: { $0.identifier == identifier })
+        return fieldMap.values.first(where: { $0.identifier == identifier })
     }
 
     public func field(title: String?) -> JoyDocField? {
         guard let title = title else { return nil }
-        return allFields.first(where: { $0.title == title })
+        return fieldMap.values.first(where: { $0.title == title })
     }
 
     public var allFields: [JoyDocField] {
