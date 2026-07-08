@@ -85,6 +85,7 @@ private struct MultiLineUITextView: UIViewRepresentable {
         textView.accessibilityIdentifier = "MultilineTextFieldIdentifier"
         textView.text = text
         context.coordinator.lastShouldFocus = shouldFocus
+        context.coordinator.textView = textView
         return textView
     }
 
@@ -105,15 +106,35 @@ private struct MultiLineUITextView: UIViewRepresentable {
     final class Coordinator: NSObject, UITextViewDelegate {
         var parent: MultiLineUITextView
         var lastShouldFocus: Bool = false
+        weak var textView: UITextView?
         private var debounceWorkItem: DispatchWorkItem?
         private var lastFilled: Bool?
 
         init(_ parent: MultiLineUITextView) {
             self.parent = parent
+            super.init()
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(keyboardWillShow(_:)),
+                name: UIResponder.keyboardWillShowNotification, object: nil)
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
         }
 
         func textViewDidBeginEditing(_ textView: UITextView) {
             parent.onFocus()
+        }
+
+        @objc private func keyboardWillShow(_ note: Notification) {
+            guard let textView = textView, textView.isFirstResponder else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak textView] in
+                guard let textView = textView,
+                      textView.isFirstResponder,
+                      let scrollView = textView.enclosingScrollView else { return }
+                let target = textView.convert(textView.bounds, to: scrollView).insetBy(dx: 0, dy: -16)
+                scrollView.scrollRectToVisible(target, animated: true)
+            }
         }
 
         func textViewDidChange(_ textView: UITextView) {
@@ -138,5 +159,18 @@ private struct MultiLineUITextView: UIViewRepresentable {
             debounceWorkItem = nil
             parent.onCommit(textView.text ?? "")
         }
+    }
+}
+
+private extension UIView {
+    var enclosingScrollView: UIScrollView? {
+        var view = superview
+        while let current = view {
+            if let scrollView = current as? UIScrollView {
+                return scrollView
+            }
+            view = current.superview
+        }
+        return nil
     }
 }
