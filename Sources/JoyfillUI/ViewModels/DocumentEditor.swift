@@ -543,6 +543,16 @@ extension DocumentEditor {
         return fieldMap[fieldID]
     }
     
+    public func field(identifier: String?) -> JoyDocField? {
+        guard let identifier = identifier else { return nil }
+        return allFields.first(where: { $0.identifier == identifier })
+    }
+
+    public func field(title: String?) -> JoyDocField? {
+        guard let title = title else { return nil }
+        return allFields.first(where: { $0.title == title })
+    }
+
     public var allFields: [JoyDocField] {
         return fieldMap.map { $1 }
     }
