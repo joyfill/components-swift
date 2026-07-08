@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd comprehensive CLAUDE.MD documentation\n\nCreate detailed documentation file for AI assistants and developers:\n- Complete SDK overview and architecture\n- Module structure and dependencies\n- Key concepts with code examples \\(DocumentEditor, Change API, Events\\)\n- Installation instructions and quick start guides\n- Code examples for common use cases\n- API reference and data structures\n- Best practices and conventions\n- Troubleshooting guide\n- Links to official documentation\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nEnhance CLAUDE.MD with comprehensive technical documentation\n\nAdd detailed technical sections covering:\n- Form view architecture and component hierarchy\n- Field types and organization \\(14 field types\\)\n- DocumentEditor deep dive with internal state management\n- Complete validation system documentation\n- Conditional logic system with operators and evaluation\n- Practical implementation patterns with code examples\n\nTechnical additions:\n- Form view rendering pipeline from entry to field views\n- Field data models and structure definitions\n- Validation logic for fields, tables, and collections\n- Conditional logic evaluation with dependency tracking\n- Table/collection row operations\n- Custom field rendering patterns\n- Validation workflow examples\n\nDocumentation now includes:\n- Line number references to source files\n- Complete code examples for common operations\n- Architectural diagrams and hierarchies\n- Cache maps and data structure details\n- Best practices for working with each system\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "Bash(wc:*)"
+    ]
+  }
+}
