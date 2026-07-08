@@ -1,63 +1,47 @@
 import SwiftUI
 import JoyfillModel
-import Combine
+import UIKit
 
 struct MultiLineTextView: View {
-    @State private var displayText: String = ""
-    @State private var lastModelText: String?
-    @State private var debounceTask: Task<Void, Never>?
-    private var multiLineDataModel: MultiLineDataModel
-    @FocusState private var isFocused: Bool
-    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    private let multiLineDataModel: MultiLineDataModel
     let eventHandler: FieldChangeEvents
+    @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
+    @State private var isFilled: Bool
 
     public init(multiLineDataModel: MultiLineDataModel, eventHandler: FieldChangeEvents) {
         self.eventHandler = eventHandler
         self.multiLineDataModel = multiLineDataModel
-        // Don't initialize state variables here - moved to onAppear
+        _isFilled = State(initialValue: !(multiLineDataModel.multilineText ?? "").isEmpty)
     }
 
     var body: some View {
         let isReadonly = multiLineDataModel.mode == .readonly
-        // Create a custom binding that gives us more control
-        let textBinding = Binding<String>(
-            get: { displayText },
-            set: { newValue in
-                // Only update if really changing to avoid triggering unnecessary redraws
-                if displayText != newValue {
-                    displayText = newValue
-                }
-            }
-        )
-        return VStack(alignment: .leading) {
-            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: !displayText.isEmpty) { decorator in
+        VStack(alignment: .leading) {
+            FieldHeaderView(multiLineDataModel.fieldHeaderModel, isFilled: isFilled) { decorator in
                 eventHandler.onDecoratorAction(event: multiLineDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
             Group {
                 if isReadonly {
                     ScrollView {
-                        Text(displayText)
+                        Text(multiLineDataModel.multilineText ?? "")
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.vertical, 8)
                     }
                     .accessibilityIdentifier("MultilineReadonlyTextIdentifier")
                 } else {
-                    TextEditor(text: textBinding)
-                        .accessibilityIdentifier("MultilineTextFieldIdentifier")
-                        .autocorrectionDisabled()
-                        .focused($isFocused)
-                        .onChange(of: isFocused) { focused in
-                            if focused {
-                                eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
-                            } else {
-                                updateFieldValue()
-                            }
+                    MultiLineUITextView(
+                        text: multiLineDataModel.multilineText ?? "",
+                        shouldFocus: navigationFocusFieldId == multiLineDataModel.fieldIdentifier.fieldID,
+                        onFocus: {
+                            eventHandler.onFocus(event: multiLineDataModel.fieldIdentifier)
+                        },
+                        onCommit: { text in
+                            commit(text: text)
+                        },
+                        onFilledChange: { filled in
+                            if isFilled != filled { isFilled = filled }
                         }
-                        .onChange(of: displayText) { newValue in
-                            if isFocused {
-                                debounceTextChange(newValue: newValue)
-                            }
-                        }
+                    )
                 }
             }
             .padding(.horizontal, 10)
@@ -65,46 +49,94 @@ struct MultiLineTextView: View {
             .cornerRadius(10)
             .fieldBorder(isFocused: navigationFocusFieldId == multiLineDataModel.fieldIdentifier.fieldID)
         }
-        .onAppear {
-            // Initialize on first appear
-            if displayText.isEmpty {
-                displayText = multiLineDataModel.multilineText ?? ""
-            }
-            lastModelText = multiLineDataModel.multilineText
-        }
-        .onChange(of: navigationFocusFieldId) { newValue in
-            if newValue == multiLineDataModel.fieldIdentifier.fieldID {
-                isFocused = true
-            }
-        }
         .onChange(of: multiLineDataModel.multilineText) { newValue in
-            // Only update if not focused and value has actually changed
-            if !isFocused && lastModelText != newValue {
-                if displayText != (newValue ?? "") {
-                    displayText = newValue ?? ""
-                }
-                lastModelText = newValue
-            }
+            let filled = !(newValue ?? "").isEmpty
+            if isFilled != filled { isFilled = filled }
         }
     }
 
-    private func updateFieldValue() {
-        let newValue = ValueUnion.string(displayText)
+    private func commit(text: String) {
+        let newValue = ValueUnion.string(text)
         let fieldEvent = FieldChangeData(fieldIdentifier: multiLineDataModel.fieldIdentifier, updateValue: newValue)
         eventHandler.onChange(event: fieldEvent)
     }
+}
 
-    private func debounceTextChange(newValue: String) {
-        debounceTask?.cancel()
-        debounceTask = Task {
-            try? await Task.sleep(nanoseconds: Utility.DEBOUNCE_TIME_IN_NANOSECONDS)
-            if !Task.isCancelled {
-                await MainActor.run {
-                    updateFieldValue()
-                }
+private struct MultiLineUITextView: UIViewRepresentable {
+    let text: String
+    let shouldFocus: Bool
+    let onFocus: () -> Void
+    let onCommit: (String) -> Void
+    let onFilledChange: (Bool) -> Void
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.delegate = context.coordinator
+        textView.font = UIFont.preferredFont(forTextStyle: .body)
+        textView.adjustsFontForContentSizeCategory = true
+        textView.autocorrectionType = .no
+        textView.backgroundColor = .clear
+        textView.textContainerInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        textView.textContainer.lineFragmentPadding = 0
+        textView.accessibilityIdentifier = "MultilineTextFieldIdentifier"
+        textView.text = text
+        context.coordinator.lastShouldFocus = shouldFocus
+        return textView
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        context.coordinator.parent = self
+        if !uiView.isFirstResponder && uiView.text != text {
+            uiView.text = text
+        }
+        let didRequestFocus = shouldFocus && !context.coordinator.lastShouldFocus
+        context.coordinator.lastShouldFocus = shouldFocus
+        if didRequestFocus && !uiView.isFirstResponder {
+            DispatchQueue.main.async {
+                uiView.becomeFirstResponder()
             }
         }
     }
+
+    final class Coordinator: NSObject, UITextViewDelegate {
+        var parent: MultiLineUITextView
+        var lastShouldFocus: Bool = false
+        private var debounceWorkItem: DispatchWorkItem?
+        private var lastFilled: Bool?
+
+        init(_ parent: MultiLineUITextView) {
+            self.parent = parent
+        }
+
+        func textViewDidBeginEditing(_ textView: UITextView) {
+            parent.onFocus()
+        }
+
+        func textViewDidChange(_ textView: UITextView) {
+            let text = textView.text ?? ""
+
+            let filled = !text.isEmpty
+            if lastFilled != filled {
+                lastFilled = filled
+                parent.onFilledChange(filled)
+            }
+
+            debounceWorkItem?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                self?.parent.onCommit(text)
+            }
+            debounceWorkItem = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
+        }
+
+        func textViewDidEndEditing(_ textView: UITextView) {
+            debounceWorkItem?.cancel()
+            debounceWorkItem = nil
+            parent.onCommit(textView.text ?? "")
+        }
+    }
 }
-
-
