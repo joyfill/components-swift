@@ -223,6 +223,16 @@ extension XCUIElement {
         app.staticTexts[name].tap()
     }
 
+    func openDropdownList(in app: XCUIApplication, timeout: TimeInterval = 6) {
+        XCTAssertTrue(self.waitForExistence(timeout: timeout), "Dropdown did not appear")
+        let option = app.buttons.matching(identifier: "DropdownoptionIdentifier").firstMatch
+        var attempts = 0
+        repeat {
+            self.tap()
+            attempts += 1
+        } while !option.waitForExistence(timeout: 2) && attempts < 5
+    }
+
     /// Waits for element to exist and be hittable, then taps it
     func waitAndTap(timeout: TimeInterval = 5, message: String? = nil) {
         let waitMessage = message ?? "Element '\(self.identifier)' did not appear in time"
