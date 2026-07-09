@@ -36,7 +36,6 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
     }
 
     func testDatePicker() {
-        app.swipeUp()
         // Tap a date button using its identifier to open the picker popup
         let dateButton = app.buttons.matching(identifier: "ChangeDateIdentifier").firstMatch
         XCTAssertTrue(dateButton.waitForExistence(timeout: 5), "Date button should exist")
@@ -48,7 +47,6 @@ final class DateTimeFieldTests: JoyfillUITestsBaseClass {
     }
 
     func testTimePicker() {
-        app.swipeUp()
         // Tap a time button using its identifier to open the picker popup
         let timeButton = app.buttons.matching(identifier: "ChangeDateIdentifier").firstMatch
         XCTAssertTrue(timeButton.waitForExistence(timeout: 5), "Time button should exist")
