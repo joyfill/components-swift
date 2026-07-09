@@ -209,6 +209,20 @@ extension XCUIElement {
         self.clearText()
     }
 
+    func tapPageRow(in app: XCUIApplication, timeout: TimeInterval = 6) {
+        XCTAssertTrue(self.waitForExistence(timeout: timeout), "Page row did not appear")
+        let name = self.label
+        let row = app.buttons.matching(
+            NSPredicate(format: "identifier == %@ AND label == %@", "PageSelectionIdentifier", name)
+        ).firstMatch
+        var scrolls = 0
+        while !row.isHittable && scrolls < 8 {
+            app.swipeUp()
+            scrolls += 1
+        }
+        app.staticTexts[name].tap()
+    }
+
     /// Waits for element to exist and be hittable, then taps it
     func waitAndTap(timeout: TimeInterval = 5, message: String? = nil) {
         let waitMessage = message ?? "Element '\(self.identifier)' did not appear in time"
