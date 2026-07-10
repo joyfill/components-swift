@@ -49,7 +49,7 @@ struct DecoratorRowUpdateDemoView: View {
     }
 
     private var instructions: some View {
-        Text("field.update repro: open the Table (or the Collection), tap a row’s decorator (the ‘Edit Row’ pencil). The app fires field.update replacing the WHOLE field value — the table with 5 brand-new rows, the collection with a fresh nested tree — every column’s cell populated. It also sets rowOrder to the new root row IDs (field.update alone won’t, and the table grid renders by rowOrder). The mounted quick view should refresh immediately, without reopening the page. (Column decorators inside a row still set that column’s cell live via field.value.rowUpdate too.)")
+        Text("Open a row in the Table or Collection (including nested rows), then tap any column’s decorator. The app catches onFocus and sets that column’s cell for the open row via the Change API — watch the editor update live.")
             .font(.footnote)
             .foregroundColor(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -118,18 +118,8 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         // tapped cell's row + column. Ordinary cell focus uses target "focus"/"blur",
         // which won't match any column decorator, so those are ignored below.
         guard let action = f.target,
-              let rowIDs = f.rowIds, !rowIDs.isEmpty else { return }
-
-        // Row decorator: carries rowIds but NO columnId. Replace the whole field
-        // value via `field.update` — table and collection use separate builders.
-        guard let columnID = f.columnId else {
-            if editor.field(fieldID: f.fieldID)?.fieldType == .collection {
-                handleCollectionRowDecorator(editor: editor, event: f, action: action, rowIDs: rowIDs)
-            } else {
-                handleRowDecorator(editor: editor, event: f, action: action, rowIDs: rowIDs)
-            }
-            return
-        }
+              let rowIDs = f.rowIds, !rowIDs.isEmpty,
+              let columnID = f.columnId else { return }
 
         // Resolve the column — and, for collection fields, the schema it lives in.
         guard let resolved = Self.resolveColumn(editor: editor, fieldID: f.fieldID, columnID: columnID) else {
@@ -168,168 +158,6 @@ private final class DecoratorRowUpdateHandler: FormChangeEvent {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
             self?.applyChange(target: target, cellValue: cellValue, summary: summary)
         }
-    }
-
-    // MARK: Row decorator: replace the WHOLE table value with 5 fresh, fully-populated rows
-
-    /// Handles a row-level decorator tap by replacing the entire table with 5 brand-new rows,
-    /// every column's cell populated, via a single `field.update`.
-    ///
-    /// Important: `field.update` only sets `field.value` — it does NOT touch `field.rowOrder`,
-    /// and the grid renders rows by iterating `rowOrder`. So new row IDs that aren't already in
-    /// `rowOrder` would render as nothing. We therefore set the field's `rowOrder` to the new
-    /// row IDs (via `updateField`) *before* sending the change, so the refresh that `field.update`
-    /// triggers rebuilds the grid from the matching value + rowOrder.
-    private func handleRowDecorator(editor: DocumentEditor, event f: FieldIdentifier, action: String, rowIDs: [String]) {
-        guard let field = editor.field(fieldID: f.fieldID),
-              let columns = field.tableColumns, !columns.isEmpty else {
-            report("\"\(action)\" - table has no columns")
-            return
-        }
-
-        report("\"\(action)\" row decorator - replacing table with 5 full rows via field.update...")
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            guard let self else { return }
-            guard var field = editor.field(fieldID: f.fieldID) else { return }
-
-            let doc = editor.document
-
-            // Build 5 brand-new rows, each with every column's cell populated.
-            var newRowIDs: [String] = []
-            let valueArray: [[String: Any]] = (0..<5).map { rowIndex in
-                let rowID = Self.randomObjectID()
-                newRowIDs.append(rowID)
-                var cells: [String: Any] = [:]
-                for column in columns {
-                    guard let columnID = column.id else { continue }
-                    if let (cellValue, _) = self.cellPayloadValue(for: column, tap: rowIndex) {
-                        cells[columnID] = cellValue
-                    }
-                }
-                return ["_id": rowID, "deleted": false, "cells": cells]
-            }
-
-            // rowOrder must list the new row IDs or the grid renders nothing (field.update
-            // never updates rowOrder itself). Set it before the change so the refresh sees it.
-            field.rowOrder = newRowIDs
-            editor.updateField(field: field)
-
-            let change = Change(
-                v: 1,
-                sdk: "swift",
-                target: "field.update",
-                _id: doc.id ?? "",
-                identifier: doc.identifier ?? "",
-                fileId: f.fileID ?? "",
-                pageId: f.pageID ?? "",
-                fieldId: f.fieldID,
-                fieldIdentifier: f.fieldIdentifier ?? field.identifier,
-                fieldPositionId: f.fieldPositionId ?? "",
-                change: ["value": valueArray],
-                createdOn: Date().timeIntervalSince1970
-            )
-
-            editor.change(changes: [change])
-            self.report("Replaced table -> 5 rows, all cells set")
-        }
-    }
-
-    // MARK: Collection row decorator: replace the WHOLE collection value with a fresh nested tree
-
-    /// Handles a collection row-level decorator tap by replacing the entire collection
-    /// with a freshly built nested tree via a single `field.update`. Mirrors the table
-    /// path: `field.update` only sets `field.value`, so we also set `field.rowOrder` to
-    /// the new root row IDs before sending the change.
-    private func handleCollectionRowDecorator(editor: DocumentEditor, event f: FieldIdentifier, action: String, rowIDs: [String]) {
-        guard let rootKey = editor.field(fieldID: f.fieldID)?.schema?
-            .first(where: { $0.value.root == true })?.key else {
-            report("\"\(action)\" - collection has no root schema")
-            return
-        }
-
-        report("\"\(action)\" collection row decorator - replacing collection via field.update...")
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            guard let self else { return }
-            guard var field = editor.field(fieldID: f.fieldID), let schema = field.schema else { return }
-            let doc = editor.document
-
-            var rootRowIDs: [String] = []
-            let valueArray = self.buildCollectionRows(
-                schema: schema,
-                schemaKey: rootKey,
-                rowCount: 3,
-                seed: 0,
-                isRoot: true,
-                rootRowIDs: &rootRowIDs
-            )
-
-            // rowOrder lists the new root row IDs (field.update never sets it itself).
-            field.rowOrder = rootRowIDs
-            editor.updateField(field: field)
-
-            let change = Change(
-                v: 1,
-                sdk: "swift",
-                target: "field.update",
-                _id: doc.id ?? "",
-                identifier: doc.identifier ?? "",
-                fileId: f.fileID ?? "",
-                pageId: f.pageID ?? "",
-                fieldId: f.fieldID,
-                fieldIdentifier: f.fieldIdentifier ?? field.identifier,
-                fieldPositionId: f.fieldPositionId ?? "",
-                change: ["value": valueArray],
-                createdOn: Date().timeIntervalSince1970
-            )
-
-            editor.change(changes: [change])
-            self.report("Replaced collection -> \(rootRowIDs.count) root rows + nested")
-        }
-    }
-
-    /// Recursively builds collection rows for `schemaKey`, populating each column's cell
-    /// and one branch of children per schema `children` entry. Children are nested under
-    /// `children[childSchemaKey].value`, matching the collection value shape.
-    private func buildCollectionRows(schema: [String: Schema], schemaKey: String, rowCount: Int, seed: Int, isRoot: Bool, rootRowIDs: inout [String]) -> [[String: Any]] {
-        guard let node = schema[schemaKey] else { return [] }
-        let columns = node.tableColumns ?? []
-        let childKeys = node.children ?? []
-
-        var rows: [[String: Any]] = []
-        for i in 0..<rowCount {
-            let rowID = Self.randomObjectID()
-            if isRoot { rootRowIDs.append(rowID) }
-
-            var cells: [String: Any] = [:]
-            for column in columns {
-                guard let colID = column.id else { continue }
-                if let (cellValue, _) = self.cellPayloadValue(for: column, tap: seed + i) {
-                    cells[colID] = cellValue
-                }
-            }
-
-            var row: [String: Any] = ["_id": rowID, "deleted": false, "cells": cells]
-
-            if !childKeys.isEmpty {
-                var children: [String: Any] = [:]
-                for childKey in childKeys {
-                    let nested = buildCollectionRows(
-                        schema: schema,
-                        schemaKey: childKey,
-                        rowCount: 2,
-                        seed: i,
-                        isRoot: false,
-                        rootRowIDs: &rootRowIDs
-                    )
-                    children[childKey] = ["value": nested]
-                }
-                row["children"] = children
-            }
-            rows.append(row)
-        }
-        return rows
     }
 
     // MARK: Value generation per column type
