@@ -33,7 +33,6 @@ public protocol DocumentEditorDelegate: AnyObject {
     func deleteRow(for change: Change)
     func moveRow(for change: Change)
     func decoratorsDidChange()
-    func reloadFieldValue()
 }
 
 public extension DocumentEditorDelegate {
@@ -41,10 +40,6 @@ public extension DocumentEditorDelegate {
     /// decorator-cache refresh hooks. Internal view models (TableViewModel,
     /// CollectionViewModel) provide real implementations.
     func decoratorsDidChange() {}
-
-    /// Default no-op. Internal view models rebuild their rows from the current
-    /// field value so a `field.update` change refreshes the mounted view.
-    func reloadFieldValue() {}
 }
 
 public struct PageConfig: Equatable, Sendable {
@@ -446,14 +441,6 @@ public class DocumentEditor: ObservableObject {
             updateField(field: field)
             refreshField(fieldId: fieldID)
             refreshDependent(for: fieldID)
-        }
-
-        if let field = fieldMap[fieldID],
-           field.fieldType == .table || field.fieldType == .collection {
-            let delegate = delegateMap[fieldID]?.value
-            DispatchQueue.main.async {
-                delegate?.reloadFieldValue()
-            }
         }
     }
     
