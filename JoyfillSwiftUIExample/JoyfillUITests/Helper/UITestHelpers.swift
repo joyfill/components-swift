@@ -212,15 +212,24 @@ extension XCUIElement {
     func tapPageRow(in app: XCUIApplication, timeout: TimeInterval = 6) {
         XCTAssertTrue(self.waitForExistence(timeout: timeout), "Page row did not appear")
         let name = self.label
+        let allRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let row = app.buttons.matching(
             NSPredicate(format: "identifier == %@ AND label == %@", "PageSelectionIdentifier", name)
         ).firstMatch
+
         var scrolls = 0
-        while !row.isHittable && scrolls < 8 {
+        while scrolls < 8 {
+            if row.isHittable {
+                let rows = allRows.allElementsBoundByIndex.filter { $0.exists }
+                if let idx = rows.firstIndex(where: { $0.label == name && $0.isHittable }),
+                   idx + 1 < rows.count, rows[idx + 1].isHittable {
+                    break
+                }
+            }
             app.swipeUp()
             scrolls += 1
         }
-        app.staticTexts[name].tap()
+        row.tap()
     }
 
     func openDropdownList(in app: XCUIApplication, timeout: TimeInterval = 6) {
