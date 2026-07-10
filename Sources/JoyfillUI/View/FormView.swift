@@ -410,7 +410,6 @@ struct PageDuplicateListView: View {
                         .font(.caption)
                         .foregroundStyle(.gray)
                         .accessibilityIdentifier("PageCountIdentifier")
-                        .accessibilityValue("\(pageIDs.count)")
                 }
                 
                 Spacer()
