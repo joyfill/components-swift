@@ -409,6 +409,8 @@ struct PageDuplicateListView: View {
                     Text("\(pageIDs.count) page\(pageIDs.count == 1 ? "" : "s")")
                         .font(.caption)
                         .foregroundStyle(.gray)
+                        .accessibilityIdentifier("PageCountIdentifier")
+                        .accessibilityValue("\(pageIDs.count)")
                 }
                 
                 Spacer()
