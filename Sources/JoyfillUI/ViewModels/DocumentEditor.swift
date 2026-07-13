@@ -543,6 +543,7 @@ extension DocumentEditor {
         return fieldMap[fieldID]
     }
     
+    // NOTE: matches JoyDocField.identifier, not field.id — don't confuse with field(fieldID:) call sites in the formula engine that name their param "identifier" but mean field.id.
     public func field(identifier: String?) -> JoyDocField? {
         guard let identifier = identifier else { return nil }
         return fieldMap.values.first(where: { $0.identifier == identifier })
