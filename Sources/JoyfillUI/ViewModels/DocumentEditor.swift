@@ -551,7 +551,7 @@ extension DocumentEditor {
 
     public func field(title: String?) -> JoyDocField? {
         guard let title = title else { return nil }
-        return fieldMap.values.first(where: { $0.title == title })
+        return fieldMap.values.first(where: { $0.title?.caseInsensitiveCompare(title) == .orderedSame })
     }
 
     public var allFields: [JoyDocField] {

@@ -152,11 +152,12 @@ final class DocumentEditorFieldLookupTests: XCTestCase {
         XCTAssertNil(editor.field(title: "Text 1"))
     }
 
-    // MARK: - field(title:) — exactness
+    // MARK: - field(title:) — case-insensitivity
 
-    func testFieldByTitle_CaseSensitive_ReturnsNil() {
+    func testFieldByTitle_CaseInsensitive_ReturnsMatchingField() {
         let editor = documentEditor(fields: [makeField(id: "text1", title: "Text 1")])
-        XCTAssertNil(editor.field(title: "TEXT 1"))
+        XCTAssertEqual(editor.field(title: "TEXT 1")?.id, "text1")
+        XCTAssertEqual(editor.field(title: "text 1")?.id, "text1")
     }
 
     func testFieldByTitle_WhitespaceMismatch_ReturnsNil() {
