@@ -33,9 +33,14 @@ final class DocumentEditorFieldLookupTests: XCTestCase {
         XCTAssertNil(editor.field(identifier: nil))
     }
 
-    func testFieldByIdentifier_EmptyStringNoMatch_ReturnsNil() {
+    func testFieldByIdentifier_EmptyStringNoFieldHasIt_ReturnsNil() {
         let editor = documentEditor(fields: [makeField(id: "text1", identifier: "field_text1")])
         XCTAssertNil(editor.field(identifier: ""))
+    }
+
+    func testFieldByIdentifier_EmptyStringMatchesFieldWithEmptyIdentifier_ReturnsField() {
+        let editor = documentEditor(fields: [makeField(id: "text1", identifier: "")])
+        XCTAssertEqual(editor.field(identifier: "")?.id, "text1")
     }
 
     // MARK: - field(identifier:) — positive match
@@ -103,9 +108,14 @@ final class DocumentEditorFieldLookupTests: XCTestCase {
         XCTAssertNil(editor.field(title: nil))
     }
 
-    func testFieldByTitle_EmptyStringNoMatch_ReturnsNil() {
+    func testFieldByTitle_EmptyStringNoFieldHasIt_ReturnsNil() {
         let editor = documentEditor(fields: [makeField(id: "text1", title: "Text 1")])
         XCTAssertNil(editor.field(title: ""))
+    }
+
+    func testFieldByTitle_EmptyStringMatchesFieldWithEmptyTitle_ReturnsField() {
+        let editor = documentEditor(fields: [makeField(id: "text1", title: "")])
+        XCTAssertEqual(editor.field(title: "")?.id, "text1")
     }
 
     // MARK: - field(title:) — positive match
