@@ -511,6 +511,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         pageSelectionButton.tap()
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        app.swipeUp()
         let originalPageButton = pageSheetSelectionButton.element(boundBy: 3)
         originalPageButton.tap()
         
@@ -676,6 +677,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let originalPageButton = pageSheetSelectionButton.element(boundBy: 3)
+        app.swipeUp()
         originalPageButton.tap()
         
         let tableDetailButton = app.buttons.matching(identifier: "TableDetailViewIdentifier")

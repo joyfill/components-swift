@@ -8,30 +8,30 @@ final class SelectionFieldLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 3)
-        tapOnSecondPage.tap()
-        
+        tapOnSecondPage.tapPageRow(in: app)
+
         let textFields = app.textFields.allElementsBoundByIndex
-        
+
         // Always Show TextField
         let alwaysShowTextField = textFields[0]
         XCTAssertTrue(alwaysShowTextField.exists, "The alwaysShow text field does not exist.")
         alwaysShowTextField.tap()
         alwaysShowTextField.typeText("Always Show\n")
-        
+
         let alwaysShowTextFieldTitle = "Always Show Field"
         let alwaysShowTextFieldTitleLabel = app.staticTexts[alwaysShowTextFieldTitle]
         XCTAssertTrue(alwaysShowTextFieldTitleLabel.exists, "The title label does not exist or does not have the correct title.")
-        
+
         // Field is Hide when condition true
         let hideFieldOnConditionTrueTextField = textFields[1]
         XCTAssertTrue(hideFieldOnConditionTrueTextField.exists, "The hideFieldOnConditionTrue text field does not exist.")
         hideFieldOnConditionTrueTextField.tap()
         hideFieldOnConditionTrueTextField.typeText("Field is Hide when condition true\n")
-        
+
         let hideFieldTitle = "Field Hide when condition is True"
         let hideFieldLabel = app.staticTexts[hideFieldTitle]
         XCTAssertTrue(hideFieldLabel.exists, "The title label does not exist or does not have the correct title.")
-        
+
         // Select "Yes" option ( Condition Field )
         let dropdownButton = app.buttons["Dropdown"]
         XCTAssertEqual("Select Option", dropdownButton.label)

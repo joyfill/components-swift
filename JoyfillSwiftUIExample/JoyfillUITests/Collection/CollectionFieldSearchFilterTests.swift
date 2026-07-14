@@ -1739,11 +1739,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        textField.tap()
-        textField.clearText()
+        textField.focusAndClear(in: app)
         textField.typeText("Hello ji")
-        app.dismissKeyboardIfVisible()
-        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 5), "Apply All button not found")
+        applyAllButton.tap()
         
         let predicate2 = NSPredicate(
             format: "identifier == %@ AND value == %@",
@@ -1806,11 +1806,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         editRowsButton().tap()
         
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        textField.tap()
-        textField.clearText()
+        textField.focusAndClear(in: app)
         textField.typeText("Joyfill")
-        app.dismissKeyboardIfVisible()
-        app.buttons["ApplyAllButtonIdentifier"].tap()
+        let applyAllButton = app.buttons["ApplyAllButtonIdentifier"]
+        XCTAssertTrue(applyAllButton.waitForExistence(timeout: 5), "Apply All button not found")
+        applyAllButton.tap()
         
         let predicate2 = NSPredicate(
             format: "identifier == %@ AND value == %@",
@@ -1864,12 +1864,10 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertEqual(editSingleRowLowerButton().isEnabled, true)
         
         let textField = app.textFields["EditRowsTextFieldIdentifier"]
-        textField.tap()
-        textField.clearText()
+        textField.focusAndClear(in: app)
         textField.typeText("A")
-        app.dismissKeyboardIfVisible()
-        
-        // Dropdown Field
+
+        // Dropdown Field (tapping it resigns the text-field keyboard)
         let dropdownButton = app.buttons["EditRowsDropdownFieldIdentifier"]
         XCTAssertTrue(dropdownButton.waitForExistence(timeout: 3), "Dropdown button not found")
         dropdownButton.tap()

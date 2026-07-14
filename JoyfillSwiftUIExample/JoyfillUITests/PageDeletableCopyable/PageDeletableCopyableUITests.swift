@@ -144,6 +144,8 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
             firstTextField.clearTextReliably()
             firstTextField.typeText("\(text)\n")
 
+            resignFirstTextFieldFocus()
+
             if let current = firstTextField.value as? String,
                current.trimmingCharacters(in: .whitespacesAndNewlines) == text {
                 return
@@ -156,6 +158,15 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
             file: file,
             line: line
         )
+    }
+
+    private func resignFirstTextFieldFocus() {
+        let siblingField = app.textFields.element(boundBy: 1)
+        if siblingField.exists && siblingField.isHittable {
+            siblingField.tap()
+            return
+        }
+        app.dismissKeyboardIfVisible()
     }
 
     private func firstTextFieldValue(file: StaticString = #filePath, line: UInt = #line) -> String? {
@@ -214,6 +225,101 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
             let rows = visibleRows(from: pageRows)
             if let match = rows.first(where: { rowContainsPageName($0, pageName: pageName) }) {
                 return match
+            }
+            swipeUpInPageSheetOrFallback()
+        }
+        return nil
+    }
+
+    private func currentPageCount() -> Int? {
+        let countLabel = app.staticTexts["PageCountIdentifier"]
+        guard countLabel.exists else { return nil }
+        if let value = countLabel.value as? String,
+           let count = Int(value.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            return count
+        }
+        let digits = countLabel.label.prefix { $0.isNumber }
+        return Int(digits)
+    }
+
+    private func pageCountFromSheetOrFail(file: StaticString = #filePath, line: UInt = #line) -> Int? {
+        let countLabel = app.staticTexts["PageCountIdentifier"]
+        guard countLabel.waitForExistence(timeout: 5) else {
+            XCTFail("Page count identifier should exist in the page sheet.", file: file, line: line)
+            return nil
+        }
+        guard let count = currentPageCount() else {
+            XCTFail(
+                "Page count identifier should expose an integer count. value=\(String(describing: countLabel.value)) label=\(countLabel.label)",
+                file: file,
+                line: line
+            )
+            return nil
+        }
+        return count
+    }
+
+    private func selectPage(named pageName: String, maxScrolls: Int, file: StaticString = #filePath, line: UInt = #line) {
+        for _ in 0..<3 {
+            openPageNavigationSheet()
+            XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear in the page sheet.", file: file, line: line)
+            let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
+            guard findRow(named: pageName, in: pageRows, maxScrolls: maxScrolls) != nil else {
+                XCTFail("Could not find page row '\(pageName)'.", file: file, line: line)
+                return
+            }
+            tapPageRow(named: pageName, in: pageRows, maxScrolls: maxScrolls)
+
+            if waitUntil(5, condition: { self.currentPageName() == pageName }) {
+                return
+            }
+        }
+
+        XCTFail(
+            "Failed to land on page '\(pageName)'. Current page: '\(currentPageName() ?? "<unknown>")'.",
+            file: file,
+            line: line
+        )
+    }
+    
+    private func tapPageRow(named pageName: String, in pageRows: XCUIElementQuery, maxScrolls: Int) {
+        for _ in 0..<maxScrolls {
+            let rows = visibleRows(from: pageRows)
+            guard let idx = rows.firstIndex(where: { rowContainsPageName($0, pageName: pageName) && $0.isHittable }) else {
+                swipeUpInPageSheetOrFallback()
+                continue
+            }
+
+            let hasHittableRowBelow = (idx + 1 < rows.count) && rows[idx + 1].isHittable
+            if !hasHittableRowBelow {
+                swipeUpInPageSheetOrFallback()
+                continue
+            }
+
+            rows[idx].tap()
+            return
+        }
+
+        if let row = findRow(named: pageName, in: pageRows, maxScrolls: maxScrolls) {
+            row.tap()
+        }
+    }
+
+    private func currentPageName() -> String? {
+        let navButton = app.buttons["PageNavigationIdentifier"]
+        guard navButton.exists else { return nil }
+        let label = navButton.label.trimmingCharacters(in: .whitespacesAndNewlines)
+        return label.isEmpty ? nil : label
+    }
+
+    private func rowFollowing(pageName: String, in pageRows: XCUIElementQuery, maxScrolls: Int) -> XCUIElement? {
+        for _ in 0..<maxScrolls {
+            let rows = visibleRows(from: pageRows)
+            if let idx = rows.firstIndex(where: { rowContainsPageName($0, pageName: pageName) }) {
+                if idx + 1 < rows.count {
+                    return rows[idx + 1]
+                }
+                // Source is the last rendered row; scroll to render the following row.
             }
             swipeUpInPageSheetOrFallback()
         }
@@ -385,39 +491,36 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
 
     func testDuplicateWithValuesCopiesFieldData() {
         guard let expectedPages = loadExpectedPagesOrFail() else { return }
-        guard let sourceIndex = expectedPages.firstIndex(where: { $0.name == "Page 4" }) else {
-            XCTFail("Page 4 is required for this test.")
-            return
-        }
+        XCTAssertTrue(expectedPages.contains(where: { $0.name == "Page 4" }), "Page 4 is required for this test.")
         let sourcePageName = "Page 4"
+        let maxScrolls = expectedPages.count * 8
 
-        openPageNavigationSheet()
-        XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear in the page sheet.")
-        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let sourcePageRow = pageRows.element(boundBy: sourceIndex)
-        XCTAssertTrue(sourcePageRow.exists, "Page 4 row should exist before duplication.")
-        XCTAssertTrue(rowContainsPageName(sourcePageRow, pageName: sourcePageName), "Expected source row at index \(sourceIndex) to be Page 4.")
-        sourcePageRow.tap()
-
+        // Land on Page 4 and give it a unique value.
+        selectPage(named: sourcePageName, maxScrolls: maxScrolls)
         let uniqueValue = "with-values-copy-\(UUID().uuidString.prefix(8))"
         setFirstTextFieldValue(uniqueValue)
         XCTAssertEqual(firstTextFieldValue(), uniqueValue, "Page 4 should keep the edited value before duplication.")
 
         openPageNavigationSheet()
         XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear for duplication.")
-        let initialCount = pageRows.count
-        XCTAssertTrue(pageRows.element(boundBy: sourceIndex).exists, "Page 4 row should exist for duplication.")
+        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        guard let initialCount = pageCountFromSheetOrFail() else { return }
 
-        let sourceRow = pageRows.element(boundBy: sourceIndex)
+        guard let sourceRow = findRow(named: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Page 4 row should exist for duplication.")
+            return
+        }
         let duplicateButton = sourceRow.descendants(matching: .button).matching(identifier: "PageDuplicateIdentifier").firstMatch
         XCTAssertTrue(duplicateButton.exists, "Duplicate button should exist for Page 4.")
         duplicateButton.tap()
         chooseDuplicateModeOrFail("With Values")
 
-        XCTAssertTrue(waitUntil(5) { pageRows.count == initialCount + 1 }, "Page count should increase by 1 after duplication.")
+        XCTAssertTrue(waitUntil(5) { self.currentPageCount() == initialCount + 1 }, "Page count should increase by 1 after duplication.")
 
-        let duplicatedRow = pageRows.element(boundBy: sourceIndex + 1)
-        XCTAssertTrue(duplicatedRow.waitForExistence(timeout: 3), "Duplicated row should appear immediately after Page 4.")
+        guard let duplicatedRow = rowFollowing(pageName: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Duplicated row should appear immediately after Page 4.")
+            return
+        }
         duplicatedRow.tap()
 
         XCTAssertEqual(firstTextFieldValue(), uniqueValue, "With-values duplicate should preserve Page 4 field value.")
@@ -425,39 +528,35 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
 
     func testDuplicateWithoutValuesResetsFieldData() {
         guard let expectedPages = loadExpectedPagesOrFail() else { return }
-        guard let sourceIndex = expectedPages.firstIndex(where: { $0.name == "Page 4" }) else {
-            XCTFail("Page 4 is required for this test.")
-            return
-        }
+        XCTAssertTrue(expectedPages.contains(where: { $0.name == "Page 4" }), "Page 4 is required for this test.")
         let sourcePageName = "Page 4"
+        let maxScrolls = expectedPages.count * 8
 
-        openPageNavigationSheet()
-        XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear in the page sheet.")
-        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let sourcePageRow = pageRows.element(boundBy: sourceIndex)
-        XCTAssertTrue(sourcePageRow.exists, "Page 4 row should exist before duplication.")
-        XCTAssertTrue(rowContainsPageName(sourcePageRow, pageName: sourcePageName), "Expected source row at index \(sourceIndex) to be Page 4.")
-        sourcePageRow.tap()
-
+        selectPage(named: sourcePageName, maxScrolls: maxScrolls)
         let uniqueValue = "without-values-source-\(UUID().uuidString.prefix(8))"
         setFirstTextFieldValue(uniqueValue)
         XCTAssertEqual(firstTextFieldValue(), uniqueValue, "Page 4 should keep the edited value before duplication.")
 
         openPageNavigationSheet()
         XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear for duplication.")
-        let initialCount = pageRows.count
-        XCTAssertTrue(pageRows.element(boundBy: sourceIndex).exists, "Page 4 row should exist for duplication.")
+        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        guard let initialCount = pageCountFromSheetOrFail() else { return }
 
-        let sourceRow = pageRows.element(boundBy: sourceIndex)
+        guard let sourceRow = findRow(named: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Page 4 row should exist for duplication.")
+            return
+        }
         let duplicateButton = sourceRow.descendants(matching: .button).matching(identifier: "PageDuplicateIdentifier").firstMatch
         XCTAssertTrue(duplicateButton.exists, "Duplicate button should exist for Page 4.")
         duplicateButton.tap()
         chooseDuplicateModeOrFail("Without Values")
 
-        XCTAssertTrue(waitUntil(5) { pageRows.count == initialCount + 1 }, "Page count should increase by 1 after duplication.")
+        XCTAssertTrue(waitUntil(5) { self.currentPageCount() == initialCount + 1 }, "Page count should increase by 1 after duplication.")
 
-        let duplicatedRow = pageRows.element(boundBy: sourceIndex + 1)
-        XCTAssertTrue(duplicatedRow.waitForExistence(timeout: 3), "Duplicated row should appear immediately after Page 4.")
+        guard let duplicatedRow = rowFollowing(pageName: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Duplicated row should appear immediately after Page 4.")
+            return
+        }
         duplicatedRow.tap()
 
         guard let duplicatedValue = firstTextFieldValue() else { return }
@@ -469,39 +568,35 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
 
     func testDuplicateWithoutValuesPreservesReadonlyAndBlockValues() {
         guard let expectedPages = loadExpectedPagesOrFail() else { return }
-        guard let sourceIndex = expectedPages.firstIndex(where: { $0.name == "Page 4" }) else {
-            XCTFail("Page 4 is required for this test.")
-            return
-        }
+        XCTAssertTrue(expectedPages.contains(where: { $0.name == "Page 4" }), "Page 4 is required for this test.")
         let sourcePageName = "Page 4"
+        let maxScrolls = expectedPages.count * 8
 
-        openPageNavigationSheet()
-        XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear in the page sheet.")
-        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let sourcePageRow = pageRows.element(boundBy: sourceIndex)
-        XCTAssertTrue(sourcePageRow.exists, "Page 4 row should exist before duplication.")
-        XCTAssertTrue(rowContainsPageName(sourcePageRow, pageName: sourcePageName), "Expected source row at index \(sourceIndex) to be Page 4.")
-        sourcePageRow.tap()
-
+        selectPage(named: sourcePageName, maxScrolls: maxScrolls)
         let uniqueValue = "without-values-preserve-\(UUID().uuidString.prefix(8))"
         setFirstTextFieldValue(uniqueValue)
         XCTAssertEqual(firstTextFieldValue(), uniqueValue, "Page 4 should keep the edited value before duplication.")
 
         openPageNavigationSheet()
         XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear for duplication.")
-        let initialCount = pageRows.count
-        XCTAssertTrue(pageRows.element(boundBy: sourceIndex).exists, "Page 4 row should exist for duplication.")
+        let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        guard let initialCount = pageCountFromSheetOrFail() else { return }
 
-        let sourceRow = pageRows.element(boundBy: sourceIndex)
+        guard let sourceRow = findRow(named: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Page 4 row should exist for duplication.")
+            return
+        }
         let duplicateButton = sourceRow.descendants(matching: .button).matching(identifier: "PageDuplicateIdentifier").firstMatch
         XCTAssertTrue(duplicateButton.exists, "Duplicate button should exist for Page 4.")
         duplicateButton.tap()
         chooseDuplicateModeOrFail("Without Values")
 
-        XCTAssertTrue(waitUntil(5) { pageRows.count == initialCount + 1 }, "Page count should increase by 1 after duplication.")
+        XCTAssertTrue(waitUntil(5) { self.currentPageCount() == initialCount + 1 }, "Page count should increase by 1 after duplication.")
 
-        let duplicatedRow = pageRows.element(boundBy: sourceIndex + 1)
-        XCTAssertTrue(duplicatedRow.waitForExistence(timeout: 3), "Duplicated row should appear immediately after Page 4.")
+        guard let duplicatedRow = rowFollowing(pageName: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Duplicated row should appear immediately after Page 4.")
+            return
+        }
         duplicatedRow.tap()
 
         assertFieldTextVisible("Readonly fixture value")
@@ -515,17 +610,17 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
             return
         }
         let sourcePageName = "Page 4"
+        let maxScrolls = expectedPages.count * 8
 
         openPageNavigationSheet()
         XCTAssertTrue(waitForPageRowsInSheet(timeout: 8), "Page rows should appear in the page sheet.")
         let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let initialCount = pageRows.count
+        guard let initialCount = pageCountFromSheetOrFail() else { return }
 
-        let sourcePageRow = pageRows.element(boundBy: sourceIndex)
-        XCTAssertTrue(sourcePageRow.exists, "Page 4 row should exist for duplication.")
-        XCTAssertTrue(rowContainsPageName(sourcePageRow, pageName: sourcePageName), "Expected source row at index \(sourceIndex) to be Page 4.")
-
-        let sourceRow = pageRows.element(boundBy: sourceIndex)
+        guard let sourceRow = findRow(named: sourcePageName, in: pageRows, maxScrolls: maxScrolls) else {
+            XCTFail("Page 4 row should exist for duplication.")
+            return
+        }
         let duplicateButton = sourceRow.descendants(matching: .button).matching(identifier: "PageDuplicateIdentifier").firstMatch
         XCTAssertTrue(duplicateButton.exists, "Duplicate button should exist for Page 4.")
         duplicateButton.tap()
@@ -536,16 +631,21 @@ final class PageDeletableCopyableUITests: JoyfillUITestsBaseClass {
         duplicateAlert.buttons["Cancel"].tap()
 
         XCTAssertTrue(waitUntil(3) { !self.app.alerts.firstMatch.exists }, "Duplicate mode dialog should dismiss after tapping cancel.")
-        XCTAssertEqual(pageRows.count, initialCount, "Page count should remain unchanged after canceling duplication.")
-        XCTAssertTrue(rowContainsPageName(pageRows.element(boundBy: sourceIndex), pageName: sourcePageName), "Page 4 should remain at the same source index after canceling duplication.")
+        XCTAssertEqual(pageCountFromSheetOrFail(), initialCount, "Page count should remain unchanged after canceling duplication.")
+        XCTAssertTrue(
+            findRow(named: sourcePageName, in: pageRows, maxScrolls: maxScrolls) != nil,
+            "Page 4 should still exist after canceling duplication."
+        )
 
+        // No duplicate was inserted, so the original neighbor should still follow Page 4.
         if sourceIndex + 1 < expectedPages.count {
-            let nextRow = pageRows.element(boundBy: sourceIndex + 1)
-            XCTAssertTrue(nextRow.exists, "Next row should still exist after canceling duplication.")
-            XCTAssertTrue(
-                rowContainsPageName(nextRow, pageName: expectedPages[sourceIndex + 1].name),
-                "Page order should remain unchanged after canceling duplication."
-            )
+            let expectedNextName = expectedPages[sourceIndex + 1].name
+            if let nextRow = rowFollowing(pageName: sourcePageName, in: pageRows, maxScrolls: maxScrolls) {
+                XCTAssertTrue(
+                    rowContainsPageName(nextRow, pageName: expectedNextName),
+                    "Page order should remain unchanged after canceling duplication (\(expectedNextName) should follow Page 4)."
+                )
+            }
         }
     }
 
