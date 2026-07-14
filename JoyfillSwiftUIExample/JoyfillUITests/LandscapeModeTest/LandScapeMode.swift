@@ -245,6 +245,12 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertEqual("Cell1", textCell.value as? String, "Cell should hold the typed text")
         goBack()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        let committed = onChangeResultValue().valueElements?.contains {
+            $0.cells?["6a549f7f5b9e6b25aac10b1f"]?.text == "Cell1"
+        } ?? false
+        XCTAssertTrue(committed, "Text cell edit should commit to the model via onChange")
     }
 
     // MARK: - Chart (Page 11)
@@ -283,14 +289,22 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
         let addRow = app.buttons.matching(identifier: "TableAddRowIdentifier").firstMatch
         XCTAssertTrue(addRow.waitForExistence(timeout: 5), "Add-row button should exist")
         addRow.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
 
         let textCell = app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0)
         XCTAssertTrue(textCell.waitForExistence(timeout: 5), "Collection text cell should exist")
         textCell.tap()
-        textCell.typeText("Cell1")
+        textCell.typeText("C")
+        app.dismissKeyboardIfVisible()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
-        XCTAssertEqual("Cell1", textCell.value as? String, "Cell should hold the typed text")
+        XCTAssertEqual("C", textCell.value as? String, "Cell should hold the typed text")
         goBack()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        let committed = onChangeResultValue().valueElements?.contains {
+            $0.cells?["6813008e76da519a97819c69"]?.text == "C"
+        } ?? false
+        XCTAssertTrue(committed, "Text cell edit should commit to the model via onChange")
     }
 
     // MARK: - Table row-edit form (Page 10)
