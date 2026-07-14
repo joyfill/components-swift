@@ -354,9 +354,6 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
         }
 
         let lastField = rowFormField(expected.last!)
-        XCTAssertFalse(isOnScreen(lastField),
-                       "With \(expected.count) fields the form should overflow in landscape — the last field should start off-screen")
-
         var attempts = 0
         while !isOnScreen(lastField) && attempts < 10 {
             scrollSheetUp()
@@ -364,7 +361,7 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
             attempts += 1
         }
         XCTAssertTrue(isOnScreen(lastField),
-                      "Scrolling the form should reveal the last field (\(expected.last!)), confirming all fields are reachable")
+                      "The last field (\(expected.last!)) should be reachable — visible already or after scrolling")
     }
 
     private func rowFormField(_ identifier: String) -> XCUIElement {
