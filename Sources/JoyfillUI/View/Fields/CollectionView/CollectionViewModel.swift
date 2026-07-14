@@ -2252,12 +2252,20 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
 }
 
-protocol TableDataViewModelProtocol {
-    var tableDataModel: TableDataModel { get }
+// `AnyObject` + `{ get set }` are required so clearFocusColumnIfNeeded() (below) can write tableDataModel back.
+protocol TableDataViewModelProtocol: AnyObject {
+    var tableDataModel: TableDataModel { get set }
     func getParenthPath(rowId: String) -> (String, String)
 }
 
 extension TableDataViewModelProtocol {
+    
+    func clearFocusColumnIfNeeded() {
+        if tableDataModel.navigationIntent.focusColumnId != nil {
+            tableDataModel.navigationIntent.focusColumnId = nil
+        }
+    }
+
     // Parameterless accessors read the @Published `tableDataModel` (main-thread only);
     // the `(for:)` variants take a snapshot and are safe on background queues.
     var decoratorConfig: DecoratorConfig {
