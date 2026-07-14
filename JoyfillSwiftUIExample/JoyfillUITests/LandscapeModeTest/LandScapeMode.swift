@@ -130,7 +130,15 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
         let wheels = app.pickerWheels
         XCTAssertGreaterThan(wheels.count, 0, "Tapping the time button should reveal time wheels")
-        let ampmWheel = wheels.element(boundBy: wheels.count - 1)
+        let periodWheel = (0..<wheels.count)
+            .map { wheels.element(boundBy: $0) }
+            .first { wheel in
+                guard let value = wheel.value as? String else { return false }
+                return value.contains("AM") || value.contains("PM")
+            }
+        guard let ampmWheel = periodWheel else {
+            return XCTFail("Expected an AM/PM wheel (12-hour picker); fixture may be using a 24-hour format")
+        }
         let currentPeriod = (ampmWheel.value as? String) ?? "PM"
         ampmWheel.adjust(toPickerWheelValue: currentPeriod.contains("AM") ? "PM" : "AM")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
