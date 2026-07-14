@@ -207,6 +207,9 @@
 		95288F4D2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1C2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift */; };
 		95288F4E2FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F252FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift */; };
 		95288F4F2FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F212FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift */; };
+		95C0BE9C3006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
+		95C0BEA03006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
+		95C0BE9D3006200400D207B9 /* LandScapeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BE9A3006200400D207B9 /* LandScapeMode.swift */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
 		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -228,6 +231,7 @@
 		DEC000B300000000000000A3 /* DecoratorPublicAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */; };
 		DEC000B400000000000000A4 /* DecoratorErrorHandlingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F400000000000000A4 /* DecoratorErrorHandlingTests.swift */; };
 		DEC000B500000000000000A5 /* DecoratorLiveUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F500000000000000A5 /* DecoratorLiveUpdateTests.swift */; };
+		DEC0F11000000000000000F2 /* DocumentEditorConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */; };
 		E20E53022F876E500088A4E4 /* DecoratorAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20E53002F876E500088A4E4 /* DecoratorAPIDemoView.swift */; };
 		E2173C2F2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */; };
 		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
@@ -877,6 +881,8 @@
 		95288F292FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ToNumberFunctionTests.swift; sourceTree = "<group>"; };
 		95288F2A2FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_UpperFunctionTests.swift; sourceTree = "<group>"; };
 		95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_YearFunctionTests.swift; sourceTree = "<group>"; };
+		95C0BE993006200400D207B9 /* LandscapeMode.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LandscapeMode.json; sourceTree = "<group>"; };
+		95C0BE9A3006200400D207B9 /* LandScapeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandScapeMode.swift; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
@@ -892,6 +898,7 @@
 		DEC000F300000000000000A3 /* DecoratorPublicAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorPublicAPITests.swift; sourceTree = "<group>"; };
 		DEC000F400000000000000A4 /* DecoratorErrorHandlingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorErrorHandlingTests.swift; sourceTree = "<group>"; };
 		DEC000F500000000000000A5 /* DecoratorLiveUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorLiveUpdateTests.swift; sourceTree = "<group>"; };
+		DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEditorConfigTests.swift; sourceTree = "<group>"; };
 		E20E53002F876E500088A4E4 /* DecoratorAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorAPIDemoView.swift; sourceTree = "<group>"; };
 		E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableValidationTests.swift; sourceTree = "<group>"; };
 		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
@@ -1214,6 +1221,7 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
+				95C0BE9B3006200400D207B9 /* LandscapeModeTest */,
 				BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */,
 				BA2352F02F99E9DB002D9345 /* DecoratorUITests */,
 				E24089FE2F7CEFA1005C4885 /* Navigation Goto tests */,
@@ -1413,6 +1421,15 @@
 				95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */,
 			);
 			path = Functions;
+			sourceTree = "<group>";
+		};
+		95C0BE9B3006200400D207B9 /* LandscapeModeTest */ = {
+			isa = PBXGroup;
+			children = (
+				95C0BE993006200400D207B9 /* LandscapeMode.json */,
+				95C0BE9A3006200400D207B9 /* LandScapeMode.swift */,
+			);
+			path = LandscapeModeTest;
 			sourceTree = "<group>";
 		};
 		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
@@ -2218,6 +2235,7 @@
 				E2F568B02E2A476A005216A6 /* MultilineTestData.json in Resources */,
 				E2E3E7642E8450A3002A10C2 /* OnChangeHandler.json in Resources */,
 				E28D10A32E2E08CA00E59B5F /* UndefinedValueReference_FormulaTemplate.json in Resources */,
+				95C0BE9C3006200400D207B9 /* LandscapeMode.json in Resources */,
 				E2F568BF2E2A47A1005216A6 /* SingleChoiceFieldTestData.json in Resources */,
 				369D456B2E0E52CA00677280 /* JoyfillResolver_SimpleWorking.json in Resources */,
 				E2F568692E2A4556005216A6 /* DateTimeFieldTestData.json in Resources */,
@@ -2539,6 +2557,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				95C0BEA03006200400D207B9 /* LandscapeMode.json in Resources */,
 				BA2352F32F99E9FE002D9346 /* Decorator.json in Resources */,
 				BA23533B2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
 				BA2353C32FA1DFEF002D9345 /* PageDeletableCopyableMobileView.json in Resources */,
@@ -2758,6 +2777,7 @@
 				BA2353392FA1DFEF002D9345 /* PageDeletableCopyableUITests.swift in Sources */,
 				BA2353C12FA1DFEF002D9345 /* PageDeletableCopyableMobileViewUITests.swift in Sources */,
 				E2F568A22E2A4724005216A6 /* TextFieldUITestCases.swift in Sources */,
+				95C0BE9D3006200400D207B9 /* LandScapeMode.swift in Sources */,
 				E2F568BE2E2A47A1005216A6 /* SingleChoiceFieldUITestCases.swift in Sources */,
 				E2F568B92E2A4792005216A6 /* NumberFieldUITestCases.swift in Sources */,
 				E2F568912E2A45F9005216A6 /* TableFieldTests.swift in Sources */,

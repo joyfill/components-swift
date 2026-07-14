@@ -686,6 +686,17 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
          
     }
     
+    func openBulkEditDateField(_ index: Int) {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            let dateField = app.images.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: index)
+            XCTAssertTrue(dateField.waitForExistence(timeout: 5), "Bulk-edit date field \(index) did not appear")
+            dateField.tap()
+        } else {
+            app.images.element(boundBy: index).firstMatch.tap()
+            app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: index).tap()
+        }
+    }
+
     func testTableBulkEdit() throws {
         goToTableDetailPage()
         
@@ -694,14 +705,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableEditRowsIdentifier"].tap()
         Thread.sleep(forTimeInterval: 0.5)
-        var firstIndex = 0
-        var secondIndex = 1
-        if UIDevice.current.userInterfaceIdiom == .pad  {
-            firstIndex = 2
-            secondIndex = 3
-        }
-        app.images.element(boundBy: firstIndex).firstMatch.tap()
-        app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 0).tap()
+        openBulkEditDateField(0)
         // Try to tap any available date in current month
         let monthName: String = {
             let df = DateFormatter()
@@ -728,9 +732,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }) {
             prevDayButton.tap()
         }
-        dismissSheet()
-        app.images.element(boundBy: secondIndex).firstMatch.tap()
-        app.buttons.matching(identifier: "EditRowsDateFieldIdentifier").element(boundBy: 1).tap()
+        openBulkEditDateField(1)
         // Try to tap any available date in current month
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         if let nextDayButton = app.buttons.allElementsBoundByIndex.first(where: {
@@ -748,7 +750,6 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         }) {
             prevDayButton.tap()
         }
-        dismissSheet()
         app.buttons["ApplyAllButtonIdentifier"].tap()
         
         // Verify timezone in onChange result for second date field in bulk edit

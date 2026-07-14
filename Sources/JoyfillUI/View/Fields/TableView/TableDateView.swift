@@ -234,7 +234,12 @@ private final class _DatePopupViewController: UIViewController {
             toolbar.heightAnchor.constraint(equalToConstant: 44)
         ])
 
-        let stack = UIStackView(arrangedSubviews: [toolbar, picker])
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(picker)
+
+        let stack = UIStackView(arrangedSubviews: [toolbar, scrollView])
         stack.axis = .vertical
         stack.translatesAutoresizingMaskIntoConstraints = false
 
@@ -243,6 +248,9 @@ private final class _DatePopupViewController: UIViewController {
         // Add blur view as background layer
         container.addSubview(blurView)
         container.addSubview(stack)
+
+        let pickerHugsFrame = picker.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
+        pickerHugsFrame.priority = .defaultHigh
 
         NSLayoutConstraint.activate([
             // Blur view fills the container
@@ -255,7 +263,14 @@ private final class _DatePopupViewController: UIViewController {
             stack.leadingAnchor.constraint(equalTo: container.leadingAnchor),
             stack.trailingAnchor.constraint(equalTo: container.trailingAnchor),
             stack.topAnchor.constraint(equalTo: container.topAnchor),
-            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor)
+            stack.bottomAnchor.constraint(equalTo: container.bottomAnchor),
+
+            picker.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            picker.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            picker.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            picker.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            picker.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+            pickerHugsFrame
         ])
     }
 
@@ -278,7 +293,9 @@ private final class _DatePopupViewController: UIViewController {
         NSLayoutConstraint.activate([
             container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            container.widthAnchor.constraint(equalToConstant: width)
+            container.widthAnchor.constraint(equalToConstant: width),
+            // -32 = 16pt top + 16pt bottom breathing room under the safe area
+            container.heightAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.heightAnchor, constant: -32)
         ])
     }
 

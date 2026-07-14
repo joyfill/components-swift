@@ -2678,6 +2678,19 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
 
     }
     
+    func selectPageRow(_ row: XCUIElement, timeout: TimeInterval = 5) {
+        XCTAssertTrue(row.waitForExistence(timeout: timeout), "Page selection row did not appear")
+        let popover = app.scrollViews.containing(.button, identifier: "PageSelectionIdentifier").firstMatch
+        var attempts = 0
+        while popover.exists && row.frame.midY > popover.frame.maxY - 6 && attempts < 5 {
+            let start = popover.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+            let end = popover.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.3))
+            start.press(forDuration: 0.05, thenDragTo: end)
+            attempts += 1
+        }
+        row.tap()
+    }
+
     func testImageField() throws {
         guard UIDevice.current.userInterfaceIdiom == .pad else {
             return
@@ -2686,9 +2699,8 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         pageSelectionButton.element(boundBy: 0).tap()
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let tapOnSecondPage = pageSheetSelectionButton.element(boundBy: 3)
-        tapOnSecondPage.tap()
-        
+        selectPageRow(pageSheetSelectionButton.element(boundBy: 3))
+
         let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
         imageButton.tap()
         uploadTestImage()
@@ -2698,20 +2710,20 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         imageButton.tap()
         
         pageSelectionButton.element(boundBy: 0).tap()
-        pageSheetSelectionButton.element(boundBy: 0).tap()
-        
+        selectPageRow(pageSheetSelectionButton.element(boundBy: 0))
+
         pageSelectionButton.element(boundBy: 1).tap()
-        pageSheetSelectionButton.element(boundBy: 3).tap()
+        selectPageRow(pageSheetSelectionButton.element(boundBy: 3))
         uploadTestImage()
         clickOnFirstImage()
         deleteSelectedImages()
         dismissSheet()
         pageSelectionButton.element(boundBy: 0).tap()
-        pageSheetSelectionButton.element(boundBy: 4).tap()
-        
+        selectPageRow(pageSheetSelectionButton.element(boundBy: 4))
+
         pageSelectionButton.element(boundBy: 1).tap()
-        pageSheetSelectionButton.element(boundBy: 4).tap()
-        
+        selectPageRow(pageSheetSelectionButton.element(boundBy: 4))
+
         imageButton.tap()
         uploadTestImage()
         let imageElements = app.images.matching(identifier: "DetailPageImageSelectionIdentifier")

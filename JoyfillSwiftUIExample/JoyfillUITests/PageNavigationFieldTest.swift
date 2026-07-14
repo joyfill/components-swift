@@ -116,6 +116,14 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
         duplicatePageButton.tap()
         
         let duplicatedPageButton = pageSheetSelectionButton.element(boundBy: 3)
+        let pageSheetScrollView = app.scrollViews.firstMatch
+        if pageSheetScrollView.exists {
+            let start = pageSheetScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.7))
+            let end = pageSheetScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            start.press(forDuration: 0.03, thenDragTo: end)
+        } else {
+            app.swipeUp()
+        }
         duplicatedPageButton.tap()
         
         let duplicatedTextFields = app.textFields.allElementsBoundByIndex

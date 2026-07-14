@@ -10,14 +10,14 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnSixthPage = pageSheetSelectionButton.element(boundBy: 3)
-        tapOnSixthPage.tap()
-        
+        tapOnSixthPage.tapPageRow(in: app)
+
         let textFields = app.textFields.allElementsBoundByIndex
         
         // Select "No" option ( Condition Field )
         let dropdownButton = app.buttons["Dropdown"]
         XCTAssertEqual("Select Option", dropdownButton.label)
-        dropdownButton.tap()
+        dropdownButton.openDropdownList(in: app)
         let dropdownOptions = app.buttons.matching(identifier: "DropdownoptionIdentifier")
         let tapOnOption = dropdownOptions.element(boundBy: 1)
         tapOnOption.tap()
@@ -35,14 +35,13 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         XCTAssertFalse(page7Title.exists, "Page 7 should not exist.")
         
         let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
-        tapOnFirstPage.tap()
-        
+        tapOnFirstPage.tapPageRow(in: app)
         // Navigate to Page Six to unselect the dropdown option
         pageSelectionButton.tap()
-        tapOnSixthPage.tap()
-        
+        tapOnSixthPage.tapPageRow(in: app)
+
         // Click dropdown option for unselect the option
-        dropdownButton.tap()
+        dropdownButton.openDropdownList(in: app)
         let dropdownOption = app.buttons.matching(identifier: "DropdownoptionIdentifier")
         let unselectOption = dropdownOption.element(boundBy: 1)
         unselectOption.tap()
@@ -53,8 +52,8 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(page7Title.exists, "Page 7 should exist.")
         
         let tapOnSeventhPage = pageSheetSelectionButton.element(boundBy: 4)
-        tapOnSeventhPage.tap()
-        
+        tapOnSeventhPage.tapPageRow(in: app)
+
         // Page 7 Always Show TextField
         let alwaysShowTextField = textFields[0]
         XCTAssertTrue(alwaysShowTextField.exists, "The alwaysShow text field does not exist.")
@@ -72,8 +71,8 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnSeventhPage = pageSheetSelectionButton.element(boundBy: 4)
-        tapOnSeventhPage.tap()
-        
+        tapOnSeventhPage.tapPageRow(in: app)
+
         let textFields = app.textFields.allElementsBoundByIndex
         
         
@@ -95,19 +94,19 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         XCTAssertFalse(page8Title.exists, "Page 8 should not exist.")
         
         let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
-        tapOnFirstPage.tap()
-        
+        tapOnFirstPage.tapPageRow(in: app)
+
         // Navigate to Page Seven to unselect the dropdown option
         pageSelectionButton.tap()
-        tapOnSeventhPage.tap()
-        
+        tapOnSeventhPage.tapPageRow(in: app)
+
         // Click dropdown option for unselect the option
         selectYesOption.element(boundBy: 1).tap()
         
         // Navigate to Page 8
         pageSelectionButton.tap()
         let tapOnEighthPage = pageSheetSelectionButton.element(boundBy: 5)
-        tapOnEighthPage.tap()
+        tapOnEighthPage.tapPageRow(in: app)
         
         // Page 8 Always Show TextField
         let page8AlwaysShowTextField = textFields[0]
@@ -126,8 +125,8 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnEightPage = pageSheetSelectionButton.element(boundBy: 5)
-        tapOnEightPage.tap()
-        
+        tapOnEightPage.tapPageRow(in: app)
+
         let textFields = app.textFields.allElementsBoundByIndex
         
         
@@ -149,12 +148,12 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         XCTAssertFalse(page6Title.exists, "Page 8 should not exist.")
         
         let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
-        tapOnFirstPage.tap()
-        
+        tapOnFirstPage.tapPageRow(in: app)
+
         // Navigate to Page Eight to unselect the dropdown option
         pageSelectionButton.tap()
         let againTapOnEightPage = pageSheetSelectionButton.element(boundBy: 4)
-        againTapOnEightPage.tap()
+        againTapOnEightPage.tapPageRow(in: app)
         
         // Click dropdown option for unselect the option
         selectYesOption.element(boundBy: 1).tap()
@@ -163,8 +162,8 @@ final class SelectionFieldHidePageLogicTests: JoyfillUITestsBaseClass {
         // Navigate to Page 8
         pageSelectionButton.tap()
         let tapOnSixthPage = pageSheetSelectionButton.element(boundBy: 3)
-        tapOnSixthPage.tap()
-        
+        tapOnSixthPage.tapPageRow(in: app)
+
         // Page 8 Always Show TextField
         let page6AlwaysShowTextField = textFields[0]
         XCTAssertTrue(page6AlwaysShowTextField.exists, "The alwaysShow text field does not exist.")

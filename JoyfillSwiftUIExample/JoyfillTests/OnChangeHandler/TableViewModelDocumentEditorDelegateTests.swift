@@ -8,6 +8,7 @@
 import XCTest
 import Foundation
 import SwiftUI
+import Combine
 import JoyfillModel
 @testable import Joyfill
 
@@ -648,5 +649,29 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
             XCTAssertTrue((viewModel.tableDataModel.valueToValueElements ?? []).contains(where: { $0.id == newID }),
                           "valueToValueElements should contain the newly inserted row")
         }
+    }
+
+    // MARK: - clearFocusColumnIfNeeded publish-count invariant (NO-2237)
+    func testClearFocusColumnIfNeeded_publishesOnlyWhenFocusIsSet() {
+        // Given
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        viewModel.tableDataModel.navigationIntent.focusColumnId = nil
+
+        var emissions = 0
+        let cancellable = viewModel.objectWillChange.sink { _ in emissions += 1 }
+
+        // When focus is already nil -> guard skips the write -> no publish (the perf fix)
+        viewModel.clearFocusColumnIfNeeded()
+        XCTAssertEqual(emissions, 0, "clearing when focusColumnId is already nil must not publish")
+
+        // When focus is set -> the set publishes once, the guarded clear publishes once -> 2 total
+        viewModel.tableDataModel.navigationIntent.focusColumnId = "col-1"
+        viewModel.clearFocusColumnIfNeeded()
+        XCTAssertEqual(emissions, 2, "setting then clearing focusColumnId should publish exactly twice")
+        XCTAssertNil(viewModel.tableDataModel.navigationIntent.focusColumnId, "focus must still clear")
+
+        _ = cancellable
     }
 }

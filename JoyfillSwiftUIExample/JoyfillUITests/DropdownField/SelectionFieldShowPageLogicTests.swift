@@ -10,7 +10,7 @@ final class SelectionFieldShowPageLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnSixthPage = pageSheetSelectionButton.element(boundBy: 3)
-        tapOnSixthPage.tap()
+        tapOnSixthPage.tapPageRow(in: app)
         
         let textFields = app.textFields.allElementsBoundByIndex
         
@@ -30,12 +30,12 @@ final class SelectionFieldShowPageLogicTests: JoyfillUITestsBaseClass {
         // Navigate to Page 1 ( Check page 9 is show )
         pageSelectionButton.tap()
         let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
-        tapOnFirstPage.tap()
-        
+        tapOnFirstPage.tapPageRow(in: app)
+
         // Navigate to Page Nine
         pageSelectionButton.tap()
         let tapOnNinthPage = pageSheetSelectionButton.element(boundBy: 6)
-        tapOnNinthPage.tap()
+        tapOnNinthPage.tapPageRow(in: app)
         
         // Page 9 TextField
         let textField = textFields[0]
@@ -54,8 +54,8 @@ final class SelectionFieldShowPageLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnSeventhPage = pageSheetSelectionButton.element(boundBy: 4)
-        tapOnSeventhPage.tap()
-        
+        tapOnSeventhPage.tapPageRow(in: app)
+
         let textFields = app.textFields.allElementsBoundByIndex
         
         
@@ -72,12 +72,12 @@ final class SelectionFieldShowPageLogicTests: JoyfillUITestsBaseClass {
         // Navigate to Page 1 ( Check page 10 is show )
         pageSelectionButton.tap()
         let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
-        tapOnFirstPage.tap()
-        
+        tapOnFirstPage.tapPageRow(in: app)
+
         // Navigate to Page ten
         pageSelectionButton.tap()
         let tapOntenthPage = pageSheetSelectionButton.element(boundBy: 6)
-        tapOntenthPage.tap()
+        tapOntenthPage.tapPageRow(in: app)
         
         // Page 10 TextField
         let textField = textFields[0]
@@ -96,8 +96,8 @@ final class SelectionFieldShowPageLogicTests: JoyfillUITestsBaseClass {
         
         let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
         let tapOnEightPage = pageSheetSelectionButton.element(boundBy: 5)
-        tapOnEightPage.tap()
-        
+        tapOnEightPage.tapPageRow(in: app)
+
         let textFields = app.textFields.allElementsBoundByIndex
         
         
@@ -114,12 +114,12 @@ final class SelectionFieldShowPageLogicTests: JoyfillUITestsBaseClass {
         // Navigate to Page 1 ( Check page 11 is show )
         pageSelectionButton.tap()
         let tapOnFirstPage = pageSheetSelectionButton.element(boundBy: 0)
-        tapOnFirstPage.tap()
-        
+        tapOnFirstPage.tapPageRow(in: app)
+
         // Navigate to Page ten
         pageSelectionButton.tap()
         let tapOnEleventhPage = pageSheetSelectionButton.element(boundBy: 6)
-        tapOnEleventhPage.tap()
+        tapOnEleventhPage.tapPageRow(in: app)
         
         // Page 11 TextField
         let textField = textFields[0]

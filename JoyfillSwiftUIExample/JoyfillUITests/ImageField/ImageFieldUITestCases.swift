@@ -219,8 +219,9 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         imageButton.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0)) // Allow any focus logic to process
         
-        // Simulate blur by tapping outside (background)
-        app.otherElements.firstMatch.tap()
+        // Simulate blur by tapping outside (background), in a safe zone well clear of adjacent fields
+        let win = app.windows.firstMatch
+        win.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.10)).tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         // Fetch the payload and verify image field state was registered correctly
