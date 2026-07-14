@@ -17,7 +17,10 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
     override func setUpWithError() throws {
         try super.setUpWithError()
         XCUIDevice.shared.orientation = .landscapeLeft
-        _ = waitUntil(5) { self.app.buttons["PageNavigationIdentifier"].isHittable }
+        XCTAssertTrue(
+            waitUntil(5) { self.app.buttons["PageNavigationIdentifier"].isHittable },
+            "Page navigation button should be hittable after rotating to landscape"
+        )
     }
 
     override func tearDownWithError() throws {
