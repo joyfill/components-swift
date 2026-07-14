@@ -104,9 +104,17 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
         let picker = app.datePickers.firstMatch
         XCTAssertTrue(picker.waitForExistence(timeout: 5), "Date+time picker should present in landscape without freezing")
 
-        let dayButton = picker.buttons.allElementsBoundByIndex.first {
-            $0.exists && !$0.label.contains(":") && $0.label.contains("10")
+        func isDayLabel(_ label: String) -> Bool {
+            guard !label.contains(":") else { return false }
+            return label.split(whereSeparator: { !$0.isNumber }).contains {
+                if let day = Int($0), (1...31).contains(day) { return true }
+                return false
+            }
         }
+        let dayButtons = picker.buttons.allElementsBoundByIndex.filter {
+            $0.exists && isDayLabel($0.label)
+        }
+        let dayButton = dayButtons.first { !$0.isSelected } ?? dayButtons.first
         XCTAssertNotNil(dayButton, "Calendar should offer a day button to change the date")
         dayButton?.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
