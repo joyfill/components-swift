@@ -294,6 +294,7 @@ private final class _DatePopupViewController: UIViewController {
             container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             container.widthAnchor.constraint(equalToConstant: width),
+            // -32 = 16pt top + 16pt bottom breathing room under the safe area
             container.heightAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.heightAnchor, constant: -32)
         ])
     }
