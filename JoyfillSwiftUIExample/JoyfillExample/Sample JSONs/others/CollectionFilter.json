@@ -53,12 +53,7 @@
           "presentation": "normal",
           "padding": 24,
           "name": "New Page",
-          "rowHeight": 8,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "rowHeight": 8
         },
         {
           "_id": "68f20e45b90bb7914a6b967a",
@@ -101,12 +96,7 @@
           ],
           "layout": "grid",
           "presentation": "normal",
-          "padding": 24,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "padding": 24
         },
         {
           "_id": "68f8a5d17f82d5a7f6f36b3f",
@@ -129,12 +119,7 @@
           ],
           "layout": "grid",
           "presentation": "normal",
-          "padding": 24,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "padding": 24
         },
         {
           "_id": "6a57a455d1ea9e0dd246d472",
@@ -157,11 +142,7 @@
           ],
           "layout": "grid",
           "presentation": "normal",
-          "padding": 24,
-          "deletable": true,
-          "copyable": [
-            "with-values"
-          ]
+          "padding": 24
         }
       ],
       "_id": "685750ef698da1ab427761ba",

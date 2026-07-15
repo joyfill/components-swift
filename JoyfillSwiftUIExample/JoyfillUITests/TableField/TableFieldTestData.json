@@ -1032,12 +1032,7 @@
           "_id": "66a14ced15a9dc96374e091e",
           "width": 816,
           "name": "Every Field Type",
-          "margin": 0,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "margin": 0
         },
         {
           "height": 1056,
@@ -1075,12 +1070,7 @@
           "_id": "68d7ba78321dcd7856b3735e",
           "width": 816,
           "name": "Every Field Type",
-          "margin": 0,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "margin": 0
         },
         {
           "_id": "68f1fe14279a2aab1a64e24d",
@@ -1130,12 +1120,7 @@
           ],
           "layout": "grid",
           "presentation": "normal",
-          "padding": 24,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "padding": 24
         },
         {
           "_id": "68f88270495d5cc6d27273ca",
@@ -1159,12 +1144,7 @@
           ],
           "layout": "grid",
           "presentation": "normal",
-          "padding": 24,
-          "deletable": true,
-          "copyable": [
-            "with-values",
-            "without-values"
-          ]
+          "padding": 24
         },
         {
           "_id": "6a5784894c25c8f29b905c04",
@@ -1187,11 +1167,7 @@
           ],
           "layout": "grid",
           "presentation": "normal",
-          "padding": 24,
-          "deletable": true,
-          "copyable": [
-            "with-values"
-          ]
+          "padding": 24
         }
       ]
     }
