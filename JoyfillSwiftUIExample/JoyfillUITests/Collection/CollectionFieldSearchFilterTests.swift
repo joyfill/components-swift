@@ -4032,4 +4032,235 @@ extension CollectionFieldSearchFilterTests {
         )
     }
     
+    // MARK: - MultiSelect `multi` flag coverage (Multiselect page)
+
+    func goToMultiSelectCollectionPage() {
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        XCTAssertTrue(pageSelectionButton.waitForExistence(timeout: 5), "Page navigation button should exist")
+        pageSelectionButton.tap()
+        let page = app.buttons["Multiselect"].firstMatch
+        XCTAssertTrue(page.waitForExistence(timeout: 5), "Multiselect page should be listed in the page selection sheet")
+        app.swipeUp()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+        page.tap()
+    }
+
+    private func setCollectionMultiSelectCell(cellIndex: Int, optionIndex: Int, multi: Bool) {
+        let cell = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").element(boundBy: cellIndex)
+        XCTAssertTrue(cell.waitForExistence(timeout: 5), "Cell \(cellIndex) should exist")
+        for _ in 0..<5 where !cell.isHittable {
+            app.swipeLeft()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+        }
+        cell.tap()
+        let optionsId = multi ? "TableMultiSelectOptionsSheetIdentifier" : "TableSingleSelectOptionsSheetIdentifier"
+        let options = app.buttons.matching(identifier: optionsId)
+        XCTAssertTrue(options.element.waitForExistence(timeout: 3), "Options sheet should appear for cell \(cellIndex)")
+        options.element(boundBy: optionIndex).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+    }
+
+    private func filterCollectionMultiSelect(column: String, option: String) {
+        app.buttons["CollectionFilterButtonIdentifier"].tap()
+        let columnSelector = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier").element(boundBy: 0)
+        XCTAssertTrue(columnSelector.waitForExistence(timeout: 3), "Column selector should exist")
+        columnSelector.tap()
+        let columnOption = app.buttons[column].firstMatch
+        XCTAssertTrue(columnOption.waitForExistence(timeout: 3), "\(column) should be listed in the filter column selector")
+        columnOption.tap()
+        let searchField = app.buttons["SearchBarMultiSelectionFieldIdentifier"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 3), "MultiSelect filter search bar should appear")
+        searchField.tap()
+        XCTAssertGreaterThan(app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier").count, 0, "Filter must render single-select options")
+        XCTAssertEqual(app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier").count, 0, "Filter must not render multi-select options")
+        let optionButton = app.buttons[option].firstMatch
+        XCTAssertTrue(optionButton.waitForExistence(timeout: 3), "\(option) should be selectable in the filter")
+        optionButton.tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        tapApplyButton()
+    }
+
+    func testCollectionMultiSelectColumnWithoutMultiPropertyIsSingleSelect() throws {
+        goToMultiSelectCollectionPage()
+        goToCollectionDetailField()
+
+        let cells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertTrue(cells.element(boundBy: 0).waitForExistence(timeout: 5), "Column 1 cell should exist")
+        cells.element(boundBy: 0).tap() // row 0 / column 1 (no `multi` key)
+
+        let singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        let multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "Column without `multi` should render single-select options")
+        XCTAssertGreaterThan(singleOptions.count, 0)
+        XCTAssertEqual(multiOptions.count, 0, "Column without `multi` must not render multi-select options")
+
+        singleOptions.element(boundBy: 0).tap()
+        singleOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        XCTAssertEqual("Option 2", cells.element(boundBy: 0).label)
+    }
+
+    func testCollectionMultiSelectColumnWithMultiFalseIsSingleSelect() throws {
+        goToMultiSelectCollectionPage()
+        goToCollectionDetailField()
+
+        let cells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertTrue(cells.element(boundBy: 1).waitForExistence(timeout: 5), "Column 2 cell should exist")
+        cells.element(boundBy: 1).tap() // row 0 / column 2 (`multi: false`)
+
+        let singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        let multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "`multi: false` should render single-select options")
+        XCTAssertGreaterThan(singleOptions.count, 0)
+        XCTAssertEqual(multiOptions.count, 0, "`multi: false` must not render multi-select options")
+
+        singleOptions.element(boundBy: 0).tap()
+        singleOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        XCTAssertEqual("Option 2", cells.element(boundBy: 1).label)
+    }
+
+    func testCollectionMultiSelectColumnWithMultiTrueIsMultiSelect() throws {
+        goToMultiSelectCollectionPage()
+        goToCollectionDetailField()
+
+        let cells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertTrue(cells.element(boundBy: 0).waitForExistence(timeout: 5), "Collection cells should exist")
+        let col3Cell = cells.element(boundBy: 2) // row 0 / column 3 (`multi: true`)
+        for _ in 0..<5 where !col3Cell.isHittable {
+            app.swipeLeft()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+        }
+        XCTAssertTrue(col3Cell.isHittable, "Column 3 cell should be reachable")
+        col3Cell.tap()
+
+        let multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        let singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        XCTAssertTrue(multiOptions.element.waitForExistence(timeout: 3), "`multi: true` should render multi-select options")
+        XCTAssertGreaterThan(multiOptions.count, 0)
+        XCTAssertEqual(singleOptions.count, 0, "`multi: true` must not render single-select options")
+
+        multiOptions.element(boundBy: 0).tap()
+        multiOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        XCTAssertEqual("Option 1, +1", col3Cell.label)
+    }
+
+    // Row edit form (single row) must honor each column's `multi` flag.
+    func testCollectionRowFormSimpleEditMultiSelectColumnsRespectMultiFlag() throws {
+        goToMultiSelectCollectionPage()
+        goToCollectionDetailField()
+
+        selectRow(number: 1)
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        let formFields = app.buttons.matching(identifier: "EditRowsMultiSelecionFieldIdentifier")
+        XCTAssertTrue(formFields.element(boundBy: 0).waitForExistence(timeout: 5), "Row form multiSelect fields should exist")
+
+        // Column 1 (no `multi`): single-select.
+        formFields.element(boundBy: 0).tap()
+        var singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        var multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "Column without `multi` should render single-select options in row form")
+        XCTAssertEqual(multiOptions.count, 0, "Column without `multi` must not render multi-select options")
+        singleOptions.element(boundBy: 0).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+
+        // Column 2 (`multi: false`): single-select.
+        formFields.element(boundBy: 1).tap()
+        singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "`multi: false` should render single-select options in row form")
+        XCTAssertEqual(multiOptions.count, 0, "`multi: false` must not render multi-select options")
+        singleOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+
+        // Column 3 (`multi: true`): multi-select.
+        formFields.element(boundBy: 2).tap()
+        multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        XCTAssertTrue(multiOptions.element.waitForExistence(timeout: 3), "`multi: true` should render multi-select options in row form")
+        XCTAssertEqual(singleOptions.count, 0, "`multi: true` must not render single-select options")
+        multiOptions.element(boundBy: 0).tap()
+        multiOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+
+        dismissSheet()
+
+        let cells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertEqual("Option 1", cells.element(boundBy: 0).label, "No-`multi` column should store a single value")
+        XCTAssertEqual("Option 2", cells.element(boundBy: 1).label, "`multi: false` column should store a single value")
+        XCTAssertEqual("Option 1, +1", cells.element(boundBy: 2).label, "`multi: true` column should store multiple values")
+    }
+
+    // Bulk edit form (all rows) must honor each column's `multi` flag.
+    func testCollectionRowFormBulkEditMultiSelectColumnsRespectMultiFlag() throws {
+        goToMultiSelectCollectionPage()
+        goToCollectionDetailField()
+
+        selectAllParentRows()
+        tapOnMoreButton()
+        editRowsButton().tap()
+
+        let formFields = app.buttons.matching(identifier: "EditRowsMultiSelecionFieldIdentifier")
+        XCTAssertTrue(formFields.element(boundBy: 0).waitForExistence(timeout: 5), "Bulk-edit multiSelect fields should exist")
+
+        // Column 1 (no `multi`): single-select.
+        formFields.element(boundBy: 0).tap()
+        var singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        var multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "Column without `multi` should render single-select options in bulk edit")
+        XCTAssertEqual(multiOptions.count, 0, "Column without `multi` must not render multi-select options")
+        singleOptions.element(boundBy: 0).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+
+        // Column 2 (`multi: false`): single-select.
+        formFields.element(boundBy: 1).tap()
+        singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "`multi: false` should render single-select options in bulk edit")
+        XCTAssertEqual(multiOptions.count, 0, "`multi: false` must not render multi-select options")
+        singleOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+
+        // Column 3 (`multi: true`): multi-select.
+        formFields.element(boundBy: 2).tap()
+        multiOptions = app.buttons.matching(identifier: "TableMultiSelectOptionsSheetIdentifier")
+        singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        XCTAssertTrue(multiOptions.element.waitForExistence(timeout: 3), "`multi: true` should render multi-select options in bulk edit")
+        XCTAssertEqual(singleOptions.count, 0, "`multi: true` must not render single-select options")
+        multiOptions.element(boundBy: 0).tap()
+        multiOptions.element(boundBy: 1).tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+
+        app.buttons["ApplyAllButtonIdentifier"].tap()
+
+        let cells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        for row in 0..<3 {
+            XCTAssertEqual("Option 1", cells.element(boundBy: row * 3).label, "Row \(row): no-`multi` column should store a single value")
+            XCTAssertEqual("Option 2", cells.element(boundBy: row * 3 + 1).label, "Row \(row): `multi: false` column should store a single value")
+            XCTAssertEqual("Option 1, +1", cells.element(boundBy: row * 3 + 2).label, "Row \(row): `multi: true` column should store multiple values")
+        }
+    }
+
+    // Filtering each multiSelect column narrows the collection to the matching row.
+    func testCollectionMultiSelectColumnsFilterAcrossAllThreeColumns() throws {
+        goToMultiSelectCollectionPage()
+        goToCollectionDetailField()
+
+        setCollectionMultiSelectCell(cellIndex: 0, optionIndex: 0, multi: false) // row0 / col1 = Option 1
+        setCollectionMultiSelectCell(cellIndex: 4, optionIndex: 1, multi: false) // row1 / col2 = Option 2
+        setCollectionMultiSelectCell(cellIndex: 8, optionIndex: 2, multi: true)  // row2 / col3 = Option 3
+
+        filterCollectionMultiSelect(column: "MultiSelect Column 1", option: "Option 1")
+        XCTAssertEqual(1, getVisibleRowCount(), "Filtering col1 by Option 1 should leave one row")
+
+        filterCollectionMultiSelect(column: "MultiSelect Column 2", option: "Option 2")
+        XCTAssertEqual(1, getVisibleRowCount(), "Filtering col2 by Option 2 should leave one row")
+
+        filterCollectionMultiSelect(column: "MultiSelect Column 3", option: "Option 3")
+        XCTAssertEqual(1, getVisibleRowCount(), "Filtering col3 by Option 3 should leave one row")
+    }
+
 }
