@@ -257,6 +257,7 @@
           "_id": "685752c9b183f6583d205cc6",
           "title": "MultiSelect Column",
           "type": "multiSelect",
+          "multi": true,
           "width": 0,
           "options": [
             {
@@ -439,6 +440,7 @@
               "title": "Multiselect Column",
               "width": 0,
               "type": "multiSelect",
+              "multi": true,
               "options": [
                 {
                   "value": "Option 1",
@@ -879,6 +881,7 @@
               "_id": "6857530158fb7edb102344fa",
               "title": "MultiSelect  D1",
               "type": "multiSelect",
+              "multi": true,
               "width": 0,
               "options": [
                 {
@@ -1572,6 +1575,7 @@
               "type": "multiSelect",
               "title": "Multiselect Column",
               "deleted": false,
+              "multi": true,
               "width": 0,
               "options": [
                 {

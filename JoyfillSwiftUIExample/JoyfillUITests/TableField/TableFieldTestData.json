@@ -624,6 +624,7 @@
           "_id": "68f1fe33dd2af79db317960c",
           "type": "multiSelect",
           "title": "Multiselect Column",
+          "multi": true,
           "width": 0,
           "options": [
             {
