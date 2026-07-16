@@ -2787,6 +2787,7 @@
                             "_id": "6805b771ab52db07a211a2f6",
                             "type": "multiSelect",
                             "title": "Multiselect Column",
+                            "multi": true,
                             "deleted": false,
                             "width": 0,
                             "options": [
@@ -2919,6 +2920,7 @@
                             "type": "multiSelect",
                             "title": "Multiselect Column",
                             "deleted": false,
+                            "multi": true,
                             "width": 0,
                             "options": [
                                 {

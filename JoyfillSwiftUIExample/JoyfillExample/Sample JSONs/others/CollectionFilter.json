@@ -8,7 +8,8 @@
       "pageOrder": [
         "685750efeb612f4fac5819dd",
         "68f20e45b90bb7914a6b967a",
-        "68f8a5d17f82d5a7f6f36b3f"
+        "68f8a5d17f82d5a7f6f36b3f",
+        "6a57a455d1ea9e0dd246d472"
       ],
       "pages": [
         {
@@ -114,6 +115,29 @@
               "y": 0,
               "width": 8,
               "height": 15
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        },
+        {
+          "_id": "6a57a455d1ea9e0dd246d472",
+          "name": "Multiselect",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "6a57a45f8a09d2bd321f8f52",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 29,
+              "field": "6a57a45fbc641c7c1a041ecd"
             }
           ],
           "layout": "grid",
@@ -257,6 +281,7 @@
           "_id": "685752c9b183f6583d205cc6",
           "title": "MultiSelect Column",
           "type": "multiSelect",
+          "multi": true,
           "width": 0,
           "options": [
             {
@@ -439,6 +464,7 @@
               "title": "Multiselect Column",
               "width": 0,
               "type": "multiSelect",
+              "multi": true,
               "options": [
                 {
                   "value": "Option 1",
@@ -879,6 +905,7 @@
               "_id": "6857530158fb7edb102344fa",
               "title": "MultiSelect  D1",
               "type": "multiSelect",
+              "multi": true,
               "width": 0,
               "options": [
                 {
@@ -1572,6 +1599,7 @@
               "type": "multiSelect",
               "title": "Multiselect Column",
               "deleted": false,
+              "multi": true,
               "width": 0,
               "options": [
                 {
@@ -1773,6 +1801,116 @@
         }
       },
       "identifier": "field_68f8a5de7d9ea2acad2e5f62"
+    },
+    {
+      "file": "685750ef698da1ab427761ba",
+      "_id": "6a57a45fbc641c7c1a041ecd",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6a57a47e8d5858696f91e9ed",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a57a47fd8c8d5dfccaf9eef",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a57a4882d236f1aa6462935",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "6a57a46a584427c53d6c447a",
+              "type": "multiSelect",
+              "title": "MultiSelect Column 1",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a57a46ac5ffc39bdda33d80",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a57a46a965b00180bc81272",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a57a46ae9a711871fe76993",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a57a45fbc641c7c1a041ecd_column_6a57a46a584427c53d6c447a"
+            },
+            {
+              "_id": "6a57a46f09bc7681d8ae9dc0",
+              "type": "multiSelect",
+              "title": "MultiSelect Column 2",
+              "multi": false,
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a57a46f7e8e72890f0b22c5",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a57a46f7dcb855f05f39ba5",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a57a46fb31f27780af76f70",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a57a45fbc641c7c1a041ecd_column_6a57a46f09bc7681d8ae9dc0"
+            },
+            {
+              "_id": "6a57a4709654b82a7aec819d",
+              "type": "multiSelect",
+              "title": "MultiSelect Column 3",
+              "multi": true,
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a57a4700a91cf01e6655e5a",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a57a4707f44838f35197aa9",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a57a47012eb4fc1d4f837db",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a57a45fbc641c7c1a041ecd_column_6a57a4709654b82a7aec819d"
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a57a45fbc641c7c1a041ecd"
     }
   ]
 }

@@ -19,7 +19,7 @@ struct TableMultiSelectView: View {
     private var isSearching: Bool
 
     private var isMulti: Bool {
-        cellModel.data.multi ?? true
+        cellModel.data.multi ?? false
     }
 
     private var selectedValues: [String] {
@@ -41,7 +41,7 @@ struct TableMultiSelectView: View {
         
         if !isUsedForBulkEdit {
             let values = cellModel.wrappedValue.data.multiSelectValues ?? []
-            if cellModel.wrappedValue.data.multi ?? true {
+            if cellModel.wrappedValue.data.multi ?? false {
                 _multiSelectedOptionArray = State(initialValue: values)
             } else {
                 _singleSelectedOptionArray = State(initialValue: values)
@@ -108,7 +108,7 @@ struct TableMultiSelectView: View {
         .onAppear {
             guard !isUsedForBulkEdit else { return }
             let values = cellModel.data.multiSelectValues ?? []
-            if cellModel.data.multi ?? true {
+            if cellModel.data.multi ?? false {
                 multiSelectedOptionArray = values
             } else {
                 singleSelectedOptionArray = values

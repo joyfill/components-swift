@@ -624,6 +624,7 @@
           "_id": "68f1fe33dd2af79db317960c",
           "type": "multiSelect",
           "title": "Multiselect Column",
+          "multi": true,
           "width": 0,
           "options": [
             {
@@ -847,6 +848,119 @@
         "68e6704db5c2921b790869f1",
         "68e6704de976d53aee73a22f"
       ]
+    },
+    {
+      "file": "66a14ced9dc829a95e272506",
+      "_id": "6a5784c61e23a7ba7f5034f1",
+      "type": "table",
+      "title": "Table",
+      "tableColumns": [
+        {
+          "_id": "6a5784d1d621c682be90f314",
+          "type": "multiSelect",
+          "title": "MultiSelect Column 1",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a5784d15b872c819bcaf1f0",
+              "value": "Option 1",
+              "deleted": false
+            },
+            {
+              "_id": "6a5784d17595d72edb41de4b",
+              "value": "Option 2",
+              "deleted": false
+            },
+            {
+              "_id": "6a5784d12d48637e36fdbc90",
+              "value": "Option 3",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a5784c61e23a7ba7f5034f1_column_6a5784d1d621c682be90f314"
+        },
+        {
+          "_id": "6a5790cdf7cfd2863234b9f7",
+          "type": "multiSelect",
+          "title": "MultiSelect Column 2",
+          "multi": false,
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a5790cda74054a008b09484",
+              "value": "Option 1",
+              "deleted": false
+            },
+            {
+              "_id": "6a5790cd316f2243bfcbf84e",
+              "value": "Option 2",
+              "deleted": false
+            },
+            {
+              "_id": "6a5790cd6ad7b459750a8daf",
+              "value": "Option 3",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a5784c61e23a7ba7f5034f1_column_6a5790cdf7cfd2863234b9f7"
+        },
+        {
+          "_id": "6a5790d077dfd7c217781f1f",
+          "type": "multiSelect",
+          "title": "MultiSelect Column 3",
+          "multi": true,
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a5790d07101d73ce15483b7",
+              "value": "Option 1",
+              "deleted": false
+            },
+            {
+              "_id": "6a5790d0152220240f5f6b59",
+              "value": "Option 2",
+              "deleted": false
+            },
+            {
+              "_id": "6a5790d017c763eea28a6094",
+              "value": "Option 3",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a5784c61e23a7ba7f5034f1_column_6a5790d077dfd7c217781f1f"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a549f7fc304c47d93f0d15c",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6a549f7fff2d0bb751476a67",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6a549f7f10c72e6a9d7afe52",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_6a5784c61e23a7ba7f5034f1",
+      "tableColumnOrder": [
+        "6a5784d1d621c682be90f314",
+        "6a5790cdf7cfd2863234b9f7",
+        "6a5790d077dfd7c217781f1f"
+      ],
+      "rowOrder": [
+        "6a549f7fc304c47d93f0d15c",
+        "6a549f7fff2d0bb751476a67",
+        "6a549f7f10c72e6a9d7afe52"
+      ]
     }
   ],
   "_id": "66a14cedd6e1ebcdf176a8da",
@@ -866,7 +980,8 @@
         "66a14ced15a9dc96374e091e",
         "68d7ba78321dcd7856b3735e",
         "68f1fe14279a2aab1a64e24d",
-        "68f88270495d5cc6d27273ca"
+        "68f88270495d5cc6d27273ca",
+        "6a5784894c25c8f29b905c04"
       ],
       "pages": [
         {
@@ -1025,6 +1140,29 @@
               "y": 0,
               "width": 8,
               "height": 15
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        },
+        {
+          "_id": "6a5784894c25c8f29b905c04",
+          "name": "MultiSelect",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "6a5784c64539a5a36d55b182",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 15,
+              "field": "6a5784c61e23a7ba7f5034f1"
             }
           ],
           "layout": "grid",
