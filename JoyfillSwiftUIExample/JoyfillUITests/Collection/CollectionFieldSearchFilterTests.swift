@@ -4098,6 +4098,11 @@ extension CollectionFieldSearchFilterTests {
         singleOptions.element(boundBy: 1).tap()
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         XCTAssertEqual("Option 2", cells.element(boundBy: 0).label)
+
+        goBack()
+        waitForAppToSettle()
+        let selected = try XCTUnwrap(onChangeResultValue().valueElements?.first?.cells?["6a57a46a584427c53d6c447a"]?.multiSelector)
+        XCTAssertEqual(["6a57a46a965b00180bc81272"], selected, "Single-select must keep exactly one value")
     }
 
     func testCollectionMultiSelectColumnWithMultiFalseIsSingleSelect() throws {
@@ -4118,6 +4123,11 @@ extension CollectionFieldSearchFilterTests {
         singleOptions.element(boundBy: 1).tap()
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         XCTAssertEqual("Option 2", cells.element(boundBy: 1).label)
+
+        goBack()
+        waitForAppToSettle()
+        let selected = try XCTUnwrap(onChangeResultValue().valueElements?.first?.cells?["6a57a46f09bc7681d8ae9dc0"]?.multiSelector)
+        XCTAssertEqual(["6a57a46f7dcb855f05f39ba5"], selected, "Single-select must keep exactly one value")
     }
 
     func testCollectionMultiSelectColumnWithMultiTrueIsMultiSelect() throws {
@@ -4144,6 +4154,13 @@ extension CollectionFieldSearchFilterTests {
         multiOptions.element(boundBy: 1).tap()
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         XCTAssertEqual("Option 1, +1", col3Cell.label)
+
+        goBack()
+        waitForAppToSettle()
+        let selected = try XCTUnwrap(onChangeResultValue().valueElements?.first?.cells?["6a57a4709654b82a7aec819d"]?.multiSelector)
+        XCTAssertEqual(2, selected.count, "Multi-select should keep both selected values")
+        XCTAssertTrue(selected.contains("6a57a4700a91cf01e6655e5a"))
+        XCTAssertTrue(selected.contains("6a57a4707f44838f35197aa9"))
     }
 
     // Row edit form (single row) must honor each column's `multi` flag.
@@ -4192,6 +4209,18 @@ extension CollectionFieldSearchFilterTests {
         XCTAssertEqual("Option 1", cells.element(boundBy: 0).label, "No-`multi` column should store a single value")
         XCTAssertEqual("Option 2", cells.element(boundBy: 1).label, "`multi: false` column should store a single value")
         XCTAssertEqual("Option 1, +1", cells.element(boundBy: 2).label, "`multi: true` column should store multiple values")
+
+        goBack()
+        waitForAppToSettle()
+        let row0 = try XCTUnwrap(onChangeResultValue().valueElements?.first)
+        let col1 = try XCTUnwrap(row0.cells?["6a57a46a584427c53d6c447a"]?.multiSelector)
+        XCTAssertEqual(["6a57a46ac5ffc39bdda33d80"], col1, "No-`multi` column should store a single value")
+        let col2 = try XCTUnwrap(row0.cells?["6a57a46f09bc7681d8ae9dc0"]?.multiSelector)
+        XCTAssertEqual(["6a57a46f7dcb855f05f39ba5"], col2, "`multi: false` column should store a single value")
+        let col3 = try XCTUnwrap(row0.cells?["6a57a4709654b82a7aec819d"]?.multiSelector)
+        XCTAssertEqual(2, col3.count, "`multi: true` column should store multiple values")
+        XCTAssertTrue(col3.contains("6a57a4700a91cf01e6655e5a"))
+        XCTAssertTrue(col3.contains("6a57a4707f44838f35197aa9"))
     }
 
     // Bulk edit form (all rows) must honor each column's `multi` flag.
@@ -4241,6 +4270,21 @@ extension CollectionFieldSearchFilterTests {
             XCTAssertEqual("Option 1", cells.element(boundBy: row * 3).label, "Row \(row): no-`multi` column should store a single value")
             XCTAssertEqual("Option 2", cells.element(boundBy: row * 3 + 1).label, "Row \(row): `multi: false` column should store a single value")
             XCTAssertEqual("Option 1, +1", cells.element(boundBy: row * 3 + 2).label, "Row \(row): `multi: true` column should store multiple values")
+        }
+
+        goBack()
+        waitForAppToSettle()
+        let rows = try XCTUnwrap(onChangeResultValue().valueElements)
+        XCTAssertEqual(3, rows.count, "All three rows should be present")
+        for (i, row) in rows.enumerated() {
+            let col1 = try XCTUnwrap(row.cells?["6a57a46a584427c53d6c447a"]?.multiSelector, "Row \(i) col1 missing")
+            XCTAssertEqual(["6a57a46ac5ffc39bdda33d80"], col1, "Row \(i): no-`multi` column should store a single value")
+            let col2 = try XCTUnwrap(row.cells?["6a57a46f09bc7681d8ae9dc0"]?.multiSelector, "Row \(i) col2 missing")
+            XCTAssertEqual(["6a57a46f7dcb855f05f39ba5"], col2, "Row \(i): `multi: false` column should store a single value")
+            let col3 = try XCTUnwrap(row.cells?["6a57a4709654b82a7aec819d"]?.multiSelector, "Row \(i) col3 missing")
+            XCTAssertEqual(2, col3.count, "Row \(i): `multi: true` column should store multiple values")
+            XCTAssertTrue(col3.contains("6a57a4700a91cf01e6655e5a"))
+            XCTAssertTrue(col3.contains("6a57a4707f44838f35197aa9"))
         }
     }
 
