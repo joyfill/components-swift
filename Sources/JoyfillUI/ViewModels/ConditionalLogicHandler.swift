@@ -527,7 +527,7 @@ class ConditionalLogicHandler {
         }
     }
 
-    private func shoulTakeActionOnThisField(logic: LogicModel) -> Bool {
+    func shoulTakeActionOnThisField(logic: LogicModel) -> Bool {
         guard let conditions = logic.conditions else {
             return false
         }

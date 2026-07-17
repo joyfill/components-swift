@@ -48,6 +48,19 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.rowDecorators(forSchemaKey: schemaKey)
     }
 
+    func isCellRequired(columnID: String, rowID: String, schemaKey: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowID] else {
+            return columnsMap["\(schemaKey)_\(columnID)"]?.required ?? false
+        }
+        return documentEditor.isCellRequired(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            schemaKey: schemaKey,
+            row: row
+        )
+    }
+
     func getCollectionCellDecorators(rowIds: [String], columnId: String, schemaKey: String) -> [DecoratorLocal] {
         let columnDecorators = columnsMap["\(schemaKey)_\(columnId)"]?
             .decorators?

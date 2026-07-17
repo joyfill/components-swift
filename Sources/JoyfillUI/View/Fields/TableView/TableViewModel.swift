@@ -32,6 +32,22 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * Utility.singleColumnWidth
     }
 
+    /// Per-cell required-ness for the live grid border. Honours `cellRequiredLogic`
+    /// (resolved against this row's sibling cells), then the column's `requiredLogic`,
+    /// then the static `required` flag. Falls back to the column-wide set if the row
+    /// value can't be resolved.
+    func isCellRequired(columnID: String, rowID: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = tableDataModel.valueToValueElements?.first(where: { $0.id == rowID }) else {
+            return tableDataModel.requiredColumnIDs.contains(columnID)
+        }
+        return documentEditor.isCellRequired(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            row: row
+        )
+    }
+
     private func refreshRowDecoratorMap() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
         tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])

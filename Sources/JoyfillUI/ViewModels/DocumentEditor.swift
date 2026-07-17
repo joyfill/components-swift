@@ -130,6 +130,7 @@ public class DocumentEditor: ObservableObject {
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
+    var requiredLogicHandler: RequiredLogicHandler!
     internal var joyDocContext: JoyfillDocContext!
 
     public init(document: JoyDoc,
@@ -173,6 +174,7 @@ public class DocumentEditor: ObservableObject {
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.requiredLogicHandler = RequiredLogicHandler(documentEditor: self)
         guard let firstFile = files.first, let fileID = firstFile.id else {
             return
         }
@@ -274,7 +276,22 @@ public class DocumentEditor: ObservableObject {
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
     }
-    
+
+    /// Effective required-ness of a field, honouring `requiredLogic` (falls back to the static `required` flag).
+    public func isFieldRequired(fieldID: String) -> Bool {
+        return requiredLogicHandler.isFieldRequired(fieldID: fieldID)
+    }
+
+    /// Effective column-wide required-ness, honouring the column's `requiredLogic`.
+    public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        return requiredLogicHandler.isColumnRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
+    }
+
+    /// Effective required-ness of a single cell, honouring `cellRequiredLogic` (per-row) then `requiredLogic`.
+    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, row: ValueElement) -> Bool {
+        return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, row: row)
+    }
+
     public func change(changes: [Change]) {
         for change in changes {
             guard let targetValue = change.target,
@@ -738,7 +755,8 @@ extension DocumentEditor {
     }
     
     func refreshDependent(for fieldID: String) {
-        let refreshFields = conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID)
+        var refreshFields = Set(conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
+        refreshFields.formUnion(requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         for fieldId in refreshFields {
             refreshField(fieldId: fieldId)
         }
@@ -756,7 +774,7 @@ extension DocumentEditor {
         
         let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
         
-        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: requiredLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -938,7 +956,7 @@ extension DocumentEditor {
             
             let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
             
-            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: fieldData?.required, tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: requiredLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -1266,6 +1284,7 @@ extension DocumentEditor {
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.requiredLogicHandler = RequiredLogicHandler(documentEditor: self)
         if !isMobileViewActive {
             updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
         }
@@ -1479,6 +1498,7 @@ extension DocumentEditor {
         
         // 11. Reinitialize conditional logic handler
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
+        self.requiredLogicHandler = RequiredLogicHandler(documentEditor: self)
         
         // 12. Handle navigation
         if shouldNavigate && !nextPageID.isEmpty {
