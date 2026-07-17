@@ -290,10 +290,18 @@ struct CollectionEditMultipleRowsSheetView: View {
         viewID = UUID()
     }
     
+    private func isColumnEffectivelyRequired(_ col: FieldTableColumn, schemaKey: String) -> Bool {
+        guard let columnID = col.id else { return col.required ?? false }
+        if viewModel.tableDataModel.selectedRows.count == 1, let rowID = viewModel.tableDataModel.selectedRows.first {
+            return viewModel.isCellRequired(columnID: columnID, rowID: rowID, schemaKey: schemaKey)
+        }
+        return viewModel.tableDataModel.documentEditor?.isColumnRequired(columnID: columnID, fieldID: viewModel.tableDataModel.fieldIdentifier.fieldID, schemaKey: schemaKey) ?? (col.required ?? false)
+    }
+
     @ViewBuilder
     private func fieldTitle(_ col: FieldTableColumn, isCellFilled: Bool, schemaKey: String) -> some View {
         HStack(alignment: .center, spacing: 4) {
-            if let required = col.required, required, !isCellFilled {
+            if isColumnEffectivelyRequired(col, schemaKey: schemaKey), !isCellFilled {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)

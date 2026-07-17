@@ -464,6 +464,13 @@ public struct JoyDocField: Equatable {
         }
     }
     
+    /// Conditional logic that overrides this field's static `required` flag.
+    /// `action` is "enforce" (required when conditions match) or "unforce" (optional when conditions match).
+    public var requiredLogic: Logic? {
+        get { Logic.init(field: dictionary["requiredLogic"] as? [String: Any]) }
+        set { dictionary["requiredLogic"] = newValue?.dictionary }
+    }
+
     public var hidden: Bool? {
         get { dictionary["hidden"] as? Bool }
         set { dictionary["hidden"] = newValue }
@@ -1198,6 +1205,20 @@ public struct FieldTableColumn {
     public var logic: Logic? {
         get { Logic.init(field: dictionary["logic"] as? [String: Any]) }
         set { dictionary["logic"] = newValue?.dictionary }
+    }
+
+    /// Column-wide required logic. Conditions reference page-level fields. `action` is "enforce"/"unforce"
+    /// and overrides the static `required` flag for every cell in the column.
+    public var requiredLogic: Logic? {
+        get { Logic.init(field: dictionary["requiredLogic"] as? [String: Any]) }
+        set { dictionary["requiredLogic"] = newValue?.dictionary }
+    }
+
+    /// Per-cell required logic. Conditions reference sibling column ids and resolve against the
+    /// same row's cell values. Takes precedence over `requiredLogic`/static `required` for that cell.
+    public var cellRequiredLogic: Logic? {
+        get { Logic.init(field: dictionary["cellRequiredLogic"] as? [String: Any]) }
+        set { dictionary["cellRequiredLogic"] = newValue?.dictionary }
     }
 
     /// View types in which this column is force-hidden. Takes precedence over conditional logic.

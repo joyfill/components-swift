@@ -27,7 +27,7 @@ struct TableRowView : View {
                 .border(Color.tableCellBorderColor)
             }
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                let showRequired = viewModel.tableDataModel.requiredColumnIDs.contains(cellModel.data.id) && !cellModel.data.isCellFilled
+                let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID) && !cellModel.data.isCellFilled
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: Utility.singleColumnWidth, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
