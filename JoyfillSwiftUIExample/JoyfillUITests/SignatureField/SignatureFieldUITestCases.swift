@@ -22,6 +22,38 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         startPoint.press(forDuration: 0.1, thenDragTo: endPoint)
     }
     
+    @discardableResult
+    private func openPrimarySignatureField() -> XCUIElement {
+        let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        signatureButton.waitAndTap(message: "Primary signature button not found")
+        return signatureButton
+    }
+
+    private func switchToTypeMode() {
+        app.buttons["Type"].firstMatch.waitAndTap(message: "Type mode button not found")
+    }
+
+    private func signatureTypedTextField() -> XCUIElement {
+        app.textFields["Type Signature"].firstMatch
+    }
+
+    private func enterTypedSignature(_ text: String) {
+        let textField = signatureTypedTextField()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Type signature text field not found")
+        textField.tap()
+
+        if let currentValue = textField.value as? String, !currentValue.isEmpty, currentValue != "Type Signature" {
+            textField.clearText()
+        }
+
+        textField.typeText(text)
+    }
+
+    private func typedSignatureValue() -> String {
+        let value = signatureTypedTextField().value as? String ?? ""
+        return value
+    }
+
     func testSaveSignature() throws {
         let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
         
@@ -35,7 +67,78 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertEqual("Edit Signature", signatureDetailButton.label)
         XCTAssertNotNil(onChangeResultValue().signatureURL?.isEmpty)
     }
-    
+
+    func testTypeTabVisibleAndInputShown() throws {
+        _ = openPrimarySignatureField()
+        switchToTypeMode()
+
+        let textField = signatureTypedTextField()
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "Type signature text field should be visible in Type mode")
+    }
+
+    func testSaveTypedSignature() throws {
+        let signatureDetailButton = openPrimarySignatureField()
+        switchToTypeMode()
+        enterTypedSignature("John Doe")
+        app.buttons["SaveSignatureIdentifier"].waitAndTap()
+
+        XCTAssertEqual("Edit Signature", signatureDetailButton.label)
+        let signatureURL = onChangeResultValue().signatureURL ?? ""
+        XCTAssertTrue(signatureURL.hasPrefix("data:image/png;base64"), "Typed signature should be saved as base64 PNG")
+    }
+
+    func testWhitespaceOnlyTypedSignatureClearsValue() throws {
+        let signatureDetailButton = openPrimarySignatureField()
+        switchToTypeMode()
+        enterTypedSignature("   ")
+        app.buttons["SaveSignatureIdentifier"].waitAndTap()
+
+        XCTAssertEqual("Add Signature", signatureDetailButton.label)
+        XCTAssertEqual("", onChangeResultValue().signatureURL ?? "")
+    }
+
+    func testTypedSignatureTrimmedAndRestoredOnReopen() throws {
+        _ = openPrimarySignatureField()
+        switchToTypeMode()
+        enterTypedSignature("  John Doe  ")
+        app.buttons["SaveSignatureIdentifier"].waitAndTap()
+
+        _ = openPrimarySignatureField()
+        switchToTypeMode()
+        XCTAssertEqual("John Doe", typedSignatureValue(), "Typed signature should be trimmed and restored when reopening")
+    }
+
+    func testClearButtonInTypeModeClearsText() throws {
+        _ = openPrimarySignatureField()
+        switchToTypeMode()
+        enterTypedSignature("Clear Me")
+        app.buttons["ClearSignatureIdentifier"].waitAndTap()
+
+        let valueAfterClear = typedSignatureValue()
+        XCTAssertTrue(valueAfterClear.isEmpty || valueAfterClear == "Type Signature", "Clear should empty the typed signature text field")
+
+        app.buttons["SaveSignatureIdentifier"].waitAndTap()
+        let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
+        XCTAssertEqual("Add Signature", signatureButton.label)
+    }
+
+    func testSwitchTypeToDrawThenSaveResetsTypedCache() throws {
+        _ = openPrimarySignatureField()
+        switchToTypeMode()
+        enterTypedSignature("Reset Me")
+        app.buttons["SaveSignatureIdentifier"].waitAndTap()
+
+        _ = openPrimarySignatureField()
+        app.buttons["Draw"].firstMatch.waitAndTap(message: "Draw mode button not found")
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].waitAndTap()
+
+        _ = openPrimarySignatureField()
+        switchToTypeMode()
+        let restoredValue = typedSignatureValue()
+        XCTAssertTrue(restoredValue.isEmpty || restoredValue == "Type Signature", "Typed signature cache should be reset after saving in Draw mode")
+    }
+
     func testClearSignature() throws {
         let signatureDetailButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
         XCTAssertTrue(signatureDetailButton.waitForExistence(timeout: 5), "Signature button not found")
