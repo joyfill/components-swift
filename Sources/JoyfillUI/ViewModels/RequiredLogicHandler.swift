@@ -2,12 +2,12 @@
 //  RequiredLogicHandler.swift
 //
 //  Evaluates `requiredLogic` (fields, columns) and `cellRequiredLogic` (per-cell) to produce
-//  an *effective* required-ness that overrides the static `required` flag.
+//  an *effective* required-ness on top of the static `required` flag.
 //
-//  Semantics (action fully overrides the base `required`):
+//  Semantics (the action only changes required-ness when its conditions match; otherwise it falls back to the static base):
 //    - no logic present            -> static `required`
-//    - action == "enforce"         -> required only when conditions match
-//    - action == "unforce"         -> optional only when conditions match (required otherwise)
+//    - action == "enforce"         -> required when conditions match, else static `required`
+//    - action == "unforce"         -> optional when conditions match, else static `required`
 //
 //  Field / column logic conditions reference page-level fields (by `field` id).
 //  Cell logic conditions reference sibling column ids and resolve against the same row's cells.
@@ -193,8 +193,8 @@ class RequiredLogicHandler {
 
     private func applyAction(_ action: String, matched: Bool, staticRequired: Bool) -> Bool {
         switch action {
-        case "enforce": return matched
-        case "unforce": return !matched
+        case "enforce": return matched ? true : staticRequired
+        case "unforce": return matched ? false : staticRequired
         default: return staticRequired
         }
     }
