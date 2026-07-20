@@ -5,9 +5,10 @@ import JoyfillModel
 
 /// Tests for `requiredLogic` (fields, columns) and `cellRequiredLogic` (per-cell).
 ///
-/// Semantics under test (action fully overrides the static `required` flag):
-///   - action == "enforce" -> required only when conditions match
-///   - action == "unforce" -> optional only when conditions match (required otherwise)
+/// Semantics under test (the action only changes required-ness when its conditions match,
+/// otherwise it falls back to the static `required` flag — matches the Kotlin/JS reference):
+///   - action == "enforce" -> required when conditions match, else static `required`
+///   - action == "unforce" -> optional when conditions match, else static `required`
 final class RequiredLogicTests: XCTestCase {
     let fileID = "file-1"
     let pageID = "page-1"
@@ -104,17 +105,16 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(textStatus(editor), .valid)
     }
 
-    func testFieldUnforce_conditionsDoNotMatch_makesRequired() {
-        // dropdown = No -> unforce does not match -> required -> empty text is invalid
+    func testFieldUnforce_conditionsDoNotMatch_fallsBackToStatic() {
+        // dropdown = No -> unforce does not match -> falls back to static required:false -> optional -> empty text is valid
         let editor = documentEditor(document: makeFieldLevelDoc(action: "unforce", staticRequired: false, textValue: nil, dropdownValue: optNo))
-        XCTAssertEqual(textStatus(editor), .invalid)
+        XCTAssertEqual(textStatus(editor), .valid)
     }
 
-    func testFieldEnforce_overridesStaticRequiredTrue() {
-        // static required = true but enforce does not match -> optional -> empty text is valid.
-        // Proves the logic fully overrides the static flag.
+    func testFieldEnforce_conditionsDoNotMatch_fallsBackToStaticRequiredTrue() {
+        // static required = true, enforce does not match -> falls back to static required:true -> required -> empty text is invalid.
         let editor = documentEditor(document: makeFieldLevelDoc(action: "enforce", staticRequired: true, textValue: nil, dropdownValue: optNo))
-        XCTAssertEqual(textStatus(editor), .valid)
+        XCTAssertEqual(textStatus(editor), .invalid)
     }
 
     // MARK: - Dynamic re-evaluation
