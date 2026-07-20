@@ -250,6 +250,7 @@ struct EditMultipleRowsSheetView: View {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_col_\(col.id ?? "")")
             }
 
             Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
