@@ -37,8 +37,15 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     /// then the static `required` flag. Falls back to the column-wide set if the row
     /// value can't be resolved.
     func isCellRequired(columnID: String, rowID: String) -> Bool {
-        guard let documentEditor = tableDataModel.documentEditor,
-              let row = tableDataModel.valueToValueElements?.first(where: { $0.id == rowID }) else {
+        return isCellRequired(columnID: columnID, row: rowElement(forRowID: rowID))
+    }
+
+    func rowElement(forRowID rowID: String) -> ValueElement? {
+        tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
+    }
+
+    func isCellRequired(columnID: String, row: ValueElement?) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor, let row = row else {
             return tableDataModel.requiredColumnIDs.contains(columnID)
         }
         return documentEditor.isCellRequired(
