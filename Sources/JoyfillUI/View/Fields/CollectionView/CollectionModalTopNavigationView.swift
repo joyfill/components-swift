@@ -305,6 +305,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_col_\(schemaKey)_\(col.id ?? "")")
             }
             
             Text(col.title)
