@@ -65,7 +65,7 @@ class RequiredLogicHandler {
 
         if let cellLogic = column.cellRequiredLogic, let action = cellLogic.action {
             let model = cellLogicModel(logic: cellLogic, columns: columns(fieldID: fieldID, schemaKey: schemaKey), row: row)
-            return applyAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model), staticRequired: column.required ?? false)
+            return applyAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model), staticRequired: computeColumnRequired(column: column))
         }
         return computeColumnRequired(column: column)
     }
