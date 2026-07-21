@@ -193,20 +193,20 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
                       "Static-required Col B should always show an asterisk when empty")
     }
 
-    func testTableColumnUnforce_noAsteriskWhenNumberEmpty_appearsWhenFilled() {
-        // Col D (text3): static required, but UNforced when number1 is empty.
+    func testTableColumnUnenforce_noAsteriskWhenNumberEmpty_appearsWhenFilled() {
+        // Col D (text3): static required, but UNenforced when number1 is empty.
         openTable()
         S.openTableRowEditForm(rowIndex: 2, in: app) // rowB (empty)
         XCTAssertTrue(tableColAsterisk("dropdown1").waitForExistence(timeout: 3))
         XCTAssertFalse(tableColAsterisk("text3").exists,
-                       "Col D should be optional (unforced) while number1 is empty")
+                       "Col D should be optional (unenforced) while number1 is empty")
         exitModal()
 
         setPageNumber("5")
         openTable()
         S.openTableRowEditForm(rowIndex: 2, in: app)
         XCTAssertTrue(existsInForm(tableColAsterisk("text3")),
-                      "Col D static-required should apply once number1 is filled (unforce no longer matches)")
+                      "Col D static-required should apply once number1 is filled (unenforce no longer matches)")
     }
 
     // MARK: - B. Column-level required logic (collection root)
@@ -299,15 +299,15 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
     // MARK: - E. Precedence: cellRequiredLogic overrides column requiredLogic per row
 
     func testTableCellLogicOverridesColumnLogic_perRow() {
-        // Col E (text4): column enforce when number1 filled; cell UNforce when sibling Col A filled.
-        // With number1 filled: rowA (text1 filled) -> cell unforce wins -> optional (no asterisk);
+        // Col E (text4): column enforce when number1 filled; cell UNenforce when sibling Col A filled.
+        // With number1 filled: rowA (text1 filled) -> cell unenforce wins -> optional (no asterisk);
         //                      rowB (text1 empty)  -> column rule applies -> required (asterisk).
         setPageNumber("5")
         openTable()
         S.openTableRowEditForm(rowIndex: 1, in: app) // rowA (text1 filled)
         XCTAssertTrue(tableColAsterisk("dropdown1").waitForExistence(timeout: 3))
         XCTAssertFalse(tableColAsterisk("text4").exists,
-                       "Col E cell-unforce should override column rule in rowA (sibling filled)")
+                       "Col E cell-unenforce should override column rule in rowA (sibling filled)")
         closeRowForm()
 
         S.openTableRowEditForm(rowIndex: 2, in: app) // rowB (text1 empty)
@@ -316,13 +316,13 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
     }
 
     func testCollectionCellLogicOverridesColumnLogic_perRow() {
-        // Root E (dual1): column enforce when number1 filled; cell UNforce when sibling Root A filled.
+        // Root E (dual1): column enforce when number1 filled; cell UNenforce when sibling Root A filled.
         setPageNumber("5")
         openCollection()
         S.openCollectionRootRowEditForm(rowIndex: 1, in: app) // collRoot1 (text1 filled)
         XCTAssertTrue(collColAsterisk("dropdown1").waitForExistence(timeout: 3))
         XCTAssertFalse(collColAsterisk("dual1").exists,
-                       "Root E cell-unforce should override column rule in collRoot1 (sibling filled)")
+                       "Root E cell-unenforce should override column rule in collRoot1 (sibling filled)")
         closeRowForm()
 
         S.openCollectionRootRowEditForm(rowIndex: 2, in: app) // collRoot2 (text1 empty)
@@ -413,22 +413,22 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
                        "Root A should be optional again after number1 is cleared")
     }
 
-    // MARK: - H. Collection parity: root-column unforce & child-column requiredLogic
+    // MARK: - H. Collection parity: root-column unenforce & child-column requiredLogic
 
-    func testCollectionRootColumnUnforce_noAsteriskWhenNumberEmpty_appearsWhenFilled() {
-        // Root D (text3): static required, but UNforced when number1 is empty (parity with table Col D).
+    func testCollectionRootColumnUnenforce_noAsteriskWhenNumberEmpty_appearsWhenFilled() {
+        // Root D (text3): static required, but UNenforced when number1 is empty (parity with table Col D).
         openCollection()
         S.openCollectionRootRowEditForm(rowIndex: 2, in: app) // collRoot2 (empty)
         XCTAssertTrue(collColAsterisk("dropdown1").waitForExistence(timeout: 3))
         XCTAssertFalse(collColAsterisk("text3").exists,
-                       "Root D should be optional (unforced) while number1 is empty")
+                       "Root D should be optional (unenforced) while number1 is empty")
         exitModal()
 
         setPageNumber("5")
         openCollection()
         S.openCollectionRootRowEditForm(rowIndex: 2, in: app)
         XCTAssertTrue(existsInForm(collColAsterisk("text3")),
-                      "Root D static-required should apply once number1 is filled (unforce no longer matches)")
+                      "Root D static-required should apply once number1 is filled (unenforce no longer matches)")
     }
 
     func testCollectionChildColumnEnforce_asteriskWhenNumberFilled() {

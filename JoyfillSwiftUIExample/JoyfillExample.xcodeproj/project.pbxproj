@@ -209,8 +209,8 @@
 		95C0BE9D3006200400D207B9 /* LandScapeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BE9A3006200400D207B9 /* LandScapeMode.swift */; };
 		95C0BEA03006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
 		95C0BEE9300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
-		95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
 		95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BEEA300A444900D207B9 /* RequiredLogic.swift */; };
+		95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
 		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -1277,11 +1277,11 @@
 				DEC000A000000000000000A0 /* DecoratorAPI */,
 				E2B8E3BC2E4361DF00AC6018 /* Formula */,
 				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
-				E26315E32F76AEA70008B89B /* ValidatePathTests.swift */,
 				36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
 				E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */,
+				E26315E32F76AEA70008B89B /* ValidatePathTests.swift */,
 			);
 			path = JoyfillTests;
 			sourceTree = "<group>";

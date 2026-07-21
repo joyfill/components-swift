@@ -465,7 +465,7 @@ public struct JoyDocField: Equatable {
     }
     
     /// Conditional logic that overrides this field's static `required` flag.
-    /// `action` is "enforce" (required when conditions match) or "unforce" (optional when conditions match).
+    /// `action` is "enforce" (required when conditions match) or "unenforce" (optional when conditions match).
     public var requiredLogic: Logic? {
         get { Logic.init(field: dictionary["requiredLogic"] as? [String: Any]) }
         set { dictionary["requiredLogic"] = newValue?.dictionary }
@@ -1207,7 +1207,7 @@ public struct FieldTableColumn {
         set { dictionary["logic"] = newValue?.dictionary }
     }
 
-    /// Column-wide required logic. Conditions reference page-level fields. `action` is "enforce"/"unforce"
+    /// Column-wide required logic. Conditions reference page-level fields. `action` is "enforce"/"unenforce"
     /// and overrides the static `required` flag for every cell in the column.
     public var requiredLogic: Logic? {
         get { Logic.init(field: dictionary["requiredLogic"] as? [String: Any]) }
