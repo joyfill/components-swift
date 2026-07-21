@@ -286,15 +286,20 @@ struct FormView: View {
 
     var body: some View {
         ScrollViewReader { proxy in
-            List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
-                if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
-                    fieldView(listModelBinding: $listModel)
-                        .listRowSeparator(.hidden)
-                        .buttonStyle(.borderless)
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    ForEach($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
+                        if documentEditor.shouldShow(fieldID: listModel.fieldIdentifier.fieldID) {
+                            fieldView(listModelBinding: $listModel)
+                                .id(listModel.fieldIdentifier.fieldID)
+                                .buttonStyle(.borderless)
+                        }
+                    }
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
             }
             .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
-            .listStyle(PlainListStyle())
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
                 guard newValue != nil else { return }
