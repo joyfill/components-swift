@@ -8,7 +8,7 @@ import JoyfillModel
 /// Semantics under test (the action only changes required-ness when its conditions match,
 /// otherwise it falls back to the static `required` flag — matches the Kotlin/JS reference):
 ///   - action == "enforce" -> required when conditions match, else static `required`
-///   - action == "unforce" -> optional when conditions match, else static `required`
+///   - action == "unenforce" -> optional when conditions match, else static `required`
 final class RequiredLogicTests: XCTestCase {
     let fileID = "file-1"
     let pageID = "page-1"
@@ -85,7 +85,7 @@ final class RequiredLogicTests: XCTestCase {
         editor.validate().fieldValidities.first(where: { $0.fieldId == textFieldID })?.status
     }
 
-    // MARK: - Field-level enforce / unforce
+    // MARK: - Field-level enforce / unenforce
 
     func testFieldEnforce_conditionsMatch_makesRequired() {
         // dropdown = Yes -> enforce matches -> required -> empty text is invalid
@@ -99,15 +99,15 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(textStatus(editor), .valid)
     }
 
-    func testFieldUnforce_conditionsMatch_makesOptional() {
-        // dropdown = Yes -> unforce matches -> optional -> empty text is valid
-        let editor = documentEditor(document: makeFieldLevelDoc(action: "unforce", staticRequired: true, textValue: nil, dropdownValue: optYes))
+    func testFieldUnenforce_conditionsMatch_makesOptional() {
+        // dropdown = Yes -> unenforce matches -> optional -> empty text is valid
+        let editor = documentEditor(document: makeFieldLevelDoc(action: "unenforce", staticRequired: true, textValue: nil, dropdownValue: optYes))
         XCTAssertEqual(textStatus(editor), .valid)
     }
 
-    func testFieldUnforce_conditionsDoNotMatch_fallsBackToStatic() {
-        // dropdown = No -> unforce does not match -> falls back to static required:false -> optional -> empty text is valid
-        let editor = documentEditor(document: makeFieldLevelDoc(action: "unforce", staticRequired: false, textValue: nil, dropdownValue: optNo))
+    func testFieldUnenforce_conditionsDoNotMatch_fallsBackToStatic() {
+        // dropdown = No -> unenforce does not match -> falls back to static required:false -> optional -> empty text is valid
+        let editor = documentEditor(document: makeFieldLevelDoc(action: "unenforce", staticRequired: false, textValue: nil, dropdownValue: optNo))
         XCTAssertEqual(textStatus(editor), .valid)
     }
 
@@ -222,19 +222,19 @@ final class RequiredLogicTests: XCTestCase {
 
     // MARK: - Table: additional column / cell coverage
 
-    func testColumnUnforce_conditionsMatch_makesOptional() {
-        // Column is statically required; unforce turns it optional only when the page dropdown = Yes.
+    func testColumnUnenforce_conditionsMatch_makesOptional() {
+        // Column is statically required; unenforce turns it optional only when the page dropdown = Yes.
         let textColumn: [String: Any] = [
             "_id": textColumnID, "type": "text", "title": "Text", "required": true,
-            "requiredLogic": requiredLogic(action: "unforce", condField: dropdownFieldID, value: optYes)
+            "requiredLogic": requiredLogic(action: "unenforce", condField: dropdownFieldID, value: optYes)
         ]
         let rows: [[String: Any]] = [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optNo]]]
 
-        // dropdown = Yes -> unforce matches -> optional -> empty cell valid
+        // dropdown = Yes -> unenforce matches -> optional -> empty cell valid
         let optionalEditor = documentEditor(document: makeTableDoc(textColumn: textColumn, rows: rows, includePageDropdown: true, dropdownValue: optYes))
         XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
 
-        // dropdown = No -> unforce no match -> static required stays -> empty cell invalid
+        // dropdown = No -> unenforce no match -> static required stays -> empty cell invalid
         let requiredEditor = documentEditor(document: makeTableDoc(textColumn: textColumn, rows: rows, includePageDropdown: true, dropdownValue: optNo))
         XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
     }

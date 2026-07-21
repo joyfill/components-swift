@@ -73,22 +73,22 @@
           }
         },
         {
-          "_id": "text3", "type": "text", "title": "Col D (static required, UNforced when Number empty)",
+          "_id": "text3", "type": "text", "title": "Col D (static required, UNenforced when Number empty)",
           "identifier": "table1_column_text3", "width": 0, "required": true,
           "requiredLogic": {
-            "action": "unforce", "eval": "and",
+            "action": "unenforce", "eval": "and",
             "conditions": [ { "field": "number1", "condition": "null=" } ]
           }
         },
         {
-          "_id": "text4", "type": "text", "title": "Col E (dual: column enforce Number, cell unforce sibling Col A)",
+          "_id": "text4", "type": "text", "title": "Col E (dual: column enforce Number, cell unenforce sibling Col A)",
           "identifier": "table1_column_text4", "width": 0,
           "requiredLogic": {
             "action": "enforce", "eval": "and",
             "conditions": [ { "field": "number1", "condition": "*=" } ]
           },
           "cellRequiredLogic": {
-            "action": "unforce", "eval": "and",
+            "action": "unenforce", "eval": "and",
             "conditions": [ { "field": "text1", "condition": "*=" } ]
           }
         }
@@ -138,22 +138,22 @@
               }
             },
             {
-              "_id": "dual1", "type": "text", "title": "Root E (dual: column enforce Number, cell unforce sibling Root A)",
+              "_id": "dual1", "type": "text", "title": "Root E (dual: column enforce Number, cell unenforce sibling Root A)",
               "identifier": "collection1_column_dual1", "width": 0,
               "requiredLogic": {
                 "action": "enforce", "eval": "and",
                 "conditions": [ { "field": "number1", "condition": "*=" } ]
               },
               "cellRequiredLogic": {
-                "action": "unforce", "eval": "and",
+                "action": "unenforce", "eval": "and",
                 "conditions": [ { "field": "text1", "condition": "*=" } ]
               }
             },
             {
-              "_id": "text3", "type": "text", "title": "Root D (static required, UNforced when Number empty)",
+              "_id": "text3", "type": "text", "title": "Root D (static required, UNenforced when Number empty)",
               "identifier": "collection1_column_text3", "width": 0, "required": true,
               "requiredLogic": {
-                "action": "unforce", "eval": "and",
+                "action": "unenforce", "eval": "and",
                 "conditions": [ { "field": "number1", "condition": "null=" } ]
               }
             }
