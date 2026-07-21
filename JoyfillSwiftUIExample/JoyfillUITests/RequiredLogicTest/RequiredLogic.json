@@ -1,0 +1,216 @@
+{
+  "_id": "req_feature_test_0001",
+  "type": "template",
+  "stage": "draft",
+  "identifier": "template_req_feature_test_0001",
+  "name": "Required-Logic Feature Test",
+  "files": [
+    {
+      "_id": "file1",
+      "name": "New File",
+      "version": 1,
+      "styles": { "margin": 4 },
+      "pages": [
+        {
+          "name": "Page 1",
+          "fieldPositions": [
+            { "_id": "fp_num",   "type": "number",     "displayType": "original", "x": 0, "y": 0,  "width": 4, "height": 8,  "field": "number1" },
+            { "_id": "fp_trig",  "type": "text",        "displayType": "original", "x": 0, "y": 8,  "width": 4, "height": 8,  "field": "trigger1" },
+            { "_id": "fp_table", "type": "table",       "displayType": "original", "x": 0, "y": 16, "width": 8, "height": 30, "field": "table1" },
+            { "_id": "fp_coll",  "type": "collection",  "displayType": "original", "x": 0, "y": 46, "width": 8, "height": 82, "field": "collection1" }
+          ],
+          "hidden": false,
+          "width": 816, "height": 1056, "cols": 8, "rowHeight": 8,
+          "layout": "grid", "presentation": "normal", "margin": 0, "padding": 24, "borderWidth": 0,
+          "_id": "page1"
+        }
+      ],
+      "pageOrder": ["page1"],
+      "views": [],
+      "orientation": "portrait"
+    }
+  ],
+  "fields": [
+    {
+      "file": "file1", "_id": "number1", "type": "number",
+      "title": "Number (driver)", "identifier": "field_number1"
+    },
+    {
+      "file": "file1", "_id": "trigger1", "type": "text",
+      "title": "Trigger (driver)", "identifier": "field_trigger1"
+    },
+
+    {
+      "file": "file1", "_id": "table1", "type": "table", "title": "Table",
+      "identifier": "field_table1",
+      "requiredLogic": {
+        "action": "enforce", "eval": "and",
+        "conditions": [ { "field": "trigger1", "condition": "*=" } ]
+      },
+      "tableColumns": [
+        {
+          "_id": "text1", "type": "text", "title": "Col A (column-required when Number filled)",
+          "identifier": "table1_column_text1", "width": 0,
+          "requiredLogic": {
+            "action": "enforce", "eval": "and",
+            "conditions": [ { "field": "number1", "condition": "*=" } ]
+          }
+        },
+        {
+          "_id": "dropdown1", "type": "dropdown", "title": "Col B (static required)",
+          "identifier": "table1_column_dropdown1", "width": 0, "required": true,
+          "options": [
+            { "_id": "optYes", "value": "Yes" },
+            { "_id": "optNo",  "value": "No" }
+          ]
+        },
+        {
+          "_id": "text2", "type": "text", "title": "Col C (cell-required when Col A filled)",
+          "identifier": "table1_column_text2", "width": 0,
+          "cellRequiredLogic": {
+            "action": "enforce", "eval": "and",
+            "conditions": [ { "field": "text1", "condition": "*=" } ]
+          }
+        },
+        {
+          "_id": "text3", "type": "text", "title": "Col D (static required, UNenforced when Number empty)",
+          "identifier": "table1_column_text3", "width": 0, "required": true,
+          "requiredLogic": {
+            "action": "unenforce", "eval": "and",
+            "conditions": [ { "field": "number1", "condition": "null=" } ]
+          }
+        },
+        {
+          "_id": "text4", "type": "text", "title": "Col E (dual: column enforce Number, cell unenforce sibling Col A)",
+          "identifier": "table1_column_text4", "width": 0,
+          "requiredLogic": {
+            "action": "enforce", "eval": "and",
+            "conditions": [ { "field": "number1", "condition": "*=" } ]
+          },
+          "cellRequiredLogic": {
+            "action": "unenforce", "eval": "and",
+            "conditions": [ { "field": "text1", "condition": "*=" } ]
+          }
+        }
+      ],
+      "tableColumnOrder": ["text1", "dropdown1", "text2", "text3", "text4"],
+      "value": [
+        { "_id": "rowA", "deleted": false, "cells": { "text1": "filled" } },
+        { "_id": "rowB", "deleted": false, "cells": {} }
+      ],
+      "rowOrder": ["rowA", "rowB"]
+    },
+
+    {
+      "file": "file1", "_id": "collection1", "type": "collection", "title": "Collection",
+      "identifier": "field_collection1",
+      "requiredLogic": {
+        "action": "enforce", "eval": "and",
+        "conditions": [ { "field": "trigger1", "condition": "*=" } ]
+      },
+      "schema": {
+        "rootSchema": {
+          "title": "Main Collection", "root": true, "children": ["childSchema"],
+          "tableColumns": [
+            {
+              "_id": "text1", "type": "text", "title": "Root A (column-required when Number filled)",
+              "identifier": "collection1_column_text1", "width": 0,
+              "requiredLogic": {
+                "action": "enforce", "eval": "and",
+                "conditions": [ { "field": "number1", "condition": "*=" } ]
+              }
+            },
+            {
+              "_id": "dropdown1", "type": "dropdown", "title": "Root B (static required)",
+              "identifier": "collection1_column_dropdown1", "width": 0, "required": true,
+              "options": [
+                { "_id": "optHigh", "value": "High" },
+                { "_id": "optLow",  "value": "Low" }
+              ]
+            },
+            {
+              "_id": "image1", "type": "image", "title": "Root C (cell-required when Root A filled)",
+              "identifier": "collection1_column_image1", "width": 0,
+              "maxImageWidth": 200, "maxImageHeight": 200,
+              "cellRequiredLogic": {
+                "action": "enforce", "eval": "and",
+                "conditions": [ { "field": "text1", "condition": "*=" } ]
+              }
+            },
+            {
+              "_id": "dual1", "type": "text", "title": "Root E (dual: column enforce Number, cell unenforce sibling Root A)",
+              "identifier": "collection1_column_dual1", "width": 0,
+              "requiredLogic": {
+                "action": "enforce", "eval": "and",
+                "conditions": [ { "field": "number1", "condition": "*=" } ]
+              },
+              "cellRequiredLogic": {
+                "action": "unenforce", "eval": "and",
+                "conditions": [ { "field": "text1", "condition": "*=" } ]
+              }
+            },
+            {
+              "_id": "text3", "type": "text", "title": "Root D (static required, UNenforced when Number empty)",
+              "identifier": "collection1_column_text3", "width": 0, "required": true,
+              "requiredLogic": {
+                "action": "unenforce", "eval": "and",
+                "conditions": [ { "field": "number1", "condition": "null=" } ]
+              }
+            }
+          ]
+        },
+        "childSchema": {
+          "title": "Child Table", "children": [], "required": true,
+          "tableColumns": [
+            {
+              "_id": "text1", "type": "text", "title": "Child A (static required)",
+              "identifier": "childSchema_column_text1", "width": 0, "required": true
+            },
+            {
+              "_id": "notes1", "type": "text", "title": "Child B (cell-required when Child A filled)",
+              "identifier": "childSchema_column_notes1", "width": 0,
+              "cellRequiredLogic": {
+                "action": "enforce", "eval": "and",
+                "conditions": [ { "field": "text1", "condition": "*=" } ]
+              }
+            },
+            {
+              "_id": "flag1", "type": "text", "title": "Child C (column-required when Number filled)",
+              "identifier": "childSchema_column_flag1", "width": 0,
+              "requiredLogic": {
+                "action": "enforce", "eval": "and",
+                "conditions": [ { "field": "number1", "condition": "*=" } ]
+              }
+            }
+          ]
+        }
+      },
+      "value": [
+        {
+          "_id": "collRoot1",
+          "cells": { "text1": "filled" },
+          "children": {
+            "childSchema": {
+              "value": [
+                { "_id": "collChild1", "cells": { "text1": "childFilled" } },
+                { "_id": "collChild2", "cells": {} }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "collRoot2",
+          "cells": {},
+          "children": {
+            "childSchema": {
+              "value": []
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "formulas": [],
+  "deleted": false,
+  "categories": []
+}

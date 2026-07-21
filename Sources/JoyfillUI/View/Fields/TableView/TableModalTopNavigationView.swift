@@ -235,13 +235,22 @@ struct EditMultipleRowsSheetView: View {
         viewID = UUID()
     }
 
+    private func isColumnEffectivelyRequired(_ col: FieldTableColumn) -> Bool {
+        guard let columnID = col.id else { return col.required ?? false }
+        if viewModel.tableDataModel.selectedRows.count == 1, let rowID = viewModel.tableDataModel.selectedRows.first {
+            return viewModel.isCellRequired(columnID: columnID, rowID: rowID)
+        }
+        return viewModel.tableDataModel.documentEditor?.isColumnRequired(columnID: columnID, fieldID: viewModel.tableDataModel.fieldIdentifier.fieldID) ?? (col.required ?? false)
+    }
+
     @ViewBuilder
     private func columnTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
         HStack(alignment: .center, spacing: 4) {
-            if let required = col.required, required, !isCellFilled {
+            if isColumnEffectivelyRequired(col), !isCellFilled {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_col_\(col.id ?? "")")
             }
 
             Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))

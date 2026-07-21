@@ -232,7 +232,7 @@ struct TableDataModel {
                     self.filterModels.append(filterModel)
                 }
             }
-            self.fieldRequired = fieldData.required ?? false
+            self.fieldRequired = documentEditor.isFieldRequired(fieldID: fieldIdentifier.fieldID)
         } else {
             fieldData.tableColumnOrder?.enumerated().forEach() { colIndex, colID in
                 let column = fieldData.tableColumns?.first { $0.id == colID }
@@ -243,7 +243,7 @@ struct TableDataModel {
                 if let columnType = column.type {
                     if supportedColumnTypes.contains(columnType) {
                         tableColumns.append(column)
-                        if column.required == true {
+                        if documentEditor.isColumnRequired(columnID: colID, fieldID: fieldIdentifier.fieldID) {
                             requiredColumnIDs.insert(colID)
                         }
                     }

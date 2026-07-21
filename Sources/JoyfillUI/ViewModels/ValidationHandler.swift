@@ -174,7 +174,7 @@ class ValidationHandler {
 
     private func validateField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?) -> FieldValidity? {
         guard let documentEditor = documentEditor else { return nil }
-        let isRequired = field.required ?? false
+        let isRequired = documentEditor.isFieldRequired(fieldID: fieldID)
 
         if field.fieldType == .table {
             return validateTableField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageId, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
@@ -221,7 +221,7 @@ class ValidationHandler {
             var cellValidities = [CellValidity]()
             for column in visibleColumns {
                 guard let columnID = column.id else { continue }
-                let isRequired = column.required ?? false
+                let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, row: row)
 
                 if !isRequired {
                     cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
@@ -312,7 +312,7 @@ class ValidationHandler {
                 continue
             }
 
-            let isRequired = column.required ?? false
+            let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaId, row: row)
             if !isRequired {
                 cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue

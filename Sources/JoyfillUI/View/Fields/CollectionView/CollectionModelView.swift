@@ -19,8 +19,7 @@ struct CollectionRowView: View {
         LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let schemaKey = rowDataModel.rowType.parentSchemaKey.isEmpty ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey
-                let column = viewModel.columnsMap["\(schemaKey)_\(cellModel.data.id)"]
-                let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
+                let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID, schemaKey: schemaKey) && !cellModel.data.isCellFilled
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
