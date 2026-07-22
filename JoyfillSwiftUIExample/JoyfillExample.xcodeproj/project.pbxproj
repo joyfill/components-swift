@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */; };
+		FA11CE110000000000000001 /* CellVisibilityLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11CE110000000000000002 /* CellVisibilityLogicTests.swift */; };
 		048149FA2CDA8F8E0061FBDC /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 048149F92CDA8F8E0061FBDC /* JoyfillModel */; };
 		048149FD2CDA8F9A0061FBDC /* JoyfillAPIService in Frameworks */ = {isa = PBXBuildFile; productRef = 048149FC2CDA8F9A0061FBDC /* JoyfillAPIService */; };
 		048149FF2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */; };
@@ -778,6 +779,7 @@
 
 /* Begin PBXFileReference section */
 		0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationTestCase.swift; sourceTree = "<group>"; };
+		FA11CE110000000000000002 /* CellVisibilityLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogicTests.swift; sourceTree = "<group>"; };
 		048149FE2CDA901F0061FBDC /* UserAccessTokenTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccessTokenTextFieldView.swift; sourceTree = "<group>"; };
 		04814A0B2CDA91520061FBDC /* JoyfillExample.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = JoyfillExample.entitlements; sourceTree = "<group>"; };
 		1307CF112BE1290800B19FBA /* JoyDoc+DummyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+DummyModel.swift"; sourceTree = "<group>"; };
@@ -1277,6 +1279,7 @@
 				DEC000A000000000000000A0 /* DecoratorAPI */,
 				E2B8E3BC2E4361DF00AC6018 /* Formula */,
 				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
+				FA11CE110000000000000002 /* CellVisibilityLogicTests.swift */,
 				36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
@@ -2911,6 +2914,7 @@
 				E26315E42F76AEA70008B89B /* ValidatePathTests.swift in Sources */,
 				E2B8E3C42E436F3300AC6018 /* FormulaTemplate_MultiSelectFieldTests.swift in Sources */,
 				0448AE092D0C45AD00754EA0 /* ValidationTestCase.swift in Sources */,
+				FA11CE110000000000000001 /* CellVisibilityLogicTests.swift in Sources */,
 				134FC07A2BDA82E9008B7030 /* JoyfillTests.swift in Sources */,
 				DEC0F22000000000000000F3 /* DocumentEditorFieldLookupTests.swift in Sources */,
 				DEC0F11000000000000000F2 /* DocumentEditorConfigTests.swift in Sources */,

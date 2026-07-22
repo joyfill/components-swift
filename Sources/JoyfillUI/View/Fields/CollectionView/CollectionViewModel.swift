@@ -61,6 +61,17 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         )
     }
 
+    /// Per-row cell visibility for a collection row, resolved against the row's schema columns.
+    func isCellHidden(columnID: String, rowID: String, schemaKey: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowID],
+              let columns = tableDataModel.schema[schemaKey]?.tableColumns,
+              let column = columns.first(where: { $0.id == columnID }) else {
+            return false
+        }
+        return RowDataModel.isCellHidden(row: row, column: column, columns: columns, documentEditor: documentEditor)
+    }
+
     func getCollectionCellDecorators(rowIds: [String], columnId: String, schemaKey: String) -> [DecoratorLocal] {
         let columnDecorators = columnsMap["\(schemaKey)_\(columnId)"]?
             .decorators?
@@ -116,6 +127,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 
                 self.tableDataModel.documentEditor?.registerDelegate(self, for: self.tableDataModel.fieldIdentifier.fieldID)
                 
+                self.refreshAllCellVisibility()
+
                 self.isLoading = false
             }
         }
@@ -468,6 +481,29 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return nil
     }
     
+    /// Recompute per-row `cellVisibilityLogic` for every rendered row. Called after any
+    /// mutation that (re)builds `filteredcellModels` or can flip a sibling cell's value.
+    func refreshAllCellVisibility() {
+        guard tableDataModel.documentEditor != nil else { return }
+        for rowIndex in tableDataModel.filteredcellModels.indices {
+            refreshRowCellVisibility(atIndex: rowIndex)
+        }
+    }
+
+    /// Recompute per-row cell visibility for a single row identified by ID.
+    func refreshRowCellVisibility(rowID: String) {
+        guard let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) else { return }
+        refreshRowCellVisibility(atIndex: rowIndex)
+    }
+
+    private func refreshRowCellVisibility(atIndex rowIndex: Int) {
+        let rowID = tableDataModel.filteredcellModels[rowIndex].rowID
+        guard let schemaKey = getSchemaForRow(rowId: rowID),
+              let row = rowToValueElementMap[rowID],
+              let columns = tableDataModel.schema[schemaKey]?.tableColumns else { return }
+        tableDataModel.filteredcellModels[rowIndex].refreshCellVisibility(row: row, columns: columns, documentEditor: tableDataModel.documentEditor)
+    }
+
     func isRowValid(for rowID: String, parentSchemaID: String) -> Bool {
         var childsvalidities: [Bool] = []
         let schema = tableDataModel.schema[parentSchemaID]
@@ -1006,6 +1042,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
 //        sortRowsIfNeeded()
         updateCollectionWidth()
+        refreshAllCellVisibility()
     }
     
     func deleteSelectedRow() {
@@ -1709,6 +1746,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
+            // Editing a source cell can flip sibling cells' per-row visibility in this row.
+            refreshRowCellVisibility(rowID: rowId)
         }
     }
     
@@ -1886,6 +1925,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     refreshCollectionSchema(rowID: row)
                 }
             }
+            // Bulk-editing a source cell can flip sibling cells' per-row visibility.
+            refreshRowCellVisibility(rowID: row)
         }
     }
     
@@ -2128,6 +2169,8 @@ extension CollectionViewModel: DocumentEditorDelegate {
         rowToValueElementMap[rowID] = merged
         // Update UI based on merged model
         updateUIModels(for: rowID, schemaID: associatedSchemaID == "" ? rootSchemaKey : associatedSchemaID, using: merged)
+        // Row-form edits can flip sibling cells' per-row visibility in this row.
+        refreshRowCellVisibility(rowID: rowID)
         uuid = UUID()
     }
 

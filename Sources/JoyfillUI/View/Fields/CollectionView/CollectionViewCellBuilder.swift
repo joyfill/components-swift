@@ -13,6 +13,15 @@ struct CollectionViewCellBuilder: View {
     @Binding var cellModel: TableCellModel
     
     var body: some View {
+        if cellModel.isHidden {
+            HiddenCellView()
+        } else {
+            cellContent
+        }
+    }
+
+    @ViewBuilder
+    private var cellContent: some View {
         switch cellModel.data.type {
         case .text:
             TableTextView(cellModel: $cellModel)
