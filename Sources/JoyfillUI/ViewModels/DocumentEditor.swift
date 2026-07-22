@@ -258,6 +258,10 @@ public class DocumentEditor: ObservableObject {
     public func shouldShowColumn(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
         return conditionalLogicHandler.shouldShow(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
     }
+
+    public func shouldShowCell(row: ValueElement, column: FieldTableColumn, columns: [FieldTableColumn]) -> Bool {
+        return conditionalLogicHandler.shouldShowCell(row: row, column: column, columns: columns)
+    }
     
     /// Returns true if the field is force-hidden for the current view via hiddenViews. Takes precedence over conditional logic.
     public func isFieldForceHiddenByView(field: JoyDocField) -> Bool {

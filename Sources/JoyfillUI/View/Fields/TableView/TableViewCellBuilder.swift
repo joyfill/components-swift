@@ -18,6 +18,15 @@ struct TableViewCellBuilder: View {
     @Binding var cellModel: TableCellModel
     
     var body: some View {
+        if cellModel.isHidden {
+            HiddenCellView()
+        } else {
+            cellContent
+        }
+    }
+
+    @ViewBuilder
+    private var cellContent: some View {
         switch cellModel.data.type {
         case .text:
             TableTextView(cellModel: $cellModel)
@@ -50,5 +59,17 @@ struct TableViewCellBuilder: View {
         default:
             Text("")
         }
+    }
+}
+
+struct HiddenCellView: View {
+    var body: some View {
+        Image(systemName: "eye.slash.fill")
+            .font(.system(size: 15))
+            .foregroundColor(.secondary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .contentShape(Rectangle())
+            .allowsHitTesting(false)
+            .accessibilityIdentifier("HiddenCellIdentifier")
     }
 }
