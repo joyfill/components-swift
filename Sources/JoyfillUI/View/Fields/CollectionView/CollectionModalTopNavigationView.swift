@@ -277,7 +277,7 @@ struct CollectionModalTopNavigationView: View {
 struct CollectionEditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State var changes = [Int: ValueUnion]()
+    @State var changes = [String: ValueUnion]()
     @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
@@ -288,6 +288,10 @@ struct CollectionEditMultipleRowsSheetView: View {
 
     private func refreshViewID() {
         viewID = UUID()
+    }
+
+    private func resetChanges() {
+        changes = [:]
     }
     
     @ViewBuilder
@@ -333,7 +337,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                         if !viewModel.tableDataModel.navigationIntent.rowFormOpenedViaGoto {
                             Button(action: {
                                 viewModel.selectUpperRow()
-                                changes = [:]
+                                resetChanges()
                             }, label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 6)
@@ -351,7 +355,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             
                             Button(action: {
                                 viewModel.selectBelowRow()
-                                changes = [:]
+                                resetChanges()
                             }, label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 6)
@@ -490,6 +494,7 @@ struct CollectionEditMultipleRowsSheetView: View {
             }
         }
         .onChange(of: viewModel.tableDataModel.selectedRows.first ){ _ in
+            resetChanges()
             refreshViewID()
         }
         .onChange(of: viewModel.uuid) { _ in
@@ -514,13 +519,14 @@ struct CollectionEditMultipleRowsSheetView: View {
         let header = viewModel.getHeaderForSelectedRows()
         ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
             let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
+            let columnID = col.id ?? ""
             VStack(alignment: .leading, spacing: 16) {
                 if let row = viewModel.tableDataModel.selectedRows.first {
                     let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                     let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
                     if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
                         var cellModel = TableCellModel(rowID: row,
-                                                       timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
+                                                       timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells.first(where: { $0.data.id == columnID })?.timezoneId,
                                                        data: cell,
                                                        documentEditor: viewModel.tableDataModel.documentEditor,
                                                        fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
@@ -533,97 +539,98 @@ struct CollectionEditMultipleRowsSheetView: View {
                             case .text:
                                 if isUsedForBulkEdit {
                                     if !cellDataModel.title.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                    self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                 }
                             case .dropdown:
                                 if isUsedForBulkEdit {
                                     if let dropdownSelectedId = cellDataModel.defaultDropdownSelectedId, !dropdownSelectedId.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.string(dropdownSelectedId)
+                                        self.changes[columnID] = ValueUnion.string(dropdownSelectedId)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
+                                    self.changes[columnID] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
                                 }
                                 
                             case .date:
                                 if isUsedForBulkEdit {
                                     if let date = cellDataModel.date {
-                                        self.changes[colIndex] = ValueUnion.double(date)
+                                        self.changes[columnID] = ValueUnion.double(date)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
+                                    self.changes[columnID] = cellDataModel.date.map(ValueUnion.double) ?? .null
                                 }
                             case .number:
                                 if isUsedForBulkEdit {
                                     if let number = cellDataModel.number {
-                                        self.changes[colIndex] = ValueUnion.double(number)
+                                        self.changes[columnID] = ValueUnion.double(number)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
+                                    self.changes[columnID] = cellDataModel.number.map(ValueUnion.double) ?? .null
                                 }
                             case .multiSelect:
                                 if isUsedForBulkEdit {
                                     if let multiSelectValues = cellDataModel.multiSelectValues, !multiSelectValues.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.array(multiSelectValues)
+                                        self.changes[columnID] = ValueUnion.array(multiSelectValues)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
+                                    self.changes[columnID] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
                                 }
                             case .barcode:
                                 if isUsedForBulkEdit {
                                     if !cellDataModel.title.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                    self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                 }
                             case .image:
                                 if isUsedForBulkEdit {
                                     if cellDataModel.valueElements != [] {
-                                        self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
+                                        self.changes[columnID] = ValueUnion.valueElementArray(cellDataModel.valueElements)
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
+                                    self.changes[columnID] = ValueUnion.valueElementArray(cellDataModel.valueElements)
                                 }
                             case .signature:
                                 if isUsedForBulkEdit {
                                     if !cellDataModel.title.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title ?? "")
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+                                    self.changes[columnID] = ValueUnion.string(cellDataModel.title ?? "")
                                 }
                                 
                             default:
                                 break
                             }
-                            Task {
+                            Task { @MainActor in
                                 if !isUsedForBulkEdit {
                                     await viewModel.bulkEdit(changes: changes)
+                                    resetChanges()
                                 }
                             }
                         }
                         
                         var isFilledBasedOnChange: Bool {
-                            guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
+                            guard isUsedForBulkEdit, let changeValue = changes[columnID] else {
                                 return false
                             }
                             
