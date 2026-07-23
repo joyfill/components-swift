@@ -674,4 +674,113 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
 
         _ = cancellable
     }
+
+    // MARK: - bulkEdit(changes:) — regression coverage for RUID 5ZYFSV
+    // The crash keyed row edits by column *index*; these lock in the columnID-keyed path.
+
+    private let textColumnID = "684c3fedce82027a49234dd3"
+    private let rowA = "684c3fedfed2b76677110b19"
+    private let rowB = "68575b4059f586b81549fc07"
+    private let rowUnselected = "68575b41d49ad2d821193a3d"
+
+    private func cellText(_ documentEditor: DocumentEditor, row: String, column: String) -> String? {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?
+            .first(where: { $0.id == row })?.cells?[column]?.text
+    }
+
+    private func cellValue(_ documentEditor: DocumentEditor, row: String, column: String) -> ValueUnion? {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?
+            .first(where: { $0.id == row })?.cells?[column]
+    }
+
+    // Core of the fix: changes are keyed by columnID, so each entry must land in its
+    // own column across every type in the switch, on all selected rows.
+    func testBulkEdit_mapsEachColumnIDToItsOwnColumnAcrossTypes() async {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let dropdownColumnID = "684c3feda4ab2268f6ac00c8"
+        let numberColumnID   = "685752cf6a8d05a425d48836"
+        let multiColumnID    = "685752c9b183f6583d205cc6"
+        let barcodeColumnID  = "685752d672047e707b378e18"
+        let dropdownOptionID = "684c3fed30e4ee677ad0defe"          // "No D1"
+        let multiOptionIDs   = ["685752c91cb4780a9fb7382a", "685752c903c9a5c96e9a4549"]
+
+        viewModel.tableDataModel.selectedRows = [rowA, rowB]
+
+        await viewModel.bulkEdit(changes: [
+            textColumnID:     .string("BulkText"),
+            dropdownColumnID: .string(dropdownOptionID),
+            numberColumnID:   .double(42),
+            multiColumnID:    .array(multiOptionIDs),
+            barcodeColumnID:  .string("BC-123"),
+        ])
+        waitForMainQueueToDrain()
+
+        for row in [rowA, rowB] {
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: textColumnID)?.text, "BulkText", "text column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: dropdownColumnID)?.text, dropdownOptionID, "dropdown column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: numberColumnID)?.number, 42, "number column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: multiColumnID)?.multiSelector, multiOptionIDs, "multiSelect column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: barcodeColumnID)?.text, "BC-123", "barcode column on \(row)")
+        }
+    }
+
+    func testBulkEdit_appliesValueToAllSelectedRows() async {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let unselectedBefore = cellText(documentEditor, row: rowUnselected, column: textColumnID)
+        viewModel.tableDataModel.selectedRows = [rowA, rowB]
+
+        await viewModel.bulkEdit(changes: [textColumnID: .string("Testing")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rowA, column: textColumnID), "Testing", "Selected row A should get the bulk value")
+        XCTAssertEqual(cellText(documentEditor, row: rowB, column: textColumnID), "Testing", "Selected row B should get the bulk value")
+        XCTAssertEqual(cellText(documentEditor, row: rowUnselected, column: textColumnID), unselectedBefore, "Unselected row must be untouched")
+    }
+
+    func testBulkEdit_unknownColumnID_isNoOpAndDoesNotCrash() async {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let before = cellText(documentEditor, row: rowA, column: textColumnID)
+        viewModel.tableDataModel.selectedRows = [rowA, rowB]
+
+        await viewModel.bulkEdit(changes: ["nonexistent-column-id": .string("ShouldNotApply")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rowA, column: textColumnID), before, "An unknown columnID must not mutate any cell")
+    }
+
+    func testBulkEdit_emptyChanges_isNoOp() async {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let before = cellText(documentEditor, row: rowA, column: textColumnID)
+        viewModel.tableDataModel.selectedRows = [rowA, rowB]
+
+        await viewModel.bulkEdit(changes: [:])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rowA, column: textColumnID), before, "Empty changes must be a no-op")
+    }
+
+    func testBulkEdit_rowWithFewerCellsThanColumns_doesNotCrash() async {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        XCTAssertGreaterThan(viewModel.tableDataModel.tableColumns.count, 0, "Fixture must have columns for this test to be meaningful")
+        guard let idx = viewModel.tableDataModel.cellModels.firstIndex(where: { $0.rowID == rowA }) else {
+            return XCTFail("Row \(rowA) not found in cellModels")
+        }
+        viewModel.tableDataModel.cellModels[idx].cells = []
+        viewModel.tableDataModel.selectedRows = [rowA]
+
+        await viewModel.bulkEdit(changes: [textColumnID: .string("Testing")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rowA, column: textColumnID), "Testing", "bulkEdit must complete and persist despite a truncated cells array")
+    }
 }
