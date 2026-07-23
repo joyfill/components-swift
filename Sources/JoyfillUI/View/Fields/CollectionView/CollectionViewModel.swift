@@ -1784,8 +1784,17 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 
         for rowId in tableDataModel.selectedRows {
             guard let rowIndex = rowIndexMap[rowId] else { continue }
+            guard rowIndex < updatedCellModels.count,
+                  rowIndex < tableDataModel.filteredcellModels.count else {
+                Log("updateBulkLocalCellModels: rowIndex \(rowIndex) out of bounds (rows: \(updatedCellModels.count)) for row \(rowId)", type: .warning)
+                continue
+            }
             var rowDataModel = tableDataModel.filteredcellModels[rowIndex]
             tableColumns.enumerated().forEach { colIndex, column in
+                guard colIndex < rowDataModel.cells.count else {
+                    Log("updateBulkLocalCellModels: column index \(colIndex) exceeds cell count \(rowDataModel.cells.count) for row \(rowId)", type: .warning)
+                    return
+                }
                 var cellDataModel = rowDataModel.cells[colIndex].data
                 guard let change = newChanges[rowId]?[column.id ?? ""] else { return }
                 switch cellDataModel.type {
@@ -1820,7 +1829,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     @MainActor
-    func bulkEdit(changes: [Int: ValueUnion]) async {
+    func bulkEdit(changes: [String: ValueUnion]) async {
         if changes.count == 0 { return }
         isBulkLoading = true
         let tableColumns = self.getTableColumnsForSelectedRows()
@@ -1837,14 +1846,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     tableDataModel.filteredcellModels.enumerated().map { ($1.rowID, $0) }
                 )
 
-                var columnIDChanges = [String: ValueUnion]()
-                changes.forEach { (colIndex: Int, value: ValueUnion) in
-                    guard let cellDataModelId = tableColumns[colIndex].id else { return }
-                    columnIDChanges[cellDataModelId] = value
-                }
-
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
+                self.makeChangeDict(&newChanges, changes, tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
 
                 self.updateJSON(newChanges, tableDataModel: tableDataModel)
 

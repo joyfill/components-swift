@@ -430,7 +430,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     @MainActor
-    func bulkEdit(changes: [Int: ValueUnion]) async {
+    func bulkEdit(changes: [String: ValueUnion]) async {
         if changes.count == 0 { return }
         isBulkLoading = true
         let tableDataModel = self.tableDataModel
@@ -442,17 +442,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     cont.resume(returning: (nil, []))
                     return
                 }
-                var columnIDChanges = [String: ValueUnion]()
-                changes.forEach { (colIndex: Int, value: ValueUnion) in
-                    guard let cellDataModelId = tableDataModel.getColumnIDAtIndex(index: colIndex) else { return }
-                    columnIDChanges[cellDataModelId] = value
-                }
+                
                 let rowIndexMap = Dictionary(uniqueKeysWithValues:
                     tableDataModel.cellModels.enumerated().map { ($1.rowID, $0) }
                 )
                 
                 var newChanges: [String: [String: ValueUnion]] = [:]
-                self.makeChangeDict(&newChanges, columnIDChanges, tableDataModel.tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
+                self.makeChangeDict(&newChanges, changes, tableDataModel.tableColumns, rowIndexMap: rowIndexMap, tableDataModel: tableDataModel)
 
                 let result = tableDataModel.documentEditor?.bulkEdit(changes: newChanges, selectedRows: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier, fieldData: tableDataModel.valueToValueElements ?? [])
                 
