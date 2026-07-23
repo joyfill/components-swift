@@ -55,6 +55,34 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         )
     }
 
+    func isCellHidden(columnID: String, row: ValueElement?) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor, let row = row else { return false }
+        return !documentEditor.shouldShowCell(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            row: row
+        )
+    }
+
+    func applyCellVisibilityRefresh(rowId: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowElement(forRowID: rowId) else { return }
+        let flippedColumnIDs = documentEditor.cellsNeedToBeRefreshed(
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            editedColumnID: editedColumnID,
+            row: row
+        )
+        guard !flippedColumnIDs.isEmpty,
+              let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) else { return }
+        for colIndex in tableDataModel.filteredcellModels[index].cells.indices {
+            var cell = tableDataModel.filteredcellModels[index].cells[colIndex]
+            guard flippedColumnIDs.contains(cell.data.id) else { continue }
+            cell.isHidden = isCellHidden(columnID: cell.data.id, row: row)
+            cell.id = UUID()
+            tableDataModel.filteredcellModels[index].cells[colIndex] = cell
+        }
+    }
+
     private func refreshRowDecoratorMap() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
         tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])
@@ -84,11 +112,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
+        tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
                                                timezoneId: valueElement.tz,
+                                               isHidden: isCellHidden(columnID: rowDataModel.id, row: valueElement),
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -101,6 +131,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                         fieldTableColumn.id == cellDataModel.id
                     }) {
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.applyCellVisibilityRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -142,6 +173,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                 if let columnModel = columnModel {
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: timezoneId,
+                                                   isHidden: isCellHidden(columnID: columnModel.id, row: rowElement(forRowID: rowID)),
                                                    data: columnModel,
                                                     documentEditor: tableDataModel.documentEditor,
                                                     fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -151,6 +183,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { [weak self] cellDataModel in
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.applyCellVisibilityRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -317,6 +350,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
+        tableDataModel.documentEditor?.removeCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
@@ -528,6 +562,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.cellModels = updatedCellModels
         self.tableDataModel.filterRowsIfNeeded()
+        let editedColumnIDs = changes.keys.compactMap { tableDataModel.getColumnIDAtIndex(index: $0) }
+        for rowId in tableDataModel.selectedRows {
+            for columnID in editedColumnIDs {
+                applyCellVisibilityRefresh(rowId: rowId, editedColumnID: columnID)
+            }
+        }
         isBulkLoading = false
     }
     
