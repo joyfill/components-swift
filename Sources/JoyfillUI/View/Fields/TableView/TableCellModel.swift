@@ -21,7 +21,6 @@ struct TableCellModel: Identifiable, Equatable, Hashable {
     let rowID: String
     var timezoneId: String?
     var data: CellDataModel
-    var isHidden: Bool = false
     let documentEditor: DocumentEditor?
     var fieldIdentifier: FieldIdentifier
     let viewMode: TableViewMode

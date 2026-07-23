@@ -1227,10 +1227,6 @@ public struct FieldTableColumn {
         get { dictionary["hiddenViews"] as? [String] }
         set { dictionary["hiddenViews"] = newValue }
     }
-    public var cellVisibilityLogic: Logic? {
-        get { Logic(field: dictionary["cellVisilibiltyLogic"] as? [String: Any]) }
-        set { dictionary["cellVisilibiltyLogic"] = newValue?.dictionary }
-    }
 }
 
 public struct Schema {

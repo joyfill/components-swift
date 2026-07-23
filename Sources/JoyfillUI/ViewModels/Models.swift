@@ -44,21 +44,6 @@ struct RowDataModel: Equatable, Hashable {
         self.isExpanded = isExpanded
         self.rowWidth = rowWidth
     }
-
-    static func isCellHidden(row: ValueElement, column: FieldTableColumn, columns: [FieldTableColumn], documentEditor: DocumentEditor?) -> Bool {
-        !(documentEditor?.shouldShowCell(row: row, column: column, columns: columns) ?? true)
-    }
-
-    mutating func refreshCellVisibility(row: ValueElement, columns: [FieldTableColumn], documentEditor: DocumentEditor?) {
-        for colIndex in cells.indices {
-            let columnID = cells[colIndex].data.id
-            guard let column = columns.first(where: { $0.id == columnID }) else { continue }
-            let hidden = RowDataModel.isCellHidden(row: row, column: column, columns: columns, documentEditor: documentEditor)
-            if cells[colIndex].isHidden != hidden {
-                cells[colIndex].isHidden = hidden
-            }
-        }
-    }
 }
 
 enum RowType: Equatable {
@@ -686,31 +671,6 @@ struct TableDataModel {
         }
     }
     
-    var cellVisibilitySourceColumnIDs: Set<String> {
-        var set = Set<String>()
-        for column in tableColumns {
-            guard let conditions = column.cellVisibilityLogic?.conditions else { continue }
-            for condition in conditions {
-                if let sourceColumnID = condition.field { set.insert(sourceColumnID) }
-            }
-        }
-        return set
-    }
-
-    func isCellHidden(row: ValueElement, column: FieldTableColumn) -> Bool {
-        RowDataModel.isCellHidden(row: row, column: column, columns: tableColumns, documentEditor: documentEditor)
-    }
-
-    /// Recomputes `isHidden` for every cell in the given row against the row's current values.
-    mutating func refreshRowCellVisibility(rowID: String) {
-        guard let row = valueToValueElements?.first(where: { $0.id == rowID }),
-              let rowIndex = cellModels.firstIndex(where: { $0.rowID == rowID }) else { return }
-        cellModels[rowIndex].refreshCellVisibility(row: row, columns: tableColumns, documentEditor: documentEditor)
-        if fieldType == .table {
-            filteredcellModels = cellModels
-        }
-    }
-
     func childrensForRows(_ index: Int, _ rowDataModel: RowDataModel, _ level: Int) -> [Int] {
         var indices: [Int] = []
         for i in index + 1..<filteredcellModels.count {

@@ -413,10 +413,7 @@ struct EditMultipleRowsSheetView: View {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
                         let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
-                        // Per-row cell visibility applies to single-row edit only; bulk edit spans rows.
-                        let rowValueElement = viewModel.tableDataModel.valueToValueElements?.first(where: { $0.id == row })
-                        let hideThisCell = !isUsedForBulkEdit && (rowValueElement.map { viewModel.tableDataModel.isCellHidden(row: $0, column: col) } ?? false)
-                        if !hideThisCell, let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
+                        if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
                         var cellModel = TableCellModel(rowID: row,
                                                        timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
                                                        data: cell,

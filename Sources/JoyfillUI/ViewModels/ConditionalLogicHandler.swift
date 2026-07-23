@@ -134,16 +134,6 @@ class ConditionalLogicHandler {
                     dependencyLogic.columnDependencyMap[columnID] = dependentSchemas
                 }
             }
-
-            for column in schemaDetails.tableColumns ?? [] {
-                guard let conditions = column.cellVisibilityLogic?.conditions else { continue }
-                for condition in conditions {
-                    guard let sourceColumnID = condition.field else { continue }
-                    var dependentSchemas = dependencyLogic.columnDependencyMap[sourceColumnID] ?? Set<String>()
-                    dependentSchemas.insert(schemaID)
-                    dependencyLogic.columnDependencyMap[sourceColumnID] = dependentSchemas
-                }
-            }
         }
         
         collectionDependencyMap[fieldID] = dependencyLogic
@@ -329,18 +319,6 @@ class ConditionalLogicHandler {
         return conditionModel
     }
     
-    func shouldShowCell(row: ValueElement, column: FieldTableColumn, columns: [FieldTableColumn]) -> Bool {
-        guard let logic = column.cellVisibilityLogic, let action = logic.action,
-              let conditions = logic.conditions else { return true }
-        let conditionModels = conditions.compactMap { condition -> ConditionModel? in
-            guard let siblingColumnID = condition.field else { return nil }
-            let columnType = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
-            return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row), fieldType: columnType, condition: condition.condition, value: condition.value)
-        }
-        let matched = shoulTakeActionOnThisField(logic: LogicModel(id: logic.id, action: action, eval: logic.eval, conditions: conditionModels))
-        return action == "show" ? matched : !matched
-    }
-
     private func conditionalLogicModel(fullSchema: [String : Schema]?, schemaID: String, valueElement: ValueElement?) -> ConditionalLogicModel? {
         guard let fullSchema = fullSchema else { return nil }
         guard let schema = fullSchema[schemaID] else { return nil }
