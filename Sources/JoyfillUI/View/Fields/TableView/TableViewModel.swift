@@ -159,9 +159,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         tableDataModel.cellModels = cellModels
         tableDataModel.filteredcellModels = cellModels
-        if !tableDataModel.cellVisibilitySourceColumnIDs.isEmpty {
-            tableDataModel.rowOrder.forEach { tableDataModel.refreshRowCellVisibility(rowID: $0) }
-        }
     }
 
     private func setupRows() -> [String: (String?, [CellDataModel])] {
@@ -422,16 +419,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         }
-
-        let updatedElements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
-
-        // Editing a source cell can flip sibling cells' visibility in the same row.
-        if !isNestedCell, tableDataModel.cellVisibilitySourceColumnIDs.contains(cellDataModel.id) {
-            tableDataModel.valueToValueElements = updatedElements
-            tableDataModel.refreshRowCellVisibility(rowID: rowId)
-        }
-
-        return updatedElements
+        
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
     }
 
     fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
@@ -538,11 +527,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             self.tableDataModel.valueToValueElements = newValueToValueElements
         }
         self.tableDataModel.cellModels = updatedCellModels
-        // Editing a source cell (incl. via the row form, which routes here) can flip
-        // sibling cells' visibility; recompute for every row the edit touched.
-        if !self.tableDataModel.cellVisibilitySourceColumnIDs.isEmpty {
-            self.tableDataModel.selectedRows.forEach { self.tableDataModel.refreshRowCellVisibility(rowID: $0) }
-        }
         self.tableDataModel.filterRowsIfNeeded()
         isBulkLoading = false
     }
