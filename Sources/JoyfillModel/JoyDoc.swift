@@ -1221,6 +1221,13 @@ public struct FieldTableColumn {
         set { dictionary["cellRequiredLogic"] = newValue?.dictionary }
     }
 
+    /// Per-cell show/hide logic. Conditions reference sibling column ids and resolve against the
+    /// same row's cell values. Hides the individual cell within the RowForm (not the whole column).
+    public var cellVisibilityLogic: Logic? {
+        get { Logic.init(field: dictionary["cellVisibilityLogic"] as? [String: Any]) }
+        set { dictionary["cellVisibilityLogic"] = newValue?.dictionary }
+    }
+
     /// View types in which this column is force-hidden. Takes precedence over conditional logic.
     /// e.g. ["mobile"] = never show this column on mobile.
     public var hiddenViews: [String]? {

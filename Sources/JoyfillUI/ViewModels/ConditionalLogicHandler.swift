@@ -52,6 +52,16 @@ public struct CollectionDependency {
     public var columnDependencyMap = [String: Set<String>]() // columnID: Set of SchemaIDs
 }
 
+public struct CellVisibilityID: Hashable {
+    public let rowID: String
+    public let columnID: String
+
+    public init(rowID: String, columnID: String) {
+        self.rowID = rowID
+        self.columnID = columnID
+    }
+}
+
 class ConditionalLogicHandler {
     weak var documentEditor: DocumentEditor!
     var showFieldMap = [String: Bool]()
@@ -60,6 +70,9 @@ class ConditionalLogicHandler {
     private var showCollectionSchemaMap = [String: CollectionSchemaLogic]() // CollectionFieldID : CollectionSchemaLogic
     private var collectionDependencyMap = [String: CollectionDependency]() // CollectionFieldID : CollectionDependency
     private var showColumnLogicMap = [String: ColumnLogic]() // Table/Collection fieldID : ColumnLogic
+
+    private var cellVisibilityMap = [String: [CellVisibilityID: Bool]]() // fieldID : (rowID + columnID) : isVisible
+    private var cellVisibilityDependencyMap = [String: [String: Set<String>]]() // fieldID : siblingColumnID : dependent columnIDs
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
@@ -72,6 +85,7 @@ class ConditionalLogicHandler {
 
             if field.fieldType == .table {
                 buildColumnLogicForTableField(field: field, fieldID: fieldID)
+                buildCellVisibilityForTableField(field: field, fieldID: fieldID)
             } else if field.fieldType == .collection {
                 buildDependencyMap(field: field)
                 buildCollectionSchemaMap(field: field)
@@ -90,6 +104,68 @@ class ConditionalLogicHandler {
             registerColumnDependencies(column: column, parentFieldID: fieldID)
         }
         showColumnLogicMap[fieldID] = columnLogic
+    }
+
+    private func buildCellVisibilityForTableField(field: JoyDocField, fieldID: String) {
+        guard let columns = field.tableColumns else { return }
+
+        var dependencyMap = [String: Set<String>]()
+        for column in columns {
+            guard let columnID = column.id else { continue }
+            for condition in column.cellVisibilityLogic?.conditions ?? [] {
+                guard let siblingColumnID = condition.field else { continue }
+                dependencyMap[siblingColumnID, default: Set()].insert(columnID)
+            }
+        }
+        cellVisibilityDependencyMap[fieldID] = dependencyMap
+
+        cellVisibilityMap[fieldID] = [:]
+        for row in field.valueToValueElements ?? [] {
+            setCellVisibility(fieldID: fieldID, columns: columns, row: row)
+        }
+    }
+
+    func addCellVisibilityForRow(fieldID: String, row: ValueElement) {
+        guard let columns = documentEditor.field(fieldID: fieldID)?.tableColumns else { return }
+        setCellVisibility(fieldID: fieldID, columns: columns, row: row)
+    }
+
+    private func setCellVisibility(fieldID: String, columns: [FieldTableColumn], row: ValueElement) {
+        for column in columns {
+            guard let columnID = column.id, column.cellVisibilityLogic != nil else { continue }
+            updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+        }
+    }
+
+    /// The only place a cell's visibility is computed and stored in `cellVisibilityMap`;
+    /// returns `true` if the value changed. The live evaluation exists solely to fill the map.
+    @discardableResult
+    private func updateCellVisibility(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
+        guard let rowID = row.id else { return false }
+        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
+
+        let newValue: Bool
+        if let logic = columns.first(where: { $0.id == columnID })?.cellVisibilityLogic,
+           let action = logic.action {
+            let conditions = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
+                guard let siblingColumnID = condition.field else { return nil }
+                let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
+                return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
+                                      fieldType: type, condition: condition.condition, value: condition.value)
+            }
+            let matched = shoulTakeActionOnThisField(logic: LogicModel(id: logic.id, action: action, eval: logic.eval, conditions: conditions))
+            newValue = (action == "hide") ? !matched : matched
+        } else {
+            newValue = true
+        }
+
+        let didChange = cellVisibilityMap[fieldID]?[cellID] != newValue
+        cellVisibilityMap[fieldID, default: [:]][cellID] = newValue
+        return didChange
+    }
+
+    func removeCellVisibilityForRow(fieldID: String, rowID: String) {
+        cellVisibilityMap[fieldID] = cellVisibilityMap[fieldID]?.filter { $0.key.rowID != rowID }
     }
 
     private func buildColumnLogicForCollectionField(field: JoyDocField, fieldID: String) {
@@ -192,6 +268,18 @@ class ConditionalLogicHandler {
     public func shouldShow(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
         let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
         return showColumnLogicMap[fieldID]?.showColumnMap[columnSchemaID] ?? true
+    }
+
+    func shouldShowCell(fieldID: String, columnID: String, row: ValueElement) -> Bool {
+        let cellID = CellVisibilityID(rowID: row.id ?? "", columnID: columnID)
+        return cellVisibilityMap[fieldID]?[cellID] ?? true
+    }
+
+    func cellsNeedToBeRefreshed(fieldID: String, editedColumnID: String, row: ValueElement) -> [String] {
+        guard let dependentColumns = cellVisibilityDependencyMap[fieldID]?[editedColumnID],
+              let columns = documentEditor.field(fieldID: fieldID)?.tableColumns else { return [] }
+
+        return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
     }
 
     func fieldsNeedsToBeRefreshed(fieldID: String) -> [String] {
