@@ -35,7 +35,7 @@ final class CellVisibilityLogicTest: XCTestCase {
             [
                 "file": fileID,
                 "page": pageID,
-                "field": test.fieldID as Any,
+                "column": test.fieldID as Any,
                 "condition": test.conditionType.rawValue,
                 "value": test.value,
                 "_id": UUID().uuidString

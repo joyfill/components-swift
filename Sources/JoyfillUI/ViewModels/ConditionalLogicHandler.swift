@@ -113,7 +113,7 @@ class ConditionalLogicHandler {
         for column in columns {
             guard let columnID = column.id else { continue }
             for condition in column.cellVisibilityLogic?.conditions ?? [] {
-                guard let siblingColumnID = condition.field else { continue }
+                guard let siblingColumnID = condition.column else { continue }
                 dependencyMap[siblingColumnID, default: Set()].insert(columnID)
             }
         }
@@ -148,7 +148,7 @@ class ConditionalLogicHandler {
         if let logic = columns.first(where: { $0.id == columnID })?.cellVisibilityLogic,
            let action = logic.action {
             let conditions = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
-                guard let siblingColumnID = condition.field else { return nil }
+                guard let siblingColumnID = condition.column else { return nil }
                 let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
                 return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
                                       fieldType: type, condition: condition.condition, value: condition.value)
