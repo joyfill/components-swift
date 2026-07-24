@@ -544,4 +544,118 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         let rowIndexForDocument = updatedRowsFromDocumentEditor?.firstIndex(where: {$0.id == "68575bb9cdb3707c78d6b2ff"})
         XCTAssertEqual(rowIndexForDocument, 3, "Value should be equal")
     }
+
+    // MARK: - bulkEdit(changes:) — regression coverage for RUID 5ZYFSV
+    // The reported crash was in CollectionViewModel.bulkEdit, which keyed row edits by
+    // column *index* and read arrays out of bounds. These lock in the columnID-keyed path.
+
+    private let rootTextColumnID = "684c3fedb0afd867adaeb3b4"
+    private let rootRowA = "68575bb9cdb3707c78d6b2ff"
+    private let rootRowB = "685765dcf190077e95796c41"
+    private let rootRowUnselected = "68582dd76e0e93dd2017372a"
+
+    private func cellText(_ documentEditor: DocumentEditor, row: String, column: String) -> String? {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?
+            .first(where: { $0.id == row })?.cells?[column]?.text
+    }
+
+    private func cellValue(_ documentEditor: DocumentEditor, row: String, column: String) -> ValueUnion? {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?
+            .first(where: { $0.id == row })?.cells?[column]
+    }
+
+    // Core of the fix: changes are keyed by columnID, so each entry must land in its
+    // own root column across every type in the switch, on all selected rows.
+    func testBulkEdit_mapsEachColumnIDToItsOwnColumnAcrossTypes() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        let dropdownColumnID = "684c3fed52b1d1145f1e2790"
+        let numberColumnID   = "685753044b333dd442ea29d4"
+        let multiColumnID    = "6857530158fb7edb102344fa"
+        let barcodeColumnID  = "68575312d8c5679a05ee29e0"
+        let dropdownOptionID = "684c3fedf47cc0fea6bca947"          // "No D1"
+        let multiOptionIDs   = ["68575301e490d0ce22ae5e7b", "685767dae7cf2193a50ff550"]
+
+        viewModel.tableDataModel.selectedRows = [rootRowA, rootRowB]
+
+        await viewModel.bulkEdit(changes: [
+            rootTextColumnID: .string("BulkText"),
+            dropdownColumnID: .string(dropdownOptionID),
+            numberColumnID:   .double(42),
+            multiColumnID:    .array(multiOptionIDs),
+            barcodeColumnID:  .string("BC-123"),
+        ])
+        waitForMainQueueToDrain()
+
+        for row in [rootRowA, rootRowB] {
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: rootTextColumnID)?.text, "BulkText", "text column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: dropdownColumnID)?.text, dropdownOptionID, "dropdown column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: numberColumnID)?.number, 42, "number column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: multiColumnID)?.multiSelector, multiOptionIDs, "multiSelect column on \(row)")
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: barcodeColumnID)?.text, "BC-123", "barcode column on \(row)")
+        }
+    }
+
+    func testBulkEdit_appliesValueToAllSelectedRows() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        let unselectedBefore = cellText(documentEditor, row: rootRowUnselected, column: rootTextColumnID)
+        viewModel.tableDataModel.selectedRows = [rootRowA, rootRowB]
+
+        await viewModel.bulkEdit(changes: [rootTextColumnID: .string("Testing")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rootRowA, column: rootTextColumnID), "Testing", "Selected root row A should get the bulk value")
+        XCTAssertEqual(cellText(documentEditor, row: rootRowB, column: rootTextColumnID), "Testing", "Selected root row B should get the bulk value")
+        XCTAssertEqual(cellText(documentEditor, row: rootRowUnselected, column: rootTextColumnID), unselectedBefore, "Unselected root row must be untouched")
+    }
+
+    func testBulkEdit_unknownColumnID_isNoOpAndDoesNotCrash() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        let before = cellText(documentEditor, row: rootRowA, column: rootTextColumnID)
+        viewModel.tableDataModel.selectedRows = [rootRowA, rootRowB]
+
+        await viewModel.bulkEdit(changes: ["nonexistent-column-id": .string("ShouldNotApply")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rootRowA, column: rootTextColumnID), before, "An unknown columnID must not mutate any cell")
+    }
+
+    func testBulkEdit_emptyChanges_isNoOp() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        let before = cellText(documentEditor, row: rootRowA, column: rootTextColumnID)
+        viewModel.tableDataModel.selectedRows = [rootRowA, rootRowB]
+
+        await viewModel.bulkEdit(changes: [:])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rootRowA, column: rootTextColumnID), before, "Empty changes must be a no-op")
+    }
+
+    func testBulkEdit_rowWithFewerCellsThanColumns_doesNotCrash() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        guard let idx = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rootRowA }) else {
+            return XCTFail("Row \(rootRowA) not found in filteredcellModels")
+        }
+        viewModel.tableDataModel.selectedRows = [rootRowA]
+        viewModel.tableDataModel.filteredcellModels[idx].cells = []
+
+        await viewModel.bulkEdit(changes: [rootTextColumnID: .string("Testing")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(cellText(documentEditor, row: rootRowA, column: rootTextColumnID), "Testing", "bulkEdit must complete and persist despite a truncated cells array")
+    }
 }

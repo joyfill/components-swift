@@ -253,6 +253,184 @@
       "title": "Number",
       "identifier": "field_6a35073a49eb2de132410241",
       "required": true
+    },
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "6a6304d09b40c4f73c013cd8",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6a6304f6fca52b29024d2dd6",
+          "cells": {},
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "_id": "6a6304fd9fd1ea0a368a80c1",
+                  "cells": {},
+                  "children": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "6a63050694124c8cacf3d184",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6a63050a7398d44bed67125b",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [
+            "level1Table1"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6813008e76da519a97819c69",
+              "width": 0,
+              "required": true
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "New Table",
+          "children": [],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6a6304d33ecb5b436339654f",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false,
+              "required": true
+            },
+            {
+              "_id": "6a6304d5b2d676265439cfff",
+              "type": "dropdown",
+              "title": "Dropdown Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a6304d58be9a86161c8b657",
+                  "value": "Yes",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a6304d5969509d7a9b0f07c",
+                  "value": "No",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a6304d5ed09526aee04b88e",
+                  "value": "N/A",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6a6304d5b2d676265439cfff"
+            },
+            {
+              "_id": "6a6304d7c5310ba46917323d",
+              "type": "multiSelect",
+              "title": "MultiSelect Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a6304d72f25df625dbf7780",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a6304d79172b659b510f2fc",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a6304d7dab270ac3827c2dd",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6a6304d7c5310ba46917323d"
+            },
+            {
+              "_id": "6a6304d932c0246a9449fb6c",
+              "type": "image",
+              "title": "Image Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6a6304d932c0246a9449fb6c"
+            },
+            {
+              "_id": "6a6304daa8c379c01628d40f",
+              "type": "number",
+              "title": "Number Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6a6304daa8c379c01628d40f"
+            },
+            {
+              "_id": "6a6304dc290e19953d95981b",
+              "type": "date",
+              "title": "Date Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6a6304dc290e19953d95981b"
+            },
+            {
+              "_id": "6a6304de08b4509988e3ae88",
+              "type": "signature",
+              "title": "Signature Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a6304d09b40c4f73c013cd8_column_6a6304de08b4509988e3ae88"
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a6304d09b40c4f73c013cd8"
     }
   ],
   "_id": "695e36f2ec467a1860e1cac8",
@@ -290,6 +468,33 @@
         "rowHeight": 1
       },
       "pages": [
+        {
+          "_id": "6a6304bacc735a050e6f96ff",
+          "name": "Page 1",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "6a6304d074d76133f2a8e4c6",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 36,
+              "field": "6a6304d09b40c4f73c013cd8"
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "deletable": true,
+          "copyable": [
+            "with-values"
+          ]
+        },
         {
           "layout": "grid",
           "height": 1056,
@@ -340,6 +545,7 @@
         }
       ],
       "pageOrder": [
+        "6a6304bacc735a050e6f96ff",
         "695e375da819cd4e2da9161f"
       ],
       "views": [],
