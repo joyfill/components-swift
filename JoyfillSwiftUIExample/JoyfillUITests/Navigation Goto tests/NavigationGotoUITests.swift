@@ -110,4 +110,50 @@ final class NavigationGotoUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["1 row selected"].exists)
 
     }
+
+    func testGotoNavigateAndFillCollectionTextFields() throws {
+        app.buttons["SubmitValidateButtonIdentifier"].tap()
+
+        let upButton = app.buttons["UpperNavigationIdentifier"].firstMatch
+        XCTAssertTrue(upButton.waitForExistence(timeout: 5), "Validation navigation did not appear")
+
+        for _ in 0..<4 {
+            guard upButton.isEnabled else { break }
+            upButton.tap()
+            _ = spinRunloop(0.4)
+        }
+
+        var filled = 0
+        var safety = 0
+        while filled < 5 && safety < 12 {
+            guard upButton.isEnabled else { break }
+            upButton.tap()
+            if fillTextCell() { filled += 1 }
+            _ = spinRunloop(0.4)
+            safety += 1
+        }
+
+        XCTAssertEqual(filled, 5, "Expected to fill all five page-1 collection text cells")
+        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 3),
+                      "App should stay alive through the collection bulk edit")
+    }
+
+    @discardableResult
+    private func fillTextCell() -> Bool {
+        let textField = app.textFields["EditRowsTextFieldIdentifier"].firstMatch
+        if textField.waitForExistence(timeout: 3), textField.isHittable {
+            textField.tap()
+            textField.typeText("Test")
+            app.dismissKeyboardIfVisible()
+            return true
+        }
+        let textView = app.textViews["EditRowsTextFieldIdentifier"].firstMatch
+        if textView.exists, textView.isHittable {
+            textView.tap()
+            textView.typeText("Test")
+            app.dismissKeyboardIfVisible()
+            return true
+        }
+        return false
+    }
 }
