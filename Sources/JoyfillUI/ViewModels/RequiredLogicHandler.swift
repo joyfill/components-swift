@@ -26,6 +26,9 @@ class RequiredLogicHandler {
     // dependentFieldID (a field referenced by some requiredLogic condition) -> owning field/table/collection ids
     private var requiredDependencyMap = [String: Set<String>]()
 
+    // dependentFieldID (a page field referenced by some cellRequiredLogic condition) -> owning table/collection ids
+    private var cellRequiredDependencyMap = [String: Set<String>]()
+
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
@@ -72,13 +75,19 @@ class RequiredLogicHandler {
 
     /// Fields that must be re-rendered because `fieldID` changed and some requiredLogic depends on it.
     func fieldsNeedsToBeRefreshed(fieldID: String) -> [String] {
-        guard let owners = requiredDependencyMap[fieldID] else { return [] }
+        let cellOwners = cellRequiredDependencyMap[fieldID] ?? Set<String>()
+        var owners = requiredDependencyMap[fieldID] ?? Set<String>()
+        owners.formUnion(cellOwners)
+        guard !owners.isEmpty else { return [] }
         var refreshIDs = [String]()
         for ownerID in owners {
             guard let field = documentEditor.field(fieldID: ownerID) else { continue }
             switch field.fieldType {
             case .table, .collection:
                 var changed = columnRequiredChanged(field: field, fieldID: ownerID)
+                // Cell-level logic is per-row and evaluated lazily, so column/field recomputation can't
+                // observe it — if this change touches a cell-logic dependency, force a refresh.
+                if cellOwners.contains(ownerID) { changed = true }
                 let newFieldRequired = computeFieldRequired(field: field)
                 if requiredFieldMap[ownerID] != newFieldRequired {
                     requiredFieldMap[ownerID] = newFieldRequired
@@ -132,8 +141,11 @@ class RequiredLogicHandler {
     private func registerColumnDependencies(column: FieldTableColumn, ownerFieldID: String) {
         // Column requiredLogic references page-level fields; register those as dependencies.
         register(logic: column.requiredLogic, ownerFieldID: ownerFieldID)
-        // cellRequiredLogic references sibling cells within the same row, so a change to the owning
-        // table/collection field already triggers its own refresh — no external dependency to register.
+        // cellRequiredLogic resolves sibling-cell (`column`) conditions from the row itself — a change
+        // there already refreshes the owning table/collection. But it can ALSO reference page-level
+        // fields (`field` conditions); track those separately so an external change forces the owning
+        // table/collection to re-validate its per-row cells.
+        registerCellLogicDependencies(logic: column.cellRequiredLogic, ownerFieldID: ownerFieldID)
     }
 
     private func register(logic: Logic?, ownerFieldID: String) {
@@ -143,6 +155,18 @@ class RequiredLogicHandler {
             var owners = requiredDependencyMap[dependentFieldID] ?? Set<String>()
             owners.insert(ownerFieldID)
             requiredDependencyMap[dependentFieldID] = owners
+        }
+    }
+
+    private func registerCellLogicDependencies(logic: Logic?, ownerFieldID: String) {
+        guard let conditions = logic?.conditions else { return }
+        for condition in conditions {
+            // Only `field` (page-level) conditions are external dependencies; `column` (sibling) ones
+            // resolve from the row itself.
+            guard let dependentFieldID = condition.field else { continue }
+            var owners = cellRequiredDependencyMap[dependentFieldID] ?? Set<String>()
+            owners.insert(ownerFieldID)
+            cellRequiredDependencyMap[dependentFieldID] = owners
         }
     }
 
@@ -211,13 +235,20 @@ class RequiredLogicHandler {
         return LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
     }
 
-    /// Builds a model for cellRequiredLogic whose conditions reference sibling column ids in the same row.
+    /// Builds a model for cellRequiredLogic. Each condition is resolved by kind:
+    ///   - `column` -> a sibling cell in the same row (resolved against `row.cells`)
+    ///   - `field`  -> a page-level field (resolved against the document)
     private func cellLogicModel(logic: Logic, columns: [FieldTableColumn], row: ValueElement) -> LogicModel {
         let conditionModels = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
-            guard let siblingColumnID = condition.field else { return nil }
-            let columnType = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
-            let cellValue = row.cells?[siblingColumnID]
-            return ConditionModel(fieldValue: cellValue, fieldType: columnType, condition: condition.condition, value: condition.value)
+            if let siblingColumnID = condition.column {
+                let columnType = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
+                let cellValue = row.cells?[siblingColumnID]
+                return ConditionModel(fieldValue: cellValue, fieldType: columnType, condition: condition.condition, value: condition.value)
+            } else if let conditionFieldID = condition.field,
+                      let conditionField = documentEditor.field(fieldID: conditionFieldID) {
+                return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
+            }
+            return nil
         }
         return LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
     }

@@ -926,6 +926,11 @@ public struct Condition: Equatable{
         set { dictionary["field"] = newValue }
     }
     
+    public var column: String? {
+        get { dictionary["column"] as? String }
+        set { dictionary["column"] = newValue }
+    }
+
     public var condition: String? {
         get { dictionary["condition"] as? String }
         set { dictionary["condition"] = newValue }

@@ -53,6 +53,20 @@ final class RequiredLogicTests: XCTestCase {
         ]
     }
 
+    /// Builds cellRequiredLogic whose single condition references a SIBLING column (via the `column`
+    /// key), resolved against the same row's cells — mirrors show/hide logic and the sample JSON.
+    private func cellRequiredLogic(action: String, condColumn: String, value: Any, condition: String = "=") -> [String: Any] {
+        [
+            "action": action,
+            "eval": "and",
+            "conditions": [[
+                "column": condColumn,
+                "condition": condition, "value": value, "_id": UUID().uuidString
+            ]],
+            "_id": UUID().uuidString
+        ]
+    }
+
     /// A page with a text field (carrying requiredLogic) and a dropdown field it depends on.
     private func makeFieldLevelDoc(action: String, staticRequired: Bool, textValue: String?, dropdownValue: String) -> JoyDoc {
         var textField: [String: Any] = [
@@ -208,7 +222,7 @@ final class RequiredLogicTests: XCTestCase {
         // text column cellRequiredLogic enforce referencing sibling dropdown column = Yes.
         let textColumn: [String: Any] = [
             "_id": textColumnID, "type": "text", "title": "Text",
-            "cellRequiredLogic": requiredLogic(action: "enforce", condField: ddColumnID, value: optYes)
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: ddColumnID, value: optYes)
         ]
         let rows: [[String: Any]] = [
             ["_id": "row-match", "cells": [textColumnID: "", ddColumnID: optYes]],   // sibling matches -> required -> invalid
@@ -218,6 +232,118 @@ final class RequiredLogicTests: XCTestCase {
 
         XCTAssertEqual(cellStatus(editor, rowId: "row-match", columnId: textColumnID), .invalid)
         XCTAssertEqual(cellStatus(editor, rowId: "row-nomatch", columnId: textColumnID), .valid)
+    }
+
+    // MARK: - Cell logic with mixed sibling-column + page-field conditions
+
+    /// A table whose text column carries a `cellRequiredLogic` mixing a sibling-column condition
+    /// (`column`) and a page-level field condition (`field`), plus a page number field it depends on.
+    private func makeMixedCellDoc(
+        cellAction: String,
+        cellEval: String,
+        siblingValue: String,
+        conditionSiblingValue: String,
+        pageNumberValue: Double,
+        conditionPageNumberValue: Double,
+        columnRequiredLogic: [String: Any]? = nil,
+        columnStaticRequired: Bool = false,
+        includePageDropdown: Bool = false,
+        dropdownValue: String = ""
+    ) -> JoyDoc {
+        let numberFieldID = "number1"
+        var textColumn: [String: Any] = [
+            "_id": textColumnID, "type": "text", "title": "Text",
+            "required": columnStaticRequired,
+            "cellRequiredLogic": [
+                "action": cellAction, "eval": cellEval, "_id": UUID().uuidString,
+                "conditions": [
+                    // sibling-column condition (resolved against the row's own cells)
+                    ["column": ddColumnID, "condition": "=", "value": conditionSiblingValue, "_id": UUID().uuidString],
+                    // page-field condition (resolved against the document)
+                    ["field": numberFieldID, "condition": "=", "value": conditionPageNumberValue, "_id": UUID().uuidString],
+                ] as [[String: Any]],
+            ] as [String: Any],
+        ]
+        if let columnRequiredLogic = columnRequiredLogic { textColumn["requiredLogic"] = columnRequiredLogic }
+
+        var fieldPositions: [[String: Any]] = [
+            ["_id": "fp-table", "field": tableFieldID, "type": "table"],
+            ["_id": "fp-num", "field": numberFieldID, "type": "number"],
+        ]
+        var fields: [[String: Any]] = [
+            [
+                "_id": tableFieldID, "file": fileID, "type": "table", "required": false,
+                "tableColumns": [
+                    textColumn,
+                    ["_id": ddColumnID, "type": "text", "title": "Flag"],
+                ] as [[String: Any]],
+                "tableColumnOrder": [textColumnID, ddColumnID],
+                "rowOrder": ["row-1"],
+                "value": [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: siblingValue]]] as [[String: Any]],
+            ],
+            ["_id": numberFieldID, "file": fileID, "type": "number", "value": pageNumberValue],
+        ]
+        if includePageDropdown {
+            fieldPositions.append(["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"])
+            fields.append(["_id": dropdownFieldID, "file": fileID, "type": "dropdown", "value": dropdownValue,
+                           "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]])
+        }
+
+        return JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": fileID, "pageOrder": [pageID],
+                "pages": [["_id": pageID, "fieldPositions": fieldPositions]],
+            ]],
+            "fields": fields,
+        ])
+    }
+
+    func testCellRequiredLogic_mixedSiblingAndPageField_bothMatch_makesRequired() {
+        // enforce AND: sibling flag == "yes" AND page number1 == 100. Both true -> required -> empty cell invalid.
+        let editor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "enforce", cellEval: "and",
+            siblingValue: "yes", conditionSiblingValue: "yes",
+            pageNumberValue: 100, conditionPageNumberValue: 100
+        ))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
+    }
+
+    func testCellRequiredLogic_mixedSiblingAndPageField_pageFieldMissesUnderAnd_fallsBack() {
+        // enforce AND: sibling flag == "yes" (true) AND page number1 == 100 (false, is 10).
+        // AND fails -> falls back to column base (no column logic, static false) -> optional -> valid.
+        let editor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "enforce", cellEval: "and",
+            siblingValue: "yes", conditionSiblingValue: "yes",
+            pageNumberValue: 10, conditionPageNumberValue: 100
+        ))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid)
+    }
+
+    func testCellRequiredLogic_mixedConditions_fallBackToColumnStaticRequired() {
+        // Mirrors the sample JSON: cell enforce-AND fails (number1 != 100), so we fall back to the
+        // column base. Column requiredLogic is unenforce on page dropdown = Yes but dropdown = No, so
+        // it also fails and falls back to the column's static required:true -> required -> invalid.
+        let editor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "enforce", cellEval: "and",
+            siblingValue: "No", conditionSiblingValue: "No",
+            pageNumberValue: 10, conditionPageNumberValue: 100,
+            columnRequiredLogic: requiredLogic(action: "unenforce", condField: dropdownFieldID, value: optYes),
+            columnStaticRequired: true,
+            includePageDropdown: true, dropdownValue: optNo
+        ))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
+    }
+
+    func testCellRequiredLogic_pageFieldDependency_refreshesOwningTable() {
+        // A change to the page field referenced by cellRequiredLogic must mark the table for refresh.
+        let editor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "enforce", cellEval: "and",
+            siblingValue: "yes", conditionSiblingValue: "yes",
+            pageNumberValue: 10, conditionPageNumberValue: 100
+        ))
+        let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: "number1")
+        XCTAssertTrue(refreshed.contains(tableFieldID))
     }
 
     // MARK: - Table: additional column / cell coverage
@@ -275,7 +401,7 @@ final class RequiredLogicTests: XCTestCase {
         let textColumn: [String: Any] = [
             "_id": textColumnID, "type": "text", "title": "Text",
             "requiredLogic": requiredLogic(action: "enforce", condField: dropdownFieldID, value: optYes),
-            "cellRequiredLogic": requiredLogic(action: "enforce", condField: ddColumnID, value: optYes)
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: ddColumnID, value: optYes)
         ]
         let rows: [[String: Any]] = [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optYes]]]
         let editor = documentEditor(document: makeTableDoc(textColumn: textColumn, rows: rows, includePageDropdown: true, dropdownValue: optNo))
@@ -412,7 +538,7 @@ final class RequiredLogicTests: XCTestCase {
     func testCollection_cellRequiredLogic_siblingPerRow() {
         let rootText: [String: Any] = [
             "_id": rootTextCol, "type": "text", "title": "Text",
-            "cellRequiredLogic": requiredLogic(action: "enforce", condField: rootDdCol, value: optYes)
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: rootDdCol, value: optYes)
         ]
         let rootDd: [String: Any] = ["_id": rootDdCol, "type": "dropdown", "title": "DD",
                                      "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]]
@@ -430,7 +556,7 @@ final class RequiredLogicTests: XCTestCase {
         let childText: [String: Any] = ["_id": childTextCol, "type": "text", "title": "Child Text"]
         let childNotes: [String: Any] = [
             "_id": childNotesCol, "type": "text", "title": "Notes",
-            "cellRequiredLogic": requiredLogic(action: "enforce", condField: childTextCol, value: "", condition: "*=")
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: childTextCol, value: "", condition: "*=")
         ]
         let rootRows: [[String: Any]] = [[
             "_id": "root-1", "cells": [:],
@@ -449,7 +575,7 @@ final class RequiredLogicTests: XCTestCase {
         let rootText: [String: Any] = [
             "_id": rootTextCol, "type": "text", "title": "Text",
             "requiredLogic": requiredLogic(action: "enforce", condField: dropdownFieldID, value: optYes),
-            "cellRequiredLogic": requiredLogic(action: "enforce", condField: rootDdCol, value: optYes)
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: rootDdCol, value: optYes)
         ]
         let rootDd: [String: Any] = ["_id": rootDdCol, "type": "dropdown", "title": "DD",
                                      "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]]
