@@ -459,4 +459,49 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
         }
         S.openCollectionNestedRowEditForm(rowIndex: 2, boundBy: 0, in: app)
     }
+
+    // MARK: - I. Mixed cell logic: sibling column AND page field (JSON use case)
+
+    func testTableCellMixed_requiredWhenSiblingNoAndNumber100() {
+        openTable()
+        S.openTableRowEditForm(rowIndex: 3, in: app) // rowC (dropdown1 = No)
+        XCTAssertTrue(app.buttons["DismissEditSingleRowSheetButtonIdentifier"].waitForExistence(timeout: 3))
+        XCTAssertFalse(tableColAsterisk("text5").exists,
+                       "Col F should be optional while number1 != 100")
+        exitModal()
+
+        // number1 = 100 -> BOTH conditions match in rowC (sibling No + number 100) -> required.
+        setPageNumber("100")
+        openTable()
+        S.openTableRowEditForm(rowIndex: 3, in: app) // rowC
+        XCTAssertTrue(existsInForm(tableColAsterisk("text5")),
+                      "Col F should be required when sibling dropdown == No AND number1 == 100")
+    }
+
+    func testTableCellMixed_optionalWhenSiblingNotNo() {
+        // With number1 = 100 satisfied but sibling dropdown != "No" (rowB has an empty dropdown),
+        // the AND fails -> Col F falls back to its optional base -> no asterisk.
+        setPageNumber("100")
+        openTable()
+        S.openTableRowEditForm(rowIndex: 2, in: app) // rowB (dropdown empty)
+        XCTAssertTrue(tableColAsterisk("dropdown1").waitForExistence(timeout: 3))
+        XCTAssertFalse(tableColAsterisk("text5").exists,
+                       "Col F should be optional when sibling dropdown is not 'No', even if number1 == 100")
+    }
+
+    func testTableCellMixed_toggleOffWhenNumberCleared() {
+        setPageNumber("100")
+        openTable()
+        S.openTableRowEditForm(rowIndex: 3, in: app) // rowC
+        XCTAssertTrue(existsInForm(tableColAsterisk("text5")),
+                      "Col F should be required while sibling == No AND number1 == 100")
+        exitModal()
+
+        clearPageNumber()
+        openTable()
+        S.openTableRowEditForm(rowIndex: 3, in: app)
+        XCTAssertTrue(app.buttons["DismissEditSingleRowSheetButtonIdentifier"].waitForExistence(timeout: 3))
+        XCTAssertFalse(tableColAsterisk("text5").exists,
+                       "Col F should be optional again after number1 is cleared")
+    }
 }
