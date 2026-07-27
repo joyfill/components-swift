@@ -49,7 +49,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         ]
     }
 
-    func buildColumn(id: String, type: ColumnTypes, title: String, cellVisibilityLogic: [String: Any]? = nil) -> FieldTableColumn {
+    func buildColumn(id: String, type: ColumnTypes, title: String, cellVisibilityLogic: [String: Any]? = nil, cellsHidden: Bool? = nil) -> FieldTableColumn {
         var dict: [String: Any] = [
             "_id": id,
             "type": type.rawValue,
@@ -59,6 +59,9 @@ final class CellVisibilityLogicTest: XCTestCase {
         ]
         if let cellVisibilityLogic = cellVisibilityLogic {
             dict["cellVisibilityLogic"] = cellVisibilityLogic
+        }
+        if let cellsHidden = cellsHidden {
+            dict["cellsHidden"] = cellsHidden
         }
         return FieldTableColumn(dictionary: dict)
     }
@@ -158,6 +161,59 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: "unknown_field", row: row1), "Unknown field defaults to visible")
         let unknownRow = row(id: "unknown_row", cells: [statusColumnID: "Rejected"])
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: unknownRow), "Unknown row defaults to visible")
+    }
+
+    // MARK: - cellsHidden baseline (mirrors a field's static `hidden` flag)
+
+    /// cellsHidden with no logic behaves like a field's static `hidden`: true -> hidden, false/absent -> visible
+    func testCellsHiddenBaselineWithoutLogic() {
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: "col_hidden", type: .text, title: "Hidden", cellsHidden: true),
+            buildColumn(id: "col_shown", type: .text, title: "Shown", cellsHidden: false),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Rejected"])]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        let r = rowElement(editor, rowID: row1ID)
+        XCTAssertFalse(editor.shouldShowCell(columnID: "col_hidden", fieldID: tableFieldID, row: r), "cellsHidden:true with no logic -> hidden")
+        XCTAssertTrue(editor.shouldShowCell(columnID: "col_shown", fieldID: tableFieldID, row: r), "cellsHidden:false with no logic -> visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, row: r), "no cellsHidden, no logic -> visible")
+    }
+
+    /// A `hide`-action column shows non-matching rows and hides matching rows; `cellsHidden` on a
+    /// logic column is ignored (the action drives each row).
+    func testHideActionShowsNonMatchingRowsIgnoringCellsHidden() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: false,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic, cellsHidden: true)
+        ]
+        let rows = [
+            row(id: row1ID, cells: [statusColumnID: "Rejected"]),  // met -> hide
+            row(id: row2ID, cells: [statusColumnID: "Approved"])   // not met -> show
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "hide + condition met -> hidden")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hide + condition not met -> visible (cellsHidden:true ignored on a logic column)")
+    }
+
+    /// A `show`-action column hides non-matching rows; `cellsHidden` on a logic column is ignored.
+    func testShowActionHidesNonMatchingRowsIgnoringCellsHidden() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic, cellsHidden: false)
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved"])] // condition not met
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "show + condition not met -> hidden")
     }
 
     // MARK: - Multiple conditions (AND / OR)
@@ -265,5 +321,145 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: row2), "Reason hidden before removal")
         editor.removeCellVisibilityForRow(fieldID: tableFieldID, rowID: row2ID)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: row2), "After removal the entry is gone, defaulting to visible")
+    }
+
+    // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
+
+    private func tableViewModel(_ editor: DocumentEditor) -> TableViewModel {
+        let field = editor.field(fieldID: tableFieldID)
+        let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible, visibleLimitInFields: editor.decoratorConfig.visibleLimitInFields)
+        let tableDataModel = TableDataModel(fieldHeaderModel: fieldHeaderModel, mode: .fill, documentEditor: editor, fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))!
+        return TableViewModel(tableDataModel: tableDataModel)
+    }
+
+    /// Reads what the view actually renders: `filteredcellModels`, the source of truth for each cell's `isHidden`.
+    private func reasonHidden(_ vm: TableViewModel, rowID: String) -> Bool? {
+        vm.tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID })?.cells.first(where: { $0.data.id == reasonColumnID })?.isHidden
+    }
+
+    /// Adding a row must only compute the new row's cells; pre-existing rows keep their visibility.
+    func testAddRowDoesNotFlipExistingRows() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
+        let vm = tableViewModel(editor)
+
+        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason visible before add")
+        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason visible before add")
+
+        // Matches the "Add Row +" button exactly: no explicit values, event sent, no full rebuild.
+        vm.addRow()
+
+        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason must stay visible after add")
+        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason must stay visible after add")
+    }
+
+    // MARK: - Real-doc repro (table1: cellsHidden:true + show `*=` on sibling dropdown)
+
+    /// Mirrors the user's `table1`: Text Column carries `cellsHidden:true` AND a `show` logic
+    /// whose only usable condition is "sibling dropdown1 is not empty" (`*=`, no value). A second
+    /// condition references `field` instead of `column` and must be ignored.
+    private func buildTable1Document(row1Dropdown: String?, row2Dropdown: String?, row3Dropdown: String?) -> JoyDoc {
+        let text1Logic: [String: Any] = [
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+                ["column": "dropdown1", "condition": "*="],
+                ["file": fileID, "page": pageID, "field": "dropdown1", "condition": "*="]
+            ],
+            "_id": UUID().uuidString
+        ]
+        let columns = [
+            buildColumn(id: "text1", type: .text, title: "Text Column", cellVisibilityLogic: text1Logic, cellsHidden: true),
+            buildColumn(id: "dropdown1", type: .dropdown, title: "Dropdown Column"),
+            buildColumn(id: "text2", type: .text, title: "Text Column")
+        ]
+        func cells(_ dropdown: String?) -> [String: Any] {
+            guard let dropdown else { return [:] }
+            return ["dropdown1": dropdown]
+        }
+        let rows = [
+            row(id: row1ID, cells: cells(row1Dropdown)),
+            row(id: row2ID, cells: cells(row2Dropdown)),
+            row(id: "row_003", cells: cells(row3Dropdown))
+        ]
+        return buildDocument(columns: columns, rows: rows)
+    }
+
+    /// Simulates the user selecting a dropdown option in a row (updates the model the way an edit would).
+    private func setDropdown(_ vm: TableViewModel, rowID: String, value: String) {
+        guard var elements = vm.tableDataModel.valueToValueElements,
+              let idx = elements.firstIndex(where: { $0.id == rowID }) else {
+            XCTFail("row \(rowID) not found")
+            return
+        }
+        var cells = elements[idx].cells ?? [:]
+        cells["dropdown1"] = ValueUnion.string(value)
+        elements[idx].cells = cells
+        vm.tableDataModel.valueToValueElements = elements
+    }
+
+    private func text1Hidden(_ vm: TableViewModel, rowID: String) -> Bool? {
+        vm.tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID })?.cells.first(where: { $0.data.id == "text1" })?.isHidden
+    }
+
+    func testTable1AddRowDoesNotFlipExistingRows() {
+        // rows 1 & 2 have a dropdown value (non-empty -> text1 visible); row 3 empty (hidden).
+        let editor = documentEditor(document: buildTable1Document(row1Dropdown: "6a634222bcd54de3258770c7", row2Dropdown: "6a634222bcd54de3258770c7", row3Dropdown: nil))
+        let vm = tableViewModel(editor)
+
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 visible before add (dropdown non-empty)")
+        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 visible before add (dropdown non-empty)")
+        XCTAssertEqual(text1Hidden(vm, rowID: "row_003"), true, "row3 text1 hidden before add (dropdown empty)")
+
+        vm.addRow()
+
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after add")
+        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 MUST stay visible after add")
+        XCTAssertEqual(text1Hidden(vm, rowID: "row_003"), true, "row3 text1 stays hidden after add")
+    }
+
+    func testTable1DeleteRowDoesNotFlipRemainingRows() {
+        let editor = documentEditor(document: buildTable1Document(row1Dropdown: "6a634222bcd54de3258770c7", row2Dropdown: "6a634222bcd54de3258770c7", row3Dropdown: nil))
+        let vm = tableViewModel(editor)
+
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 visible before delete")
+        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 visible before delete")
+
+        // Delete the hidden (empty-dropdown) row, mirroring the row-select + delete UI action.
+        vm.deleteSelectedRow(["row_003"])
+
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after delete")
+        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 MUST stay visible after delete")
+    }
+
+    /// The reported bug: a cell revealed by an in-modal edit reverts to hidden the moment a row is
+    /// added, because `applyCellVisibilityRefresh` wrote the new state only into `filteredcellModels`
+    /// and `filterRowsIfNeeded()` (run on add) resets `filteredcellModels = cellModels`.
+    func testEditRevealSurvivesAddRow() {
+        // Every row loads with an empty dropdown -> text1 hidden.
+        let editor = documentEditor(document: buildTable1Document(row1Dropdown: nil, row2Dropdown: nil, row3Dropdown: nil))
+        let vm = tableViewModel(editor)
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), true, "row1 text1 hidden at load (empty dropdown)")
+
+        // User picks a dropdown value in row1 -> text1 is revealed via the dependency refresh.
+        setDropdown(vm, rowID: row1ID, value: "6a634222bcd54de3258770c7")
+        vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: "dropdown1")
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 revealed after picking dropdown")
+
+        // Adding a row must NOT wipe the revealed state.
+        vm.addRow()
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after add")
+    }
+
+    /// Same bug via delete instead of add.
+    func testEditRevealSurvivesDeleteRow() {
+        let editor = documentEditor(document: buildTable1Document(row1Dropdown: nil, row2Dropdown: nil, row3Dropdown: nil))
+        let vm = tableViewModel(editor)
+
+        setDropdown(vm, rowID: row1ID, value: "6a634222bcd54de3258770c7")
+        vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: "dropdown1")
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 revealed after picking dropdown")
+
+        vm.deleteSelectedRow(["row_003"])
+        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after delete")
     }
 }
