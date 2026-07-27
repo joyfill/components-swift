@@ -22,6 +22,14 @@ final class RequiredLogicTests: XCTestCase {
     let textColumnID = "col-text"
     let ddColumnID = "col-dd"
 
+    // Option ids for the sample-JSON scenario (page dropdown vs table dropdown are distinct).
+    let pageYes = "page-yes"
+    let pageNo = "page-no"
+    let tblYes = "tbl-yes"
+    let tblNo = "tbl-no"
+    let pageDropdownID = "dropdownPage"
+    let numberFieldID = "number1"
+
     func documentEditor(document: JoyDoc) -> DocumentEditor {
         DocumentEditor(document: document, validateSchema: false)
     }
@@ -344,6 +352,185 @@ final class RequiredLogicTests: XCTestCase {
         ))
         let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: "number1")
         XCTAssertTrue(refreshed.contains(tableFieldID))
+    }
+
+    func testCellRequiredLogic_mixedConditions_evalOr_anyMatches() {
+        // enforce OR: sibling flag == "yes" (false, is "no") OR page number1 == 100 (true) -> matched -> required.
+        let matchEditor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "enforce", cellEval: "or",
+            siblingValue: "no", conditionSiblingValue: "yes",
+            pageNumberValue: 100, conditionPageNumberValue: 100
+        ))
+        XCTAssertEqual(cellStatus(matchEditor, rowId: "row-1", columnId: textColumnID), .invalid)
+
+        // enforce OR: neither matches -> falls back to column base (static false) -> optional.
+        let noMatchEditor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "enforce", cellEval: "or",
+            siblingValue: "no", conditionSiblingValue: "yes",
+            pageNumberValue: 10, conditionPageNumberValue: 100
+        ))
+        XCTAssertEqual(cellStatus(noMatchEditor, rowId: "row-1", columnId: textColumnID), .valid)
+    }
+
+    func testCellRequiredLogic_unenforce_matchedMakesOptional_elseFallsBackToColumnStatic() {
+        // Column is statically required. Cell unenforce AND [ sibling "yes", page number1 == 100 ].
+        // Both match -> unenforce -> optional -> valid.
+        let optionalEditor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "unenforce", cellEval: "and",
+            siblingValue: "yes", conditionSiblingValue: "yes",
+            pageNumberValue: 100, conditionPageNumberValue: 100,
+            columnStaticRequired: true
+        ))
+        XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
+
+        // One condition fails -> unenforce doesn't match -> falls back to column static required:true -> invalid.
+        let requiredEditor = documentEditor(document: makeMixedCellDoc(
+            cellAction: "unenforce", cellEval: "and",
+            siblingValue: "yes", conditionSiblingValue: "yes",
+            pageNumberValue: 10, conditionPageNumberValue: 100,
+            columnStaticRequired: true
+        ))
+        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
+    }
+
+    // MARK: - Sample JSON use case (mixed cell logic + column unenforce + static required)
+
+    /// Reproduces the provided template: `text1` has static `required:true`, column `requiredLogic`
+    /// `unenforce` (page dropdown == Yes), and `cellRequiredLogic` `enforce` AND
+    /// [ sibling `dropdown1` == "No", page `number1` == 100 ]. Three rows (row-1 has dropdown = No).
+    private func makeSampleDoc(pageDropdownValue: String, number1Value: Double) -> JoyDoc {
+        let textCol: [String: Any] = [
+            "_id": "text1", "type": "text", "title": "Text Column", "required": true,
+            "requiredLogic": [
+                "action": "unenforce", "eval": "and", "_id": UUID().uuidString,
+                "conditions": [["field": pageDropdownID, "condition": "=", "value": pageYes, "_id": UUID().uuidString]] as [[String: Any]],
+            ] as [String: Any],
+            "cellRequiredLogic": [
+                "action": "enforce", "eval": "and", "_id": UUID().uuidString,
+                "conditions": [
+                    ["column": "dropdown1", "condition": "=", "value": tblNo, "_id": UUID().uuidString],
+                    ["field": numberFieldID, "condition": "=", "value": number1Value, "_id": UUID().uuidString],
+                ] as [[String: Any]],
+            ] as [String: Any],
+        ]
+        let ddCol: [String: Any] = [
+            "_id": "dropdown1", "type": "dropdown", "title": "Dropdown Column",
+            "options": [["_id": tblYes, "value": "Yes"], ["_id": tblNo, "value": "No"]],
+        ]
+        let rows: [[String: Any]] = [
+            ["_id": "row-1", "cells": ["dropdown1": tblNo]],
+            ["_id": "row-2", "cells": [:]],
+            ["_id": "row-3", "cells": [:]],
+        ]
+        return JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": fileID, "pageOrder": [pageID],
+                "pages": [["_id": pageID, "fieldPositions": [
+                    ["_id": "fp-table", "field": tableFieldID, "type": "table"],
+                    ["_id": "fp-dd", "field": pageDropdownID, "type": "dropdown"],
+                    ["_id": "fp-num", "field": numberFieldID, "type": "number"],
+                ]]],
+            ]],
+            "fields": [
+                ["_id": tableFieldID, "file": fileID, "type": "table", "required": false,
+                 "tableColumns": [textCol, ddCol],
+                 "tableColumnOrder": ["text1", "dropdown1"],
+                 "rowOrder": ["row-1", "row-2", "row-3"],
+                 "value": rows],
+                ["_id": pageDropdownID, "file": fileID, "type": "dropdown", "value": pageDropdownValue,
+                 "options": [["_id": pageYes, "value": "Yes"], ["_id": pageNo, "value": "No"]]],
+                ["_id": numberFieldID, "file": fileID, "type": "number", "value": number1Value],
+            ],
+        ])
+    }
+
+    func testSampleJSON_text1RequiredInAllThreeRows() {
+        // page dropdown = No, number1 = 100. Column unenforce doesn't match (dropdown != Yes) ->
+        // column-effective falls back to static required:true.
+        let editor = documentEditor(document: makeSampleDoc(pageDropdownValue: pageNo, number1Value: 100))
+        XCTAssertTrue(editor.isColumnRequired(columnID: "text1", fieldID: tableFieldID))
+
+        // row-1: cell enforce matches (sibling No + number 100) -> required.
+        // row-2 / row-3: cell not matched (dropdown empty) -> fall back to column-effective (required).
+        for rowId in ["row-1", "row-2", "row-3"] {
+            XCTAssertEqual(cellStatus(editor, rowId: rowId, columnId: "text1"), .invalid,
+                           "text1 should be required (empty -> invalid) in \(rowId)")
+        }
+    }
+
+    func testSampleJSON_dynamicFlipAcrossResolutionOrder() {
+        let editor = documentEditor(document: makeSampleDoc(pageDropdownValue: pageNo, number1Value: 100))
+        // Baseline: every row required.
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .invalid)
+        XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: "text1"), .invalid)
+
+        // Flip page dropdown -> Yes: column unenforce now matches -> column-effective becomes optional.
+        let ddFI = FieldIdentifier(fieldID: pageDropdownID)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: ddFI, updateValue: .string(pageYes)), fieldIdentifier: ddFI)
+        // row-1: cell still matches (sibling No + number 100) -> required.
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .invalid)
+        // row-2: cell not matched -> falls back to the now-optional column-effective -> valid.
+        XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: "text1"), .valid)
+
+        // Change number1 -> 10: row-1 cell AND now fails -> falls back to optional column -> valid.
+        let numFI = FieldIdentifier(fieldID: numberFieldID)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: numFI, updateValue: .double(10)), fieldIdentifier: numFI)
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .valid)
+    }
+
+    // MARK: - Collection: mixed sibling + page-field cell logic, nested own-columns
+
+    func testCollection_cellRequiredLogic_mixedSiblingAndPageField() {
+        // Root text cellRequiredLogic enforce AND [ sibling rootDd == Yes, page dropdown == Yes ].
+        let rootText: [String: Any] = [
+            "_id": rootTextCol, "type": "text", "title": "Text",
+            "cellRequiredLogic": [
+                "action": "enforce", "eval": "and", "_id": UUID().uuidString,
+                "conditions": [
+                    ["column": rootDdCol, "condition": "=", "value": optYes, "_id": UUID().uuidString],
+                    ["field": dropdownFieldID, "condition": "=", "value": optYes, "_id": UUID().uuidString],
+                ] as [[String: Any]],
+            ] as [String: Any],
+        ]
+        let rootDd: [String: Any] = ["_id": rootDdCol, "type": "dropdown", "title": "DD",
+                                     "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]]
+        let rows: [[String: Any]] = [["_id": "root-1", "cells": [rootTextCol: "", rootDdCol: optYes]]]
+
+        // page dropdown = Yes -> both conditions match -> required.
+        let matchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optYes))
+        XCTAssertTrue(matchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(matchEditor, id: "root-1")!))
+
+        // page dropdown = No -> page half of the AND fails -> falls back to column base (static false) -> optional.
+        let noMatchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optNo))
+        XCTAssertFalse(noMatchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(noMatchEditor, id: "root-1")!))
+    }
+
+    func testCollection_nestedCellLogic_referencesOwnColumnsNotParent() {
+        // Both root and nested schemas carry a column with id `shared`. The nested notes column's
+        // cellRequiredLogic references `shared` and must resolve against the NESTED row's own cell,
+        // never the parent/root cell. Root's `shared` is empty in both cases, so a required result
+        // can only come from the nested row's own value.
+        let sharedID = "shared"
+        let rootShared: [String: Any] = ["_id": sharedID, "type": "text", "title": "Root Shared"]
+        let nestedShared: [String: Any] = ["_id": sharedID, "type": "text", "title": "Child Shared"]
+        let nestedNotes: [String: Any] = [
+            "_id": childNotesCol, "type": "text", "title": "Notes",
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: sharedID, value: "", condition: "*=")
+        ]
+        let rootRows: [[String: Any]] = [[
+            "_id": "root-1", "cells": [sharedID: ""],
+            "children": [nestedSchemaID: ["value": [
+                ["_id": "child-filled", "cells": [sharedID: "hi", childNotesCol: ""]],
+                ["_id": "child-empty", "cells": [sharedID: "", childNotesCol: ""]],
+            ]]],
+        ]]
+        let editor = documentEditor(document: makeCollectionDoc(rootColumns: [rootShared], nestedColumns: [nestedShared, nestedNotes], rootRows: rootRows))
+
+        // Nested row whose OWN `shared` is filled -> notes required (proves it read the nested cell).
+        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, row: nestedRow(editor, parentID: "root-1", childID: "child-filled")!))
+        // Nested row whose own `shared` is empty -> notes not required.
+        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, row: nestedRow(editor, parentID: "root-1", childID: "child-empty")!))
     }
 
     // MARK: - Table: additional column / cell coverage
