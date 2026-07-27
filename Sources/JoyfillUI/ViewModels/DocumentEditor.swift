@@ -33,6 +33,7 @@ public protocol DocumentEditorDelegate: AnyObject {
     func deleteRow(for change: Change)
     func moveRow(for change: Change)
     func decoratorsDidChange()
+    func cellVisibilityDidChange(columnIDs: Set<String>)
 }
 
 public extension DocumentEditorDelegate {
@@ -40,6 +41,10 @@ public extension DocumentEditorDelegate {
     /// decorator-cache refresh hooks. Internal view models (TableViewModel,
     /// CollectionViewModel) provide real implementations.
     func decoratorsDidChange() {}
+
+    /// Default no-op. TableViewModel refreshes the given columns' cell visibility when a page field
+    /// that drives their cellVisibilityLogic changes.
+    func cellVisibilityDidChange(columnIDs: Set<String>) {}
 }
 
 public struct PageConfig: Equatable, Sendable {
@@ -775,6 +780,9 @@ extension DocumentEditor {
         refreshFields.formUnion(requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         for fieldId in refreshFields {
             refreshField(fieldId: fieldId)
+        }
+        for (tableFieldID, columnIDs) in conditionalLogicHandler.cellsNeedRefreshForPageField(pageFieldID: fieldID) {
+            valueDelegate(for: tableFieldID, fieldType: .table)?.cellVisibilityDidChange(columnIDs: columnIDs)
         }
     }
     
