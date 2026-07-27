@@ -1233,6 +1233,13 @@ public struct FieldTableColumn {
         set { dictionary["cellVisibilityLogic"] = newValue?.dictionary }
     }
 
+    /// Static hidden baseline for this column's cells, applied only when the column has no
+    /// `cellVisibilityLogic`. When logic is present the show/hide action decides visibility per row.
+    public var cellsHidden: Bool? {
+        get { dictionary["cellsHidden"] as? Bool }
+        set { dictionary["cellsHidden"] = newValue }
+    }
+
     /// View types in which this column is force-hidden. Takes precedence over conditional logic.
     /// e.g. ["mobile"] = never show this column on mobile.
     public var hiddenViews: [String]? {
