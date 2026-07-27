@@ -72,14 +72,21 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             editedColumnID: editedColumnID,
             row: row
         )
-        guard !flippedColumnIDs.isEmpty,
-              let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowId }) else { return }
-        for colIndex in tableDataModel.filteredcellModels[index].cells.indices {
-            var cell = tableDataModel.filteredcellModels[index].cells[colIndex]
-            guard flippedColumnIDs.contains(cell.data.id) else { continue }
-            cell.isHidden = isCellHidden(columnID: cell.data.id, row: row)
+        guard !flippedColumnIDs.isEmpty else { return }
+        let hiddenByColumn = Dictionary(uniqueKeysWithValues:
+            flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
+        applyVisibilityFlip(to: &tableDataModel.cellModels, rowId: rowId, hiddenByColumn: hiddenByColumn)
+        applyVisibilityFlip(to: &tableDataModel.filteredcellModels, rowId: rowId, hiddenByColumn: hiddenByColumn)
+    }
+
+    private func applyVisibilityFlip(to models: inout [RowDataModel], rowId: String, hiddenByColumn: [String: Bool]) {
+        guard let index = models.firstIndex(where: { $0.rowID == rowId }) else { return }
+        for colIndex in models[index].cells.indices {
+            var cell = models[index].cells[colIndex]
+            guard let hidden = hiddenByColumn[cell.data.id] else { continue }
+            cell.isHidden = hidden
             cell.id = UUID()
-            tableDataModel.filteredcellModels[index].cells[colIndex] = cell
+            models[index].cells[colIndex] = cell
         }
     }
 

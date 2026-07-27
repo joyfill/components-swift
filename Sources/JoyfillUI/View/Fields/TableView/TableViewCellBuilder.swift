@@ -63,12 +63,40 @@ struct TableViewCellBuilder: View {
 }
 
 struct HiddenCellView: View {
+    @State private var showTooltip = false
+
     var body: some View {
-        Image(systemName: "eye.slash.fill")
-            .font(.system(size: 15))
-            .foregroundColor(.secondary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .allowsHitTesting(false)
-            .accessibilityIdentifier("HiddenCellIdentifier")
+        Button {
+            showTooltip = true
+        } label: {
+            Image(systemName: "eye.slash.fill")
+                .font(.system(size: 15))
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("HiddenCellIdentifier")
+        .popover(isPresented: $showTooltip) {
+            if #available(iOS 16.4, *) {
+                HiddenCellTooltip()
+                    .presentationCompactAdaptation(.popover)
+            } else {
+                HiddenCellTooltip()
+            }
+        }
+    }
+}
+
+struct HiddenCellTooltip: View {
+    var body: some View {
+        Text("This cell is hidden by logic")
+            .font(.system(size: 14))
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(16)
+            .frame(width: 180)
+            .accessibilityIdentifier("HiddenCellTooltipIdentifier")
     }
 }
