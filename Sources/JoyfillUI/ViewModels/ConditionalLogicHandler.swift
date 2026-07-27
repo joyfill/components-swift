@@ -73,6 +73,7 @@ class ConditionalLogicHandler {
 
     private var cellVisibilityMap = [String: [CellVisibilityID: Bool]]() // fieldID : (rowID + columnID) : isVisible
     private var cellVisibilityDependencyMap = [String: [String: Set<String>]]() // fieldID : siblingColumnID : dependent columnIDs
+    private var pageFieldCellDependencyMap = [String: [(tableFieldID: String, columnID: String)]]() // pageFieldID : dependent (tableFieldID, columnID)
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
@@ -637,8 +638,11 @@ extension ConditionalLogicHandler {
         for column in columns {
             guard let columnID = column.id else { continue }
             for condition in column.cellVisibilityLogic?.conditions ?? [] {
-                guard let siblingColumnID = condition.column else { continue }
-                dependencyMap[siblingColumnID, default: Set()].insert(columnID)
+                if let siblingColumnID = condition.column {
+                    dependencyMap[siblingColumnID, default: Set()].insert(columnID)
+                } else if let pageFieldID = condition.field {
+                    pageFieldCellDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID))
+                }
             }
         }
         cellVisibilityDependencyMap[fieldID] = dependencyMap
@@ -675,10 +679,16 @@ extension ConditionalLogicHandler {
         let newValue: Bool
         if let logic = column?.cellVisibilityLogic, let action = logic.action {
             let conditions = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
-                guard let siblingColumnID = condition.column else { return nil }
-                let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
-                return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
-                                      fieldType: type, condition: condition.condition, value: condition.value)
+                if let siblingColumnID = condition.column {
+                    let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
+                    return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
+                                          fieldType: type, condition: condition.condition, value: condition.value)
+                } else if let pageFieldID = condition.field {
+                    guard let pageField = documentEditor.field(fieldID: pageFieldID) else { return nil }
+                    return ConditionModel(fieldValue: pageField.value, fieldType: FieldTypes(pageField.type),
+                                          condition: condition.condition, value: condition.value)
+                }
+                return nil
             }
             let matched = shoulTakeActionOnThisField(logic: LogicModel(id: logic.id, action: action, eval: logic.eval, conditions: conditions))
             newValue = (action == "hide") ? !matched : matched
@@ -705,5 +715,20 @@ extension ConditionalLogicHandler {
               let columns = documentEditor.field(fieldID: fieldID)?.tableColumns else { return [] }
 
         return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
+    }
+    
+    func cellsNeedRefreshForPageField(pageFieldID: String) -> [String: Set<String>] {
+        guard let refs = pageFieldCellDependencyMap[pageFieldID] else { return [:] }
+        var changedColumnsByTable = [String: Set<String>]()
+        for ref in refs {
+            guard let field = documentEditor.field(fieldID: ref.tableFieldID),
+                  let columns = field.tableColumns else { continue }
+            for row in field.valueToValueElements ?? [] {
+                if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                    changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
+                }
+            }
+        }
+        return changedColumnsByTable
     }
 }
