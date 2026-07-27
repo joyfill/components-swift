@@ -91,14 +91,26 @@
             "action": "unenforce", "eval": "and",
             "conditions": [ { "column": "text1", "condition": "*=" } ]
           }
+        },
+        {
+          "_id": "text5", "type": "text", "title": "Col F (cell-required when sibling Dropdown = No AND Number = 100)",
+          "identifier": "table1_column_text5", "width": 0,
+          "cellRequiredLogic": {
+            "action": "enforce", "eval": "and",
+            "conditions": [
+              { "column": "dropdown1", "condition": "=", "value": "optNo" },
+              { "field": "number1", "condition": "=", "value": 100 }
+            ]
+          }
         }
       ],
-      "tableColumnOrder": ["text1", "dropdown1", "text2", "text3", "text4"],
+      "tableColumnOrder": ["text1", "dropdown1", "text2", "text3", "text4", "text5"],
       "value": [
         { "_id": "rowA", "deleted": false, "cells": { "text1": "filled" } },
-        { "_id": "rowB", "deleted": false, "cells": {} }
+        { "_id": "rowB", "deleted": false, "cells": {} },
+        { "_id": "rowC", "deleted": false, "cells": { "dropdown1": "optNo" } }
       ],
-      "rowOrder": ["rowA", "rowB"]
+      "rowOrder": ["rowA", "rowB", "rowC"]
     },
 
     {
