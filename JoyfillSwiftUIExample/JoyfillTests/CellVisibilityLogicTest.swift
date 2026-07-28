@@ -462,4 +462,314 @@ final class CellVisibilityLogicTest: XCTestCase {
         vm.deleteSelectedRow(["row_003"])
         XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after delete")
     }
+
+    // MARK: - Collection cell visibility (schema-aware; mirrors the table paths)
+
+    let collectionFieldID = "cell_vis_collection_001"
+    let collRootSchema = "coll_root_schema"
+    let collChildSchema = "coll_child_schema"
+    let pageTextFieldID = "66aa2865da10ac1c7b7acb1d" // matches setTextField's fixed id
+
+    let collRootRow1 = "coll_root_row_001"
+    let collRootRow2 = "coll_root_row_002"
+    let collChildRow1 = "coll_child_row_001"
+
+    /// A page-field-driven cell logic dict: condition references a page field's `_id` via `field`.
+    private func pageFieldCellLogic(isShow: Bool, pageFieldID: String, value: ValueUnion) -> [String: Any] {
+        [
+            "action": isShow ? "show" : "hide",
+            "eval": "and",
+            "conditions": [
+                ["file": fileID, "page": pageID, "field": pageFieldID, "condition": "=", "value": value, "_id": UUID().uuidString]
+            ],
+            "_id": UUID().uuidString
+        ]
+    }
+
+    /// Builds a two-level collection: root schema (Status/Reason/Note) with a child schema (Status/Reason).
+    /// `reason` in each schema carries `cellVisibilityLogic`. `pageValue` seeds the page text field.
+    private func buildCollectionDocument(rootReasonLogic: [String: Any],
+                                         childReasonLogic: [String: Any]? = nil,
+                                         rootRows: [[String: Any]],
+                                         pageValue: String = "Approved") -> JoyDoc {
+        let rootColumns: [[String: Any]] = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: rootReasonLogic).dictionary,
+            buildColumn(id: noteColumnID, type: .text, title: "Note").dictionary
+        ]
+        let childColumns: [[String: Any]] = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: childReasonLogic ?? rootReasonLogic).dictionary
+        ]
+        let rootSchemaDict: [String: Any] = [
+            "title": "Root",
+            "root": true,
+            "children": [collChildSchema],
+            "tableColumns": rootColumns
+        ]
+        let childSchemaDict: [String: Any] = [
+            "title": "Child",
+            "root": false,
+            "children": [String](),
+            "tableColumns": childColumns
+        ]
+
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = collectionFieldID
+        field.identifier = "field_\(collectionFieldID)"
+        field.title = "Cell Visibility Collection"
+        field.file = fileID
+        field.dictionary["schema"] = [collRootSchema: rootSchemaDict, collChildSchema: childSchemaDict]
+        field.value = .valueElementArray(rootRows.map { ValueElement(dictionary: $0) })
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string(pageValue))
+        document.fields.append(field)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [pageTextFieldID: .text, collectionFieldID: .collection])
+        return document
+    }
+
+    private func collRootRow(id: String, status: String, children: [[String: Any]] = []) -> [String: Any] {
+        var dict: [String: Any] = ["_id": id, "cells": [statusColumnID: status]]
+        if !children.isEmpty {
+            dict["children"] = [collChildSchema: ["value": children]]
+        }
+        return dict
+    }
+
+    private func collChildRow(id: String, status: String) -> [String: Any] {
+        ["_id": id, "cells": [statusColumnID: status]]
+    }
+
+    private func collRowElement(_ editor: DocumentEditor, rowID: String) -> ValueElement {
+        func find(_ elements: [ValueElement]) -> ValueElement? {
+            for element in elements {
+                if element.id == rowID { return element }
+                for (_, child) in element.childrens ?? [:] {
+                    if let hit = find(child.valueToValueElements ?? []) { return hit }
+                }
+            }
+            return nil
+        }
+        return find(editor.field(fieldID: collectionFieldID)!.valueToValueElements ?? [])!
+    }
+
+    private func collectionViewModel(_ editor: DocumentEditor) -> CollectionViewModel {
+        let field = editor.field(fieldID: collectionFieldID)
+        let fieldHeaderModel = FieldHeaderModel(title: field?.title,
+                                                required: field?.required,
+                                                tipDescription: field?.tipDescription,
+                                                tipTitle: field?.tipTitle,
+                                                tipVisible: field?.tipVisible,
+                                                visibleLimitInFields: editor.decoratorConfig.visibleLimitInFields)
+        let tableDataModel = TableDataModel(fieldHeaderModel: fieldHeaderModel,
+                                            mode: .fill,
+                                            documentEditor: editor,
+                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID))!
+        return CollectionViewModel(tableDataModel: tableDataModel)
+    }
+
+    private func waitForCollectionViewModelToLoad(_ vm: CollectionViewModel,
+                                                  file: StaticString = #filePath,
+                                                  line: UInt = #line) {
+        let deadline = Date().addingTimeInterval(2)
+        while vm.isLoading && Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.01))
+        }
+        XCTAssertFalse(vm.isLoading, "CollectionViewModel did not finish loading", file: file, line: line)
+    }
+
+    /// Mirrors CollectionEditMultipleRowsSheetView's single-row hidden-cell gate.
+    private func editFormWouldHideCell(_ vm: CollectionViewModel, columnID: String) -> Bool {
+        let singleRowID: String? = vm.tableDataModel.selectedRows.count == 1 ? vm.tableDataModel.selectedRows.first : nil
+        return singleRowID.map { vm.isCellHidden(columnID: columnID, row: vm.rowToValueElementMap[$0]) } ?? false
+    }
+
+    /// Load: sibling condition met on a root row -> reason visible; not met -> hidden.
+    func testCollectionLoadShowWhenSiblingMatches() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Rejected"),
+                       collRootRow(id: collRootRow2, status: "Approved")]
+        ))
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "row1 reason visible (status=Rejected)")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow2)), "row2 reason hidden (status=Approved)")
+    }
+
+    /// Load: nested child rows get their own cell visibility computed from their own cells.
+    func testCollectionLoadComputesNestedRows() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved",
+                                   children: [collChildRow(id: collChildRow1, status: "Rejected")])]
+        ))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "root reason hidden (status=Approved)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "nested child reason visible (status=Rejected)")
+    }
+
+    /// Sibling edit: recomputing with a new sibling value flips the dependent cell (schema-aware refresh).
+    func testCollectionSiblingEditFlipsCell() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
+        ))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason hidden before edit")
+
+        let editedRow = ValueElement(dictionary: ["_id": collRootRow1, "cells": [statusColumnID: "Rejected"]])
+        let flipped = editor.cellsNeedToBeRefreshed(fieldID: collectionFieldID, schemaID: collRootSchema, editedColumnID: statusColumnID, row: editedRow)
+        XCTAssertEqual(flipped, [reasonColumnID], "reason column reported as flipped")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "reason visible after status=Rejected")
+    }
+
+    /// Add-row: schema-aware seeding makes a newly inserted row read correctly.
+    func testCollectionAddCellVisibilityForNewRow() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
+        ))
+        let newRow = ValueElement(dictionary: ["_id": "coll_root_new", "cells": [statusColumnID: "Rejected"]])
+        editor.addCellVisibilityForRow(fieldID: collectionFieldID, schemaID: collRootSchema, row: newRow)
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: newRow), "new row reason visible (status=Rejected)")
+    }
+
+    /// Delete-row: removal drops the row's entries; subsequent reads fall back to the visible default.
+    func testCollectionRemoveCellVisibilityForRow() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow2, status: "Approved")]
+        ))
+        let row2 = collRowElement(editor, rowID: collRootRow2)
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: row2), "reason hidden before removal")
+        editor.removeCellVisibilityForRow(fieldID: collectionFieldID, rowID: collRootRow2)
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: row2), "entry gone after removal -> defaults visible")
+    }
+
+    /// Page-field change: editing the referenced page field flips all dependent collection cells.
+    func testCollectionPageFieldChangeFlipsCell() {
+        let logic = pageFieldCellLogic(isShow: true, pageFieldID: pageTextFieldID, value: .string("Yes"))
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")],
+            pageValue: "No"
+        ))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason hidden while page field != Yes")
+
+        let identifier = FieldIdentifier(fieldID: pageTextFieldID, pageID: pageID, fileID: fileID)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
+
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason visible after page field -> Yes")
+    }
+
+    /// Row-edit modal: single-row edit skips a collection cell hidden by cellVisibilityLogic.
+    func testCollectionSingleRowEditFormHidesHiddenCell() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
+        ))
+        let vm = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(vm)
+
+        vm.tableDataModel.selectedRows = [collRootRow1]
+
+        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason cell is hidden for status=Approved")
+        XCTAssertTrue(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should skip hidden reason cell")
+        XCTAssertFalse(editFormWouldHideCell(vm, columnID: noteColumnID), "single-row edit form should keep independent visible cells")
+    }
+
+    /// Row-edit modal: single-row edit keeps a collection cell visible when its logic matches.
+    func testCollectionSingleRowEditFormShowsVisibleCell() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Rejected")]
+        ))
+        let vm = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(vm)
+
+        vm.tableDataModel.selectedRows = [collRootRow1]
+
+        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason cell is visible for status=Rejected")
+        XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render visible reason cell")
+    }
+
+    /// Bulk edit: multiple selected rows do not use the single-row hidden-cell gate.
+    func testCollectionBulkEditFormDoesNotHideColumnsForMultipleRows() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved"),
+                       collRootRow(id: collRootRow2, status: "Rejected")]
+        ))
+        let vm = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(vm)
+
+        vm.tableDataModel.selectedRows = [collRootRow1, collRootRow2]
+
+        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "one selected row has reason hidden")
+        XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "bulk edit should still render the column because no single row owns the hidden-state decision")
+    }
+
+    /// Row-edit modal: after a sibling edit flips cell visibility, the single-row form gate follows it.
+    func testCollectionSingleRowEditFormFollowsVisibilityFlip() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
+        ))
+        let vm = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(vm)
+        vm.tableDataModel.selectedRows = [collRootRow1]
+
+        XCTAssertTrue(editFormWouldHideCell(vm, columnID: reasonColumnID), "reason starts hidden in the single-row edit form")
+
+        var editedStatus = vm.tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == collRootRow1 })!
+            .cells
+            .first(where: { $0.data.id == statusColumnID })!
+            .data
+        editedStatus.title = "Rejected"
+        vm.cellDidChange(rowId: collRootRow1, colIndex: 0, cellDataModel: editedStatus, isNestedCell: false, callOnChange: false)
+
+        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason flips visible after status=Rejected")
+        XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render the cell after the flip")
+    }
 }

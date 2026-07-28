@@ -148,6 +148,7 @@ struct TableQuickView : View {
 
                                 let cellModel = TableCellModel(rowID: cell.rowID,
                                                                timezoneId: cell.timezoneId,
+                                                               isHidden: cell.isHidden,
                                                                data: cell.data,
                                                                documentEditor: viewModel.tableDataModel.documentEditor,
                                                                fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
