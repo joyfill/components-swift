@@ -543,10 +543,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
-                
+                let isHidden = isCellHidden(columnID: rowDataModel.id, row: valueElement)
                 let cellModel = TableCellModel(rowID: rowID,
                                                timezoneId: valueElement.tz,
-                                               isHidden: isCellHidden(columnID: rowDataModel.id, row: valueElement),
+                                               isHidden: isHidden,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -623,10 +623,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    
+                    let isHidden = isCellHidden(columnID: columnModel.id, row: valueElement)
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
-                                                   isHidden: isCellHidden(columnID: columnModel.id, row: valueElement),
+                                                   isHidden: isHidden,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -661,10 +661,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    
+                    let isHidden = isCellHidden(columnID: columnModel.id, row: valueElement)
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
-                                                   isHidden: isCellHidden(columnID: columnModel.id, row: valueElement),
+                                                   isHidden: isHidden,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -736,9 +736,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                           schemaKey: childSchemaKey)
             var nestedCells: [TableCellModel] = []
             for cellDataModel in cellDataModels {
+                let isHidden = isCellHidden(columnID: cellDataModel.id, row: childValueElement)
                 let cellModel = TableCellModel(rowID: childRowID,
                                                timezoneId: childRow.tz,
-                                               isHidden: isCellHidden(columnID: cellDataModel.id, row: childValueElement),
+                                               isHidden: isHidden,
                                                data: cellDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -922,9 +923,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns, row, schemaKey: schemaValue?.0 ?? "")
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
+                        let isHidden = isCellHidden(columnID: cellDataModel.id, row: row)
                         let cellModel = TableCellModel(rowID: row.id ?? "",
                                                        timezoneId: valueElement.tz,
-                                                       isHidden: isCellHidden(columnID: cellDataModel.id, row: row),
+                                                       isHidden: isHidden,
                                                        data: cellDataModel,
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
