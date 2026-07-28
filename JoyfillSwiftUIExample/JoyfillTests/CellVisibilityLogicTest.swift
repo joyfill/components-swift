@@ -337,7 +337,241 @@ final class CellVisibilityLogicTest: XCTestCase {
         vm.tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID })?.cells.first(where: { $0.data.id == reasonColumnID })?.isHidden
     }
 
-    /// Adding a row must only compute the new row's cells; pre-existing rows keep their visibility.
+    /// Mirrors TableModalTopNavigationView's single-row hidden-cell gate.
+    private func tableEditFormWouldHideCell(_ vm: TableViewModel, columnID: String) -> Bool {
+        let singleRowID: String? = vm.tableDataModel.selectedRows.count == 1 ? vm.tableDataModel.selectedRows.first : nil
+        return singleRowID.map { vm.isCellHidden(columnID: columnID, row: vm.rowElement(forRowID: $0)) } ?? false
+    }
+
+    // MARK: - Table edit-form gating (mirrors Collection's single-row/bulk-edit gate)
+
+    /// Row-edit modal: single-row edit skips a table cell hidden by cellVisibilityLogic.
+    func testTableSingleRowEditFormHidesHiddenCell() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Approved", row2Status: "Approved"))
+        let vm = tableViewModel(editor)
+        vm.tableDataModel.selectedRows = [row1ID]
+
+        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "reason cell is hidden for status=Approved")
+        XCTAssertTrue(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should skip hidden reason cell")
+        XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: noteColumnID), "single-row edit form should keep independent visible cells")
+    }
+
+    /// Row-edit modal: single-row edit keeps a table cell visible when its logic matches.
+    func testTableSingleRowEditFormShowsVisibleCell() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
+        let vm = tableViewModel(editor)
+        vm.tableDataModel.selectedRows = [row1ID]
+
+        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "reason cell is visible for status=Rejected")
+        XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render visible reason cell")
+    }
+
+    /// Bulk edit: multiple selected rows do not use the single-row hidden-cell gate.
+    func testTableBulkEditFormDoesNotHideColumnsForMultipleRows() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Approved", row2Status: "Rejected"))
+        let vm = tableViewModel(editor)
+        vm.tableDataModel.selectedRows = [row1ID, row2ID]
+
+        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "one selected row has reason hidden")
+        XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "bulk edit should still render the column because no single row owns the hidden-state decision")
+    }
+
+    /// Row-edit modal: after a sibling edit flips cell visibility, the single-row form gate follows it.
+    func testTableSingleRowEditFormFollowsVisibilityFlip() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Approved", row2Status: "Approved"))
+        let vm = tableViewModel(editor)
+        vm.tableDataModel.selectedRows = [row1ID]
+
+        XCTAssertTrue(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "reason starts hidden in the single-row edit form")
+
+        var editedStatus = vm.tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == row1ID })!
+            .cells
+            .first(where: { $0.data.id == statusColumnID })!
+            .data
+        editedStatus.title = "Rejected"
+        vm.tableDataModel.valueToValueElements = vm.cellDidChange(rowId: row1ID, colIndex: 0, cellDataModel: editedStatus, isNestedCell: false, callOnChange: false)
+        vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: statusColumnID)
+
+        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "reason flips visible after status=Rejected")
+        XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render the cell after the flip")
+    }
+
+    // MARK: - Duplicate row (shares addRow's rebuild-from-scratch path)
+
+    /// Duplicating a row must only compute the duplicated row's cells; pre-existing rows keep their visibility.
+    func testDuplicateRowDoesNotFlipExistingRows() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
+        let vm = tableViewModel(editor)
+
+        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason visible before duplicate")
+        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason visible before duplicate")
+
+        vm.tableDataModel.selectedRows = [row2ID]
+        vm.duplicateRow()
+
+        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason must stay visible after duplicate")
+        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason must stay visible after duplicate")
+    }
+
+    // MARK: - Multiple dependents on one source column
+
+    /// Two columns whose cellVisibilityLogic both key off the same sibling column both get
+    /// reported as flipped when that sibling changes (Set-based fan-out in the dependency map).
+    func testRefreshReturnsMultipleDependentColumnsOnFlip() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let secondReasonColumnID = "col_reason2"
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic),
+            buildColumn(id: secondReasonColumnID, type: .text, title: "Reason 2", cellVisibilityLogic: logic)
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved"])]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+
+        let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected"])
+        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
+        XCTAssertEqual(Set(flipped), Set([reasonColumnID, secondReasonColumnID]), "both dependents sharing the same source column are reported as flipped")
+    }
+
+    // MARK: - Chained dependency (documents current single-hop behavior; no automatic cascade)
+
+    /// `middle`'s cellVisibilityLogic depends on `status`; `chainedDependent`'s cellVisibilityLogic
+    /// depends on `middle`. Editing `status` only reports `middle` as flipped -- there is no
+    /// automatic re-evaluation of columns that depend on `middle` as a side effect of its own
+    /// visibility changing. `chainedDependent`'s visibility is driven purely by `middle`'s stored
+    /// cell value, which is untouched by this edit.
+    func testChainedDependencyDoesNotCascadeAutomatically() {
+        let middleColumnID = "col_middle"
+        let chainedDependentColumnID = "col_chained_dependent"
+        let middleLogic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let chainedLogic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: middleColumnID, conditionType: .equals, value: .string("Ready"))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: middleColumnID, type: .text, title: "Middle", cellVisibilityLogic: middleLogic),
+            buildColumn(id: chainedDependentColumnID, type: .text, title: "Chained", cellVisibilityLogic: chainedLogic)
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved", middleColumnID: "Ready"])]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+
+        XCTAssertFalse(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "middle hidden before edit (status != Rejected)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: chainedDependentColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "chained dependent already visible because middle's stored value is Ready, independent of middle's own visibility")
+
+        let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected", middleColumnID: "Ready"])
+        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
+        XCTAssertEqual(flipped, [middleColumnID], "only the direct dependent (middle) is reported; chainedDependent is not re-evaluated as a side effect")
+        XCTAssertTrue(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, row: editedRow), "middle now visible (status=Rejected)")
+    }
+
+    // MARK: - Additional condition operators
+
+    /// `!=`: visible when the sibling value differs from the condition value.
+    func testHideOnNotEqualsCondition() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .notEquals, value: .string("Approved"))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic)
+        ]
+        let rows = [
+            row(id: row1ID, cells: [statusColumnID: "Rejected"]),
+            row(id: row2ID, cells: [statusColumnID: "Approved"])
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when status != Approved")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status == Approved")
+    }
+
+    /// `>`: visible when the sibling numeric value exceeds the condition value.
+    func testShowOnGreaterThanCondition() {
+        let scoreColumnID = "col_score"
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: scoreColumnID, conditionType: .greaterThan, value: .double(50))]
+        )
+        let columns = [
+            buildColumn(id: scoreColumnID, type: .number, title: "Score"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic)
+        ]
+        let rows = [
+            row(id: row1ID, cells: [scoreColumnID: 75]),
+            row(id: row2ID, cells: [scoreColumnID: 20])
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when score > 50")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when score <= 50")
+    }
+
+    /// `<`: visible when the sibling numeric value is below the condition value.
+    func testShowOnLessThanCondition() {
+        let scoreColumnID = "col_score"
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: scoreColumnID, conditionType: .lessThan, value: .double(50))]
+        )
+        let columns = [
+            buildColumn(id: scoreColumnID, type: .number, title: "Score"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic)
+        ]
+        let rows = [
+            row(id: row1ID, cells: [scoreColumnID: 20]),
+            row(id: row2ID, cells: [scoreColumnID: 75])
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when score < 50")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when score >= 50")
+    }
+
+    /// `null=`: visible when the sibling value is empty/missing.
+    func testShowOnIsEmptyCondition() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .isNull, value: .string(""))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic)
+        ]
+        let rows = [
+            row(id: row1ID, cells: [:]),
+            row(id: row2ID, cells: [statusColumnID: "Approved"])
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when status is empty")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status is not empty")
+    }
+
+    /// `*=`: visible when the sibling value is non-empty.
+    func testShowOnIsNotEmptyCondition() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .isNotNull, value: .string(""))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic)
+        ]
+        let rows = [
+            row(id: row1ID, cells: [statusColumnID: "Approved"]),
+            row(id: row2ID, cells: [:])
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when status is not empty")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status is empty")
+    }
+
+    // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
     func testAddRowDoesNotFlipExistingRows() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
         let vm = tableViewModel(editor)
@@ -684,6 +918,49 @@ final class CellVisibilityLogicTest: XCTestCase {
         editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
 
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason visible after page field -> Yes")
+    }
+
+    /// Page-field change: the page-field dependency is schema-aware -- a CHILD schema's cell
+    /// (not just the root schema) flips when the referenced page field changes.
+    func testCollectionChildSchemaPageFieldChangeFlipsCell() {
+        let rootLogic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let childLogic = pageFieldCellLogic(isShow: true, pageFieldID: pageTextFieldID, value: .string("Yes"))
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: rootLogic,
+            childReasonLogic: childLogic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved",
+                                   children: [collChildRow(id: collChildRow1, status: "Approved")])],
+            pageValue: "No"
+        ))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "child reason hidden while page field != Yes")
+
+        let identifier = FieldIdentifier(fieldID: pageTextFieldID, pageID: pageID, fileID: fileID)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
+
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "child reason visible after page field -> Yes")
+    }
+
+    /// Sibling edit: recomputing with a new sibling value flips a CHILD schema's dependent cell
+    /// (not just root), using the schema-scoped `cellsNeedToBeRefreshed(schemaID:)` overload.
+    func testCollectionChildSchemaSiblingEditFlipsCell() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved",
+                                   children: [collChildRow(id: collChildRow1, status: "Approved")])]
+        ))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "child reason hidden before edit")
+
+        let editedRow = ValueElement(dictionary: ["_id": collChildRow1, "cells": [statusColumnID: "Rejected"]])
+        let flipped = editor.cellsNeedToBeRefreshed(fieldID: collectionFieldID, schemaID: collChildSchema, editedColumnID: statusColumnID, row: editedRow)
+        XCTAssertEqual(flipped, [reasonColumnID], "child reason column reported as flipped")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "child reason visible after status=Rejected")
     }
 
     /// Row-edit modal: single-row edit skips a collection cell hidden by cellVisibilityLogic.
