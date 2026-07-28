@@ -61,6 +61,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         )
     }
 
+    func isCellHidden(columnID: String, row: ValueElement?) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor, let row = row else { return false }
+        return !documentEditor.shouldShowCell(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            row: row
+        )
+    }
+
     func getCollectionCellDecorators(rowIds: [String], columnId: String, schemaKey: String) -> [DecoratorLocal] {
         let columnDecorators = columnsMap["\(schemaKey)_\(columnId)"]?
             .decorators?
@@ -530,12 +539,14 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
+        tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
                 
                 let cellModel = TableCellModel(rowID: rowID,
                                                timezoneId: valueElement.tz,
+                                               isHidden: isCellHidden(columnID: rowDataModel.id, row: valueElement),
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -615,6 +626,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
+                                                   isHidden: isCellHidden(columnID: columnModel.id, row: valueElement),
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -652,6 +664,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
+                                                   isHidden: isCellHidden(columnID: columnModel.id, row: valueElement),
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -725,6 +738,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             for cellDataModel in cellDataModels {
                 let cellModel = TableCellModel(rowID: childRowID,
                                                timezoneId: childRow.tz,
+                                               isHidden: isCellHidden(columnID: cellDataModel.id, row: childValueElement),
                                                data: cellDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -910,6 +924,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     for cellDataModel in cellDataModels {
                         let cellModel = TableCellModel(rowID: row.id ?? "",
                                                        timezoneId: valueElement.tz,
+                                                       isHidden: isCellHidden(columnID: cellDataModel.id, row: row),
                                                        data: cellDataModel,
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1409,6 +1424,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             collapseTables(index, currentRow, currentRow.rowType.level)
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
+        tableDataModel.documentEditor?.removeCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1707,6 +1723,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
+        applyCellVisibilityRefresh(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
@@ -1732,6 +1749,40 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 //        sortRowsIfNeeded()
     }
     
+    func applyCellVisibilityRefresh(rowId: String, schemaKey: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowId] else { return }
+        let flippedColumnIDs = documentEditor.cellsNeedToBeRefreshed(
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            schemaID: schemaKey,
+            editedColumnID: editedColumnID,
+            row: row)
+        guard !flippedColumnIDs.isEmpty else { return }
+        let hiddenByColumn = Dictionary(uniqueKeysWithValues:
+            flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
+        applyVisibilityFlip(hiddenByRow: [rowId: hiddenByColumn])
+    }
+
+    private func applyVisibilityFlip(hiddenByRow: [String: [String: Bool]]) {
+        var didFlip = false
+        for rowIndex in tableDataModel.filteredcellModels.indices {
+            guard let hiddenByColumn = hiddenByRow[tableDataModel.filteredcellModels[rowIndex].rowID] else { continue }
+            for colIndex in tableDataModel.filteredcellModels[rowIndex].cells.indices {
+                var cell = tableDataModel.filteredcellModels[rowIndex].cells[colIndex]
+                guard let hidden = hiddenByColumn[cell.data.id], cell.isHidden != hidden else { continue }
+                cell.isHidden = hidden
+                cell.id = UUID()
+                tableDataModel.filteredcellModels[rowIndex].cells[colIndex] = cell
+                didFlip = true
+            }
+        }
+        // Bump `uuid` on an actual flip so views keyed by it (the quick-view preview)
+        // rebuild and reflect the new cell visibility.
+        if didFlip {
+            uuid = UUID()
+        }
+    }
+
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {
         var parentRowID = ""
         var nestedSchemaKey = ""
@@ -1880,8 +1931,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         for row in tableDataModel.selectedRows {
             guard let rowDataModel = rowMap[row] else { continue }
+            let schemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
+                applyCellVisibilityRefresh(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: row)
                 }
@@ -2113,6 +2166,16 @@ extension CollectionViewModel: DocumentEditorDelegate {
             }
         }
         buildRowToValueElementMap()
+    }
+
+    func cellVisibilityDidChange(columnIDs: Set<String>) {
+        guard !columnIDs.isEmpty else { return }
+        var hiddenByRow = [String: [String: Bool]]()
+        for (rowID, row) in rowToValueElementMap {
+            hiddenByRow[rowID] = Dictionary(uniqueKeysWithValues:
+                columnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
+        }
+        applyVisibilityFlip(hiddenByRow: hiddenByRow)
     }
 
 

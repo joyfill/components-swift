@@ -73,7 +73,7 @@ class ConditionalLogicHandler {
 
     private var cellVisibilityMap = [String: [CellVisibilityID: Bool]]() // fieldID : (rowID + columnID) : isVisible
     private var cellVisibilityDependencyMap = [String: [String: Set<String>]]() // fieldID : siblingColumnID : dependent columnIDs
-    private var pageFieldCellDependencyMap = [String: [(tableFieldID: String, columnID: String)]]() // pageFieldID : dependent (tableFieldID, columnID)
+    private var pageFieldCellDependencyMap = [String: [(tableFieldID: String, columnID: String, schemaID: String?)]]() // pageFieldID : dependent (tableFieldID, columnID, schemaID); schemaID is nil for tables
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
@@ -91,6 +91,7 @@ class ConditionalLogicHandler {
                 buildDependencyMap(field: field)
                 buildCollectionSchemaMap(field: field)
                 buildColumnLogicForCollectionField(field: field, fieldID: fieldID)
+                buildCellVisibilityForCollectionField(field: field, fieldID: fieldID)
             }
         }
     }
@@ -641,7 +642,7 @@ extension ConditionalLogicHandler {
                 if let siblingColumnID = condition.column {
                     dependencyMap[siblingColumnID, default: Set()].insert(columnID)
                 } else if let pageFieldID = condition.field {
-                    pageFieldCellDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID))
+                    pageFieldCellDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: nil))
                 }
             }
         }
@@ -653,8 +654,46 @@ extension ConditionalLogicHandler {
         }
     }
 
+    func buildCellVisibilityForCollectionField(field: JoyDocField, fieldID: String) {
+        guard let schema = field.schema else { return }
+
+        var dependencyMap = [String: Set<String>]()
+        for (schemaKey, schemaValue) in schema {
+            for column in schemaValue.tableColumns ?? [] {
+                guard let columnID = column.id else { continue }
+                for condition in column.cellVisibilityLogic?.conditions ?? [] {
+                    if let siblingColumnID = condition.column {
+                        dependencyMap[siblingColumnID, default: Set()].insert(columnID)
+                    } else if let pageFieldID = condition.field {
+                        pageFieldCellDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: schemaKey))
+                    }
+                }
+            }
+        }
+        cellVisibilityDependencyMap[fieldID] = dependencyMap
+
+        cellVisibilityMap[fieldID] = [:]
+        let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
+        setCollectionCellVisibility(fieldID: fieldID, schema: schema, valueElements: field.valueToValueElements ?? [], schemaKey: rootSchemaKey)
+    }
+
+    private func setCollectionCellVisibility(fieldID: String, schema: [String: Schema], valueElements: [ValueElement], schemaKey: String) {
+        guard let columns = schema[schemaKey]?.tableColumns else { return }
+        for element in valueElements {
+            setCellVisibility(fieldID: fieldID, columns: columns, row: element)
+            for (childSchemaID, child) in element.childrens ?? [:] {
+                setCollectionCellVisibility(fieldID: fieldID, schema: schema, valueElements: child.valueToValueElements ?? [], schemaKey: childSchemaID)
+            }
+        }
+    }
+
     func addCellVisibilityForRow(fieldID: String, row: ValueElement) {
         guard let columns = documentEditor.field(fieldID: fieldID)?.tableColumns else { return }
+        setCellVisibility(fieldID: fieldID, columns: columns, row: row)
+    }
+
+    func addCellVisibilityForRow(fieldID: String, schemaID: String, row: ValueElement) {
+        guard let columns = documentEditor.field(fieldID: fieldID)?.schema?[schemaID]?.tableColumns else { return }
         setCellVisibility(fieldID: fieldID, columns: columns, row: row)
     }
 
@@ -716,19 +755,54 @@ extension ConditionalLogicHandler {
 
         return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
     }
-    
+
+    func cellsNeedToBeRefreshed(fieldID: String, schemaID: String, editedColumnID: String, row: ValueElement) -> [String] {
+        guard let dependentColumns = cellVisibilityDependencyMap[fieldID]?[editedColumnID],
+              let columns = documentEditor.field(fieldID: fieldID)?.schema?[schemaID]?.tableColumns else { return [] }
+
+        return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
+    }
+
     func cellsNeedRefreshForPageField(pageFieldID: String) -> [String: Set<String>] {
         guard let refs = pageFieldCellDependencyMap[pageFieldID] else { return [:] }
         var changedColumnsByTable = [String: Set<String>]()
         for ref in refs {
-            guard let field = documentEditor.field(fieldID: ref.tableFieldID),
-                  let columns = field.tableColumns else { continue }
-            for row in field.valueToValueElements ?? [] {
-                if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
-                    changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
+            guard let field = documentEditor.field(fieldID: ref.tableFieldID) else { continue }
+            if let schemaID = ref.schemaID {
+                guard let columns = field.schema?[schemaID]?.tableColumns else { continue }
+                for row in rowsForCollectionSchema(field: field, schemaID: schemaID) {
+                    if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                        changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
+                    }
+                }
+            } else {
+                guard let columns = field.tableColumns else { continue }
+                for row in field.valueToValueElements ?? [] {
+                    if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                        changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
+                    }
                 }
             }
         }
         return changedColumnsByTable
+    }
+
+    private func rowsForCollectionSchema(field: JoyDocField, schemaID: String) -> [ValueElement] {
+        guard let schema = field.schema else { return [] }
+        let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
+        var rows = [ValueElement]()
+        collectRows(valueElements: field.valueToValueElements ?? [], schemaKey: rootSchemaKey, targetSchemaID: schemaID, into: &rows)
+        return rows
+    }
+
+    private func collectRows(valueElements: [ValueElement], schemaKey: String, targetSchemaID: String, into rows: inout [ValueElement]) {
+        for element in valueElements {
+            if schemaKey == targetSchemaID {
+                rows.append(element)
+            }
+            for (childSchemaID, child) in element.childrens ?? [:] {
+                collectRows(valueElements: child.valueToValueElements ?? [], schemaKey: childSchemaID, targetSchemaID: targetSchemaID, into: &rows)
+            }
+        }
     }
 }

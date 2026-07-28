@@ -272,8 +272,16 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.cellsNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }
 
+    public func cellsNeedToBeRefreshed(fieldID: String, schemaID: String, editedColumnID: String, row: ValueElement) -> [String] {
+        return conditionalLogicHandler.cellsNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
+    }
+
     public func addCellVisibilityForRow(fieldID: String, row: ValueElement) {
         conditionalLogicHandler.addCellVisibilityForRow(fieldID: fieldID, row: row)
+    }
+
+    public func addCellVisibilityForRow(fieldID: String, schemaID: String, row: ValueElement) {
+        conditionalLogicHandler.addCellVisibilityForRow(fieldID: fieldID, schemaID: schemaID, row: row)
     }
 
     public func removeCellVisibilityForRow(fieldID: String, rowID: String) {
@@ -782,7 +790,8 @@ extension DocumentEditor {
             refreshField(fieldId: fieldId)
         }
         for (tableFieldID, columnIDs) in conditionalLogicHandler.cellsNeedRefreshForPageField(pageFieldID: fieldID) {
-            valueDelegate(for: tableFieldID, fieldType: .table)?.cellVisibilityDidChange(columnIDs: columnIDs)
+            let fieldType = field(fieldID: tableFieldID)?.fieldType ?? .table
+            valueDelegate(for: tableFieldID, fieldType: fieldType)?.cellVisibilityDidChange(columnIDs: columnIDs)
         }
     }
     
