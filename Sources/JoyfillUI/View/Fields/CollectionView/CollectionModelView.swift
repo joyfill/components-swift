@@ -20,8 +20,9 @@ struct CollectionRowView: View {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let schemaKey = rowDataModel.rowType.parentSchemaKey.isEmpty ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey
                 let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID, schemaKey: schemaKey) && !cellModel.data.isCellFilled
+                let isHidden = viewModel.isCellHidden(columnID: cellModel.data.id, row: viewModel.rowToValueElementMap[rowDataModel.rowID])
 
-                CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel, isHidden: isHidden)
                     .frame(width: 200, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
                     .overlay(
@@ -215,27 +216,39 @@ struct CollectionModalView : View {
                                                        schemaKey: viewModel.rootSchemaKey)
                         }
                         
-                        ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
-                            let index = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowCellModels.rowID }) ?? 0
-                            HStack(spacing: 0) {
-                                CollectionRowsHeaderView(viewModel: viewModel, rowModel: $rowCellModels, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView)
+                        var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
+                        ForEach(Array(safeFilteredModels.enumerated()), id: \.element.rowID) { (index, rowCellModels) in
+                            if index < safeFilteredModels.count {
+                                HStack(spacing: 0) {
+                                    let bindingRowModel = Binding(get: {
+                                        safeFilteredModels[index]
+                                    }, set: { newValue in
+                                        if index < viewModel.tableDataModel.filteredcellModels.count {
+                                            viewModel.tableDataModel.filteredcellModels[index] = newValue
+                                            safeFilteredModels[index] = newValue
+                                        } else {
+                                            Log("Row not found at this index ", type: .error)
+                                        }
+                                    })
+                                    CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView)
 
-                                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                switch rowCellModels.rowType {
-                                case .row, .nestedRow:
-                                    CollectionRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
+                                    let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
+                                    switch rowCellModels.rowType {
+                                    case .row, .nestedRow:
+                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
+                                            .frame(height: 60)
+                                    case .header(level: let level, tableColumns: let tableColumns, schemaKey: let schemaKey):
+                                        CollectionColumnHeaderView(viewModel: viewModel,
+                                                                   tableColumns: tableColumns ?? [],
+                                                                   currentSelectedCol: $currentSelectedCol,
+                                                                   colorScheme: colorScheme,
+                                                                   isHeaderNested: true,
+                                                                   schemaKey: schemaKey)
                                         .frame(height: 60)
-                                case .header(level: let level, tableColumns: let tableColumns, schemaKey: let schemaKey):
-                                    CollectionColumnHeaderView(viewModel: viewModel,
-                                                               tableColumns: tableColumns ?? [],
-                                                               currentSelectedCol: $currentSelectedCol,
-                                                               colorScheme: colorScheme,
-                                                               isHeaderNested: true,
-                                                               schemaKey: schemaKey)
-                                    .frame(height: 60)
-                                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                                    CollectionExpanderView(rowDataModel: $rowCellModels, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
-                                        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                                    case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
+                                        CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
+                                            .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                                    }
                                 }
                             }
                         }

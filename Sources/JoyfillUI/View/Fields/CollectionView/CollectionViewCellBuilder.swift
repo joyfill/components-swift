@@ -11,9 +11,10 @@ import JoyfillModel
 struct CollectionViewCellBuilder: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var cellModel: TableCellModel
-    
+    var isHidden: Bool
+
     var body: some View {
-        if cellModel.isHidden {
+        if isHidden {
             HiddenCellView()
         } else {
             cellContent
