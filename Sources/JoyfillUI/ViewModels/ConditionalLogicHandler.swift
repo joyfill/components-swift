@@ -716,21 +716,25 @@ extension ConditionalLogicHandler {
         let column = columns.first(where: { $0.id == columnID })
 
         let newValue: Bool
-        if let logic = column?.cellVisibilityLogic, let action = logic.action {
-            let conditions = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
-                if let siblingColumnID = condition.column {
-                    let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
-                    return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
-                                          fieldType: type, condition: condition.condition, value: condition.value)
-                } else if let pageFieldID = condition.field {
-                    guard let pageField = documentEditor.field(fieldID: pageFieldID) else { return nil }
-                    return ConditionModel(fieldValue: pageField.value, fieldType: FieldTypes(pageField.type),
-                                          condition: condition.condition, value: condition.value)
+        if let logic = column?.cellVisibilityLogic {
+            if let action = logic.action {
+                let conditions = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
+                    if let siblingColumnID = condition.column {
+                        let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
+                        return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
+                                              fieldType: type, condition: condition.condition, value: condition.value)
+                    } else if let pageFieldID = condition.field {
+                        guard let pageField = documentEditor.field(fieldID: pageFieldID) else { return nil }
+                        return ConditionModel(fieldValue: pageField.value, fieldType: FieldTypes(pageField.type),
+                                              condition: condition.condition, value: condition.value)
+                    }
+                    return nil
                 }
-                return nil
+                let matched = shoulTakeActionOnThisField(logic: LogicModel(id: logic.id, action: action, eval: logic.eval, conditions: conditions))
+                newValue = (action == "hide") ? !matched : matched
+            } else {
+                newValue = true
             }
-            let matched = shoulTakeActionOnThisField(logic: LogicModel(id: logic.id, action: action, eval: logic.eval, conditions: conditions))
-            newValue = (action == "hide") ? !matched : matched
         } else {
             newValue = !(column?.cellsHidden ?? false)
         }
