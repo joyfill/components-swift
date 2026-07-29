@@ -571,6 +571,28 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status is empty")
     }
 
+    /// `cellVisibilityLogic` present with conditions but no `action` can't be evaluated; it must
+    /// default to visible rather than silently falling back to the static `cellsHidden` baseline,
+    /// which is documented to apply only to columns without logic.
+    func testCellVisibilityLogicWithoutActionDefaultsToVisibleIgnoringCellsHidden() {
+        let logicWithoutAction: [String: Any] = [
+            "eval": "and",
+            "conditions": [
+                ["column": statusColumnID, "condition": "=", "value": "Rejected", "_id": UUID().uuidString]
+            ],
+            "_id": UUID().uuidString
+        ]
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logicWithoutAction, cellsHidden: true),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Rejected"])]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "action-less cellVisibilityLogic must default to visible, ignoring cellsHidden:true")
+    }
+
     // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
     func testAddRowDoesNotFlipExistingRows() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
