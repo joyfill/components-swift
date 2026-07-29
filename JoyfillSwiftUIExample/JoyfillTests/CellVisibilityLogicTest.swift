@@ -1144,10 +1144,9 @@ final class CellVisibilityLogicTest: XCTestCase {
         document.fields.append(field)
         document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [collectionFieldID: .collection])
 
-        // validate() gates collection fields behind `isCollectionFieldEnabled` (license-derived);
-        // the plain `documentEditor(document:)` helper has no license, so this needs the same
-        // license-bearing DocumentEditor init ValidationTestCase.swift uses for collection validation.
-        let editor = DocumentEditor(document: document, validateSchema: false, license: licenseKey)
+        let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
+        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license), "License verification failed; set JOYFILL_TEST_LICENSE or check licenseKey")
+        let editor = DocumentEditor(document: document, validateSchema: false, license: license)
         let editedRow = collRowElement(editor, rowID: collRootRow1)
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "reason hidden when status == Rejected")
