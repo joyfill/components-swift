@@ -697,6 +697,38 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after delete")
     }
 
+    // MARK: - Validation gating (hidden-but-required cells must not block submission)
+
+    /// A cell hidden by `cellVisibilityLogic` but required (the required-logic fallback chain
+    /// resolves a plain static `required: true` with no cellRequiredLogic/requiredLogic present)
+    /// must NOT be reported `.invalid` when empty by `validate()` — the user has no way to fill a
+    /// cell they can't see. Exercises the `shouldShowCell` gate added to ValidationHandler's table path.
+    func testValidateTreatsHiddenRequiredTableCellAsValid() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: false,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        var reasonDict = buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic).dictionary
+        reasonDict["required"] = true
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            FieldTableColumn(dictionary: reasonDict),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Rejected"])] // reason left empty
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
+        let editedRow = rowElement(editor, rowID: row1ID)
+
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: editedRow), "reason hidden when status == Rejected")
+        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: tableFieldID, row: editedRow), "reason is still required")
+
+        let status = editor.validate().fieldValidities
+            .first(where: { $0.fieldId == tableFieldID })?
+            .rowValidities?.first(where: { $0.rowId == row1ID })?
+            .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
+        XCTAssertEqual(status, .valid, "Required-but-hidden empty cell must validate as valid; the user can't fill what they can't see")
+    }
+
     // MARK: - Collection cell visibility (schema-aware; mirrors the table paths)
 
     let collectionFieldID = "cell_vis_collection_001"
@@ -1048,5 +1080,61 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason flips visible after status=Rejected")
         XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render the cell after the flip")
+    }
+
+    /// Collection counterpart of `testValidateTreatsHiddenRequiredTableCellAsValid`: a root-schema
+    /// cell hidden by `cellVisibilityLogic` but required must not be reported `.invalid` by
+    /// `validate()`. Exercises the `shouldShowCell` gate added to ValidationHandler's collection path.
+    func testValidateTreatsHiddenRequiredCollectionCellAsValid() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: false,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        var reasonDict = buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic).dictionary
+        reasonDict["required"] = true
+        let rootColumns: [[String: Any]] = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+            reasonDict,
+            buildColumn(id: noteColumnID, type: .text, title: "Note").dictionary
+        ]
+        let rootSchemaDict: [String: Any] = [
+            "title": "Root",
+            "root": true,
+            "children": [String](),
+            "tableColumns": rootColumns
+        ]
+
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = collectionFieldID
+        field.identifier = "field_\(collectionFieldID)"
+        field.title = "Cell Visibility Collection"
+        field.file = fileID
+        field.dictionary["schema"] = [collRootSchema: rootSchemaDict]
+        field.value = .valueElementArray([ValueElement(dictionary: collRootRow(id: collRootRow1, status: "Rejected"))])
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+        document.fields.append(field)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [collectionFieldID: .collection])
+
+        // validate() gates collection fields behind `isCollectionFieldEnabled` (license-derived);
+        // the plain `documentEditor(document:)` helper has no license, so this needs the same
+        // license-bearing DocumentEditor init ValidationTestCase.swift uses for collection validation.
+        let editor = DocumentEditor(document: document, validateSchema: false, license: licenseKey)
+        let editedRow = collRowElement(editor, rowID: collRootRow1)
+
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "reason hidden when status == Rejected")
+        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: collectionFieldID, schemaKey: collRootSchema, row: editedRow), "reason is still required")
+
+        let status = editor.validate().fieldValidities
+            .first(where: { $0.fieldId == collectionFieldID })?
+            .rowValidities?.first(where: { $0.rowId == collRootRow1 })?
+            .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
+        XCTAssertEqual(status, .valid, "Required-but-hidden empty cell must validate as valid; the user can't fill what they can't see")
     }
 }
