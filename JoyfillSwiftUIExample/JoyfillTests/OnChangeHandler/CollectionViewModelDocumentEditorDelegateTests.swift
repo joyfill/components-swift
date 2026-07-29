@@ -550,6 +550,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     // column *index* and read arrays out of bounds. These lock in the columnID-keyed path.
 
     private let rootTextColumnID = "684c3fedb0afd867adaeb3b4"
+    private let rootDateColumnID = "68575306e1f4dc7da46e671b"
     private let rootRowA = "68575bb9cdb3707c78d6b2ff"
     private let rootRowB = "685765dcf190077e95796c41"
     private let rootRowUnselected = "68582dd76e0e93dd2017372a"
@@ -577,6 +578,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         let barcodeColumnID  = "68575312d8c5679a05ee29e0"
         let dropdownOptionID = "684c3fedf47cc0fea6bca947"          // "No D1"
         let multiOptionIDs   = ["68575301e490d0ce22ae5e7b", "685767dae7cf2193a50ff550"]
+        let dateEpochMillis: Double = 1749000000000
 
         viewModel.tableDataModel.selectedRows = [rootRowA, rootRowB]
 
@@ -586,6 +588,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
             numberColumnID:   .double(42),
             multiColumnID:    .array(multiOptionIDs),
             barcodeColumnID:  .string("BC-123"),
+            rootDateColumnID: .double(dateEpochMillis),
         ])
         waitForMainQueueToDrain()
 
@@ -595,6 +598,9 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
             XCTAssertEqual(cellValue(documentEditor, row: row, column: numberColumnID)?.number, 42, "number column on \(row)")
             XCTAssertEqual(cellValue(documentEditor, row: row, column: multiColumnID)?.multiSelector, multiOptionIDs, "multiSelect column on \(row)")
             XCTAssertEqual(cellValue(documentEditor, row: row, column: barcodeColumnID)?.text, "BC-123", "barcode column on \(row)")
+            // Exercises makeChangeDict's multi-row timezone-conversion path for .date columns.
+            // Source and target timezone are both TimeZone.current here, so the value round-trips unchanged.
+            XCTAssertEqual(cellValue(documentEditor, row: row, column: rootDateColumnID)?.number, dateEpochMillis, "date column on \(row)")
         }
     }
 
