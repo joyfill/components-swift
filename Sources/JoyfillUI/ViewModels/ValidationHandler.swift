@@ -221,6 +221,12 @@ class ValidationHandler {
             var cellValidities = [CellValidity]()
             for column in visibleColumns {
                 guard let columnID = column.id else { continue }
+
+                if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, row: row) {
+                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
+                    continue
+                }
+
                 let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, row: row)
 
                 if !isRequired {
@@ -309,6 +315,11 @@ class ValidationHandler {
             guard let columnID = column.id else { continue }
 
             if !documentEditor.shouldShowColumn(columnID: columnID, fieldID: fieldID, schemaKey: schemaId) {
+                continue
+            }
+
+            if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, row: row) {
+                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue
             }
 
