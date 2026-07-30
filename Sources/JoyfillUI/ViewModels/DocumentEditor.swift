@@ -321,6 +321,18 @@ public class DocumentEditor: ObservableObject {
         return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, row: row)
     }
 
+    public func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
+        return requiredLogicHandler.cellRequiredNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
+    }
+
+    public func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        requiredLogicHandler.addCellRequiredForRow(fieldID: fieldID, schemaID: schemaID, row: row)
+    }
+
+    public func removeCellRequiredForRow(fieldID: String, rowID: String) {
+        requiredLogicHandler.removeCellRequiredForRow(fieldID: fieldID, rowID: rowID)
+    }
+
     public func change(changes: [Change]) {
         for change in changes {
             guard let targetValue = change.target,
@@ -784,6 +796,7 @@ extension DocumentEditor {
     }
     
     func refreshDependent(for fieldID: String) {
+        requiredLogicHandler.cellRequiredNeedRefreshForPageField(pageFieldID: fieldID)
         var refreshFields = Set(conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         refreshFields.formUnion(requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         for fieldId in refreshFields {

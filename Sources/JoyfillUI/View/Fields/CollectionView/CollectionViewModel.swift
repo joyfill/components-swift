@@ -540,6 +540,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
         tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
+        tableDataModel.documentEditor?.addCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
@@ -1427,6 +1428,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
         tableDataModel.documentEditor?.removeCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1726,6 +1728,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
         applyCellVisibilityRefresh(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
+        applyCellRequiredRefresh(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
@@ -1763,6 +1766,28 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let hiddenByColumn = Dictionary(uniqueKeysWithValues:
             flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
         applyVisibilityFlip(hiddenByRow: [rowId: hiddenByColumn])
+    }
+
+    /// Re-resolves cells whose `cellRequiredLogic` reads the edited column, then re-renders the ones
+    /// that flipped. The required flag lives in the cache, not the cell model, so a new `id` is enough.
+    func applyCellRequiredRefresh(rowId: String, schemaKey: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowId] else { return }
+        let flippedColumnIDs = documentEditor.cellRequiredNeedToBeRefreshed(
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            schemaID: schemaKey,
+            editedColumnID: editedColumnID,
+            row: row)
+        guard !flippedColumnIDs.isEmpty else { return }
+        rerenderCells(rowID: rowId, columnIDs: Set(flippedColumnIDs))
+    }
+
+    private func rerenderCells(rowID: String, columnIDs: Set<String>) {
+        guard let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) else { return }
+        for colIndex in tableDataModel.filteredcellModels[rowIndex].cells.indices
+        where columnIDs.contains(tableDataModel.filteredcellModels[rowIndex].cells[colIndex].data.id) {
+            tableDataModel.filteredcellModels[rowIndex].cells[colIndex].id = UUID()
+        }
     }
 
     private func applyVisibilityFlip(hiddenByRow: [String: [String: Bool]]) {
@@ -1937,6 +1962,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
                 applyCellVisibilityRefresh(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
+                applyCellRequiredRefresh(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: row)
                 }

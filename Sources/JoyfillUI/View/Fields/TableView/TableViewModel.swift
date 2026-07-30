@@ -62,6 +62,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
         tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
+        tableDataModel.documentEditor?.addCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
@@ -81,6 +82,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     }) {
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                         self?.applyCellVisibilityRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
+                        self?.applyCellRequiredRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -133,6 +135,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     }) { [weak self] cellDataModel in
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                         self?.applyCellVisibilityRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
+                        self?.applyCellRequiredRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -300,6 +303,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
         tableDataModel.documentEditor?.removeCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
@@ -515,6 +519,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         for rowId in tableDataModel.selectedRows {
             for columnID in editedColumnIDs {
                 applyCellVisibilityRefresh(rowId: rowId, editedColumnID: columnID)
+                applyCellRequiredRefresh(rowId: rowId, editedColumnID: columnID)
             }
         }
         isBulkLoading = false
@@ -601,6 +606,31 @@ extension TableViewModel {
         let hiddenByColumn = Dictionary(uniqueKeysWithValues:
             flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
         applyVisibilityFlip(hiddenByRow: [rowId: hiddenByColumn])
+    }
+
+    /// Re-resolves cells whose `cellRequiredLogic` reads the edited column, then re-renders the ones
+    /// that flipped. The required flag lives in the cache, not the cell model, so a new `id` is enough.
+    func applyCellRequiredRefresh(rowId: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowElement(forRowID: rowId) else { return }
+        let flippedColumnIDs = documentEditor.cellRequiredNeedToBeRefreshed(
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            editedColumnID: editedColumnID,
+            row: row
+        )
+        guard !flippedColumnIDs.isEmpty else { return }
+        rerenderCells(rowID: rowId, columnIDs: Set(flippedColumnIDs))
+    }
+
+    private func rerenderCells(rowID: String, columnIDs: Set<String>) {
+        func bump(_ models: inout [RowDataModel]) {
+            guard let rowIndex = models.firstIndex(where: { $0.rowID == rowID }) else { return }
+            for colIndex in models[rowIndex].cells.indices where columnIDs.contains(models[rowIndex].cells[colIndex].data.id) {
+                models[rowIndex].cells[colIndex].id = UUID()
+            }
+        }
+        bump(&tableDataModel.cellModels)
+        bump(&tableDataModel.filteredcellModels)
     }
 
     func cellVisibilityDidChange(columnIDs: Set<String>) {
