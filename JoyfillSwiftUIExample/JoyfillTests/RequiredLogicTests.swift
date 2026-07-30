@@ -5,10 +5,10 @@ import JoyfillModel
 
 /// Tests for `requiredLogic` (fields, columns) and `cellRequiredLogic` (per-cell).
 ///
-/// Semantics under test (the action only changes required-ness when its conditions match,
-/// otherwise it falls back to the static `required` flag — matches the Kotlin/JS reference):
-///   - action == "enforce" -> required when conditions match, else static `required`
-///   - action == "unenforce" -> optional when conditions match, else static `required`
+/// Table/collection cell semantics under test:
+///   - cellRequiredLogic, when present, resolves the cell without falling through
+///   - otherwise column requiredLogic, when present, resolves the cell without falling through
+///   - static `required` is used only when no cell or column logic is present
 final class RequiredLogicTests: XCTestCase {
     let fileID = "file-1"
     let pageID = "page-1"
@@ -317,9 +317,9 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
     }
 
-    func testCellRequiredLogic_mixedSiblingAndPageField_pageFieldMissesUnderAnd_fallsBack() {
+    func testCellRequiredLogic_mixedSiblingAndPageField_pageFieldMissesUnderAnd_makesOptional() {
         // enforce AND: sibling flag == "yes" (true) AND page number1 == 100 (false, is 10).
-        // AND fails -> falls back to column base (no column logic, static false) -> optional -> valid.
+        // AND fails -> cell logic resolves optional without falling through.
         let editor = documentEditor(document: makeMixedCellDoc(
             cellAction: "enforce", cellEval: "and",
             siblingValue: "yes", conditionSiblingValue: "yes",
@@ -328,10 +328,9 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid)
     }
 
-    func testCellRequiredLogic_mixedConditions_fallBackToColumnStaticRequired() {
-        // Mirrors the sample JSON: cell enforce-AND fails (number1 != 100), so we fall back to the
-        // column base. Column requiredLogic is unenforce on page dropdown = Yes but dropdown = No, so
-        // it also fails and falls back to the column's static required:true -> required -> invalid.
+    func testCellRequiredLogic_mixedConditions_doesNotFallBackToColumnStaticRequired() {
+        // Mirrors the sample JSON: cell enforce-AND fails (number1 != 100), so the cell is optional.
+        // Column logic and static required are not consulted when cell logic exists.
         let editor = documentEditor(document: makeMixedCellDoc(
             cellAction: "enforce", cellEval: "and",
             siblingValue: "No", conditionSiblingValue: "No",
@@ -340,7 +339,7 @@ final class RequiredLogicTests: XCTestCase {
             columnStaticRequired: true,
             includePageDropdown: true, dropdownValue: optNo
         ))
-        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid)
     }
 
     func testCellRequiredLogic_pageFieldDependency_refreshesOwningTable() {
@@ -363,7 +362,7 @@ final class RequiredLogicTests: XCTestCase {
         ))
         XCTAssertEqual(cellStatus(matchEditor, rowId: "row-1", columnId: textColumnID), .invalid)
 
-        // enforce OR: neither matches -> falls back to column base (static false) -> optional.
+        // enforce OR: neither matches -> cell logic resolves optional.
         let noMatchEditor = documentEditor(document: makeMixedCellDoc(
             cellAction: "enforce", cellEval: "or",
             siblingValue: "no", conditionSiblingValue: "yes",
@@ -372,7 +371,7 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(noMatchEditor, rowId: "row-1", columnId: textColumnID), .valid)
     }
 
-    func testCellRequiredLogic_unenforce_matchedMakesOptional_elseFallsBackToColumnStatic() {
+    func testCellRequiredLogic_unenforce_matchedMakesOptional_elseStillOptional() {
         // Column is statically required. Cell unenforce AND [ sibling "yes", page number1 == 100 ].
         // Both match -> unenforce -> optional -> valid.
         let optionalEditor = documentEditor(document: makeMixedCellDoc(
@@ -383,14 +382,14 @@ final class RequiredLogicTests: XCTestCase {
         ))
         XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
 
-        // One condition fails -> unenforce doesn't match -> falls back to column static required:true -> invalid.
+        // One condition fails -> cell logic still resolves optional without falling through.
         let requiredEditor = documentEditor(document: makeMixedCellDoc(
             cellAction: "unenforce", cellEval: "and",
             siblingValue: "yes", conditionSiblingValue: "yes",
             pageNumberValue: 10, conditionPageNumberValue: 100,
             columnStaticRequired: true
         ))
-        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
+        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .valid)
     }
 
     // MARK: - Sample JSON use case (mixed cell logic + column unenforce + static required)
@@ -445,35 +444,36 @@ final class RequiredLogicTests: XCTestCase {
         ])
     }
 
-    func testSampleJSON_text1RequiredInAllThreeRows() {
-        // page dropdown = No, number1 = 100. Column unenforce doesn't match (dropdown != Yes) ->
-        // column-effective falls back to static required:true.
+    func testSampleJSON_text1CellLogicControlsRows() {
+        // page dropdown = No, number1 = 100. Column unenforce resolves optional, and static required
+        // is ignored because column logic exists.
         let editor = documentEditor(document: makeSampleDoc(pageDropdownValue: pageNo, number1Value: 100))
-        XCTAssertTrue(editor.isColumnRequired(columnID: "text1", fieldID: tableFieldID))
+        XCTAssertFalse(editor.isColumnRequired(columnID: "text1", fieldID: tableFieldID))
 
         // row-1: cell enforce matches (sibling No + number 100) -> required.
-        // row-2 / row-3: cell not matched (dropdown empty) -> fall back to column-effective (required).
-        for rowId in ["row-1", "row-2", "row-3"] {
-            XCTAssertEqual(cellStatus(editor, rowId: rowId, columnId: "text1"), .invalid,
-                           "text1 should be required (empty -> invalid) in \(rowId)")
+        // row-2 / row-3: cell logic exists but does not match -> optional.
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .invalid)
+        for rowId in ["row-2", "row-3"] {
+            XCTAssertEqual(cellStatus(editor, rowId: rowId, columnId: "text1"), .valid,
+                           "text1 should be optional when cell logic does not match in \(rowId)")
         }
     }
 
     func testSampleJSON_dynamicFlipAcrossResolutionOrder() {
         let editor = documentEditor(document: makeSampleDoc(pageDropdownValue: pageNo, number1Value: 100))
-        // Baseline: every row required.
+        // Baseline: only the matching row is required.
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .invalid)
-        XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: "text1"), .invalid)
+        XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: "text1"), .valid)
 
         // Flip page dropdown -> Yes: column unenforce now matches -> column-effective becomes optional.
         let ddFI = FieldIdentifier(fieldID: pageDropdownID)
         editor.updateField(event: FieldChangeData(fieldIdentifier: ddFI, updateValue: .string(pageYes)), fieldIdentifier: ddFI)
         // row-1: cell still matches (sibling No + number 100) -> required.
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .invalid)
-        // row-2: cell not matched -> falls back to the now-optional column-effective -> valid.
+        // row-2: cell not matched -> optional.
         XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: "text1"), .valid)
 
-        // Change number1 -> 10: row-1 cell AND now fails -> falls back to optional column -> valid.
+        // Change number1 -> 10: row-1 cell AND now fails -> optional.
         let numFI = FieldIdentifier(fieldID: numberFieldID)
         editor.updateField(event: FieldChangeData(fieldIdentifier: numFI, updateValue: .double(10)), fieldIdentifier: numFI)
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .valid)
@@ -501,7 +501,7 @@ final class RequiredLogicTests: XCTestCase {
         let matchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optYes))
         XCTAssertTrue(matchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(matchEditor, id: "root-1")!))
 
-        // page dropdown = No -> page half of the AND fails -> falls back to column base (static false) -> optional.
+        // page dropdown = No -> page half of the AND fails -> cell logic resolves optional.
         let noMatchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optNo))
         XCTAssertFalse(noMatchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(noMatchEditor, id: "root-1")!))
     }
@@ -547,9 +547,9 @@ final class RequiredLogicTests: XCTestCase {
         let optionalEditor = documentEditor(document: makeTableDoc(textColumn: textColumn, rows: rows, includePageDropdown: true, dropdownValue: optYes))
         XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
 
-        // dropdown = No -> unenforce no match -> static required stays -> empty cell invalid
+        // dropdown = No -> column logic exists but does not require, so static required is ignored.
         let requiredEditor = documentEditor(document: makeTableDoc(textColumn: textColumn, rows: rows, includePageDropdown: true, dropdownValue: optNo))
-        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
+        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .valid)
     }
 
     func testColumnEnforce_cellFilled_isValid() {

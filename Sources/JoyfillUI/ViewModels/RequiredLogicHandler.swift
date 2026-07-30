@@ -2,12 +2,12 @@
 //  RequiredLogicHandler.swift
 //
 //  Evaluates `requiredLogic` (fields, columns) and `cellRequiredLogic` (per-cell) to produce
-//  an *effective* required-ness on top of the static `required` flag.
+//  an *effective* required-ness.
 //
-//  Semantics (the action only changes required-ness when its conditions match; otherwise it falls back to the static base):
-//    - no logic present            -> static `required`
-//    - action == "enforce"         -> required when conditions match, else static `required`
-//    - action == "unenforce"         -> optional when conditions match, else static `required`
+//  Table/collection cell resolution order:
+//    - cellRequiredLogic present   -> resolve that logic for this row
+//    - else requiredLogic present  -> resolve column-wide logic
+//    - else                        -> static `required`
 //
 //  Field / column logic conditions reference page-level fields (by `field` id).
 //  Cell logic conditions reference sibling column ids and resolve against the same row's cells.
@@ -68,7 +68,7 @@ class RequiredLogicHandler {
 
         if let cellLogic = column.cellRequiredLogic, let action = cellLogic.action {
             let model = cellLogicModel(logic: cellLogic, columns: columns(fieldID: fieldID, schemaKey: schemaKey), row: row)
-            return applyAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model), staticRequired: computeColumnRequired(column: column))
+            return resolveLogicAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model))
         }
         return computeColumnRequired(column: column)
     }
@@ -209,10 +209,9 @@ class RequiredLogicHandler {
     }
 
     private func computeColumnRequired(column: FieldTableColumn) -> Bool {
-        let staticRequired = column.required ?? false
-        guard let logic = column.requiredLogic, let action = logic.action else { return staticRequired }
+        guard let logic = column.requiredLogic, let action = logic.action else { return column.required ?? false }
         let model = fieldLogicModel(logic: logic)
-        return applyAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model), staticRequired: staticRequired)
+        return resolveLogicAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model))
     }
 
     private func applyAction(_ action: String, matched: Bool, staticRequired: Bool) -> Bool {
@@ -220,6 +219,14 @@ class RequiredLogicHandler {
         case "enforce": return matched ? true : staticRequired
         case "unenforce": return matched ? false : staticRequired
         default: return staticRequired
+        }
+    }
+
+    private func resolveLogicAction(_ action: String, matched: Bool) -> Bool {
+        switch action {
+        case "enforce": return matched
+        case "unenforce": return false
+        default: return false
         }
     }
 
