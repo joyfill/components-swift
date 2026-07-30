@@ -4,7 +4,7 @@ import JoyfillModel
 @testable import Joyfill
 
 /// Tests for per-cell visibility logic on table fields.
-/// Check veirfied commit 
+///
 /// A column can carry `cellVisibilityLogic` whose conditions reference *sibling column ids*
 /// and resolve against the same row's cell values. Visibility is built once at load into
 /// Map 1 (`cellVisibilityMap`), read through `shouldShowCell`, and refreshed on edit via the
