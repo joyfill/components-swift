@@ -29,6 +29,16 @@ class RequiredLogicHandler {
     // dependentFieldID (a page field referenced by some cellRequiredLogic condition) -> owning table/collection ids
     private var cellRequiredDependencyMap = [String: Set<String>]()
 
+    // Per-cell effective required state, mirroring ConditionalLogicHandler.cellVisibilityMap.
+    // fieldID -> (rowID + columnID) -> isRequired
+    var cellRequiredMap = [String: [CellVisibilityID: Bool]]()
+    // fieldID -> siblingColumnID -> dependent columnIDs (cellRequiredLogic `column` conditions)
+    var cellRequiredSiblingDependencyMap = [String: [String: Set<String>]]()
+    // pageFieldID -> dependent (tableFieldID, columnID, schemaID); covers cellRequiredLogic `field`
+    // conditions and column requiredLogic `field` conditions, both of which drive the stored per-cell
+    // value. schemaID is nil for tables, the schema key for collections.
+    var pageFieldCellRequiredDependencyMap = [String: [(tableFieldID: String, columnID: String, schemaID: String?)]]()
+
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
@@ -41,36 +51,35 @@ class RequiredLogicHandler {
 
             if field.fieldType == .table {
                 buildColumnRequiredForTable(field: field, fieldID: fieldID)
+                buildCellRequiredForTableField(field: field, fieldID: fieldID)
             } else if field.fieldType == .collection {
                 buildColumnRequiredForCollection(field: field, fieldID: fieldID)
+                buildCellRequiredForCollectionField(field: field, fieldID: fieldID)
             }
         }
     }
 
     // MARK: - Public API
 
-    /// Effective required-ness of a field, honouring `requiredLogic`.
+    /// Effective required-ness of a field — an O(1) read from the cache, mirroring
+    /// `ConditionalLogicHandler.shouldShow(fieldID:)`.
     func isFieldRequired(fieldID: String) -> Bool {
-        guard let field = documentEditor.field(fieldID: fieldID) else { return false }
-        return computeFieldRequired(field: field)
+        return requiredFieldMap[fieldID] ?? false
     }
 
-    /// Effective column-wide required-ness, honouring the column's `requiredLogic`.
+    /// Effective column-wide required-ness — an O(1) read from the cache, mirroring
+    /// `ConditionalLogicHandler.shouldShow(columnID:fieldID:schemaKey:)`.
     func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
-        guard let column = column(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey) else { return false }
-        return computeColumnRequired(column: column)
+        return requiredColumnMap[fieldID]?[ColumnSchemaID(columnID: columnID, schemaID: schemaKey)] ?? false
     }
 
-    /// Effective required-ness of a single cell. Precedence: `cellRequiredLogic` (per-row) >
-    /// `requiredLogic` (column-wide) > static `required`.
+    /// Effective required-ness of a single cell — an O(1) read from the per-cell cache, mirroring
+    /// `ConditionalLogicHandler.shouldShowCell`. The cache is authoritative for both tables and
+    /// collections; a cell with no required signal is absent from the map and reads as `false`.
+    /// `schemaKey` is accepted for call-site symmetry but not needed for the read (row IDs are unique).
     func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, row: ValueElement) -> Bool {
-        guard let column = column(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey) else { return false }
-
-        if let cellLogic = column.cellRequiredLogic, let action = cellLogic.action {
-            let model = cellLogicModel(logic: cellLogic, columns: columns(fieldID: fieldID, schemaKey: schemaKey), row: row)
-            return applyAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model), staticRequired: computeColumnRequired(column: column))
-        }
-        return computeColumnRequired(column: column)
+        let cellID = CellVisibilityID(rowID: row.id ?? "", columnID: columnID)
+        return cellRequiredMap[fieldID]?[cellID] ?? false
     }
 
     /// Fields that must be re-rendered because `fieldID` changed and some requiredLogic depends on it.
@@ -255,15 +264,152 @@ class RequiredLogicHandler {
 
     // MARK: - Lookups
 
-    private func columns(fieldID: String, schemaKey: String?) -> [FieldTableColumn] {
+    func columns(fieldID: String, schemaKey: String?) -> [FieldTableColumn] {
         guard let field = documentEditor.field(fieldID: fieldID) else { return [] }
         if let schemaKey = schemaKey {
             return field.schema?[schemaKey]?.tableColumns ?? []
         }
         return field.tableColumns ?? []
     }
+}
 
-    private func column(columnID: String, fieldID: String, schemaKey: String?) -> FieldTableColumn? {
-        return columns(fieldID: fieldID, schemaKey: schemaKey).first(where: { $0.id == columnID })
+// MARK: - CellRequiredLogic
+
+extension RequiredLogicHandler {
+    func buildCellRequiredForTableField(field: JoyDocField, fieldID: String) {
+        guard let columns = field.tableColumns else { return }
+
+        var dependencyMap = [String: Set<String>]()
+        for column in columns {
+            guard let columnID = column.id else { continue }
+            registerCellRequiredDependencies(column: column, columnID: columnID, fieldID: fieldID, schemaID: nil, into: &dependencyMap)
+        }
+        cellRequiredSiblingDependencyMap[fieldID] = dependencyMap
+
+        cellRequiredMap[fieldID] = [:]
+        for row in field.valueToValueElements ?? [] {
+            setCellRequired(fieldID: fieldID, columns: columns, row: row)
+        }
+    }
+
+    func buildCellRequiredForCollectionField(field: JoyDocField, fieldID: String) {
+        guard let schema = field.schema else { return }
+
+        var dependencyMap = [String: Set<String>]()
+        for (schemaKey, schemaValue) in schema {
+            for column in schemaValue.tableColumns ?? [] {
+                guard let columnID = column.id else { continue }
+                registerCellRequiredDependencies(column: column, columnID: columnID, fieldID: fieldID, schemaID: schemaKey, into: &dependencyMap)
+            }
+        }
+        cellRequiredSiblingDependencyMap[fieldID] = dependencyMap
+
+        cellRequiredMap[fieldID] = [:]
+        let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
+        setCollectionCellRequired(fieldID: fieldID, schema: schema, valueElements: field.valueToValueElements ?? [], schemaKey: rootSchemaKey)
+    }
+
+    /// A cell's stored value is driven by its own `cellRequiredLogic` *and* by the column's
+    /// `requiredLogic` (the fallback), so conditions from both are registered as invalidation triggers.
+    private func registerCellRequiredDependencies(column: FieldTableColumn, columnID: String, fieldID: String, schemaID: String?, into dependencyMap: inout [String: Set<String>]) {
+        let conditions = (column.cellRequiredLogic?.conditions ?? []) + (column.requiredLogic?.conditions ?? [])
+        for condition in conditions {
+            if let siblingColumnID = condition.column {
+                dependencyMap[siblingColumnID, default: Set()].insert(columnID)
+            } else if let pageFieldID = condition.field {
+                pageFieldCellRequiredDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: schemaID))
+            }
+        }
+    }
+
+    private func setCollectionCellRequired(fieldID: String, schema: [String: Schema], valueElements: [ValueElement], schemaKey: String) {
+        guard let columns = schema[schemaKey]?.tableColumns else { return }
+        for element in valueElements {
+            setCellRequired(fieldID: fieldID, columns: columns, row: element)
+            for (childSchemaID, child) in element.childrens ?? [:] {
+                setCollectionCellRequired(fieldID: fieldID, schema: schema, valueElements: child.valueToValueElements ?? [], schemaKey: childSchemaID)
+            }
+        }
+    }
+
+    func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        setCellRequired(fieldID: fieldID, columns: columns(fieldID: fieldID, schemaKey: schemaID), row: row)
+    }
+
+    func removeCellRequiredForRow(fieldID: String, rowID: String) {
+        cellRequiredMap[fieldID] = cellRequiredMap[fieldID]?.filter { $0.key.rowID != rowID }
+    }
+
+    /// Columns with no required signal at all can never resolve to `true`, so they stay out of the map.
+    private func setCellRequired(fieldID: String, columns: [FieldTableColumn], row: ValueElement) {
+        for column in columns {
+            guard let columnID = column.id,
+                  column.cellRequiredLogic != nil || column.requiredLogic != nil || (column.required ?? false) else { continue }
+            updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+        }
+    }
+
+    /// The only place a cell's required-ness is computed and stored in `cellRequiredMap`; returns `true`
+    /// if the value changed. Precedence: `cellRequiredLogic` (per-row) > column `requiredLogic` > static
+    /// `required`, with the column-wide result acting as the static base the cell action applies on top of.
+    @discardableResult
+    private func updateCellRequired(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
+        guard let rowID = row.id, let column = columns.first(where: { $0.id == columnID }) else { return false }
+        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
+
+        let columnRequired = computeColumnRequired(column: column)
+        let newValue: Bool
+        if let cellLogic = column.cellRequiredLogic, let action = cellLogic.action {
+            let model = cellLogicModel(logic: cellLogic, columns: columns, row: row)
+            newValue = applyAction(action, matched: documentEditor.conditionalLogicHandler.shoulTakeActionOnThisField(logic: model), staticRequired: columnRequired)
+        } else {
+            newValue = columnRequired
+        }
+
+        let didChange = cellRequiredMap[fieldID]?[cellID] != newValue
+        cellRequiredMap[fieldID, default: [:]][cellID] = newValue
+        return didChange
+    }
+
+    /// Sibling-cell edit: re-resolve the cells whose logic reads `editedColumnID`, return those that changed.
+    func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
+        guard let dependentColumns = cellRequiredSiblingDependencyMap[fieldID]?[editedColumnID] else { return [] }
+        let columns = columns(fieldID: fieldID, schemaKey: schemaID)
+        guard !columns.isEmpty else { return [] }
+        return dependentColumns.filter { updateCellRequired(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
+    }
+
+    /// Page-field change: re-resolve every affected cell. The owning table/collection re-renders via
+    /// `fieldsNeedsToBeRefreshed`, so this only has to leave the map correct before that read.
+    func cellRequiredNeedRefreshForPageField(pageFieldID: String) {
+        guard let refs = pageFieldCellRequiredDependencyMap[pageFieldID] else { return }
+        for ref in refs {
+            guard let field = documentEditor.field(fieldID: ref.tableFieldID) else { continue }
+            let columns = columns(fieldID: ref.tableFieldID, schemaKey: ref.schemaID)
+            guard !columns.isEmpty else { continue }
+            let rows = ref.schemaID.map { rowsForCollectionSchema(field: field, schemaID: $0) } ?? (field.valueToValueElements ?? [])
+            for row in rows {
+                updateCellRequired(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row)
+            }
+        }
+    }
+
+    private func rowsForCollectionSchema(field: JoyDocField, schemaID: String) -> [ValueElement] {
+        guard let schema = field.schema else { return [] }
+        let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
+        var rows = [ValueElement]()
+        collectRows(valueElements: field.valueToValueElements ?? [], schemaKey: rootSchemaKey, targetSchemaID: schemaID, into: &rows)
+        return rows
+    }
+
+    private func collectRows(valueElements: [ValueElement], schemaKey: String, targetSchemaID: String, into rows: inout [ValueElement]) {
+        for element in valueElements {
+            if schemaKey == targetSchemaID {
+                rows.append(element)
+            }
+            for (childSchemaID, child) in element.childrens ?? [:] {
+                collectRows(valueElements: child.valueToValueElements ?? [], schemaKey: childSchemaID, targetSchemaID: targetSchemaID, into: &rows)
+            }
+        }
     }
 }
