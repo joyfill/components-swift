@@ -1,9 +1,15 @@
 import SwiftUI
 import JoyfillModel
 
+// 1. Create a lightweight wrapper to safely pass state into the sheet context
+struct DropdownSheetContext: Identifiable {
+    let id: String // Tied directly to the field identifier
+    let model: DropdownDataModel
+}
+
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
-    @State private var isSheetPresented = false
+    @State private var activeSheetContext: DropdownSheetContext?
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dropdownDataModel: DropdownDataModel
 
@@ -23,7 +29,10 @@ struct DropdownView: View {
                 eventHandler.onDecoratorAction(event: dropdownDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
             Button(action: {
-                isSheetPresented = true
+                activeSheetContext = DropdownSheetContext(
+                    id: dropdownDataModel.fieldIdentifier.fieldID,
+                    model: dropdownDataModel
+                )
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
             }, label: {
                 HStack {
@@ -40,16 +49,20 @@ struct DropdownView: View {
                 .frame(height: 40)
             })
             .accessibilityIdentifier("Dropdown")
+            .buttonStyle(BorderlessButtonStyle())
             .fieldBorder(isFocused: navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID)
-            .sheet(isPresented: $isSheetPresented) {
-                if #available(iOS 16, *) {
-                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
-                        .presentationDetents([.medium])
-                } else {
-                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
-                }
-            }
         }
+        .background(
+            Color.clear
+                .sheet(item: $activeSheetContext) { context in
+                    if #available(iOS 16, *) {
+                        DropDownOptionList(dropdownDataModel: context.model, selectedDropdownValueID: $selectedDropdownValueID)
+                            .presentationDetents([.medium])
+                    } else {
+                        DropDownOptionList(dropdownDataModel: context.model, selectedDropdownValueID: $selectedDropdownValueID)
+                    }
+                }
+        )
         .onChange(of: selectedDropdownValueID) { newValue in
             // Skip if @State already matches the model — means this fire came from a
             // programmatic sync, not a user tap. Prevents an echo loop.
@@ -90,6 +103,7 @@ struct DropDownOptionList: View {
                         .imageScale(.large)
                 })
                 .padding(.horizontal, 16)
+                .buttonStyle(BorderlessButtonStyle()) // Added protection against row triggers
             }
             ScrollView {
                 if let options = dropdownDataModel.options?.filter({ !($0.deleted ?? false) }) {
@@ -112,7 +126,9 @@ struct DropDownOptionList: View {
                             }
                             .padding(.horizontal, 28)
                             .padding(.vertical, 10)
+                            .contentShape(Rectangle()) // Ensures the empty whitespace area is clickable
                         })
+                        .buttonStyle(BorderlessButtonStyle()) // Prevents selection conflicts inside structural lists
                         .accessibilityIdentifier("DropdownoptionIdentifier")
                         Divider()
                             .padding(.horizontal, 16)
@@ -124,4 +140,3 @@ struct DropDownOptionList: View {
         .padding(.vertical, 20)
     }
 }
-
