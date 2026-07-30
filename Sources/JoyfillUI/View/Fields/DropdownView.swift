@@ -3,7 +3,7 @@ import JoyfillModel
 
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
-    /// The row does not own its sheet — see `FieldSheetPresentation` in FormView.
+    /// The row does not own its sheet — see `FieldSheetPresentation`.
     @Binding var activeFieldSheet: FieldSheetPresentation?
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dropdownDataModel: DropdownDataModel
