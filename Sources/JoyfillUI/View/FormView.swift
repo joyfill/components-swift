@@ -232,10 +232,26 @@ extension FieldListModelType {
     }
 }
 
+/// Identifies which field's modal sheet is currently open, by field id.
+///
+/// Sheets for fields inside `FormView`'s `List` must be anchored on the `List`,
+/// not on the row that triggers them: `List` is backed by `UITableView`, which
+/// recycles a row's hosting controller as it scrolls off and back on screen, and
+/// a row-owned `.sheet` can be orphaned by that recycling and stop presenting
+/// entirely (NO-1508). The `List` itself is never recycled.
+///
+/// Only `DropdownView` is hoisted today. `ImageView` has the same row-owned-sheet
+/// shape and can adopt this by writing its field id here instead of flipping a
+/// local flag, plus a branch in `fieldSheet(for:)`.
+struct FieldSheetPresentation: Identifiable {
+    let id: String
+}
+
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
     @State var currentFocusedFieldsID: String = ""
     @State var lastFocusedFieldsID: String? = nil
+    @State private var activeFieldSheet: FieldSheetPresentation?
     let documentEditor: DocumentEditor
 
     @ViewBuilder
@@ -253,7 +269,7 @@ struct FormView: View {
             MultiSelectionView(multiSelectionDataModel: model, eventHandler: self, currentFocusedFieldsDataId: currentFocusedFieldsID)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .dropdown(let model):
-            DropdownView(dropdownDataModel: model, eventHandler: self)
+            DropdownView(dropdownDataModel: model, eventHandler: self, activeFieldSheet: $activeFieldSheet)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .textarea(let model):
             MultiLineTextView(multiLineDataModel: model, eventHandler: self)
@@ -284,6 +300,44 @@ struct FormView: View {
         }
     }
 
+    /// Sheet content for whichever field is currently presenting one.
+    /// New sheet-presenting field types get a branch here.
+    @ViewBuilder
+    private func fieldSheet(for fieldID: String) -> some View {
+        dropdownOptionsSheet(for: fieldID)
+    }
+
+    /// Re-resolves the model on every evaluation rather than capturing it, so the option
+    /// list stays live if conditional logic or a formula rewrites `options` while the
+    /// sheet is open.
+    @ViewBuilder
+    private func dropdownOptionsSheet(for fieldID: String) -> some View {
+        if let model = dropdownModel(for: fieldID) {
+            let selection = Binding<String?>(
+                get: { dropdownModel(for: fieldID)?.dropdownValue },
+                set: { newID in
+                    onChange(event: FieldChangeData(fieldIdentifier: model.fieldIdentifier,
+                                                    updateValue: .string(newID ?? "")))
+                }
+            )
+            if #available(iOS 16, *) {
+                DropDownOptionList(dropdownDataModel: model, selectedDropdownValueID: selection)
+                    .presentationDetents([.medium])
+            } else {
+                DropDownOptionList(dropdownDataModel: model, selectedDropdownValueID: selection)
+            }
+        }
+    }
+
+    private func dropdownModel(for fieldID: String) -> DropdownDataModel? {
+        for listModel in listModels where listModel.fieldIdentifier.fieldID == fieldID {
+            if case .dropdown(let model) = listModel.model {
+                return model
+            }
+        }
+        return nil
+    }
+
     var body: some View {
         ScrollViewReader { proxy in
             List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
@@ -295,6 +349,9 @@ struct FormView: View {
             }
             .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
             .listStyle(PlainListStyle())
+            .sheet(item: $activeFieldSheet) { presentation in
+                fieldSheet(for: presentation.id)
+            }
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
                 guard newValue != nil else { return }

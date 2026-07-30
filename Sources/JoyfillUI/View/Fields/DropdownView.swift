@@ -1,42 +1,32 @@
 import SwiftUI
 import JoyfillModel
 
-// 1. A lightweight presentation token that decouples from active memory pointers
-enum DropdownPresentationState: Identifiable {
-    case active(model: DropdownDataModel)
-    
-    var id: String {
-        switch self {
-        case .active(let model):
-            return model.fieldIdentifier.fieldID
-        }
-    }
-}
-
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
-    @State private var presentationState: DropdownPresentationState? = nil
+    /// The row does not own its sheet — see `FieldSheetPresentation` in FormView.
+    @Binding var activeFieldSheet: FieldSheetPresentation?
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dropdownDataModel: DropdownDataModel
 
     let eventHandler: FieldChangeEvents
 
-    public init(dropdownDataModel: DropdownDataModel, eventHandler: FieldChangeEvents) {
+    public init(dropdownDataModel: DropdownDataModel, eventHandler: FieldChangeEvents, activeFieldSheet: Binding<FieldSheetPresentation?>) {
         self.eventHandler = eventHandler
         self.dropdownDataModel = dropdownDataModel
+        self._activeFieldSheet = activeFieldSheet
         if let value = dropdownDataModel.dropdownValue {
             _selectedDropdownValueID = State(initialValue: value)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true)) { decorator in
                 eventHandler.onDecoratorAction(event: dropdownDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
             Button(action: {
+                activeFieldSheet = FieldSheetPresentation(id: dropdownDataModel.fieldIdentifier.fieldID)
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
-                presentationState = .active(model: dropdownDataModel)
             }, label: {
                 HStack {
                     Text(dropdownDataModel.options?.filter {
@@ -52,33 +42,11 @@ struct DropdownView: View {
                 .frame(height: 40)
             })
             .accessibilityIdentifier("Dropdown")
-            .buttonStyle(BorderlessButtonStyle())
             .fieldBorder(isFocused: navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID)
         }
-        .sheet(item: $presentationState) { state in
-            switch state {
-            case .active(let model):
-                if #available(iOS 16, *) {
-                    DropDownOptionList(
-                        dropdownDataModel: model,
-                        initialSelectionID: selectedDropdownValueID,
-                        onSelectionChanged: { newID in
-                            self.selectedDropdownValueID = newID
-                        }
-                    )
-                    .presentationDetents([.medium])
-                } else {
-                    DropDownOptionList(
-                        dropdownDataModel: model,
-                        initialSelectionID: selectedDropdownValueID,
-                        onSelectionChanged: { newID in
-                            self.selectedDropdownValueID = newID
-                        }
-                    )
-                }
-            }
-        }
         .onChange(of: selectedDropdownValueID) { newValue in
+            // Skip if @State already matches the model — means this fire came from a
+            // programmatic sync, not a user tap. Prevents an echo loop.
             if newValue == dropdownDataModel.dropdownValue {
                 return
             }
@@ -98,15 +66,13 @@ struct DropdownView: View {
 struct DropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
     private var dropdownDataModel: DropdownDataModel
-    @State private var currentSelectionID: String?
-    let onSelectionChanged: (String?) -> Void
-    
-    public init(dropdownDataModel: DropdownDataModel, initialSelectionID: String?, onSelectionChanged: @escaping (String?) -> Void) {
+    @Binding var selectedDropdownValueID: String?
+
+    public init(dropdownDataModel: DropdownDataModel, selectedDropdownValueID: Binding<String?>) {
         self.dropdownDataModel = dropdownDataModel
-        self._currentSelectionID = State(initialValue: initialSelectionID)
-        self.onSelectionChanged = onSelectionChanged
+        self._selectedDropdownValueID = selectedDropdownValueID
     }
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -118,25 +84,20 @@ struct DropDownOptionList: View {
                         .imageScale(.large)
                 })
                 .padding(.horizontal, 16)
-                .buttonStyle(BorderlessButtonStyle())
             }
             ScrollView {
                 if let options = dropdownDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(options) { option in
                         Button(action: {
-                            let targetedID = (currentSelectionID == option.id) ? nil : option.id
-                            
-                            // 1. Update sheet view local state layout immediately
-                            currentSelectionID = targetedID
-                            
-                            // 2. Safely bubble values back to the core parent object
-                            onSelectionChanged(targetedID)
-                            
-                            // 3. Close the modal view cleanly
+                            if selectedDropdownValueID == option.id {
+                                selectedDropdownValueID = nil
+                            } else {
+                                selectedDropdownValueID = option.id
+                            }
                             presentationMode.wrappedValue.dismiss()
                         }, label: {
                             HStack(alignment: .top) {
-                                Image(systemName: (currentSelectionID == option.id) ? "checkmark.circle.fill" : "circle")
+                                Image(systemName: (selectedDropdownValueID == option.id) ? "checkmark.circle.fill" : "circle")
                                     .padding(.top, 4)
                                 Text(option.value ?? "")
                                     .darkLightThemeColor()
@@ -145,9 +106,8 @@ struct DropDownOptionList: View {
                             }
                             .padding(.horizontal, 28)
                             .padding(.vertical, 10)
-                            .contentShape(Rectangle()) // Ensures tap stability across the entire row
+                            .contentShape(Rectangle())
                         })
-                        .buttonStyle(BorderlessButtonStyle())
                         .accessibilityIdentifier("DropdownoptionIdentifier")
                         Divider()
                             .padding(.horizontal, 16)
