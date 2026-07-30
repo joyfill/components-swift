@@ -232,17 +232,8 @@ extension FieldListModelType {
     }
 }
 
-/// Identifies which field's modal sheet is currently open, by field id.
-///
-/// Sheets for fields inside `FormView`'s `List` must be anchored on the `List`,
-/// not on the row that triggers them: `List` is backed by `UITableView`, which
-/// recycles a row's hosting controller as it scrolls off and back on screen, and
-/// a row-owned `.sheet` can be orphaned by that recycling and stop presenting
-/// entirely (NO-1508). The `List` itself is never recycled.
-///
-/// Only `DropdownView` is hoisted today. `ImageView` has the same row-owned-sheet
-/// shape and can adopt this by writing its field id here instead of flipping a
-/// local flag, plus a branch in `fieldSheet(for:)`.
+/// Which field's sheet is open. Must live on FormView's List, never on a row —
+/// UITableView recycling orphans row-owned sheets and kills them (NO-1508).
 struct FieldSheetPresentation: Identifiable {
     let id: String
 }
@@ -300,16 +291,13 @@ struct FormView: View {
         }
     }
 
-    /// Sheet content for whichever field is currently presenting one.
-    /// New sheet-presenting field types get a branch here.
+    /// Sheet content for the presenting field. ImageView can add a branch here.
     @ViewBuilder
     private func fieldSheet(for fieldID: String) -> some View {
         dropdownOptionsSheet(for: fieldID)
     }
 
-    /// Re-resolves the model on every evaluation rather than capturing it, so the option
-    /// list stays live if conditional logic or a formula rewrites `options` while the
-    /// sheet is open.
+    /// Re-resolves rather than captures, so options stay live while the sheet is open.
     @ViewBuilder
     private func dropdownOptionsSheet(for fieldID: String) -> some View {
         if let model = dropdownModel(for: fieldID) {
