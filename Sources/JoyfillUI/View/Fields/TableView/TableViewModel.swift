@@ -32,70 +32,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return decoratorsWidth + CGFloat(tableDataModel.tableColumns.count) * Utility.singleColumnWidth
     }
 
-    /// Per-cell required-ness for the live grid border. Honours `cellRequiredLogic`
-    /// (resolved against this row's sibling cells), then the column's `requiredLogic`,
-    /// then the static `required` flag. Falls back to the column-wide set if the row
-    /// value can't be resolved.
-    func isCellRequired(columnID: String, rowID: String) -> Bool {
-        return isCellRequired(columnID: columnID, row: rowElement(forRowID: rowID))
-    }
-
-    func rowElement(forRowID rowID: String) -> ValueElement? {
-        tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
-    }
-
-    func isCellRequired(columnID: String, row: ValueElement?) -> Bool {
-        guard let documentEditor = tableDataModel.documentEditor, let row = row else {
-            return tableDataModel.requiredColumnIDs.contains(columnID)
-        }
-        return documentEditor.isCellRequired(
-            columnID: columnID,
-            fieldID: tableDataModel.fieldIdentifier.fieldID,
-            row: row
-        )
-    }
-
-    func isCellHidden(columnID: String, row: ValueElement?) -> Bool {
-        guard let documentEditor = tableDataModel.documentEditor, let row = row else { return false }
-        return !documentEditor.shouldShowCell(
-            columnID: columnID,
-            fieldID: tableDataModel.fieldIdentifier.fieldID,
-            row: row
-        )
-    }
-
-    func applyCellVisibilityRefresh(rowId: String, editedColumnID: String) {
-        guard let documentEditor = tableDataModel.documentEditor,
-              let row = rowElement(forRowID: rowId) else { return }
-        let flippedColumnIDs = documentEditor.cellsNeedToBeRefreshed(
-            fieldID: tableDataModel.fieldIdentifier.fieldID,
-            editedColumnID: editedColumnID,
-            row: row
-        )
-        guard !flippedColumnIDs.isEmpty else { return }
-        let hiddenByColumn = Dictionary(uniqueKeysWithValues:
-            flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
-        applyVisibilityFlip(hiddenByRow: [rowId: hiddenByColumn])
-    }
-
-    private func applyVisibilityFlip(hiddenByRow: [String: [String: Bool]]) {
-        applyVisibilityFlip(to: &tableDataModel.cellModels, hiddenByRow: hiddenByRow)
-        applyVisibilityFlip(to: &tableDataModel.filteredcellModels, hiddenByRow: hiddenByRow)
-    }
-
-    private func applyVisibilityFlip(to models: inout [RowDataModel], hiddenByRow: [String: [String: Bool]]) {
-        for rowIndex in models.indices {
-            guard let hiddenByColumn = hiddenByRow[models[rowIndex].rowID] else { continue }
-            for colIndex in models[rowIndex].cells.indices {
-                var cell = models[rowIndex].cells[colIndex]
-                guard let hidden = hiddenByColumn[cell.data.id], cell.isHidden != hidden else { continue }
-                cell.isHidden = hidden
-                cell.id = UUID()
-                models[rowIndex].cells[colIndex] = cell
-            }
-        }
-    }
-
     private func refreshRowDecoratorMap() {
         guard let field = tableDataModel.documentEditor?.field(fieldID: tableDataModel.fieldIdentifier.fieldID) else { return }
         tableDataModel.setTableRowDecorators(rowDecorators: field.rowDecorators, rows: tableDataModel.valueToValueElements ?? [])
@@ -619,6 +555,85 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 }
 
+// MARK: - Required and Cell Visibility Logic
+extension TableViewModel {
+    /// Per-cell required-ness for the live grid border. Honours `cellRequiredLogic`
+    /// (resolved against this row's sibling cells), then the column's `requiredLogic`,
+    /// then the static `required` flag. Falls back to the column-wide set if the row
+    /// value can't be resolved.
+    func isCellRequired(columnID: String, rowID: String) -> Bool {
+        return isCellRequired(columnID: columnID, row: rowElement(forRowID: rowID))
+    }
+
+    func rowElement(forRowID rowID: String) -> ValueElement? {
+        tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
+    }
+
+    func isCellRequired(columnID: String, row: ValueElement?) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor, let row = row else {
+            return tableDataModel.requiredColumnIDs.contains(columnID)
+        }
+        return documentEditor.isCellRequired(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            row: row
+        )
+    }
+
+    func isCellHidden(columnID: String, row: ValueElement?) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor, let row = row else { return false }
+        return !documentEditor.shouldShowCell(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            row: row
+        )
+    }
+
+    func applyCellVisibilityRefresh(rowId: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowElement(forRowID: rowId) else { return }
+        let flippedColumnIDs = documentEditor.cellsNeedToBeRefreshed(
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            editedColumnID: editedColumnID,
+            row: row
+        )
+        guard !flippedColumnIDs.isEmpty else { return }
+        let hiddenByColumn = Dictionary(uniqueKeysWithValues:
+            flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
+        applyVisibilityFlip(hiddenByRow: [rowId: hiddenByColumn])
+    }
+
+    func cellVisibilityDidChange(columnIDs: Set<String>) {
+        guard !columnIDs.isEmpty else { return }
+        var hiddenByRow = [String: [String: Bool]]()
+        for row in tableDataModel.valueToValueElements ?? [] {
+            guard let rowID = row.id else { continue }
+            hiddenByRow[rowID] = Dictionary(uniqueKeysWithValues:
+                columnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
+        }
+        applyVisibilityFlip(hiddenByRow: hiddenByRow)
+        uuid = UUID()
+    }
+
+    private func applyVisibilityFlip(hiddenByRow: [String: [String: Bool]]) {
+        applyVisibilityFlip(to: &tableDataModel.cellModels, hiddenByRow: hiddenByRow)
+        applyVisibilityFlip(to: &tableDataModel.filteredcellModels, hiddenByRow: hiddenByRow)
+    }
+
+    private func applyVisibilityFlip(to models: inout [RowDataModel], hiddenByRow: [String: [String: Bool]]) {
+        for rowIndex in models.indices {
+            guard let hiddenByColumn = hiddenByRow[models[rowIndex].rowID] else { continue }
+            for colIndex in models[rowIndex].cells.indices {
+                var cell = models[rowIndex].cells[colIndex]
+                guard let hidden = hiddenByColumn[cell.data.id], cell.isHidden != hidden else { continue }
+                cell.isHidden = hidden
+                cell.id = UUID()
+                models[rowIndex].cells[colIndex] = cell
+            }
+        }
+    }
+}
+
 // MARK: - DocumentEditorDelegate methods
 extension TableViewModel: DocumentEditorDelegate {
     
@@ -741,18 +756,6 @@ extension TableViewModel: DocumentEditorDelegate {
             tableDataModel.valueToValueElements = field.valueToValueElements
             refreshRowDecoratorMap()
         }
-    }
-
-    func cellVisibilityDidChange(columnIDs: Set<String>) {
-        guard !columnIDs.isEmpty else { return }
-        var hiddenByRow = [String: [String: Bool]]()
-        for row in tableDataModel.valueToValueElements ?? [] {
-            guard let rowID = row.id else { continue }
-            hiddenByRow[rowID] = Dictionary(uniqueKeysWithValues:
-                columnIDs.map { ($0, isCellHidden(columnID: $0, row: row)) })
-        }
-        applyVisibilityFlip(hiddenByRow: hiddenByRow)
-        uuid = UUID()
     }
 
     func applyRowEditChanges(change: Change) {
