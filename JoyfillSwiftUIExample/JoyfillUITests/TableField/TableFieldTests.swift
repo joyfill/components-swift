@@ -1346,10 +1346,11 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         let row = try XCTUnwrap(change["row"] as? [String: Any])
         let cells  = try XCTUnwrap(row["cells"] as? [String: Any],
                                    "Missing ‘cells’ dictionary")
-        let valueForQuKey = try XCTUnwrap(cells["66e3eca9c0c6bf8bef669d21"] as? String,
-                                          "Expected a String for the ‘qu’ key")
-        XCTAssertEqual(valueForQuKey, "qu")
-        XCTAssertEqual(cells.count, 2)
+        // Each cell edit is reported as its own change, so the last one carries the dropdown only
+        let valueForDropdownKey = try XCTUnwrap(cells["66e3eca984ddabde6a6f469d"] as? String,
+                                               "Expected a String for the dropdown key")
+        XCTAssertEqual(valueForDropdownKey, "66e3eca98947c2cc0ff8d39c")
+        XCTAssertEqual(cells.count, 1)
         XCTAssertNotNil(newRow["_id"])
     }
     
