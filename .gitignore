@@ -12,3 +12,4 @@ JoyfillUIKitExample/JoyfillUIKitExample.xcodeproj/xcuserdata/vikash.xcuserdatad/
 /.build
 *.xcbkptlist
 /JoyfillSwiftUIExample/build
+.DS_Store
