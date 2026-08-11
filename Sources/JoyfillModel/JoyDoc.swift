@@ -1275,6 +1275,11 @@ public struct Schema {
         get { dictionary["decorate"] as? Bool }
         set { dictionary["decorate"] = newValue }
     }
+
+    public var editability: [String]? {
+        get { dictionary["editability"] as? [String] }
+        set { dictionary["editability"] = newValue }
+    }
 }
 
 // MARK: - ValueElement
