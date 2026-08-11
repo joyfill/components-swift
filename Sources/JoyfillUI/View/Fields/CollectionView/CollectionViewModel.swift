@@ -32,7 +32,36 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func showSingleClickEditButton(for tableDataModel: TableDataModel) -> Bool {
-        return tableDataModel.singleClickRowEdit
+        return tableDataModel.singleClickRowEdit && tableDataModel.reservesEditIconSlot
+    }
+
+    /// Edit mode for cells rendered in the grid at `schemaKey`. Distinct from `tableDataModel.mode`,
+    /// which still governs the row form so a `form`-only schema stays editable there.
+    /// Hoist out of per-row loops: it is invariant for a given schema.
+    func gridEditMode(for tableDataModel: TableDataModel, schemaKey: String) -> Mode {
+        guard tableDataModel.mode == .fill else { return .readonly }
+        return tableDataModel.editability(forSchemaKey: schemaKey).inlineAllowed ? .fill : .readonly
+    }
+
+    func canOpenRowForm(forSchemaKey schemaKey: String) -> Bool {
+        return tableDataModel.editability(forSchemaKey: schemaKey).formAllowed
+    }
+
+    /// Selection is constrained to one parent and one schema, so the first selected row
+    /// identifies the schema the whole selection belongs to.
+    var selectionSchemaKey: String {
+        guard let firstSelectedRowID = tableDataModel.selectedRows.first,
+              let row = tableDataModel.getRowByID(rowID: firstSelectedRowID) else {
+            return rootSchemaKey
+        }
+        let schemaKey = row.rowType.parentSchemaKey
+        return schemaKey.isEmpty ? rootSchemaKey : schemaKey
+    }
+
+    /// A single selected row opens the row form; multiple rows open bulk edit. They are gated separately.
+    var showEditRowsMenuItem: Bool {
+        let flags = tableDataModel.editability(forSchemaKey: selectionSchemaKey)
+        return tableDataModel.selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
     }
 
     func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
@@ -518,6 +547,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
         var rowCellModels = [TableCellModel]()
+        let gridEditMode = gridEditMode(for: tableDataModel, schemaKey: schemaKey)
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
                 
@@ -527,7 +557,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode,
+                                               editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                 }) { cellDataModel in
@@ -588,6 +618,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows(tableDataModel: tableDataModel)
         let rowToChildrenMap = setupRowsChildrens(tableDataModel: tableDataModel)
+        let gridEditMode = gridEditMode(for: tableDataModel, schemaKey: rootSchemaKey)
         tableDataModel.valueToValueElements?.forEach { valueElement in
             if valueElement.deleted ?? false { return }
             guard let rowID = valueElement.id else {
@@ -606,7 +637,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode,
+                                                   editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { cellDataModel in
@@ -625,6 +656,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let rowDataMap = self.setupRows(tableDataModel: tableDataModel)
         let rowToChildrenMap = self.setupRowsChildrens(tableDataModel: tableDataModel)
         let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
+        let gridEditMode = gridEditMode(for: tableDataModel, schemaKey: rootSchemaKey)
         var displayIndex = 1
         for valueElement in rootRows {
             guard let rowID = valueElement.id else {
@@ -643,7 +675,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode,
+                                                   editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { cellDataModel in
@@ -699,6 +731,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel], tableDataModel: TableDataModel) {
         // Add all nested rows for this schema
         let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
+        let gridEditMode = gridEditMode(for: tableDataModel, schemaKey: childSchemaKey)
         var displayIndex = 1
         for childRow in nonDeletedChildRows {
             guard let childRowID = childRow.id else { continue }
@@ -716,7 +749,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode,
+                                               editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: childRowID, columnID: cellDataModel.id)
                 }) { cellDataModel in
@@ -888,7 +921,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
                     !(valueElement.deleted ?? false)
                 } ?? []
-                
+                let gridEditMode = gridEditMode(for: tableDataModel, schemaKey: schemaValue?.0 ?? "")
+
                 var displayIndex = 1
                 for valueElement in valueToValueElements {
                     guard let row = rowToValueElementMap[valueElement.id ?? ""] else { continue }
@@ -901,7 +935,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
-                                                       editMode: tableDataModel.mode,
+                                                       editMode: gridEditMode,
                                                        didFocusBlur: { [weak self] action, cellDataModel in
                             self?.emitCellFocusBlur(action: action, rowID: row.id ?? "", columnID: cellDataModel.id)
                         }) { cellDataModel in

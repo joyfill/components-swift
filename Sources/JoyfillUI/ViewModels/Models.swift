@@ -256,6 +256,7 @@ struct TableDataModel {
             buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
+                self.editabilityMap[key] = EditabilityFlags(rawValues: value.editability)
                 self.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
                 if value.root == true {
                     //Only top level columns

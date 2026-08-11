@@ -96,17 +96,17 @@ struct CollectionModalView : View {
             
             // Same collection, handle row change
             if let rowId = event.rowId, !rowId.isEmpty {
-                let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
-                if rowIdExists {
+                if let rowSchemaKey = viewModel.getSchemaForRow(rowId: rowId) {
                     let rowFound = viewModel.expandToRow(rowId: rowId)
                     if rowFound {
+                        let openRowForm = event.openRowForm && viewModel.canOpenRowForm(forSchemaKey: rowSchemaKey)
                         viewModel.tableDataModel.selectedRows = [rowId]
                         viewModel.tableDataModel.navigationIntent = NavigationIntent(
-                            rowFormOpenedViaGoto: event.openRowForm,
+                            rowFormOpenedViaGoto: openRowForm,
                             scrollToColumnId: event.columnId,
                             focusColumnId: event.focus ? event.columnId : nil
                         )
-                        showEditMultipleRowsSheetView = event.openRowForm
+                        showEditMultipleRowsSheetView = openRowForm
                     }
                 } else {
                     viewModel.tableDataModel.navigationIntent = .none
@@ -620,18 +620,25 @@ struct CollectionRowsHeaderView: View {
                         .border(Color.tableCellBorderColor)
                 }
                 if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
-                    Image(systemName: "square.and.pencil")
-                        .foregroundColor(.blue)
-                        .frame(width: 40, height: 60)
-                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                        .border(Color.tableCellBorderColor)
-                        .onTapGesture {
-                            viewModel.tableDataModel.emptySelection()
-                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                            viewModel.tableDataModel.navigationIntent = .none
-                            showEditMultipleRowsSheetView = true
-                        }
-                        .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
+                    if viewModel.canOpenRowForm(forSchemaKey: parentSchemaKey) {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(.blue)
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                            .onTapGesture {
+                                viewModel.tableDataModel.emptySelection()
+                                viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                                viewModel.tableDataModel.navigationIntent = .none
+                                showEditMultipleRowsSheetView = true
+                            }
+                            .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
+                    } else {
+                        Color.clear
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                    }
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
@@ -668,18 +675,25 @@ struct CollectionRowsHeaderView: View {
                         .border(Color.tableCellBorderColor)
                 }
                 if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
-                    Image(systemName: "square.and.pencil")
-                        .foregroundColor(.blue)
-                        .frame(width: 40, height: 60)
-                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                        .border(Color.tableCellBorderColor)
-                        .onTapGesture {
-                            viewModel.tableDataModel.emptySelection()
-                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                            viewModel.tableDataModel.navigationIntent = .none
-                            showEditMultipleRowsSheetView = true
-                        }
-                        .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
+                    if viewModel.canOpenRowForm(forSchemaKey: viewModel.rootSchemaKey) {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(.blue)
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                            .onTapGesture {
+                                viewModel.tableDataModel.emptySelection()
+                                viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                                viewModel.tableDataModel.navigationIntent = .none
+                                showEditMultipleRowsSheetView = true
+                            }
+                            .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
+                    } else {
+                        Color.clear
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                    }
                 }
                 if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
                     RowDecoratorMenuView(
