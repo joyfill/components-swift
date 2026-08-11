@@ -73,18 +73,20 @@ struct TableModalTopNavigationView: View {
                                 
                             }
                             
-                            Button(action: {
-                                showingPopover = false
-                                onEditTap?()
-                            }) {
-                                Text("Edit \(rowTitle)")
-                                    .foregroundStyle(.blue)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
+                            if viewModel.showEditRowsMenuItem {
+                                Button(action: {
+                                    showingPopover = false
+                                    onEditTap?()
+                                }) {
+                                    Text("Edit \(rowTitle)")
+                                        .foregroundStyle(.blue)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
+                                .accessibilityIdentifier("TableEditRowsIdentifier")
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.top, viewModel.tableDataModel.selectedRows.count > 1 ? 16 : 0)
-                            .accessibilityIdentifier("TableEditRowsIdentifier")
                             
                             Button(action: {
                                 showingPopover = false
@@ -157,17 +159,19 @@ struct TableModalTopNavigationView: View {
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
                             }
-                            Button(action: {
-                                showingPopover = false
-                                onEditTap?()
-                            }) {
-                                Text("Edit \(rowTitle)")
-                                    .foregroundStyle(.blue)
-                                    .font(.system(size: 14))
-                                    .frame(height: 27)
+                            if viewModel.showEditRowsMenuItem {
+                                Button(action: {
+                                    showingPopover = false
+                                    onEditTap?()
+                                }) {
+                                    Text("Edit \(rowTitle)")
+                                        .foregroundStyle(.blue)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
+                                }
+                                .padding(.horizontal, 16)
+                                .accessibilityIdentifier("TableEditRowsIdentifier")
                             }
-                            .padding(.horizontal, 16)
-                            .accessibilityIdentifier("TableEditRowsIdentifier")
 
                             Button(action: {
                                 viewModel.deleteSelectedRow()

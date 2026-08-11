@@ -20,7 +20,25 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var uuid = UUID()
     
     var showSingleClickEditButton: Bool {
-        return tableDataModel.singleClickRowEdit
+        return tableDataModel.singleClickRowEdit && tableDataModel.reservesEditIconSlot
+    }
+
+    /// Edit mode for cells rendered in the grid. Distinct from `tableDataModel.mode`, which still
+    /// governs the row form so a `form`-only field stays editable there.
+    /// Hoist out of per-row loops.
+    var gridEditMode: Mode {
+        guard tableDataModel.mode == .fill else { return .readonly }
+        return tableDataModel.editability(forSchemaKey: nil).inlineAllowed ? .fill : .readonly
+    }
+
+    var canOpenRowForm: Bool {
+        return tableDataModel.editability(forSchemaKey: nil).formAllowed
+    }
+
+    /// A single selected row opens the row form; multiple rows open bulk edit. They are gated separately.
+    var showEditRowsMenuItem: Bool {
+        let flags = tableDataModel.editability(forSchemaKey: nil)
+        return tableDataModel.selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
     }
 
     var showRowDecorators: Bool {
@@ -62,6 +80,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
         var rowCellModels = [TableCellModel]()
+        let gridEditMode = self.gridEditMode
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
@@ -70,7 +89,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode,
+                                               editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                 }) { [weak self] cellDataModel in
@@ -111,6 +130,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
+        let gridEditMode = self.gridEditMode
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
@@ -123,7 +143,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                     documentEditor: tableDataModel.documentEditor,
                                                     fieldIdentifier: tableDataModel.fieldIdentifier,
                                                     viewMode: .modalView,
-                                                    editMode: tableDataModel.mode,
+                                                    editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { [weak self] cellDataModel in

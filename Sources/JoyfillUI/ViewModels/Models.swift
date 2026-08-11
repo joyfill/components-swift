@@ -46,6 +46,37 @@ struct RowDataModel: Equatable, Hashable {
     }
 }
 
+/// Resolved form of a field's or schema's `editability` array. Resolved once at
+/// `TableDataModel` init so no render or cell-build path re-reads the raw dictionary.
+struct EditabilityFlags: Equatable {
+    let inlineAllowed: Bool
+    let formAllowed: Bool
+
+    static let `default` = EditabilityFlags(inlineAllowed: true, formAllowed: true)
+
+    /// An empty or absent array means both surfaces are allowed. Unrecognized values are ignored,
+    /// and an array containing only unrecognized values falls back to the default.
+    init(rawValues: [String]?) {
+        guard let rawValues, !rawValues.isEmpty else {
+            self = .default
+            return
+        }
+        let inline = rawValues.contains("inline")
+        let form = rawValues.contains("form")
+        guard inline || form else {
+            self = .default
+            return
+        }
+        self.inlineAllowed = inline
+        self.formAllowed = form
+    }
+
+    private init(inlineAllowed: Bool, formAllowed: Bool) {
+        self.inlineAllowed = inlineAllowed
+        self.formAllowed = formAllowed
+    }
+}
+
 enum RowType: Equatable {
     case row(index: Int)
     case header(level: Int, tableColumns: [FieldTableColumn], schemaKey: String)
@@ -160,6 +191,10 @@ struct TableDataModel {
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
+    /// Keyed by schema key for collections, by field ID for tables. Read only through `editability(forSchemaKey:)`.
+    private(set) var editabilityMap: [String: EditabilityFlags] = [:]
+    /// True when any schema allows the row form, so the edit-icon gutter slot keeps one width across all levels.
+    private(set) var reservesEditIconSlot: Bool = true
     var tableRowDecorators: [String: [DecoratorLocal]] = [:] // Both Row specific and common row decorators are combined
     var tableCellDecorators: [String: [DecoratorLocal]] = [:] // Both Cell specific and common column decorators are combined
     var tableCommonCellDecorators: [String: [DecoratorLocal]] = [:] // columnId
@@ -249,7 +284,9 @@ struct TableDataModel {
                     }
                 }
             }
+            self.editabilityMap[fieldIdentifier.fieldID] = EditabilityFlags(rawValues: fieldData.editability)
         }
+        self.reservesEditIconSlot = editabilityMap.isEmpty || editabilityMap.values.contains { $0.formAllowed }
         setupColumns()
         filterRowsIfNeeded()
         self.id = fieldIdentifier.fieldID + ":" + filterModels.map { $0.colID }.sorted().joined(separator: ",")
@@ -448,6 +485,13 @@ struct TableDataModel {
 
     func hasAnyRowDecorators(schemaKey: String) -> Bool {
         return schema[schemaKey]?.decorate == true
+    }
+
+    /// Tables hold a single entry keyed by field ID, so `schemaKey` is ignored for them.
+    /// Hoist calls out of per-row loops: the result is invariant for a given schema.
+    func editability(forSchemaKey schemaKey: String?) -> EditabilityFlags {
+        let key = fieldType == .table ? fieldIdentifier.fieldID : (schemaKey ?? "")
+        return editabilityMap[key] ?? .default
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {

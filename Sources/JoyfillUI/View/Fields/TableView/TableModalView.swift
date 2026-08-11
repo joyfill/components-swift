@@ -104,13 +104,14 @@ struct TableModalView : View {
             if let rowId = event.rowId, !rowId.isEmpty {
                 let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
                 if rowIdExists {
+                    let openRowForm = event.openRowForm && viewModel.canOpenRowForm
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.navigationIntent = NavigationIntent(
-                        rowFormOpenedViaGoto: event.openRowForm,
+                        rowFormOpenedViaGoto: openRowForm,
                         scrollToColumnId: event.columnId,
                         focusColumnId: event.focus ? event.columnId : nil
                     )
-                    showEditMultipleRowsSheetView = event.openRowForm
+                    showEditMultipleRowsSheetView = openRowForm
                 } else {
                     viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = false
