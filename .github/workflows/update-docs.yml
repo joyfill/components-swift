@@ -15,6 +15,9 @@ on:
         required: true
         default: "### Added\n- Custom test feature 1\n- Custom test feature 2"
 
+permissions:
+  contents: read
+
 jobs:
   create-docs-pr:
     name: 'Create Docs PR'
