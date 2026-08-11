@@ -573,6 +573,13 @@ public struct JoyDocField: Equatable {
         get { (dictionary["tableColumns"] as? [[String: Any]])?.compactMap(FieldTableColumn.init) ?? [] }
         set { dictionary["tableColumns"] = newValue?.compactMap{ $0.dictionary } }
     }
+
+    /// Which editing surfaces a table row exposes: `inline` (the grid) and/or `form` (the row form).
+    /// Empty or absent means both are allowed.
+    public var editability: [String]? {
+        get { dictionary["editability"] as? [String] }
+        set { dictionary["editability"] = newValue }
+    }
     
     public var schema: [String : Schema]? {
         get {
