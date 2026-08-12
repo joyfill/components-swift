@@ -137,11 +137,11 @@ final class CellVisibilityLogicTest: XCTestCase {
         ])
     }
 
-    private func externalFieldUpdate(fieldID: String, value: Any) -> Change {
+    private func externalFieldUpdate(fieldID: String, value: Any, pageID: String? = nil) -> Change {
         Change(dictionary: [
             "target": "field.update",
             "fieldId": fieldID,
-            "pageId": pageID,
+            "pageId": pageID ?? self.pageID,
             "fileId": fileID,
             "change": ["value": value]
         ])
@@ -356,10 +356,11 @@ final class CellVisibilityLogicTest: XCTestCase {
 
     // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
 
-    private func tableViewModel(_ editor: DocumentEditor) -> TableViewModel {
-        let field = editor.field(fieldID: tableFieldID)
+    private func tableViewModel(_ editor: DocumentEditor, fieldID: String? = nil, pageID: String? = nil) -> TableViewModel {
+        let resolvedFieldID = fieldID ?? tableFieldID
+        let field = editor.field(fieldID: resolvedFieldID)
         let fieldHeaderModel = FieldHeaderModel(title: field?.title, required: field?.required, tipDescription: field?.tipDescription, tipTitle: field?.tipTitle, tipVisible: field?.tipVisible, visibleLimitInFields: editor.decoratorConfig.visibleLimitInFields)
-        let tableDataModel = TableDataModel(fieldHeaderModel: fieldHeaderModel, mode: .fill, documentEditor: editor, fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))!
+        let tableDataModel = TableDataModel(fieldHeaderModel: fieldHeaderModel, mode: .fill, documentEditor: editor, fieldIdentifier: FieldIdentifier(fieldID: resolvedFieldID, pageID: pageID ?? self.pageID, fileID: fileID))!
         return TableViewModel(tableDataModel: tableDataModel)
     }
 
@@ -1085,8 +1086,9 @@ final class CellVisibilityLogicTest: XCTestCase {
         return find(editor.field(fieldID: collectionFieldID)!.valueToValueElements ?? [])!
     }
 
-    private func collectionViewModel(_ editor: DocumentEditor) -> CollectionViewModel {
-        let field = editor.field(fieldID: collectionFieldID)
+    private func collectionViewModel(_ editor: DocumentEditor, fieldID: String? = nil, pageID: String? = nil) -> CollectionViewModel {
+        let resolvedFieldID = fieldID ?? collectionFieldID
+        let field = editor.field(fieldID: resolvedFieldID)
         let fieldHeaderModel = FieldHeaderModel(title: field?.title,
                                                 required: field?.required,
                                                 tipDescription: field?.tipDescription,
@@ -1096,7 +1098,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         let tableDataModel = TableDataModel(fieldHeaderModel: fieldHeaderModel,
                                             mode: .fill,
                                             documentEditor: editor,
-                                            fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID))!
+                                            fieldIdentifier: FieldIdentifier(fieldID: resolvedFieldID, pageID: pageID ?? self.pageID, fileID: fileID))!
         return CollectionViewModel(tableDataModel: tableDataModel)
     }
 
@@ -1614,6 +1616,273 @@ final class CellVisibilityLogicTest: XCTestCase {
             .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
         XCTAssertEqual(status, .valid,
                        "An empty required nested cell must be valid while conditional logic hides it")
+    }
+
+    // MARK: - Page duplication
+
+    private func buildPageDuplicationVisibilityDocument(pageValue: String) -> JoyDoc {
+        let logic = pageFieldCellLogic(isShow: true, pageFieldID: pageTextFieldID, value: .string("Yes"))
+
+        var pageField = JoyDocField()
+        pageField.type = "text"
+        pageField.id = pageTextFieldID
+        pageField.identifier = "field_\(pageTextFieldID)"
+        pageField.file = fileID
+        pageField.value = .string(pageValue)
+
+        let tableColumns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic)
+        ]
+        var tableField = JoyDocField()
+        tableField.type = "table"
+        tableField.id = tableFieldID
+        tableField.identifier = "field_\(tableFieldID)"
+        tableField.file = fileID
+        tableField.tableColumns = tableColumns
+        tableField.tableColumnOrder = tableColumns.compactMap(\.id)
+        tableField.rowOrder = [row1ID]
+        tableField.value = .valueElementArray([
+            row(id: row1ID, cells: [statusColumnID: "Pending", reasonColumnID: "Table reason"])
+        ])
+
+        let rootColumns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic).dictionary
+        ]
+        let childColumns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic).dictionary
+        ]
+        var collectionField = JoyDocField()
+        collectionField.type = "collection"
+        collectionField.id = collectionFieldID
+        collectionField.identifier = "field_\(collectionFieldID)"
+        collectionField.file = fileID
+        collectionField.dictionary["schema"] = [
+            collRootSchema: [
+                "title": "Root",
+                "root": true,
+                "children": [collChildSchema],
+                "tableColumns": rootColumns
+            ] as [String: Any],
+            collChildSchema: [
+                "title": "Child",
+                "root": false,
+                "children": [String](),
+                "tableColumns": childColumns
+            ] as [String: Any]
+        ]
+        collectionField.value = .valueElementArray([ValueElement(dictionary: collRootRow(
+            id: collRootRow1,
+            status: "Pending",
+            children: [collChildRow(id: collChildRow1, status: "Pending")]
+        ))])
+
+        return JoyDoc(dictionary: [
+            "_id": "dup-visibility-doc",
+            "files": [[
+                "_id": fileID,
+                "pageOrder": [pageID],
+                "pages": [[
+                    "_id": pageID,
+                    "fieldPositions": [
+                        ["_id": "fp-page-trigger", "field": pageTextFieldID, "type": "text"],
+                        ["_id": "fp-table", "field": tableFieldID, "type": "table"],
+                        ["_id": "fp-collection", "field": collectionFieldID, "type": "collection"]
+                    ]
+                ]]
+            ]],
+            "fields": [pageField.dictionary, tableField.dictionary, collectionField.dictionary]
+        ])
+    }
+
+    private func duplicatedVisibilityFields(
+        _ editor: DocumentEditor
+    ) -> (pageID: String, pageField: JoyDocField, tableField: JoyDocField, collectionField: JoyDocField)? {
+        guard let pageOrder = editor.document.files.first?.pageOrder,
+              let originalIndex = pageOrder.firstIndex(of: pageID),
+              pageOrder.indices.contains(originalIndex + 1) else {
+            return nil
+        }
+        let duplicatedPageID = pageOrder[originalIndex + 1]
+        guard let duplicatedPage = editor.document.files.first?.pages?.first(where: { $0.id == duplicatedPageID }) else {
+            return nil
+        }
+        let fieldIDs = Set(duplicatedPage.fieldPositions?.compactMap(\.field) ?? [])
+        let fields = editor.document.fields.filter { fieldIDs.contains($0.id ?? "") }
+        guard let pageField = fields.first(where: { $0.fieldType == .text }),
+              let tableField = fields.first(where: { $0.fieldType == .table }),
+              let collectionField = fields.first(where: { $0.fieldType == .collection }) else {
+            return nil
+        }
+        return (duplicatedPageID, pageField, tableField, collectionField)
+    }
+
+    private func row(in field: JoyDocField, rowID: String) -> ValueElement? {
+        func find(_ rows: [ValueElement]) -> ValueElement? {
+            for row in rows {
+                if row.id == rowID { return row }
+                if let branches = row.childrens {
+                    for children in branches.values {
+                        if let result = find(children.valueToValueElements ?? []) { return result }
+                    }
+                }
+            }
+            return nil
+        }
+        return find(field.valueToValueElements ?? [])
+    }
+
+    func testDuplicatePageWithValuesUsesCopiedPageValuesForTableAndNestedCollectionVisibility() {
+        let editor = DocumentEditor(
+            document: buildPageDuplicationVisibilityDocument(pageValue: "Yes"),
+            mode: .fill,
+            isPageDuplicateEnabled: true,
+            validateSchema: false
+        )
+
+        editor.duplicatePage(pageID: pageID, copyWithValues: true)
+
+        guard let duplicated = duplicatedVisibilityFields(editor),
+              let duplicatedTableID = duplicated.tableField.id,
+              let duplicatedCollectionID = duplicated.collectionField.id,
+              let duplicatedPageFieldID = duplicated.pageField.id,
+              let tableRow = row(in: duplicated.tableField, rowID: row1ID),
+              let rootRow = row(in: duplicated.collectionField, rowID: collRootRow1),
+              let childRow = row(in: duplicated.collectionField, rowID: collChildRow1) else {
+            XCTFail("Duplicating with values must copy the page field, table row, root row, and nested row")
+            return
+        }
+
+        XCTAssertEqual(duplicated.pageField.value?.text, "Yes", "Page 2 starts with Page 1's copied trigger value")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID, row: tableRow),
+                      "Page 2 table visibility uses its copied page value")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: rootRow),
+                      "Page 2 collection root visibility uses its copied page value")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: childRow),
+                      "Page 2 nested visibility uses its copied page value")
+
+        editor.change(changes: [externalFieldUpdate(
+            fieldID: duplicatedPageFieldID,
+            value: "No",
+            pageID: duplicated.pageID
+        )])
+
+        let updatedTable = editor.field(fieldID: duplicatedTableID)!
+        let updatedCollection = editor.field(fieldID: duplicatedCollectionID)!
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
+                                             row: row(in: updatedTable, rowID: row1ID)!),
+                       "Changing Page 2 hides only Page 2's table reason")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
+                                             row: row(in: updatedCollection, rowID: collRootRow1)!),
+                       "Changing Page 2 hides its collection root reason")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
+                                             row: row(in: updatedCollection, rowID: collChildRow1)!),
+                       "Changing Page 2 hides its nested reason")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID,
+                                            row: rowElement(editor, rowID: row1ID)),
+                      "Changing Page 2 must not affect Page 1's table")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID,
+                                            row: collRowElement(editor, rowID: collChildRow1)),
+                      "Changing Page 2 must not affect Page 1's nested collection row")
+
+        editor.change(changes: [externalFieldUpdate(
+            fieldID: duplicatedPageFieldID,
+            value: "Yes",
+            pageID: duplicated.pageID
+        )])
+        editor.change(changes: [externalFieldUpdate(fieldID: pageTextFieldID, value: "No")])
+
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID,
+                                             row: rowElement(editor, rowID: row1ID)),
+                       "Page 1 follows its own updated value")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
+                                            row: row(in: editor.field(fieldID: duplicatedTableID)!, rowID: row1ID)!),
+                      "Changing Page 1 must not affect Page 2's table")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
+                                            row: row(in: editor.field(fieldID: duplicatedCollectionID)!,
+                                                     rowID: collChildRow1)!),
+                      "Changing Page 1 must not affect Page 2's nested collection row")
+    }
+
+    func testDuplicatePageWithoutValuesEvaluatesNewTableAndNestedCollectionRowsFromPageTwoValues() {
+        let editor = DocumentEditor(
+            document: buildPageDuplicationVisibilityDocument(pageValue: "No"),
+            mode: .fill,
+            isPageDuplicateEnabled: true,
+            validateSchema: false
+        )
+
+        editor.duplicatePage(pageID: pageID, copyWithValues: false)
+
+        guard let duplicated = duplicatedVisibilityFields(editor),
+              let duplicatedTableID = duplicated.tableField.id,
+              let duplicatedCollectionID = duplicated.collectionField.id,
+              let duplicatedPageFieldID = duplicated.pageField.id else {
+            XCTFail("Duplicating without values must still copy all page fields")
+            return
+        }
+        XCTAssertNil(duplicated.pageField.value, "Page 2's trigger starts empty when values are not copied")
+        XCTAssertTrue(duplicated.tableField.valueToValueElements?.isEmpty == true,
+                      "Page 2's table starts without copied rows")
+        XCTAssertTrue(duplicated.collectionField.valueToValueElements?.isEmpty == true,
+                      "Page 2's collection starts without copied rows")
+
+        let tableViewModel = tableViewModel(editor, fieldID: duplicatedTableID, pageID: duplicated.pageID)
+        tableViewModel.addRow(
+            with: "page_2_table_row",
+            and: [statusColumnID: .string("Pending"), reasonColumnID: .string("")],
+            shouldSendEvent: false
+        )
+        let collectionViewModel = collectionViewModel(editor, fieldID: duplicatedCollectionID, pageID: duplicated.pageID)
+        waitForCollectionViewModelToLoad(collectionViewModel)
+        collectionViewModel.addRow(
+            with: "page_2_root_row",
+            and: [statusColumnID: .string("Pending"), reasonColumnID: .string("")],
+            shouldSendEvent: false
+        )
+        collectionViewModel.addRowWithIndex(
+            with: "page_2_child_row",
+            and: [statusColumnID: .string("Pending"), reasonColumnID: .string("")],
+            metadata: nil,
+            shouldSendEvent: false,
+            index: nil,
+            nestedKey: collChildSchema,
+            parentRowID: "page_2_root_row"
+        )
+
+        guard let emptyTriggerTableRow = tableViewModel.rowElement(forRowID: "page_2_table_row"),
+              let emptyTriggerRootRow = collectionViewModel.rowToValueElementMap["page_2_root_row"],
+              let emptyTriggerChildRow = collectionViewModel.rowToValueElementMap["page_2_child_row"] else {
+            XCTFail("New Page 2 rows must be available through the rendered models")
+            return
+        }
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID, row: emptyTriggerTableRow))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: emptyTriggerRootRow))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: emptyTriggerChildRow))
+
+        editor.change(changes: [externalFieldUpdate(
+            fieldID: duplicatedPageFieldID,
+            value: "Yes",
+            pageID: duplicated.pageID
+        )])
+
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
+                                            row: tableViewModel.rowElement(forRowID: "page_2_table_row")!),
+                      "A new Page 2 table row follows Page 2's newly entered trigger value")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
+                                            row: collectionViewModel.rowToValueElementMap["page_2_root_row"]!),
+                      "A new Page 2 collection row follows Page 2's newly entered trigger value")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
+                                            row: collectionViewModel.rowToValueElementMap["page_2_child_row"]!),
+                      "A new Page 2 nested row follows Page 2's newly entered trigger value")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID,
+                                             row: rowElement(editor, rowID: row1ID)),
+                       "Entering Page 2's value must not change Page 1's table")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID,
+                                             row: collRowElement(editor, rowID: collChildRow1)),
+                       "Entering Page 2's value must not change Page 1's nested row")
     }
 
 }
