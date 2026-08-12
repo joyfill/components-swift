@@ -116,6 +116,27 @@ final class CellVisibilityLogicTest: XCTestCase {
         editor.field(fieldID: tableFieldID)!.valueToValueElements!.first(where: { $0.id == rowID })!
     }
 
+    private func waitForMainQueue(file: StaticString = #filePath, line: UInt = #line) {
+        let expectation = expectation(description: "Wait for change delivery")
+        DispatchQueue.main.async { expectation.fulfill() }
+        wait(for: [expectation], timeout: 1, enforceOrder: true)
+    }
+
+    private func externalRowUpdate(fieldID: String, rowID: String, cells: [String: Any], schemaID: String? = nil) -> Change {
+        var payload: [String: Any] = [
+            "rowId": rowID,
+            "row": ["_id": rowID, "cells": cells] as [String: Any]
+        ]
+        if let schemaID { payload["schemaId"] = schemaID }
+        return Change(dictionary: [
+            "target": "field.value.rowUpdate",
+            "fieldId": fieldID,
+            "pageId": pageID,
+            "fileId": fileID,
+            "change": payload
+        ])
+    }
+
     // MARK: - Static show/hide (built at load, read via shouldShowCell)
 
     /// action=show, condition met -> cell visible
@@ -332,9 +353,78 @@ final class CellVisibilityLogicTest: XCTestCase {
         return TableViewModel(tableDataModel: tableDataModel)
     }
 
-    /// Reads what the view actually renders: `filteredcellModels`, the source of truth for each cell's `isHidden`.
-    private func reasonHidden(_ vm: TableViewModel, rowID: String) -> Bool? {
-        vm.tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID })?.cells.first(where: { $0.data.id == reasonColumnID })?.isHidden
+    private func renderedCellIsHidden(_ vm: TableViewModel, rowID: String, columnID: String) -> Bool? {
+        vm.tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == rowID })?
+            .cells.first(where: { $0.data.id == columnID })?
+            .isHidden
+    }
+
+    private func renderedCellIsHidden(_ vm: CollectionViewModel, rowID: String, columnID: String) -> Bool? {
+        vm.tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == rowID })?
+            .cells.first(where: { $0.data.id == columnID })?
+            .isHidden
+    }
+
+    private func assertCellVisibility(
+        _ vm: TableViewModel,
+        editor: DocumentEditor,
+        rowID: String,
+        columnID: String,
+        isHidden: Bool,
+        _ message: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let row = vm.rowElement(forRowID: rowID) else {
+            XCTFail("Missing table row \(rowID)", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(
+            editor.shouldShowCell(columnID: columnID, fieldID: tableFieldID, row: row),
+            !isHidden,
+            "Public API: \(message)",
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            renderedCellIsHidden(vm, rowID: rowID, columnID: columnID),
+            isHidden,
+            "Rendered model: \(message)",
+            file: file,
+            line: line
+        )
+    }
+
+    private func assertCellVisibility(
+        _ vm: CollectionViewModel,
+        editor: DocumentEditor,
+        rowID: String,
+        columnID: String,
+        isHidden: Bool,
+        _ message: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let row = vm.rowToValueElementMap[rowID] else {
+            XCTFail("Missing collection row \(rowID)", file: file, line: line)
+            return
+        }
+        XCTAssertEqual(
+            editor.shouldShowCell(columnID: columnID, fieldID: collectionFieldID, row: row),
+            !isHidden,
+            "Public API: \(message)",
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            renderedCellIsHidden(vm, rowID: rowID, columnID: columnID),
+            isHidden,
+            "Rendered model: \(message)",
+            file: file,
+            line: line
+        )
     }
 
     /// Mirrors TableModalTopNavigationView's single-row hidden-cell gate.
@@ -351,8 +441,10 @@ final class CellVisibilityLogicTest: XCTestCase {
         let vm = tableViewModel(editor)
         vm.tableDataModel.selectedRows = [row1ID]
 
-        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "reason cell is hidden for status=Approved")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: true, "reason is hidden for status=Approved")
         XCTAssertTrue(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should skip hidden reason cell")
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, row: vm.rowElement(forRowID: row1ID)!))
         XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: noteColumnID), "single-row edit form should keep independent visible cells")
     }
 
@@ -362,7 +454,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         let vm = tableViewModel(editor)
         vm.tableDataModel.selectedRows = [row1ID]
 
-        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "reason cell is visible for status=Rejected")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "reason is visible for status=Rejected")
         XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render visible reason cell")
     }
 
@@ -372,7 +465,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         let vm = tableViewModel(editor)
         vm.tableDataModel.selectedRows = [row1ID, row2ID]
 
-        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "one selected row has reason hidden")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: true, "one selected row has reason hidden")
         XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "bulk edit should still render the column because no single row owns the hidden-state decision")
     }
 
@@ -382,6 +476,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         let vm = tableViewModel(editor)
         vm.tableDataModel.selectedRows = [row1ID]
 
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: true, "reason starts hidden in the single-row edit form")
         XCTAssertTrue(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "reason starts hidden in the single-row edit form")
 
         var editedStatus = vm.tableDataModel.filteredcellModels
@@ -393,8 +489,65 @@ final class CellVisibilityLogicTest: XCTestCase {
         vm.tableDataModel.valueToValueElements = vm.cellDidChange(rowId: row1ID, colIndex: 0, cellDataModel: editedStatus, isNestedCell: false, callOnChange: false)
         vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: statusColumnID)
 
-        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowElement(forRowID: row1ID)), "reason flips visible after status=Rejected")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "reason flips visible after status=Rejected")
         XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render the cell after the flip")
+    }
+
+    func testExternalTableRowUpdateImmediatelyUpdatesConditionalCells() {
+        let editor = documentEditor(document: buildStatusReasonDocument(
+            isShow: true,
+            row1Status: "Approved",
+            row2Status: "Approved"
+        ))
+        let viewModel = tableViewModel(editor)
+
+        XCTAssertEqual(
+            editor.field(fieldID: tableFieldID)?
+                .valueToValueElements?
+                .first(where: { $0.id == row1ID })?
+                .cells?[statusColumnID]?
+                .text,
+            "Approved",
+            "Public document starts with the row status set to Approved"
+        )
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels
+                .first(where: { $0.rowID == row1ID })?
+                .cells.first(where: { $0.data.id == statusColumnID })?
+                .data.title,
+            "Approved",
+            "Rendered table starts with the row status set to Approved"
+        )
+        assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: true, "reason is hidden while status is Approved")
+
+        editor.change(changes: [externalRowUpdate(
+            fieldID: tableFieldID,
+            rowID: row1ID,
+            cells: [statusColumnID: "Rejected"]
+        )])
+        waitForMainQueue()
+
+        XCTAssertEqual(
+            editor.field(fieldID: tableFieldID)?
+                .valueToValueElements?
+                .first(where: { $0.id == row1ID })?
+                .cells?[statusColumnID]?
+                .text,
+            "Rejected",
+            "Public document stores the externally updated status"
+        )
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels
+                .first(where: { $0.rowID == row1ID })?
+                .cells.first(where: { $0.data.id == statusColumnID })?
+                .data.title,
+            "Rejected",
+            "Rendered table displays the externally updated status"
+        )
+        assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "external update reveals reason like an on-screen edit")
     }
 
     // MARK: - Duplicate row (shares addRow's rebuild-from-scratch path)
@@ -404,14 +557,18 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
         let vm = tableViewModel(editor)
 
-        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason visible before duplicate")
-        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason visible before duplicate")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "row1 reason is visible before duplicate")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: false, "row2 reason is visible before duplicate")
 
         vm.tableDataModel.selectedRows = [row2ID]
         vm.duplicateRow()
 
-        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason must stay visible after duplicate")
-        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason must stay visible after duplicate")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "row1 reason stays visible after duplicate")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: false, "row2 reason stays visible after duplicate")
     }
 
     // MARK: - Multiple dependents on one source column
@@ -598,14 +755,18 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
         let vm = tableViewModel(editor)
 
-        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason visible before add")
-        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason visible before add")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "row1 reason is visible before add")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: false, "row2 reason is visible before add")
 
         // Matches the "Add Row +" button exactly: no explicit values, event sent, no full rebuild.
         vm.addRow()
 
-        XCTAssertEqual(reasonHidden(vm, rowID: row1ID), false, "row1 reason must stay visible after add")
-        XCTAssertEqual(reasonHidden(vm, rowID: row2ID), false, "row2 reason must stay visible after add")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "row1 reason stays visible after add")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: false, "row2 reason stays visible after add")
     }
 
     // MARK: - Real-doc repro (table1: cellsHidden:true + show `*=` on sibling dropdown)
@@ -653,38 +814,44 @@ final class CellVisibilityLogicTest: XCTestCase {
         vm.tableDataModel.valueToValueElements = elements
     }
 
-    private func text1Hidden(_ vm: TableViewModel, rowID: String) -> Bool? {
-        vm.tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID })?.cells.first(where: { $0.data.id == "text1" })?.isHidden
-    }
-
     func testTable1AddRowDoesNotFlipExistingRows() {
         // rows 1 & 2 have a dropdown value (non-empty -> text1 visible); row 3 empty (hidden).
         let editor = documentEditor(document: buildTable1Document(row1Dropdown: "6a634222bcd54de3258770c7", row2Dropdown: "6a634222bcd54de3258770c7", row3Dropdown: nil))
         let vm = tableViewModel(editor)
 
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 visible before add (dropdown non-empty)")
-        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 visible before add (dropdown non-empty)")
-        XCTAssertEqual(text1Hidden(vm, rowID: "row_003"), true, "row3 text1 hidden before add (dropdown empty)")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 is visible before add")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: "text1",
+                             isHidden: false, "row2 text1 is visible before add")
+        assertCellVisibility(vm, editor: editor, rowID: "row_003", columnID: "text1",
+                             isHidden: true, "row3 text1 is hidden before add")
 
         vm.addRow()
 
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after add")
-        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 MUST stay visible after add")
-        XCTAssertEqual(text1Hidden(vm, rowID: "row_003"), true, "row3 text1 stays hidden after add")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 stays visible after add")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: "text1",
+                             isHidden: false, "row2 text1 stays visible after add")
+        assertCellVisibility(vm, editor: editor, rowID: "row_003", columnID: "text1",
+                             isHidden: true, "row3 text1 stays hidden after add")
     }
 
     func testTable1DeleteRowDoesNotFlipRemainingRows() {
         let editor = documentEditor(document: buildTable1Document(row1Dropdown: "6a634222bcd54de3258770c7", row2Dropdown: "6a634222bcd54de3258770c7", row3Dropdown: nil))
         let vm = tableViewModel(editor)
 
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 visible before delete")
-        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 visible before delete")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 is visible before delete")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: "text1",
+                             isHidden: false, "row2 text1 is visible before delete")
 
         // Delete the hidden (empty-dropdown) row, mirroring the row-select + delete UI action.
         vm.deleteSelectedRow(["row_003"])
 
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after delete")
-        XCTAssertEqual(text1Hidden(vm, rowID: row2ID), false, "row2 text1 MUST stay visible after delete")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 stays visible after delete")
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: "text1",
+                             isHidden: false, "row2 text1 stays visible after delete")
     }
 
     /// The reported bug: a cell revealed by an in-modal edit reverts to hidden the moment a row is
@@ -694,16 +861,19 @@ final class CellVisibilityLogicTest: XCTestCase {
         // Every row loads with an empty dropdown -> text1 hidden.
         let editor = documentEditor(document: buildTable1Document(row1Dropdown: nil, row2Dropdown: nil, row3Dropdown: nil))
         let vm = tableViewModel(editor)
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), true, "row1 text1 hidden at load (empty dropdown)")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: true, "row1 text1 is hidden at load")
 
         // User picks a dropdown value in row1 -> text1 is revealed via the dependency refresh.
         setDropdown(vm, rowID: row1ID, value: "6a634222bcd54de3258770c7")
         vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: "dropdown1")
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 revealed after picking dropdown")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 is revealed after picking dropdown")
 
         // Adding a row must NOT wipe the revealed state.
         vm.addRow()
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after add")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 stays visible after add")
     }
 
     /// Same bug via delete instead of add.
@@ -713,10 +883,12 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         setDropdown(vm, rowID: row1ID, value: "6a634222bcd54de3258770c7")
         vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: "dropdown1")
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 revealed after picking dropdown")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 is revealed after picking dropdown")
 
         vm.deleteSelectedRow(["row_003"])
-        XCTAssertEqual(text1Hidden(vm, rowID: row1ID), false, "row1 text1 MUST stay visible after delete")
+        assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
+                             isHidden: false, "row1 text1 stays visible after delete")
     }
 
     // MARK: - Validation gating (hidden-but-required cells must not block submission)
@@ -1032,8 +1204,11 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         vm.tableDataModel.selectedRows = [collRootRow1]
 
-        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason cell is hidden for status=Approved")
+        assertCellVisibility(vm, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: true, "reason is hidden for status=Approved")
         XCTAssertTrue(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should skip hidden reason cell")
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: collectionFieldID,
+                                            row: vm.rowToValueElementMap[collRootRow1]!))
         XCTAssertFalse(editFormWouldHideCell(vm, columnID: noteColumnID), "single-row edit form should keep independent visible cells")
     }
 
@@ -1052,7 +1227,8 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         vm.tableDataModel.selectedRows = [collRootRow1]
 
-        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason cell is visible for status=Rejected")
+        assertCellVisibility(vm, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: false, "reason is visible for status=Rejected")
         XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render visible reason cell")
     }
 
@@ -1072,7 +1248,8 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         vm.tableDataModel.selectedRows = [collRootRow1, collRootRow2]
 
-        XCTAssertTrue(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "one selected row has reason hidden")
+        assertCellVisibility(vm, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: true, "one selected row has reason hidden")
         XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "bulk edit should still render the column because no single row owns the hidden-state decision")
     }
 
@@ -1090,6 +1267,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         waitForCollectionViewModelToLoad(vm)
         vm.tableDataModel.selectedRows = [collRootRow1]
 
+        assertCellVisibility(vm, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: true, "reason starts hidden in the single-row edit form")
         XCTAssertTrue(editFormWouldHideCell(vm, columnID: reasonColumnID), "reason starts hidden in the single-row edit form")
 
         var editedStatus = vm.tableDataModel.filteredcellModels
@@ -1100,8 +1279,36 @@ final class CellVisibilityLogicTest: XCTestCase {
         editedStatus.title = "Rejected"
         vm.cellDidChange(rowId: collRootRow1, colIndex: 0, cellDataModel: editedStatus, isNestedCell: false, callOnChange: false)
 
-        XCTAssertFalse(vm.isCellHidden(columnID: reasonColumnID, row: vm.rowToValueElementMap[collRootRow1]), "reason flips visible after status=Rejected")
+        assertCellVisibility(vm, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: false, "reason flips visible after status=Rejected")
         XCTAssertFalse(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should render the cell after the flip")
+    }
+
+    func testExternalCollectionRowUpdateImmediatelyUpdatesConditionalCells() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(viewModel)
+
+        assertCellVisibility(viewModel, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: true, "reason is hidden while status is Approved")
+
+        editor.change(changes: [externalRowUpdate(
+            fieldID: collectionFieldID,
+            rowID: collRootRow1,
+            cells: [statusColumnID: "Rejected"],
+            schemaID: collRootSchema
+        )])
+        waitForMainQueue()
+
+        assertCellVisibility(viewModel, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: false, "external update reveals reason like an on-screen edit")
     }
 
     /// Collection counterpart of `testValidateTreatsHiddenRequiredTableCellAsValid`: a root-schema
@@ -1158,4 +1365,5 @@ final class CellVisibilityLogicTest: XCTestCase {
             .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
         XCTAssertEqual(status, .valid, "Required-but-hidden empty cell must validate as valid; the user can't fill what they can't see")
     }
+
 }
