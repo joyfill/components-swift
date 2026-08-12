@@ -23,8 +23,19 @@ final class CellVisibilityLogicTest: XCTestCase {
     let row1ID = "row_001"
     let row2ID = "row_002"
 
-    func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+    func documentEditor(
+        document: JoyDoc,
+        mode: Mode = .fill,
+        isPageDuplicateEnabled: Bool = false,
+        license: String = licenseKey
+    ) -> DocumentEditor {
+        DocumentEditor(
+            document: document,
+            mode: mode,
+            isPageDuplicateEnabled: isPageDuplicateEnabled,
+            validateSchema: false,
+            license: license
+        )
     }
 
     // MARK: - Builders
@@ -1534,7 +1545,7 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
         XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license), "License verification failed; set JOYFILL_TEST_LICENSE or check licenseKey")
-        let editor = DocumentEditor(document: document, validateSchema: false, license: license)
+        let editor = documentEditor(document: document, license: license)
         let editedRow = collRowElement(editor, rowID: collRootRow1)
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "reason hidden when status == Rejected")
@@ -1598,7 +1609,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
         XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license),
                       "License verification failed; set JOYFILL_TEST_LICENSE or check licenseKey")
-        let editor = DocumentEditor(document: document, validateSchema: false, license: license)
+        let editor = documentEditor(document: document, license: license)
         let nestedRow = collRowElement(editor, rowID: collChildRow1)
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: nestedRow),
@@ -1735,11 +1746,10 @@ final class CellVisibilityLogicTest: XCTestCase {
     }
 
     func testDuplicatePageWithValuesUsesCopiedPageValuesForTableAndNestedCollectionVisibility() {
-        let editor = DocumentEditor(
+        let editor = documentEditor(
             document: buildPageDuplicationVisibilityDocument(pageValue: "Yes"),
             mode: .fill,
-            isPageDuplicateEnabled: true,
-            validateSchema: false
+            isPageDuplicateEnabled: true
         )
 
         editor.duplicatePage(pageID: pageID, copyWithValues: true)
@@ -1804,14 +1814,14 @@ final class CellVisibilityLogicTest: XCTestCase {
                                             row: row(in: editor.field(fieldID: duplicatedCollectionID)!,
                                                      rowID: collChildRow1)!),
                       "Changing Page 1 must not affect Page 2's nested collection row")
+        XCTAssertEqual(editor.validate().status, .valid, "Duplicated-page visibility changes must keep the document valid")
     }
 
     func testDuplicatePageWithoutValuesEvaluatesNewTableAndNestedCollectionRowsFromPageTwoValues() {
-        let editor = DocumentEditor(
+        let editor = documentEditor(
             document: buildPageDuplicationVisibilityDocument(pageValue: "No"),
             mode: .fill,
-            isPageDuplicateEnabled: true,
-            validateSchema: false
+            isPageDuplicateEnabled: true
         )
 
         editor.duplicatePage(pageID: pageID, copyWithValues: false)
@@ -1883,6 +1893,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID,
                                              row: collRowElement(editor, rowID: collChildRow1)),
                        "Entering Page 2's value must not change Page 1's nested row")
+        XCTAssertEqual(editor.validate().status, .valid, "Rows created on a without-values copy must validate after visibility changes")
     }
 
 }

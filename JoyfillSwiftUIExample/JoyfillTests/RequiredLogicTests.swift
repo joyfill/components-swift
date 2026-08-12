@@ -30,8 +30,18 @@ final class RequiredLogicTests: XCTestCase {
     let pageDropdownID = "dropdownPage"
     let numberFieldID = "number1"
 
-    func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+    func documentEditor(
+        document: JoyDoc,
+        mode: Mode = .fill,
+        isPageDuplicateEnabled: Bool = false
+    ) -> DocumentEditor {
+        DocumentEditor(
+            document: document,
+            mode: mode,
+            isPageDuplicateEnabled: isPageDuplicateEnabled,
+            validateSchema: false,
+            license: licenseKey
+        )
     }
 
     // MARK: - Builders
@@ -202,6 +212,22 @@ final class RequiredLogicTests: XCTestCase {
             .cellValidities.first(where: { $0.columnId == columnId })?.status
     }
 
+    private func fieldStatus(_ editor: DocumentEditor, fieldID: String) -> ValidationStatus? {
+        editor.validate().fieldValidities.first(where: { $0.fieldId == fieldID })?.status
+    }
+
+    private func collectionCellStatus(
+        _ editor: DocumentEditor,
+        rowID: String,
+        columnID: String,
+        schemaID: String
+    ) -> ValidationStatus? {
+        editor.validate().fieldValidities
+            .first(where: { $0.fieldId == collectionFieldID })?
+            .rowValidities?.first(where: { $0.rowId == rowID && $0.schemaId == schemaID })?
+            .cellValidities.first(where: { $0.columnId == columnID })?.status
+    }
+
     private func tableViewModel(_ editor: DocumentEditor, fieldID: String? = nil, pageID: String? = nil) -> TableViewModel {
         let resolvedFieldID = fieldID ?? tableFieldID
         let field = editor.field(fieldID: resolvedFieldID)
@@ -369,6 +395,8 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-1"))
         XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: initialRow2))
         XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-2"))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: textColumnID), .invalid,
+                       "The initially required empty cell must be invalid")
 
         editor.change(changes: [rowChange(
             target: "field.value.rowUpdate",
@@ -401,6 +429,8 @@ final class RequiredLogicTests: XCTestCase {
                       "Public API keeps the untouched row required")
         XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-2"),
                       "Rendered table keeps the untouched row required")
+        XCTAssertEqual(cellStatus(editor, rowId: "row-2", columnId: textColumnID), .invalid,
+                       "The untouched required empty cell must remain invalid after the other row changes")
     }
 
     func testRequiredRulesFollowRowsThroughAddDuplicateAndDelete() {
@@ -565,6 +595,8 @@ final class RequiredLogicTests: XCTestCase {
         ))
         let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: "number1")
         XCTAssertTrue(refreshed.contains(tableFieldID))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid,
+                       "The empty cell remains valid while its page-field condition does not match")
     }
 
     func testCellRequiredLogic_mixedConditions_evalOr_anyMatches() {
@@ -713,10 +745,12 @@ final class RequiredLogicTests: XCTestCase {
         // page dropdown = Yes -> both conditions match -> required.
         let matchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optYes))
         XCTAssertTrue(matchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(matchEditor, id: "root-1")!))
+        XCTAssertEqual(collectionCellStatus(matchEditor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid)
 
         // page dropdown = No -> page half of the AND fails -> falls back to column base (static false) -> optional.
         let noMatchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optNo))
         XCTAssertFalse(noMatchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(noMatchEditor, id: "root-1")!))
+        XCTAssertEqual(collectionCellStatus(noMatchEditor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .valid)
     }
 
     func testCollection_nestedCellLogic_referencesOwnColumnsNotParent() {
@@ -742,8 +776,10 @@ final class RequiredLogicTests: XCTestCase {
 
         // Nested row whose OWN `shared` is filled -> notes required (proves it read the nested cell).
         XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, row: nestedRow(editor, parentID: "root-1", childID: "child-filled")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "child-filled", columnID: childNotesCol, schemaID: nestedSchemaID), .invalid)
         // Nested row whose own `shared` is empty -> notes not required.
         XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, row: nestedRow(editor, parentID: "root-1", childID: "child-empty")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "child-empty", columnID: childNotesCol, schemaID: nestedSchemaID), .valid)
     }
 
     // MARK: - Table: additional column / cell coverage
@@ -856,6 +892,8 @@ final class RequiredLogicTests: XCTestCase {
             fieldRequiredLogic: requiredLogic(action: "enforce", condField: dropdownFieldID, value: optYes)
         ))
         XCTAssertFalse(editor.isFieldRequired(fieldID: tableFieldID))
+        XCTAssertEqual(fieldStatus(editor, fieldID: tableFieldID), .valid,
+                       "An optional empty table must initially validate")
 
         // Mutate the trigger without triggering refresh, then ask which fields need refreshing.
         var dropdown = editor.field(fieldID: dropdownFieldID)
@@ -865,6 +903,8 @@ final class RequiredLogicTests: XCTestCase {
         let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: dropdownFieldID)
         XCTAssertTrue(refreshed.contains(tableFieldID))
         XCTAssertTrue(editor.isFieldRequired(fieldID: tableFieldID))
+        XCTAssertEqual(fieldStatus(editor, fieldID: tableFieldID), .invalid,
+                       "The empty table must become invalid after requiredLogic is enforced")
     }
 
     // MARK: - eval "or"
@@ -1015,9 +1055,11 @@ final class RequiredLogicTests: XCTestCase {
 
         let matchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optYes))
         XCTAssertTrue(matchEditor.isColumnRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID))
+        XCTAssertEqual(collectionCellStatus(matchEditor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid)
 
         let noMatchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optNo))
         XCTAssertFalse(noMatchEditor.isColumnRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID))
+        XCTAssertEqual(collectionCellStatus(noMatchEditor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .valid)
     }
 
     func testExternalPageFieldUpdateReevaluatesCollectionRequiredCells() {
@@ -1050,6 +1092,8 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "root-1",
             schemaKey: rootSchemaID
         ), "Rendered collection starts with the explanation optional")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .valid,
+                       "The optional empty explanation must initially validate")
 
         editor.change(changes: [fieldUpdate(fieldID: dropdownFieldID, value: optYes)])
 
@@ -1070,6 +1114,8 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "root-1",
             schemaKey: rootSchemaID
         ), "Rendered collection requires the explanation after the page answer changes")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                       "The empty explanation must become invalid after the page answer makes it required")
     }
 
     func testCollection_cellRequiredLogic_siblingPerRow() {
@@ -1086,7 +1132,9 @@ final class RequiredLogicTests: XCTestCase {
         let editor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows))
 
         XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(editor, id: "root-match")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-match", columnID: rootTextCol, schemaID: rootSchemaID), .invalid)
         XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(editor, id: "root-nomatch")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-nomatch", columnID: rootTextCol, schemaID: rootSchemaID), .valid)
     }
 
     func testExternalCollectionRowUpdateImmediatelyReevaluatesRequiredCells() {
@@ -1121,6 +1169,8 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "root-1",
             schemaKey: rootSchemaID
         ), "The rendered collection reports the explanation optional before the controlling answer changes")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .valid,
+                       "The optional explanation must validate before the external update")
 
         editor.change(changes: [collectionRowUpdate(
             rowID: "root-1",
@@ -1143,6 +1193,8 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "root-1",
             schemaKey: rootSchemaID
         ), "The rendered collection must apply the same required rule as an on-screen edit")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                       "The external update must immediately make the empty required explanation invalid")
     }
 
     func testExternalCollectionPartialUpdateMakesOnlyTargetRowOptionalAndPreservesOtherCells() {
@@ -1176,6 +1228,8 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
                                             schemaKey: rootSchemaID, row: initialRow2))
         XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-2", schemaKey: rootSchemaID))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-2", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                       "The initially required empty collection cell must be invalid")
 
         editor.change(changes: [collectionRowUpdate(
             rowID: "root-1",
@@ -1209,6 +1263,10 @@ final class RequiredLogicTests: XCTestCase {
                       "Public API keeps the untouched collection row required")
         XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-2", schemaKey: rootSchemaID),
                       "Rendered collection keeps the untouched row required")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .valid,
+                       "The target row remains valid after becoming optional")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-2", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                       "The untouched required empty row must remain invalid")
     }
 
     func testExternalNestedCollectionRowUpdateReevaluatesRequiredCells() {
@@ -1252,6 +1310,8 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "child-1",
             schemaKey: nestedSchemaID
         ), "Rendered collection starts with child notes optional")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "child-1", columnID: childNotesCol, schemaID: nestedSchemaID), .valid,
+                       "Optional nested notes must initially validate")
 
         editor.change(changes: [collectionRowUpdate(
             rowID: "child-1",
@@ -1279,6 +1339,8 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "child-1",
             schemaKey: nestedSchemaID
         ), "Rendered collection requires child notes after the nested answer changes")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "child-1", columnID: childNotesCol, schemaID: nestedSchemaID), .invalid,
+                       "Nested notes must become invalid after the external answer makes them required")
     }
 
     func testCollectionRequiredRulesFollowRowsThroughAddDuplicateAndDelete() {
@@ -1310,6 +1372,8 @@ final class RequiredLogicTests: XCTestCase {
             schemaKey: rootSchemaID,
             row: addedRow
         ), "A newly added collection row must receive required rules based on its own answers")
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "added-root", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                       "A newly added empty required collection cell must be invalid")
 
         let rowIDsBeforeDuplicate = Set(viewModel.rowToValueElementMap.keys)
         viewModel.tableDataModel.selectedRows = ["added-root"]
@@ -1326,6 +1390,8 @@ final class RequiredLogicTests: XCTestCase {
                 schemaKey: rootSchemaID,
                 row: duplicatedRow
             ), "A duplicated collection row must preserve required behavior")
+            XCTAssertEqual(collectionCellStatus(editor, rowID: duplicatedRowID, columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                           "A duplicated empty required collection cell must remain invalid")
         }
 
         viewModel.tableDataModel.selectedRows = ["added-root"]
@@ -1341,6 +1407,10 @@ final class RequiredLogicTests: XCTestCase {
             schemaKey: rootSchemaID,
             row: addedRow
         ), "A deleted collection row must not retain required state")
+        XCTAssertFalse(editor.validate().fieldValidities
+            .first(where: { $0.fieldId == collectionFieldID })?
+            .rowValidities?.contains(where: { $0.rowId == "added-root" }) ?? true,
+                       "Validation must not retain a deleted collection row")
     }
 
     func testCollection_nestedCellRequiredLogic() {
@@ -1359,7 +1429,9 @@ final class RequiredLogicTests: XCTestCase {
         let editor = documentEditor(document: makeCollectionDoc(rootColumns: [["_id": rootTextCol, "type": "text", "title": "Text"]], nestedColumns: [childText, childNotes], rootRows: rootRows))
 
         XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, row: nestedRow(editor, parentID: "root-1", childID: "child-filled")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "child-filled", columnID: childNotesCol, schemaID: nestedSchemaID), .invalid)
         XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, row: nestedRow(editor, parentID: "root-1", childID: "child-empty")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "child-empty", columnID: childNotesCol, schemaID: nestedSchemaID), .valid)
     }
 
     func testCollection_cellLogicTakesPrecedenceOverColumnLogic() {
@@ -1376,6 +1448,8 @@ final class RequiredLogicTests: XCTestCase {
         // Column-wide is optional (page dropdown = No) but the cell logic makes this row's cell required.
         XCTAssertFalse(editor.isColumnRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID))
         XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, row: rootRow(editor, id: "root-1")!))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
+                       "Validation must follow cellRequiredLogic precedence over optional column logic")
     }
 
     func testCollection_fieldLevelRequired_refreshesWhenTriggerChanges() {
@@ -1387,6 +1461,8 @@ final class RequiredLogicTests: XCTestCase {
             includePageDropdown: true, dropdownValue: optNo
         ))
         XCTAssertFalse(editor.isFieldRequired(fieldID: collectionFieldID))
+        XCTAssertEqual(fieldStatus(editor, fieldID: collectionFieldID), .valid,
+                       "An optional empty collection must initially validate")
 
         var dropdown = editor.field(fieldID: dropdownFieldID)
         dropdown?.value = .string(optYes)
@@ -1395,6 +1471,8 @@ final class RequiredLogicTests: XCTestCase {
         let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: dropdownFieldID)
         XCTAssertTrue(refreshed.contains(collectionFieldID))
         XCTAssertTrue(editor.isFieldRequired(fieldID: collectionFieldID))
+        XCTAssertEqual(fieldStatus(editor, fieldID: collectionFieldID), .invalid,
+                       "The empty collection must become invalid after requiredLogic is enforced")
     }
 
     // MARK: - Page duplication
@@ -1559,11 +1637,10 @@ final class RequiredLogicTests: XCTestCase {
     }
 
     func testDuplicatePageWithValuesUsesCopiedPageValuesForTableAndNestedCollectionRequiredLogic() {
-        let editor = DocumentEditor(
+        let editor = documentEditor(
             document: buildPageDuplicationRequiredDocument(pageValue: optYes),
             mode: .fill,
-            isPageDuplicateEnabled: true,
-            validateSchema: false
+            isPageDuplicateEnabled: true
         )
 
         editor.duplicatePage(pageID: pageID, copyWithValues: true)
@@ -1645,14 +1722,14 @@ final class RequiredLogicTests: XCTestCase {
             schemaKey: nestedSchemaID,
             row: requiredRow(in: editor.field(fieldID: duplicatedCollectionID)!, rowID: "dup-child-row")!
         ), "Changing Page 1 must not change Page 2's nested cellRequiredLogic")
+        XCTAssertEqual(editor.validate().status, .invalid, "Empty required cells on Page 2 must make the duplicated document invalid")
     }
 
     func testDuplicatePageWithoutValuesEvaluatesNewTableAndNestedCollectionRowsFromPageTwoValues() {
-        let editor = DocumentEditor(
+        let editor = documentEditor(
             document: buildPageDuplicationRequiredDocument(pageValue: optNo),
             mode: .fill,
-            isPageDuplicateEnabled: true,
-            validateSchema: false
+            isPageDuplicateEnabled: true
         )
 
         editor.duplicatePage(pageID: pageID, copyWithValues: false)
@@ -1756,5 +1833,6 @@ final class RequiredLogicTests: XCTestCase {
                                              schemaKey: nestedSchemaID,
                                              row: nestedRow(editor, parentID: "dup-root-row", childID: "dup-child-row")!),
                        "Entering Page 2's value must not change Page 1's nested cellRequiredLogic")
+        XCTAssertEqual(editor.validate().status, .invalid, "New empty required rows on Page 2 must be reported invalid")
     }
 }
