@@ -137,6 +137,16 @@ final class CellVisibilityLogicTest: XCTestCase {
         ])
     }
 
+    private func externalFieldUpdate(fieldID: String, value: Any) -> Change {
+        Change(dictionary: [
+            "target": "field.update",
+            "fieldId": fieldID,
+            "pageId": pageID,
+            "fileId": fileID,
+            "change": ["value": value]
+        ])
+    }
+
     // MARK: - Static show/hide (built at load, read via shouldShowCell)
 
     /// action=show, condition met -> cell visible
@@ -548,6 +558,61 @@ final class CellVisibilityLogicTest: XCTestCase {
         )
         assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
                              isHidden: false, "external update reveals reason like an on-screen edit")
+    }
+
+    func testExternalTablePartialUpdateHidesOnlyTargetRowAndPreservesOtherCells() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let editor = documentEditor(document: buildDocument(columns: columns, rows: [
+            row(id: row1ID, cells: [statusColumnID: "Rejected", reasonColumnID: "Keep reason", noteColumnID: "Keep note"]),
+            row(id: row2ID, cells: [statusColumnID: "Rejected", reasonColumnID: "Other reason", noteColumnID: "Other note"])
+        ]))
+        let viewModel = tableViewModel(editor)
+
+        assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "target row starts visible")
+        assertCellVisibility(viewModel, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: false, "untouched row starts visible")
+
+        editor.change(changes: [externalRowUpdate(
+            fieldID: tableFieldID,
+            rowID: row1ID,
+            cells: [statusColumnID: "Approved"]
+        )])
+        waitForMainQueue()
+
+        let updatedRow = rowElement(editor, rowID: row1ID)
+        XCTAssertEqual(updatedRow.cells?[statusColumnID]?.text, "Approved",
+                       "Public document stores the changed status")
+        XCTAssertEqual(updatedRow.cells?[reasonColumnID]?.text, "Keep reason",
+                       "A partial update must preserve an omitted reason")
+        XCTAssertEqual(updatedRow.cells?[noteColumnID]?.text, "Keep note",
+                       "A partial update must preserve an omitted note")
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels
+                .first(where: { $0.rowID == row1ID })?
+                .cells.first(where: { $0.data.id == reasonColumnID })?.data.title,
+            "Keep reason",
+            "Rendered table keeps the omitted reason"
+        )
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels
+                .first(where: { $0.rowID == row1ID })?
+                .cells.first(where: { $0.data.id == noteColumnID })?.data.title,
+            "Keep note",
+            "Rendered table keeps the omitted note"
+        )
+        assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: true, "reverse transition hides the target row")
+        assertCellVisibility(viewModel, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: false, "targeted update does not change another row")
     }
 
     // MARK: - Duplicate row (shares addRow's rebuild-from-scratch path)
@@ -1146,6 +1211,77 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason visible after page field -> Yes")
     }
 
+    func testExternalPageFieldUpdateRefreshesTableConditionalCells() {
+        let logic = pageFieldCellLogic(isShow: true, pageFieldID: pageTextFieldID, value: .string("Yes"))
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved"])]
+
+        var tableField = JoyDocField()
+        tableField.type = "table"
+        tableField.id = tableFieldID
+        tableField.identifier = "field_\(tableFieldID)"
+        tableField.file = fileID
+        tableField.tableColumns = columns
+        tableField.tableColumnOrder = columns.compactMap(\.id)
+        tableField.rowOrder = [row1ID]
+        tableField.value = .valueElementArray(rows)
+
+        var pageField = JoyDocField()
+        pageField.type = "text"
+        pageField.id = pageTextFieldID
+        pageField.identifier = "field_\(pageTextFieldID)"
+        pageField.file = fileID
+        pageField.value = .string("No")
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+        document.fields.append(contentsOf: [pageField, tableField])
+        document = document.setFieldPositionToPage(
+            pageId: pageID,
+            idAndTypes: [pageTextFieldID: .text, tableFieldID: .table]
+        )
+
+        let editor = documentEditor(document: document)
+        let viewModel = tableViewModel(editor)
+        assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: true, "reason starts hidden while the page answer is No")
+
+        editor.change(changes: [externalFieldUpdate(fieldID: pageTextFieldID, value: "Yes")])
+
+        XCTAssertEqual(editor.field(fieldID: pageTextFieldID)?.value?.text, "Yes",
+                       "Public document stores the externally updated page answer")
+        assertCellVisibility(viewModel, editor: editor, rowID: row1ID, columnID: reasonColumnID,
+                             isHidden: false, "external page update reveals the table reason")
+    }
+
+    func testExternalPageFieldUpdateRefreshesCollectionConditionalCells() {
+        let logic = pageFieldCellLogic(isShow: true, pageFieldID: pageTextFieldID, value: .string("Yes"))
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(id: collRootRow1, status: "Approved")],
+            pageValue: "No"
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(viewModel)
+        assertCellVisibility(viewModel, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: true, "reason starts hidden while the page answer is No")
+
+        editor.change(changes: [externalFieldUpdate(fieldID: pageTextFieldID, value: "Yes")])
+
+        XCTAssertEqual(editor.field(fieldID: pageTextFieldID)?.value?.text, "Yes",
+                       "Public document stores the externally updated page answer")
+        assertCellVisibility(viewModel, editor: editor, rowID: collRootRow1, columnID: reasonColumnID,
+                             isHidden: false, "external page update reveals the collection reason")
+    }
+
     /// Page-field change: the page-field dependency is schema-aware -- a CHILD schema's cell
     /// (not just the root schema) flips when the referenced page field changes.
     func testCollectionChildSchemaPageFieldChangeFlipsCell() {
@@ -1311,6 +1447,49 @@ final class CellVisibilityLogicTest: XCTestCase {
                              isHidden: false, "external update reveals reason like an on-screen edit")
     }
 
+    func testExternalNestedCollectionRowUpdateReevaluatesConditionalCells() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        let editor = documentEditor(document: buildCollectionDocument(
+            rootReasonLogic: logic,
+            rootRows: [collRootRow(
+                id: collRootRow1,
+                status: "Approved",
+                children: [collChildRow(id: collChildRow1, status: "Approved")]
+            )]
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionViewModelToLoad(viewModel)
+
+        XCTAssertFalse(editor.shouldShowCell(
+            columnID: reasonColumnID,
+            fieldID: collectionFieldID,
+            row: collRowElement(editor, rowID: collChildRow1)
+        ), "Public API reports the nested reason hidden before the external update")
+        XCTAssertEqual(viewModel.rowToValueElementMap[collChildRow1]?.cells?[statusColumnID]?.text, "Approved",
+                       "Rendered collection starts with the nested status set to Approved")
+
+        editor.change(changes: [externalRowUpdate(
+            fieldID: collectionFieldID,
+            rowID: collChildRow1,
+            cells: [statusColumnID: "Rejected"],
+            schemaID: collChildSchema
+        )])
+        waitForMainQueue()
+
+        XCTAssertEqual(collRowElement(editor, rowID: collChildRow1).cells?[statusColumnID]?.text, "Rejected",
+                       "Public document stores the externally updated nested status")
+        XCTAssertEqual(viewModel.rowToValueElementMap[collChildRow1]?.cells?[statusColumnID]?.text, "Rejected",
+                       "Rendered collection stores the externally updated nested status")
+        XCTAssertTrue(editor.shouldShowCell(
+            columnID: reasonColumnID,
+            fieldID: collectionFieldID,
+            row: collRowElement(editor, rowID: collChildRow1)
+        ), "Public API reveals the nested reason after its sibling status changes")
+    }
+
     /// Collection counterpart of `testValidateTreatsHiddenRequiredTableCellAsValid`: a root-schema
     /// cell hidden by `cellVisibilityLogic` but required must not be reported `.invalid` by
     /// `validate()`. Exercises the `shouldShowCell` gate added to ValidationHandler's collection path.
@@ -1364,6 +1543,77 @@ final class CellVisibilityLogicTest: XCTestCase {
             .rowValidities?.first(where: { $0.rowId == collRootRow1 })?
             .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
         XCTAssertEqual(status, .valid, "Required-but-hidden empty cell must validate as valid; the user can't fill what they can't see")
+    }
+
+    func testValidateTreatsHiddenRequiredNestedCollectionCellAsValid() {
+        let childLogic = cellVisibilityLogicDictionary(
+            isShow: false,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        var childReason = buildColumn(
+            id: reasonColumnID,
+            type: .text,
+            title: "Reason",
+            cellVisibilityLogic: childLogic
+        ).dictionary
+        childReason["required"] = true
+
+        let rootSchemaDict: [String: Any] = [
+            "title": "Root",
+            "root": true,
+            "children": [collChildSchema],
+            "tableColumns": [buildColumn(id: noteColumnID, type: .text, title: "Note").dictionary]
+        ]
+        let childSchemaDict: [String: Any] = [
+            "title": "Child",
+            "root": false,
+            "children": [String](),
+            "tableColumns": [
+                buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+                childReason
+            ]
+        ]
+        let child = collChildRow(id: collChildRow1, status: "Rejected")
+        let root = collRootRow(id: collRootRow1, status: "Approved", children: [child])
+
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = collectionFieldID
+        field.identifier = "field_\(collectionFieldID)"
+        field.file = fileID
+        field.dictionary["schema"] = [collRootSchema: rootSchemaDict, collChildSchema: childSchemaDict]
+        field.value = .valueElementArray([ValueElement(dictionary: root)])
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+        document.fields.append(field)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [collectionFieldID: .collection])
+
+        let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
+        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license),
+                      "License verification failed; set JOYFILL_TEST_LICENSE or check licenseKey")
+        let editor = DocumentEditor(document: document, validateSchema: false, license: license)
+        let nestedRow = collRowElement(editor, rowID: collChildRow1)
+
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: nestedRow),
+                       "Nested reason is hidden when status is Rejected")
+        XCTAssertTrue(editor.isCellRequired(
+            columnID: reasonColumnID,
+            fieldID: collectionFieldID,
+            schemaKey: collChildSchema,
+            row: nestedRow
+        ), "Nested reason remains required according to its schema")
+
+        let status = editor.validate().fieldValidities
+            .first(where: { $0.fieldId == collectionFieldID })?
+            .rowValidities?.first(where: { $0.rowId == collChildRow1 && $0.schemaId == collChildSchema })?
+            .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
+        XCTAssertEqual(status, .valid,
+                       "An empty required nested cell must be valid while conditional logic hides it")
     }
 
 }
