@@ -241,6 +241,16 @@ final class RequiredLogicTests: XCTestCase {
         ])
     }
 
+    private func fieldUpdate(fieldID: String, value: Any) -> Change {
+        Change(dictionary: [
+            "target": "field.update",
+            "fieldId": fieldID,
+            "pageId": pageID,
+            "fileId": fileID,
+            "change": ["value": value]
+        ])
+    }
+
     func testColumnEnforce_appliesToAllCells() {
         // Column text requiredLogic enforce on page dropdown = Yes. Two rows, both empty text cells.
         let textColumn: [String: Any] = [
@@ -331,6 +341,65 @@ final class RequiredLogicTests: XCTestCase {
                       "The rendered table must apply the same required rule as an on-screen edit")
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid,
                        "The newly required empty explanation must block validation immediately")
+    }
+
+    func testExternalTablePartialUpdateMakesOnlyTargetRowOptionalAndPreservesOtherCells() {
+        let textColumn: [String: Any] = [
+            "_id": textColumnID, "type": "text", "title": "Explanation",
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: ddColumnID, value: optYes)
+        ]
+        let editor = documentEditor(document: makeTableDoc(
+            textColumn: textColumn,
+            rows: [
+                ["_id": "row-1", "cells": [textColumnID: "Keep explanation", ddColumnID: optYes]],
+                ["_id": "row-2", "cells": [textColumnID: "", ddColumnID: optYes]]
+            ],
+            includePageDropdown: false,
+            dropdownValue: optNo
+        ))
+        let viewModel = tableViewModel(editor)
+
+        guard let initialRow1 = viewModel.rowElement(forRowID: "row-1"),
+              let initialRow2 = viewModel.rowElement(forRowID: "row-2") else {
+            XCTFail("The table must render both rows")
+            return
+        }
+        XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: initialRow1))
+        XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-1"))
+        XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: initialRow2))
+        XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-2"))
+
+        editor.change(changes: [rowChange(
+            target: "field.value.rowUpdate",
+            rowID: "row-1",
+            cells: [ddColumnID: optNo]
+        )])
+        waitForMainQueue()
+
+        guard let updatedRow1 = viewModel.rowElement(forRowID: "row-1"),
+              let updatedRow2 = viewModel.rowElement(forRowID: "row-2") else {
+            XCTFail("The table must retain both rows")
+            return
+        }
+        XCTAssertEqual(updatedRow1.cells?[ddColumnID]?.text, optNo,
+                       "Public document stores the changed decision")
+        XCTAssertEqual(updatedRow1.cells?[textColumnID]?.text, "Keep explanation",
+                       "A partial update must preserve an omitted explanation")
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels
+                .first(where: { $0.rowID == "row-1" })?
+                .cells.first(where: { $0.data.id == textColumnID })?.data.title,
+            "Keep explanation",
+            "Rendered table keeps the omitted explanation"
+        )
+        XCTAssertFalse(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: updatedRow1),
+                       "Public API makes the target explanation optional")
+        XCTAssertFalse(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-1"),
+                       "Rendered table makes the target explanation optional")
+        XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: updatedRow2),
+                      "Public API keeps the untouched row required")
+        XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-2"),
+                      "Rendered table keeps the untouched row required")
     }
 
     func testRequiredRulesFollowRowsThroughAddDuplicateAndDelete() {
@@ -725,6 +794,44 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
     }
 
+    func testExternalPageFieldUpdateReevaluatesTableRequiredCells() {
+        let textColumn: [String: Any] = [
+            "_id": textColumnID, "type": "text", "title": "Explanation",
+            "requiredLogic": requiredLogic(action: "enforce", condField: dropdownFieldID, value: optYes)
+        ]
+        let editor = documentEditor(document: makeTableDoc(
+            textColumn: textColumn,
+            rows: [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optNo]]],
+            includePageDropdown: true,
+            dropdownValue: optNo
+        ))
+        let viewModel = tableViewModel(editor)
+        guard let initialRow = viewModel.rowElement(forRowID: "row-1") else {
+            XCTFail("The table must render row row-1")
+            return
+        }
+
+        XCTAssertFalse(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: initialRow),
+                       "Public API starts with the explanation optional")
+        XCTAssertFalse(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-1"),
+                       "Rendered table starts with the explanation optional")
+
+        editor.change(changes: [fieldUpdate(fieldID: dropdownFieldID, value: optYes)])
+
+        guard let updatedRow = viewModel.rowElement(forRowID: "row-1") else {
+            XCTFail("The table must retain row row-1")
+            return
+        }
+        XCTAssertEqual(editor.field(fieldID: dropdownFieldID)?.value?.text, optYes,
+                       "Public document stores the external page-field value")
+        XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, row: updatedRow),
+                      "Public API requires the explanation after the page answer changes")
+        XCTAssertTrue(viewModel.isCellRequired(columnID: textColumnID, rowID: "row-1"),
+                      "Rendered table requires the explanation after the page answer changes")
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid,
+                       "The newly required empty explanation blocks validation")
+    }
+
     func testCellLogicTakesPrecedenceOverColumnLogic_table() {
         // Column requiredLogic says optional (page dropdown = No), but cellRequiredLogic says required
         // (sibling dd cell = Yes). Cell logic wins -> empty cell invalid.
@@ -882,15 +989,16 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(viewModel.isLoading, "Collection did not finish loading", file: file, line: line)
     }
 
-    private func collectionRowUpdate(rowID: String, cells: [String: Any]) -> Change {
-        Change(dictionary: [
+    private func collectionRowUpdate(rowID: String, cells: [String: Any], schemaID: String? = nil) -> Change {
+        let targetSchemaID = schemaID ?? rootSchemaID
+        return Change(dictionary: [
             "target": "field.value.rowUpdate",
             "fieldId": collectionFieldID,
             "pageId": pageID,
             "fileId": fileID,
             "change": [
                 "rowId": rowID,
-                "schemaId": rootSchemaID,
+                "schemaId": targetSchemaID,
                 "row": ["_id": rowID, "cells": cells] as [String: Any]
             ] as [String: Any]
         ])
@@ -908,6 +1016,58 @@ final class RequiredLogicTests: XCTestCase {
 
         let noMatchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optNo))
         XCTAssertFalse(noMatchEditor.isColumnRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID))
+    }
+
+    func testExternalPageFieldUpdateReevaluatesCollectionRequiredCells() {
+        let rootText: [String: Any] = [
+            "_id": rootTextCol, "type": "text", "title": "Explanation",
+            "requiredLogic": requiredLogic(action: "enforce", condField: dropdownFieldID, value: optYes)
+        ]
+        let editor = documentEditor(document: makeCollectionDoc(
+            rootColumns: [rootText],
+            nestedColumns: minimalNestedColumns,
+            rootRows: [["_id": "root-1", "cells": [rootTextCol: ""]]],
+            includePageDropdown: true,
+            dropdownValue: optNo
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionToLoad(viewModel)
+        guard let initialRow = viewModel.rowToValueElementMap["root-1"] else {
+            XCTFail("The collection must render row root-1")
+            return
+        }
+
+        XCTAssertFalse(editor.isCellRequired(
+            columnID: rootTextCol,
+            fieldID: collectionFieldID,
+            schemaKey: rootSchemaID,
+            row: initialRow
+        ), "Public API starts with the explanation optional")
+        XCTAssertFalse(viewModel.isCellRequired(
+            columnID: rootTextCol,
+            rowID: "root-1",
+            schemaKey: rootSchemaID
+        ), "Rendered collection starts with the explanation optional")
+
+        editor.change(changes: [fieldUpdate(fieldID: dropdownFieldID, value: optYes)])
+
+        guard let updatedRow = viewModel.rowToValueElementMap["root-1"] else {
+            XCTFail("The collection must retain row root-1")
+            return
+        }
+        XCTAssertEqual(editor.field(fieldID: dropdownFieldID)?.value?.text, optYes,
+                       "Public document stores the external page-field value")
+        XCTAssertTrue(editor.isCellRequired(
+            columnID: rootTextCol,
+            fieldID: collectionFieldID,
+            schemaKey: rootSchemaID,
+            row: updatedRow
+        ), "Public API requires the collection explanation after the page answer changes")
+        XCTAssertTrue(viewModel.isCellRequired(
+            columnID: rootTextCol,
+            rowID: "root-1",
+            schemaKey: rootSchemaID
+        ), "Rendered collection requires the explanation after the page answer changes")
     }
 
     func testCollection_cellRequiredLogic_siblingPerRow() {
@@ -981,6 +1141,142 @@ final class RequiredLogicTests: XCTestCase {
             rowID: "root-1",
             schemaKey: rootSchemaID
         ), "The rendered collection must apply the same required rule as an on-screen edit")
+    }
+
+    func testExternalCollectionPartialUpdateMakesOnlyTargetRowOptionalAndPreservesOtherCells() {
+        let rootText: [String: Any] = [
+            "_id": rootTextCol, "type": "text", "title": "Explanation",
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: rootDdCol, value: optYes)
+        ]
+        let rootDropdown: [String: Any] = [
+            "_id": rootDdCol, "type": "dropdown", "title": "Decision",
+            "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]
+        ]
+        let editor = documentEditor(document: makeCollectionDoc(
+            rootColumns: [rootText, rootDropdown],
+            nestedColumns: minimalNestedColumns,
+            rootRows: [
+                ["_id": "root-1", "cells": [rootTextCol: "Keep explanation", rootDdCol: optYes]],
+                ["_id": "root-2", "cells": [rootTextCol: "", rootDdCol: optYes]]
+            ]
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionToLoad(viewModel)
+
+        guard let initialRow1 = viewModel.rowToValueElementMap["root-1"],
+              let initialRow2 = viewModel.rowToValueElementMap["root-2"] else {
+            XCTFail("The collection must render both rows")
+            return
+        }
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
+                                            schemaKey: rootSchemaID, row: initialRow1))
+        XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-1", schemaKey: rootSchemaID))
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
+                                            schemaKey: rootSchemaID, row: initialRow2))
+        XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-2", schemaKey: rootSchemaID))
+
+        editor.change(changes: [collectionRowUpdate(
+            rowID: "root-1",
+            cells: [rootDdCol: optNo]
+        )])
+        waitForMainQueue()
+
+        guard let updatedRow1 = viewModel.rowToValueElementMap["root-1"],
+              let updatedRow2 = viewModel.rowToValueElementMap["root-2"] else {
+            XCTFail("The collection must retain both rows")
+            return
+        }
+        XCTAssertEqual(rootRow(editor, id: "root-1")?.cells?[rootDdCol]?.text, optNo,
+                       "Public document stores the changed collection decision")
+        XCTAssertEqual(rootRow(editor, id: "root-1")?.cells?[rootTextCol]?.text, "Keep explanation",
+                       "A partial update must preserve an omitted collection explanation")
+        XCTAssertEqual(
+            viewModel.tableDataModel.filteredcellModels
+                .first(where: { $0.rowID == "root-1" })?
+                .cells.first(where: { $0.data.id == rootTextCol })?.data.title,
+            "Keep explanation",
+            "Rendered collection keeps the omitted explanation"
+        )
+        XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
+                                             schemaKey: rootSchemaID, row: updatedRow1),
+                       "Public API makes the target collection explanation optional")
+        XCTAssertFalse(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-1", schemaKey: rootSchemaID),
+                       "Rendered collection makes the target explanation optional")
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
+                                            schemaKey: rootSchemaID, row: updatedRow2),
+                      "Public API keeps the untouched collection row required")
+        XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-2", schemaKey: rootSchemaID),
+                      "Rendered collection keeps the untouched row required")
+    }
+
+    func testExternalNestedCollectionRowUpdateReevaluatesRequiredCells() {
+        let childText: [String: Any] = ["_id": childTextCol, "type": "text", "title": "Child answer"]
+        let childNotes: [String: Any] = [
+            "_id": childNotesCol, "type": "text", "title": "Child notes",
+            "cellRequiredLogic": cellRequiredLogic(
+                action: "enforce",
+                condColumn: childTextCol,
+                value: "",
+                condition: "*="
+            )
+        ]
+        let editor = documentEditor(document: makeCollectionDoc(
+            rootColumns: [["_id": rootTextCol, "type": "text", "title": "Root text"]],
+            nestedColumns: [childText, childNotes],
+            rootRows: [[
+                "_id": "root-1",
+                "cells": [rootTextCol: ""],
+                "children": [nestedSchemaID: ["value": [[
+                    "_id": "child-1",
+                    "cells": [childTextCol: "", childNotesCol: ""]
+                ]]]]
+            ]]
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionToLoad(viewModel)
+        guard let initialRow = viewModel.rowToValueElementMap["child-1"] else {
+            XCTFail("The collection must load nested row child-1")
+            return
+        }
+
+        XCTAssertFalse(editor.isCellRequired(
+            columnID: childNotesCol,
+            fieldID: collectionFieldID,
+            schemaKey: nestedSchemaID,
+            row: initialRow
+        ), "Public API starts with child notes optional")
+        XCTAssertFalse(viewModel.isCellRequired(
+            columnID: childNotesCol,
+            rowID: "child-1",
+            schemaKey: nestedSchemaID
+        ), "Rendered collection starts with child notes optional")
+
+        editor.change(changes: [collectionRowUpdate(
+            rowID: "child-1",
+            cells: [childTextCol: "Needs notes"],
+            schemaID: nestedSchemaID
+        )])
+        waitForMainQueue()
+
+        guard let updatedRow = viewModel.rowToValueElementMap["child-1"] else {
+            XCTFail("The collection must retain nested row child-1")
+            return
+        }
+        XCTAssertEqual(nestedRow(editor, parentID: "root-1", childID: "child-1")?.cells?[childTextCol]?.text,
+                       "Needs notes", "Public document stores the external nested answer")
+        XCTAssertEqual(updatedRow.cells?[childTextCol]?.text, "Needs notes",
+                       "Rendered collection stores the external nested answer")
+        XCTAssertTrue(editor.isCellRequired(
+            columnID: childNotesCol,
+            fieldID: collectionFieldID,
+            schemaKey: nestedSchemaID,
+            row: updatedRow
+        ), "Public API requires child notes after the nested answer changes")
+        XCTAssertTrue(viewModel.isCellRequired(
+            columnID: childNotesCol,
+            rowID: "child-1",
+            schemaKey: nestedSchemaID
+        ), "Rendered collection requires child notes after the nested answer changes")
     }
 
     func testCollectionRequiredRulesFollowRowsThroughAddDuplicateAndDelete() {
