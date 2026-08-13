@@ -793,3 +793,9 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isFieldRequired(fieldID: collectionFieldID))
     }
 }
+
+//Missing tests
+//
+//External row updates
+//validate() method tests
+//page duplicate and delete tests with these functionalities
