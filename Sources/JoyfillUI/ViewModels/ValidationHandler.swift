@@ -216,8 +216,8 @@ class ValidationHandler {
         var isTableValid = true
 
         for row in nonDeletedRows {
+            guard let rowID = row.id else { continue }
             let cells = row.cells ?? [:]
-            let rowID = row.id ?? ""
 
             var cellValidities = [CellValidity]()
             for column in visibleColumns {
@@ -308,9 +308,9 @@ class ValidationHandler {
         fieldID: String,
         documentEditor: DocumentEditor
     ) -> [CellValidity] {
+        guard let rowID = row.id else { return [] }
         let columns = schema.tableColumns ?? []
         let cells = row.cells ?? [:]
-        let rowID = row.id ?? ""
         var cellValidities = [CellValidity]()
 
         for column in columns {
