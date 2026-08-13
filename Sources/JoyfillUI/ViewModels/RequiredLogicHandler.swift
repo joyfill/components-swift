@@ -19,25 +19,16 @@ import JoyfillModel
 class RequiredLogicHandler {
     weak var documentEditor: DocumentEditor!
 
-    // Cached effective required state, used to detect changes for dependent-field refresh.
-    private var requiredFieldMap = [String: Bool]()
-    private var requiredColumnMap = [String: [ColumnSchemaID: Bool]]() // fieldID -> column -> required
+    // Is it required? — the answers the UI reads.
+    private var requiredFieldMap = [String: Bool]()                      // fieldID : isRequired
+    private var requiredColumnMap = [String: [ColumnSchemaID: Bool]]()   // fieldID : (columnID + schemaID) : isRequired
+    private var cellRequiredMap = [String: [CellVisibilityID: Bool]]()   // fieldID : (rowID + columnID) : isRequired
 
-    // dependentFieldID (a field referenced by some requiredLogic condition) -> owning field/table/collection ids
-    private var requiredDependencyMap = [String: Set<String>]()
-
-    // dependentFieldID (a page field referenced by some cellRequiredLogic condition) -> owning table/collection ids
-    private var cellRequiredDependencyMap = [String: Set<String>]()
-
-    // Per-cell effective required state, mirroring ConditionalLogicHandler.cellVisibilityMap.
-    // fieldID -> (rowID + columnID) -> isRequired
-    var cellRequiredMap = [String: [CellVisibilityID: Bool]]()
-    // fieldID -> siblingColumnID -> dependent columnIDs (cellRequiredLogic `column` conditions)
-    var cellRequiredSiblingDependencyMap = [String: [String: Set<String>]]()
-    // pageFieldID -> dependent (tableFieldID, columnID, schemaID); covers cellRequiredLogic `field`
-    // conditions and column requiredLogic `field` conditions, both of which drive the stored per-cell
-    // value. schemaID is nil for tables, the schema key for collections.
-    var pageFieldCellRequiredDependencyMap = [String: [(tableFieldID: String, columnID: String, schemaID: String?)]]()
+    // What to refresh when something changes. Built from the logic listed first, keyed by what changed.
+    private var requiredFieldDependencyMap = [String: Set<String>]()                 // requiredLogic `field` conditions → changed fieldID : fields/tables to re-render
+    private var cellRequiredFieldDependencyMap = [String: Set<String>]()             // cellRequiredLogic `field` conditions → changed fieldID : tables to re-render (per-row, so the column check misses it)
+    private var cellRequiredSiblingDependencyMap = [String: [String: Set<String>]]() // cellRequiredLogic `column` conditions → fieldID : siblingColumnID : dependent columnIDs
+    private var fieldCellRequiredDependencyMap = [String: [(tableFieldID: String, columnID: String, schemaID: String?)]]() // both logics' `field` conditions → changed fieldID : dependent (tableFieldID, columnID, schemaID); schemaID is nil for tables
 
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
@@ -84,8 +75,8 @@ class RequiredLogicHandler {
 
     /// Fields that must be re-rendered because `fieldID` changed and some requiredLogic depends on it.
     func fieldsNeedsToBeRefreshed(fieldID: String) -> [String] {
-        let cellOwners = cellRequiredDependencyMap[fieldID] ?? Set<String>()
-        var owners = requiredDependencyMap[fieldID] ?? Set<String>()
+        let cellOwners = cellRequiredFieldDependencyMap[fieldID] ?? Set<String>()
+        var owners = requiredFieldDependencyMap[fieldID] ?? Set<String>()
         owners.formUnion(cellOwners)
         guard !owners.isEmpty else { return [] }
         var refreshIDs = [String]()
@@ -148,10 +139,10 @@ class RequiredLogicHandler {
     }
 
     private func registerColumnDependencies(column: FieldTableColumn, ownerFieldID: String) {
-        // Column requiredLogic references page-level fields; register those as dependencies.
+        // Column requiredLogic references document-level fields; register those as dependencies.
         register(logic: column.requiredLogic, ownerFieldID: ownerFieldID)
         // cellRequiredLogic resolves sibling-cell (`column`) conditions from the row itself — a change
-        // there already refreshes the owning table/collection. But it can ALSO reference page-level
+        // there already refreshes the owning table/collection. But it can ALSO reference document-level
         // fields (`field` conditions); track those separately so an external change forces the owning
         // table/collection to re-validate its per-row cells.
         registerCellLogicDependencies(logic: column.cellRequiredLogic, ownerFieldID: ownerFieldID)
@@ -161,21 +152,21 @@ class RequiredLogicHandler {
         guard let conditions = logic?.conditions else { return }
         for condition in conditions {
             guard let dependentFieldID = condition.field else { continue }
-            var owners = requiredDependencyMap[dependentFieldID] ?? Set<String>()
+            var owners = requiredFieldDependencyMap[dependentFieldID] ?? Set<String>()
             owners.insert(ownerFieldID)
-            requiredDependencyMap[dependentFieldID] = owners
+            requiredFieldDependencyMap[dependentFieldID] = owners
         }
     }
 
     private func registerCellLogicDependencies(logic: Logic?, ownerFieldID: String) {
         guard let conditions = logic?.conditions else { return }
         for condition in conditions {
-            // Only `field` (page-level) conditions are external dependencies; `column` (sibling) ones
+            // Only `field` (document-level) conditions are external dependencies; `column` (sibling) ones
             // resolve from the row itself.
             guard let dependentFieldID = condition.field else { continue }
-            var owners = cellRequiredDependencyMap[dependentFieldID] ?? Set<String>()
+            var owners = cellRequiredFieldDependencyMap[dependentFieldID] ?? Set<String>()
             owners.insert(ownerFieldID)
-            cellRequiredDependencyMap[dependentFieldID] = owners
+            cellRequiredFieldDependencyMap[dependentFieldID] = owners
         }
     }
 
@@ -316,8 +307,8 @@ extension RequiredLogicHandler {
         for condition in conditions {
             if let siblingColumnID = condition.column {
                 dependencyMap[siblingColumnID, default: Set()].insert(columnID)
-            } else if let pageFieldID = condition.field {
-                pageFieldCellRequiredDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: schemaID))
+            } else if let dependentFieldID = condition.field {
+                fieldCellRequiredDependencyMap[dependentFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: schemaID))
             }
         }
     }
@@ -379,10 +370,10 @@ extension RequiredLogicHandler {
         return dependentColumns.filter { updateCellRequired(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
     }
 
-    /// Page-field change: re-resolve every affected cell. The owning table/collection re-renders via
-    /// `fieldsNeedsToBeRefreshed`, so this only has to leave the map correct before that read.
-    func cellRequiredNeedRefreshForPageField(pageFieldID: String) {
-        guard let refs = pageFieldCellRequiredDependencyMap[pageFieldID] else { return }
+    /// Outside-the-table field change: re-resolve every affected cell. The owning table/collection
+    /// re-renders via `fieldsNeedsToBeRefreshed`, so this only has to leave the map correct before that read.
+    func cellRequiredNeedRefreshForField(fieldID: String) {
+        guard let refs = fieldCellRequiredDependencyMap[fieldID] else { return }
         for ref in refs {
             guard let field = documentEditor.field(fieldID: ref.tableFieldID) else { continue }
             let columns = columns(fieldID: ref.tableFieldID, schemaKey: ref.schemaID)
