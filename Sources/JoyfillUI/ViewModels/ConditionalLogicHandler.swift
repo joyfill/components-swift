@@ -687,14 +687,17 @@ extension ConditionalLogicHandler {
         }
     }
 
-    func addCellVisibilityForRow(fieldID: String, row: ValueElement) {
-        guard let columns = documentEditor.field(fieldID: fieldID)?.tableColumns else { return }
+    func addCellVisibilityForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        guard let columns = columns(fieldID: fieldID, schemaID: schemaID) else { return }
         setCellVisibility(fieldID: fieldID, columns: columns, row: row)
     }
 
-    func addCellVisibilityForRow(fieldID: String, schemaID: String, row: ValueElement) {
-        guard let columns = documentEditor.field(fieldID: fieldID)?.schema?[schemaID]?.tableColumns else { return }
-        setCellVisibility(fieldID: fieldID, columns: columns, row: row)
+    private func columns(fieldID: String, schemaID: String?) -> [FieldTableColumn]? {
+        guard let field = documentEditor.field(fieldID: fieldID) else { return nil }
+        if let schemaID = schemaID {
+            return field.schema?[schemaID]?.tableColumns
+        }
+        return field.tableColumns
     }
 
     private func setCellVisibility(fieldID: String, columns: [FieldTableColumn], row: ValueElement) {
@@ -753,16 +756,9 @@ extension ConditionalLogicHandler {
         return cellVisibilityMap[fieldID]?[cellID] ?? true
     }
 
-    func cellsNeedToBeRefreshed(fieldID: String, editedColumnID: String, row: ValueElement) -> [String] {
+    func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
         guard let dependentColumns = cellVisibilityDependencyMap[fieldID]?[editedColumnID],
-              let columns = documentEditor.field(fieldID: fieldID)?.tableColumns else { return [] }
-
-        return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
-    }
-
-    func cellsNeedToBeRefreshed(fieldID: String, schemaID: String, editedColumnID: String, row: ValueElement) -> [String] {
-        guard let dependentColumns = cellVisibilityDependencyMap[fieldID]?[editedColumnID],
-              let columns = documentEditor.field(fieldID: fieldID)?.schema?[schemaID]?.tableColumns else { return [] }
+              let columns = columns(fieldID: fieldID, schemaID: schemaID) else { return [] }
 
         return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
     }
