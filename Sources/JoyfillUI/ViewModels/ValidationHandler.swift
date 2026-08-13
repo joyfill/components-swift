@@ -217,17 +217,18 @@ class ValidationHandler {
 
         for row in nonDeletedRows {
             let cells = row.cells ?? [:]
+            let rowID = row.id ?? ""
 
             var cellValidities = [CellValidity]()
             for column in visibleColumns {
                 guard let columnID = column.id else { continue }
 
-                if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, row: row) {
+                if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, rowID: rowID) {
                     cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                     continue
                 }
 
-                let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, row: row)
+                let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
 
                 if !isRequired {
                     cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
@@ -309,6 +310,7 @@ class ValidationHandler {
     ) -> [CellValidity] {
         let columns = schema.tableColumns ?? []
         let cells = row.cells ?? [:]
+        let rowID = row.id ?? ""
         var cellValidities = [CellValidity]()
 
         for column in columns {
@@ -318,12 +320,12 @@ class ValidationHandler {
                 continue
             }
 
-            if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, row: row) {
+            if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, rowID: rowID) {
                 cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue
             }
 
-            let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaId, row: row)
+            let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaId, rowID: rowID)
             if !isRequired {
                 cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue

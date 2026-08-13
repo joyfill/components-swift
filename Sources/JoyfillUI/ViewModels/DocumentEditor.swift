@@ -264,8 +264,8 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShow(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
     }
 
-    public func shouldShowCell(columnID: String, fieldID: String, row: ValueElement) -> Bool {
-        return conditionalLogicHandler.shouldShowCell(fieldID: fieldID, columnID: columnID, row: row)
+    public func shouldShowCell(columnID: String, fieldID: String, rowID: String) -> Bool {
+        return conditionalLogicHandler.shouldShowCell(fieldID: fieldID, columnID: columnID, rowID: rowID)
     }
 
     public func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
@@ -309,8 +309,8 @@ public class DocumentEditor: ObservableObject {
     }
 
     /// Effective required-ness of a single cell, honouring `cellRequiredLogic` (per-row) then `requiredLogic`.
-    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, row: ValueElement) -> Bool {
-        return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, row: row)
+    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
+        return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, rowID: rowID)
     }
 
     public func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
