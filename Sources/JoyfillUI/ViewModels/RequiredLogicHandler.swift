@@ -68,8 +68,8 @@ class RequiredLogicHandler {
     /// `ConditionalLogicHandler.shouldShowCell`. The cache is authoritative for both tables and
     /// collections; a cell with no required signal is absent from the map and reads as `false`.
     /// `schemaKey` is accepted for call-site symmetry but not needed for the read (row IDs are unique).
-    func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, row: ValueElement) -> Bool {
-        let cellID = CellVisibilityID(rowID: row.id ?? "", columnID: columnID)
+    func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
+        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
         return cellRequiredMap[fieldID]?[cellID] ?? false
     }
 

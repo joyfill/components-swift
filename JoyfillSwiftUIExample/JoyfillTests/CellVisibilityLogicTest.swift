@@ -163,46 +163,46 @@ final class CellVisibilityLogicTest: XCTestCase {
     /// action=show, condition met -> cell visible
     func testShowWhenConditionMet() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
-        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID))
+        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID)
         XCTAssertTrue(result, "Reason cell should show when status == Rejected (show action, condition met)")
     }
 
     /// action=show, condition not met -> cell hidden
     func testHiddenWhenShowConditionNotMet() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
-        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID))
+        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID)
         XCTAssertFalse(result, "Reason cell should hide when status != Rejected (show action, condition not met)")
     }
 
     /// action=hide, condition met -> cell hidden
     func testHideWhenConditionMet() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: false, row1Status: "Rejected", row2Status: "Approved"))
-        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID))
+        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID)
         XCTAssertFalse(result, "Reason cell should hide when status == Rejected (hide action, condition met)")
     }
 
     /// action=hide, condition not met -> cell visible
     func testShownWhenHideConditionNotMet() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: false, row1Status: "Rejected", row2Status: "Approved"))
-        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID))
+        let result = editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID)
         XCTAssertTrue(result, "Reason cell should stay visible when status != Rejected (hide action, condition not met)")
     }
 
     /// A column with no cellVisibilityLogic is always visible
     func testColumnWithoutLogicAlwaysVisible() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
-        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)))
-        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)))
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, rowID: row1ID))
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, rowID: row2ID))
     }
 
     /// Unknown column / field / row default to visible
     func testUnknownLookupsDefaultToVisible() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let row1 = rowElement(editor, rowID: row1ID)
-        XCTAssertTrue(editor.shouldShowCell(columnID: "unknown_col", fieldID: tableFieldID, row: row1), "Unknown column defaults to visible")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: "unknown_field", row: row1), "Unknown field defaults to visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: "unknown_col", fieldID: tableFieldID, rowID: row1.id ?? ""), "Unknown column defaults to visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: "unknown_field", rowID: row1.id ?? ""), "Unknown field defaults to visible")
         let unknownRow = row(id: "unknown_row", cells: [statusColumnID: "Rejected"])
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: unknownRow), "Unknown row defaults to visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: unknownRow.id ?? ""), "Unknown row defaults to visible")
     }
 
     // MARK: - cellsHidden baseline (mirrors a field's static `hidden` flag)
@@ -218,9 +218,9 @@ final class CellVisibilityLogicTest: XCTestCase {
         let rows = [row(id: row1ID, cells: [statusColumnID: "Rejected"])]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
         let r = rowElement(editor, rowID: row1ID)
-        XCTAssertFalse(editor.shouldShowCell(columnID: "col_hidden", fieldID: tableFieldID, row: r), "cellsHidden:true with no logic -> hidden")
-        XCTAssertTrue(editor.shouldShowCell(columnID: "col_shown", fieldID: tableFieldID, row: r), "cellsHidden:false with no logic -> visible")
-        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, row: r), "no cellsHidden, no logic -> visible")
+        XCTAssertFalse(editor.shouldShowCell(columnID: "col_hidden", fieldID: tableFieldID, rowID: r.id ?? ""), "cellsHidden:true with no logic -> hidden")
+        XCTAssertTrue(editor.shouldShowCell(columnID: "col_shown", fieldID: tableFieldID, rowID: r.id ?? ""), "cellsHidden:false with no logic -> visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, rowID: r.id ?? ""), "no cellsHidden, no logic -> visible")
     }
 
     /// A `hide`-action column shows non-matching rows and hides matching rows; `cellsHidden` on a
@@ -239,8 +239,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [statusColumnID: "Approved"])   // not met -> show
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "hide + condition met -> hidden")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hide + condition not met -> visible (cellsHidden:true ignored on a logic column)")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "hide + condition met -> hidden")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hide + condition not met -> visible (cellsHidden:true ignored on a logic column)")
     }
 
     /// A `show`-action column hides non-matching rows; `cellsHidden` on a logic column is ignored.
@@ -255,7 +255,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         ]
         let rows = [row(id: row1ID, cells: [statusColumnID: "Approved"])] // condition not met
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "show + condition not met -> hidden")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "show + condition not met -> hidden")
     }
 
     // MARK: - Multiple conditions (AND / OR)
@@ -280,8 +280,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [statusColumnID: "Rejected", noteColumnID: "later"])             // one fails
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "Visible when both AND conditions met")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "Hidden when one AND condition fails")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "Visible when both AND conditions met")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Hidden when one AND condition fails")
     }
 
     /// OR: visible when either sibling condition is met
@@ -304,8 +304,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [statusColumnID: "Approved", noteColumnID: "later"])           // neither met
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "Visible when one OR condition met")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "Hidden when no OR condition met")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "Visible when one OR condition met")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Hidden when no OR condition met")
     }
 
     // MARK: - Dependency-driven refresh (Map 2)
@@ -341,9 +341,9 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let editedRow = row(id: row2ID, cells: [statusColumnID: "Rejected"])
 
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "Reason hidden before edit")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Reason hidden before edit")
         _ = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: editedRow), "Reason visible after refreshing with status=Rejected")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "Reason visible after refreshing with status=Rejected")
     }
 
     // MARK: - Map 1 maintenance (insert / delete)
@@ -353,16 +353,16 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let newRow = row(id: "row_new", cells: [statusColumnID: "Rejected"])
         editor.addCellVisibilityForRow(fieldID: tableFieldID, row: newRow)
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: newRow), "New row's reason should be visible (status=Rejected)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: newRow.id ?? ""), "New row's reason should be visible (status=Rejected)")
     }
 
     /// removeCellVisibilityForRow drops the row's entries; reads fall back to visible default
     func testRemoveCellVisibilityForRow() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let row2 = rowElement(editor, rowID: row2ID)
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: row2), "Reason hidden before removal")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2.id ?? ""), "Reason hidden before removal")
         editor.removeCellVisibilityForRow(fieldID: tableFieldID, rowID: row2ID)
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: row2), "After removal the entry is gone, defaulting to visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2.id ?? ""), "After removal the entry is gone, defaulting to visible")
     }
 
     // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
@@ -404,7 +404,7 @@ final class CellVisibilityLogicTest: XCTestCase {
             return
         }
         XCTAssertEqual(
-            editor.shouldShowCell(columnID: columnID, fieldID: tableFieldID, row: row),
+            editor.shouldShowCell(columnID: columnID, fieldID: tableFieldID, rowID: row.id ?? ""),
             !isHidden,
             "Public API: \(message)",
             file: file,
@@ -434,7 +434,7 @@ final class CellVisibilityLogicTest: XCTestCase {
             return
         }
         XCTAssertEqual(
-            editor.shouldShowCell(columnID: columnID, fieldID: collectionFieldID, row: row),
+            editor.shouldShowCell(columnID: columnID, fieldID: collectionFieldID, rowID: row.id ?? ""),
             !isHidden,
             "Public API: \(message)",
             file: file,
@@ -452,7 +452,7 @@ final class CellVisibilityLogicTest: XCTestCase {
     /// Mirrors TableModalTopNavigationView's single-row hidden-cell gate.
     private func tableEditFormWouldHideCell(_ vm: TableViewModel, columnID: String) -> Bool {
         let singleRowID: String? = vm.tableDataModel.selectedRows.count == 1 ? vm.tableDataModel.selectedRows.first : nil
-        return singleRowID.map { vm.isCellHidden(columnID: columnID, row: vm.rowElement(forRowID: $0)) } ?? false
+        return singleRowID.map { vm.isCellHidden(columnID: columnID, rowID: $0) } ?? false
     }
 
     // MARK: - Table edit-form gating (mirrors Collection's single-row/bulk-edit gate)
@@ -466,7 +466,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
                              isHidden: true, "reason is hidden for status=Approved")
         XCTAssertTrue(tableEditFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should skip hidden reason cell")
-        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, row: vm.rowElement(forRowID: row1ID)!))
+        XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: tableFieldID, rowID: row1ID))
         XCTAssertFalse(tableEditFormWouldHideCell(vm, columnID: noteColumnID), "single-row edit form should keep independent visible cells")
     }
 
@@ -697,13 +697,13 @@ final class CellVisibilityLogicTest: XCTestCase {
         let rows = [row(id: row1ID, cells: [statusColumnID: "Approved", middleColumnID: "Ready"])]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
 
-        XCTAssertFalse(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "middle hidden before edit (status != Rejected)")
-        XCTAssertTrue(editor.shouldShowCell(columnID: chainedDependentColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "chained dependent already visible because middle's stored value is Ready, independent of middle's own visibility")
+        XCTAssertFalse(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, rowID: row1ID), "middle hidden before edit (status != Rejected)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: chainedDependentColumnID, fieldID: tableFieldID, rowID: row1ID), "chained dependent already visible because middle's stored value is Ready, independent of middle's own visibility")
 
         let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected", middleColumnID: "Ready"])
         let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertEqual(flipped, [middleColumnID], "only the direct dependent (middle) is reported; chainedDependent is not re-evaluated as a side effect")
-        XCTAssertTrue(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, row: editedRow), "middle now visible (status=Rejected)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "middle now visible (status=Rejected)")
     }
 
     // MARK: - Additional condition operators
@@ -723,8 +723,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [statusColumnID: "Approved"])
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when status != Approved")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status == Approved")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "visible when status != Approved")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hidden when status == Approved")
     }
 
     /// `>`: visible when the sibling numeric value exceeds the condition value.
@@ -743,8 +743,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [scoreColumnID: 20])
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when score > 50")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when score <= 50")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "visible when score > 50")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hidden when score <= 50")
     }
 
     /// `<`: visible when the sibling numeric value is below the condition value.
@@ -763,8 +763,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [scoreColumnID: 75])
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when score < 50")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when score >= 50")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "visible when score < 50")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hidden when score >= 50")
     }
 
     /// `null=`: visible when the sibling value is empty/missing.
@@ -782,8 +782,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [statusColumnID: "Approved"])
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when status is empty")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status is not empty")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "visible when status is empty")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hidden when status is not empty")
     }
 
     /// `*=`: visible when the sibling value is non-empty.
@@ -801,8 +801,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             row(id: row2ID, cells: [:])
         ]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "visible when status is not empty")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row2ID)), "hidden when status is empty")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "visible when status is not empty")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hidden when status is empty")
     }
 
     /// `cellVisibilityLogic` present with conditions but no `action` can't be evaluated; it must
@@ -824,7 +824,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         let rows = [row(id: row1ID, cells: [statusColumnID: "Rejected"])]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
 
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: rowElement(editor, rowID: row1ID)), "action-less cellVisibilityLogic must default to visible, ignoring cellsHidden:true")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "action-less cellVisibilityLogic must default to visible, ignoring cellsHidden:true")
     }
 
     // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
@@ -990,8 +990,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
         let editedRow = rowElement(editor, rowID: row1ID)
 
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, row: editedRow), "reason hidden when status == Rejected")
-        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: tableFieldID, row: editedRow), "reason is still required")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "reason hidden when status == Rejected")
+        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "reason is still required")
 
         let status = editor.validate().fieldValidities
             .first(where: { $0.fieldId == tableFieldID })?
@@ -1126,7 +1126,7 @@ final class CellVisibilityLogicTest: XCTestCase {
     /// Mirrors CollectionEditMultipleRowsSheetView's single-row hidden-cell gate.
     private func editFormWouldHideCell(_ vm: CollectionViewModel, columnID: String) -> Bool {
         let singleRowID: String? = vm.tableDataModel.selectedRows.count == 1 ? vm.tableDataModel.selectedRows.first : nil
-        return singleRowID.map { vm.isCellHidden(columnID: columnID, row: vm.rowToValueElementMap[$0]) } ?? false
+        return singleRowID.map { vm.isCellHidden(columnID: columnID, rowID: $0) } ?? false
     }
 
     /// Load: sibling condition met on a root row -> reason visible; not met -> hidden.
@@ -1140,8 +1140,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootRows: [collRootRow(id: collRootRow1, status: "Rejected"),
                        collRootRow(id: collRootRow2, status: "Approved")]
         ))
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "row1 reason visible (status=Rejected)")
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow2)), "row2 reason hidden (status=Approved)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "row1 reason visible (status=Rejected)")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow2), "row2 reason hidden (status=Approved)")
     }
 
     /// Load: nested child rows get their own cell visibility computed from their own cells.
@@ -1155,8 +1155,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootRows: [collRootRow(id: collRootRow1, status: "Approved",
                                    children: [collChildRow(id: collChildRow1, status: "Rejected")])]
         ))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "root reason hidden (status=Approved)")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "nested child reason visible (status=Rejected)")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "root reason hidden (status=Approved)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "nested child reason visible (status=Rejected)")
     }
 
     /// Sibling edit: recomputing with a new sibling value flips the dependent cell (schema-aware refresh).
@@ -1169,12 +1169,12 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootReasonLogic: logic,
             rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
         ))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason hidden before edit")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason hidden before edit")
 
         let editedRow = ValueElement(dictionary: ["_id": collRootRow1, "cells": [statusColumnID: "Rejected"]])
         let flipped = editor.cellsNeedToBeRefreshed(fieldID: collectionFieldID, schemaID: collRootSchema, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertEqual(flipped, [reasonColumnID], "reason column reported as flipped")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "reason visible after status=Rejected")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason visible after status=Rejected")
     }
 
     /// Add-row: schema-aware seeding makes a newly inserted row read correctly.
@@ -1189,7 +1189,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         ))
         let newRow = ValueElement(dictionary: ["_id": "coll_root_new", "cells": [statusColumnID: "Rejected"]])
         editor.addCellVisibilityForRow(fieldID: collectionFieldID, schemaID: collRootSchema, row: newRow)
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: newRow), "new row reason visible (status=Rejected)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: newRow.id ?? ""), "new row reason visible (status=Rejected)")
     }
 
     /// Delete-row: removal drops the row's entries; subsequent reads fall back to the visible default.
@@ -1203,9 +1203,9 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootRows: [collRootRow(id: collRootRow2, status: "Approved")]
         ))
         let row2 = collRowElement(editor, rowID: collRootRow2)
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: row2), "reason hidden before removal")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: row2.id ?? ""), "reason hidden before removal")
         editor.removeCellVisibilityForRow(fieldID: collectionFieldID, rowID: collRootRow2)
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: row2), "entry gone after removal -> defaults visible")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: row2.id ?? ""), "entry gone after removal -> defaults visible")
     }
 
     /// Page-field change: editing the referenced page field flips all dependent collection cells.
@@ -1216,12 +1216,12 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootRows: [collRootRow(id: collRootRow1, status: "Approved")],
             pageValue: "No"
         ))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason hidden while page field != Yes")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason hidden while page field != Yes")
 
         let identifier = FieldIdentifier(fieldID: pageTextFieldID, pageID: pageID, fileID: fileID)
         editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
 
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collRootRow1)), "reason visible after page field -> Yes")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason visible after page field -> Yes")
     }
 
     func testExternalPageFieldUpdateRefreshesTableConditionalCells() {
@@ -1310,12 +1310,12 @@ final class CellVisibilityLogicTest: XCTestCase {
                                    children: [collChildRow(id: collChildRow1, status: "Approved")])],
             pageValue: "No"
         ))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "child reason hidden while page field != Yes")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason hidden while page field != Yes")
 
         let identifier = FieldIdentifier(fieldID: pageTextFieldID, pageID: pageID, fileID: fileID)
         editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
 
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "child reason visible after page field -> Yes")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason visible after page field -> Yes")
     }
 
     /// Sibling edit: recomputing with a new sibling value flips a CHILD schema's dependent cell
@@ -1330,12 +1330,12 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootRows: [collRootRow(id: collRootRow1, status: "Approved",
                                    children: [collChildRow(id: collChildRow1, status: "Approved")])]
         ))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: collRowElement(editor, rowID: collChildRow1)), "child reason hidden before edit")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason hidden before edit")
 
         let editedRow = ValueElement(dictionary: ["_id": collChildRow1, "cells": [statusColumnID: "Rejected"]])
         let flipped = editor.cellsNeedToBeRefreshed(fieldID: collectionFieldID, schemaID: collChildSchema, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertEqual(flipped, [reasonColumnID], "child reason column reported as flipped")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "child reason visible after status=Rejected")
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "child reason visible after status=Rejected")
     }
 
     /// Row-edit modal: single-row edit skips a collection cell hidden by cellVisibilityLogic.
@@ -1357,7 +1357,7 @@ final class CellVisibilityLogicTest: XCTestCase {
                              isHidden: true, "reason is hidden for status=Approved")
         XCTAssertTrue(editFormWouldHideCell(vm, columnID: reasonColumnID), "single-row edit form should skip hidden reason cell")
         XCTAssertTrue(editor.shouldShowCell(columnID: noteColumnID, fieldID: collectionFieldID,
-                                            row: vm.rowToValueElementMap[collRootRow1]!))
+                                            rowID: collRootRow1))
         XCTAssertFalse(editFormWouldHideCell(vm, columnID: noteColumnID), "single-row edit form should keep independent visible cells")
     }
 
@@ -1479,7 +1479,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(
             columnID: reasonColumnID,
             fieldID: collectionFieldID,
-            row: collRowElement(editor, rowID: collChildRow1)
+            rowID: collChildRow1
         ), "Public API reports the nested reason hidden before the external update")
         XCTAssertEqual(viewModel.rowToValueElementMap[collChildRow1]?.cells?[statusColumnID]?.text, "Approved",
                        "Rendered collection starts with the nested status set to Approved")
@@ -1499,7 +1499,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertTrue(editor.shouldShowCell(
             columnID: reasonColumnID,
             fieldID: collectionFieldID,
-            row: collRowElement(editor, rowID: collChildRow1)
+            rowID: collChildRow1
         ), "Public API reveals the nested reason after its sibling status changes")
     }
 
@@ -1548,8 +1548,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: document, license: license)
         let editedRow = collRowElement(editor, rowID: collRootRow1)
 
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: editedRow), "reason hidden when status == Rejected")
-        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: collectionFieldID, schemaKey: collRootSchema, row: editedRow), "reason is still required")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason hidden when status == Rejected")
+        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: collectionFieldID, schemaKey: collRootSchema, rowID: editedRow.id ?? ""), "reason is still required")
 
         let status = editor.validate().fieldValidities
             .first(where: { $0.fieldId == collectionFieldID })?
@@ -1612,13 +1612,13 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editor = documentEditor(document: document, license: license)
         let nestedRow = collRowElement(editor, rowID: collChildRow1)
 
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, row: nestedRow),
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: nestedRow.id ?? ""),
                        "Nested reason is hidden when status is Rejected")
         XCTAssertTrue(editor.isCellRequired(
             columnID: reasonColumnID,
             fieldID: collectionFieldID,
             schemaKey: collChildSchema,
-            row: nestedRow
+            rowID: nestedRow.id ?? ""
         ), "Nested reason remains required according to its schema")
 
         let status = editor.validate().fieldValidities
@@ -1766,11 +1766,11 @@ final class CellVisibilityLogicTest: XCTestCase {
         }
 
         XCTAssertEqual(duplicated.pageField.value?.text, "Yes", "Page 2 starts with Page 1's copied trigger value")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID, row: tableRow),
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID, rowID: tableRow.id ?? ""),
                       "Page 2 table visibility uses its copied page value")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: rootRow),
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, rowID: rootRow.id ?? ""),
                       "Page 2 collection root visibility uses its copied page value")
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: childRow),
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, rowID: childRow.id ?? ""),
                       "Page 2 nested visibility uses its copied page value")
 
         editor.change(changes: [externalFieldUpdate(
@@ -1782,19 +1782,19 @@ final class CellVisibilityLogicTest: XCTestCase {
         let updatedTable = editor.field(fieldID: duplicatedTableID)!
         let updatedCollection = editor.field(fieldID: duplicatedCollectionID)!
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
-                                             row: row(in: updatedTable, rowID: row1ID)!),
+                                             rowID: row1ID),
                        "Changing Page 2 hides only Page 2's table reason")
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
-                                             row: row(in: updatedCollection, rowID: collRootRow1)!),
+                                             rowID: collRootRow1),
                        "Changing Page 2 hides its collection root reason")
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
-                                             row: row(in: updatedCollection, rowID: collChildRow1)!),
+                                             rowID: collChildRow1),
                        "Changing Page 2 hides its nested reason")
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID,
-                                            row: rowElement(editor, rowID: row1ID)),
+                                            rowID: row1ID),
                       "Changing Page 2 must not affect Page 1's table")
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID,
-                                            row: collRowElement(editor, rowID: collChildRow1)),
+                                            rowID: collChildRow1),
                       "Changing Page 2 must not affect Page 1's nested collection row")
 
         editor.change(changes: [externalFieldUpdate(
@@ -1805,14 +1805,13 @@ final class CellVisibilityLogicTest: XCTestCase {
         editor.change(changes: [externalFieldUpdate(fieldID: pageTextFieldID, value: "No")])
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID,
-                                             row: rowElement(editor, rowID: row1ID)),
+                                             rowID: row1ID),
                        "Page 1 follows its own updated value")
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
-                                            row: row(in: editor.field(fieldID: duplicatedTableID)!, rowID: row1ID)!),
+                                            rowID: row1ID),
                       "Changing Page 1 must not affect Page 2's table")
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
-                                            row: row(in: editor.field(fieldID: duplicatedCollectionID)!,
-                                                     rowID: collChildRow1)!),
+                                            rowID: collChildRow1),
                       "Changing Page 1 must not affect Page 2's nested collection row")
         XCTAssertEqual(editor.validate().status, .valid, "Duplicated-page visibility changes must keep the document valid")
     }
@@ -1868,9 +1867,9 @@ final class CellVisibilityLogicTest: XCTestCase {
             XCTFail("New Page 2 rows must be available through the rendered models")
             return
         }
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID, row: emptyTriggerTableRow))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: emptyTriggerRootRow))
-        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, row: emptyTriggerChildRow))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID, rowID: emptyTriggerTableRow.id ?? ""))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, rowID: emptyTriggerRootRow.id ?? ""))
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID, rowID: emptyTriggerChildRow.id ?? ""))
 
         editor.change(changes: [externalFieldUpdate(
             fieldID: duplicatedPageFieldID,
@@ -1879,19 +1878,19 @@ final class CellVisibilityLogicTest: XCTestCase {
         )])
 
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
-                                            row: tableViewModel.rowElement(forRowID: "page_2_table_row")!),
+                                            rowID: "page_2_table_row"),
                       "A new Page 2 table row follows Page 2's newly entered trigger value")
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
-                                            row: collectionViewModel.rowToValueElementMap["page_2_root_row"]!),
+                                            rowID: "page_2_root_row"),
                       "A new Page 2 collection row follows Page 2's newly entered trigger value")
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedCollectionID,
-                                            row: collectionViewModel.rowToValueElementMap["page_2_child_row"]!),
+                                            rowID: "page_2_child_row"),
                       "A new Page 2 nested row follows Page 2's newly entered trigger value")
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID,
-                                             row: rowElement(editor, rowID: row1ID)),
+                                             rowID: row1ID),
                        "Entering Page 2's value must not change Page 1's table")
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID,
-                                             row: collRowElement(editor, rowID: collChildRow1)),
+                                             rowID: collChildRow1),
                        "Entering Page 2's value must not change Page 1's nested row")
         XCTAssertEqual(editor.validate().status, .valid, "Rows created on a without-values copy must validate after visibility changes")
     }

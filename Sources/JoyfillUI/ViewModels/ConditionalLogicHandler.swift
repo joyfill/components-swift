@@ -751,8 +751,8 @@ extension ConditionalLogicHandler {
         cellVisibilityMap[fieldID] = cellVisibilityMap[fieldID]?.filter { $0.key.rowID != rowID }
     }
 
-    func shouldShowCell(fieldID: String, columnID: String, row: ValueElement) -> Bool {
-        let cellID = CellVisibilityID(rowID: row.id ?? "", columnID: columnID)
+    func shouldShowCell(fieldID: String, columnID: String, rowID: String) -> Bool {
+        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
         return cellVisibilityMap[fieldID]?[cellID] ?? true
     }
 

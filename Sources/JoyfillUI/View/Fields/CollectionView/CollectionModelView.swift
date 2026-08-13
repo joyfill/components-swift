@@ -20,7 +20,7 @@ struct CollectionRowView: View {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let schemaKey = rowDataModel.rowType.parentSchemaKey.isEmpty ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey
                 let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID, schemaKey: schemaKey) && !cellModel.data.isCellFilled
-                let isHidden = viewModel.isCellHidden(columnID: cellModel.data.id, row: viewModel.rowToValueElementMap[rowDataModel.rowID])
+                let isHidden = viewModel.isCellHidden(columnID: cellModel.data.id, rowID: rowDataModel.rowID)
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel, isHidden: isHidden)
                     .frame(width: 200, height: 60)

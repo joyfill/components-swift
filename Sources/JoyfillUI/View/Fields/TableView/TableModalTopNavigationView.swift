@@ -410,7 +410,7 @@ struct EditMultipleRowsSheetView: View {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
                     let singleRowID: String? = viewModel.tableDataModel.selectedRows.count == 1 ? viewModel.tableDataModel.selectedRows.first : nil
-                    let isCellHiddenInRowForm = singleRowID.map { viewModel.isCellHidden(columnID: col.id ?? "", row: viewModel.rowElement(forRowID: $0)) } ?? false
+                    let isCellHiddenInRowForm = singleRowID.map { viewModel.isCellHidden(columnID: col.id ?? "", rowID: $0) } ?? false
                     if !isCellHiddenInRowForm {
                     VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {

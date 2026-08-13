@@ -176,7 +176,7 @@ struct CollectionQuickView : View {
                     HStack(alignment: .top, spacing: 0) {
                         ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
                             let cell = rowDataModel.cells[index]
-                            let isHidden = viewModel.isCellHidden(columnID: cell.data.id, row: viewModel.rowToValueElementMap[rowDataModel.rowID])
+                            let isHidden = viewModel.isCellHidden(columnID: cell.data.id, rowID: rowDataModel.rowID)
 
                             let cellModel = TableCellModel(rowID: cell.rowID,
                                                            timezoneId: cell.timezoneId,
