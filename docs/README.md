@@ -6,12 +6,10 @@ This directory contains documentation for the Joyfill iOS SDK development and re
 
 ### Release Process
 
-- **[iOS_RELEASE_AUTOMATION.md](./iOS_RELEASE_AUTOMATION.md)** - Complete guide to the automated iOS release process
-  - Overview of the release workflow
-  - Step-by-step release instructions
-  - Workflow details and configurations
-  - Troubleshooting guide
-  - Comparison with Kotlin release process
+- **[iOS_RELEASE_AUTOMATION.md](./iOS_RELEASE_AUTOMATION.md)** - Guide to the iOS release process
+  - How releases are cut (manually) and what automation the published release triggers
+  - Workflow and helper-script reference
+  - Troubleshooting guide and manual fallback
 
 - **[KOTLIN_RELEASE_PROCESS.md](./KOTLIN_RELEASE_PROCESS.md)** - Documentation of the Kotlin SDK release process (reference)
   - Serves as the inspiration for iOS release automation
@@ -20,51 +18,47 @@ This directory contains documentation for the Joyfill iOS SDK development and re
 
 ## Quick Start: Releasing a New Version
 
-1. **Initiate Release**:
+1. **Update `CHANGELOG.md`** on `main` with a section for the new version.
+
+2. **Create and push the tag** (bare version, no `v` prefix, matching existing tags):
    ```bash
-   gh workflow run release-prepare.yml -f version=1.0.0
+   git tag -a 3.0.0-rc25 -m "Release 3.0.0-rc25"
+   git push origin 3.0.0-rc25
    ```
 
-2. **Fill in Changelog**: Edit the CHANGELOG.md in the generated PR
+3. **Publish the GitHub Release** for that tag, pasting the changelog section as the body.
+   Use `### Added` / `### Changed` / `### Fixed` headings and omit any `**Release Date:**`
+   line — the automation generates it.
 
-3. **Merge Release PR**: Review and merge the release PR
+4. **Wait for automation.** Publishing the release runs `update-docs.yml`, which opens:
+   - a release-notes PR on `joyfill/docs`
+   - a DocC API-reference PR on `joyfill/api-references`
 
-4. **Wait for Automation**: The release workflow will automatically:
-   - Create git tag
-   - Create GitHub release
-   - Publish to CocoaPods
-   - Generate API documentation
-   - Create documentation PRs
+5. **Merge those two PRs** to publish the documentation.
 
-5. **Merge Documentation PRs**: Review and merge PRs in:
-   - `joyfill/api-references`
-   - `joyfill/docs`
+Tag creation, GitHub Release creation, and CocoaPods publishing are **not** automated.
 
 ## Workflow Files
 
-The release automation consists of these GitHub Actions workflows:
-
-- `.github/workflows/release-prepare.yml` - Prepares release PR
-- `.github/workflows/release.yml` - Publishes release
-- `.github/workflows/api-references.yml` - Generates DocC documentation
-- `.github/workflows/docs.yml` - Updates changelog docs
+- `.github/workflows/update-docs.yml` - Post-release docs + API references automation
+- `.github/workflows/api-references.yml` - Generates DocC documentation (called by the above)
+- `.github/workflows/pr_pipeline_workflow.yml` - CI on pull requests (not release-related)
 
 ## Helper Scripts
 
-- `scripts/add_version_to_changelog.sh` - Adds version section to CHANGELOG
-- `scripts/create_release_mdx.sh` - Converts CHANGELOG to MDX format
+- `scripts/update_release_mdx.sh` / `scripts/update_release_mdx.py` - Insert a styled
+  release-notes entry into the docs site's `RELEASE_NOTES.mdx`
 
 ## Prerequisites
 
 ### Required GitHub Secret
 
-- `API_REF_REPO_TOKEN` - Access to api-references and docs repositories
+- `UPDATE_DOCS_TOKEN` - Write access to `joyfill/api-references` and `joyfill/docs`
 
 See [iOS_RELEASE_AUTOMATION.md](./iOS_RELEASE_AUTOMATION.md#prerequisites) for detailed setup instructions.
 
 ## Need Help?
 
 - For release automation issues, see [Troubleshooting](./iOS_RELEASE_AUTOMATION.md#troubleshooting)
-- For manual release process, see [Manual Release](./iOS_RELEASE_AUTOMATION.md#manual-release-process-fallback)
-- For comparison with Kotlin process, see [Comparison](./iOS_RELEASE_AUTOMATION.md#comparison-with-kotlin-release-process)
-
+- For the manual process, see [Manual fallback](./iOS_RELEASE_AUTOMATION.md#manual-fallback)
+- For the Kotlin process, see [KOTLIN_RELEASE_PROCESS.md](./KOTLIN_RELEASE_PROCESS.md)
