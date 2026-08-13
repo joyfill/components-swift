@@ -268,7 +268,7 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShowCell(fieldID: fieldID, columnID: columnID, rowID: rowID)
     }
 
-    public func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
+    func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
         return conditionalLogicHandler.cellsNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
     }
 
@@ -313,15 +313,15 @@ public class DocumentEditor: ObservableObject {
         return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, rowID: rowID)
     }
 
-    public func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
+    func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
         return requiredLogicHandler.cellRequiredNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
     }
 
-    public func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+    func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
         requiredLogicHandler.addCellRequiredForRow(fieldID: fieldID, schemaID: schemaID, row: row)
     }
 
-    public func removeCellRequiredForRow(fieldID: String, rowID: String) {
+    func removeCellRequiredForRow(fieldID: String, rowID: String) {
         requiredLogicHandler.removeCellRequiredForRow(fieldID: fieldID, rowID: rowID)
     }
 
