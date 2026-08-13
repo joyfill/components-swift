@@ -788,7 +788,7 @@ extension DocumentEditor {
     }
     
     func refreshDependent(for fieldID: String) {
-        requiredLogicHandler.cellRequiredNeedRefreshForPageField(pageFieldID: fieldID)
+        requiredLogicHandler.cellRequiredNeedRefreshForField(fieldID: fieldID)
         var refreshFields = Set(conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         refreshFields.formUnion(requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         for fieldId in refreshFields {
