@@ -803,8 +803,9 @@ extension DocumentEditor {
             refreshField(fieldId: fieldId)
         }
         for (tableFieldID, columnIDs) in conditionalLogicHandler.cellsNeedRefreshForPageField(pageFieldID: fieldID) {
-            let fieldType = field(fieldID: tableFieldID)?.fieldType ?? .table
-            valueDelegate(for: tableFieldID, fieldType: fieldType)?.cellVisibilityDidChange(columnIDs: columnIDs)
+            if let fieldType = field(fieldID: tableFieldID)?.fieldType {
+                valueDelegate(for: tableFieldID, fieldType: fieldType)?.cellVisibilityDidChange(columnIDs: columnIDs)
+            }
         }
     }
     
