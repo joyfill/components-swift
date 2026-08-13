@@ -268,19 +268,11 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShowCell(fieldID: fieldID, columnID: columnID, row: row)
     }
 
-    public func cellsNeedToBeRefreshed(fieldID: String, editedColumnID: String, row: ValueElement) -> [String] {
-        return conditionalLogicHandler.cellsNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
-    }
-
-    public func cellsNeedToBeRefreshed(fieldID: String, schemaID: String, editedColumnID: String, row: ValueElement) -> [String] {
+    public func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
         return conditionalLogicHandler.cellsNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
     }
 
-    public func addCellVisibilityForRow(fieldID: String, row: ValueElement) {
-        conditionalLogicHandler.addCellVisibilityForRow(fieldID: fieldID, row: row)
-    }
-
-    public func addCellVisibilityForRow(fieldID: String, schemaID: String, row: ValueElement) {
+    public func addCellVisibilityForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
         conditionalLogicHandler.addCellVisibilityForRow(fieldID: fieldID, schemaID: schemaID, row: row)
     }
 
