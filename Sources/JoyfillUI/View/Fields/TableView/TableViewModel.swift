@@ -80,7 +80,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                     if let colIndex = self?.tableDataModel.tableColumns.firstIndex( where: { fieldTableColumn in
                         fieldTableColumn.id == cellDataModel.id
                     }) {
-                        self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.applyCellVisibilityRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
+                        self?.applyCellRequiredRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -131,7 +133,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { [weak self] cellDataModel in
-                        self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                        self?.applyCellVisibilityRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
+                        self?.applyCellRequiredRefresh(rowId: rowID, editedColumnID: cellDataModel.id)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -396,21 +400,14 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    @discardableResult
     func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil, isBulkEdit: Bool = false) -> [ValueElement] {
         if isNestedCell {
             tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         } else {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         }
-
-        let valueElements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
-        // The refreshes below read the edited value back out of valueToValueElements, so it has to be
-        // committed here rather than by the caller.
-        tableDataModel.valueToValueElements = valueElements
-        applyCellVisibilityRefresh(rowId: rowId, editedColumnID: cellDataModel.id)
-        applyCellRequiredRefresh(rowId: rowId, editedColumnID: cellDataModel.id)
-        return valueElements
+        
+        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
     }
 
     fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
@@ -755,7 +752,7 @@ extension TableViewModel: DocumentEditorDelegate {
                 cellDataModel: cell,
                 isBulkEdit: true
             )
-            cellDidChange(
+            self.tableDataModel.valueToValueElements = cellDidChange(
                 rowId: rowID,
                 colIndex: colIndex,
                 cellDataModel: cell,
