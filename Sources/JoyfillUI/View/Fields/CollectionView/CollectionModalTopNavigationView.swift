@@ -524,8 +524,9 @@ struct CollectionEditMultipleRowsSheetView: View {
         ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
             let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
             let singleRowID: String? = viewModel.tableDataModel.selectedRows.count == 1 ? viewModel.tableDataModel.selectedRows.first : nil
-            let isCellHiddenInRowForm = singleRowID.map { viewModel.isCellHidden(columnID: col.id ?? "", rowID: $0) } ?? false
-            if !isCellHiddenInRowForm {
+            // No single selected row means this is a bulk edit, where every column shows.
+            let showsCellInRowForm = singleRowID.map { viewModel.shouldShowCell(columnID: col.id ?? "", rowID: $0) } ?? true
+            if showsCellInRowForm {
                 VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)

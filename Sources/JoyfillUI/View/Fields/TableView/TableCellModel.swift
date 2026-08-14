@@ -20,7 +20,6 @@ struct TableCellModel: Identifiable, Equatable, Hashable {
     var id = UUID()
     let rowID: String
     var timezoneId: String?
-    var isHidden: Bool = false
     var data: CellDataModel
     let documentEditor: DocumentEditor?
     var fieldIdentifier: FieldIdentifier

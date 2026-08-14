@@ -60,9 +60,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         )
     }
 
-    func isCellHidden(columnID: String, rowID: String) -> Bool {
-        guard let documentEditor = tableDataModel.documentEditor else { return false }
-        return !documentEditor.shouldShowCell(
+    /// Live read — the cell views call this on every render, so there is no copy to keep in sync.
+    /// An absent document editor shows the cell, matching `DocumentEditor.shouldShow(fieldID:)`.
+    func shouldShowCell(columnID: String, rowID: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor else { return true }
+        return documentEditor.shouldShowCell(
             columnID: columnID,
             fieldID: tableDataModel.fieldIdentifier.fieldID,
             rowID: rowID
@@ -543,10 +545,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
-                let isHidden = isCellHidden(columnID: rowDataModel.id, rowID: rowID)
                 let cellModel = TableCellModel(rowID: rowID,
                                                timezoneId: valueElement.tz,
-                                               isHidden: isHidden,
                                                data: rowDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -623,10 +623,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    let isHidden = isCellHidden(columnID: columnModel.id, rowID: rowID)
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
-                                                   isHidden: isHidden,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -661,10 +659,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    let isHidden = isCellHidden(columnID: columnModel.id, rowID: rowID)
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
-                                                   isHidden: isHidden,
                                                    data: columnModel,
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -736,10 +732,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                           schemaKey: childSchemaKey)
             var nestedCells: [TableCellModel] = []
             for cellDataModel in cellDataModels {
-                let isHidden = isCellHidden(columnID: cellDataModel.id, rowID: childRowID)
                 let cellModel = TableCellModel(rowID: childRowID,
                                                timezoneId: childRow.tz,
-                                               isHidden: isHidden,
                                                data: cellDataModel,
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -923,10 +917,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                     let cellDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: filteredTableColumns, row, schemaKey: schemaValue?.0 ?? "")
                     var subCells: [TableCellModel] = []
                     for cellDataModel in cellDataModels {
-                        let isHidden = isCellHidden(columnID: cellDataModel.id, rowID: row.id ?? "")
                         let cellModel = TableCellModel(rowID: row.id ?? "",
                                                        timezoneId: valueElement.tz,
-                                                       isHidden: isHidden,
                                                        data: cellDataModel,
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
@@ -1726,8 +1718,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
-        applyCellVisibilityRefresh(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
-        applyCellRequiredRefresh(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
+        refreshDependentCellLogic(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
@@ -1753,60 +1744,24 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 //        sortRowsIfNeeded()
     }
     
-    func applyCellVisibilityRefresh(rowId: String, schemaKey: String, editedColumnID: String) {
+    /// Re-resolves the visibility and required-ness of every cell that depends on `editedColumnID`,
+    /// keeping `cellVisibilityMap` and `cellRequiredMap` current. The cell views read both live at render
+    /// time, so nothing is written into the cell models here.
+    ///
+    /// Both queries always run: a column can have required-ness dependents but no visibility dependents,
+    /// or the reverse, so neither result may gate the other.
+    func refreshDependentCellLogic(rowId: String, schemaKey: String, editedColumnID: String) {
         guard let documentEditor = tableDataModel.documentEditor,
               let row = rowToValueElementMap[rowId] else { return }
-        let flippedColumnIDs = documentEditor.cellsNeedToBeRefreshed(
-            fieldID: tableDataModel.fieldIdentifier.fieldID,
-            schemaID: schemaKey,
-            editedColumnID: editedColumnID,
-            row: row)
-        guard !flippedColumnIDs.isEmpty else { return }
-        let hiddenByColumn = Dictionary(uniqueKeysWithValues:
-            flippedColumnIDs.map { ($0, isCellHidden(columnID: $0, rowID: rowId)) })
-        applyVisibilityFlip(hiddenByRow: [rowId: hiddenByColumn])
-    }
-
-    /// Re-resolves cells whose `cellRequiredLogic` reads the edited column, then re-renders the ones
-    /// that flipped. The required flag lives in the cache, not the cell model, so a new `id` is enough.
-    func applyCellRequiredRefresh(rowId: String, schemaKey: String, editedColumnID: String) {
-        guard let documentEditor = tableDataModel.documentEditor,
-              let row = rowToValueElementMap[rowId] else { return }
-        let flippedColumnIDs = documentEditor.cellRequiredNeedToBeRefreshed(
-            fieldID: tableDataModel.fieldIdentifier.fieldID,
-            schemaID: schemaKey,
-            editedColumnID: editedColumnID,
-            row: row)
-        guard !flippedColumnIDs.isEmpty else { return }
-        rerenderCells(rowID: rowId, columnIDs: Set(flippedColumnIDs))
-    }
-
-    private func rerenderCells(rowID: String, columnIDs: Set<String>) {
-        guard let rowIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) else { return }
-        for colIndex in tableDataModel.filteredcellModels[rowIndex].cells.indices
-        where columnIDs.contains(tableDataModel.filteredcellModels[rowIndex].cells[colIndex].data.id) {
-            tableDataModel.filteredcellModels[rowIndex].cells[colIndex].id = UUID()
-        }
-    }
-
-    private func applyVisibilityFlip(hiddenByRow: [String: [String: Bool]]) {
-        var didFlip = false
-        for rowIndex in tableDataModel.filteredcellModels.indices {
-            guard let hiddenByColumn = hiddenByRow[tableDataModel.filteredcellModels[rowIndex].rowID] else { continue }
-            for colIndex in tableDataModel.filteredcellModels[rowIndex].cells.indices {
-                var cell = tableDataModel.filteredcellModels[rowIndex].cells[colIndex]
-                guard let hidden = hiddenByColumn[cell.data.id], cell.isHidden != hidden else { continue }
-                cell.isHidden = hidden
-                cell.id = UUID()
-                tableDataModel.filteredcellModels[rowIndex].cells[colIndex] = cell
-                didFlip = true
-            }
-        }
-        // Bump `uuid` on an actual flip so views keyed by it (the quick-view preview)
-        // rebuild and reflect the new cell visibility.
-        if didFlip {
-            uuid = UUID()
-        }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        _ = documentEditor.cellsNeedToBeRefreshed(
+            fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
+        _ = documentEditor.cellRequiredNeedToBeRefreshed(
+            fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
+        // Deliberately no `uuid` bump: the callers already wrote to the `@Published` tableDataModel, and
+        // bumping here would fire `.onChange(of: viewModel.uuid)` in the row-edit form
+        // (CollectionModalTopNavigationView), remounting it via `.id(viewID)` and dropping first
+        // responder mid-entry. The table lane has never bumped here, for the same reason.
     }
 
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {
@@ -1960,8 +1915,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let schemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
-                applyCellVisibilityRefresh(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
-                applyCellRequiredRefresh(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
+                refreshDependentCellLogic(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: row)
                 }
@@ -2195,14 +2149,11 @@ extension CollectionViewModel: DocumentEditorDelegate {
         buildRowToValueElementMap()
     }
 
+    /// A field outside this collection changed. The maps were already re-resolved by the document editor,
+    /// so this only has to invalidate the view — nothing else publishes on this path.
     func cellVisibilityDidChange(columnIDs: Set<String>) {
         guard !columnIDs.isEmpty else { return }
-        var hiddenByRow = [String: [String: Bool]]()
-        for rowID in rowToValueElementMap.keys {
-            hiddenByRow[rowID] = Dictionary(uniqueKeysWithValues:
-                columnIDs.map { ($0, isCellHidden(columnID: $0, rowID: rowID)) })
-        }
-        applyVisibilityFlip(hiddenByRow: hiddenByRow)
+        uuid = UUID()
     }
 
 

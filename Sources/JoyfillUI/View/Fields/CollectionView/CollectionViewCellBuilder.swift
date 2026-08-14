@@ -11,13 +11,12 @@ import JoyfillModel
 struct CollectionViewCellBuilder: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var cellModel: TableCellModel
-    var isHidden: Bool
 
     var body: some View {
-        if isHidden {
-            HiddenCellView()
-        } else {
+        if viewModel.shouldShowCell(columnID: cellModel.data.id, rowID: cellModel.rowID) {
             cellContent
+        } else {
+            HiddenCellView()
         }
     }
 

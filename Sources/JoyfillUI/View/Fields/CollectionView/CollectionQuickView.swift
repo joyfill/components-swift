@@ -176,11 +176,9 @@ struct CollectionQuickView : View {
                     HStack(alignment: .top, spacing: 0) {
                         ForEach(Array(viewModel.tableDataModel.tableColumns.prefix(3).enumerated()), id: \.offset) { index, col in
                             let cell = rowDataModel.cells[index]
-                            let isHidden = viewModel.isCellHidden(columnID: cell.data.id, rowID: rowDataModel.rowID)
 
                             let cellModel = TableCellModel(rowID: cell.rowID,
                                                            timezoneId: cell.timezoneId,
-                                                           isHidden: isHidden,
                                                            data: cell.data,
                                                            documentEditor: viewModel.tableDataModel.documentEditor,
                                                            fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
@@ -192,7 +190,7 @@ struct CollectionQuickView : View {
                                 Rectangle()
                                     .stroke()
                                     .foregroundColor(Color.tableCellBorderColor)
-                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel), isHidden: isHidden)
+                                CollectionViewCellBuilder(viewModel: viewModel, cellModel: Binding.constant(cellModel))
                             }
                             .frame(width: geometry.size.width / 3, height: rowHeight)
                         }
