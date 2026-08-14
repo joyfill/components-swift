@@ -375,18 +375,21 @@ final class CellVisibilityLogicTest: XCTestCase {
         return TableViewModel(tableDataModel: tableDataModel)
     }
 
+    /// What the cell builder will render for this cell: the cell has to be present in the rendered
+    /// models (else `nil`), and visibility is read live from the view model, exactly as the view does.
     private func renderedCellIsHidden(_ vm: TableViewModel, rowID: String, columnID: String) -> Bool? {
-        vm.tableDataModel.filteredcellModels
-            .first(where: { $0.rowID == rowID })?
-            .cells.first(where: { $0.data.id == columnID })?
-            .isHidden
+        guard isCellRendered(vm.tableDataModel.filteredcellModels, rowID: rowID, columnID: columnID) else { return nil }
+        return !vm.shouldShowCell(columnID: columnID, rowID: rowID)
     }
 
     private func renderedCellIsHidden(_ vm: CollectionViewModel, rowID: String, columnID: String) -> Bool? {
-        vm.tableDataModel.filteredcellModels
-            .first(where: { $0.rowID == rowID })?
-            .cells.first(where: { $0.data.id == columnID })?
-            .isHidden
+        guard isCellRendered(vm.tableDataModel.filteredcellModels, rowID: rowID, columnID: columnID) else { return nil }
+        return !vm.shouldShowCell(columnID: columnID, rowID: rowID)
+    }
+
+    private func isCellRendered(_ models: [RowDataModel], rowID: String, columnID: String) -> Bool {
+        models.first(where: { $0.rowID == rowID })?
+            .cells.contains(where: { $0.data.id == columnID }) ?? false
     }
 
     private func assertCellVisibility(
@@ -452,7 +455,7 @@ final class CellVisibilityLogicTest: XCTestCase {
     /// Mirrors TableModalTopNavigationView's single-row hidden-cell gate.
     private func tableEditFormWouldHideCell(_ vm: TableViewModel, columnID: String) -> Bool {
         let singleRowID: String? = vm.tableDataModel.selectedRows.count == 1 ? vm.tableDataModel.selectedRows.first : nil
-        return singleRowID.map { vm.isCellHidden(columnID: columnID, rowID: $0) } ?? false
+        return !(singleRowID.map { vm.shouldShowCell(columnID: columnID, rowID: $0) } ?? true)
     }
 
     // MARK: - Table edit-form gating (mirrors Collection's single-row/bulk-edit gate)
@@ -509,7 +512,7 @@ final class CellVisibilityLogicTest: XCTestCase {
             .data
         editedStatus.title = "Rejected"
         vm.tableDataModel.valueToValueElements = vm.cellDidChange(rowId: row1ID, colIndex: 0, cellDataModel: editedStatus, isNestedCell: false, callOnChange: false)
-        vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: statusColumnID)
+        vm.refreshDependentCellLogic(rowId: row1ID, editedColumnID: statusColumnID)
 
         assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
                              isHidden: false, "reason flips visible after status=Rejected")
@@ -931,9 +934,10 @@ final class CellVisibilityLogicTest: XCTestCase {
                              isHidden: false, "row2 text1 stays visible after delete")
     }
 
-    /// The reported bug: a cell revealed by an in-modal edit reverts to hidden the moment a row is
-    /// added, because `applyCellVisibilityRefresh` wrote the new state only into `filteredcellModels`
-    /// and `filterRowsIfNeeded()` (run on add) resets `filteredcellModels = cellModels`.
+    /// The originally reported bug: a cell revealed by an in-modal edit reverted to hidden the moment a
+    /// row was added, because the refresh wrote the new state only into `filteredcellModels` and
+    /// `filterRowsIfNeeded()` (run on add) resets `filteredcellModels = cellModels`. Visibility is no
+    /// longer stored on the cell models, so a rebuild has nothing to wipe — this guards the regression.
     func testEditRevealSurvivesAddRow() {
         // Every row loads with an empty dropdown -> text1 hidden.
         let editor = documentEditor(document: buildTable1Document(row1Dropdown: nil, row2Dropdown: nil, row3Dropdown: nil))
@@ -943,7 +947,7 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         // User picks a dropdown value in row1 -> text1 is revealed via the dependency refresh.
         setDropdown(vm, rowID: row1ID, value: "6a634222bcd54de3258770c7")
-        vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: "dropdown1")
+        vm.refreshDependentCellLogic(rowId: row1ID, editedColumnID: "dropdown1")
         assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
                              isHidden: false, "row1 text1 is revealed after picking dropdown")
 
@@ -959,7 +963,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         let vm = tableViewModel(editor)
 
         setDropdown(vm, rowID: row1ID, value: "6a634222bcd54de3258770c7")
-        vm.applyCellVisibilityRefresh(rowId: row1ID, editedColumnID: "dropdown1")
+        vm.refreshDependentCellLogic(rowId: row1ID, editedColumnID: "dropdown1")
         assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: "text1",
                              isHidden: false, "row1 text1 is revealed after picking dropdown")
 
@@ -1126,7 +1130,7 @@ final class CellVisibilityLogicTest: XCTestCase {
     /// Mirrors CollectionEditMultipleRowsSheetView's single-row hidden-cell gate.
     private func editFormWouldHideCell(_ vm: CollectionViewModel, columnID: String) -> Bool {
         let singleRowID: String? = vm.tableDataModel.selectedRows.count == 1 ? vm.tableDataModel.selectedRows.first : nil
-        return singleRowID.map { vm.isCellHidden(columnID: columnID, rowID: $0) } ?? false
+        return !(singleRowID.map { vm.shouldShowCell(columnID: columnID, rowID: $0) } ?? true)
     }
 
     /// Load: sibling condition met on a root row -> reason visible; not met -> hidden.

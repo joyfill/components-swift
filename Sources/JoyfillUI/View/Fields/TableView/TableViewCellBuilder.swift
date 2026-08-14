@@ -18,10 +18,10 @@ struct TableViewCellBuilder: View {
     @Binding var cellModel: TableCellModel
     
     var body: some View {
-        if cellModel.isHidden {
-            HiddenCellView()
-        } else {
+        if viewModel.shouldShowCell(columnID: cellModel.data.id, rowID: cellModel.rowID) {
             cellContent
+        } else {
+            HiddenCellView()
         }
     }
 
