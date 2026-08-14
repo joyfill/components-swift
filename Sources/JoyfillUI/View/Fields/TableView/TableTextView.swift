@@ -17,11 +17,20 @@ struct TableTextView: View {
     }
     
     var body: some View {
-        if cellModel.viewMode == .quickView || cellModel.editMode == .readonly {
+        if cellModel.viewMode == .quickView {
             Text(cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
                 .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
+        } else if cellModel.editMode == .readonly {
+            ScrollView {
+                Text(cellModel.data.title)
+                    .font(.system(size: 15))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
+                    .disabled(true)
+            }
+            .environment(\.isEnabled, true)
         } else {
             if #available(iOS 16.0, *) {
                 TextEditor(text: $cellModel.data.title)
