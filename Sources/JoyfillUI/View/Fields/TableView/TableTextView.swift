@@ -16,8 +16,12 @@ struct TableTextView: View {
         _cellModel = cellModel
     }
     
+    private var isReadonlyFromEditability: Bool {
+        cellModel.editMode == .readonly && cellModel.documentEditor?.mode == .fill
+    }
+
     var body: some View {
-        if cellModel.viewMode == .quickView {
+        if cellModel.viewMode == .quickView || (cellModel.editMode == .readonly && !isReadonlyFromEditability) {
             Text(cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
