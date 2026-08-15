@@ -389,18 +389,25 @@ struct TableModalView : View {
                         .id("\(index)")
                     
                     if viewModel.showSingleClickEditButton {
-                        Image(systemName: "square.and.pencil")
-                            .foregroundColor(.blue)
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.tableDataModel.emptySelection()
-                                viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
-                                viewModel.tableDataModel.navigationIntent = .none
-                                showEditMultipleRowsSheetView = true
-                            }
-                            .accessibilityIdentifier("SingleClickEditButton\(index)")
+                        if viewModel.canOpenRowForm {
+                            Image(systemName: "square.and.pencil")
+                                .foregroundColor(.blue)
+                                .frame(width: 40, height: 60)
+                                .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                                .border(Color.tableCellBorderColor)
+                                .onTapGesture {
+                                    viewModel.tableDataModel.emptySelection()
+                                    viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
+                                    viewModel.tableDataModel.navigationIntent = .none
+                                    showEditMultipleRowsSheetView = true
+                                }
+                                .accessibilityIdentifier("SingleClickEditButton\(index)")
+                        } else {
+                            Color.clear
+                                .frame(width: 40, height: 60)
+                                .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                                .border(Color.tableCellBorderColor)
+                        }
                     }
                 }
             }
