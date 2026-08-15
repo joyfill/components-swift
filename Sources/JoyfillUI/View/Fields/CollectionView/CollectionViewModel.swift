@@ -58,7 +58,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return schemaKey.isEmpty ? rootSchemaKey : schemaKey
     }
 
-    /// A single selected row opens the row form; multiple rows open bulk edit. They are gated separately.
+    /// One sheet, two features, gated differently on purpose. A single selected row opens the row
+    /// form, which the spec ties to `form`. Multiple rows open bulk edit, which the spec allows only
+    /// for `["inline", "form"]` or `["inline"]` -- that is, whenever inline editing is allowed.
     var showEditRowsMenuItem: Bool {
         let flags = tableDataModel.editability(forSchemaKey: selectionSchemaKey)
         return tableDataModel.selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
