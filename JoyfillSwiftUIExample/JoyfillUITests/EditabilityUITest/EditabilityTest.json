@@ -1,0 +1,1893 @@
+{
+  "_id": "6a391e43940fb2521fffd584",
+  "type": "template",
+  "stage": "draft",
+  "metadata": {},
+  "identifier": "template_6a391e43940fb2521fffd584",
+  "name": "New Template",
+  "createdOn": 1782128197930,
+  "files": [
+    {
+      "_id": "6a391e43a8cddd370e37c724",
+      "metadata": {},
+      "name": "New File",
+      "version": 1,
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "name": "New Page",
+          "fieldPositions": [
+            {
+              "_id": "6a636e4d9d7cd4947809cbfc",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 29,
+              "field": "table1"
+            },
+            {
+              "_id": "6a79ae70a67d8b4625abfac2",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 29,
+              "width": 8,
+              "height": 15,
+              "field": "6a79ae70bbbc6c59eb8fd129"
+            },
+            {
+              "_id": "6a79ae71c2b2398a578f918f",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 44,
+              "width": 8,
+              "height": 15,
+              "field": "6a79ae71349ec8a1dac654dd"
+            },
+            {
+              "_id": "6a79ae73414740ff418bc250",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 59,
+              "width": 8,
+              "height": 15,
+              "field": "6a79ae7365a4174499bcba32"
+            },
+            {
+              "_id": "6a7b084fe6d815149839fbb3",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 74,
+              "width": 8,
+              "height": 15,
+              "field": "6a7b084f374bc1c2e025675c"
+            },
+            {
+              "_id": "6a7b0853a36150df0b8487c9",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 89,
+              "width": 8,
+              "height": 15,
+              "field": "6a7b08535b3673615e382468"
+            },
+            {
+              "_id": "6a7b085a40a9de4a119275ca",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 104,
+              "width": 8,
+              "height": 15,
+              "field": "6a7b085a50a35af51cb377ab"
+            },
+            {
+              "_id": "6a7b0855b3c8004574f756d1",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 119,
+              "width": 8,
+              "height": 15,
+              "field": "6a7b085543390ae850d66037"
+            },
+            {
+              "_id": "7b01f0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 134,
+              "width": 8,
+              "height": 15,
+              "field": "7b01f0100000000000000000"
+            },
+            {
+              "_id": "7b01i0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 149,
+              "width": 8,
+              "height": 15,
+              "field": "7b01i0100000000000000000"
+            },
+            {
+              "_id": "7b02f0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 164,
+              "width": 8,
+              "height": 15,
+              "field": "7b02f0100000000000000000"
+            },
+            {
+              "_id": "7b02i0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 179,
+              "width": 8,
+              "height": 15,
+              "field": "7b02i0100000000000000000"
+            },
+            {
+              "_id": "7b03f0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 194,
+              "width": 8,
+              "height": 15,
+              "field": "7b03f0100000000000000000"
+            },
+            {
+              "_id": "7b04u0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 209,
+              "width": 8,
+              "height": 15,
+              "field": "7b04u0100000000000000000"
+            },
+            {
+              "_id": "7b04x0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 224,
+              "width": 8,
+              "height": 15,
+              "field": "7b04x0100000000000000000"
+            },
+            {
+              "_id": "7b04d0200000000000000000",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 239,
+              "width": 8,
+              "height": 15,
+              "field": "7b04d0100000000000000000"
+            },
+            {
+              "_id": "7b05f0200000000000000000",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 254,
+              "width": 8,
+              "height": 15,
+              "field": "7b05f0100000000000000000"
+            }
+          ],
+          "hidden": false,
+          "width": 816,
+          "height": 1056,
+          "cols": 8,
+          "rowHeight": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "margin": 0,
+          "padding": 24,
+          "borderWidth": 0,
+          "_id": "6a391e434954ed9d02ebbf70",
+          "metadata": {},
+          "deletable": true,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ]
+        }
+      ],
+      "pageOrder": [
+        "6a391e434954ed9d02ebbf70"
+      ],
+      "views": [],
+      "orientation": "portrait"
+    }
+  ],
+  "fields": [
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "table1",
+      "type": "table",
+      "title": "Table - inline + form",
+      "tableColumns": [
+        {
+          "_id": "text1",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "table1_column_text1",
+          "cellsHidden": true,
+          "cellVisibilityLogic": {
+            "action": "show",
+            "eval": "and",
+            "conditions": [
+              {
+                "column": "dropdown1",
+                "condition": "*="
+              },
+              {
+                "file": "6a391e43a8cddd370e37c724",
+                "page": "6a391e434954ed9d02ebbf70",
+                "field": "dropdown1",
+                "condition": "*="
+              }
+            ]
+          },
+          "required": true
+        },
+        {
+          "_id": "dropdown1",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a634222bcd54de3258770c7",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6a634222aac9a22065732fd4",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6a634222408d083ef2330b8f",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "table1_column_dropdown1",
+          "hidden": false
+        },
+        {
+          "_id": "text2",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "table1_column_text2"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a6342223530a293a295ad82",
+          "deleted": false,
+          "cells": {
+            "dropdown1": "6a634222bcd54de3258770c7",
+            "text1": "T1 R1 - inline + form",
+            "text2": "T1 R1 second"
+          }
+        },
+        {
+          "_id": "6a634222787b860940a92cfb",
+          "deleted": false,
+          "cells": {
+            "dropdown1": "6a634222aac9a22065732fd4",
+            "text1": "T1 R2 - inline + form",
+            "text2": "T1 R2 second"
+          }
+        },
+        {
+          "_id": "6a6342227f4fdf436ab36b4b",
+          "deleted": false,
+          "cells": {
+            "text1": "T1 R3 - inline + form"
+          }
+        }
+      ],
+      "identifier": "field_table1",
+      "tableColumnOrder": [
+        "text1",
+        "dropdown1",
+        "text2"
+      ],
+      "rowOrder": [
+        "6a6342223530a293a295ad82",
+        "6a634222787b860940a92cfb",
+        "6a6342227f4fdf436ab36b4b"
+      ],
+      "editability": [
+        "inline",
+        "form"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a79ae70bbbc6c59eb8fd129",
+      "type": "table",
+      "title": "Table - inline only",
+      "tableColumns": [
+        {
+          "_id": "6a797cede3b86e6d6277b967",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a79ae70bbbc6c59eb8fd129_column_6a797cede3b86e6d6277b967"
+        },
+        {
+          "_id": "6a797ced6c81cf76ad5fe0c8",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a797cedbe051d10c700c46f",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6a797ced010536d7c11f40b1",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6a797cedc07e2844852e4ec7",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a79ae70bbbc6c59eb8fd129_column_6a797ced6c81cf76ad5fe0c8"
+        },
+        {
+          "_id": "6a797ced60f1cf8fc1b57381",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a79ae70bbbc6c59eb8fd129_column_6a797ced60f1cf8fc1b57381"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a797ced206e8afc73c971df",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Inline only R1",
+            "6a797ced6c81cf76ad5fe0c8": "6a797cedbe051d10c700c46f",
+            "6a797ced60f1cf8fc1b57381": "Inline only R1 second"
+          }
+        },
+        {
+          "_id": "6a797ced32ddf790a5fb21e4",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Inline only R2",
+            "6a797ced6c81cf76ad5fe0c8": "6a797ced010536d7c11f40b1",
+            "6a797ced60f1cf8fc1b57381": "Inline only R2 second"
+          }
+        },
+        {
+          "_id": "6a797ceda114b039149c6a61",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Inline only R3"
+          }
+        }
+      ],
+      "identifier": "field_6a79ae70bbbc6c59eb8fd129",
+      "tableColumnOrder": [
+        "6a797cede3b86e6d6277b967",
+        "6a797ced6c81cf76ad5fe0c8",
+        "6a797ced60f1cf8fc1b57381"
+      ],
+      "rowOrder": [
+        "6a797ced206e8afc73c971df",
+        "6a797ced32ddf790a5fb21e4",
+        "6a797ceda114b039149c6a61"
+      ],
+      "editability": [
+        "inline"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a79ae71349ec8a1dac654dd",
+      "type": "table",
+      "title": "Table - form only",
+      "tableColumns": [
+        {
+          "_id": "6a797cede3b86e6d6277b967",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a79ae71349ec8a1dac654dd_column_6a797cede3b86e6d6277b967"
+        },
+        {
+          "_id": "6a797ced6c81cf76ad5fe0c8",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a797cedbe051d10c700c46f",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6a797ced010536d7c11f40b1",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6a797cedc07e2844852e4ec7",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a79ae71349ec8a1dac654dd_column_6a797ced6c81cf76ad5fe0c8"
+        },
+        {
+          "_id": "6a797ced60f1cf8fc1b57381",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a79ae71349ec8a1dac654dd_column_6a797ced60f1cf8fc1b57381"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a797ced206e8afc73c971df",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Form only R1 long readonly text: line one of the content, line two continues past the visible cell height, line three keeps going well beyond what a single row can show, line four is still going strong, and line five finally ends with SCROLL_END_MARKER",
+            "6a797ced6c81cf76ad5fe0c8": "6a797cedbe051d10c700c46f",
+            "6a797ced60f1cf8fc1b57381": "Form only R1 second"
+          }
+        },
+        {
+          "_id": "6a797ced32ddf790a5fb21e4",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Form only R2",
+            "6a797ced6c81cf76ad5fe0c8": "6a797ced010536d7c11f40b1",
+            "6a797ced60f1cf8fc1b57381": "Form only R2 second"
+          }
+        },
+        {
+          "_id": "6a797ceda114b039149c6a61",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Form only R3"
+          }
+        }
+      ],
+      "identifier": "field_6a79ae71349ec8a1dac654dd",
+      "tableColumnOrder": [
+        "6a797cede3b86e6d6277b967",
+        "6a797ced6c81cf76ad5fe0c8",
+        "6a797ced60f1cf8fc1b57381"
+      ],
+      "rowOrder": [
+        "6a797ced206e8afc73c971df",
+        "6a797ced32ddf790a5fb21e4",
+        "6a797ceda114b039149c6a61"
+      ],
+      "editability": [
+        "form"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a79ae7365a4174499bcba32",
+      "type": "table",
+      "title": "Table - empty defaults to both",
+      "tableColumns": [
+        {
+          "_id": "6a797cede3b86e6d6277b967",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a79ae7365a4174499bcba32_column_6a797cede3b86e6d6277b967"
+        },
+        {
+          "_id": "6a797ced6c81cf76ad5fe0c8",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6a797cedbe051d10c700c46f",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6a797ced010536d7c11f40b1",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6a797cedc07e2844852e4ec7",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "6a79ae7365a4174499bcba32_column_6a797ced6c81cf76ad5fe0c8"
+        },
+        {
+          "_id": "6a797ced60f1cf8fc1b57381",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6a79ae7365a4174499bcba32_column_6a797ced60f1cf8fc1b57381"
+        }
+      ],
+      "value": [
+        {
+          "_id": "6a797ced206e8afc73c971df",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Default both R1",
+            "6a797ced6c81cf76ad5fe0c8": "6a797cedbe051d10c700c46f",
+            "6a797ced60f1cf8fc1b57381": "Default both R1 second"
+          }
+        },
+        {
+          "_id": "6a797ced32ddf790a5fb21e4",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Default both R2",
+            "6a797ced6c81cf76ad5fe0c8": "6a797ced010536d7c11f40b1",
+            "6a797ced60f1cf8fc1b57381": "Default both R2 second"
+          }
+        },
+        {
+          "_id": "6a797ceda114b039149c6a61",
+          "deleted": false,
+          "cells": {
+            "6a797cede3b86e6d6277b967": "Default both R3"
+          }
+        }
+      ],
+      "identifier": "field_6a79ae7365a4174499bcba32",
+      "tableColumnOrder": [
+        "6a797cede3b86e6d6277b967",
+        "6a797ced6c81cf76ad5fe0c8",
+        "6a797ced60f1cf8fc1b57381"
+      ],
+      "rowOrder": [
+        "6a797ced206e8afc73c971df",
+        "6a797ced32ddf790a5fb21e4",
+        "6a797ceda114b039149c6a61"
+      ],
+      "editability": []
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a7b084f374bc1c2e025675c",
+      "type": "collection",
+      "title": "Collection - per level mix (root both / L1 form / L2 inline)",
+      "value": [
+        {
+          "_id": "6a7b0900aaaa0000000000a1",
+          "cells": {
+            "6813008e76da519a97819c69": "Root A - inline + form",
+            "6813008e36be88d98ed5a90a": "6813008e634fdf79fe013b42"
+          },
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "_id": "6a7b0900aaaa0000000000b1",
+                  "cells": {
+                    "6a7b0860de34a60cf9608a49": "L1 A1 - form only",
+                    "6a7b0864f14e023d18b55269": "6a7b08648c8baadcf078956a",
+                    "6a7b0865f8b0a0a6086326b3": 1782128197930
+                  },
+                  "children": {
+                    "level2Table1": {
+                      "value": [
+                        {
+                          "_id": "6a7b0900aaaa0000000000c1",
+                          "cells": {
+                            "6a7b0868bc5a64d240fbf627": "L2 A1a - inline only",
+                            "6a7b086a4176d174b1db01b8": 12,
+                            "6a7b086c6739421301476531": "ABC-123"
+                          },
+                          "children": {}
+                        },
+                        {
+                          "_id": "6a7b0900aaaa0000000000c2",
+                          "cells": {
+                            "6a7b0868bc5a64d240fbf627": "L2 A1b - inline only",
+                            "6a7b086a4176d174b1db01b8": 34,
+                            "6a7b086c6739421301476531": "XYZ-999"
+                          },
+                          "children": {}
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "_id": "6a7b0900aaaa0000000000b2",
+                  "cells": {
+                    "6a7b0860de34a60cf9608a49": "L1 A2 - form only"
+                  },
+                  "children": {
+                    "level2Table1": {
+                      "value": []
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "6a7b0900aaaa0000000000a2",
+          "cells": {
+            "6813008e76da519a97819c69": "Root B - inline + form",
+            "6813008e36be88d98ed5a90a": "6813008e095af24f0f0b32f2"
+          },
+          "children": {
+            "level1Table1": {
+              "value": []
+            }
+          }
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [
+            "level1Table1"
+          ],
+          "editability": [
+            "inline",
+            "form"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a7b084f374bc1c2e025675c_column_6813008e76da519a97819c69",
+              "width": 0
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a7b084f374bc1c2e025675c_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a7b084f374bc1c2e025675c_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "Level 1 - form only",
+          "children": [
+            "level2Table1"
+          ],
+          "hidden": false,
+          "editability": [
+            "form"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6a7b0860de34a60cf9608a49",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6a7b0864f14e023d18b55269",
+              "type": "dropdown",
+              "title": "Dropdown Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a7b08648c8baadcf078956a",
+                  "value": "Yes",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a7b0864aeda616ee7b21307",
+                  "value": "No",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a7b0864d77154bd54978137",
+                  "value": "N/A",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a7b084f374bc1c2e025675c_column_6a7b0864f14e023d18b55269"
+            },
+            {
+              "_id": "6a7b0865f8b0a0a6086326b3",
+              "type": "date",
+              "title": "Date Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a7b084f374bc1c2e025675c_column_6a7b0865f8b0a0a6086326b3"
+            }
+          ]
+        },
+        "level2Table1": {
+          "title": "Level 2 - inline only",
+          "children": [],
+          "hidden": false,
+          "editability": [
+            "inline"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6a7b0868bc5a64d240fbf627",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6a7b086a4176d174b1db01b8",
+              "type": "number",
+              "title": "Number Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a7b084f374bc1c2e025675c_column_6a7b086a4176d174b1db01b8"
+            },
+            {
+              "_id": "6a7b086c6739421301476531",
+              "type": "barcode",
+              "title": "Barcode Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a7b084f374bc1c2e025675c_column_6a7b086c6739421301476531"
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a7b084f374bc1c2e025675c"
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a7b08535b3673615e382468",
+      "type": "collection",
+      "title": "Collection - inline only (no form anywhere, icon gutter gone)",
+      "value": [
+        {
+          "_id": "6a7b0901bbbb0000000000a1",
+          "cells": {
+            "6813008e76da519a97819c69": "Root A - inline only",
+            "6813008e36be88d98ed5a90a": "6813008efb95416fd9326038"
+          },
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "_id": "6a7b0901bbbb0000000000b1",
+                  "cells": {
+                    "6a7b08708832a04ba3edb43d": "L1 A1 - inline only",
+                    "6a7b0873ae409cfd57acdf92": "second text"
+                  },
+                  "children": {}
+                },
+                {
+                  "_id": "6a7b0901bbbb0000000000b2",
+                  "cells": {
+                    "6a7b08708832a04ba3edb43d": "L1 A2 - inline only"
+                  },
+                  "children": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "6a7b0901bbbb0000000000a2",
+          "cells": {
+            "6813008e76da519a97819c69": "Root B - inline only"
+          },
+          "children": {
+            "level1Table1": {
+              "value": []
+            }
+          }
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [
+            "level1Table1"
+          ],
+          "editability": [
+            "inline"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a7b08535b3673615e382468_column_6813008e76da519a97819c69",
+              "width": 0
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a7b08535b3673615e382468_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a7b08535b3673615e382468_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "Level 1 - inline only",
+          "children": [],
+          "hidden": false,
+          "editability": [
+            "inline"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6a7b08708832a04ba3edb43d",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6a7b0872878cfd8780bb1f20",
+              "type": "image",
+              "title": "Image Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a7b08535b3673615e382468_column_6a7b0872878cfd8780bb1f20"
+            },
+            {
+              "_id": "6a7b0873ae409cfd57acdf92",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a7b08535b3673615e382468_column_6a7b0873ae409cfd57acdf92"
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a7b08535b3673615e382468"
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a7b085543390ae850d66037",
+      "type": "collection",
+      "title": "Collection - form only (single schema)",
+      "value": [
+        {
+          "_id": "6a7b0902cccc0000000000a1",
+          "cells": {
+            "6813008e76da519a97819c69": "Row 1 - form only",
+            "6813008e36be88d98ed5a90a": "6813008e634fdf79fe013b42"
+          },
+          "children": {}
+        },
+        {
+          "_id": "6a7b0902cccc0000000000a2",
+          "cells": {
+            "6813008e76da519a97819c69": "Row 2 - form only",
+            "6813008e36be88d98ed5a90a": "6813008efb95416fd9326038"
+          },
+          "children": {}
+        },
+        {
+          "_id": "6a7b0902cccc0000000000a3",
+          "cells": {
+            "6813008e76da519a97819c69": "Row 3 - form only"
+          },
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [],
+          "editability": [
+            "form"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a7b085543390ae850d66037_column_6813008e76da519a97819c69",
+              "width": 0
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a7b085543390ae850d66037_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a7b085543390ae850d66037_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a7b085543390ae850d66037"
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6a7b085a50a35af51cb377ab",
+      "type": "collection",
+      "title": "Collection - defaults mixed with explicit (root empty / L1 absent / L2 inline / L3 form)",
+      "value": [
+        {
+          "_id": "6a7b0875aaacc437ddf80d78",
+          "cells": {
+            "6813008e76da519a97819c69": "Root A - empty array defaults to both",
+            "6813008e36be88d98ed5a90a": "6813008e634fdf79fe013b42"
+          },
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "_id": "6a7b0903dddd0000000000b1",
+                  "cells": {
+                    "6a7b08780923aff07c3e6f3f": "L1 A1 - key absent defaults to both",
+                    "6a7b0879364ac6d6315c4e75": "6a7b08799861c9229a5f18b8",
+                    "6a7b087b6a6bfb4c85688842": 1782128197930
+                  },
+                  "children": {
+                    "level2Table1": {
+                      "value": [
+                        {
+                          "_id": "6a7b0903dddd0000000000c1",
+                          "cells": {
+                            "6a7b087d42ffe316b3cb46ff": "L2 A1a - inline only",
+                            "6a7b08820dbe3be9f7e182e2": "BAR-001"
+                          },
+                          "children": {
+                            "level3Table1": {
+                              "value": [
+                                {
+                                  "_id": "6a7b0903dddd0000000000d1",
+                                  "cells": {
+                                    "6a7b08855f9e0b380b8a58c4": "L3 A1a1 - form only",
+                                    "6a7b0889b6c86f09bfa351b9": "6a7b08890f98d87c420b356f"
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "6a7b0903dddd0000000000d2",
+                                  "cells": {
+                                    "6a7b08855f9e0b380b8a58c4": "L3 A1a2 - form only"
+                                  },
+                                  "children": {}
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "_id": "6a7b0903dddd0000000000c2",
+                          "cells": {
+                            "6a7b087d42ffe316b3cb46ff": "L2 A1b - inline only",
+                            "6a7b08820dbe3be9f7e182e2": "BAR-002"
+                          },
+                          "children": {
+                            "level3Table1": {
+                              "value": []
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [
+            "level1Table1"
+          ],
+          "editability": [],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6a7b085a50a35af51cb377ab_column_6813008e76da519a97819c69",
+              "width": 0
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6a7b085a50a35af51cb377ab_column_6813008e36be88d98ed5a90a",
+              "width": 0
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6a7b085a50a35af51cb377ab_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "Level 1 - no editability key",
+          "children": [
+            "level2Table1"
+          ],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6a7b08780923aff07c3e6f3f",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6a7b0879364ac6d6315c4e75",
+              "type": "dropdown",
+              "title": "Dropdown Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a7b08799861c9229a5f18b8",
+                  "value": "Yes",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a7b087955ac405c31944c1c",
+                  "value": "No",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a7b0879f7a7603c6ee67e0b",
+                  "value": "N/A",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a7b085a50a35af51cb377ab_column_6a7b0879364ac6d6315c4e75"
+            },
+            {
+              "_id": "6a7b087b6a6bfb4c85688842",
+              "type": "date",
+              "title": "Date Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6a7b085a50a35af51cb377ab_column_6a7b087b6a6bfb4c85688842"
+            }
+          ]
+        },
+        "level2Table1": {
+          "title": "Level 2 - inline only",
+          "children": [
+            "level3Table1"
+          ],
+          "hidden": false,
+          "editability": [
+            "inline"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6a7b087d42ffe316b3cb46ff",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6a7b0880d4007553a65ce4f5",
+              "type": "signature",
+              "title": "Signature Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a7b085a50a35af51cb377ab_column_6a7b0880d4007553a65ce4f5"
+            },
+            {
+              "_id": "6a7b08820dbe3be9f7e182e2",
+              "type": "barcode",
+              "title": "Barcode Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a7b085a50a35af51cb377ab_column_6a7b08820dbe3be9f7e182e2"
+            }
+          ]
+        },
+        "level3Table1": {
+          "title": "Level 3 - form only",
+          "children": [],
+          "hidden": false,
+          "editability": [
+            "form"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6a7b08855f9e0b380b8a58c4",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6a7b088700cd078fa1472534",
+              "type": "signature",
+              "title": "Signature Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6a7b085a50a35af51cb377ab_column_6a7b088700cd078fa1472534"
+            },
+            {
+              "_id": "6a7b0889b6c86f09bfa351b9",
+              "type": "dropdown",
+              "title": "Dropdown Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6a7b08890f98d87c420b356f",
+                  "value": "Yes",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a7b08895dbd73b9c5931413",
+                  "value": "No",
+                  "deleted": false
+                },
+                {
+                  "_id": "6a7b08898c2099a4b3a34762",
+                  "value": "N/A",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6a7b085a50a35af51cb377ab_column_6a7b0889b6c86f09bfa351b9"
+            }
+          ]
+        }
+      },
+      "identifier": "field_6a7b085a50a35af51cb377ab"
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b01f0100000000000000000",
+      "type": "table",
+      "title": "Table - types A form only",
+      "tableColumns": [
+        {
+          "_id": "7b01a1000000000000000000",
+          "type": "number",
+          "title": "Number Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b01f0100000000000000000_column_7b01a1000000000000000000"
+        },
+        {
+          "_id": "7b01a2000000000000000000",
+          "type": "date",
+          "title": "Date Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b01f0100000000000000000_column_7b01a2000000000000000000"
+        },
+        {
+          "_id": "7b01a3000000000000000000",
+          "type": "image",
+          "title": "Image Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b01f0100000000000000000_column_7b01a3000000000000000000"
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b01f1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b01a1000000000000000000": 42,
+            "7b01a2000000000000000000": 1782128197930
+          }
+        },
+        {
+          "_id": "7b01f1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b01a1000000000000000000": 7,
+            "7b01a2000000000000000000": 1782228197930
+          }
+        }
+      ],
+      "identifier": "field_7b01f0100000000000000000",
+      "tableColumnOrder": [
+        "7b01a1000000000000000000",
+        "7b01a2000000000000000000",
+        "7b01a3000000000000000000"
+      ],
+      "rowOrder": [
+        "7b01f1100000000000000000",
+        "7b01f1200000000000000000"
+      ],
+      "editability": [
+        "form"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b01i0100000000000000000",
+      "type": "table",
+      "title": "Table - types A inline only",
+      "tableColumns": [
+        {
+          "_id": "7b01a1000000000000000000",
+          "type": "number",
+          "title": "Number Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b01i0100000000000000000_column_7b01a1000000000000000000"
+        },
+        {
+          "_id": "7b01a2000000000000000000",
+          "type": "date",
+          "title": "Date Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b01i0100000000000000000_column_7b01a2000000000000000000"
+        },
+        {
+          "_id": "7b01a3000000000000000000",
+          "type": "image",
+          "title": "Image Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b01i0100000000000000000_column_7b01a3000000000000000000"
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b01i1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b01a1000000000000000000": 42,
+            "7b01a2000000000000000000": 1782128197930
+          }
+        },
+        {
+          "_id": "7b01i1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b01a1000000000000000000": 7,
+            "7b01a2000000000000000000": 1782228197930
+          }
+        }
+      ],
+      "identifier": "field_7b01i0100000000000000000",
+      "tableColumnOrder": [
+        "7b01a1000000000000000000",
+        "7b01a2000000000000000000",
+        "7b01a3000000000000000000"
+      ],
+      "rowOrder": [
+        "7b01i1100000000000000000",
+        "7b01i1200000000000000000"
+      ],
+      "editability": [
+        "inline"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b02f0100000000000000000",
+      "type": "table",
+      "title": "Table - types B form only",
+      "tableColumns": [
+        {
+          "_id": "7b02a1000000000000000000",
+          "type": "signature",
+          "title": "Signature Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b02f0100000000000000000_column_7b02a1000000000000000000"
+        },
+        {
+          "_id": "7b02a2000000000000000000",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b02f0100000000000000000_column_7b02a2000000000000000000"
+        },
+        {
+          "_id": "7b02a3000000000000000000",
+          "type": "multiSelect",
+          "title": "MultiSelect Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b02f0100000000000000000_column_7b02a3000000000000000000",
+          "options": [
+            {
+              "_id": "7b02b1000000000000000000",
+              "value": "Alpha",
+              "deleted": false
+            },
+            {
+              "_id": "7b02b2000000000000000000",
+              "value": "Beta",
+              "deleted": false
+            }
+          ],
+          "multi": true
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b02f1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b02a2000000000000000000": "BAR-111",
+            "7b02a3000000000000000000": [
+              "7b02b1000000000000000000"
+            ]
+          }
+        },
+        {
+          "_id": "7b02f1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b02a2000000000000000000": "BAR-222"
+          }
+        }
+      ],
+      "identifier": "field_7b02f0100000000000000000",
+      "tableColumnOrder": [
+        "7b02a1000000000000000000",
+        "7b02a2000000000000000000",
+        "7b02a3000000000000000000"
+      ],
+      "rowOrder": [
+        "7b02f1100000000000000000",
+        "7b02f1200000000000000000"
+      ],
+      "editability": [
+        "form"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b02i0100000000000000000",
+      "type": "table",
+      "title": "Table - types B inline only",
+      "tableColumns": [
+        {
+          "_id": "7b02a1000000000000000000",
+          "type": "signature",
+          "title": "Signature Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b02i0100000000000000000_column_7b02a1000000000000000000"
+        },
+        {
+          "_id": "7b02a2000000000000000000",
+          "type": "barcode",
+          "title": "Barcode Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b02i0100000000000000000_column_7b02a2000000000000000000"
+        },
+        {
+          "_id": "7b02a3000000000000000000",
+          "type": "multiSelect",
+          "title": "MultiSelect Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b02i0100000000000000000_column_7b02a3000000000000000000",
+          "options": [
+            {
+              "_id": "7b02b1000000000000000000",
+              "value": "Alpha",
+              "deleted": false
+            },
+            {
+              "_id": "7b02b2000000000000000000",
+              "value": "Beta",
+              "deleted": false
+            }
+          ],
+          "multi": true
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b02i1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b02a2000000000000000000": "BAR-111",
+            "7b02a3000000000000000000": [
+              "7b02b1000000000000000000"
+            ]
+          }
+        },
+        {
+          "_id": "7b02i1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b02a2000000000000000000": "BAR-222"
+          }
+        }
+      ],
+      "identifier": "field_7b02i0100000000000000000",
+      "tableColumnOrder": [
+        "7b02a1000000000000000000",
+        "7b02a2000000000000000000",
+        "7b02a3000000000000000000"
+      ],
+      "rowOrder": [
+        "7b02i1100000000000000000",
+        "7b02i1200000000000000000"
+      ],
+      "editability": [
+        "inline"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b03f0100000000000000000",
+      "type": "table",
+      "title": "Table - static types form only",
+      "tableColumns": [
+        {
+          "_id": "7b03a1000000000000000000",
+          "type": "text",
+          "title": "Required Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b03f0100000000000000000_column_7b03a1000000000000000000",
+          "required": true
+        },
+        {
+          "_id": "7b03a2000000000000000000",
+          "type": "block",
+          "title": "Block Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b03f0100000000000000000_column_7b03a2000000000000000000",
+          "value": "Static block copy"
+        },
+        {
+          "_id": "7b03a3000000000000000000",
+          "type": "progress",
+          "title": "Progress Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b03f0100000000000000000_column_7b03a3000000000000000000"
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b03f1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b03a1000000000000000000": "Static R1 filled",
+            "7b03a2000000000000000000": "Static block copy R1"
+          }
+        },
+        {
+          "_id": "7b03f1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b03a2000000000000000000": "Static block copy R2"
+          }
+        }
+      ],
+      "identifier": "field_7b03f0100000000000000000",
+      "tableColumnOrder": [
+        "7b03a1000000000000000000",
+        "7b03a2000000000000000000",
+        "7b03a3000000000000000000"
+      ],
+      "rowOrder": [
+        "7b03f1100000000000000000",
+        "7b03f1200000000000000000"
+      ],
+      "editability": [
+        "form"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b04u0100000000000000000",
+      "type": "table",
+      "title": "Table - uppercase editability",
+      "tableColumns": [
+        {
+          "_id": "7b04a1000000000000000000",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b04u0100000000000000000_column_7b04a1000000000000000000"
+        },
+        {
+          "_id": "7b04a2000000000000000000",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b04u0100000000000000000_column_7b04a2000000000000000000",
+          "options": [
+            {
+              "_id": "7b04b1000000000000000000",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "7b04b2000000000000000000",
+              "value": "No",
+              "deleted": false
+            }
+          ]
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b04u1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b04a1000000000000000000": "Table - uppercase editability R1",
+            "7b04a2000000000000000000": "7b04b1000000000000000000"
+          }
+        },
+        {
+          "_id": "7b04u1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b04a1000000000000000000": "Table - uppercase editability R2"
+          }
+        }
+      ],
+      "identifier": "field_7b04u0100000000000000000",
+      "tableColumnOrder": [
+        "7b04a1000000000000000000",
+        "7b04a2000000000000000000"
+      ],
+      "rowOrder": [
+        "7b04u1100000000000000000",
+        "7b04u1200000000000000000"
+      ],
+      "editability": [
+        "INLINE"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b04x0100000000000000000",
+      "type": "table",
+      "title": "Table - unrecognized editability",
+      "tableColumns": [
+        {
+          "_id": "7b04a1000000000000000000",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b04x0100000000000000000_column_7b04a1000000000000000000"
+        },
+        {
+          "_id": "7b04a2000000000000000000",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b04x0100000000000000000_column_7b04a2000000000000000000",
+          "options": [
+            {
+              "_id": "7b04b1000000000000000000",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "7b04b2000000000000000000",
+              "value": "No",
+              "deleted": false
+            }
+          ]
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b04x1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b04a1000000000000000000": "Table - unrecognized editability R1",
+            "7b04a2000000000000000000": "7b04b1000000000000000000"
+          }
+        },
+        {
+          "_id": "7b04x1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b04a1000000000000000000": "Table - unrecognized editability R2"
+          }
+        }
+      ],
+      "identifier": "field_7b04x0100000000000000000",
+      "tableColumnOrder": [
+        "7b04a1000000000000000000",
+        "7b04a2000000000000000000"
+      ],
+      "rowOrder": [
+        "7b04x1100000000000000000",
+        "7b04x1200000000000000000"
+      ],
+      "editability": [
+        "bogus"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b04d0100000000000000000",
+      "type": "table",
+      "title": "Table - duplicate inline editability",
+      "tableColumns": [
+        {
+          "_id": "7b04a1000000000000000000",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b04d0100000000000000000_column_7b04a1000000000000000000"
+        },
+        {
+          "_id": "7b04a2000000000000000000",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "7b04d0100000000000000000_column_7b04a2000000000000000000",
+          "options": [
+            {
+              "_id": "7b04b1000000000000000000",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "7b04b2000000000000000000",
+              "value": "No",
+              "deleted": false
+            }
+          ]
+        }
+      ],
+      "value": [
+        {
+          "_id": "7b04d1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b04a1000000000000000000": "Table - duplicate inline editability R1",
+            "7b04a2000000000000000000": "7b04b1000000000000000000"
+          }
+        },
+        {
+          "_id": "7b04d1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b04a1000000000000000000": "Table - duplicate inline editability R2"
+          }
+        }
+      ],
+      "identifier": "field_7b04d0100000000000000000",
+      "tableColumnOrder": [
+        "7b04a1000000000000000000",
+        "7b04a2000000000000000000"
+      ],
+      "rowOrder": [
+        "7b04d1100000000000000000",
+        "7b04d1200000000000000000"
+      ],
+      "editability": [
+        "inline",
+        "inline"
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "7b05f0100000000000000000",
+      "type": "collection",
+      "title": "Collection - field level inline, schema level form",
+      "identifier": "field_7b05f0100000000000000000",
+      "editability": [
+        "inline"
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "root": true,
+          "title": "Main Collection",
+          "tableColumns": [
+            {
+              "_id": "7b05a1000000000000000000",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "7b05f0100000000000000000_column_7b05a1000000000000000000"
+            },
+            {
+              "_id": "7b05a2000000000000000000",
+              "type": "dropdown",
+              "title": "Dropdown Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "7b05f0100000000000000000_column_7b05a2000000000000000000",
+              "options": [
+                {
+                  "_id": "7b04b1000000000000000000",
+                  "value": "Yes",
+                  "deleted": false
+                },
+                {
+                  "_id": "7b04b2000000000000000000",
+                  "value": "No",
+                  "deleted": false
+                }
+              ]
+            }
+          ],
+          "children": [],
+          "editability": [
+            "form"
+          ]
+        }
+      },
+      "value": [
+        {
+          "_id": "7b05f1100000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b05a1000000000000000000": "Schema wins R1",
+            "7b05a2000000000000000000": "7b04b1000000000000000000"
+          },
+          "children": {}
+        },
+        {
+          "_id": "7b05f1200000000000000000",
+          "deleted": false,
+          "cells": {
+            "7b05a1000000000000000000": "Schema wins R2"
+          },
+          "children": {}
+        }
+      ],
+      "rowOrder": [
+        "7b05f1100000000000000000",
+        "7b05f1200000000000000000"
+      ]
+    }
+  ],
+  "formulas": [],
+  "deleted": false,
+  "categories": []
+}

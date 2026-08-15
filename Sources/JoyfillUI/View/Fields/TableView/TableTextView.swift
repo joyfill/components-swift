@@ -31,6 +31,7 @@ struct TableTextView: View {
                     .disabled(true)
             }
             .environment(\.isEnabled, true)
+            .accessibilityIdentifier("TableTextFieldReadonlyScrollView")
         } else {
             if #available(iOS 16.0, *) {
                 TextEditor(text: $cellModel.data.title)
