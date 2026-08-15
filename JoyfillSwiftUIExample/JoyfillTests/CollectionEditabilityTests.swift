@@ -16,6 +16,16 @@ final class CollectionEditabilityTests: XCTestCase {
     private let rootSchemaKey = "collectionSchemaId"
     private let childSchemaKey = "685753949107b403e2e4a949"
 
+    /// Read from the fixture so a schema added later is covered automatically instead of
+    /// silently keeping the default flags.
+    private var allSchemaKeys: [String] {
+        let document = sampleJSONDocument(fileName: "ChangerHandlerUnit")
+        guard let field = document.fields.first(where: { $0.id == collectionFieldID }) else {
+            fatalError("Collection field \(collectionFieldID) missing from fixture")
+        }
+        return Array((field.schema ?? [:]).keys)
+    }
+
     private func makeViewModel(editability: [String: [String]?],
                                mode: Mode = .fill,
                                singleClickRowEdit: Bool = true) -> CollectionViewModel {
@@ -186,12 +196,9 @@ final class CollectionEditabilityTests: XCTestCase {
     }
 
     func testEditIconSlotDroppedWhenNoSchemaAllowsForm() {
-        let inlineOnlyEverywhere = Dictionary(uniqueKeysWithValues:
-            ["collectionSchemaId",
-             "685753949107b403e2e4a949",
-             "685753be00360cf5d545a89e",
-             "685753db2562a8d0c0085910",
-             "6857542f10ffa297cd488f74"].map { ($0, Optional(["inline"])) })
+        let keys = allSchemaKeys
+        XCTAssertFalse(keys.isEmpty, "Fixture has no schemas, so the assertion below would be vacuous")
+        let inlineOnlyEverywhere = Dictionary(uniqueKeysWithValues: keys.map { ($0, Optional(["inline"])) })
         let viewModel = makeViewModel(editability: inlineOnlyEverywhere)
         XCTAssertFalse(viewModel.showSingleClickEditButton(for: viewModel.tableDataModel))
     }
