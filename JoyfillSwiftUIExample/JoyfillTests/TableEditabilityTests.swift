@@ -60,6 +60,12 @@ final class TableEditabilityTests: XCTestCase {
         XCTAssertTrue(flags.formAllowed)
     }
 
+    func testInlineAndFormResolvesToBoth() {
+        let flags = EditabilityFlags(rawValues: ["inline", "form"])
+        XCTAssertTrue(flags.inlineAllowed)
+        XCTAssertTrue(flags.formAllowed)
+    }
+
     func testInlineOnlyResolvesToInline() {
         let flags = EditabilityFlags(rawValues: ["inline"])
         XCTAssertTrue(flags.inlineAllowed)
@@ -82,6 +88,18 @@ final class TableEditabilityTests: XCTestCase {
         let flags = EditabilityFlags(rawValues: ["sideways", "form"])
         XCTAssertFalse(flags.inlineAllowed)
         XCTAssertTrue(flags.formAllowed)
+    }
+
+    /// Matching is deliberately case-sensitive, so a wrong-case literal is unrecognized and the
+    /// whole array falls back to the permissive default rather than half-matching.
+    func testEditabilityMatchingIsCaseSensitive() {
+        let flags = EditabilityFlags(rawValues: ["Inline"])
+        XCTAssertTrue(flags.inlineAllowed)
+        XCTAssertTrue(flags.formAllowed)
+
+        let mixed = EditabilityFlags(rawValues: ["Inline", "form"])
+        XCTAssertFalse(mixed.inlineAllowed)
+        XCTAssertTrue(mixed.formAllowed)
     }
 
     // MARK: - Grid editing

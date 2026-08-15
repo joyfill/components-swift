@@ -56,6 +56,7 @@ struct EditabilityFlags: Equatable {
 
     /// An empty or absent array means both surfaces are allowed. Unrecognized values are ignored,
     /// and an array containing only unrecognized values falls back to the default.
+    /// Matching is case-sensitive by design: the spec allows only lowercase `inline` and `form`.
     init(rawValues: [String]?) {
         guard let rawValues, !rawValues.isEmpty else {
             self = .default
