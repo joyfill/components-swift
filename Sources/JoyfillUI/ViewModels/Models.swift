@@ -488,10 +488,8 @@ struct TableDataModel {
         return schema[schemaKey]?.decorate == true
     }
 
-    /// Tables hold a single entry keyed by field ID, so `schemaKey` is ignored for them.
-    /// Hoist calls out of per-row loops: the result is invariant for a given schema.
     func editability(forSchemaKey schemaKey: String?) -> EditabilityFlags {
-        let key = fieldType == .table ? fieldIdentifier.fieldID : (schemaKey ?? "")
+        let key = fieldType == .collection ? (schemaKey ?? "") : fieldIdentifier.fieldID
         return editabilityMap[key] ?? .default
     }
 
