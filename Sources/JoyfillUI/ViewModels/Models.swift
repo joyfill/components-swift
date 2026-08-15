@@ -48,7 +48,7 @@ struct RowDataModel: Equatable, Hashable {
 
 /// Resolved form of a field's or schema's `editability` array. Resolved once at
 /// `TableDataModel` init so no render or cell-build path re-reads the raw dictionary.
-struct EditabilityFlags: Equatable {
+struct EditabilityFlags {
     let inlineAllowed: Bool
     let formAllowed: Bool
 
