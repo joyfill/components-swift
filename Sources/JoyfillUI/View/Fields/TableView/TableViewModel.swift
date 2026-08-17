@@ -97,19 +97,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         return Array(tableDataModel.filteredcellModels.prefix(3))
     }
     
-    func getProgress(rowId: String) -> (Int, Int) {
-        guard let rowCells = tableDataModel.cellModels
-            .first(where: { $0.rowID == rowId })?.cells else {
-            return (0,0)
-        }
-        
-        let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
-        }.count
-        
-        return (filledCount, requiredColumnIds.count)
-    }
-    
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
@@ -555,12 +542,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 }
 
-// MARK: - Required and Cell Visibility Logic
+// MARK: - Required logic
 extension TableViewModel {
-    /// Per-cell required-ness for the live grid border. Honours `cellRequiredLogic`
-    /// (resolved against this row's sibling cells), then the column's `requiredLogic`,
-    /// then the static `required` flag. Falls back to the column-wide set if there is
-    /// no document editor to read the cache from.
     func isCellRequired(columnID: String, rowID: String) -> Bool {
         guard let documentEditor = tableDataModel.documentEditor else {
             return tableDataModel.requiredColumnIDs.contains(columnID)
@@ -572,12 +555,22 @@ extension TableViewModel {
         )
     }
 
-    func rowElement(forRowID rowID: String) -> ValueElement? {
-        tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
-    }
+    func getProgress(rowId: String) -> (Int, Int) {
+        guard let rowCells = tableDataModel.cellModels
+            .first(where: { $0.rowID == rowId })?.cells else {
+            return (0,0)
+        }
 
-    /// Live read — the cell views call this on every render, so there is no copy to keep in sync.
-    /// An absent document editor shows the cell, matching `DocumentEditor.shouldShow(fieldID:)`.
+        let filledCount = rowCells.filter { cellModel in
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+        }.count
+
+        return (filledCount, requiredColumnIds.count)
+    }
+}
+
+// MARK: - Cell visibility
+extension TableViewModel {
     func shouldShowCell(columnID: String, rowID: String) -> Bool {
         guard let documentEditor = tableDataModel.documentEditor else { return true }
         return documentEditor.shouldShowCell(
@@ -585,6 +578,10 @@ extension TableViewModel {
             fieldID: tableDataModel.fieldIdentifier.fieldID,
             rowID: rowID
         )
+    }
+
+    func rowElement(forRowID rowID: String) -> ValueElement? {
+        tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
     }
 
     func refreshDependentCellLogic(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {

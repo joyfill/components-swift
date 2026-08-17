@@ -48,17 +48,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.rowDecorators(forSchemaKey: schemaKey)
     }
 
-    func isCellRequired(columnID: String, rowID: String, schemaKey: String) -> Bool {
-        guard let documentEditor = tableDataModel.documentEditor else {
-            return columnsMap["\(schemaKey)_\(columnID)"]?.required ?? false
-        }
-        return documentEditor.isCellRequired(
-            columnID: columnID,
-            fieldID: tableDataModel.fieldIdentifier.fieldID,
-            schemaKey: schemaKey,
-            rowID: rowID
-        )
-    }
 
     /// Live read — the cell views call this on every render, so there is no copy to keep in sync.
     /// An absent document editor shows the cell, matching `DocumentEditor.shouldShow(fieldID:)`.
@@ -578,19 +567,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID, valueElement: rowToValueElementMap[rowID])
         updateCollectionWidth()
-    }
-    
-    func getProgress(rowId: String) -> (Int, Int) {
-        guard let rowCells = tableDataModel.filteredcellModels
-            .first(where: { $0.rowID == rowId })?.cells else {
-            return (0,0)
-        }
-        
-        let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
-        }.count
-        
-        return (filledCount, requiredColumnIds.count)
     }
     
     func isColumnFilled(columnId: String) -> Bool {
@@ -2399,5 +2375,33 @@ extension CollectionViewModel {
         let clamped = max(0, min(newIndex, list.count))
         list.insert(childID, at: clamped)
         parentToChildRowMap[key] = list
+    }
+}
+
+// MARK: - Required logic
+extension CollectionViewModel {
+    func isCellRequired(columnID: String, rowID: String, schemaKey: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor else {
+            return columnsMap["\(schemaKey)_\(columnID)"]?.required ?? false
+        }
+        return documentEditor.isCellRequired(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            schemaKey: schemaKey,
+            rowID: rowID
+        )
+    }
+
+    func getProgress(rowId: String) -> (Int, Int) {
+        guard let rowCells = tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == rowId })?.cells else {
+            return (0,0)
+        }
+
+        let filledCount = rowCells.filter { cellModel in
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+        }.count
+
+        return (filledCount, requiredColumnIds.count)
     }
 }
