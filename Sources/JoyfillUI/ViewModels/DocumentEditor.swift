@@ -1024,13 +1024,22 @@ extension DocumentEditor {
     }
     
     /// Remaps logic conditions inside an array of FieldTableColumn.
+    /// Covers every logic slot a column can carry, not just column show/hide: `cellVisibilityLogic`,
+    /// `requiredLogic` and `cellRequiredLogic` all support `field` conditions that point at a
+    /// page-level field.
     private func remapTableColumnsLogic(_ tableColumns: inout [FieldTableColumn], fieldMapping: [String: String], origPageID: String?, newPageID: String) {
+        func remapped(_ logic: Logic?) -> Logic? {
+            guard var logic = logic, var conditions = logic.conditions else { return logic }
+            remapConditions(&conditions, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
+            logic.conditions = conditions
+            return logic
+        }
+
         for k in tableColumns.indices {
-            if var colLogic = tableColumns[k].logic, var colConditions = colLogic.conditions {
-                remapConditions(&colConditions, fieldMapping: fieldMapping, origPageID: origPageID, newPageID: newPageID)
-                colLogic.conditions = colConditions
-                tableColumns[k].logic = colLogic
-            }
+            tableColumns[k].logic = remapped(tableColumns[k].logic)
+            tableColumns[k].cellVisibilityLogic = remapped(tableColumns[k].cellVisibilityLogic)
+            tableColumns[k].requiredLogic = remapped(tableColumns[k].requiredLogic)
+            tableColumns[k].cellRequiredLogic = remapped(tableColumns[k].cellRequiredLogic)
         }
     }
     

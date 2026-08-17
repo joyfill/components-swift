@@ -1546,6 +1546,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             }
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
+                tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
+                tableDataModel.documentEditor?.addCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
                 refreshCollectionSchema(rowID: parentRowID)
                 appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {
@@ -1672,11 +1674,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil, schemaKey: String? = nil) {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
-        let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
+        let derivedNestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
+        let nestedKey = schemaKey ?? derivedNestedKey
         let rowMeta = metadata ?? rowToValueElementMap[rowId]?.metadata
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
@@ -1720,12 +1723,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 //        sortRowsIfNeeded()
     }
     
-    /// Re-resolves the visibility and required-ness of every cell that depends on `editedColumnID`,
-    /// keeping `cellVisibilityMap` and `cellRequiredMap` current. The cell views read both live at render
-    /// time, so nothing is written into the cell models here.
-    ///
-    /// Both queries always run: a column can have required-ness dependents but no visibility dependents,
-    /// or the reverse, so neither result may gate the other.
+
     func refreshDependentCellLogic(rowId: String, schemaKey: String, editedColumnID: String) {
         guard let documentEditor = tableDataModel.documentEditor,
               let row = rowToValueElementMap[rowId] else { return }
@@ -1734,10 +1732,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
         _ = documentEditor.cellRequiredNeedToBeRefreshed(
             fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
-        // Deliberately no `uuid` bump: the callers already wrote to the `@Published` tableDataModel, and
-        // bumping here would fire `.onChange(of: viewModel.uuid)` in the row-edit form
-        // (CollectionModalTopNavigationView), remounting it via `.id(viewID)` and dropping first
-        // responder mid-entry. The table lane has never bumped here, for the same reason.
     }
 
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {
@@ -2056,7 +2050,8 @@ extension CollectionViewModel {
                 cellDataModel: cell,
                 isNestedCell: true,
                 callOnChange: false,
-                metadata: row.metadata
+                metadata: row.metadata,
+                schemaKey: schemaID
             )
             
         }
