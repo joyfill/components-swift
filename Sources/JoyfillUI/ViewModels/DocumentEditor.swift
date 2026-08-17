@@ -298,32 +298,7 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
     }
 
-    /// Effective required-ness of a field, honouring `requiredLogic` (falls back to the static `required` flag).
-    public func isFieldRequired(fieldID: String) -> Bool {
-        return requiredLogicHandler.isFieldRequired(fieldID: fieldID)
-    }
-
-    /// Effective column-wide required-ness, honouring the column's `requiredLogic`.
-    public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
-        return requiredLogicHandler.isColumnRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
-    }
-
-    /// Effective required-ness of a single cell, honouring `cellRequiredLogic` (per-row) then `requiredLogic`.
-    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
-        return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, rowID: rowID)
-    }
-
-    func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
-        return requiredLogicHandler.cellRequiredNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
-    }
-
-    func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
-        requiredLogicHandler.addCellRequiredForRow(fieldID: fieldID, schemaID: schemaID, row: row)
-    }
-
-    func removeCellRequiredForRow(fieldID: String, rowID: String) {
-        requiredLogicHandler.removeCellRequiredForRow(fieldID: fieldID, rowID: rowID)
-    }
+    // Required-logic reads and cache hooks live in DocumentEditor+RequiredLogic.swift.
 
     public func change(changes: [Change]) {
         for change in changes {
@@ -1548,5 +1523,41 @@ extension DocumentEditor {
         onChangeDeletePage(pageID: pageID, fieldsData: fieldsData, fileId: firstFile.id ?? "", viewId: viewId ?? "")
 
         return true
+    }
+}
+
+// MARK: - Required logic
+
+/// Surface over `RequiredLogicHandler`: the effective required-ness of a field, a column or a single
+/// cell, plus the hooks that keep the per-cell cache in step with row edits. Reads are O(1) cache
+/// lookups — the handler owns the maps and recomputes them, callers only ask.
+extension DocumentEditor {
+
+    /// Effective required-ness of a field, honouring `requiredLogic` (falls back to the static `required` flag).
+    public func isFieldRequired(fieldID: String) -> Bool {
+        return requiredLogicHandler.isFieldRequired(fieldID: fieldID)
+    }
+
+    /// Effective column-wide required-ness, honouring the column's `requiredLogic`.
+    public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        return requiredLogicHandler.isColumnRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
+    }
+
+    /// Effective required-ness of a single cell, honouring `cellRequiredLogic` (per-row) then `requiredLogic`.
+    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
+        return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, rowID: rowID)
+    }
+
+    /// Re-resolves the cells whose `cellRequiredLogic` reads `editedColumnID` in this row.
+    func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
+        return requiredLogicHandler.cellRequiredNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
+    }
+
+    func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        requiredLogicHandler.addCellRequiredForRow(fieldID: fieldID, schemaID: schemaID, row: row)
+    }
+
+    func removeCellRequiredForRow(fieldID: String, rowID: String) {
+        requiredLogicHandler.removeCellRequiredForRow(fieldID: fieldID, rowID: rowID)
     }
 }
