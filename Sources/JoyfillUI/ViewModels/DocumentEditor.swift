@@ -1560,4 +1560,9 @@ extension DocumentEditor {
     func removeCellRequiredForRow(fieldID: String, rowID: String) {
         requiredLogicHandler.removeCellRequiredForRow(fieldID: fieldID, rowID: rowID)
     }
+    
+    func hasCellLogicDependents(fieldID: String, editedColumnID: String) -> Bool {
+        return conditionalLogicHandler.hasCellDependents(fieldID: fieldID, editedColumnID: editedColumnID)
+            || requiredLogicHandler.hasCellDependents(fieldID: fieldID, editedColumnID: editedColumnID)
+    }
 }
