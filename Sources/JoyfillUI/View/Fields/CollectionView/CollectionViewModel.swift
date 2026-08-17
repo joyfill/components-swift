@@ -390,13 +390,16 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
     private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
         let validColumns = tableDataModel.filterTableColumns(key: schemaID)
-        let requiredColumns = validColumns.filter({ $0.required == true })
 
-        for requiredColumn in requiredColumns {
-            let columnID = requiredColumn.id ?? ""
+        for column in validColumns {
+            guard let columnID = column.id else { continue }
             let allRowsHaveValue = valueElements.allSatisfy { valueElement in
+                guard let rowID = valueElement.id else { return false }
+                guard isCellRequired(columnID: columnID, rowID: rowID, schemaKey: schemaID) else {
+                    return true
+                }
                 if let cell = valueElement.cells?[columnID] {
-                    switch requiredColumn.type {
+                    switch column.type {
                     case .text, .dropdown, .barcode, .signature, .block:
                         return !(cell.text?.isEmpty ?? true)
                     case .number:
