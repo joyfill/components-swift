@@ -75,36 +75,36 @@ class RequiredLogicHandler {
 
     /// Fields that must be re-rendered because `fieldID` changed and some requiredLogic depends on it.
     func fieldsNeedsToBeRefreshed(fieldID: String) -> [String] {
-        let cellOwners = cellRequiredFieldDependencyMap[fieldID] ?? Set<String>()
-        var owners = requiredFieldDependencyMap[fieldID] ?? Set<String>()
-        owners.formUnion(cellOwners)
-        guard !owners.isEmpty else { return [] }
-        var refreshIDs = [String]()
-        for ownerID in owners {
-            guard let field = documentEditor.field(fieldID: ownerID) else { continue }
+        let cellDependentFields = cellRequiredFieldDependencyMap[fieldID] ?? Set<String>()
+        var dependentFields = requiredFieldDependencyMap[fieldID] ?? Set<String>()
+        dependentFields.formUnion(cellDependentFields)
+        guard !dependentFields.isEmpty else { return [] }
+        var refreshFieldIDs = [String]()
+        for dependentFieldID in dependentFields {
+            guard let field = documentEditor.field(fieldID: dependentFieldID) else { continue }
             switch field.fieldType {
             case .table, .collection:
-                var changed = columnRequiredChanged(field: field, fieldID: ownerID)
+                var changed = columnRequiredChanged(field: field, fieldID: dependentFieldID)
                 // Cell-level logic is per-row and evaluated lazily, so column/field recomputation can't
                 // observe it — if this change touches a cell-logic dependency, force a refresh.
-                if cellOwners.contains(ownerID) { changed = true }
+                if cellDependentFields.contains(dependentFieldID) { changed = true }
                 let newFieldRequired = computeFieldRequired(field: field)
-                if requiredFieldMap[ownerID] != newFieldRequired {
-                    requiredFieldMap[ownerID] = newFieldRequired
+                if requiredFieldMap[dependentFieldID] != newFieldRequired {
+                    requiredFieldMap[dependentFieldID] = newFieldRequired
                     changed = true
                 }
                 if changed {
-                    refreshIDs.append(ownerID)
+                    refreshFieldIDs.append(dependentFieldID)
                 }
             default:
                 let newValue = computeFieldRequired(field: field)
-                if requiredFieldMap[ownerID] != newValue {
-                    requiredFieldMap[ownerID] = newValue
-                    refreshIDs.append(ownerID)
+                if requiredFieldMap[dependentFieldID] != newValue {
+                    requiredFieldMap[dependentFieldID] = newValue
+                    refreshFieldIDs.append(dependentFieldID)
                 }
             }
         }
-        return refreshIDs
+        return refreshFieldIDs
     }
 
     // MARK: - Cache building
