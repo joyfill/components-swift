@@ -22,7 +22,7 @@ class RequiredLogicHandler {
     // Is it required? — the answers the UI reads.
     private var requiredFieldMap = [String: Bool]()                      // fieldID : isRequired
     private var requiredColumnMap = [String: [ColumnSchemaID: Bool]]()   // fieldID : (columnID + schemaID) : isRequired
-    private var cellRequiredMap = [String: [CellVisibilityID: Bool]]()   // fieldID : (rowID + columnID) : isRequired
+    private var cellRequiredMap = [String: [CellID: Bool]]()   // fieldID : (rowID + columnID) : isRequired
 
     // What to refresh when something changes. Built from the logic listed first, keyed by what changed.
     private var requiredFieldDependencyMap = [String: Set<String>]()                 // requiredLogic `field` conditions → changed fieldID : fields/tables to re-render
@@ -69,7 +69,7 @@ class RequiredLogicHandler {
     /// collections; a cell with no required signal is absent from the map and reads as `false`.
     /// `schemaKey` is accepted for call-site symmetry but not needed for the read (row IDs are unique).
     func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
-        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
+        let cellID = CellID(rowID: rowID, columnID: columnID)
         return cellRequiredMap[fieldID]?[cellID] ?? false
     }
 
@@ -346,7 +346,7 @@ extension RequiredLogicHandler {
     @discardableResult
     private func updateCellRequired(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
         guard let rowID = row.id, let column = columns.first(where: { $0.id == columnID }) else { return false }
-        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
+        let cellID = CellID(rowID: rowID, columnID: columnID)
 
         let columnRequired = computeColumnRequired(column: column)
         let newValue: Bool
