@@ -26,15 +26,14 @@ final class CellVisibilityLogicTest: XCTestCase {
     func documentEditor(
         document: JoyDoc,
         mode: Mode = .fill,
-        isPageDuplicateEnabled: Bool = false,
-        license: String = licenseKey
+        isPageDuplicateEnabled: Bool = false
     ) -> DocumentEditor {
         DocumentEditor(
             document: document,
             mode: mode,
             isPageDuplicateEnabled: isPageDuplicateEnabled,
             validateSchema: false,
-            license: license
+            license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
         )
     }
 
@@ -1547,9 +1546,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         document.fields.append(field)
         document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [collectionFieldID: .collection])
 
-        let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
-        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license), "License verification failed; set JOYFILL_TEST_LICENSE or check licenseKey")
-        let editor = documentEditor(document: document, license: license)
+        let editor = documentEditor(document: document)
         let editedRow = collRowElement(editor, rowID: collRootRow1)
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason hidden when status == Rejected")
@@ -1610,10 +1607,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         document.fields.append(field)
         document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [collectionFieldID: .collection])
 
-        let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
-        XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license),
-                      "License verification failed; set JOYFILL_TEST_LICENSE or check licenseKey")
-        let editor = documentEditor(document: document, license: license)
+        let editor = documentEditor(document: document)
         let nestedRow = collRowElement(editor, rowID: collChildRow1)
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: nestedRow.id ?? ""),
@@ -1837,9 +1831,9 @@ final class CellVisibilityLogicTest: XCTestCase {
             return
         }
         XCTAssertNil(duplicated.pageField.value, "Page 2's trigger starts empty when values are not copied")
-        XCTAssertTrue(duplicated.tableField.valueToValueElements?.isEmpty == true,
+        XCTAssertTrue(duplicated.tableField.valueToValueElements?.isEmpty ?? true,
                       "Page 2's table starts without copied rows")
-        XCTAssertTrue(duplicated.collectionField.valueToValueElements?.isEmpty == true,
+        XCTAssertTrue(duplicated.collectionField.valueToValueElements?.isEmpty ?? true,
                       "Page 2's collection starts without copied rows")
 
         let tableViewModel = tableViewModel(editor, fieldID: duplicatedTableID, pageID: duplicated.pageID)

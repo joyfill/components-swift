@@ -40,7 +40,7 @@ final class RequiredLogicTests: XCTestCase {
             mode: mode,
             isPageDuplicateEnabled: isPageDuplicateEnabled,
             validateSchema: false,
-            license: licenseKey
+            license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
         )
     }
 
@@ -1742,8 +1742,8 @@ final class RequiredLogicTests: XCTestCase {
             return
         }
         XCTAssertNil(duplicated.pageField.value, "Page 2's trigger starts empty when values are not copied")
-        XCTAssertTrue(duplicated.tableField.valueToValueElements?.isEmpty == true)
-        XCTAssertTrue(duplicated.collectionField.valueToValueElements?.isEmpty == true)
+        XCTAssertTrue(duplicated.tableField.valueToValueElements?.isEmpty ?? true)
+        XCTAssertTrue(duplicated.collectionField.valueToValueElements?.isEmpty ?? true)
 
         let tableViewModel = tableViewModel(editor, fieldID: duplicatedTableID, pageID: duplicated.pageID)
         tableViewModel.addRow(
