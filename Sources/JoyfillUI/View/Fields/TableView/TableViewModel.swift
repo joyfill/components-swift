@@ -80,7 +80,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                         fieldTableColumn.id == cellDataModel.id
                     }) {
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
-                        self?.refreshDependentCellLogic(rowId: rowID, editedColumnID: cellDataModel.id)
                     } else {
                         Log("Could not find column index for \(rowDataModel.id)", type: .error)
                     }
@@ -131,7 +130,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { [weak self] cellDataModel in
                         self?.tableDataModel.valueToValueElements = self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
-                        self?.refreshDependentCellLogic(rowId: rowID, editedColumnID: cellDataModel.id)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -403,7 +401,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         }
         
-        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
+        let elements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
+        refreshDependentCellLogic(rowId: rowId, editedColumnID: cellDataModel.id, row: elements.first(where: { $0.id == rowId }))
+        return elements
     }
 
     fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
@@ -594,19 +594,12 @@ extension TableViewModel {
     ///
     /// Both queries always run: a column can have required-ness dependents but no visibility dependents,
     /// or the reverse, so neither result may gate the other.
-    func refreshDependentCellLogic(rowId: String, editedColumnID: String) {
+    func refreshDependentCellLogic(rowId: String, editedColumnID: String, row: ValueElement? = nil) {
         guard let documentEditor = tableDataModel.documentEditor,
-              let row = rowElement(forRowID: rowId) else { return }
+              let row = row ?? rowElement(forRowID: rowId) else { return }
         let fieldID = tableDataModel.fieldIdentifier.fieldID
         _ = documentEditor.cellsNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
         _ = documentEditor.cellRequiredNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
-    }
-
-    /// A field outside this table changed. The maps were already re-resolved by the document editor, so
-    /// this only has to invalidate the view — nothing else publishes on this path.
-    func cellVisibilityDidChange(columnIDs: Set<String>) {
-        guard !columnIDs.isEmpty else { return }
-        uuid = UUID()
     }
 }
 
