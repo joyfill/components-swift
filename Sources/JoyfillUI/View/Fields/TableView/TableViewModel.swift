@@ -402,7 +402,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         
         let elements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
-        refreshDependentCellLogic(rowId: rowId, editedColumnID: cellDataModel.id, row: elements.first(where: { $0.id == rowId }))
+        refreshDependentCellLogic(rowId: rowId, editedColumnID: cellDataModel.id, in: elements)
         return elements
     }
 
@@ -587,17 +587,11 @@ extension TableViewModel {
         )
     }
 
-    /// Re-resolves the visibility and required-ness of every cell that depends on `editedColumnID`,
-    /// keeping `cellVisibilityMap` and `cellRequiredMap` current. The cell views read both live at render
-    /// time, so nothing is written into the cell models here — the edit's own write to the `@Published`
-    /// `tableDataModel` is what makes SwiftUI re-read them.
-    ///
-    /// Both queries always run: a column can have required-ness dependents but no visibility dependents,
-    /// or the reverse, so neither result may gate the other.
-    func refreshDependentCellLogic(rowId: String, editedColumnID: String, row: ValueElement? = nil) {
-        guard let documentEditor = tableDataModel.documentEditor,
-              let row = row ?? rowElement(forRowID: rowId) else { return }
+    func refreshDependentCellLogic(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {
+        guard let documentEditor = tableDataModel.documentEditor else { return }
         let fieldID = tableDataModel.fieldIdentifier.fieldID
+        guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
+        guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId }) else { return }
         _ = documentEditor.cellsNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
         _ = documentEditor.cellRequiredNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }

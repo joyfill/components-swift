@@ -362,7 +362,10 @@ extension RequiredLogicHandler {
         return didChange
     }
 
-    /// Sibling-cell edit: re-resolve the cells whose logic reads `editedColumnID`, return those that changed.
+    func hasCellDependents(fieldID: String, editedColumnID: String) -> Bool {
+        return cellRequiredSiblingDependencyMap[fieldID]?[editedColumnID] != nil
+    }
+
     func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
         guard let dependentColumns = cellRequiredSiblingDependencyMap[fieldID]?[editedColumnID] else { return [] }
         let columns = columns(fieldID: fieldID, schemaKey: schemaID)

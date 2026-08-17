@@ -756,6 +756,10 @@ extension ConditionalLogicHandler {
         return cellVisibilityMap[fieldID]?[cellID] ?? true
     }
 
+    func hasCellDependents(fieldID: String, editedColumnID: String) -> Bool {
+        return cellVisibilityDependencyMap[fieldID]?[editedColumnID] != nil
+    }
+
     func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
         guard let dependentColumns = cellVisibilityDependencyMap[fieldID]?[editedColumnID],
               let columns = columns(fieldID: fieldID, schemaID: schemaID) else { return [] }
