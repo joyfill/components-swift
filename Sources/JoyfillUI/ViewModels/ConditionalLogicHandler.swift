@@ -52,7 +52,7 @@ public struct CollectionDependency {
     public var columnDependencyMap = [String: Set<String>]() // columnID: Set of SchemaIDs
 }
 
-public struct CellVisibilityID: Hashable {
+public struct CellID: Hashable {
     public let rowID: String
     public let columnID: String
 
@@ -71,7 +71,7 @@ class ConditionalLogicHandler {
     private var collectionDependencyMap = [String: CollectionDependency]() // CollectionFieldID : CollectionDependency
     private var showColumnLogicMap = [String: ColumnLogic]() // Table/Collection fieldID : ColumnLogic
 
-    private var cellVisibilityMap = [String: [CellVisibilityID: Bool]]() // fieldID : (rowID + columnID) : isVisible
+    private var cellVisibilityMap = [String: [CellID: Bool]]() // fieldID : (rowID + columnID) : isVisible
     private var cellVisibilityDependencyMap = [String: [String: Set<String>]]() // fieldID : siblingColumnID : dependent columnIDs
     private var pageFieldCellDependencyMap = [String: [(tableFieldID: String, columnID: String, schemaID: String?)]]() // pageFieldID : dependent (tableFieldID, columnID, schemaID); schemaID is nil for tables
 
@@ -714,7 +714,7 @@ extension ConditionalLogicHandler {
     @discardableResult
     private func updateCellVisibility(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
         guard let rowID = row.id else { return false }
-        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
+        let cellID = CellID(rowID: rowID, columnID: columnID)
 
         let column = columns.first(where: { $0.id == columnID })
 
@@ -752,7 +752,7 @@ extension ConditionalLogicHandler {
     }
 
     func shouldShowCell(fieldID: String, columnID: String, rowID: String) -> Bool {
-        let cellID = CellVisibilityID(rowID: rowID, columnID: columnID)
+        let cellID = CellID(rowID: rowID, columnID: columnID)
         return cellVisibilityMap[fieldID]?[cellID] ?? true
     }
 
