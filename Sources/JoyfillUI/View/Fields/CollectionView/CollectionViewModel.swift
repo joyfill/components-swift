@@ -510,7 +510,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int, _ schemaKey: String, tableDataModel: TableDataModel) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel)) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(forSchemaKey: schemaKey), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel)) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
@@ -799,7 +799,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(forSchemaKey: childSchemaKey), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
                                                    isExpanded: true, // Mark as expanded since we're showing content
                                                    rowWidth: rowWidth(filteredTableColumns, level, childSchemaKey, tableDataModel: tableDataModel))
                     cellModels.append(expanderRow)
@@ -986,7 +986,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(forSchemaKey: id), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
                                                             rowWidth: rowWidth(filteredTableColumns, level, id, tableDataModel: tableDataModel)
                             )
                             rowDataModel.isExpanded = false

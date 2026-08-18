@@ -388,7 +388,7 @@ struct TableModalView : View {
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                     
-                    if viewModel.tableDataModel.canShowSingleClickEditIcon() {
+                    if viewModel.tableDataModel.canShowSingleClickEditColumn() {
                         Image(systemName: "square.and.pencil")
                             .foregroundColor(.blue)
                             .frame(width: 40, height: 60)
