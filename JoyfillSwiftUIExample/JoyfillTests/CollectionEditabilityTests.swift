@@ -186,16 +186,14 @@ final class CollectionEditabilityTests: XCTestCase {
 
     func testEditIconShownWhenEditabilityAbsent() {
         let viewModel = makeViewModel(editability: [:])
-        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditColumn())
-        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: rootSchemaKey))
+        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: rootSchemaKey))
     }
 
-    func testEditIconIsSchemaSpecificWhileColumnIsReservedPerField() {
+    func testEditColumnIsReservedPerSchemaNotPerField() {
         let viewModel = makeViewModel(editability: [rootSchemaKey: ["inline"]])
-        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditColumn(),
-                      "Nested schemas still allow the form, so the gutter keeps its width")
-        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: rootSchemaKey))
-        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: childSchemaKey))
+        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: rootSchemaKey),
+                       "An inline-only schema must not reserve the gutter just because a sibling schema allows the form")
+        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: childSchemaKey))
     }
 
     func testEditIconHiddenWhenNoSchemaAllowsForm() {
@@ -203,16 +201,14 @@ final class CollectionEditabilityTests: XCTestCase {
         XCTAssertFalse(keys.isEmpty, "Fixture has no schemas, so the assertion below would be vacuous")
         let inlineOnlyEverywhere = Dictionary(uniqueKeysWithValues: keys.map { ($0, Optional(["inline"])) })
         let viewModel = makeViewModel(editability: inlineOnlyEverywhere)
-        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn())
         keys.forEach { key in
-            XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: key))
+            XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: key))
         }
     }
 
     func testEditIconStaysHiddenWhenHostDisablesSingleClickRowEdit() {
         let viewModel = makeViewModel(editability: [:], singleClickRowEdit: false)
-        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn())
-        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: rootSchemaKey))
+        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: rootSchemaKey))
     }
 
     // MARK: - Selection schema and popover gating

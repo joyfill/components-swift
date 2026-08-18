@@ -156,26 +156,20 @@ final class TableEditabilityTests: XCTestCase {
 
     // MARK: - Edit icon
 
-    /// A table has one schema, so the reserved column and the row's icon always agree.
     func testEditIconHiddenForInlineOnly() {
-        let tableDataModel = makeViewModel(editability: ["inline"]).tableDataModel
-        XCTAssertFalse(tableDataModel.canShowSingleClickEditIcon())
-        XCTAssertFalse(tableDataModel.canShowSingleClickEditColumn())
+        XCTAssertFalse(makeViewModel(editability: ["inline"]).tableDataModel.canShowSingleClickEditColumn())
     }
 
     func testEditIconShownForFormOnly() {
-        let tableDataModel = makeViewModel(editability: ["form"]).tableDataModel
-        XCTAssertTrue(tableDataModel.canShowSingleClickEditIcon())
-        XCTAssertTrue(tableDataModel.canShowSingleClickEditColumn())
+        XCTAssertTrue(makeViewModel(editability: ["form"]).tableDataModel.canShowSingleClickEditColumn())
     }
 
     func testEditIconShownWhenEditabilityAbsent() {
-        XCTAssertTrue(makeViewModel(editability: nil).tableDataModel.canShowSingleClickEditIcon())
+        XCTAssertTrue(makeViewModel(editability: nil).tableDataModel.canShowSingleClickEditColumn())
     }
 
     func testEditIconStaysHiddenWhenHostDisablesSingleClickRowEdit() {
         let tableDataModel = makeViewModel(editability: ["inline", "form"], singleClickRowEdit: false).tableDataModel
-        XCTAssertFalse(tableDataModel.canShowSingleClickEditIcon())
         XCTAssertFalse(tableDataModel.canShowSingleClickEditColumn())
     }
 

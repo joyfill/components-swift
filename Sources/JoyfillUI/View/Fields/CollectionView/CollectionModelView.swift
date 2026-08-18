@@ -175,7 +175,7 @@ struct CollectionModalView : View {
                 .frame(width: 40, height: 60)
                 .border(Color.tableCellBorderColor)
             
-            if viewModel.tableDataModel.canShowSingleClickEditColumn() {
+            if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) {
                 Image(systemName: "square.and.pencil")
                     .frame(width: 40, height: 60)
                     .foregroundColor(Color.gray.opacity(0.4))
@@ -192,7 +192,7 @@ struct CollectionModalView : View {
         var width: CGFloat = 40 // # column
         if viewModel.showRowSelector(for: viewModel.tableDataModel) { width += 40 }
         if viewModel.nestedTableCount > 0 { width += 40 }
-        if viewModel.tableDataModel.canShowSingleClickEditColumn() { width += 40 }
+        if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) { width += 40 }
         return width
     }
 
@@ -591,12 +591,12 @@ struct CollectionRowsHeaderView: View {
 
             // Indexing View
             switch rowModel.rowType {
-            case .header:
+            case .header(_, _, let schemaKey):
                 Text("#")
                     .frame(width: 40, height: 60)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
-                if viewModel.tableDataModel.canShowSingleClickEditColumn() {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: schemaKey) {
                     Image(systemName: "square.and.pencil")
                         .frame(width: 40, height: 60)
                         .foregroundColor(Color.gray.opacity(0.4))
@@ -619,26 +619,19 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.tableDataModel.canShowSingleClickEditColumn() {
-                    if viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: parentSchemaKey) {
-                        Image(systemName: "square.and.pencil")
-                            .foregroundColor(.blue)
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.tableDataModel.emptySelection()
-                                viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                                viewModel.tableDataModel.navigationIntent = .none
-                                showEditMultipleRowsSheetView = true
-                            }
-                            .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
-                    } else {
-                        Color.clear
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                    }
+                if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: parentSchemaKey) {
+                    Image(systemName: "square.and.pencil")
+                        .foregroundColor(.blue)
+                        .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                        .border(Color.tableCellBorderColor)
+                        .onTapGesture {
+                            viewModel.tableDataModel.emptySelection()
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                            viewModel.tableDataModel.navigationIntent = .none
+                            showEditMultipleRowsSheetView = true
+                        }
+                        .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
@@ -674,26 +667,19 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.tableDataModel.canShowSingleClickEditColumn() {
-                    if viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: viewModel.rootSchemaKey) {
-                        Image(systemName: "square.and.pencil")
-                            .foregroundColor(.blue)
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.tableDataModel.emptySelection()
-                                viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
-                                viewModel.tableDataModel.navigationIntent = .none
-                                showEditMultipleRowsSheetView = true
-                            }
-                            .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
-                    } else {
-                        Color.clear
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                    }
+                if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) {
+                    Image(systemName: "square.and.pencil")
+                        .foregroundColor(.blue)
+                        .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                        .border(Color.tableCellBorderColor)
+                        .onTapGesture {
+                            viewModel.tableDataModel.emptySelection()
+                            viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
+                            viewModel.tableDataModel.navigationIntent = .none
+                            showEditMultipleRowsSheetView = true
+                        }
+                        .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
                 }
                 if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
                     RowDecoratorMenuView(

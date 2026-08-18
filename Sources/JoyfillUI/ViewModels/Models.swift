@@ -496,13 +496,7 @@ struct TableDataModel {
         return editability(forSchemaKey: schemaKey).inlineAllowed ? .fill : .readonly
     }
 
-    func canShowSingleClickEditColumn() -> Bool {
-        guard singleClickRowEdit else { return false }
-        guard fieldType == .collection else { return editability().formAllowed }
-        return collectionEditabilityMap.isEmpty || collectionEditabilityMap.values.contains { $0.formAllowed }
-    }
-
-    func canShowSingleClickEditIcon(forSchemaKey schemaKey: String? = nil) -> Bool {
+    func canShowSingleClickEditColumn(forSchemaKey schemaKey: String? = nil) -> Bool {
         return singleClickRowEdit && editability(forSchemaKey: schemaKey).formAllowed
     }
 
