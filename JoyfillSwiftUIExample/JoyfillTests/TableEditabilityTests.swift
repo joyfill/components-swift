@@ -102,26 +102,42 @@ final class TableEditabilityTests: XCTestCase {
         XCTAssertTrue(mixed.formAllowed)
     }
 
+    /// A table reads editability straight from its field rather than from a snapshot taken at init,
+    /// so a host that swaps the field mid-session is reflected without rebuilding the model.
+    func testTableEditabilityFollowsFieldDataUpdates() {
+        let viewModel = makeViewModel(editability: ["inline"])
+        XCTAssertFalse(viewModel.tableDataModel.editability().formAllowed)
+
+        guard var field = viewModel.tableDataModel.documentEditor?.field(fieldID: tableFieldID) else {
+            return XCTFail("Table field \(tableFieldID) missing from the document editor")
+        }
+        field.editability = ["form"]
+        viewModel.tableDataModel.documentEditor?.updateField(field: field)
+
+        XCTAssertTrue(viewModel.tableDataModel.editability().formAllowed)
+        XCTAssertFalse(viewModel.tableDataModel.editability().inlineAllowed)
+    }
+
     // MARK: - Grid editing
 
     func testGridIsEditableWhenEditabilityAbsent() {
-        XCTAssertEqual(makeViewModel(editability: nil).gridEditMode, .fill)
+        XCTAssertEqual(makeViewModel(editability: nil).tableDataModel.editModeForGrid(), .fill)
     }
 
     func testGridIsEditableForInlineAndForm() {
-        XCTAssertEqual(makeViewModel(editability: ["inline", "form"]).gridEditMode, .fill)
+        XCTAssertEqual(makeViewModel(editability: ["inline", "form"]).tableDataModel.editModeForGrid(), .fill)
     }
 
     func testGridIsReadonlyForFormOnly() {
-        XCTAssertEqual(makeViewModel(editability: ["form"]).gridEditMode, .readonly)
+        XCTAssertEqual(makeViewModel(editability: ["form"]).tableDataModel.editModeForGrid(), .readonly)
     }
 
     func testGridIsEditableForInlineOnly() {
-        XCTAssertEqual(makeViewModel(editability: ["inline"]).gridEditMode, .fill)
+        XCTAssertEqual(makeViewModel(editability: ["inline"]).tableDataModel.editModeForGrid(), .fill)
     }
 
     func testReadonlyDocumentModeOverridesInlineEditability() {
-        XCTAssertEqual(makeViewModel(editability: ["inline"], mode: .readonly).gridEditMode, .readonly)
+        XCTAssertEqual(makeViewModel(editability: ["inline"], mode: .readonly).tableDataModel.editModeForGrid(), .readonly)
     }
 
     func testBuiltCellsCarryReadonlyModeForFormOnly() {
@@ -140,55 +156,54 @@ final class TableEditabilityTests: XCTestCase {
 
     // MARK: - Edit icon
 
+    /// A table has one schema, so the reserved column and the row's icon always agree.
     func testEditIconHiddenForInlineOnly() {
-        XCTAssertFalse(makeViewModel(editability: ["inline"]).showSingleClickEditButton)
+        let tableDataModel = makeViewModel(editability: ["inline"]).tableDataModel
+        XCTAssertFalse(tableDataModel.canShowSingleClickEditIcon())
+        XCTAssertFalse(tableDataModel.canShowSingleClickEditColumn())
     }
 
     func testEditIconShownForFormOnly() {
-        XCTAssertTrue(makeViewModel(editability: ["form"]).showSingleClickEditButton)
+        let tableDataModel = makeViewModel(editability: ["form"]).tableDataModel
+        XCTAssertTrue(tableDataModel.canShowSingleClickEditIcon())
+        XCTAssertTrue(tableDataModel.canShowSingleClickEditColumn())
     }
 
     func testEditIconShownWhenEditabilityAbsent() {
-        XCTAssertTrue(makeViewModel(editability: nil).showSingleClickEditButton)
+        XCTAssertTrue(makeViewModel(editability: nil).tableDataModel.canShowSingleClickEditIcon())
     }
 
     func testEditIconStaysHiddenWhenHostDisablesSingleClickRowEdit() {
-        XCTAssertFalse(makeViewModel(editability: ["inline", "form"], singleClickRowEdit: false).showSingleClickEditButton)
+        let tableDataModel = makeViewModel(editability: ["inline", "form"], singleClickRowEdit: false).tableDataModel
+        XCTAssertFalse(tableDataModel.canShowSingleClickEditIcon())
+        XCTAssertFalse(tableDataModel.canShowSingleClickEditColumn())
     }
 
-    // MARK: - Row form and bulk edit routes
-
-    func testGotoRowFormBlockedForInlineOnly() {
-        XCTAssertFalse(makeViewModel(editability: ["inline"]).canOpenRowForm)
-    }
-
-    func testGotoRowFormAllowedForFormOnly() {
-        XCTAssertTrue(makeViewModel(editability: ["form"]).canOpenRowForm)
-    }
+    // MARK: - Bulk edit and row form menu item
 
     func testSingleRowEditMenuItemHiddenForInlineOnly() {
         let viewModel = makeViewModel(editability: ["inline"])
         viewModel.tableDataModel.selectedRows = [viewModel.tableDataModel.rowOrder[0]]
-        XCTAssertFalse(viewModel.showEditRowsMenuItem)
+        XCTAssertFalse(viewModel.tableDataModel.canShowEditRowsMenuItem())
     }
 
     func testBulkEditMenuItemShownForInlineOnly() {
         let viewModel = makeViewModel(editability: ["inline"])
         viewModel.tableDataModel.selectedRows = Array(viewModel.tableDataModel.rowOrder.prefix(2))
         XCTAssertEqual(viewModel.tableDataModel.selectedRows.count, 2)
-        XCTAssertTrue(viewModel.showEditRowsMenuItem)
+        XCTAssertTrue(viewModel.tableDataModel.canShowEditRowsMenuItem())
     }
 
     func testSingleRowEditMenuItemShownForFormOnly() {
         let viewModel = makeViewModel(editability: ["form"])
         viewModel.tableDataModel.selectedRows = [viewModel.tableDataModel.rowOrder[0]]
-        XCTAssertTrue(viewModel.showEditRowsMenuItem)
+        XCTAssertTrue(viewModel.tableDataModel.canShowEditRowsMenuItem())
     }
 
     func testBulkEditMenuItemHiddenForFormOnly() {
         let viewModel = makeViewModel(editability: ["form"])
         viewModel.tableDataModel.selectedRows = Array(viewModel.tableDataModel.rowOrder.prefix(2))
         XCTAssertEqual(viewModel.tableDataModel.selectedRows.count, 2)
-        XCTAssertFalse(viewModel.showEditRowsMenuItem)
+        XCTAssertFalse(viewModel.tableDataModel.canShowEditRowsMenuItem())
     }
 }

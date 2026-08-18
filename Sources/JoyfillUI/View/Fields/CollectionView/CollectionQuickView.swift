@@ -52,7 +52,7 @@ struct CollectionQuickView : View {
             if let rowSchemaKey = viewModel.getSchemaForRow(rowId: rowId) {
                 let rowFound = viewModel.expandToRow(rowId: rowId)
                 if rowFound {
-                    let openRowForm = event.openRowForm && viewModel.canOpenRowForm(forSchemaKey: rowSchemaKey)
+                    let openRowForm = event.openRowForm && viewModel.tableDataModel.editability(forSchemaKey: rowSchemaKey).formAllowed
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.navigationIntent = NavigationIntent(
                         rowFormOpenedViaGoto: openRowForm,

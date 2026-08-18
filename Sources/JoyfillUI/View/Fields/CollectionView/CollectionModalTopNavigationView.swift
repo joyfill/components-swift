@@ -118,7 +118,7 @@ struct CollectionModalTopNavigationView: View {
                                     
                                 }
                             }
-                            if viewModel.showEditRowsMenuItem {
+                            if viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                 Button(action: {
                                     showingPopover = false
                                     onEditTap?()
@@ -208,7 +208,7 @@ struct CollectionModalTopNavigationView: View {
                                 }
                             }
                             
-                            if viewModel.showEditRowsMenuItem {
+                            if viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                 Button(action: {
                                     showingPopover = false
                                     onEditTap?()

@@ -721,7 +721,7 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
 
     // MARK: - Goto: openRowForm is gated by form editability
 
-    // `goto(open: true)` reaches four call sites that all AND the request with `canOpenRowForm`.
+    // `goto(open: true)` reaches four call sites that all AND the request with form editability.
     // The modal always opens; only the row-form sheet is gated.
 
     func testGotoOpenRowForm_TableFormOnly_OpensRowForm() throws {
@@ -1036,7 +1036,7 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
 
     func testReadonlyDocument_InlineOnlyTableStaysReadonlyInGrid() throws {
         navigateToTable(.inlineOnly)
-        // `gridEditMode` short-circuits to readonly whenever the document isn't in fill mode,
+        // Grid edit mode short-circuits to readonly whenever the document isn't in fill mode,
         // so inline editability can never re-open a read-only document.
         XCTAssertTrue(app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0).waitForExistence(timeout: 5))
         XCTAssertEqual(app.textViews.matching(identifier: "TabelTextFieldIdentifier").count, 0, "A read-only document must not produce editable cells")
