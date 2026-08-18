@@ -28,7 +28,7 @@ struct TableBarcodeView: View {
     }
     
     var body: some View {
-        if cellModel.viewMode == .quickView || cellModel.editMode == .readonly {
+        if cellModel.viewMode == .quickView {
             HStack(spacing: 0) {
                 Text(cellModel.data.title)
                     .font(.system(size: 15))
@@ -36,6 +36,22 @@ struct TableBarcodeView: View {
                     .padding(.leading, 4)
                     .accessibilityIdentifier("TableBarcodeFieldIdentifierReadonly")
                 Spacer()
+                Image(systemName: "barcode.viewfinder")
+                    .padding(.trailing, 12)
+            }
+        } else if cellModel.editMode == .readonly {
+            HStack(spacing: 0) {
+                ScrollView {
+                    Text(cellModel.data.title)
+                        .font(.system(size: 15))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 8)
+                        .accessibilityIdentifier("TableBarcodeFieldIdentifierReadonly")
+                        .disabled(true)
+                }
+                .environment(\.isEnabled, true)
+                .accessibilityIdentifier("TableBarcodeFieldReadonlyScrollView")
                 Image(systemName: "barcode.viewfinder")
                     .padding(.trailing, 12)
             }
