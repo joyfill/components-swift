@@ -16,12 +16,8 @@ struct TableTextView: View {
         _cellModel = cellModel
     }
     
-    private var isReadonlyFromEditability: Bool {
-        cellModel.editMode == .readonly && cellModel.documentEditor?.mode == .fill
-    }
-
     var body: some View {
-        if cellModel.viewMode == .quickView || (cellModel.editMode == .readonly && !isReadonlyFromEditability) {
+        if cellModel.viewMode == .quickView {
             Text(cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
@@ -31,6 +27,8 @@ struct TableTextView: View {
                 Text(cellModel.data.title)
                     .font(.system(size: 15))
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 8)
                     .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
                     .disabled(true)
             }

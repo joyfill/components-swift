@@ -153,7 +153,6 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
         "testReadonlyDocument_InlineOnlyTableStaysReadonlyInGrid",
         "testReadonlyDocument_FormOnlyTableKeepsPencilButRowFormIsDisabled",
         "testReadonlyDocument_InlineOnlyCollectionStaysReadonly",
-        "testReadonlyDocument_TextCellsSkipTheScrollWrapper",
     ]
 
     /// Extracts the test method name from XCTest's `name` (e.g. "-[Module.Class methodName]" -> "methodName").
@@ -1058,13 +1057,6 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
         let readonlyCopy = app.staticTexts.matching(identifier: "EditRowsTextFieldIdentifier").element(boundBy: 0)
         XCTAssertTrue(readonlyCopy.exists, "The row form should still show the cell's value as static copy")
         XCTAssertFalse(app.buttons["EditRowsDropdownFieldIdentifier"].isEnabled, "Row-form dropdowns must be disabled in a read-only document")
-    }
-
-    func testReadonlyDocument_TextCellsSkipTheScrollWrapper() throws {
-        navigateToTable(.formOnly)
-        XCTAssertTrue(app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0).waitForExistence(timeout: 5))
-        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "TableTextFieldReadonlyScrollView").count, 0,
-                       "A read-only document should render the plain Text it always had, not a per-cell scroll view")
     }
 
     func testReadonlyDocument_InlineOnlyCollectionStaysReadonly() throws {
