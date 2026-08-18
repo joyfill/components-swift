@@ -136,18 +136,18 @@ final class CollectionEditabilityTests: XCTestCase {
     func testGridEditModeIsPerSchema() {
         let viewModel = makeViewModel(editability: [rootSchemaKey: ["form"],
                                                    childSchemaKey: ["inline"]])
-        XCTAssertEqual(viewModel.gridEditMode(for: viewModel.tableDataModel, schemaKey: rootSchemaKey), .readonly)
-        XCTAssertEqual(viewModel.gridEditMode(for: viewModel.tableDataModel, schemaKey: childSchemaKey), .fill)
+        XCTAssertEqual(viewModel.tableDataModel.editModeForGrid(forSchemaKey: rootSchemaKey), .readonly)
+        XCTAssertEqual(viewModel.tableDataModel.editModeForGrid(forSchemaKey: childSchemaKey), .fill)
     }
 
     func testGridEditModeIsFillWhenEditabilityAbsent() {
         let viewModel = makeViewModel(editability: [:])
-        XCTAssertEqual(viewModel.gridEditMode(for: viewModel.tableDataModel, schemaKey: rootSchemaKey), .fill)
+        XCTAssertEqual(viewModel.tableDataModel.editModeForGrid(forSchemaKey: rootSchemaKey), .fill)
     }
 
     func testReadonlyDocumentModeOverridesSchemaInlineEditability() {
         let viewModel = makeViewModel(editability: [rootSchemaKey: ["inline"]], mode: .readonly)
-        XCTAssertEqual(viewModel.gridEditMode(for: viewModel.tableDataModel, schemaKey: rootSchemaKey), .readonly)
+        XCTAssertEqual(viewModel.tableDataModel.editModeForGrid(forSchemaKey: rootSchemaKey), .readonly)
     }
 
     func testBuiltRootCellsCarryReadonlyModeForFormOnlySchema() {
@@ -182,44 +182,37 @@ final class CollectionEditabilityTests: XCTestCase {
         XCTAssertTrue(nestedCells.allSatisfy { $0.editMode == .readonly }, "Nested schema is form-only, so its cells are readonly")
     }
 
-    // MARK: - Edit icon slot
+    // MARK: - Edit icon
 
-    func testEditIconSlotReservedWhenEditabilityAbsent() {
+    func testEditIconShownWhenEditabilityAbsent() {
         let viewModel = makeViewModel(editability: [:])
-        XCTAssertTrue(viewModel.showSingleClickEditButton(for: viewModel.tableDataModel))
+        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditColumn())
+        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: rootSchemaKey))
     }
 
-    func testEditIconSlotReservedWhenOnlyOneSchemaAllowsForm() {
+    func testEditIconIsSchemaSpecificWhileColumnIsReservedPerField() {
         let viewModel = makeViewModel(editability: [rootSchemaKey: ["inline"]])
-        XCTAssertTrue(viewModel.showSingleClickEditButton(for: viewModel.tableDataModel),
+        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditColumn(),
                       "Nested schemas still allow the form, so the gutter keeps its width")
+        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: rootSchemaKey))
+        XCTAssertTrue(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: childSchemaKey))
     }
 
-    func testEditIconSlotDroppedWhenNoSchemaAllowsForm() {
+    func testEditIconHiddenWhenNoSchemaAllowsForm() {
         let keys = allSchemaKeys
         XCTAssertFalse(keys.isEmpty, "Fixture has no schemas, so the assertion below would be vacuous")
         let inlineOnlyEverywhere = Dictionary(uniqueKeysWithValues: keys.map { ($0, Optional(["inline"])) })
         let viewModel = makeViewModel(editability: inlineOnlyEverywhere)
-        XCTAssertFalse(viewModel.showSingleClickEditButton(for: viewModel.tableDataModel))
+        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn())
+        keys.forEach { key in
+            XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: key))
+        }
     }
 
-    func testEditIconSlotStaysHiddenWhenHostDisablesSingleClickRowEdit() {
+    func testEditIconStaysHiddenWhenHostDisablesSingleClickRowEdit() {
         let viewModel = makeViewModel(editability: [:], singleClickRowEdit: false)
-        XCTAssertFalse(viewModel.showSingleClickEditButton(for: viewModel.tableDataModel))
-    }
-
-    // MARK: - Row form route
-
-    func testCanOpenRowFormIsPerSchema() {
-        let viewModel = makeViewModel(editability: [rootSchemaKey: ["inline"],
-                                                   childSchemaKey: ["form"]])
-        XCTAssertFalse(viewModel.canOpenRowForm(forSchemaKey: rootSchemaKey))
-        XCTAssertTrue(viewModel.canOpenRowForm(forSchemaKey: childSchemaKey))
-    }
-
-    func testCanOpenRowFormAllowedWhenEditabilityAbsent() {
-        let viewModel = makeViewModel(editability: [:])
-        XCTAssertTrue(viewModel.canOpenRowForm(forSchemaKey: rootSchemaKey))
+        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn())
+        XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: rootSchemaKey))
     }
 
     // MARK: - Selection schema and popover gating
@@ -239,34 +232,34 @@ final class CollectionEditabilityTests: XCTestCase {
     func testSingleRowEditMenuItemHiddenForInlineOnlySchema() {
         let viewModel = makeLoadedViewModel(editability: [rootSchemaKey: ["inline"]])
         viewModel.tableDataModel.selectedRows = [rootRowIDs(viewModel)[0]]
-        XCTAssertFalse(viewModel.showEditRowsMenuItem)
+        XCTAssertFalse(viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey))
     }
 
     func testBulkEditMenuItemShownForInlineOnlySchema() {
         let viewModel = makeLoadedViewModel(editability: [rootSchemaKey: ["inline"]])
         viewModel.tableDataModel.selectedRows = Array(rootRowIDs(viewModel).prefix(2))
         XCTAssertEqual(viewModel.tableDataModel.selectedRows.count, 2)
-        XCTAssertTrue(viewModel.showEditRowsMenuItem)
+        XCTAssertTrue(viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey))
     }
 
     func testSingleRowEditMenuItemShownForFormOnlySchema() {
         let viewModel = makeLoadedViewModel(editability: [rootSchemaKey: ["form"]])
         viewModel.tableDataModel.selectedRows = [rootRowIDs(viewModel)[0]]
-        XCTAssertTrue(viewModel.showEditRowsMenuItem)
+        XCTAssertTrue(viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey))
     }
 
     func testBulkEditMenuItemHiddenForFormOnlySchema() {
         let viewModel = makeLoadedViewModel(editability: [rootSchemaKey: ["form"]])
         viewModel.tableDataModel.selectedRows = Array(rootRowIDs(viewModel).prefix(2))
         XCTAssertEqual(viewModel.tableDataModel.selectedRows.count, 2)
-        XCTAssertFalse(viewModel.showEditRowsMenuItem)
+        XCTAssertFalse(viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey))
     }
 
     func testMenuItemShownForBothSurfacesRegardlessOfSelectionSize() {
         let viewModel = makeLoadedViewModel(editability: [rootSchemaKey: ["inline", "form"]])
         viewModel.tableDataModel.selectedRows = [rootRowIDs(viewModel)[0]]
-        XCTAssertTrue(viewModel.showEditRowsMenuItem)
+        XCTAssertTrue(viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey))
         viewModel.tableDataModel.selectedRows = Array(rootRowIDs(viewModel).prefix(2))
-        XCTAssertTrue(viewModel.showEditRowsMenuItem)
+        XCTAssertTrue(viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey))
     }
 }

@@ -99,7 +99,7 @@ struct CollectionModalView : View {
                 if let rowSchemaKey = viewModel.getSchemaForRow(rowId: rowId) {
                     let rowFound = viewModel.expandToRow(rowId: rowId)
                     if rowFound {
-                        let openRowForm = event.openRowForm && viewModel.canOpenRowForm(forSchemaKey: rowSchemaKey)
+                        let openRowForm = event.openRowForm && viewModel.tableDataModel.editability(forSchemaKey: rowSchemaKey).formAllowed
                         viewModel.tableDataModel.selectedRows = [rowId]
                         viewModel.tableDataModel.navigationIntent = NavigationIntent(
                             rowFormOpenedViaGoto: openRowForm,
@@ -175,7 +175,7 @@ struct CollectionModalView : View {
                 .frame(width: 40, height: 60)
                 .border(Color.tableCellBorderColor)
             
-            if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
+            if viewModel.tableDataModel.canShowSingleClickEditColumn() {
                 Image(systemName: "square.and.pencil")
                     .frame(width: 40, height: 60)
                     .foregroundColor(Color.gray.opacity(0.4))
@@ -192,7 +192,7 @@ struct CollectionModalView : View {
         var width: CGFloat = 40 // # column
         if viewModel.showRowSelector(for: viewModel.tableDataModel) { width += 40 }
         if viewModel.nestedTableCount > 0 { width += 40 }
-        if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) { width += 40 }
+        if viewModel.tableDataModel.canShowSingleClickEditColumn() { width += 40 }
         return width
     }
 
@@ -596,7 +596,7 @@ struct CollectionRowsHeaderView: View {
                     .frame(width: 40, height: 60)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
-                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn() {
                     Image(systemName: "square.and.pencil")
                         .frame(width: 40, height: 60)
                         .foregroundColor(Color.gray.opacity(0.4))
@@ -619,8 +619,8 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
-                    if viewModel.canOpenRowForm(forSchemaKey: parentSchemaKey) {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn() {
+                    if viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: parentSchemaKey) {
                         Image(systemName: "square.and.pencil")
                             .foregroundColor(.blue)
                             .frame(width: 40, height: 60)
@@ -674,8 +674,8 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
-                    if viewModel.canOpenRowForm(forSchemaKey: viewModel.rootSchemaKey) {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn() {
+                    if viewModel.tableDataModel.canShowSingleClickEditIcon(forSchemaKey: viewModel.rootSchemaKey) {
                         Image(systemName: "square.and.pencil")
                             .foregroundColor(.blue)
                             .frame(width: 40, height: 60)

@@ -46,8 +46,7 @@ struct RowDataModel: Equatable, Hashable {
     }
 }
 
-/// Resolved form of a field's or schema's `editability` array. Resolved once at
-/// `TableDataModel` init so no render or cell-build path re-reads the raw dictionary.
+/// Resolved form of a field's or schema's `editability` array.
 struct EditabilityFlags {
     let inlineAllowed: Bool
     let formAllowed: Bool
@@ -192,10 +191,8 @@ struct TableDataModel {
     let fieldPositionTableColumns: [TableColumn]?
     var columnIdToColumnMap: [String: CellDataModel] = [:]
     var schemaChainMap: [String: [String]] = [:]
-    /// Keyed by schema key for collections, by field ID for tables. Read only through `editability(forSchemaKey:)`.
-    private(set) var editabilityMap: [String: EditabilityFlags] = [:]
-    /// True when any schema allows the row form, so the edit-icon gutter slot keeps one width across all levels.
-    private(set) var reservesEditIconSlot: Bool = true
+    /// Keyed by schema key for collections. Tables resolve editability from the field data directly.
+    private(set) var collectionEditabilityMap: [String: EditabilityFlags] = [:]
     var tableRowDecorators: [String: [DecoratorLocal]] = [:] // Both Row specific and common row decorators are combined
     var tableCellDecorators: [String: [DecoratorLocal]] = [:] // Both Cell specific and common column decorators are combined
     var tableCommonCellDecorators: [String: [DecoratorLocal]] = [:] // columnId
@@ -257,7 +254,7 @@ struct TableDataModel {
             buildFullSchemaChainMap()
             self.fieldPositionSchema = fieldPosition.schema ?? [:]
             fieldData.schema?.forEach { key, value in
-                self.editabilityMap[key] = EditabilityFlags(rawValues: value.editability)
+                self.collectionEditabilityMap[key] = EditabilityFlags(rawValues: value.editability)
                 self.setRowDecorators(value.rowDecorators?.filter { $0.isDisplayable }.map(DecoratorLocal.init(from:)) ?? [], forSchemaKey: key)
                 if value.root == true {
                     //Only top level columns
@@ -286,9 +283,7 @@ struct TableDataModel {
                     }
                 }
             }
-            self.editabilityMap[fieldIdentifier.fieldID] = EditabilityFlags(rawValues: fieldData.editability)
         }
-        self.reservesEditIconSlot = editabilityMap.isEmpty || editabilityMap.values.contains { $0.formAllowed }
         setupColumns()
         filterRowsIfNeeded()
         self.id = fieldIdentifier.fieldID + ":" + filterModels.map { $0.colID }.sorted().joined(separator: ",")
@@ -489,9 +484,31 @@ struct TableDataModel {
         return schema[schemaKey]?.decorate == true
     }
 
-    func editability(forSchemaKey schemaKey: String?) -> EditabilityFlags {
-        let key = fieldType == .collection ? (schemaKey ?? "") : fieldIdentifier.fieldID
-        return editabilityMap[key] ?? .default
+    func editability(forSchemaKey schemaKey: String? = nil) -> EditabilityFlags {
+        if fieldType == .collection {
+            return collectionEditabilityMap[schemaKey ?? ""] ?? .default
+        }
+        return EditabilityFlags(rawValues: documentEditor?.field(fieldID: fieldIdentifier.fieldID)?.editability)
+    }
+
+    func editModeForGrid(forSchemaKey schemaKey: String? = nil) -> Mode {
+        guard mode == .fill else { return .readonly }
+        return editability(forSchemaKey: schemaKey).inlineAllowed ? .fill : .readonly
+    }
+
+    func canShowSingleClickEditColumn() -> Bool {
+        guard singleClickRowEdit else { return false }
+        guard fieldType == .collection else { return editability().formAllowed }
+        return collectionEditabilityMap.isEmpty || collectionEditabilityMap.values.contains { $0.formAllowed }
+    }
+
+    func canShowSingleClickEditIcon(forSchemaKey schemaKey: String? = nil) -> Bool {
+        return singleClickRowEdit && editability(forSchemaKey: schemaKey).formAllowed
+    }
+
+    func canShowEditRowsMenuItem(forSchemaKey schemaKey: String? = nil) -> Bool {
+        let flags = editability(forSchemaKey: schemaKey)
+        return selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
     }
 
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {

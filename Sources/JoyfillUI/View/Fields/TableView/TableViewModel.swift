@@ -19,30 +19,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     let dispatchQueue = DispatchQueue(label: "TableViewModel", qos: .userInitiated)
     @Published var uuid = UUID()
     
-    var showSingleClickEditButton: Bool {
-        return tableDataModel.singleClickRowEdit && tableDataModel.reservesEditIconSlot
-    }
-
-    /// Edit mode for cells rendered in the grid. Distinct from `tableDataModel.mode`, which still
-    /// governs the row form so a `form`-only field stays editable there.
-    /// Hoist out of per-row loops.
-    var gridEditMode: Mode {
-        guard tableDataModel.mode == .fill else { return .readonly }
-        return tableDataModel.editability(forSchemaKey: nil).inlineAllowed ? .fill : .readonly
-    }
-
-    var canOpenRowForm: Bool {
-        return tableDataModel.editability(forSchemaKey: nil).formAllowed
-    }
-
-    /// One sheet, two features, gated differently on purpose. A single selected row opens the row
-    /// form, which the spec ties to `form`. Multiple rows open bulk edit, which the spec allows only
-    /// for `["inline", "form"]` or `["inline"]` -- that is, whenever inline editing is allowed.
-    var showEditRowsMenuItem: Bool {
-        let flags = tableDataModel.editability(forSchemaKey: nil)
-        return tableDataModel.selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
-    }
-
     var showRowDecorators: Bool {
         return tableDataModel.decorate
     }
@@ -82,7 +58,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
         var rowCellModels = [TableCellModel]()
-        let gridEditMode = self.gridEditMode
+        let gridEditMode = tableDataModel.editModeForGrid()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
@@ -132,7 +108,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
-        let gridEditMode = self.gridEditMode
+        let gridEditMode = tableDataModel.editModeForGrid()
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in

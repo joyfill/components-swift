@@ -73,7 +73,7 @@ struct TableModalTopNavigationView: View {
                                 
                             }
                             
-                            if viewModel.showEditRowsMenuItem {
+                            if viewModel.tableDataModel.canShowEditRowsMenuItem() {
                                 Button(action: {
                                     showingPopover = false
                                     onEditTap?()
@@ -159,7 +159,7 @@ struct TableModalTopNavigationView: View {
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
                             }
-                            if viewModel.showEditRowsMenuItem {
+                            if viewModel.tableDataModel.canShowEditRowsMenuItem() {
                                 Button(action: {
                                     showingPopover = false
                                     onEditTap?()

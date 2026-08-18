@@ -102,7 +102,7 @@ struct TableQuickView : View {
             // This navigation is for this table
             let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
             if rowIdExists {
-                let openRowForm = event.openRowForm && viewModel.canOpenRowForm
+                let openRowForm = event.openRowForm && viewModel.tableDataModel.editability().formAllowed
                 viewModel.tableDataModel.selectedRows = [rowId]
                 viewModel.tableDataModel.navigationIntent = NavigationIntent(
                     rowFormOpenedViaGoto: openRowForm,
