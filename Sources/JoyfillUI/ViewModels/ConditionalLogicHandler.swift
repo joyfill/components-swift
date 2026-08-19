@@ -273,6 +273,12 @@ class ConditionalLogicHandler {
                     columnLogic.showColumnMap[columnSchemaID] = shouldShowColumn
                     hasChange = true
                 }
+
+                let isRequired = isRequiredLocal(column: tableColumn)
+                if columnLogic.requiredColumnMap[columnSchemaID] != isRequired {
+                    columnLogic.requiredColumnMap[columnSchemaID] = isRequired
+                    hasChange = true
+                }
             }
             if hasChange {
                 showColumnLogicMap[dependentFieldId] = columnLogic
@@ -290,6 +296,12 @@ class ConditionalLogicHandler {
                     let shouldShowColumn = shouldShowColumnLocal(column: tableColumn)
                     if columnLogic.showColumnMap[columnSchemaID] != shouldShowColumn {
                         columnLogic.showColumnMap[columnSchemaID] = shouldShowColumn
+                        hasChange = true
+                    }
+
+                    let isRequired = isRequiredLocal(column: tableColumn)
+                    if columnLogic.requiredColumnMap[columnSchemaID] != isRequired {
+                        columnLogic.requiredColumnMap[columnSchemaID] = isRequired
                         hasChange = true
                     }
                 }
