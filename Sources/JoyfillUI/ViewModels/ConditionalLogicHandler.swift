@@ -244,6 +244,13 @@ class ConditionalLogicHandler {
                 showFieldMap[dependentFieldId] = shouldShow
                 needsRefresh = true
             }
+
+            let isRequired = isRequiredLocal(fieldID: dependentFieldId)
+            if requiredFieldMap[dependentFieldId] != isRequired {
+                requiredFieldMap[dependentFieldId] = isRequired
+                needsRefresh = true
+            }
+
             if needsRefresh {
                 refreshFieldIDs.append(dependentFieldId)
             }
