@@ -556,7 +556,7 @@ extension DocumentEditor {
         document.pagesForCurrentView
     }
     
-    public func updateField(field: JoyDocField?) {
+    func updateField(field: JoyDocField?) {
         guard let fieldID = field?.id else { return }
         fieldMap[fieldID] = field
     }
@@ -672,7 +672,7 @@ extension DocumentEditor {
         }
     }
     
-    public func updateField(event: FieldChangeData, fieldIdentifier: FieldIdentifier) {
+    public func updateField(event: FieldChangeData) {
         if var field = field(fieldID: event.fieldIdentifier.fieldID) {
             field.value = event.updateValue
             if let chartData = event.chartData {

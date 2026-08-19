@@ -1219,7 +1219,7 @@ extension DocumentEditor {
             Log("Could not find field with ID: \(fieldId)", type: .error)
             return
         }
-        updateField(event: changeEvent, fieldIdentifier: fieldIdentifier)
+        updateField(event: changeEvent)
         handleFieldsOnChange(fieldIdentifier: changeEvent.fieldIdentifier, currentField: currentField)
     }
 
@@ -1238,7 +1238,7 @@ extension DocumentEditor {
             Log("Either no change or same value was received", type: .info)
             return
         }
-        updateField(event: event, fieldIdentifier: event.fieldIdentifier)
+        updateField(event: event)
         if let field = field(fieldID: event.fieldIdentifier.fieldID) {
             currentField = field
             handleFieldsOnChange(fieldIdentifier: event.fieldIdentifier, currentField: currentField)

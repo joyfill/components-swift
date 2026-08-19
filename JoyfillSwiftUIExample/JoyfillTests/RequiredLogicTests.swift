@@ -181,7 +181,7 @@ final class RequiredLogicTests: XCTestCase {
 
         // Change dropdown to Yes -> enforce now matches -> required -> invalid.
         let fi = FieldIdentifier(fieldID: dropdownFieldID)
-        editor.updateField(event: FieldChangeData(fieldIdentifier: fi, updateValue: .string(optYes)), fieldIdentifier: fi)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: fi, updateValue: .string(optYes)))
 
         XCTAssertTrue(editor.isFieldRequired(fieldID: textFieldID))
         XCTAssertEqual(textStatus(editor), .invalid)
@@ -698,8 +698,7 @@ final class RequiredLogicTests: XCTestCase {
 
         let identifier = FieldIdentifier(fieldID: numberFieldID)
         editor.updateField(
-            event: FieldChangeData(fieldIdentifier: identifier, updateValue: .double(100)),
-            fieldIdentifier: identifier
+            event: FieldChangeData(fieldIdentifier: identifier, updateValue: .double(100))
         )
 
         XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
@@ -820,7 +819,7 @@ final class RequiredLogicTests: XCTestCase {
 
         // Flip page dropdown -> Yes: column unenforce now matches -> column-effective becomes optional.
         let ddFI = FieldIdentifier(fieldID: pageDropdownID)
-        editor.updateField(event: FieldChangeData(fieldIdentifier: ddFI, updateValue: .string(pageYes)), fieldIdentifier: ddFI)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: ddFI, updateValue: .string(pageYes)))
         // row-1: cell still matches (sibling No + number 100) -> required.
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .invalid)
         // row-2: cell not matched -> falls back to the now-optional column-effective -> valid.
@@ -828,7 +827,7 @@ final class RequiredLogicTests: XCTestCase {
 
         // Change number1 -> 10: row-1 cell AND now fails -> falls back to optional column -> valid.
         let numFI = FieldIdentifier(fieldID: numberFieldID)
-        editor.updateField(event: FieldChangeData(fieldIdentifier: numFI, updateValue: .double(10)), fieldIdentifier: numFI)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: numFI, updateValue: .double(10)))
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: "text1"), .valid)
     }
 
@@ -933,7 +932,7 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid)
 
         let fi = FieldIdentifier(fieldID: dropdownFieldID)
-        editor.updateField(event: FieldChangeData(fieldIdentifier: fi, updateValue: .string(optYes)), fieldIdentifier: fi)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: fi, updateValue: .string(optYes)))
 
         XCTAssertTrue(editor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID),
                       "The cached column-wide required state must refresh")
