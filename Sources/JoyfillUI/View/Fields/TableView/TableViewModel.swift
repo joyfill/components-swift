@@ -61,8 +61,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
-        tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
-        tableDataModel.documentEditor?.addCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
+        tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
@@ -283,8 +282,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
-        tableDataModel.documentEditor?.removeCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
-        tableDataModel.documentEditor?.removeCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
@@ -589,8 +587,8 @@ extension TableViewModel {
         let fieldID = tableDataModel.fieldIdentifier.fieldID
         guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
         guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId }) else { return }
-        _ = documentEditor.cellsNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
-        _ = documentEditor.cellRequiredNeedToBeRefreshed(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
+
+        documentEditor.cellDidChange(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }
 }
 
@@ -736,6 +734,10 @@ extension TableViewModel: DocumentEditorDelegate {
         tableDataModel.valueToValueElements?[existingRowIndex] = merged
         // Update UI based on merged model
         updateUIModels(for: rowID, using: merged)
+        uuid = UUID()
+    }
+    func cellVisibilityDidChange(columnIDs: Set<String>) {
+        guard !columnIDs.isEmpty else { return }
         uuid = UUID()
     }
 }
