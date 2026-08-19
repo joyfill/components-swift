@@ -532,8 +532,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
-        tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
-        tableDataModel.documentEditor?.addCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
+        tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
@@ -1397,8 +1396,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             collapseTables(index, currentRow, currentRow.rowType.level)
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
-        tableDataModel.documentEditor?.removeCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
-        tableDataModel.documentEditor?.removeCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1549,8 +1547,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             }
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
-                tableDataModel.documentEditor?.addCellVisibilityForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
-                tableDataModel.documentEditor?.addCellRequiredForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
+                tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
                 refreshCollectionSchema(rowID: parentRowID)
                 appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {
@@ -1731,10 +1728,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         guard let documentEditor = tableDataModel.documentEditor,
               let row = rowToValueElementMap[rowId] else { return }
         let fieldID = tableDataModel.fieldIdentifier.fieldID
-        _ = documentEditor.cellsNeedToBeRefreshed(
-            fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
-        _ = documentEditor.cellRequiredNeedToBeRefreshed(
-            fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
+        documentEditor.cellDidChange(fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
     }
 
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {

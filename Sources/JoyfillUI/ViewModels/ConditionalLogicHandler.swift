@@ -46,6 +46,7 @@ public struct CollectionSchemaLogic {
 
 public struct ColumnLogic {
     public var showColumnMap = [ColumnSchemaID: Bool]()   // ColumnSchemaID : Bool
+    public var requiredColumnMap = [ColumnSchemaID: Bool]()  // ColumnSchemaID : Bool
 }
 
 public struct CollectionDependency {
@@ -72,9 +73,13 @@ class ConditionalLogicHandler {
     private var showColumnLogicMap = [String: ColumnLogic]() // Table/Collection fieldID : ColumnLogic
 
     private var cellVisibilityMap = [String: [CellID: Bool]]() // fieldID : (rowID + columnID) : isVisible
-    private var cellVisibilityDependencyMap = [String: [String: Set<String>]]() // fieldID : siblingColumnID : dependent columnIDs
+    private var cellDependencyMap = [String: [String: Set<String>]]() // fieldID : siblingColumnID : dependent columnIDs
     private var pageFieldCellDependencyMap = [String: [(tableFieldID: String, columnID: String, schemaID: String?)]]() // pageFieldID : dependent (tableFieldID, columnID, schemaID); schemaID is nil for tables
-
+    
+    // Is it required? — the answers the UI reads.
+    private var requiredFieldMap = [String: Bool]()            // fieldID : isRequired
+    private var cellRequiredMap = [String: [CellID: Bool]]()   // fieldID : (rowID + columnID) : isRequired
+        
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
@@ -83,6 +88,7 @@ class ConditionalLogicHandler {
                 return
             }
             showFieldMap[fieldID] = self.shouldShowLocal(fieldID: fieldID)
+            requiredFieldMap[fieldID] = self.isRequiredLocal(fieldID: fieldID)
 
             if field.fieldType == .table {
                 buildColumnLogicForTableField(field: field, fieldID: fieldID)
@@ -99,11 +105,14 @@ class ConditionalLogicHandler {
     private func buildColumnLogicForTableField(field: JoyDocField, fieldID: String) {
         guard let columns = field.tableColumns else { return }
         var columnLogic = ColumnLogic()
+        var dependencyMap = [String: Set<String>]()
         for column in columns {
             guard let columnID = column.id else { continue }
             let columnSchemaID = ColumnSchemaID(columnID: columnID)
             columnLogic.showColumnMap[columnSchemaID] = shouldShowColumnLocal(column: column)
-            registerColumnDependencies(column: column, parentFieldID: fieldID)
+            columnLogic.requiredColumnMap[columnSchemaID] = isRequiredLocal(column: column)
+            registerColumnDependencies(column: column, parentFieldID: fieldID, dependencyMap: &dependencyMap)
+            cellDependencyMap[fieldID] = dependencyMap
         }
         showColumnLogicMap[fieldID] = columnLogic
     }
@@ -111,25 +120,35 @@ class ConditionalLogicHandler {
     private func buildColumnLogicForCollectionField(field: JoyDocField, fieldID: String) {
         guard let schema = field.schema else { return }
         var columnLogic = ColumnLogic()
+        var dependencyMap = [String: Set<String>]()
         for (schemaKey, schemaValue) in schema {
             guard let columns = schemaValue.tableColumns else { continue }
             for column in columns {
                 guard let columnID = column.id else { continue }
                 let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
                 columnLogic.showColumnMap[columnSchemaID] = shouldShowColumnLocal(column: column)
-                registerColumnDependencies(column: column, parentFieldID: fieldID)
+                columnLogic.requiredColumnMap[columnSchemaID] = isRequiredLocal(column: column)
+                registerColumnDependencies(column: column, parentFieldID: fieldID, dependencyMap: &dependencyMap, schemaKey: schemaKey)
+                cellDependencyMap[fieldID] = dependencyMap
             }
         }
         showColumnLogicMap[fieldID] = columnLogic
     }
 
-    private func registerColumnDependencies(column: FieldTableColumn, parentFieldID: String) {
-        guard let logic = column.logic, let conditions = logic.conditions else { return }
+    private func registerColumnDependencies(column: FieldTableColumn, parentFieldID: String, dependencyMap: inout [String: Set<String>], schemaKey: String? = nil) {
+        let conditions = (column.logic?.conditions ?? [])
+            + (column.requiredLogic?.conditions ?? []) + (column.cellRequiredLogic?.conditions ?? []) + (column.cellVisibilityLogic?.conditions ?? [])
+        guard let columnID = column.id else { return }
+        
         for condition in conditions {
-            guard let dependentFieldID = condition.field else { continue }
-            var set = fieldConditionalDependencyMap[dependentFieldID] ?? Set()
-            set.insert(parentFieldID)
-            fieldConditionalDependencyMap[dependentFieldID] = set
+            if let siblingColumnID = condition.column {
+                dependencyMap[siblingColumnID, default: Set()].insert(columnID)
+            } else if let dependentFieldID = condition.field {
+                var set = fieldConditionalDependencyMap[dependentFieldID] ?? Set()
+                set.insert(parentFieldID)
+                fieldConditionalDependencyMap[dependentFieldID] = set
+                pageFieldCellDependencyMap[dependentFieldID, default: []].append((tableFieldID: parentFieldID, columnID: columnID, schemaID: schemaKey))
+            }
         }
     }
     
@@ -320,9 +339,9 @@ class ConditionalLogicHandler {
         return conditionModel
     }
     
-    private func conditionalLogicModel(column: FieldTableColumn?) -> ConditionalLogicModel? {
+    private func conditionalLogicModel(column: FieldTableColumn?, isRequired: Bool = false) -> ConditionalLogicModel? {
         guard let column = column else { return nil }
-        guard let logic = column.logic else { return nil }
+        guard let logic = isRequired ? column.requiredLogic : column.logic else { return nil }
         guard let conditions = logic.conditions else { return nil }
 
         let conditionModels = conditions.compactMap { condition ->  ConditionModel? in
@@ -369,9 +388,9 @@ class ConditionalLogicHandler {
         return nil
     }
 
-    private func conditionalLogicModel(field: JoyDocField?) -> ConditionalLogicModel? {
+    private func conditionalLogicModel(field: JoyDocField?, isRequired: Bool = false) -> ConditionalLogicModel? {
         guard let field = field else { return nil }
-        guard let logic = field.logic else { return nil }
+        guard let logic = isRequired ? field.requiredLogic : field.logic else { return nil }
         guard let conditions = logic.conditions else { return nil }
 
         let conditionModels = conditions.compactMap { condition -> ConditionModel?  in
@@ -394,14 +413,9 @@ class ConditionalLogicHandler {
             return ConditionModel(fieldValue: dependentField.value, fieldType: FieldTypes(dependentField.type), condition: condition.condition, value: condition.value)
         }
 
-        let logicModel = LogicModel(id: field.logic?.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
+        let logicModel = LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
         let conditionModel = ConditionalLogicModel(logic: logicModel, isItemHidden: field.hidden, itemCount: documentEditor.fieldsCount)
         return conditionModel
-    }
-
-    private func conditionalLogicModels() -> [ConditionalLogicModel] {
-        let fields = documentEditor.allFields
-        return fields.flatMap(conditionalLogicModel)
     }
 
     private func shouldShowColumnLocal(column: FieldTableColumn) -> Bool {
@@ -635,19 +649,6 @@ extension ConditionalLogicHandler {
     func buildCellVisibilityForTableField(field: JoyDocField, fieldID: String) {
         guard let columns = field.tableColumns else { return }
 
-        var dependencyMap = [String: Set<String>]()
-        for column in columns {
-            guard let columnID = column.id else { continue }
-            for condition in column.cellVisibilityLogic?.conditions ?? [] {
-                if let siblingColumnID = condition.column {
-                    dependencyMap[siblingColumnID, default: Set()].insert(columnID)
-                } else if let pageFieldID = condition.field {
-                    pageFieldCellDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: nil))
-                }
-            }
-        }
-        cellVisibilityDependencyMap[fieldID] = dependencyMap
-
         cellVisibilityMap[fieldID] = [:]
         for row in field.valueToValueElements ?? [] {
             setCellVisibility(fieldID: fieldID, columns: columns, row: row)
@@ -656,21 +657,6 @@ extension ConditionalLogicHandler {
 
     func buildCellVisibilityForCollectionField(field: JoyDocField, fieldID: String) {
         guard let schema = field.schema else { return }
-
-        var dependencyMap = [String: Set<String>]()
-        for (schemaKey, schemaValue) in schema {
-            for column in schemaValue.tableColumns ?? [] {
-                guard let columnID = column.id else { continue }
-                for condition in column.cellVisibilityLogic?.conditions ?? [] {
-                    if let siblingColumnID = condition.column {
-                        dependencyMap[siblingColumnID, default: Set()].insert(columnID)
-                    } else if let pageFieldID = condition.field {
-                        pageFieldCellDependencyMap[pageFieldID, default: []].append((tableFieldID: fieldID, columnID: columnID, schemaID: schemaKey))
-                    }
-                }
-            }
-        }
-        cellVisibilityDependencyMap[fieldID] = dependencyMap
 
         cellVisibilityMap[fieldID] = [:]
         let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
@@ -687,7 +673,7 @@ extension ConditionalLogicHandler {
         }
     }
 
-    func addCellVisibilityForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+    func addCellLogicForNewRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
         guard let columns = columns(fieldID: fieldID, schemaID: schemaID) else { return }
         setCellVisibility(fieldID: fieldID, columns: columns, row: row)
     }
@@ -702,8 +688,9 @@ extension ConditionalLogicHandler {
 
     private func setCellVisibility(fieldID: String, columns: [FieldTableColumn], row: ValueElement) {
         for column in columns {
-            guard let columnID = column.id, column.cellVisibilityLogic != nil || column.cellsHidden != nil else { continue }
+            guard let columnID = column.id else { continue }
             updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+            updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
         }
     }
 
@@ -719,25 +706,10 @@ extension ConditionalLogicHandler {
         let column = columns.first(where: { $0.id == columnID })
 
         let newValue: Bool
-        if let logic = column?.cellVisibilityLogic {
-            if let action = logic.action {
-                let conditions = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
-                    if let siblingColumnID = condition.column {
-                        let type = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
-                        return ConditionModel(fieldValue: getCellValue(for: siblingColumnID, valueElement: row),
-                                              fieldType: type, condition: condition.condition, value: condition.value)
-                    } else if let pageFieldID = condition.field {
-                        guard let pageField = documentEditor.field(fieldID: pageFieldID) else { return nil }
-                        return ConditionModel(fieldValue: pageField.value, fieldType: FieldTypes(pageField.type),
-                                              condition: condition.condition, value: condition.value)
-                    }
-                    return nil
-                }
-                let matched = shoulTakeActionOnThisField(logic: LogicModel(id: logic.id, action: action, eval: logic.eval, conditions: conditions))
-                newValue = (action == "hide") ? !matched : matched
-            } else {
-                newValue = true
-            }
+        if let cellLogic = column?.cellVisibilityLogic, let action = cellLogic.action {
+            let model = cellLogicModel(logic: cellLogic, columns: columns, row: row)
+            let matched = shoulTakeActionOnThisField(logic: model)
+            newValue = (action == "hide") ? !matched : matched
         } else {
             newValue = !(column?.cellsHidden ?? false)
         }
@@ -747,7 +719,7 @@ extension ConditionalLogicHandler {
         return didChange
     }
 
-    func removeCellVisibilityForRow(fieldID: String, rowID: String) {
+    func removeCellLogicForRow(fieldID: String, rowID: String) {
         cellVisibilityMap[fieldID] = cellVisibilityMap[fieldID]?.filter { $0.key.rowID != rowID }
     }
 
@@ -757,14 +729,7 @@ extension ConditionalLogicHandler {
     }
 
     func hasCellDependents(fieldID: String, editedColumnID: String) -> Bool {
-        return cellVisibilityDependencyMap[fieldID]?[editedColumnID] != nil
-    }
-
-    func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
-        guard let dependentColumns = cellVisibilityDependencyMap[fieldID]?[editedColumnID],
-              let columns = columns(fieldID: fieldID, schemaID: schemaID) else { return [] }
-
-        return dependentColumns.filter { updateCellVisibility(fieldID: fieldID, columns: columns, columnID: $0, row: row) }
+        return cellDependencyMap[fieldID]?[editedColumnID] != nil
     }
 
     func cellsNeedRefreshForPageField(pageFieldID: String) -> [String: Set<String>] {
@@ -778,11 +743,17 @@ extension ConditionalLogicHandler {
                     if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
                         changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
                     }
+                    if updateCellRequired(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                        changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
+                    }
                 }
             } else {
                 guard let columns = field.tableColumns else { continue }
                 for row in field.valueToValueElements ?? [] {
                     if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                        changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
+                    }
+                    if updateCellRequired(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
                         changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
                     }
                 }
@@ -807,6 +778,96 @@ extension ConditionalLogicHandler {
             for (childSchemaID, child) in element.childrens ?? [:] {
                 collectRows(valueElements: child.valueToValueElements ?? [], schemaKey: childSchemaID, targetSchemaID: targetSchemaID, into: &rows)
             }
+        }
+    }
+}
+
+extension ConditionalLogicHandler {
+    // MARK: - Effective-required computation
+    public func isFieldRequired(fieldID: String) -> Bool {
+        return requiredFieldMap[fieldID] ?? false
+    }
+
+    public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
+        return showColumnLogicMap[fieldID]?.requiredColumnMap[columnSchemaID] ?? true
+    }
+    
+    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
+        let cellID = CellID(rowID: rowID, columnID: columnID)
+        return cellRequiredMap[fieldID]?[cellID] ?? false
+    }
+
+    private func isRequiredLocal(fieldID: String?) -> Bool {
+        guard let fieldID = fieldID else { return true }
+        guard let field = documentEditor.field(fieldID: fieldID) else { return true }
+        let model = conditionalLogicModel(field: field, isRequired: true)
+        let lastRequiredState = field.required ?? false
+        guard let model = model, let logic = model.logic, let action = logic.action else {
+            return lastRequiredState
+        }
+        return applyAction(action, matched: self.shoulTakeActionOnThisField(logic: logic), lastRequiredState: lastRequiredState)
+    }
+
+    private func isRequiredLocal(column: FieldTableColumn) -> Bool {
+        let model = conditionalLogicModel(column: column, isRequired: true)
+        let lastRequiredState = column.required ?? false
+        
+        guard let model = model, let logic = model.logic, let action = logic.action else {
+            return lastRequiredState
+        }
+        
+        return applyAction(action, matched: self.shoulTakeActionOnThisField(logic: logic), lastRequiredState: lastRequiredState)
+    }
+
+    private func applyAction(_ action: String, matched: Bool, lastRequiredState: Bool) -> Bool {
+        switch action {
+        case "enforce": return matched ? true : lastRequiredState
+        case "unenforce": return matched ? false : lastRequiredState
+        default: return lastRequiredState
+        }
+    }
+    
+    private func updateCellRequired(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
+        guard let rowID = row.id, let column = columns.first(where: { $0.id == columnID }) else { return false }
+        let cellID = CellID(rowID: rowID, columnID: columnID)
+
+        let columnRequired = isRequiredLocal(column: column)
+        let newValue: Bool
+        if let cellLogic = column.cellRequiredLogic, let action = cellLogic.action {
+            let model = cellLogicModel(logic: cellLogic, columns: columns, row: row)
+            newValue = applyAction(action, matched: shoulTakeActionOnThisField(logic: model), lastRequiredState: columnRequired)
+        } else {
+            newValue = columnRequired
+        }
+
+        let didChange = cellRequiredMap[fieldID]?[cellID] != newValue
+        cellRequiredMap[fieldID, default: [:]][cellID] = newValue
+        return didChange
+    }
+    
+    private func cellLogicModel(logic: Logic, columns: [FieldTableColumn], row: ValueElement) -> LogicModel {
+        let conditionModels = (logic.conditions ?? []).compactMap { condition -> ConditionModel? in
+            if let siblingColumnID = condition.column {
+                let columnType = columns.first(where: { $0.id == siblingColumnID })?.type?.toFieldType ?? .unknown
+                let cellValue = row.cells?[siblingColumnID]
+                return ConditionModel(fieldValue: cellValue, fieldType: columnType, condition: condition.condition, value: condition.value)
+            } else if let conditionFieldID = condition.field,
+                      let conditionField = documentEditor.field(fieldID: conditionFieldID) {
+                return ConditionModel(fieldValue: conditionField.value, fieldType: FieldTypes(conditionField.type), condition: condition.condition, value: condition.value)
+            }
+            return nil
+        }
+        return LogicModel(id: logic.id, action: logic.action, eval: logic.eval, conditions: conditionModels)
+    }
+    
+    func cellDidChange(fieldID: String, schemaID: String? = nil, columnID: String, row: ValueElement) {
+        // either cell visibility changed or cell requiredness changed
+        guard let dependentColumns = cellDependencyMap[fieldID]?[columnID],
+              let columns = columns(fieldID: fieldID, schemaID: schemaID) else { return }
+        for columnID in dependentColumns {
+            updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+            updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
         }
     }
 }

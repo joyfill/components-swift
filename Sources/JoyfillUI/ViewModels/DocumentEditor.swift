@@ -135,7 +135,6 @@ public class DocumentEditor: ObservableObject {
     
     private var validationHandler: ValidationHandler!
     var conditionalLogicHandler: ConditionalLogicHandler!
-    var requiredLogicHandler: RequiredLogicHandler!
     internal var joyDocContext: JoyfillDocContext!
 
     public init(document: JoyDoc,
@@ -179,7 +178,6 @@ public class DocumentEditor: ObservableObject {
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
-        self.requiredLogicHandler = RequiredLogicHandler(documentEditor: self)
         guard let firstFile = files.first, let fileID = firstFile.id else {
             return
         }
@@ -267,17 +265,17 @@ public class DocumentEditor: ObservableObject {
     public func shouldShowCell(columnID: String, fieldID: String, rowID: String) -> Bool {
         return conditionalLogicHandler.shouldShowCell(fieldID: fieldID, columnID: columnID, rowID: rowID)
     }
-
-    func cellsNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
-        return conditionalLogicHandler.cellsNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
+    
+    func cellDidChange(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
+        conditionalLogicHandler.cellDidChange(fieldID: fieldID, schemaID: schemaID, columnID: editedColumnID, row: row)
     }
 
-    public func addCellVisibilityForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
-        conditionalLogicHandler.addCellVisibilityForRow(fieldID: fieldID, schemaID: schemaID, row: row)
+    func addCellLogicForNewRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        conditionalLogicHandler.addCellLogicForNewRow(fieldID: fieldID, schemaID: schemaID, row: row)
     }
 
-    public func removeCellVisibilityForRow(fieldID: String, rowID: String) {
-        conditionalLogicHandler.removeCellVisibilityForRow(fieldID: fieldID, rowID: rowID)
+    func removeCellLogicForRow(fieldID: String, rowID: String) {
+        conditionalLogicHandler.removeCellLogicForRow(fieldID: fieldID, rowID: rowID)
     }
     
     /// Returns true if the field is force-hidden for the current view via hiddenViews. Takes precedence over conditional logic.
@@ -763,9 +761,7 @@ extension DocumentEditor {
     }
     
     func refreshDependent(for fieldID: String) {
-        requiredLogicHandler.cellRequiredNeedRefreshForField(fieldID: fieldID)
-        var refreshFields = Set(conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
-        refreshFields.formUnion(requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
+        let refreshFields = Set(conditionalLogicHandler.fieldsNeedsToBeRefreshed(fieldID: fieldID))
         for fieldId in refreshFields {
             refreshField(fieldId: fieldId)
         }
@@ -788,7 +784,7 @@ extension DocumentEditor {
         
         let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
         
-        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: requiredLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -970,7 +966,7 @@ extension DocumentEditor {
             
             let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
             
-            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: requiredLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -1307,7 +1303,6 @@ extension DocumentEditor {
         updateFieldMap()
         updateFieldPositionMap()
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
-        self.requiredLogicHandler = RequiredLogicHandler(documentEditor: self)
         if !isMobileViewActive {
             updatePageFieldModels(duplicatedPage, newPageID, firstFile.id ?? "")
         }
@@ -1521,7 +1516,6 @@ extension DocumentEditor {
         
         // 11. Reinitialize conditional logic handler
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
-        self.requiredLogicHandler = RequiredLogicHandler(documentEditor: self)
         
         // 12. Handle navigation
         if shouldNavigate && !nextPageID.isEmpty {
@@ -1536,42 +1530,24 @@ extension DocumentEditor {
 }
 
 // MARK: - Required logic
-
-/// Surface over `RequiredLogicHandler`: the effective required-ness of a field, a column or a single
-/// cell, plus the hooks that keep the per-cell cache in step with row edits. Reads are O(1) cache
-/// lookups — the handler owns the maps and recomputes them, callers only ask.
 extension DocumentEditor {
 
     /// Effective required-ness of a field, honouring `requiredLogic` (falls back to the static `required` flag).
     public func isFieldRequired(fieldID: String) -> Bool {
-        return requiredLogicHandler.isFieldRequired(fieldID: fieldID)
+        return conditionalLogicHandler.isFieldRequired(fieldID: fieldID)
     }
 
     /// Effective column-wide required-ness, honouring the column's `requiredLogic`.
     public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
-        return requiredLogicHandler.isColumnRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
+        return conditionalLogicHandler.isColumnRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey)
     }
 
     /// Effective required-ness of a single cell, honouring `cellRequiredLogic` (per-row) then `requiredLogic`.
     public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
-        return requiredLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaKey, rowID: rowID)
+        return conditionalLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
     }
 
-    /// Re-resolves the cells whose `cellRequiredLogic` reads `editedColumnID` in this row.
-    func cellRequiredNeedToBeRefreshed(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) -> [String] {
-        return requiredLogicHandler.cellRequiredNeedToBeRefreshed(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
-    }
-
-    func addCellRequiredForRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
-        requiredLogicHandler.addCellRequiredForRow(fieldID: fieldID, schemaID: schemaID, row: row)
-    }
-
-    func removeCellRequiredForRow(fieldID: String, rowID: String) {
-        requiredLogicHandler.removeCellRequiredForRow(fieldID: fieldID, rowID: rowID)
-    }
-    
     func hasCellLogicDependents(fieldID: String, editedColumnID: String) -> Bool {
         return conditionalLogicHandler.hasCellDependents(fieldID: fieldID, editedColumnID: editedColumnID)
-            || requiredLogicHandler.hasCellDependents(fieldID: fieldID, editedColumnID: editedColumnID)
     }
 }
