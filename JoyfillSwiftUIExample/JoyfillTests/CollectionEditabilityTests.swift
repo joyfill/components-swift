@@ -211,6 +211,38 @@ final class CollectionEditabilityTests: XCTestCase {
         XCTAssertFalse(viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: rootSchemaKey))
     }
 
+    // MARK: - Gutter width
+
+    private func rowWidth(_ viewModel: CollectionViewModel, schemaKey: String) -> CGFloat {
+        let columns = viewModel.tableDataModel.filterTableColumns(key: schemaKey)
+        XCTAssertFalse(columns.isEmpty, "Schema \(schemaKey) has no columns, so the width would be vacuous")
+        return viewModel.rowWidth(columns, 1, schemaKey, tableDataModel: viewModel.tableDataModel)
+    }
+
+    func testRowWidthReclaimsTheEditColumnForInlineOnlySchema() {
+        let formAllowed = makeViewModel(editability: [childSchemaKey: ["inline", "form"]])
+        let inlineOnly = makeViewModel(editability: [childSchemaKey: ["inline"]])
+        XCTAssertEqual(rowWidth(formAllowed, schemaKey: childSchemaKey) - rowWidth(inlineOnly, schemaKey: childSchemaKey),
+                       40,
+                       "An inline-only schema must reclaim exactly the 40pt the edit column occupies")
+    }
+
+    func testRowWidthIgnoresSiblingSchemaEditability() {
+        let siblingAllowsForm = makeViewModel(editability: [childSchemaKey: ["inline"]])
+        let noSchemaAllowsForm = makeViewModel(editability: Dictionary(uniqueKeysWithValues: allSchemaKeys.map { ($0, Optional(["inline"])) }))
+        XCTAssertEqual(rowWidth(siblingAllowsForm, schemaKey: childSchemaKey),
+                       rowWidth(noSchemaAllowsForm, schemaKey: childSchemaKey),
+                       "A sibling schema allowing the form must not widen an inline-only level")
+    }
+
+    func testRowWidthDropsTheEditColumnWhenHostDisablesSingleClickRowEdit() {
+        let enabled = makeViewModel(editability: [:])
+        let disabled = makeViewModel(editability: [:], singleClickRowEdit: false)
+        XCTAssertEqual(rowWidth(enabled, schemaKey: rootSchemaKey) - rowWidth(disabled, schemaKey: rootSchemaKey),
+                       40,
+                       "Turning off single-click row edit must reclaim the edit column's width too")
+    }
+
     // MARK: - Selection schema and popover gating
 
     func testSelectionSchemaKeyDefaultsToRootWhenNothingSelected() {

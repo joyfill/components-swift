@@ -966,7 +966,7 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
         XCTAssertEqual(level3?.first?.cells?["6a7b08855f9e0b380b8a58c4"]?.text, "L3 edited via row form")
     }
 
-    // MARK: - Read-only text cells stay scrollable
+    // MARK: - Read-only text and barcode cells stay scrollable
 
     func testTableFormOnly_EveryReadonlyTextCellIsWrappedInAScrollView() throws {
         navigateToTable(.formOnly)
@@ -990,6 +990,21 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
         // `.quickView` branch and must not pay for the scroll wrapper.
         XCTAssertTrue(app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0).waitForExistence(timeout: 15))
         XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "TableTextFieldReadonlyScrollView").count, 0, "Quick view previews should not build scroll wrappers")
+    }
+
+    func testTableTypesBFormOnly_EveryReadonlyBarcodeCellIsWrappedInAScrollView() throws {
+        navigateToTable(.typesBFormOnly)
+
+        let wrappers = app.descendants(matching: .any).matching(identifier: "TableBarcodeFieldReadonlyScrollView")
+        XCTAssertTrue(wrappers.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(wrappers.count, 2, "Every read-only barcode cell needs its own scroll wrapper so long codes stay reachable")
+    }
+
+    func testTableTypesBInlineOnly_EditableBarcodeCellsHaveNoScrollWrapper() throws {
+        navigateToTable(.typesBInlineOnly)
+
+        XCTAssertTrue(app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0).waitForExistence(timeout: 5))
+        XCTAssertEqual(app.descendants(matching: .any).matching(identifier: "TableBarcodeFieldReadonlyScrollView").count, 0, "An editable barcode cell takes the editor branch, which has no scroll wrapper")
     }
 
     // MARK: - Structural row operations are independent of editability
