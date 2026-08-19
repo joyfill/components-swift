@@ -136,8 +136,10 @@ class ConditionalLogicHandler {
     }
 
     private func registerColumnDependencies(column: FieldTableColumn, parentFieldID: String, dependencyMap: inout [String: Set<String>], schemaKey: String? = nil) {
-        let conditions = (column.logic?.conditions ?? [])
-            + (column.requiredLogic?.conditions ?? []) + (column.cellRequiredLogic?.conditions ?? []) + (column.cellVisibilityLogic?.conditions ?? [])
+        var conditions = column.logic?.conditions ?? []
+        conditions.append(contentsOf: column.requiredLogic?.conditions ?? [])
+        conditions.append(contentsOf: column.cellRequiredLogic?.conditions ?? [])
+        conditions.append(contentsOf: column.cellVisibilityLogic?.conditions ?? [])
         guard let columnID = column.id else { return }
         
         for condition in conditions {
