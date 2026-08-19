@@ -46,9 +46,8 @@ final class RequiredLogicTests: XCTestCase {
 
     // MARK: - Builders
 
-    private func requiredLogic(action: String, condField: String, value: Any, condition: String = "=") -> [String: Any] {
-        [
-            "action": action,
+    private func requiredLogic(action: String?, condField: String, value: Any, condition: String = "=") -> [String: Any] {
+        var logic: [String: Any] = [
             "eval": "and",
             "conditions": [[
                 "file": fileID, "page": pageID, "field": condField,
@@ -56,6 +55,8 @@ final class RequiredLogicTests: XCTestCase {
             ]],
             "_id": UUID().uuidString
         ]
+        if let action { logic["action"] = action }
+        return logic
     }
 
     /// Builds requiredLogic with multiple conditions and an explicit eval ("and" / "or").
@@ -73,9 +74,8 @@ final class RequiredLogicTests: XCTestCase {
 
     /// Builds cellRequiredLogic whose single condition references a SIBLING column (via the `column`
     /// key), resolved against the same row's cells — mirrors show/hide logic and the sample JSON.
-    private func cellRequiredLogic(action: String, condColumn: String, value: Any, condition: String = "=") -> [String: Any] {
-        [
-            "action": action,
+    private func cellRequiredLogic(action: String?, condColumn: String, value: Any, condition: String = "=") -> [String: Any] {
+        var logic: [String: Any] = [
             "eval": "and",
             "conditions": [[
                 "column": condColumn,
@@ -83,10 +83,12 @@ final class RequiredLogicTests: XCTestCase {
             ]],
             "_id": UUID().uuidString
         ]
+        if let action { logic["action"] = action }
+        return logic
     }
 
     /// A page with a text field (carrying requiredLogic) and a dropdown field it depends on.
-    private func makeFieldLevelDoc(action: String, staticRequired: Bool, textValue: String?, dropdownValue: String) -> JoyDoc {
+    private func makeFieldLevelDoc(action: String?, staticRequired: Bool, textValue: String?, dropdownValue: String) -> JoyDoc {
         var textField: [String: Any] = [
             "_id": textFieldID, "file": fileID, "type": "text", "required": staticRequired,
             "requiredLogic": requiredLogic(action: action, condField: dropdownFieldID, value: optYes)
@@ -147,6 +149,26 @@ final class RequiredLogicTests: XCTestCase {
         // static required = true, enforce does not match -> falls back to static required:true -> required -> empty text is invalid.
         let editor = documentEditor(document: makeFieldLevelDoc(action: "enforce", staticRequired: true, textValue: nil, dropdownValue: optNo))
         XCTAssertEqual(textStatus(editor), .invalid)
+    }
+
+    func testFieldRequiredLogicWithoutActionFallsBackToStaticRequired() {
+        let requiredEditor = documentEditor(document: makeFieldLevelDoc(
+            action: nil,
+            staticRequired: true,
+            textValue: nil,
+            dropdownValue: optYes
+        ))
+        XCTAssertTrue(requiredEditor.isFieldRequired(fieldID: textFieldID))
+        XCTAssertEqual(textStatus(requiredEditor), .invalid)
+
+        let optionalEditor = documentEditor(document: makeFieldLevelDoc(
+            action: nil,
+            staticRequired: false,
+            textValue: nil,
+            dropdownValue: optYes
+        ))
+        XCTAssertFalse(optionalEditor.isFieldRequired(fieldID: textFieldID))
+        XCTAssertEqual(textStatus(optionalEditor), .valid)
     }
 
     // MARK: - Dynamic re-evaluation
@@ -300,6 +322,45 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(noMatchEditor, rowId: "row-2", columnId: textColumnID), .valid)
     }
 
+    func testColumnRequiredLogicWithoutActionFallsBackToStaticRequired() {
+        let rows: [[String: Any]] = [[
+            "_id": "row-1",
+            "cells": [textColumnID: "", ddColumnID: optYes]
+        ]]
+
+        let requiredColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Text",
+            "required": true,
+            "requiredLogic": requiredLogic(action: nil, condField: dropdownFieldID, value: optYes)
+        ]
+        let requiredEditor = documentEditor(document: makeTableDoc(
+            textColumn: requiredColumn,
+            rows: rows,
+            includePageDropdown: true,
+            dropdownValue: optYes
+        ))
+        XCTAssertTrue(requiredEditor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID))
+        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
+
+        let optionalColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Text",
+            "required": false,
+            "requiredLogic": requiredLogic(action: nil, condField: dropdownFieldID, value: optYes)
+        ]
+        let optionalEditor = documentEditor(document: makeTableDoc(
+            textColumn: optionalColumn,
+            rows: rows,
+            includePageDropdown: true,
+            dropdownValue: optYes
+        ))
+        XCTAssertFalse(optionalEditor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID))
+        XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
+    }
+
     // MARK: - Cell-level cellRequiredLogic (sibling-cell conditions, per-row)
 
     func testCellRequiredLogic_resolvesAgainstSiblingCellPerRow() {
@@ -316,6 +377,45 @@ final class RequiredLogicTests: XCTestCase {
 
         XCTAssertEqual(cellStatus(editor, rowId: "row-match", columnId: textColumnID), .invalid)
         XCTAssertEqual(cellStatus(editor, rowId: "row-nomatch", columnId: textColumnID), .valid)
+    }
+
+    func testCellRequiredLogicWithoutActionFallsBackToColumnRequiredState() {
+        let rows: [[String: Any]] = [[
+            "_id": "row-1",
+            "cells": [textColumnID: "", ddColumnID: optYes]
+        ]]
+
+        let requiredColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Text",
+            "required": true,
+            "cellRequiredLogic": cellRequiredLogic(action: nil, condColumn: ddColumnID, value: optYes)
+        ]
+        let requiredEditor = documentEditor(document: makeTableDoc(
+            textColumn: requiredColumn,
+            rows: rows,
+            includePageDropdown: false,
+            dropdownValue: optNo
+        ))
+        XCTAssertTrue(requiredEditor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
+        XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
+
+        let optionalColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Text",
+            "required": false,
+            "cellRequiredLogic": cellRequiredLogic(action: nil, condColumn: ddColumnID, value: optYes)
+        ]
+        let optionalEditor = documentEditor(document: makeTableDoc(
+            textColumn: optionalColumn,
+            rows: rows,
+            includePageDropdown: false,
+            dropdownValue: optNo
+        ))
+        XCTAssertFalse(optionalEditor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
+        XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
     }
 
     // MARK: - Required behavior through public row workflows
@@ -586,17 +686,25 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
     }
 
-    func testCellRequiredLogic_pageFieldDependency_refreshesOwningTable() {
-        // A change to the page field referenced by cellRequiredLogic must mark the table for refresh.
+    func testCellRequiredLogic_pageFieldDependency_recomputesOwningTableCells() {
         let editor = documentEditor(document: makeMixedCellDoc(
             cellAction: "enforce", cellEval: "and",
             siblingValue: "yes", conditionSiblingValue: "yes",
             pageNumberValue: 10, conditionPageNumberValue: 100
         ))
-        let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: "number1")
-        XCTAssertTrue(refreshed.contains(tableFieldID))
-        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid,
-                       "The empty cell remains valid while its page-field condition does not match")
+
+        XCTAssertFalse(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .valid)
+
+        let identifier = FieldIdentifier(fieldID: numberFieldID)
+        editor.updateField(
+            event: FieldChangeData(fieldIdentifier: identifier, updateValue: .double(100)),
+            fieldIdentifier: identifier
+        )
+
+        XCTAssertTrue(editor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
+        XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid,
+                       "The empty cell becomes invalid when its page-field condition starts matching")
     }
 
     func testCellRequiredLogic_mixedConditions_evalOr_anyMatches() {
@@ -827,7 +935,8 @@ final class RequiredLogicTests: XCTestCase {
         let fi = FieldIdentifier(fieldID: dropdownFieldID)
         editor.updateField(event: FieldChangeData(fieldIdentifier: fi, updateValue: .string(optYes)), fieldIdentifier: fi)
 
-        XCTAssertTrue(editor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID))
+        XCTAssertTrue(editor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID),
+                      "The cached column-wide required state must refresh")
         XCTAssertEqual(cellStatus(editor, rowId: "row-1", columnId: textColumnID), .invalid)
     }
 
@@ -895,13 +1004,8 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(fieldStatus(editor, fieldID: tableFieldID), .valid,
                        "An optional empty table must initially validate")
 
-        // Mutate the trigger without triggering refresh, then ask which fields need refreshing.
-        var dropdown = editor.field(fieldID: dropdownFieldID)
-        dropdown?.value = .string(optYes)
-        editor.updateField(field: dropdown)
+        editor.change(changes: [fieldUpdate(fieldID: dropdownFieldID, value: optYes)])
 
-        let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: dropdownFieldID)
-        XCTAssertTrue(refreshed.contains(tableFieldID))
         XCTAssertTrue(editor.isFieldRequired(fieldID: tableFieldID))
         XCTAssertEqual(fieldStatus(editor, fieldID: tableFieldID), .invalid,
                        "The empty table must become invalid after requiredLogic is enforced")
@@ -1464,12 +1568,8 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(fieldStatus(editor, fieldID: collectionFieldID), .valid,
                        "An optional empty collection must initially validate")
 
-        var dropdown = editor.field(fieldID: dropdownFieldID)
-        dropdown?.value = .string(optYes)
-        editor.updateField(field: dropdown)
+        editor.change(changes: [fieldUpdate(fieldID: dropdownFieldID, value: optYes)])
 
-        let refreshed = editor.requiredLogicHandler.fieldsNeedsToBeRefreshed(fieldID: dropdownFieldID)
-        XCTAssertTrue(refreshed.contains(collectionFieldID))
         XCTAssertTrue(editor.isFieldRequired(fieldID: collectionFieldID))
         XCTAssertEqual(fieldStatus(editor, fieldID: collectionFieldID), .invalid,
                        "The empty collection must become invalid after requiredLogic is enforced")

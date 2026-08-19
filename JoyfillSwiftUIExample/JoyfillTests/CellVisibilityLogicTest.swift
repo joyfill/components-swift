@@ -8,7 +8,7 @@ import JoyfillModel
 /// A column can carry `cellVisibilityLogic` whose conditions reference *sibling column ids*
 /// and resolve against the same row's cell values. Visibility is built once at load into
 /// Map 1 (`cellVisibilityMap`), read through `shouldShowCell`, and refreshed on edit via the
-/// column->column dependency graph (Map 2) exposed by `cellsNeedToBeRefreshed`.
+/// column->column dependency graph used by `cellDidChange`.
 final class CellVisibilityLogicTest: XCTestCase {
     let fileID = "66a0fdb2acd89d30121053b9"
     let pageID = "66aa286569ad25c65517385e"
@@ -307,60 +307,32 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Hidden when no OR condition met")
     }
 
-    // MARK: - Dependency-driven refresh (Map 2)
-
-    /// Editing the sibling column that a dependent depends on returns the dependent when visibility flips
-    func testRefreshReturnsDependentColumnOnFlip() {
-        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
-        // row2 currently Approved -> reason hidden. Edit status to Rejected -> reason should flip to visible.
-        let editedRow = row(id: row2ID, cells: [statusColumnID: "Rejected"])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertEqual(flipped, [reasonColumnID], "Editing status should flip the dependent reason cell")
-    }
-
-    /// Editing the sibling but with no change in visibility returns empty
-    func testRefreshReturnsEmptyWhenNoFlip() {
-        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
-        // row1 already Rejected -> reason visible. Edit status to another non-matching->matching? Keep Rejected: no flip.
-        let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected"])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertTrue(flipped.isEmpty, "No flip should yield an empty refresh list")
-    }
-
-    /// Editing a column that nothing depends on returns empty
-    func testRefreshReturnsEmptyForIndependentColumn() {
-        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
-        let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected", noteColumnID: "changed"])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: noteColumnID, row: editedRow)
-        XCTAssertTrue(flipped.isEmpty, "Editing an independent column should refresh nothing")
-    }
-
     /// After a refresh, shouldShowCell reflects the new value (Map 1 was updated)
     func testShouldShowCellReflectsRefreshedValue() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let editedRow = row(id: row2ID, cells: [statusColumnID: "Rejected"])
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Reason hidden before edit")
-        _ = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "Reason visible after refreshing with status=Rejected")
+        editor.cellDidChange(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
+        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Reason visible after refreshing with status=Rejected")
     }
 
     // MARK: - Map 1 maintenance (insert / delete)
 
-    /// addCellVisibilityForRow seeds Map 1 so a newly inserted row reads correctly
+    /// addCellLogicForNewRow seeds the logic maps so a newly inserted row reads correctly.
     func testAddCellVisibilityForNewRow() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let newRow = row(id: "row_new", cells: [statusColumnID: "Rejected"])
-        editor.addCellVisibilityForRow(fieldID: tableFieldID, row: newRow)
+        editor.addCellLogicForNewRow(fieldID: tableFieldID, row: newRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: newRow.id ?? ""), "New row's reason should be visible (status=Rejected)")
     }
 
-    /// removeCellVisibilityForRow drops the row's entries; reads fall back to visible default
+    /// removeCellLogicForRow drops the row's entries; reads fall back to the visible default.
     func testRemoveCellVisibilityForRow() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
         let row2 = rowElement(editor, rowID: row2ID)
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2.id ?? ""), "Reason hidden before removal")
-        editor.removeCellVisibilityForRow(fieldID: tableFieldID, rowID: row2ID)
+        editor.removeCellLogicForRow(fieldID: tableFieldID, rowID: row2ID)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2.id ?? ""), "After removal the entry is gone, defaulting to visible")
     }
 
@@ -652,25 +624,86 @@ final class CellVisibilityLogicTest: XCTestCase {
 
     // MARK: - Multiple dependents on one source column
 
-    /// Two columns whose cellVisibilityLogic both key off the same sibling column both get
-    /// reported as flipped when that sibling changes (Set-based fan-out in the dependency map).
-    func testRefreshReturnsMultipleDependentColumnsOnFlip() {
+    /// Two columns whose cellVisibilityLogic both key off the same sibling column are both
+    /// refreshed when that sibling changes (Set-based fan-out in the dependency map).
+    func testCellChangeRefreshesMultipleDependentColumns() {
         let logic = cellVisibilityLogicDictionary(
             isShow: true,
-            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+            conditions: [
+                LogicConditionTest(
+                    fieldID: statusColumnID,
+                    conditionType: .equals,
+                    value: .string("Rejected")
+                )
+            ]
         )
+
         let secondReasonColumnID = "col_reason2"
         let columns = [
             buildColumn(id: statusColumnID, type: .text, title: "Status"),
-            buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic),
-            buildColumn(id: secondReasonColumnID, type: .text, title: "Reason 2", cellVisibilityLogic: logic)
+            buildColumn(
+                id: reasonColumnID,
+                type: .text,
+                title: "Reason",
+                cellVisibilityLogic: logic
+            ),
+            buildColumn(
+                id: secondReasonColumnID,
+                type: .text,
+                title: "Reason 2",
+                cellVisibilityLogic: logic
+            )
         ]
-        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved"])]
-        let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
 
-        let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected"])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertEqual(Set(flipped), Set([reasonColumnID, secondReasonColumnID]), "both dependents sharing the same source column are reported as flipped")
+        let rows = [
+            row(id: row1ID, cells: [statusColumnID: "Approved"])
+        ]
+        let editor = documentEditor(
+            document: buildDocument(columns: columns, rows: rows)
+        )
+
+        XCTAssertFalse(
+            editor.shouldShowCell(
+                columnID: reasonColumnID,
+                fieldID: tableFieldID,
+                rowID: row1ID
+            )
+        )
+        XCTAssertFalse(
+            editor.shouldShowCell(
+                columnID: secondReasonColumnID,
+                fieldID: tableFieldID,
+                rowID: row1ID
+            )
+        )
+
+        let editedRow = row(
+            id: row1ID,
+            cells: [statusColumnID: "Rejected"]
+        )
+
+        editor.cellDidChange(
+            fieldID: tableFieldID,
+            editedColumnID: statusColumnID,
+            row: editedRow
+        )
+
+        XCTAssertTrue(
+            editor.shouldShowCell(
+                columnID: reasonColumnID,
+                fieldID: tableFieldID,
+                rowID: row1ID
+            ),
+            "First dependent column should become visible"
+        )
+        XCTAssertTrue(
+            editor.shouldShowCell(
+                columnID: secondReasonColumnID,
+                fieldID: tableFieldID,
+                rowID: row1ID
+            ),
+            "Second dependent column should become visible"
+        )
     }
 
     // MARK: - Chained dependency (documents current single-hop behavior; no automatic cascade)
@@ -703,9 +736,10 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertTrue(editor.shouldShowCell(columnID: chainedDependentColumnID, fieldID: tableFieldID, rowID: row1ID), "chained dependent already visible because middle's stored value is Ready, independent of middle's own visibility")
 
         let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected", middleColumnID: "Ready"])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertEqual(flipped, [middleColumnID], "only the direct dependent (middle) is reported; chainedDependent is not re-evaluated as a side effect")
+
+        editor.cellDidChange(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "middle now visible (status=Rejected)")
+        XCTAssertTrue(editor.shouldShowCell(columnID: chainedDependentColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "chained dependent remains visible because its stored middle value is unchanged")
     }
 
     // MARK: - Additional condition operators
@@ -807,10 +841,8 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "hidden when status is empty")
     }
 
-    /// `cellVisibilityLogic` present with conditions but no `action` can't be evaluated; it must
-    /// default to visible rather than silently falling back to the static `cellsHidden` baseline,
-    /// which is documented to apply only to columns without logic.
-    func testCellVisibilityLogicWithoutActionDefaultsToVisibleIgnoringCellsHidden() {
+    /// `cellVisibilityLogic` without an action cannot be evaluated and falls back to `cellsHidden`.
+    func testCellVisibilityLogicWithoutActionFallsBackToCellsHidden() {
         let logicWithoutAction: [String: Any] = [
             "eval": "and",
             "conditions": [
@@ -818,15 +850,19 @@ final class CellVisibilityLogicTest: XCTestCase {
             ],
             "_id": UUID().uuidString
         ]
+        let visibleFallbackColumnID = "col_visible_fallback"
         let columns = [
             buildColumn(id: statusColumnID, type: .text, title: "Status"),
             buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logicWithoutAction, cellsHidden: true),
-            buildColumn(id: noteColumnID, type: .text, title: "Note")
+            buildColumn(id: visibleFallbackColumnID, type: .text, title: "Visible fallback", cellVisibilityLogic: logicWithoutAction, cellsHidden: false)
         ]
         let rows = [row(id: row1ID, cells: [statusColumnID: "Rejected"])]
         let editor = documentEditor(document: buildDocument(columns: columns, rows: rows))
 
-        XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID), "action-less cellVisibilityLogic must default to visible, ignoring cellsHidden:true")
+        XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row1ID),
+                       "Action-less logic falls back to cellsHidden:true")
+        XCTAssertTrue(editor.shouldShowCell(columnID: visibleFallbackColumnID, fieldID: tableFieldID, rowID: row1ID),
+                      "Action-less logic falls back to cellsHidden:false")
     }
 
     // MARK: - View-layer add-row (repro: adding a row must not flip existing rows)
@@ -1175,8 +1211,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason hidden before edit")
 
         let editedRow = ValueElement(dictionary: ["_id": collRootRow1, "cells": [statusColumnID: "Rejected"]])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: collectionFieldID, schemaID: collRootSchema, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertEqual(flipped, [reasonColumnID], "reason column reported as flipped")
+        editor.cellDidChange(fieldID: collectionFieldID, schemaID: collRootSchema, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason visible after status=Rejected")
     }
 
@@ -1191,7 +1226,7 @@ final class CellVisibilityLogicTest: XCTestCase {
             rootRows: [collRootRow(id: collRootRow1, status: "Approved")]
         ))
         let newRow = ValueElement(dictionary: ["_id": "coll_root_new", "cells": [statusColumnID: "Rejected"]])
-        editor.addCellVisibilityForRow(fieldID: collectionFieldID, schemaID: collRootSchema, row: newRow)
+        editor.addCellLogicForNewRow(fieldID: collectionFieldID, schemaID: collRootSchema, row: newRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: newRow.id ?? ""), "new row reason visible (status=Rejected)")
     }
 
@@ -1207,7 +1242,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         ))
         let row2 = collRowElement(editor, rowID: collRootRow2)
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: row2.id ?? ""), "reason hidden before removal")
-        editor.removeCellVisibilityForRow(fieldID: collectionFieldID, rowID: collRootRow2)
+        editor.removeCellLogicForRow(fieldID: collectionFieldID, rowID: collRootRow2)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: row2.id ?? ""), "entry gone after removal -> defaults visible")
     }
 
@@ -1322,7 +1357,7 @@ final class CellVisibilityLogicTest: XCTestCase {
     }
 
     /// Sibling edit: recomputing with a new sibling value flips a CHILD schema's dependent cell
-    /// (not just root), using the schema-scoped `cellsNeedToBeRefreshed(schemaID:)` overload.
+    /// using the schema-scoped `cellDidChange` entry point.
     func testCollectionChildSchemaSiblingEditFlipsCell() {
         let logic = cellVisibilityLogicDictionary(
             isShow: true,
@@ -1336,8 +1371,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason hidden before edit")
 
         let editedRow = ValueElement(dictionary: ["_id": collChildRow1, "cells": [statusColumnID: "Rejected"]])
-        let flipped = editor.cellsNeedToBeRefreshed(fieldID: collectionFieldID, schemaID: collChildSchema, editedColumnID: statusColumnID, row: editedRow)
-        XCTAssertEqual(flipped, [reasonColumnID], "child reason column reported as flipped")
+        editor.cellDidChange(fieldID: collectionFieldID, schemaID: collChildSchema, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "child reason visible after status=Rejected")
     }
 
