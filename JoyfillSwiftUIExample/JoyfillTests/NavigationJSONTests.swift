@@ -91,7 +91,7 @@ final class NavigationJSONTests: XCTestCase {
         // Fill required field to make page visible using proper update method
         let fieldIdentifier = FieldIdentifier(fieldID: textFieldID)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("test value"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         // When
         let result = documentEditor.goto(conditionalPageId)

@@ -525,7 +525,7 @@ final class ValidatePathTests: XCTestCase {
     private func enterValue(into editor: DocumentEditor, fieldID: String, value: ValueUnion) -> DocumentEditor {
         let fieldIdentifier = FieldIdentifier(fieldID: fieldID)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: value)
-        editor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        editor.updateField(event: event)
         return editor
     }
 

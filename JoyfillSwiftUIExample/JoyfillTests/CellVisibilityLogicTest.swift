@@ -1257,7 +1257,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason hidden while page field != Yes")
 
         let identifier = FieldIdentifier(fieldID: pageTextFieldID, pageID: pageID, fileID: fileID)
-        editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")))
 
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason visible after page field -> Yes")
     }
@@ -1351,7 +1351,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason hidden while page field != Yes")
 
         let identifier = FieldIdentifier(fieldID: pageTextFieldID, pageID: pageID, fileID: fileID)
-        editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")), fieldIdentifier: identifier)
+        editor.updateField(event: FieldChangeData(fieldIdentifier: identifier, updateValue: .string("Yes")))
 
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason visible after page field -> Yes")
     }
