@@ -1543,7 +1543,7 @@ extension DocumentEditor {
     }
 
     /// Effective required-ness of a single cell, honouring `cellRequiredLogic` (per-row) then `requiredLogic`.
-    public func isCellRequired(columnID: String, fieldID: String, schemaKey: String? = nil, rowID: String) -> Bool {
+    public func isCellRequired(columnID: String, fieldID: String, rowID: String) -> Bool {
         return conditionalLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
     }
 
