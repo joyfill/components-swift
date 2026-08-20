@@ -232,10 +232,18 @@ extension FieldListModelType {
     }
 }
 
+/// Which field's sheet is open. Must live on FormView's List, never on a row —
+/// UITableView recycling orphans row-owned sheets and kills them (NO-1508).
+struct FieldSheetPresentation: Identifiable {
+    let model: DropdownDataModel
+    var id: String { model.fieldIdentifier.fieldID }
+}
+
 struct FormView: View {
     @Binding var listModels: [FieldListModel]
     @State var currentFocusedFieldsID: String = ""
     @State var lastFocusedFieldsID: String? = nil
+    @State private var activeFieldSheet: FieldSheetPresentation?
     let documentEditor: DocumentEditor
 
     @ViewBuilder
@@ -253,7 +261,7 @@ struct FormView: View {
             MultiSelectionView(multiSelectionDataModel: model, eventHandler: self, currentFocusedFieldsDataId: currentFocusedFieldsID)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .dropdown(let model):
-            DropdownView(dropdownDataModel: model, eventHandler: self)
+            DropdownView(dropdownDataModel: model, eventHandler: self, activeFieldSheet: $activeFieldSheet)
                 .disabled(listModel.fieldEditMode == .readonly)
         case .textarea(let model):
             MultiLineTextView(multiLineDataModel: model, eventHandler: self)
@@ -284,6 +292,30 @@ struct FormView: View {
         }
     }
 
+    /// Sheet content for the presenting field. ImageView can add a branch here.
+    @ViewBuilder
+    private func fieldSheet(for presentation: FieldSheetPresentation) -> some View {
+        dropdownOptionsSheet(for: presentation.model)
+    }
+
+    private func dropdownOptionsSheet(for model: DropdownDataModel) -> some View {
+        let selection = Binding<String?>(
+            get: { model.dropdownValue },
+            set: { newID in
+                onChange(event: FieldChangeData(fieldIdentifier: model.fieldIdentifier,
+                                                updateValue: .string(newID ?? "")))
+            }
+        )
+        return Group {
+            if #available(iOS 16, *) {
+                DropDownOptionList(dropdownDataModel: model, selectedDropdownValueID: selection)
+                    .presentationDetents([.medium])
+            } else {
+                DropDownOptionList(dropdownDataModel: model, selectedDropdownValueID: selection)
+            }
+        }
+    }
+
     var body: some View {
         ScrollViewReader { proxy in
             List($listModels, id: \.wrappedValue.fieldIdentifier.fieldID) { $listModel in
@@ -295,6 +327,9 @@ struct FormView: View {
             }
             .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
             .listStyle(PlainListStyle())
+            .sheet(item: $activeFieldSheet) { presentation in
+                fieldSheet(for: presentation)
+            }
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
                 guard newValue != nil else { return }

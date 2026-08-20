@@ -3,27 +3,29 @@ import JoyfillModel
 
 struct DropdownView: View {
     @State var selectedDropdownValueID: String?
-    @State private var isSheetPresented = false
+    /// The row does not own its sheet — see `FieldSheetPresentation`.
+    @Binding var activeFieldSheet: FieldSheetPresentation?
     @Environment(\.navigationFocusFieldId) private var navigationFocusFieldId
     private var dropdownDataModel: DropdownDataModel
 
     let eventHandler: FieldChangeEvents
 
-    public init(dropdownDataModel: DropdownDataModel, eventHandler: FieldChangeEvents) {
+    public init(dropdownDataModel: DropdownDataModel, eventHandler: FieldChangeEvents, activeFieldSheet: Binding<FieldSheetPresentation?>) {
         self.eventHandler = eventHandler
         self.dropdownDataModel = dropdownDataModel
+        self._activeFieldSheet = activeFieldSheet
         if let value = dropdownDataModel.dropdownValue {
             _selectedDropdownValueID = State(initialValue: value)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             FieldHeaderView(dropdownDataModel.fieldHeaderModel, isFilled: !(selectedDropdownValueID?.isEmpty ?? true)) { decorator in
                 eventHandler.onDecoratorAction(event: dropdownDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
             Button(action: {
-                isSheetPresented = true
+                activeFieldSheet = FieldSheetPresentation(model: dropdownDataModel)
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
             }, label: {
                 HStack {
@@ -41,14 +43,6 @@ struct DropdownView: View {
             })
             .accessibilityIdentifier("Dropdown")
             .fieldBorder(isFocused: navigationFocusFieldId == dropdownDataModel.fieldIdentifier.fieldID)
-            .sheet(isPresented: $isSheetPresented) {
-                if #available(iOS 16, *) {
-                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
-                        .presentationDetents([.medium])
-                } else {
-                    DropDownOptionList(dropdownDataModel: dropdownDataModel, selectedDropdownValueID: $selectedDropdownValueID)
-                }
-            }
         }
         .onChange(of: selectedDropdownValueID) { newValue in
             // Skip if @State already matches the model — means this fire came from a
@@ -73,12 +67,12 @@ struct DropDownOptionList: View {
     @Environment(\.presentationMode) var presentationMode
     private var dropdownDataModel: DropdownDataModel
     @Binding var selectedDropdownValueID: String?
-    
+
     public init(dropdownDataModel: DropdownDataModel, selectedDropdownValueID: Binding<String?>) {
         self.dropdownDataModel = dropdownDataModel
         self._selectedDropdownValueID = selectedDropdownValueID
     }
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -112,6 +106,7 @@ struct DropDownOptionList: View {
                             }
                             .padding(.horizontal, 28)
                             .padding(.vertical, 10)
+                            .contentShape(Rectangle())
                         })
                         .accessibilityIdentifier("DropdownoptionIdentifier")
                         Divider()
@@ -124,4 +119,3 @@ struct DropDownOptionList: View {
         .padding(.vertical, 20)
     }
 }
-
