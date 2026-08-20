@@ -464,6 +464,13 @@ public struct JoyDocField: Equatable {
         }
     }
     
+    /// Conditional logic that overrides this field's static `required` flag.
+    /// `action` is "enforce" (required when conditions match) or "unenforce" (optional when conditions match).
+    public var requiredLogic: Logic? {
+        get { Logic.init(field: dictionary["requiredLogic"] as? [String: Any]) }
+        set { dictionary["requiredLogic"] = newValue?.dictionary }
+    }
+
     public var hidden: Bool? {
         get { dictionary["hidden"] as? Bool }
         set { dictionary["hidden"] = newValue }
@@ -926,6 +933,11 @@ public struct Condition: Equatable{
         set { dictionary["field"] = newValue }
     }
     
+    public var column: String? {
+        get { dictionary["column"] as? String }
+        set { dictionary["column"] = newValue }
+    }
+
     public var condition: String? {
         get { dictionary["condition"] as? String }
         set { dictionary["condition"] = newValue }
@@ -1205,6 +1217,34 @@ public struct FieldTableColumn {
     public var logic: Logic? {
         get { Logic.init(field: dictionary["logic"] as? [String: Any]) }
         set { dictionary["logic"] = newValue?.dictionary }
+    }
+
+    /// Column-wide required logic. Conditions reference page-level fields. `action` is "enforce"/"unenforce"
+    /// and overrides the static `required` flag for every cell in the column.
+    public var requiredLogic: Logic? {
+        get { Logic.init(field: dictionary["requiredLogic"] as? [String: Any]) }
+        set { dictionary["requiredLogic"] = newValue?.dictionary }
+    }
+
+    /// Per-cell required logic. Conditions reference sibling column ids and resolve against the
+    /// same row's cell values. Takes precedence over `requiredLogic`/static `required` for that cell.
+    public var cellRequiredLogic: Logic? {
+        get { Logic.init(field: dictionary["cellRequiredLogic"] as? [String: Any]) }
+        set { dictionary["cellRequiredLogic"] = newValue?.dictionary }
+    }
+
+    /// Per-cell show/hide logic. Conditions reference sibling column ids and resolve against the
+    /// same row's cell values. Hides the individual cell within the RowForm (not the whole column).
+    public var cellVisibilityLogic: Logic? {
+        get { Logic.init(field: dictionary["cellVisibilityLogic"] as? [String: Any]) }
+        set { dictionary["cellVisibilityLogic"] = newValue?.dictionary }
+    }
+
+    /// Static hidden baseline for this column's cells, applied only when the column has no
+    /// `cellVisibilityLogic`. When logic is present the show/hide action decides visibility per row.
+    public var cellsHidden: Bool? {
+        get { dictionary["cellsHidden"] as? Bool }
+        set { dictionary["cellsHidden"] = newValue }
     }
 
     /// View types in which this column is force-hidden. Takes precedence over conditional logic.

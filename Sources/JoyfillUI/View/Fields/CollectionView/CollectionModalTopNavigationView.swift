@@ -294,13 +294,22 @@ struct CollectionEditMultipleRowsSheetView: View {
         viewID = UUID()
     }
     
+    private func isColumnEffectivelyRequired(_ col: FieldTableColumn, schemaKey: String) -> Bool {
+        guard let columnID = col.id else { return col.required ?? false }
+        if viewModel.tableDataModel.selectedRows.count == 1, let rowID = viewModel.tableDataModel.selectedRows.first {
+            return viewModel.isCellRequired(columnID: columnID, rowID: rowID, schemaKey: schemaKey)
+        }
+        return viewModel.tableDataModel.documentEditor?.isColumnRequired(columnID: columnID, fieldID: viewModel.tableDataModel.fieldIdentifier.fieldID, schemaKey: schemaKey) ?? (col.required ?? false)
+    }
+
     @ViewBuilder
     private func fieldTitle(_ col: FieldTableColumn, isCellFilled: Bool, schemaKey: String) -> some View {
         HStack(alignment: .center, spacing: 4) {
-            if let required = col.required, required, !isCellFilled {
+            if isColumnEffectivelyRequired(col, schemaKey: schemaKey), !isCellFilled {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_col_\(schemaKey)_\(col.id ?? "")")
             }
             
             Text(col.title)
@@ -518,229 +527,234 @@ struct CollectionEditMultipleRowsSheetView: View {
         let header = viewModel.getHeaderForSelectedRows()
         ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
             let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
-            VStack(alignment: .leading, spacing: 16) {
-                if let row = viewModel.tableDataModel.selectedRows.first {
-                    let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
-                    let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
-                    if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
-                        var cellModel = TableCellModel(rowID: row,
-                                                       timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
-                                                       data: cell,
-                                                       documentEditor: viewModel.tableDataModel.documentEditor,
-                                                       fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
-                                                       viewMode: .modalView,
-                                                       editMode: viewModel.tableDataModel.mode,
-                                                       didFocusBlur: { action, cellDataModel in
-                            viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id) })
-                        { cellDataModel in
-                            switch cell.type {
-                            case .text:
-                                if isUsedForBulkEdit {
-                                    if !cellDataModel.title.isEmpty {
+            let singleRowID: String? = viewModel.tableDataModel.selectedRows.count == 1 ? viewModel.tableDataModel.selectedRows.first : nil
+            // No single selected row means this is a bulk edit, where every column shows.
+            let showsCellInRowForm = singleRowID.map { viewModel.shouldShowCell(columnID: col.id ?? "", rowID: $0) } ?? true
+            if showsCellInRowForm {
+                VStack(alignment: .leading, spacing: 16) {
+                    if let row = viewModel.tableDataModel.selectedRows.first {
+                        let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
+                        let isUsedForBulkEdit = !(viewModel.tableDataModel.selectedRows.count == 1)
+                        if let cell = viewModel.tableDataModel.getDummyNestedCell(col: colIndex, isBulkEdit: isUsedForBulkEdit, rowID: row) {
+                            var cellModel = TableCellModel(rowID: row,
+                                                           timezoneId: isUsedForBulkEdit ?  nil : selectedRow?.cells[colIndex].timezoneId,
+                                                           data: cell,
+                                                           documentEditor: viewModel.tableDataModel.documentEditor,
+                                                           fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
+                                                           viewMode: .modalView,
+                                                           editMode: viewModel.tableDataModel.mode,
+                                                           didFocusBlur: { action, cellDataModel in
+                                viewModel.emitCellFocusBlur(action: action, rowID: row, columnID: cellDataModel.id) })
+                            { cellDataModel in
+                                switch cell.type {
+                                case .text:
+                                    if isUsedForBulkEdit {
+                                        if !cellDataModel.title.isEmpty {
+                                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
+                                    } else {
                                         self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                                    } else {
-                                        self.changes.removeValue(forKey: colIndex)
                                     }
-                                } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                                }
-                            case .dropdown:
-                                if isUsedForBulkEdit {
-                                    if let dropdownSelectedId = cellDataModel.defaultDropdownSelectedId, !dropdownSelectedId.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.string(dropdownSelectedId)
+                                case .dropdown:
+                                    if isUsedForBulkEdit {
+                                        if let dropdownSelectedId = cellDataModel.defaultDropdownSelectedId, !dropdownSelectedId.isEmpty {
+                                            self.changes[colIndex] = ValueUnion.string(dropdownSelectedId)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
                                     }
-                                } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
-                                }
-                                
-                            case .date:
-                                if isUsedForBulkEdit {
-                                    if let date = cellDataModel.date {
-                                        self.changes[colIndex] = ValueUnion.double(date)
+
+                                case .date:
+                                    if isUsedForBulkEdit {
+                                        if let date = cellDataModel.date {
+                                            self.changes[colIndex] = ValueUnion.double(date)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
                                     }
-                                } else {
-                                    self.changes[colIndex] = cellDataModel.date.map(ValueUnion.double) ?? .null
-                                }
-                            case .number:
-                                if isUsedForBulkEdit {
-                                    if let number = cellDataModel.number {
-                                        self.changes[colIndex] = ValueUnion.double(number)
+                                case .number:
+                                    if isUsedForBulkEdit {
+                                        if let number = cellDataModel.number {
+                                            self.changes[colIndex] = ValueUnion.double(number)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
                                     }
-                                } else {
-                                    self.changes[colIndex] = cellDataModel.number.map(ValueUnion.double) ?? .null
-                                }
-                            case .multiSelect:
-                                if isUsedForBulkEdit {
-                                    if let multiSelectValues = cellDataModel.multiSelectValues, !multiSelectValues.isEmpty {
-                                        self.changes[colIndex] = ValueUnion.array(multiSelectValues)
+                                case .multiSelect:
+                                    if isUsedForBulkEdit {
+                                        if let multiSelectValues = cellDataModel.multiSelectValues, !multiSelectValues.isEmpty {
+                                            self.changes[colIndex] = ValueUnion.array(multiSelectValues)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
                                     } else {
-                                        self.changes.removeValue(forKey: colIndex)
+                                        self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
                                     }
-                                } else {
-                                    self.changes[colIndex] = cellDataModel.multiSelectValues.map(ValueUnion.array) ?? .null
-                                }
-                            case .barcode:
-                                if isUsedForBulkEdit {
-                                    if !cellDataModel.title.isEmpty {
+                                case .barcode:
+                                    if isUsedForBulkEdit {
+                                        if !cellDataModel.title.isEmpty {
+                                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
+                                    } else {
                                         self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                                    } else {
-                                        self.changes.removeValue(forKey: colIndex)
                                     }
-                                } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title)
-                                }
-                            case .image:
-                                if isUsedForBulkEdit {
-                                    if cellDataModel.valueElements != [] {
+                                case .image:
+                                    if isUsedForBulkEdit {
+                                        if cellDataModel.valueElements != [] {
+                                            self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
+                                    } else {
                                         self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
-                                    } else {
-                                        self.changes.removeValue(forKey: colIndex)
                                     }
-                                } else {
-                                    self.changes[colIndex] = ValueUnion.valueElementArray(cellDataModel.valueElements)
-                                }
-                            case .signature:
-                                if isUsedForBulkEdit {
-                                    if !cellDataModel.title.isEmpty {
+                                case .signature:
+                                    if isUsedForBulkEdit {
+                                        if !cellDataModel.title.isEmpty {
+                                            self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+                                        } else {
+                                            self.changes.removeValue(forKey: colIndex)
+                                        }
+                                    } else {
                                         self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
-                                    } else {
-                                        self.changes.removeValue(forKey: colIndex)
                                     }
-                                } else {
-                                    self.changes[colIndex] = ValueUnion.string(cellDataModel.title ?? "")
+
+                                default:
+                                    break
                                 }
-                                
-                            default:
-                                break
-                            }
-                            Task {
-                                if !isUsedForBulkEdit {
-                                    await viewModel.bulkEdit(changes: changes)
+                                Task {
+                                    if !isUsedForBulkEdit {
+                                        await viewModel.bulkEdit(changes: changes)
+                                    }
                                 }
                             }
-                        }
-                        
-                        var isFilledBasedOnChange: Bool {
-                            guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
-                                return false
-                            }
-                            
-                            switch changeValue {
-                            case .string(let str):
-                                return !str.isEmpty
-                            case .double:
-                                return true
-                            case .int:
-                                return true
-                            case .bool:
-                                return true
-                            case .array(let arr):
-                                return !arr.isEmpty
-                            case .valueElementArray(let arr):
-                                return !arr.isEmpty
-                            case .null:
-                                return false
-                            default:
-                                return false
-                            }
-                        }
-                        
-                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
-                        
-                        switch col.type {
-                        case .text:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
-                                .frame(minHeight: 40)
-                                .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsTextFieldIdentifier")
-                        case .dropdown:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
-                                .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
-                        case .date:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, isSingleLineLayout: true)
-                                .padding(.vertical, 2)
-                                .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsDateFieldIdentifier")
-                        case .number:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
-                                .keyboardType(.decimalPad)
-                                .frame(minHeight: 40)
-                                .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
-                        case .multiSelect:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
-                                .padding(.vertical, 4)
-                                .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
-                        case .image:
-                            let bindingCellModel = Binding<TableCellModel>(
-                                get: {
-                                    return cellModel
-                                },
-                                set: { newValue in
-                                    cellModel = newValue
+
+                            var isFilledBasedOnChange: Bool {
+                                guard isUsedForBulkEdit, let changeValue = changes[colIndex] else {
+                                    return false
                                 }
-                            )
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            HStack {
-                                Spacer()
-                                TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
-                                    .padding(.vertical, 4)
-                                Spacer()
-                            }
-                            .frame(minHeight: 40)
-                            .cellBorder(isFocused: isFocused)
-                            .accessibilityIdentifier("EditRowsImageFieldIdentifier")
-                        case .signature:
-                            let bindingCellModel = Binding<TableCellModel>(
-                                get: {
-                                    return cellModel
-                                },
-                                set: { newValue in
-                                    cellModel = newValue
+
+                                switch changeValue {
+                                case .string(let str):
+                                    return !str.isEmpty
+                                case .double:
+                                    return true
+                                case .int:
+                                    return true
+                                case .bool:
+                                    return true
+                                case .array(let arr):
+                                    return !arr.isEmpty
+                                case .valueElementArray(let arr):
+                                    return !arr.isEmpty
+                                case .null:
+                                    return false
+                                default:
+                                    return false
                                 }
-                            )
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            HStack {
-                                Spacer()
-                                TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
-                                Spacer()
                             }
-                            .frame(minHeight: 40)
-                            .cellBorder(isFocused: isFocused)
-                            .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
-                        case .barcode:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
-                                .frame(minHeight: 40)
-                                .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
-                        case .block:
-                            if !isUsedForBulkEdit {
+
+                            let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+
+                            switch col.type {
+                            case .text:
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                                TableBlockView(cellModel: Binding.constant(cellModel))
+                                TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsTextFieldIdentifier")
+                            case .dropdown:
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                TableDropDownOptionListView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                    .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsDropdownFieldIdentifier")
+                            case .date:
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                TableDateView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, isSingleLineLayout: true)
+                                    .padding(.vertical, 2)
+                                    .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsDateFieldIdentifier")
+                            case .number:
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                    .keyboardType(.decimalPad)
+                                    .frame(minHeight: 40)
+                                    .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsNumberFieldIdentifier")
+                            case .multiSelect:
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                TableMultiSelectView(cellModel: Binding.constant(cellModel),isUsedForBulkEdit: isUsedForBulkEdit)
+                                    .padding(.vertical, 4)
+                                    .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
+                            case .image:
+                                let bindingCellModel = Binding<TableCellModel>(
+                                    get: {
+                                        return cellModel
+                                    },
+                                    set: { newValue in
+                                        cellModel = newValue
+                                    }
+                                )
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                HStack {
+                                    Spacer()
+                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
+                                        .padding(.vertical, 4)
+                                    Spacer()
+                                }
+                                .frame(minHeight: 40)
+                                .cellBorder(isFocused: isFocused)
+                                .accessibilityIdentifier("EditRowsImageFieldIdentifier")
+                            case .signature:
+                                let bindingCellModel = Binding<TableCellModel>(
+                                    get: {
+                                        return cellModel
+                                    },
+                                    set: { newValue in
+                                        cellModel = newValue
+                                    }
+                                )
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                HStack {
+                                    Spacer()
+                                    TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                    Spacer()
+                                }
+                                .frame(minHeight: 40)
+                                .cellBorder(isFocused: isFocused)
+                                .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
+                            case .barcode:
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
+                                    .frame(minHeight: 40)
+                                    .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
+                            case .block:
+                                if !isUsedForBulkEdit {
+                                    fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                    TableBlockView(cellModel: Binding.constant(cellModel))
+                                        .frame(minHeight: 40)
+                                        .cellBorder(isFocused: isFocused)
+                                }
+                            default:
+                                Text("")
                             }
-                        default:
-                            Text("")
                         }
                     }
                 }
+                .id(col.id)
             }
-            .id(col.id)
         }
         .disabled(viewModel.tableDataModel.mode == .readonly)
     }

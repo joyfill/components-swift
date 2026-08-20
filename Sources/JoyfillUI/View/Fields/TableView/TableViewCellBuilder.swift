@@ -18,6 +18,15 @@ struct TableViewCellBuilder: View {
     @Binding var cellModel: TableCellModel
     
     var body: some View {
+        if viewModel.shouldShowCell(columnID: cellModel.data.id, rowID: cellModel.rowID) {
+            cellContent
+        } else {
+            HiddenCellView()
+        }
+    }
+
+    @ViewBuilder
+    private var cellContent: some View {
         switch cellModel.data.type {
         case .text:
             TableTextView(cellModel: $cellModel)
@@ -50,5 +59,44 @@ struct TableViewCellBuilder: View {
         default:
             Text("")
         }
+    }
+}
+
+struct HiddenCellView: View {
+    @State private var showTooltip = false
+
+    var body: some View {
+        Button {
+            showTooltip = true
+        } label: {
+            Image(systemName: "eye.slash.fill")
+                .font(.system(size: 15))
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("HiddenCellIdentifier")
+        .popover(isPresented: $showTooltip) {
+            if #available(iOS 16.4, *) {
+                HiddenCellTooltip()
+                    .presentationCompactAdaptation(.popover)
+            } else {
+                HiddenCellTooltip()
+            }
+        }
+    }
+}
+
+struct HiddenCellTooltip: View {
+    var body: some View {
+        Text("This cell is hidden by logic")
+            .font(.system(size: 14))
+            .multilineTextAlignment(.center)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(16)
+            .frame(width: 180)
+            .accessibilityIdentifier("HiddenCellTooltipIdentifier")
     }
 }

@@ -57,6 +57,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
+        tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let gridEditMode = tableDataModel.editModeForGrid()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
@@ -90,19 +91,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func getThreeRowsForQuickView() -> [RowDataModel] {
         return Array(tableDataModel.filteredcellModels.prefix(3))
-    }
-    
-    func getProgress(rowId: String) -> (Int, Int) {
-        guard let rowCells = tableDataModel.cellModels
-            .first(where: { $0.rowID == rowId })?.cells else {
-            return (0,0)
-        }
-        
-        let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
-        }.count
-        
-        return (filledCount, requiredColumnIds.count)
     }
     
     func setupCellModels() {
@@ -292,6 +280,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
+        tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
@@ -395,7 +384,9 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.updateCellModel(rowIndex: tableDataModel.rowOrder.firstIndex(of: rowId) ?? 0, rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: isBulkEdit)
         }
         
-        return tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
+        let elements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
+        refreshDependentCellLogic(rowId: rowId, editedColumnID: cellDataModel.id, in: elements)
+        return elements
     }
 
     fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
@@ -503,6 +494,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.cellModels = updatedCellModels
         self.tableDataModel.filterRowsIfNeeded()
+        let editedColumnIDs = changes.keys.compactMap { tableDataModel.getColumnIDAtIndex(index: $0) }
+        for rowId in tableDataModel.selectedRows {
+            for columnID in editedColumnIDs {
+                refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
+            }
+        }
         isBulkLoading = false
     }
     
@@ -538,6 +535,58 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func getParenthPath(rowId: String) -> (String, String) {
         return ("", "")
+    }
+}
+
+// MARK: - Required logic
+extension TableViewModel {
+    func isCellRequired(columnID: String, rowID: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor else {
+            return tableDataModel.requiredColumnIDs.contains(columnID)
+        }
+        return documentEditor.isCellRequired(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            rowID: rowID
+        )
+    }
+
+    func getProgress(rowId: String) -> (Int, Int) {
+        guard let rowCells = tableDataModel.cellModels
+            .first(where: { $0.rowID == rowId })?.cells else {
+            return (0,0)
+        }
+
+        let filledCount = rowCells.filter { cellModel in
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+        }.count
+
+        return (filledCount, requiredColumnIds.count)
+    }
+}
+
+// MARK: - Cell visibility
+extension TableViewModel {
+    func shouldShowCell(columnID: String, rowID: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor else { return true }
+        return documentEditor.shouldShowCell(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            rowID: rowID
+        )
+    }
+
+    func rowElement(forRowID rowID: String) -> ValueElement? {
+        tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
+    }
+
+    func refreshDependentCellLogic(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {
+        guard let documentEditor = tableDataModel.documentEditor else { return }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
+        guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId }) else { return }
+
+        documentEditor.refreshDependentCellLogic(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }
 }
 
@@ -683,6 +732,10 @@ extension TableViewModel: DocumentEditorDelegate {
         tableDataModel.valueToValueElements?[existingRowIndex] = merged
         // Update UI based on merged model
         updateUIModels(for: rowID, using: merged)
+        uuid = UUID()
+    }
+    func cellVisibilityDidChange(columnIDs: Set<String>) {
+        guard !columnIDs.isEmpty else { return }
         uuid = UUID()
     }
 }

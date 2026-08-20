@@ -211,6 +211,12 @@
 		95C0BE9C3006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
 		95C0BE9D3006200400D207B9 /* LandScapeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BE9A3006200400D207B9 /* LandScapeMode.swift */; };
 		95C0BEA03006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
+		95C0BEE9300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
+		95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BEEA300A444900D207B9 /* RequiredLogic.swift */; };
+		95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
+		95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */; };
+		95C0BF663018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
+		95C0BF673018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
 		9EAAC7C12E979A20000B6F3C /* TimeZoneUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */; };
 		9EAAC7C22E979BC8000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -234,6 +240,7 @@
 		DEC000B500000000000000A5 /* DecoratorLiveUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC000F500000000000000A5 /* DecoratorLiveUpdateTests.swift */; };
 		DEC0F11000000000000000F2 /* DocumentEditorConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */; };
 		DEC0F22000000000000000F3 /* DocumentEditorFieldLookupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC0F22000000000000000F2 /* DocumentEditorFieldLookupTests.swift */; };
+		DEC0F40000000000000040F0 /* RequiredLogicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC0F40000000000000040F1 /* RequiredLogicTests.swift */; };
 		E20E53022F876E500088A4E4 /* DecoratorAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E20E53002F876E500088A4E4 /* DecoratorAPIDemoView.swift */; };
 		E2173C2F2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */; };
 		E22516882E8BA4C60089E2D2 /* UserJsonTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */; };
@@ -681,6 +688,7 @@
 		E2C905352FEBE14A00DF0F92 /* FormulaFunctionTestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C905332FEBE14A00DF0F92 /* FormulaFunctionTestsView.swift */; };
 		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
 		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
+		E2CE11B0CE11B04D000504A3 /* CellVisibilityLogicTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CE11B0CE11B04B000504A3 /* CellVisibilityLogicTest.swift */; };
 		E2E27C882E7AF4E60041FF1F /* CreateRowUISample.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */; };
 		E2E27D022E8C10000041FF1F /* MetadataChangeAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */; };
 		E2E3E7632E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
@@ -887,6 +895,10 @@
 		9587E74C302F445000293EF7 /* EditabilityTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditabilityTest.swift; sourceTree = "<group>"; };
 		95C0BE993006200400D207B9 /* LandscapeMode.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LandscapeMode.json; sourceTree = "<group>"; };
 		95C0BE9A3006200400D207B9 /* LandScapeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandScapeMode.swift; sourceTree = "<group>"; };
+		95C0BEE8300A442500D207B9 /* RequiredLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RequiredLogic.json; sourceTree = "<group>"; };
+		95C0BEEA300A444900D207B9 /* RequiredLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredLogic.swift; sourceTree = "<group>"; };
+		95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogic.swift; sourceTree = "<group>"; };
+		95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CellVisibilityLogic.json; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
 		9EAAC7DD2EAB3EF4000B6F3C /* PageNavigationTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = PageNavigationTest.json; sourceTree = "<group>"; };
@@ -904,6 +916,7 @@
 		DEC000F500000000000000A5 /* DecoratorLiveUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorLiveUpdateTests.swift; sourceTree = "<group>"; };
 		DEC0F11000000000000000F1 /* DocumentEditorConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEditorConfigTests.swift; sourceTree = "<group>"; };
 		DEC0F22000000000000000F2 /* DocumentEditorFieldLookupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentEditorFieldLookupTests.swift; sourceTree = "<group>"; };
+		DEC0F40000000000000040F1 /* RequiredLogicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredLogicTests.swift; sourceTree = "<group>"; };
 		E20E53002F876E500088A4E4 /* DecoratorAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorAPIDemoView.swift; sourceTree = "<group>"; };
 		E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageDeletableCopyableValidationTests.swift; sourceTree = "<group>"; };
 		E22516872E8BA4C60089E2D2 /* UserJsonTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserJsonTextFieldView.swift; sourceTree = "<group>"; };
@@ -1093,6 +1106,7 @@
 		E2C905312FEBDF9100DF0F92 /* FailureCaptureDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailureCaptureDemoView.swift; sourceTree = "<group>"; };
 		E2C905332FEBE14A00DF0F92 /* FormulaFunctionTestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaFunctionTestsView.swift; sourceTree = "<group>"; };
 		E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationTests.swift; sourceTree = "<group>"; };
+		E2CE11B0CE11B04B000504A3 /* CellVisibilityLogicTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogicTest.swift; sourceTree = "<group>"; };
 		E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRowUISample.swift; sourceTree = "<group>"; };
 		E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataChangeAPIDemoView.swift; sourceTree = "<group>"; };
 		E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = OnChangeHandler.json; sourceTree = "<group>"; };
@@ -1229,6 +1243,8 @@
 			isa = PBXGroup;
 			children = (
 				9587E747302F43F900293EF7 /* EditabilityUITest */,
+				95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */,
+				95C0BEE7300A441300D207B9 /* RequiredLogicTest */,
 				95C0BE9B3006200400D207B9 /* LandscapeModeTest */,
 				BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */,
 				BA2352F02F99E9DB002D9345 /* DecoratorUITests */,
@@ -1270,6 +1286,8 @@
 				E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */,
 				E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */,
 				E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */,
+				E2CE11B0CE11B04B000504A3 /* CellVisibilityLogicTest.swift */,
+				DEC0F40000000000000040F1 /* RequiredLogicTests.swift */,
 				E27061C62E797E12006BAD18 /* OnChangeHandler */,
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
 				DEC0F22000000000000000F2 /* DocumentEditorFieldLookupTests.swift */,
@@ -1278,13 +1296,13 @@
 				DEC000A000000000000000A0 /* DecoratorAPI */,
 				E2B8E3BC2E4361DF00AC6018 /* Formula */,
 				0448AE082D0C45AD00754EA0 /* ValidationTestCase.swift */,
-				E26315E32F76AEA70008B89B /* ValidatePathTests.swift */,
 				36F4DB772E6F394500C9AD4A /* LicenseValidatorTests.swift */,
 				1307CF132BE1292900B19FBA /* JoyDoc+Assert.swift */,
 				E254BF7F2D410F990083C3E4 /* ConditionLogicUnitTests.swift */,
 				E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */,
 				E2A11B002F8000010000AAA0 /* TableEditabilityTests.swift */,
 				E2A11B022F8000010000AAA2 /* CollectionEditabilityTests.swift */,
+				E26315E32F76AEA70008B89B /* ValidatePathTests.swift */,
 			);
 			path = JoyfillTests;
 			sourceTree = "<group>";
@@ -1449,6 +1467,24 @@
 				95C0BE9A3006200400D207B9 /* LandScapeMode.swift */,
 			);
 			path = LandscapeModeTest;
+			sourceTree = "<group>";
+		};
+		95C0BEE7300A441300D207B9 /* RequiredLogicTest */ = {
+			isa = PBXGroup;
+			children = (
+				95C0BEEA300A444900D207B9 /* RequiredLogic.swift */,
+				95C0BEE8300A442500D207B9 /* RequiredLogic.json */,
+			);
+			path = RequiredLogicTest;
+			sourceTree = "<group>";
+		};
+		95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */ = {
+			isa = PBXGroup;
+			children = (
+				95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */,
+				95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */,
+			);
+			path = CellVisibilityLogicTest;
 			sourceTree = "<group>";
 		};
 		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
@@ -2368,6 +2404,7 @@
 				369D454C2E0E51AC00677280 /* FormulaTemplate_TextareaField.json in Resources */,
 				362746512E24F0D0005B0FA7 /* FormulaTemplate_EqualityOperator.json in Resources */,
 				E2F568852E2A45BC005216A6 /* ChartFieldTestData.json in Resources */,
+				95C0BEE9300A443500D207B9 /* RequiredLogic.json in Resources */,
 				362746522E24F0D0005B0FA7 /* FormulaTemplate_LessThanOperator.json in Resources */,
 				362746532E24F0D0005B0FA7 /* FormulaTemplate_LessThanOrEqualOperator.json in Resources */,
 				362746542E24F0D0005B0FA7 /* FormulaTemplate_GreaterThanOrEqualOperator.json in Resources */,
@@ -2385,6 +2422,7 @@
 				E274CA4C2E2E7FB000B35C09 /* signatureField.json in Resources */,
 				E274CA4D2E2E7FB000B35C09 /* multilineTextField.json in Resources */,
 				E274CA4E2E2E7FB000B35C09 /* collectionField.json in Resources */,
+				95C0BF663018A65000D207B9 /* CellVisibilityLogic.json in Resources */,
 				E274CA4F2E2E7FB000B35C09 /* multiSelectField.json in Resources */,
 				E28D10AB2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
 				E2F568A82E2A473D005216A6 /* DisplayTextFieldTestData.json in Resources */,
@@ -2577,6 +2615,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */,
+				95C0BF673018A65000D207B9 /* CellVisibilityLogic.json in Resources */,
 				95C0BEA03006200400D207B9 /* LandscapeMode.json in Resources */,
 				BA2352F32F99E9FE002D9346 /* Decorator.json in Resources */,
 				BA23533B2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
@@ -2774,10 +2814,12 @@
 			files = (
 				E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */,
 				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
+				95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */,
 				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
 				E2B4CFD92F9A060700F2128D /* DecoratorUITestSupport.swift in Sources */,
 				95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */,
 				E2408A022F7CF023005C4885 /* NavigationGotoUITests.swift in Sources */,
+				95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */,
 				E29FF8822F2527790079A614 /* TestMobileViewDuplicateLogic.swift in Sources */,
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
 				E2F5687C2E2A45A8005216A6 /* SignatureFieldTests.swift in Sources */,
@@ -2905,6 +2947,8 @@
 				95288F4F2FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift in Sources */,
 				DEC000B500000000000000A5 /* DecoratorLiveUpdateTests.swift in Sources */,
 				E2459A7D2F442B4B000504A3 /* ColumnConditionalLogicTests.swift in Sources */,
+				E2CE11B0CE11B04D000504A3 /* CellVisibilityLogicTest.swift in Sources */,
+				DEC0F40000000000000040F0 /* RequiredLogicTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
 				362746762E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift in Sources */,
 				E2B8E3E92E43803300AC6018 /* FormulaTemplate_TextFieldTests.swift in Sources */,

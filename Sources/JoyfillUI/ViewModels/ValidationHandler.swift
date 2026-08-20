@@ -174,7 +174,7 @@ class ValidationHandler {
 
     private func validateField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?) -> FieldValidity? {
         guard let documentEditor = documentEditor else { return nil }
-        let isRequired = field.required ?? false
+        let isRequired = documentEditor.isFieldRequired(fieldID: fieldID)
 
         if field.fieldType == .table {
             return validateTableField(field: field, fieldID: fieldID, fieldPosition: fieldPosition, pageId: pageId, fieldPositionId: fieldPositionId, isFieldRequired: isRequired)
@@ -216,12 +216,19 @@ class ValidationHandler {
         var isTableValid = true
 
         for row in nonDeletedRows {
+            guard let rowID = row.id else { continue }
             let cells = row.cells ?? [:]
 
             var cellValidities = [CellValidity]()
             for column in visibleColumns {
                 guard let columnID = column.id else { continue }
-                let isRequired = column.required ?? false
+
+                if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, rowID: rowID) {
+                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
+                    continue
+                }
+
+                let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
 
                 if !isRequired {
                     cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
@@ -301,6 +308,7 @@ class ValidationHandler {
         fieldID: String,
         documentEditor: DocumentEditor
     ) -> [CellValidity] {
+        guard let rowID = row.id else { return [] }
         let columns = schema.tableColumns ?? []
         let cells = row.cells ?? [:]
         var cellValidities = [CellValidity]()
@@ -312,7 +320,12 @@ class ValidationHandler {
                 continue
             }
 
-            let isRequired = column.required ?? false
+            if !documentEditor.shouldShowCell(columnID: columnID, fieldID: fieldID, rowID: rowID) {
+                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
+                continue
+            }
+
+            let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
             if !isRequired {
                 cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue
