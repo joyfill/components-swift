@@ -235,7 +235,8 @@ extension FieldListModelType {
 /// Which field's sheet is open. Must live on FormView's List, never on a row —
 /// UITableView recycling orphans row-owned sheets and kills them (NO-1508).
 struct FieldSheetPresentation: Identifiable {
-    let id: String
+    let model: DropdownDataModel
+    var id: String { model.fieldIdentifier.fieldID }
 }
 
 struct FormView: View {
@@ -293,21 +294,19 @@ struct FormView: View {
 
     /// Sheet content for the presenting field. ImageView can add a branch here.
     @ViewBuilder
-    private func fieldSheet(for fieldID: String) -> some View {
-        dropdownOptionsSheet(for: fieldID)
+    private func fieldSheet(for presentation: FieldSheetPresentation) -> some View {
+        dropdownOptionsSheet(for: presentation.model)
     }
 
-    /// Re-resolves rather than captures, so options stay live while the sheet is open.
-    @ViewBuilder
-    private func dropdownOptionsSheet(for fieldID: String) -> some View {
-        if let model = dropdownModel(for: fieldID) {
-            let selection = Binding<String?>(
-                get: { dropdownModel(for: fieldID)?.dropdownValue },
-                set: { newID in
-                    onChange(event: FieldChangeData(fieldIdentifier: model.fieldIdentifier,
-                                                    updateValue: .string(newID ?? "")))
-                }
-            )
+    private func dropdownOptionsSheet(for model: DropdownDataModel) -> some View {
+        let selection = Binding<String?>(
+            get: { model.dropdownValue },
+            set: { newID in
+                onChange(event: FieldChangeData(fieldIdentifier: model.fieldIdentifier,
+                                                updateValue: .string(newID ?? "")))
+            }
+        )
+        return Group {
             if #available(iOS 16, *) {
                 DropDownOptionList(dropdownDataModel: model, selectedDropdownValueID: selection)
                     .presentationDetents([.medium])
@@ -315,15 +314,6 @@ struct FormView: View {
                 DropDownOptionList(dropdownDataModel: model, selectedDropdownValueID: selection)
             }
         }
-    }
-
-    private func dropdownModel(for fieldID: String) -> DropdownDataModel? {
-        for listModel in listModels where listModel.fieldIdentifier.fieldID == fieldID {
-            if case .dropdown(let model) = listModel.model {
-                return model
-            }
-        }
-        return nil
     }
 
     var body: some View {
@@ -338,7 +328,7 @@ struct FormView: View {
             .environment(\.navigationFocusFieldId, documentEditor.navigationFocusFieldId)
             .listStyle(PlainListStyle())
             .sheet(item: $activeFieldSheet) { presentation in
-                fieldSheet(for: presentation.id)
+                fieldSheet(for: presentation)
             }
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
