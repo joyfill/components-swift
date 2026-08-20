@@ -104,13 +104,14 @@ struct TableModalView : View {
             if let rowId = event.rowId, !rowId.isEmpty {
                 let rowIdExists = viewModel.tableDataModel.rowOrder.contains(rowId)
                 if rowIdExists {
+                    let openRowForm = event.openRowForm && viewModel.tableDataModel.editability().formAllowed
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.navigationIntent = NavigationIntent(
-                        rowFormOpenedViaGoto: event.openRowForm,
+                        rowFormOpenedViaGoto: openRowForm,
                         scrollToColumnId: event.columnId,
                         focusColumnId: event.focus ? event.columnId : nil
                     )
-                    showEditMultipleRowsSheetView = event.openRowForm
+                    showEditMultipleRowsSheetView = openRowForm
                 } else {
                     viewModel.tableDataModel.navigationIntent = .none
                     showEditMultipleRowsSheetView = false
@@ -232,7 +233,7 @@ struct TableModalView : View {
     private var leftColumnWidth: CGFloat {
         var width: CGFloat = 40 // # column
         if viewModel.showRowSelector { width += 40 }
-        if viewModel.showSingleClickEditButton { width += 40 }
+        if viewModel.tableDataModel.canShowSingleClickEditColumn() { width += 40 }
         return width
     }
 
@@ -257,7 +258,7 @@ struct TableModalView : View {
                     Text("#")
                         .frame(width: 40, height: 60)
                         .border(Color.tableCellBorderColor)
-                    if viewModel.showSingleClickEditButton {
+                    if viewModel.tableDataModel.canShowSingleClickEditColumn() {
                         Image(systemName: "square.and.pencil")
                             .frame(width: 40, height: 60)
                             .foregroundColor(Color.gray.opacity(0.4))
@@ -387,7 +388,7 @@ struct TableModalView : View {
                         .border(Color.tableCellBorderColor)
                         .id("\(index)")
                     
-                    if viewModel.showSingleClickEditButton {
+                    if viewModel.tableDataModel.canShowSingleClickEditColumn() {
                         Image(systemName: "square.and.pencil")
                             .foregroundColor(.blue)
                             .frame(width: 40, height: 60)

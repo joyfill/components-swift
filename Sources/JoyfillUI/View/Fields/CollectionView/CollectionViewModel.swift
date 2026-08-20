@@ -31,8 +31,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.mode == .fill
     }
 
-    func showSingleClickEditButton(for tableDataModel: TableDataModel) -> Bool {
-        return tableDataModel.singleClickRowEdit
+    /// Selection is constrained to one parent and one schema, so the first selected row
+    /// identifies the schema the whole selection belongs to.
+    var selectionSchemaKey: String {
+        guard let firstSelectedRowID = tableDataModel.selectedRows.first,
+              let row = tableDataModel.getRowByID(rowID: firstSelectedRowID) else {
+            return rootSchemaKey
+        }
+        let schemaKey = row.rowType.parentSchemaKey
+        return schemaKey.isEmpty ? rootSchemaKey : schemaKey
     }
 
     func showRowDecorators(forSchemaKey schemaKey: String) -> Bool {
@@ -518,7 +525,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func rowWidth(_ tableColumns: [FieldTableColumn], _ level: Int, _ schemaKey: String, tableDataModel: TableDataModel) -> CGFloat {
-        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel)) + Utility.getTotalTableScrollWidth(level: level)
+        return Utility.getWidthForExpanderRow(columns: tableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(forSchemaKey: schemaKey), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: schemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel)) + Utility.getTotalTableScrollWidth(level: level)
     }
     
     func getCollectionWidth(tableDataModel: TableDataModel) -> CGFloat {
@@ -534,6 +541,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
         tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
+        let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: schemaKey)
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
@@ -542,7 +550,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode,
+                                               editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                 }) { cellDataModel in
@@ -590,6 +598,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows(tableDataModel: tableDataModel)
         let rowToChildrenMap = setupRowsChildrens(tableDataModel: tableDataModel)
+        let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: rootSchemaKey)
         tableDataModel.valueToValueElements?.forEach { valueElement in
             if valueElement.deleted ?? false { return }
             guard let rowID = valueElement.id else {
@@ -607,7 +616,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode,
+                                                   editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { cellDataModel in
@@ -626,6 +635,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let rowDataMap = self.setupRows(tableDataModel: tableDataModel)
         let rowToChildrenMap = self.setupRowsChildrens(tableDataModel: tableDataModel)
         let rootRows = tableDataModel.valueToValueElements?.filter { !($0.deleted ?? false) } ?? []
+        let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: rootSchemaKey)
         var displayIndex = 1
         for valueElement in rootRows {
             guard let rowID = valueElement.id else {
@@ -643,7 +653,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    documentEditor: tableDataModel.documentEditor,
                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                    viewMode: .modalView,
-                                                   editMode: tableDataModel.mode,
+                                                   editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { cellDataModel in
@@ -699,6 +709,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     fileprivate func addAllNestedRowsRecursively(_ childValueElements: [ValueElement], _ filteredTableColumns: [FieldTableColumn], _ childSchemaKey: String, _ level: Int, _ parentID: (columnID: String, rowID: String), _ targetSchema: String, _ cellModels: inout [RowDataModel], tableDataModel: TableDataModel) {
         // Add all nested rows for this schema
         let nonDeletedChildRows = childValueElements.filter { !($0.deleted ?? false) }
+        let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: childSchemaKey)
         var displayIndex = 1
         for childRow in nonDeletedChildRows {
             guard let childRowID = childRow.id else { continue }
@@ -716,7 +727,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode,
+                                               editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: childRowID, columnID: cellDataModel.id)
                 }) { cellDataModel in
@@ -788,7 +799,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    rowType: .tableExpander(schemaValue: (childSchemaKey, childSchema),
                                                                            level: level,
                                                                            parentID: parentID,
-                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
+                                                                           rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(forSchemaKey: childSchemaKey), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: childSchemaKey), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
                                                    isExpanded: true, // Mark as expanded since we're showing content
                                                    rowWidth: rowWidth(filteredTableColumns, level, childSchemaKey, tableDataModel: tableDataModel))
                     cellModels.append(expanderRow)
@@ -888,7 +899,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
                     !(valueElement.deleted ?? false)
                 } ?? []
-                
+                let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: schemaValue?.0 ?? "")
+
                 var displayIndex = 1
                 for valueElement in valueToValueElements {
                     guard let row = rowToValueElementMap[valueElement.id ?? ""] else { continue }
@@ -901,7 +913,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                        documentEditor: tableDataModel.documentEditor,
                                                        fieldIdentifier: tableDataModel.fieldIdentifier,
                                                        viewMode: .modalView,
-                                                       editMode: tableDataModel.mode,
+                                                       editMode: gridEditMode,
                                                        didFocusBlur: { [weak self] action, cellDataModel in
                             self?.emitCellFocusBlur(action: action, rowID: row.id ?? "", columnID: cellDataModel.id)
                         }) { cellDataModel in
@@ -974,7 +986,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                             rowType: .tableExpander(schemaValue: (id, schemaValue),
                                                                                     level: level,
                                                                                     parentID: (columnID: "", rowID: rowDataModel.rowID),
-                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: showSingleClickEditButton(for: tableDataModel), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
+                                                                                    rowWidth: Utility.getWidthForExpanderRow(columns: filteredTableColumns, showSelector: showRowSelector(for: tableDataModel), showSingleClickEdit: tableDataModel.canShowSingleClickEditColumn(forSchemaKey: id), showRowDecorators: tableDataModel.hasAnyRowDecorators(schemaKey: id), rowDecoratorsCellWidth: decoratorsCellWidth(for: tableDataModel))),
                                                             rowWidth: rowWidth(filteredTableColumns, level, id, tableDataModel: tableDataModel)
                             )
                             rowDataModel.isExpanded = false

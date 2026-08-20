@@ -49,17 +49,17 @@ struct CollectionQuickView : View {
             }
             
             // This navigation is for this collection - open modal with selected row
-            let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
-            if rowIdExists {
+            if let rowSchemaKey = viewModel.getSchemaForRow(rowId: rowId) {
                 let rowFound = viewModel.expandToRow(rowId: rowId)
                 if rowFound {
+                    let openRowForm = event.openRowForm && viewModel.tableDataModel.editability(forSchemaKey: rowSchemaKey).formAllowed
                     viewModel.tableDataModel.selectedRows = [rowId]
                     viewModel.tableDataModel.navigationIntent = NavigationIntent(
-                        rowFormOpenedViaGoto: event.openRowForm,
+                        rowFormOpenedViaGoto: openRowForm,
                         scrollToColumnId: event.columnId,
                         focusColumnId: event.focus ? event.columnId : nil
                     )
-                    showEditMultipleRowsSheetView = event.openRowForm
+                    showEditMultipleRowsSheetView = openRowForm
                 }
             } else {
                 viewModel.tableDataModel.navigationIntent = .none

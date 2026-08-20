@@ -95,17 +95,17 @@ struct CollectionModalView : View {
             
             // Same collection, handle row change
             if let rowId = event.rowId, !rowId.isEmpty {
-                let rowIdExists = viewModel.getSchemaForRow(rowId: rowId) != nil
-                if rowIdExists {
+                if let rowSchemaKey = viewModel.getSchemaForRow(rowId: rowId) {
                     let rowFound = viewModel.expandToRow(rowId: rowId)
                     if rowFound {
+                        let openRowForm = event.openRowForm && viewModel.tableDataModel.editability(forSchemaKey: rowSchemaKey).formAllowed
                         viewModel.tableDataModel.selectedRows = [rowId]
                         viewModel.tableDataModel.navigationIntent = NavigationIntent(
-                            rowFormOpenedViaGoto: event.openRowForm,
+                            rowFormOpenedViaGoto: openRowForm,
                             scrollToColumnId: event.columnId,
                             focusColumnId: event.focus ? event.columnId : nil
                         )
-                        showEditMultipleRowsSheetView = event.openRowForm
+                        showEditMultipleRowsSheetView = openRowForm
                     }
                 } else {
                     viewModel.tableDataModel.navigationIntent = .none
@@ -174,7 +174,7 @@ struct CollectionModalView : View {
                 .frame(width: 40, height: 60)
                 .border(Color.tableCellBorderColor)
             
-            if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
+            if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) {
                 Image(systemName: "square.and.pencil")
                     .frame(width: 40, height: 60)
                     .foregroundColor(Color.gray.opacity(0.4))
@@ -191,7 +191,7 @@ struct CollectionModalView : View {
         var width: CGFloat = 40 // # column
         if viewModel.showRowSelector(for: viewModel.tableDataModel) { width += 40 }
         if viewModel.nestedTableCount > 0 { width += 40 }
-        if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) { width += 40 }
+        if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) { width += 40 }
         return width
     }
 
@@ -587,12 +587,12 @@ struct CollectionRowsHeaderView: View {
 
             // Indexing View
             switch rowModel.rowType {
-            case .header:
+            case .header(_, _, let schemaKey):
                 Text("#")
                     .frame(width: 40, height: 60)
                     .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                     .border(Color.tableCellBorderColor)
-                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: schemaKey) {
                     Image(systemName: "square.and.pencil")
                         .frame(width: 40, height: 60)
                         .foregroundColor(Color.gray.opacity(0.4))
@@ -615,7 +615,7 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: parentSchemaKey) {
                     Image(systemName: "square.and.pencil")
                         .foregroundColor(.blue)
                         .frame(width: 40, height: 60)
@@ -663,7 +663,7 @@ struct CollectionRowsHeaderView: View {
                         .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
                         .border(Color.tableCellBorderColor)
                 }
-                if viewModel.showSingleClickEditButton(for: viewModel.tableDataModel) {
+                if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) {
                     Image(systemName: "square.and.pencil")
                         .foregroundColor(.blue)
                         .frame(width: 40, height: 60)

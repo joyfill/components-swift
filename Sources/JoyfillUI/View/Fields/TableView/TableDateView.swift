@@ -7,6 +7,10 @@
 import SwiftUI
 import JoyfillModel
 
+private struct UndimmedButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View { configuration.label }
+}
+
 struct TableDateView: View {
     @State private var isDatePickerPresented = false
     @State private var selectedDate: Date = Date()
@@ -92,7 +96,7 @@ struct TableDateView: View {
                             .accessibilityElement(children: .ignore)
                             .accessibilityLabel(dateString)
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(UndimmedButtonStyle())
                         .accessibilityIdentifier("ChangeCellDateIdentifier")
                         
                         Image(systemName: "xmark.circle")

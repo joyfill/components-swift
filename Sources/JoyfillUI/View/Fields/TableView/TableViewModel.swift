@@ -19,10 +19,6 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     let dispatchQueue = DispatchQueue(label: "TableViewModel", qos: .userInitiated)
     @Published var uuid = UUID()
     
-    var showSingleClickEditButton: Bool {
-        return tableDataModel.singleClickRowEdit
-    }
-
     var showRowDecorators: Bool {
         return tableDataModel.decorate
     }
@@ -63,6 +59,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
         tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
+        let gridEditMode = tableDataModel.editModeForGrid()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
             for rowDataModel in rowDataModels {
                 let cellModel = TableCellModel(rowID: rowID,
@@ -71,7 +68,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                documentEditor: tableDataModel.documentEditor,
                                                fieldIdentifier: tableDataModel.fieldIdentifier,
                                                viewMode: .modalView,
-                                               editMode: tableDataModel.mode,
+                                               editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                 }) { [weak self] cellDataModel in
@@ -99,6 +96,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     func setupCellModels() {
         var cellModels = [RowDataModel]()
         let rowDataMap = setupRows()
+        let gridEditMode = tableDataModel.editModeForGrid()
         tableDataModel.rowOrder.enumerated().forEach { rowIndex, rowID in
             var rowCellModels = [TableCellModel]()
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
@@ -111,7 +109,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
                                                     documentEditor: tableDataModel.documentEditor,
                                                     fieldIdentifier: tableDataModel.fieldIdentifier,
                                                     viewMode: .modalView,
-                                                    editMode: tableDataModel.mode,
+                                                    editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
                     }) { [weak self] cellDataModel in
