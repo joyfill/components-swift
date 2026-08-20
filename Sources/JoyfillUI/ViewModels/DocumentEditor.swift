@@ -266,8 +266,8 @@ public class DocumentEditor: ObservableObject {
         return conditionalLogicHandler.shouldShowCell(fieldID: fieldID, columnID: columnID, rowID: rowID)
     }
     
-    func cellDidChange(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
-        conditionalLogicHandler.cellDidChange(fieldID: fieldID, schemaID: schemaID, columnID: editedColumnID, row: row)
+    func refreshDependentCellLogic(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
+        conditionalLogicHandler.refreshDependentCellLogic(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
     }
 
     func addCellLogicForNewRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
@@ -765,7 +765,7 @@ extension DocumentEditor {
         for fieldId in refreshFields {
             refreshField(fieldId: fieldId)
         }
-        for (tableFieldID, columnIDs) in conditionalLogicHandler.cellsNeedRefreshForPageField(pageFieldID: fieldID) {
+        for (tableFieldID, columnIDs) in conditionalLogicHandler.refreshCellLogic(forChangedField: fieldID) {
             if let fieldType = field(fieldID: tableFieldID)?.fieldType {
                 valueDelegate(for: tableFieldID, fieldType: fieldType)?.cellVisibilityDidChange(columnIDs: columnIDs)
             }

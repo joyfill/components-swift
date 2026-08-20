@@ -313,7 +313,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editedRow = row(id: row2ID, cells: [statusColumnID: "Rejected"])
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Reason hidden before edit")
-        editor.cellDidChange(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
+        editor.refreshDependentCellLogic(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: tableFieldID, rowID: row2ID), "Reason visible after refreshing with status=Rejected")
     }
 
@@ -682,7 +682,7 @@ final class CellVisibilityLogicTest: XCTestCase {
             cells: [statusColumnID: "Rejected"]
         )
 
-        editor.cellDidChange(
+        editor.refreshDependentCellLogic(
             fieldID: tableFieldID,
             editedColumnID: statusColumnID,
             row: editedRow
@@ -737,7 +737,7 @@ final class CellVisibilityLogicTest: XCTestCase {
 
         let editedRow = row(id: row1ID, cells: [statusColumnID: "Rejected", middleColumnID: "Ready"])
 
-        editor.cellDidChange(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
+        editor.refreshDependentCellLogic(fieldID: tableFieldID, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: middleColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "middle now visible (status=Rejected)")
         XCTAssertTrue(editor.shouldShowCell(columnID: chainedDependentColumnID, fieldID: tableFieldID, rowID: editedRow.id ?? ""), "chained dependent remains visible because its stored middle value is unchanged")
     }
@@ -1211,7 +1211,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collRootRow1), "reason hidden before edit")
 
         let editedRow = ValueElement(dictionary: ["_id": collRootRow1, "cells": [statusColumnID: "Rejected"]])
-        editor.cellDidChange(fieldID: collectionFieldID, schemaID: collRootSchema, editedColumnID: statusColumnID, row: editedRow)
+        editor.refreshDependentCellLogic(fieldID: collectionFieldID, schemaID: collRootSchema, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason visible after status=Rejected")
     }
 
@@ -1371,7 +1371,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: collChildRow1), "child reason hidden before edit")
 
         let editedRow = ValueElement(dictionary: ["_id": collChildRow1, "cells": [statusColumnID: "Rejected"]])
-        editor.cellDidChange(fieldID: collectionFieldID, schemaID: collChildSchema, editedColumnID: statusColumnID, row: editedRow)
+        editor.refreshDependentCellLogic(fieldID: collectionFieldID, schemaID: collChildSchema, editedColumnID: statusColumnID, row: editedRow)
         XCTAssertTrue(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "child reason visible after status=Rejected")
     }
 
