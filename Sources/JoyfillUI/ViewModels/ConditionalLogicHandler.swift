@@ -812,7 +812,7 @@ extension ConditionalLogicHandler {
 
     public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
         let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
-        return showColumnLogicMap[fieldID]?.requiredColumnMap[columnSchemaID] ?? true
+        return showColumnLogicMap[fieldID]?.requiredColumnMap[columnSchemaID] ?? false
     }
     
     public func isCellRequired(columnID: String, fieldID: String, rowID: String) -> Bool {
