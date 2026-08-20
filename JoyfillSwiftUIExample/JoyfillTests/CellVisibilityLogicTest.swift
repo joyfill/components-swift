@@ -1584,7 +1584,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         let editedRow = collRowElement(editor, rowID: collRootRow1)
 
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason hidden when status == Rejected")
-        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: collectionFieldID, schemaKey: collRootSchema, rowID: editedRow.id ?? ""), "reason is still required")
+        XCTAssertTrue(editor.isCellRequired(columnID: reasonColumnID, fieldID: collectionFieldID, rowID: editedRow.id ?? ""), "reason is still required")
 
         let status = editor.validate().fieldValidities
             .first(where: { $0.fieldId == collectionFieldID })?
@@ -1649,7 +1649,6 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(
             columnID: reasonColumnID,
             fieldID: collectionFieldID,
-            schemaKey: collChildSchema,
             rowID: nestedRow.id ?? ""
         ), "Nested reason remains required according to its schema")
 
