@@ -492,7 +492,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.cellModels = updatedCellModels
         self.tableDataModel.filterRowsIfNeeded()
-        let editedColumnIDs = changes.keys.compactMap { tableDataModel.getColumnIDAtIndex(index: $0) }
+        let editedColumnIDs = changes.keys
         for rowId in tableDataModel.selectedRows {
             for columnID in editedColumnIDs {
                 refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
