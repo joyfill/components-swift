@@ -588,7 +588,7 @@ extension TableViewModel {
         guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
         guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId }) else { return }
 
-        documentEditor.cellDidChange(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
+        documentEditor.refreshDependentCellLogic(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }
 }
 

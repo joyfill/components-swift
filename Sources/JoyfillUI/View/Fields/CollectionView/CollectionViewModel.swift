@@ -1728,7 +1728,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         guard let documentEditor = tableDataModel.documentEditor,
               let row = rowToValueElementMap[rowId] else { return }
         let fieldID = tableDataModel.fieldIdentifier.fieldID
-        documentEditor.cellDidChange(fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
+        documentEditor.refreshDependentCellLogic(fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
     }
 
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {
