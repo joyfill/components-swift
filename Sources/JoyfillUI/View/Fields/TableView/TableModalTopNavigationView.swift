@@ -404,7 +404,7 @@ struct EditMultipleRowsSheetView: View {
             VStack(alignment: .leading, spacing: 16) {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
-                    let columnID = col.id ?? ""
+                    if let columnID = col.id {
                     VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
@@ -627,6 +627,7 @@ struct EditMultipleRowsSheetView: View {
                     }
                     }
                     .id(col.id)
+                    }
                 }
                 .disabled(viewModel.tableDataModel.mode == .readonly)
                 Spacer()
