@@ -235,13 +235,22 @@ struct EditMultipleRowsSheetView: View {
         viewID = UUID()
     }
 
+    private func isColumnEffectivelyRequired(_ col: FieldTableColumn) -> Bool {
+        guard let columnID = col.id else { return col.required ?? false }
+        if viewModel.tableDataModel.selectedRows.count == 1, let rowID = viewModel.tableDataModel.selectedRows.first {
+            return viewModel.isCellRequired(columnID: columnID, rowID: rowID)
+        }
+        return viewModel.tableDataModel.documentEditor?.isColumnRequired(columnID: columnID, fieldID: viewModel.tableDataModel.fieldIdentifier.fieldID) ?? (col.required ?? false)
+    }
+
     @ViewBuilder
     private func columnTitle(_ col: FieldTableColumn, isCellFilled: Bool) -> some View {
         HStack(alignment: .center, spacing: 4) {
-            if let required = col.required, required, !isCellFilled {
+            if isColumnEffectivelyRequired(col), !isCellFilled {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_col_\(col.id ?? "")")
             }
 
             Text(viewModel.tableDataModel.getColumnTitle(columnId: col.id ?? ""))
@@ -400,6 +409,10 @@ struct EditMultipleRowsSheetView: View {
             VStack(alignment: .leading, spacing: 16) {
                 ForEach(Array(viewModel.tableDataModel.tableColumns.enumerated()), id: \.offset) { colIndex, col in
                     let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
+                    let singleRowID: String? = viewModel.tableDataModel.selectedRows.count == 1 ? viewModel.tableDataModel.selectedRows.first : nil
+                    // No single selected row means this is a bulk edit, where every column shows.
+                    let showsCellInRowForm = singleRowID.map { viewModel.shouldShowCell(columnID: col.id ?? "", rowID: $0) } ?? true
+                    if showsCellInRowForm {
                     VStack(alignment: .leading, spacing: 16) {
                     if let row = viewModel.tableDataModel.selectedRows.first {
                         let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
@@ -621,6 +634,7 @@ struct EditMultipleRowsSheetView: View {
                     }
                     }
                     .id(col.id)
+                    }
                 }
                 .disabled(viewModel.tableDataModel.mode == .readonly)
                 Spacer()

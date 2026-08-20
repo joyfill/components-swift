@@ -484,7 +484,7 @@ final class ColumnConditionalLogicTests: XCTestCase {
         // Update number field to 100 (condition now met)
         let fieldIdentifier = FieldIdentifier(fieldID: numberFieldID)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .double(100))
-        editor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        editor.updateField(event: event)
         
         // After update, column should now show
         let afterResult = editor.shouldShowColumn(columnID: textColumnID, fieldID: tableFieldID)
@@ -509,7 +509,7 @@ final class ColumnConditionalLogicTests: XCTestCase {
         // Update number to 100 again (same value, no change)
         let fieldIdentifier = FieldIdentifier(fieldID: numberFieldID)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .double(100))
-        editor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        editor.updateField(event: event)
         
         // Column should still show
         let afterResult = editor.shouldShowColumn(columnID: textColumnID, fieldID: tableFieldID)
@@ -1524,7 +1524,7 @@ final class ColumnConditionalLogicTests: XCTestCase {
         // Change number to 100
         let fieldIdentifier = FieldIdentifier(fieldID: numberFieldID)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .double(100))
-        editor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        editor.updateField(event: event)
         
         // Now should show
         let afterResult = editor.shouldShowColumn(columnID: collectionColTextID, fieldID: collectionFieldID, schemaKey: collectionSchemaKey)
