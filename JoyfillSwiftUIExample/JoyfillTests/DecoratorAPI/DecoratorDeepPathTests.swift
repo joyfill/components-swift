@@ -8,8 +8,6 @@
 
 import XCTest
 import Foundation
-import JoyfillModel
-@testable import Joyfill
 
 final class DecoratorDeepPathTests: XCTestCase {
 
