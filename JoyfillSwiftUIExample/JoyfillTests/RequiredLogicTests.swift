@@ -851,12 +851,12 @@ final class RequiredLogicTests: XCTestCase {
 
         // page dropdown = Yes -> both conditions match -> required.
         let matchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optYes))
-        XCTAssertTrue(matchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, rowID: "root-1"))
+        XCTAssertTrue(matchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-1"))
         XCTAssertEqual(collectionCellStatus(matchEditor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid)
 
         // page dropdown = No -> page half of the AND fails -> falls back to column base (static false) -> optional.
         let noMatchEditor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows, includePageDropdown: true, dropdownValue: optNo))
-        XCTAssertFalse(noMatchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, rowID: "root-1"))
+        XCTAssertFalse(noMatchEditor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-1"))
         XCTAssertEqual(collectionCellStatus(noMatchEditor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .valid)
     }
 
@@ -882,10 +882,10 @@ final class RequiredLogicTests: XCTestCase {
         let editor = documentEditor(document: makeCollectionDoc(rootColumns: [rootShared], nestedColumns: [nestedShared, nestedNotes], rootRows: rootRows))
 
         // Nested row whose OWN `shared` is filled -> notes required (proves it read the nested cell).
-        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, rowID: "child-filled"))
+        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, rowID: "child-filled"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "child-filled", columnID: childNotesCol, schemaID: nestedSchemaID), .invalid)
         // Nested row whose own `shared` is empty -> notes not required.
-        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, rowID: "child-empty"))
+        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, rowID: "child-empty"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "child-empty", columnID: childNotesCol, schemaID: nestedSchemaID), .valid)
     }
 
@@ -1187,7 +1187,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isCellRequired(
             columnID: rootTextCol,
             fieldID: collectionFieldID,
-            schemaKey: rootSchemaID,
             rowID: initialRow.id ?? ""
         ), "Public API starts with the explanation optional")
         XCTAssertFalse(viewModel.isCellRequired(
@@ -1209,7 +1208,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(
             columnID: rootTextCol,
             fieldID: collectionFieldID,
-            schemaKey: rootSchemaID,
             rowID: updatedRow.id ?? ""
         ), "Public API requires the collection explanation after the page answer changes")
         XCTAssertTrue(viewModel.isCellRequired(
@@ -1234,9 +1232,9 @@ final class RequiredLogicTests: XCTestCase {
         ]
         let editor = documentEditor(document: makeCollectionDoc(rootColumns: [rootText, rootDd], nestedColumns: minimalNestedColumns, rootRows: rows))
 
-        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, rowID: "root-match"))
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-match"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "root-match", columnID: rootTextCol, schemaID: rootSchemaID), .invalid)
-        XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, rowID: "root-nomatch"))
+        XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-nomatch"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "root-nomatch", columnID: rootTextCol, schemaID: rootSchemaID), .valid)
     }
 
@@ -1264,7 +1262,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isCellRequired(
             columnID: rootTextCol,
             fieldID: collectionFieldID,
-            schemaKey: rootSchemaID,
             rowID: initialRow.id ?? ""
         ), "The public API reports the explanation optional before the controlling answer changes")
         XCTAssertFalse(viewModel.isCellRequired(
@@ -1288,7 +1285,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(
             columnID: rootTextCol,
             fieldID: collectionFieldID,
-            schemaKey: rootSchemaID,
             rowID: updatedRow.id ?? ""
         ), "The public API must apply the collection required rule after an external update")
         XCTAssertTrue(viewModel.isCellRequired(
@@ -1325,11 +1321,9 @@ final class RequiredLogicTests: XCTestCase {
             XCTFail("The collection must render both rows")
             return
         }
-        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
-                                            schemaKey: rootSchemaID, rowID: initialRow1.id ?? ""))
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: initialRow1.id ?? ""))
         XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-1", schemaKey: rootSchemaID))
-        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
-                                            schemaKey: rootSchemaID, rowID: initialRow2.id ?? ""))
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: initialRow2.id ?? ""))
         XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-2", schemaKey: rootSchemaID))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "root-2", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
                        "The initially required empty collection cell must be invalid")
@@ -1356,13 +1350,11 @@ final class RequiredLogicTests: XCTestCase {
             "Keep explanation",
             "Rendered collection keeps the omitted explanation"
         )
-        XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
-                                             schemaKey: rootSchemaID, rowID: updatedRow1.id ?? ""),
+        XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: updatedRow1.id ?? ""),
                        "Public API makes the target collection explanation optional")
         XCTAssertFalse(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-1", schemaKey: rootSchemaID),
                        "Rendered collection makes the target explanation optional")
-        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID,
-                                            schemaKey: rootSchemaID, rowID: updatedRow2.id ?? ""),
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: updatedRow2.id ?? ""),
                       "Public API keeps the untouched collection row required")
         XCTAssertTrue(viewModel.isCellRequired(columnID: rootTextCol, rowID: "root-2", schemaKey: rootSchemaID),
                       "Rendered collection keeps the untouched row required")
@@ -1405,7 +1397,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isCellRequired(
             columnID: childNotesCol,
             fieldID: collectionFieldID,
-            schemaKey: nestedSchemaID,
             rowID: initialRow.id ?? ""
         ), "Public API starts with child notes optional")
         XCTAssertFalse(viewModel.isCellRequired(
@@ -1434,7 +1425,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(
             columnID: childNotesCol,
             fieldID: collectionFieldID,
-            schemaKey: nestedSchemaID,
             rowID: updatedRow.id ?? ""
         ), "Public API requires child notes after the nested answer changes")
         XCTAssertTrue(viewModel.isCellRequired(
@@ -1472,7 +1462,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(
             columnID: rootTextCol,
             fieldID: collectionFieldID,
-            schemaKey: rootSchemaID,
             rowID: addedRow.id ?? ""
         ), "A newly added collection row must receive required rules based on its own answers")
         XCTAssertEqual(collectionCellStatus(editor, rowID: "added-root", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
@@ -1490,7 +1479,6 @@ final class RequiredLogicTests: XCTestCase {
             XCTAssertTrue(editor.isCellRequired(
                 columnID: rootTextCol,
                 fieldID: collectionFieldID,
-                schemaKey: rootSchemaID,
                 rowID: duplicatedRow.id ?? ""
             ), "A duplicated collection row must preserve required behavior")
             XCTAssertEqual(collectionCellStatus(editor, rowID: duplicatedRowID, columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
@@ -1507,7 +1495,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isCellRequired(
             columnID: rootTextCol,
             fieldID: collectionFieldID,
-            schemaKey: rootSchemaID,
             rowID: addedRow.id ?? ""
         ), "A deleted collection row must not retain required state")
         XCTAssertFalse(editor.validate().fieldValidities
@@ -1531,9 +1518,9 @@ final class RequiredLogicTests: XCTestCase {
         ]]
         let editor = documentEditor(document: makeCollectionDoc(rootColumns: [["_id": rootTextCol, "type": "text", "title": "Text"]], nestedColumns: [childText, childNotes], rootRows: rootRows))
 
-        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, rowID: "child-filled"))
+        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, rowID: "child-filled"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "child-filled", columnID: childNotesCol, schemaID: nestedSchemaID), .invalid)
-        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, schemaKey: nestedSchemaID, rowID: "child-empty"))
+        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, rowID: "child-empty"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "child-empty", columnID: childNotesCol, schemaID: nestedSchemaID), .valid)
     }
 
@@ -1550,7 +1537,7 @@ final class RequiredLogicTests: XCTestCase {
 
         // Column-wide is optional (page dropdown = No) but the cell logic makes this row's cell required.
         XCTAssertFalse(editor.isColumnRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID))
-        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, schemaKey: rootSchemaID, rowID: "root-1"))
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-1"))
         XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid,
                        "Validation must follow cellRequiredLogic precedence over optional column logic")
     }
@@ -1765,13 +1752,12 @@ final class RequiredLogicTests: XCTestCase {
                                               schemaKey: rootSchemaID),
                       "Page 2 collection column requiredLogic uses its copied page value")
         XCTAssertTrue(editor.isCellRequired(columnID: duplicatedRootCellRequiredColumnID,
-                                            fieldID: duplicatedCollectionID, schemaKey: rootSchemaID, rowID: rootRow.id ?? ""),
+                                            fieldID: duplicatedCollectionID, rowID: rootRow.id ?? ""),
                       "Page 2 collection cellRequiredLogic uses its copied page value")
         XCTAssertTrue(editor.isColumnRequired(columnID: childTextCol, fieldID: duplicatedCollectionID,
                                               schemaKey: nestedSchemaID),
                       "Page 2 nested column requiredLogic uses its copied page value")
-        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: duplicatedCollectionID,
-                                            schemaKey: nestedSchemaID, rowID: childRow.id ?? ""),
+        XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: duplicatedCollectionID, rowID: childRow.id ?? ""),
                       "Page 2 nested cellRequiredLogic uses its copied page value")
 
         editor.change(changes: [fieldUpdate(
@@ -1789,18 +1775,16 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isColumnRequired(columnID: rootTextCol, fieldID: duplicatedCollectionID,
                                                schemaKey: rootSchemaID))
         XCTAssertFalse(editor.isCellRequired(columnID: duplicatedRootCellRequiredColumnID,
-                                             fieldID: duplicatedCollectionID, schemaKey: rootSchemaID,
+                                             fieldID: duplicatedCollectionID,
                                              rowID: "dup-root-row"))
         XCTAssertFalse(editor.isColumnRequired(columnID: childTextCol, fieldID: duplicatedCollectionID,
                                                schemaKey: nestedSchemaID))
         XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: duplicatedCollectionID,
-                                             schemaKey: nestedSchemaID,
                                              rowID: "dup-child-row"))
 
         XCTAssertTrue(editor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID),
                       "Changing Page 2 must not change Page 1's table requiredLogic")
         XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID,
-                                            schemaKey: nestedSchemaID,
                                             rowID: "dup-child-row"),
                       "Changing Page 2 must not change Page 1's nested cellRequiredLogic")
 
@@ -1818,7 +1802,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertTrue(editor.isCellRequired(
             columnID: childNotesCol,
             fieldID: duplicatedCollectionID,
-            schemaKey: nestedSchemaID,
             rowID: "dup-child-row"
         ), "Changing Page 1 must not change Page 2's nested cellRequiredLogic")
         XCTAssertEqual(editor.validate().status, .invalid, "Empty required cells on Page 2 must make the duplicated document invalid")
@@ -1887,10 +1870,9 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isColumnRequired(columnID: rootTextCol, fieldID: duplicatedCollectionID,
                                                schemaKey: rootSchemaID))
         XCTAssertFalse(editor.isCellRequired(columnID: duplicatedRootCellRequiredColumnID,
-                                             fieldID: duplicatedCollectionID, schemaKey: rootSchemaID,
+                                             fieldID: duplicatedCollectionID,
                                              rowID: emptyTriggerRootRow.id ?? ""))
-        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: duplicatedCollectionID,
-                                             schemaKey: nestedSchemaID, rowID: emptyTriggerChildRow.id ?? ""))
+        XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: duplicatedCollectionID, rowID: emptyTriggerChildRow.id ?? ""))
 
         editor.change(changes: [fieldUpdate(
             fieldID: duplicatedPageFieldID,
@@ -1911,7 +1893,7 @@ final class RequiredLogicTests: XCTestCase {
                                               schemaKey: rootSchemaID),
                       "A new Page 2 collection column follows Page 2's newly entered value")
         XCTAssertTrue(editor.isCellRequired(columnID: duplicatedRootCellRequiredColumnID,
-                                            fieldID: duplicatedCollectionID, schemaKey: rootSchemaID,
+                                            fieldID: duplicatedCollectionID,
                                             rowID: "page_2_root_row"))
         XCTAssertTrue(collectionViewModel.isCellRequired(columnID: duplicatedRootCellRequiredColumnID,
                                                          rowID: "page_2_root_row", schemaKey: rootSchemaID),
@@ -1920,7 +1902,6 @@ final class RequiredLogicTests: XCTestCase {
                                               schemaKey: nestedSchemaID),
                       "A new Page 2 nested column follows Page 2's newly entered value")
         XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: duplicatedCollectionID,
-                                            schemaKey: nestedSchemaID,
                                             rowID: "page_2_child_row"))
         XCTAssertTrue(collectionViewModel.isCellRequired(columnID: childNotesCol,
                                                          rowID: "page_2_child_row", schemaKey: nestedSchemaID),
@@ -1929,7 +1910,6 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertFalse(editor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID),
                        "Entering Page 2's value must not change Page 1's table requiredLogic")
         XCTAssertFalse(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID,
-                                             schemaKey: nestedSchemaID,
                                              rowID: "dup-child-row"),
                        "Entering Page 2's value must not change Page 1's nested cellRequiredLogic")
         XCTAssertEqual(editor.validate().status, .invalid, "New empty required rows on Page 2 must be reported invalid")

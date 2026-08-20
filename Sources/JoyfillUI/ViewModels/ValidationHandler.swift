@@ -325,7 +325,7 @@ class ValidationHandler {
                 continue
             }
 
-            let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, schemaKey: schemaId, rowID: rowID)
+            let isRequired = documentEditor.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
             if !isRequired {
                 cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 continue

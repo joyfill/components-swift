@@ -2379,7 +2379,6 @@ extension CollectionViewModel {
         return documentEditor.isCellRequired(
             columnID: columnID,
             fieldID: tableDataModel.fieldIdentifier.fieldID,
-            schemaKey: schemaKey,
             rowID: rowID
         )
     }
