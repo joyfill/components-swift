@@ -977,15 +977,6 @@ struct TableDataModel {
         return columnIdToColumnMap[columnId]?.format
     }
     
-    func getColumnIDAtIndex(index: Int) -> String? {
-        guard index < tableColumns.count else { return nil }
-        guard let id = tableColumns[index].id else {
-            Log("Could not find column ID at index \(index)")
-            return nil
-        }
-        return columnIdToColumnMap[id]?.id
-    }
-    
     mutating func toggleSelectionForCollection(rowID: String) {
         guard let currentRow = filteredcellModels.first(where: { $0.rowID == rowID }) else {
             return
