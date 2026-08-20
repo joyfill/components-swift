@@ -34,6 +34,7 @@ struct FieldHeaderView: View {
                 Image(systemName: "asterisk")
                     .foregroundColor(isFilled ? .gray : .red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_field_\(fieldHeaderModel?.title ?? "")")
             }
             
             Spacer()

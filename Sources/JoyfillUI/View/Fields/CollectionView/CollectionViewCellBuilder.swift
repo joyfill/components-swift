@@ -11,8 +11,17 @@ import JoyfillModel
 struct CollectionViewCellBuilder: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var cellModel: TableCellModel
-    
+
     var body: some View {
+        if viewModel.shouldShowCell(columnID: cellModel.data.id, rowID: cellModel.rowID) {
+            cellContent
+        } else {
+            HiddenCellView()
+        }
+    }
+
+    @ViewBuilder
+    private var cellContent: some View {
         switch cellModel.data.type {
         case .text:
             TableTextView(cellModel: $cellModel)

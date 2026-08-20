@@ -1119,7 +1119,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, true)
         let fieldIdentifier = FieldIdentifier(fieldID: dropdownFieldID)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("677e2bfa152e9f549edf0813"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
     }
     
     func testFieldsNeedsToRefreshOnUnknownID() {
@@ -1156,7 +1156,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, true)
         let fieldIdentifier = FieldIdentifier(fieldID: "unknown field id")
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("677e2bfa152e9f549edf0813"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
     }
     
     func testTextFieldAllCondition() {
@@ -1197,7 +1197,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
         let fieldIdentifier = FieldIdentifier(fieldID: textFieldID2)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("Hello World"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         let resultShow = documentEditor.shouldShow(fieldID: textFieldID)
         XCTAssertEqual(resultShow, true)
@@ -1242,7 +1242,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
         let fieldIdentifier = FieldIdentifier(fieldID: firstMultiline)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("World"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         let resultShow = documentEditor.shouldShow(fieldID: hiddenMultiline)
         XCTAssertEqual(resultShow, true)
@@ -1289,7 +1289,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
         let fieldIdentifier = FieldIdentifier(fieldID: firstNumber)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .double(567))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         let resultShow = documentEditor.shouldShow(fieldID: hiddenNumber)
         XCTAssertEqual(resultShow, true)
@@ -1332,7 +1332,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
         let fieldIdentifier = FieldIdentifier(fieldID: firstDropdown)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("677e2bfaf81647d2f6a016a0"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         let resultShow = documentEditor.shouldShow(fieldID: hiddenDropdown)
         XCTAssertEqual(resultShow, true)
@@ -1379,7 +1379,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
         let fieldIdentifier = FieldIdentifier(fieldID: fourthDropdown)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("677e2bfa0f4ed64ef5055bcf"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         let resultShow = documentEditor.shouldShow(fieldID: hiddenDropdown)
         XCTAssertEqual(resultShow, true)
@@ -1422,7 +1422,7 @@ final class ConditionLogicUnitTests: XCTestCase {
         XCTAssertEqual(result, false)
         let fieldIdentifier = FieldIdentifier(fieldID: firstMultiSelect)
         let event = FieldChangeData(fieldIdentifier: fieldIdentifier, updateValue: .string("677e2bfa1ff43cf15d159310"))
-        documentEditor.updateField(event: event, fieldIdentifier: fieldIdentifier)
+        documentEditor.updateField(event: event)
         
         let resultShow = documentEditor.shouldShow(fieldID: hiddenMultiSelect)
         XCTAssertEqual(resultShow, true)

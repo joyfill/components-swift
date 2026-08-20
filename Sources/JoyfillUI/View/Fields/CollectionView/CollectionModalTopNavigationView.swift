@@ -294,13 +294,22 @@ struct CollectionEditMultipleRowsSheetView: View {
         changes = [:]
     }
     
+    private func isColumnEffectivelyRequired(_ col: FieldTableColumn, schemaKey: String) -> Bool {
+        guard let columnID = col.id else { return col.required ?? false }
+        if viewModel.tableDataModel.selectedRows.count == 1, let rowID = viewModel.tableDataModel.selectedRows.first {
+            return viewModel.isCellRequired(columnID: columnID, rowID: rowID, schemaKey: schemaKey)
+        }
+        return viewModel.tableDataModel.documentEditor?.isColumnRequired(columnID: columnID, fieldID: viewModel.tableDataModel.fieldIdentifier.fieldID, schemaKey: schemaKey) ?? (col.required ?? false)
+    }
+
     @ViewBuilder
     private func fieldTitle(_ col: FieldTableColumn, isCellFilled: Bool, schemaKey: String) -> some View {
         HStack(alignment: .center, spacing: 4) {
-            if let required = col.required, required, !isCellFilled {
+            if isColumnEffectivelyRequired(col, schemaKey: schemaKey), !isCellFilled {
                 Image(systemName: "asterisk")
                     .foregroundColor(.red)
                     .imageScale(.small)
+                    .accessibilityIdentifier("RequiredAsterisk_col_\(schemaKey)_\(col.id ?? "")")
             }
             
             Text(col.title)
@@ -520,6 +529,10 @@ struct CollectionEditMultipleRowsSheetView: View {
         ForEach(Array(header.columns.enumerated()), id: \.offset) { colIndex, col in
             let isFocused = col.id == viewModel.tableDataModel.navigationIntent.focusColumnId
             if let columnID = col.id {
+                let singleRowID: String? = viewModel.tableDataModel.selectedRows.count == 1 ? viewModel.tableDataModel.selectedRows.first : nil
+                // No single selected row means this is a bulk edit, where every column shows.
+                let showsCellInRowForm = singleRowID.map { viewModel.shouldShowCell(columnID: columnID, rowID: $0) } ?? true
+                if showsCellInRowForm {
             VStack(alignment: .leading, spacing: 16) {
                 if let row = viewModel.tableDataModel.selectedRows.first {
                     let selectedRow = viewModel.tableDataModel.getRowByID(rowID: row)
@@ -694,56 +707,57 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 },
                                 set: { newValue in
                                     cellModel = newValue
+                                    }
+                                )
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                HStack {
+                                    Spacer()
+                                    TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
+                                        .padding(.vertical, 4)
+                                    Spacer()
                                 }
-                            )
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            HStack {
-                                Spacer()
-                                TableImageView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
-                                    .padding(.vertical, 4)
-                                Spacer()
-                            }
-                            .frame(minHeight: 40)
-                            .cellBorder(isFocused: isFocused)
-                            .accessibilityIdentifier("EditRowsImageFieldIdentifier")
-                        case .signature:
-                            let bindingCellModel = Binding<TableCellModel>(
-                                get: {
-                                    return cellModel
-                                },
-                                set: { newValue in
-                                    cellModel = newValue
-                                }
-                            )
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            HStack {
-                                Spacer()
-                                TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
-                                Spacer()
-                            }
-                            .frame(minHeight: 40)
-                            .cellBorder(isFocused: isFocused)
-                            .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
-                        case .barcode:
-                            fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                 .frame(minHeight: 40)
                                 .cellBorder(isFocused: isFocused)
-                                .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
-                        case .block:
-                            if !isUsedForBulkEdit {
+                                .accessibilityIdentifier("EditRowsImageFieldIdentifier")
+                            case .signature:
+                                let bindingCellModel = Binding<TableCellModel>(
+                                    get: {
+                                        return cellModel
+                                    },
+                                    set: { newValue in
+                                        cellModel = newValue
+                                    }
+                                )
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                                TableBlockView(cellModel: Binding.constant(cellModel))
+                                HStack {
+                                    Spacer()
+                                    TableSignatureView(cellModel: bindingCellModel, isUsedForBulkEdit: isUsedForBulkEdit)
+                                    Spacer()
+                                }
+                                .frame(minHeight: 40)
+                                .cellBorder(isFocused: isFocused)
+                                .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
+                            case .barcode:
+                                fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
+                                    .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
+                            case .block:
+                                if !isUsedForBulkEdit {
+                                    fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
+                                    TableBlockView(cellModel: Binding.constant(cellModel))
+                                        .frame(minHeight: 40)
+                                        .cellBorder(isFocused: isFocused)
+                                }
+                            default:
+                                Text("")
                             }
-                        default:
-                            Text("")
                         }
                     }
                 }
+                .id(col.id)
             }
-            .id(col.id)
             }
         }
         .disabled(viewModel.tableDataModel.mode == .readonly)

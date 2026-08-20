@@ -31,7 +31,7 @@ public struct TemplateListView: View {
         self.enableChangelogs = enableChangelogs
         self.customLicense = customLicense
         if isAlreadyToken {
-            self.apiService = APIService(accessToken: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6IjY1Yzc2NDI5ZGQ5NjIwNmM3ZTA3ZWQ5YiJ9.OhI3aY3na-3f1WWND8y9zU8xXo4R0SIUSR2BLB3vbsk",
+            self.apiService = APIService(accessToken: quickTestAccessToken,
                                          baseURL: "https://api-joy.joyfill.io/v1")
         } else {
             self.apiService = APIService(accessToken: userAccessToken,

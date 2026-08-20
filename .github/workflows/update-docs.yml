@@ -1,4 +1,4 @@
-name: Update Docs on Release
+name: Post-Release Automation (Docs + API References)
 
 on:
   release:
@@ -14,6 +14,9 @@ on:
         description: 'Release Notes (Paste your content here)'
         required: true
         default: "### Added\n- Custom test feature 1\n- Custom test feature 2"
+
+permissions:
+  contents: read
 
 jobs:
   create-docs-pr:
@@ -84,3 +87,10 @@ jobs:
           branch: 'docs-update-${{ env.VERSION }}'
           base: 'main'
           delete-branch: true
+
+  create-api-references:
+    name: 'Create API References PR'
+    uses: ./.github/workflows/api-references.yml
+    secrets: inherit
+    with:
+      version: ${{ github.event_name == 'workflow_dispatch' && inputs.test_tag || github.event.release.tag_name }}

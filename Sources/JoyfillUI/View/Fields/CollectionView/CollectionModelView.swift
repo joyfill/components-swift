@@ -19,8 +19,7 @@ struct CollectionRowView: View {
         LazyHStack(alignment: .top, spacing: 0) {
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
                 let schemaKey = rowDataModel.rowType.parentSchemaKey.isEmpty ? viewModel.rootSchemaKey : rowDataModel.rowType.parentSchemaKey
-                let column = viewModel.columnsMap["\(schemaKey)_\(cellModel.data.id)"]
-                let showRequired = (column?.required ?? false) && !cellModel.data.isCellFilled
+                let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID, schemaKey: schemaKey) && !cellModel.data.isCellFilled
 
                 CollectionViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: 200, height: 60)
@@ -231,13 +230,10 @@ struct CollectionModalView : View {
                                         }
                                     })
                                     CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView)
-                                    
+
                                     let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
                                     switch rowCellModels.rowType {
-                                    case .row:
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
-                                            .frame(height: 60)
-                                    case .nestedRow(level: let level, index: let index, parentID: let parentID, _):
+                                    case .row, .nestedRow:
                                         CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
                                             .frame(height: 60)
                                     case .header(level: let level, tableColumns: let tableColumns, schemaKey: let schemaKey):

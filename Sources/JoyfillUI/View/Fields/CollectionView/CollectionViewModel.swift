@@ -48,6 +48,18 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return tableDataModel.rowDecorators(forSchemaKey: schemaKey)
     }
 
+
+    /// Live read — the cell views call this on every render, so there is no copy to keep in sync.
+    /// An absent document editor shows the cell, matching `DocumentEditor.shouldShow(fieldID:)`.
+    func shouldShowCell(columnID: String, rowID: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor else { return true }
+        return documentEditor.shouldShowCell(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            rowID: rowID
+        )
+    }
+
     func getCollectionCellDecorators(rowIds: [String], columnId: String, schemaKey: String) -> [DecoratorLocal] {
         let columnDecorators = columnsMap["\(schemaKey)_\(columnId)"]?
             .decorators?
@@ -378,13 +390,16 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
     private func isRequiredColumnsValid(schemaID: String, valueElements: [ValueElement]) -> Bool {
         let validColumns = tableDataModel.filterTableColumns(key: schemaID)
-        let requiredColumns = validColumns.filter({ $0.required == true })
 
-        for requiredColumn in requiredColumns {
-            let columnID = requiredColumn.id ?? ""
+        for column in validColumns {
+            guard let columnID = column.id else { continue }
             let allRowsHaveValue = valueElements.allSatisfy { valueElement in
+                guard let rowID = valueElement.id else { return false }
+                guard isCellRequired(columnID: columnID, rowID: rowID, schemaKey: schemaID) else {
+                    return true
+                }
                 if let cell = valueElement.cells?[columnID] {
-                    switch requiredColumn.type {
+                    switch column.type {
                     case .text, .dropdown, .barcode, .signature, .block:
                         return !(cell.text?.isEmpty ?? true)
                     case .number:
@@ -517,10 +532,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
+        tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
             for rowDataModel in rowDataModels {
-                
                 let cellModel = TableCellModel(rowID: rowID,
                                                timezoneId: valueElement.tz,
                                                data: rowDataModel,
@@ -556,19 +571,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         updateCollectionWidth()
     }
     
-    func getProgress(rowId: String) -> (Int, Int) {
-        guard let rowCells = tableDataModel.filteredcellModels
-            .first(where: { $0.rowID == rowId })?.cells else {
-            return (0,0)
-        }
-        
-        let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
-        }.count
-        
-        return (filledCount, requiredColumnIds.count)
-    }
-    
     func isColumnFilled(columnId: String) -> Bool {
         for rowDataModel in tableDataModel.filteredcellModels {
             if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
@@ -599,7 +601,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
                                                    data: columnModel,
@@ -636,7 +637,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             tableDataModel.tableColumns.enumerated().forEach { colIndex, column in
                 let columnModel = rowDataMap[rowID]?[colIndex]
                 if let columnModel = columnModel {
-                    
                     let cellModel = TableCellModel(rowID: rowID,
                                                    timezoneId: valueElement.tz,
                                                    data: columnModel,
@@ -1396,6 +1396,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             collapseTables(index, currentRow, currentRow.rowType.level)
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
+        tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1546,6 +1547,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             }
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
+                tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
                 refreshCollectionSchema(rowID: parentRowID)
                 appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {
@@ -1672,11 +1674,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return cellValues
     }
 
-    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil) {
+    func cellDidChange(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isNestedCell: Bool, callOnChange: Bool = true, metadata: Metadata? = nil, schemaKey: String? = nil) {
 //        tableDataModel.updateCellModelForNested(rowId: rowId, colIndex: colIndex, cellDataModel: cellDataModel, isBulkEdit: false)
         
         let currentRowModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowId })
-        let nestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
+        let derivedNestedKey = currentRowModel?.rowType.parentSchemaKey == "" ? rootSchemaKey : currentRowModel?.rowType.parentSchemaKey ?? rootSchemaKey
+        let nestedKey = schemaKey ?? derivedNestedKey
         let rowMeta = metadata ?? rowToValueElementMap[rowId]?.metadata
         let result = tableDataModel.documentEditor?.nestedCellDidChange(rowId: rowId,
                                                                   cellDataModel: cellDataModel,
@@ -1694,6 +1697,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
+        refreshDependentCellLogic(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
@@ -1719,6 +1723,14 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 //        sortRowsIfNeeded()
     }
     
+
+    func refreshDependentCellLogic(rowId: String, schemaKey: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowId] else { return }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        documentEditor.refreshDependentCellLogic(fieldID: fieldID, schemaID: schemaKey, editedColumnID: editedColumnID, row: row)
+    }
+
     fileprivate func updateJSON(_ columnIDChanges: [String: [String : ValueUnion]], tableDataModel: TableDataModel) {
         var parentRowID = ""
         var nestedSchemaKey = ""
@@ -1870,8 +1882,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         for row in tableDataModel.selectedRows {
             guard let rowDataModel = rowMap[row] else { continue }
+            let schemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
+                refreshDependentCellLogic(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: row)
                 }
@@ -2036,7 +2050,8 @@ extension CollectionViewModel {
                 cellDataModel: cell,
                 isNestedCell: true,
                 callOnChange: false,
-                metadata: row.metadata
+                metadata: row.metadata,
+                schemaKey: schemaID
             )
             
         }
@@ -2103,6 +2118,13 @@ extension CollectionViewModel: DocumentEditorDelegate {
             }
         }
         buildRowToValueElementMap()
+    }
+
+    /// A field outside this collection changed. The maps were already re-resolved by the document editor,
+    /// so this only has to invalidate the view — nothing else publishes on this path.
+    func cellVisibilityDidChange(columnIDs: Set<String>) {
+        guard !columnIDs.isEmpty else { return }
+        uuid = UUID()
     }
 
 
@@ -2348,5 +2370,32 @@ extension CollectionViewModel {
         let clamped = max(0, min(newIndex, list.count))
         list.insert(childID, at: clamped)
         parentToChildRowMap[key] = list
+    }
+}
+
+// MARK: - Required logic
+extension CollectionViewModel {
+    func isCellRequired(columnID: String, rowID: String, schemaKey: String) -> Bool {
+        guard let documentEditor = tableDataModel.documentEditor else {
+            return columnsMap["\(schemaKey)_\(columnID)"]?.required ?? false
+        }
+        return documentEditor.isCellRequired(
+            columnID: columnID,
+            fieldID: tableDataModel.fieldIdentifier.fieldID,
+            rowID: rowID
+        )
+    }
+
+    func getProgress(rowId: String) -> (Int, Int) {
+        guard let rowCells = tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == rowId })?.cells else {
+            return (0,0)
+        }
+
+        let filledCount = rowCells.filter { cellModel in
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+        }.count
+
+        return (filledCount, requiredColumnIds.count)
     }
 }
