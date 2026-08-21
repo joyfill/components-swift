@@ -19,7 +19,7 @@ jobs:
     name: 'Create iOS API References PR'
     runs-on: 'macos-14'
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: 'Checkout main'
         uses: 'actions/checkout@v5'
