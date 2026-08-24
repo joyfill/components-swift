@@ -125,7 +125,10 @@ struct PagesView: View {
         VStack(alignment: .leading) {
             if documentEditor.showPageNavigationView {
                 Button(action: {
-                    isSheetPresented = true
+                    dismissKeyboard()
+                    DispatchQueue.main.async {
+                        isSheetPresented = true
+                    }
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
@@ -495,8 +498,10 @@ struct PageDuplicateListView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             }
+            .accessibilityIdentifier("PageSelectionScrollViewIdentifier")
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .alert(isPresented: $showDeleteConfirmation) {
             Alert(
                 title: Text("Delete Page?"),
