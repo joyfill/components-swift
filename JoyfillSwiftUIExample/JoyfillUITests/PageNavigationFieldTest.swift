@@ -92,6 +92,84 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
         let firstPage = pageSheetSelectionButton.element(boundBy: 0)
         firstPage.tap()
     }
+
+    func testPageSelectionDismissesKeyboardAfterRotation() throws {
+        XCUIDevice.shared.orientation = .portrait
+        defer { XCUIDevice.shared.orientation = .portrait }
+
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        XCTAssertTrue(pageSelectionButton.waitForExistence(timeout: 5), "Page navigation button should exist")
+
+        let textField = app.textFields["Text"]
+        XCTAssertTrue(textField.waitForExistence(timeout: 5), "A text field should exist before opening page selection")
+        textField.tap()
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 5), "Keyboard should be visible before rotation")
+
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let rotatedPageSelectionButton = app.buttons["PageNavigationIdentifier"]
+        var previousFrame = CGRect.zero
+        var stableFrameCount = 0
+        XCTAssertTrue(
+            waitUntil(5) {
+                let currentFrame = rotatedPageSelectionButton.frame
+                if currentFrame == previousFrame {
+                    stableFrameCount += 1
+                } else {
+                    previousFrame = currentFrame
+                    stableFrameCount = 0
+                }
+                return rotatedPageSelectionButton.isHittable && stableFrameCount >= 3
+            },
+            "Page navigation button should be stable and hittable after rotating with the keyboard visible"
+        )
+
+        rotatedPageSelectionButton
+            .coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            .tap()
+
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        XCTAssertTrue(
+            pageSheetSelectionButton.firstMatch.waitForExistence(timeout: 5),
+            "Page selection sheet should open after rotating with the keyboard visible"
+        )
+        XCTAssertFalse(app.keyboards.element.exists, "Opening the page selection sheet should dismiss the keyboard")
+
+        let pageSelectionScrollView = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        XCTAssertTrue(
+            pageSelectionScrollView.waitForExistence(timeout: 5),
+            "Page selection sheet scroll view should exist"
+        )
+
+        let verticalScrollBar = pageSelectionScrollView
+            .descendants(matching: .any)
+            .matching(NSPredicate(format: "label BEGINSWITH %@", "Vertical scroll bar"))
+            .firstMatch
+        XCTAssertTrue(
+            verticalScrollBar.waitForExistence(timeout: 2),
+            "Page selection sheet should expose its own vertical scroll indicator"
+        )
+
+        let initialScrollValue = verticalScrollBar.value as? String
+        let start = pageSelectionScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75))
+        let end = pageSelectionScrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.25))
+        start.press(forDuration: 0.05, thenDragTo: end)
+
+        XCTAssertTrue(
+            waitUntil(5) { (verticalScrollBar.value as? String) != initialScrollValue },
+            "Page selection sheet scroll indicator should update after scrolling the sheet"
+        )
+        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should stay dismissed while scrolling the page selection sheet")
+
+        let visiblePageRows = pageSheetSelectionButton.allElementsBoundByIndex.filter {
+            $0.exists && $0.frame.intersects(pageSelectionScrollView.frame)
+        }
+        let lastVisiblePageRowMaxY = visiblePageRows.map(\.frame.maxY).max() ?? 0
+        XCTAssertLessThan(
+            pageSelectionScrollView.frame.maxY - lastVisiblePageRowMaxY,
+            120,
+            "Page rows should extend near the bottom of the sheet after scrolling; the sheet should not keep a keyboard-sized blank gap"
+        )
+    }
     
     func testPageDuplicate() throws {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
