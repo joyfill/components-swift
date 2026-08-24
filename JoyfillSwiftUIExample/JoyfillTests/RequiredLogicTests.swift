@@ -87,6 +87,32 @@ final class RequiredLogicTests: XCTestCase {
         return logic
     }
 
+    private func columnVisibilityLogic(action: String, condField: String, value: Any, condition: String = "=") -> [String: Any] {
+        [
+            "action": action,
+            "eval": "and",
+            "conditions": [[
+                "file": fileID,
+                "page": pageID,
+                "field": condField,
+                "condition": condition,
+                "value": value,
+                "_id": UUID().uuidString
+            ]],
+            "_id": UUID().uuidString
+        ]
+    }
+
+    private func requiredLogicWithConditions(action: String?, conditions: [[String: Any]]) -> [String: Any] {
+        var logic: [String: Any] = [
+            "eval": "and",
+            "conditions": conditions,
+            "_id": UUID().uuidString
+        ]
+        if let action { logic["action"] = action }
+        return logic
+    }
+
     /// A page with a text field (carrying requiredLogic) and a dropdown field it depends on.
     private func makeFieldLevelDoc(action: String?, staticRequired: Bool, textValue: String?, dropdownValue: String) -> JoyDoc {
         var textField: [String: Any] = [
@@ -1913,5 +1939,244 @@ final class RequiredLogicTests: XCTestCase {
                                              rowID: "dup-child-row"),
                        "Entering Page 2's value must not change Page 1's nested cellRequiredLogic")
         XCTAssertEqual(editor.validate().status, .invalid, "New empty required rows on Page 2 must be reported invalid")
+    }
+
+    // MARK: - Required validation exclusions and fallbacks
+
+    func testRequiredFieldHiddenByConditionalLogicIsSkippedByValidation() {
+        let textField: [String: Any] = [
+            "_id": textFieldID,
+            "file": fileID,
+            "type": "text",
+            "required": false,
+            "value": "",
+            "logic": columnVisibilityLogic(action: "hide", condField: dropdownFieldID, value: optYes),
+            "requiredLogic": requiredLogic(action: "enforce", condField: dropdownFieldID, value: optYes)
+        ]
+        let document = JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": fileID,
+                "pageOrder": [pageID],
+                "pages": [["_id": pageID, "fieldPositions": [
+                    ["_id": "fp-text", "field": textFieldID, "type": "text"],
+                    ["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"]
+                ]]]
+            ]],
+            "fields": [
+                textField,
+                ["_id": dropdownFieldID, "file": fileID, "type": "dropdown", "value": optYes,
+                 "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]]
+            ]
+        ])
+        let editor = documentEditor(document: document)
+
+        XCTAssertTrue(editor.isFieldRequired(fieldID: textFieldID))
+        XCTAssertFalse(editor.shouldShow(fieldID: textFieldID))
+        XCTAssertNil(fieldStatus(editor, fieldID: textFieldID),
+                     "Hidden required fields are skipped by document validation")
+        XCTAssertEqual(editor.validate().status, .valid)
+    }
+
+    func testUnknownRequiredActionsFallBackToStaticRequiredState() {
+        XCTAssertEqual(textStatus(documentEditor(document: makeFieldLevelDoc(
+            action: "unexpected",
+            staticRequired: true,
+            textValue: nil,
+            dropdownValue: optYes
+        ))), .invalid)
+        XCTAssertEqual(textStatus(documentEditor(document: makeFieldLevelDoc(
+            action: "unexpected",
+            staticRequired: false,
+            textValue: nil,
+            dropdownValue: optYes
+        ))), .valid)
+
+        let requiredColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Explanation",
+            "required": true,
+            "requiredLogic": requiredLogic(action: "unexpected", condField: dropdownFieldID, value: optYes)
+        ]
+        XCTAssertEqual(cellStatus(documentEditor(document: makeTableDoc(
+            textColumn: requiredColumn,
+            rows: [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optYes]]],
+            includePageDropdown: true,
+            dropdownValue: optYes
+        )), rowId: "row-1", columnId: textColumnID), .invalid)
+
+        let optionalCellColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Explanation",
+            "required": false,
+            "cellRequiredLogic": cellRequiredLogic(action: "unexpected", condColumn: ddColumnID, value: optYes)
+        ]
+        XCTAssertEqual(cellStatus(documentEditor(document: makeTableDoc(
+            textColumn: optionalCellColumn,
+            rows: [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optYes]]],
+            includePageDropdown: false,
+            dropdownValue: optNo
+        )), rowId: "row-1", columnId: textColumnID), .valid)
+    }
+
+    func testRequiredLogicWithEmptyOrMissingConditionsFallsBackToStaticRequired() {
+        let emptyConditionsRequired = JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": fileID,
+                "pageOrder": [pageID],
+                "pages": [["_id": pageID, "fieldPositions": [
+                    ["_id": "fp-text", "field": textFieldID, "type": "text"]
+                ]]]
+            ]],
+            "fields": [[
+                "_id": textFieldID,
+                "file": fileID,
+                "type": "text",
+                "required": true,
+                "requiredLogic": requiredLogicWithConditions(action: "enforce", conditions: [])
+            ]]
+        ])
+        XCTAssertEqual(textStatus(documentEditor(document: emptyConditionsRequired)), .invalid)
+
+        let missingFieldOptional = JoyDoc(dictionary: [
+            "_id": "doc-2",
+            "files": [[
+                "_id": fileID,
+                "pageOrder": [pageID],
+                "pages": [["_id": pageID, "fieldPositions": [
+                    ["_id": "fp-text", "field": textFieldID, "type": "text"]
+                ]]]
+            ]],
+            "fields": [[
+                "_id": textFieldID,
+                "file": fileID,
+                "type": "text",
+                "required": false,
+                "requiredLogic": requiredLogicWithConditions(action: "enforce", conditions: [[
+                    "field": "missing-field",
+                    "condition": "=",
+                    "value": optYes,
+                    "_id": UUID().uuidString
+                ]])
+            ]]
+        ])
+        XCTAssertEqual(textStatus(documentEditor(document: missingFieldOptional)), .valid)
+
+        let missingColumnRequired: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Explanation",
+            "required": true,
+            "cellRequiredLogic": requiredLogicWithConditions(action: "unenforce", conditions: [[
+                "column": "missing-column",
+                "condition": "=",
+                "value": optYes,
+                "_id": UUID().uuidString
+            ]])
+        ]
+        XCTAssertEqual(cellStatus(documentEditor(document: makeTableDoc(
+            textColumn: missingColumnRequired,
+            rows: [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optNo]]],
+            includePageDropdown: false,
+            dropdownValue: optNo
+        )), rowId: "row-1", columnId: textColumnID), .invalid)
+    }
+
+    func testMobileHiddenRequiredColumnIsIgnoredByValidation() {
+        let textColumn: [String: Any] = [
+            "_id": textColumnID,
+            "type": "text",
+            "title": "Explanation",
+            "required": true,
+            "hiddenViews": ["mobile"]
+        ]
+        let editor = documentEditor(document: makeTableDoc(
+            textColumn: textColumn,
+            rows: [["_id": "row-1", "cells": [textColumnID: "", ddColumnID: optNo]]],
+            includePageDropdown: false,
+            dropdownValue: optNo
+        ))
+
+        XCTAssertFalse(editor.shouldShowColumn(columnID: textColumnID, fieldID: tableFieldID))
+        XCTAssertNil(cellStatus(editor, rowId: "row-1", columnId: textColumnID))
+        XCTAssertEqual(fieldStatus(editor, fieldID: tableFieldID), .valid)
+    }
+
+    func testCollectionDeletedRowDropsRequiredStateAndValidation() {
+        let rootText: [String: Any] = [
+            "_id": rootTextCol,
+            "type": "text",
+            "title": "Explanation",
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: rootDdCol, value: optYes)
+        ]
+        let rootDropdown: [String: Any] = [
+            "_id": rootDdCol,
+            "type": "dropdown",
+            "title": "Decision",
+            "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]
+        ]
+        let editor = documentEditor(document: makeCollectionDoc(
+            rootColumns: [rootText, rootDropdown],
+            nestedColumns: minimalNestedColumns,
+            rootRows: [["_id": "root-1", "cells": [rootTextCol: "", rootDdCol: optYes]]]
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionToLoad(viewModel)
+
+        XCTAssertTrue(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-1"))
+        XCTAssertEqual(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID), .invalid)
+
+        viewModel.tableDataModel.selectedRows = ["root-1"]
+        viewModel.deleteSelectedRow()
+
+        XCTAssertFalse(viewModel.tableDataModel.rowOrder.contains("root-1"))
+        XCTAssertFalse(editor.isCellRequired(columnID: rootTextCol, fieldID: collectionFieldID, rowID: "root-1"),
+                       "Deleting a collection row must clear its cached required state")
+        XCTAssertNil(collectionCellStatus(editor, rowID: "root-1", columnID: rootTextCol, schemaID: rootSchemaID))
+        XCTAssertEqual(editor.validate().status, .valid)
+    }
+
+    func testRequiredFieldOnHiddenPageIsSkippedByValidation() {
+        let hiddenPageID = "hidden-page"
+        let visiblePageID = "visible-page"
+        let document = JoyDoc(dictionary: [
+            "_id": "doc-1",
+            "files": [[
+                "_id": fileID,
+                "pageOrder": [hiddenPageID, visiblePageID],
+                "pages": [
+                    [
+                        "_id": hiddenPageID,
+                        "hidden": true,
+                        "fieldPositions": [
+                            ["_id": "fp-hidden-text", "field": textFieldID, "type": "text"]
+                        ]
+                    ],
+                    [
+                        "_id": visiblePageID,
+                        "hidden": false,
+                        "fieldPositions": []
+                    ]
+                ]
+            ]],
+            "fields": [[
+                "_id": textFieldID,
+                "file": fileID,
+                "type": "text",
+                "required": true,
+                "value": ""
+            ]]
+        ])
+        let editor = documentEditor(document: document)
+
+        XCTAssertFalse(editor.shouldShow(pageID: hiddenPageID))
+        XCTAssertTrue(editor.isFieldRequired(fieldID: textFieldID))
+        XCTAssertEqual(editor.validate().status, .valid,
+                       "Required fields on hidden pages should not block document validation")
+        XCTAssertNil(editor.validate(path: "\(hiddenPageID)/fp-hidden-text").fieldValidity,
+                     "Path validation should also skip fields whose page is hidden")
     }
 }
