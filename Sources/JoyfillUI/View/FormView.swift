@@ -125,10 +125,7 @@ struct PagesView: View {
         VStack(alignment: .leading) {
             if documentEditor.showPageNavigationView {
                 Button(action: {
-                    dismissKeyboard()
-                    DispatchQueue.main.async {
-                        isSheetPresented = true
-                    }
+                    isSheetPresented = true
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
