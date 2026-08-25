@@ -3110,7 +3110,7 @@ public var joyfillSchema = """
         ]
       }
     },
-    "$joyfillSchemaVersion": "1.0.5"
+    "$joyfillSchemaVersion": "1.0.6"
   }
 
 """
