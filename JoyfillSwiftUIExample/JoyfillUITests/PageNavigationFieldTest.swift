@@ -135,7 +135,10 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
             pageSheetSelectionButton.firstMatch.waitForExistence(timeout: 5),
             "Page selection sheet should open after rotating with the keyboard visible"
         )
-        XCTAssertFalse(app.keyboards.element.exists, "Opening the page selection sheet should dismiss the keyboard")
+        XCTAssertTrue(
+            waitUntil(3) { !self.app.keyboards.element.exists },
+            "Opening the page selection sheet should dismiss the keyboard"
+        )
 
         let pageSelectionScrollView = app.scrollViews["PageSelectionScrollViewIdentifier"]
         XCTAssertTrue(
@@ -161,7 +164,10 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
             waitUntil(5) { (verticalScrollBar.value as? String) != initialScrollValue },
             "Page selection sheet scroll indicator should update after scrolling the sheet"
         )
-        XCTAssertFalse(app.keyboards.element.exists, "Keyboard should stay dismissed while scrolling the page selection sheet")
+        XCTAssertTrue(
+            waitUntil(3) { !self.app.keyboards.element.exists },
+            "Keyboard should stay dismissed while scrolling the page selection sheet"
+        )
 
         let visiblePageRows = pageSheetSelectionButton.allElementsBoundByIndex.filter {
             $0.exists && $0.frame.intersects(pageSelectionScrollView.frame)

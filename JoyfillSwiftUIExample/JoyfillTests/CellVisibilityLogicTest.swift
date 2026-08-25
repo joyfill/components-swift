@@ -1166,10 +1166,9 @@ final class CellVisibilityLogicTest: XCTestCase {
         }
 
         let result = editor.validate(path: "\(pathPageID)/\(fieldPositionID)/\(row1ID)/\(reasonColumnID)")
-        if case .notFound = result {
-            XCTAssertTrue(true)
-        } else {
+        guard case .notFound = result else {
             XCTFail("Hidden columns are omitted from row validity and should be notFound by path, got \(result)")
+            return
         }
     }
 
