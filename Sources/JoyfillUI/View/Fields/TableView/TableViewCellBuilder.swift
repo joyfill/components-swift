@@ -90,7 +90,7 @@ struct HiddenCellView: View {
 
 struct HiddenCellTooltip: View {
     var body: some View {
-        Text("This cell is hidden by logic")
+        Text("This cell is hidden")
             .font(.system(size: 14))
             .multilineTextAlignment(.center)
             .foregroundStyle(.secondary)
