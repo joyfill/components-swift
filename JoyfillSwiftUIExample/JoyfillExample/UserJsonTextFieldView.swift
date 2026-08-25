@@ -183,7 +183,7 @@ struct UserJsonTextFieldView: View {
                             navigation: true,
                             isPageDuplicateEnabled: true,
                             isPageDeleteEnabled: true,
-                            validateSchema: false,
+                            validateSchema: true,
                             license: license,
                             singleClickRowEdit: true
                         )
