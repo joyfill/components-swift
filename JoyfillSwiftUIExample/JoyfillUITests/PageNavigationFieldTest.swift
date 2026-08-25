@@ -94,6 +94,9 @@ final class PageNavigationFieldTests: JoyfillUITestsBaseClass {
     }
 
     func testPageSelectionDismissesKeyboardAfterRotation() throws {
+        try XCTSkipUnless(UIDevice.current.userInterfaceIdiom == .pad,
+                          "Page sheet keyboard inset after rotation is an iPad-only regression")
+
         XCUIDevice.shared.orientation = .portrait
         defer { XCUIDevice.shared.orientation = .portrait }
 
