@@ -375,7 +375,7 @@ final class SchemaValidationTests: XCTestCase {
         }
     }
 
-    // MARK: - Schema 1.0.5: SchemaLogicCondition oneOf (collection vs field form)
+    // MARK: - SchemaLogicCondition oneOf (collection-schema logic: collection vs field form)
 
     /// Builds a valid document whose collection field carries a `SchemaDefinition.logic`
     /// with a single `SchemaLogicCondition` equal to `condition`, so the `oneOf`
@@ -465,6 +465,105 @@ final class SchemaValidationTests: XCTestCase {
         ]
         let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
         XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "A condition matching neither oneOf branch must fail")
+        XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
+
+    // MARK: - Condition oneOf (field vs column form)
+
+    /// Builds a valid document whose table column carries a `requiredLogic` with a single
+    /// `Condition` equal to `condition`, so the `oneOf` at `Condition` is actually exercised.
+    /// Unlike `SchemaLogicCondition` this definition backs every `Logic` in a document —
+    /// field show/hide, column `logic`, `cellVisibilityLogic`, `requiredLogic`, `cellRequiredLogic`.
+    private func documentWithCondition(_ condition: [String: Any]) -> JoyDoc {
+        var docDict = minimalValidDocumentDictionary()
+        let tableField: [String: Any] = [
+            "_id": "table1",
+            "type": "table",
+            "file": "file1",
+            "value": [],
+            "rowOrder": [],
+            "tableColumnOrder": ["text1"],
+            "tableColumns": [
+                [
+                    "_id": "text1",
+                    "type": "text",
+                    "requiredLogic": [
+                        "action": "enforce",
+                        "eval": "and",
+                        "conditions": [condition]
+                    ]
+                ]
+            ]
+        ]
+        docDict["fields"] = [tableField]
+        return JoyDoc(dictionary: docDict)
+    }
+
+    // (a) Field form (file/page/field/condition) validates.
+    func testCondition_FieldForm_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "field": "field1",
+            "condition": "=",
+            "value": "foo"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertNil(err, "Field-form Condition (file/page/field/condition) should validate")
+    }
+
+    // (b) Column form (column/condition) validates.
+    func testCondition_ColumnForm_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "column": "col1",
+            "condition": "=",
+            "value": "foo"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertNil(err, "Column-form Condition (column/condition) should validate")
+    }
+
+    // (b') Column form carrying file/page but no `field` still matches only branch 2.
+    func testCondition_ColumnForm_WithFileAndPage_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "column": "col1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertNil(err, "Column-form Condition with file/page but no field should validate")
+    }
+
+    // (c) A mixed object matches BOTH oneOf branches → exactly-one semantics must reject it.
+    func testCondition_MixedForm_ShouldFail() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "field": "field1",
+            "column": "col1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "A condition satisfying both oneOf branches must fail (oneOf = exactly one)")
+        XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
+
+    // (d) Field form without `page` must fail. Note this diverges from `SchemaLogicCondition`,
+    // where `page` is optional — see `testSchemaLogicCondition_FieldForm_WithoutOptionalPage_ShouldValidate`.
+    // Documents written against 1.0.5 could omit `page`; 1.0.6 rejects them.
+    func testCondition_FieldForm_WithoutPage_ShouldFail() {
+        let condition: [String: Any] = [
+            "file": "file1",
+            "field": "field1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "Field-form Condition without `page` must fail")
         XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
     }
 }
