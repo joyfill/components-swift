@@ -29,6 +29,7 @@ public struct Form: View {
             }
         }
         .environment(\.footerContainer, footerContainer)
+        .background(KeyboardFocusReleaseInstaller())
     }
 }
 
@@ -379,6 +380,34 @@ struct KeyboardDismissModifier: ViewModifier {
             content.gesture(DragGesture().onChanged({ _ in
                 UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
             }))
+        }
+    }
+}
+
+// Releases focus on touch-down so UIKit has no first responder to restore when a sheet dismisses.
+struct KeyboardFocusReleaseInstaller: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView { InstallerView() }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    private final class InstallerView: UIView {
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            guard let window, !(window.gestureRecognizers ?? []).contains(where: { $0 is Observer }) else { return }
+            window.addGestureRecognizer(Observer())
+        }
+    }
+
+    private final class Observer: UIGestureRecognizer {
+        override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+            super.touchesBegan(touches, with: event)
+            state = .failed 
+
+            guard let window = view as? UIWindow, let touch = touches.first,
+                  let hit = window.hitTest(touch.location(in: window), with: event),
+                  !sequence(first: hit, next: \.superview).contains(where: { $0 is UITextInput })
+            else { return }
+            window.endEditing(true)
         }
     }
 }
