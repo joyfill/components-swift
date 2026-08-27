@@ -339,6 +339,7 @@ private struct DatePickerPopup: UIViewControllerRepresentable {
                 vc?.dismiss(animated: true)
             }
             context.coordinator.presented = vc
+            dismissKeyboard()
             host.present(vc, animated: true)
         } else if !isPresented, let vc = context.coordinator.presented {
             // Fallback: dismiss if SwiftUI catches the state change

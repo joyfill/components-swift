@@ -103,6 +103,7 @@ struct TableMultiSelectView: View {
             .disabled(cellModel.editMode == .readonly)
         }
         .onChange(of: showMoreImages) { _ in
+            dismissKeyboard()
             showMoreImages2 = true
         }
         .onAppear {

@@ -61,6 +61,7 @@ import JoyfillModel
                     .environment(\.footerContainer, FooterContainer())
             }
             .onChange(of: showMoreImages) { newValue in
+                dismissKeyboard()
                 showMoreImages2 = true
             }
             .onChange(of: valueElements) { newValue in
@@ -94,6 +95,7 @@ import JoyfillModel
                     .environment(\.footerContainer, FooterContainer())
             }
             .onChange(of: showMoreImages) { newValue in
+                dismissKeyboard()
                 showMoreImages2 = true
             }
             .onChange(of: valueElements) { newValue in

@@ -29,6 +29,7 @@ struct TableQuickView : View {
     }
         
     fileprivate func openTable() {
+        dismissKeyboard()
         isTableModalViewPresented = true
         tableDataModel.documentEditor?.setOpenNavigationFieldID(tableDataModel.fieldIdentifier.fieldID)
         if tableDataModel.mode == .fill {

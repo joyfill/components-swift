@@ -40,6 +40,7 @@ struct TableDropDownOptionListView: View {
         } else {
             VStack(alignment: .leading) {
                 Button(action: {
+                    dismissKeyboard()
                     cellModel.didFocusBlur?(.focus, cellModel.data)
                     isSheetPresented = Int.random(in: 0...100)
                 }, label: {
