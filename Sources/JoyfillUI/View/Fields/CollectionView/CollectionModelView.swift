@@ -65,7 +65,10 @@ struct CollectionModalView : View {
                     dismissKeyboard()
                     showEditMultipleRowsSheetView = true
                 },
-                onFilterTap: { dismissKeyboard(); showFilterModal = true })
+                onFilterTap: {
+                    dismissKeyboard()
+                    showFilterModal = true
+                })
             .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
                 if isDismissingForNavigation {
                     isDismissingForNavigation = false
