@@ -20,9 +20,9 @@ struct TableSignatureView: View {
     
     var body: some View {
         Button(action: {
+            dismissKeyboard()
             cellModel.didFocusBlur?(.focus, cellModel.data)
             loadImageFromURL()
-            dismissKeyboard()
             showCanvasSignatureView = true
         }, label: {
             Image(systemName: "signature")
