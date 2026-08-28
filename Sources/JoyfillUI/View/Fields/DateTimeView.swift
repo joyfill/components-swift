@@ -32,6 +32,7 @@ struct DateTimeView: View {
             if !dateString.isEmpty {
                 HStack(spacing: 8) {
                     Button {
+                        dismissKeyboard()
                         isDatePickerPresented = true
                     } label: {
                         Text(dateString)
