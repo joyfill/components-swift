@@ -56,6 +56,7 @@ struct TableMultiSelectView: View {
 
     var body: some View {
         Button(action: {
+            dismissKeyboard()
             cellModel.didFocusBlur?(.focus, cellModel.data)
             showMoreImages = Int.random(in: 0...100)
         }) {
@@ -103,7 +104,6 @@ struct TableMultiSelectView: View {
             .disabled(cellModel.editMode == .readonly)
         }
         .onChange(of: showMoreImages) { _ in
-            dismissKeyboard()
             showMoreImages2 = true
         }
         .onAppear {
