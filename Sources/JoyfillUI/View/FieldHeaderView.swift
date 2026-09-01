@@ -57,6 +57,7 @@ struct FieldHeaderView: View {
             if let tipVisible = fieldHeaderModel?.tipVisible {
                 if tipVisible == true && !(tipDescription.isEmpty && tipTitle.isEmpty) {
                     Button(action: {
+                        dismissKeyboard()
                         if let tipTitle = fieldHeaderModel?.tipTitle,
                            let tipDescription = fieldHeaderModel?.tipDescription {
                             alertMessage = tipTitle

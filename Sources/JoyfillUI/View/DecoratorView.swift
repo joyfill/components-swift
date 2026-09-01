@@ -270,7 +270,10 @@ struct RowDecoratorMenuView: View {
     }
 
     private var kebabButton: some View {
-        DecoratorKebabButton { showingPopover = true }
+        DecoratorKebabButton {
+            dismissKeyboard()
+            showingPopover = true
+        }
             .frame(width: 40, height: 60)
             .contentShape(Rectangle())
             .accessibilityIdentifier("row_decorator_menu")

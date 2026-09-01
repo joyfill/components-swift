@@ -67,6 +67,7 @@ struct HiddenCellView: View {
 
     var body: some View {
         Button {
+            dismissKeyboard()
             showTooltip = true
         } label: {
             Image(systemName: "eye.slash.fill")

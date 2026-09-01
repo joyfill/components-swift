@@ -112,6 +112,7 @@ struct ImageView: View {
                 }
             } else {
                 Button(action: {
+                    dismissKeyboard()
                     eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                     uploadAction()
                 }, label: {
