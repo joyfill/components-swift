@@ -179,7 +179,10 @@ struct FieldDecoratorsView: View {
     var body: some View {
         if !displayable.isEmpty {
             if exceedsLimit {
-                DecoratorKebabButton { showingOverflow = true }
+                DecoratorKebabButton {
+                    dismissKeyboard()
+                    showingOverflow = true
+                }
                     .padding(.horizontal, 10)
                     .frame(minHeight: 32)
                     .background(Color.blue.opacity(0.12))
