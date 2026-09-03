@@ -496,8 +496,10 @@ struct PageDuplicateListView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             }
+            .accessibilityIdentifier("PageSelectionScrollViewIdentifier")
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .alert(isPresented: $showDeleteConfirmation) {
             Alert(
                 title: Text("Delete Page?"),

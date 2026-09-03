@@ -59,6 +59,17 @@ final class CellVisibilityLogicTest: XCTestCase {
         ]
     }
 
+    func pageFieldVisibilityLogicDictionary(action: String, pageFieldID: String, value: ValueUnion) -> [String: Any] {
+        [
+            "action": action,
+            "eval": EvaluationType.and.rawValue,
+            "conditions": [
+                ["file": fileID, "page": pageID, "field": pageFieldID, "condition": "=", "value": value, "_id": UUID().uuidString]
+            ],
+            "_id": UUID().uuidString
+        ]
+    }
+
     func buildColumn(id: String, type: ColumnTypes, title: String, cellVisibilityLogic: [String: Any]? = nil, cellsHidden: Bool? = nil) -> FieldTableColumn {
         var dict: [String: Any] = [
             "_id": id,
@@ -1039,6 +1050,128 @@ final class CellVisibilityLogicTest: XCTestCase {
         XCTAssertEqual(status, .valid, "Required-but-hidden empty cell must validate as valid; the user can't fill what they can't see")
     }
 
+    func testValidatePathTreatsHiddenRequiredTableCellAsValid() {
+        let logic = cellVisibilityLogicDictionary(
+            isShow: true,
+            conditions: [LogicConditionTest(fieldID: statusColumnID, conditionType: .equals, value: .string("Rejected"))]
+        )
+        var reasonDict = buildColumn(id: reasonColumnID, type: .text, title: "Reason", cellVisibilityLogic: logic).dictionary
+        reasonDict["required"] = true
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            FieldTableColumn(dictionary: reasonDict),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let editor = documentEditor(document: buildDocument(
+            columns: columns,
+            rows: [row(id: row1ID, cells: [statusColumnID: "Approved", reasonColumnID: ""])]
+        ))
+
+        guard let fieldPositionID = editor.fieldPosition(fieldID: tableFieldID)?.id,
+              let pathPageID = editor.getFieldIdentifier(forFieldPositionID: fieldPositionID)?.pageID else {
+            XCTFail("Expected table field position")
+            return
+        }
+
+        let result = editor.validate(path: "\(pathPageID)/\(fieldPositionID)/\(row1ID)/\(reasonColumnID)")
+        if case .cell(let validity) = result {
+            XCTAssertEqual(validity.status, .valid,
+                           "Path validation should mirror full validation for hidden required cells")
+        } else {
+            XCTFail("Expected cell validity for hidden-but-present table cell, got \(result)")
+        }
+    }
+
+    func testValidateRequiredHiddenTableColumnIsOmittedFromValidation() {
+        let logic = pageFieldVisibilityLogicDictionary(action: "hide", pageFieldID: pageTextFieldID, value: .string("Yes"))
+        var reasonDict = buildColumn(id: reasonColumnID, type: .text, title: "Reason").dictionary
+        reasonDict["required"] = true
+        reasonDict["logic"] = logic
+
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            FieldTableColumn(dictionary: reasonDict),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved", reasonColumnID: ""])]
+
+        var tableField = JoyDocField()
+        tableField.type = "table"
+        tableField.id = tableFieldID
+        tableField.identifier = "field_\(tableFieldID)"
+        tableField.file = fileID
+        tableField.tableColumns = columns
+        tableField.tableColumnOrder = columns.compactMap(\.id)
+        tableField.rowOrder = [row1ID]
+        tableField.value = .valueElementArray(rows)
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Yes"))
+        document.fields.append(tableField)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [pageTextFieldID: .text, tableFieldID: .table])
+
+        let editor = documentEditor(document: document)
+        XCTAssertFalse(editor.shouldShowColumn(columnID: reasonColumnID, fieldID: tableFieldID))
+
+        let status = editor.validate().fieldValidities
+            .first(where: { $0.fieldId == tableFieldID })?
+            .rowValidities?.first(where: { $0.rowId == row1ID })?
+            .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
+        XCTAssertNil(status, "Hidden columns should not emit cell validity entries")
+    }
+
+    func testValidatePathForHiddenRequiredTableColumnReturnsNotFound() {
+        let logic = pageFieldVisibilityLogicDictionary(action: "hide", pageFieldID: pageTextFieldID, value: .string("Yes"))
+        var reasonDict = buildColumn(id: reasonColumnID, type: .text, title: "Reason").dictionary
+        reasonDict["required"] = true
+        reasonDict["logic"] = logic
+
+        let columns = [
+            buildColumn(id: statusColumnID, type: .text, title: "Status"),
+            FieldTableColumn(dictionary: reasonDict),
+            buildColumn(id: noteColumnID, type: .text, title: "Note")
+        ]
+        let rows = [row(id: row1ID, cells: [statusColumnID: "Approved", reasonColumnID: ""])]
+
+        var tableField = JoyDocField()
+        tableField.type = "table"
+        tableField.id = tableFieldID
+        tableField.identifier = "field_\(tableFieldID)"
+        tableField.file = fileID
+        tableField.tableColumns = columns
+        tableField.tableColumnOrder = columns.compactMap(\.id)
+        tableField.rowOrder = [row1ID]
+        tableField.value = .valueElementArray(rows)
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Yes"))
+        document.fields.append(tableField)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [pageTextFieldID: .text, tableFieldID: .table])
+
+        let editor = documentEditor(document: document)
+        guard let fieldPositionID = editor.fieldPosition(fieldID: tableFieldID)?.id,
+              let pathPageID = editor.getFieldIdentifier(forFieldPositionID: fieldPositionID)?.pageID else {
+            XCTFail("Expected table field position")
+            return
+        }
+
+        let result = editor.validate(path: "\(pathPageID)/\(fieldPositionID)/\(row1ID)/\(reasonColumnID)")
+        guard case .notFound = result else {
+            XCTFail("Hidden columns are omitted from row validity and should be notFound by path, got \(result)")
+            return
+        }
+    }
+
     // MARK: - Collection cell visibility (schema-aware; mirrors the table paths)
 
     let collectionFieldID = "cell_vis_collection_001"
@@ -1591,6 +1724,51 @@ final class CellVisibilityLogicTest: XCTestCase {
             .rowValidities?.first(where: { $0.rowId == collRootRow1 })?
             .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
         XCTAssertEqual(status, .valid, "Required-but-hidden empty cell must validate as valid; the user can't fill what they can't see")
+    }
+
+    func testValidateRequiredHiddenCollectionColumnIsOmittedFromValidation() {
+        let logic = pageFieldVisibilityLogicDictionary(action: "hide", pageFieldID: pageTextFieldID, value: .string("Yes"))
+        var reasonDict = buildColumn(id: reasonColumnID, type: .text, title: "Reason").dictionary
+        reasonDict["required"] = true
+        reasonDict["logic"] = logic
+
+        let rootSchemaDict: [String: Any] = [
+            "title": "Root",
+            "root": true,
+            "children": [String](),
+            "tableColumns": [
+                buildColumn(id: statusColumnID, type: .text, title: "Status").dictionary,
+                reasonDict
+            ]
+        ]
+
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = collectionFieldID
+        field.identifier = "field_\(collectionFieldID)"
+        field.title = "Cell Visibility Collection"
+        field.file = fileID
+        field.dictionary["schema"] = [collRootSchema: rootSchemaDict]
+        field.value = .valueElementArray([ValueElement(dictionary: collRootRow(id: collRootRow1, status: "Approved"))])
+
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setTextField(hidden: false, value: .string("Yes"))
+        document.fields.append(field)
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [pageTextFieldID: .text, collectionFieldID: .collection])
+
+        let editor = documentEditor(document: document)
+        XCTAssertFalse(editor.shouldShowColumn(columnID: reasonColumnID, fieldID: collectionFieldID, schemaKey: collRootSchema))
+
+        let status = editor.validate().fieldValidities
+            .first(where: { $0.fieldId == collectionFieldID })?
+            .rowValidities?.first(where: { $0.rowId == collRootRow1 && $0.schemaId == collRootSchema })?
+            .cellValidities.first(where: { $0.columnId == reasonColumnID })?.status
+        XCTAssertNil(status, "Hidden collection columns should not emit cell validity entries")
     }
 
     func testValidateTreatsHiddenRequiredNestedCollectionCellAsValid() {
