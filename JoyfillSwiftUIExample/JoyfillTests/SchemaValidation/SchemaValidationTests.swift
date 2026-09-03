@@ -12,7 +12,7 @@ import Joyfill
 
 final class SchemaValidationTests: XCTestCase {
     /// The schema version expected in `SchemaValidationError.details`.
-    private let expectedSchemaVersion = "1.0.5"
+    private let expectedSchemaVersion = "1.0.6"
     private let sdkVersion = "3.0.0-rc25"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
@@ -375,7 +375,7 @@ final class SchemaValidationTests: XCTestCase {
         }
     }
 
-    // MARK: - Schema 1.0.5: SchemaLogicCondition oneOf (collection vs field form)
+    // MARK: - SchemaLogicCondition oneOf (collection-schema logic: collection vs field form)
 
     /// Builds a valid document whose collection field carries a `SchemaDefinition.logic`
     /// with a single `SchemaLogicCondition` equal to `condition`, so the `oneOf`
@@ -466,6 +466,256 @@ final class SchemaValidationTests: XCTestCase {
         let err = JoyfillSchemaManager().validateSchema(document: documentWithSchemaLogicCondition(condition))
         XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "A condition matching neither oneOf branch must fail")
         XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
+
+    // MARK: - Condition oneOf (field vs column form)
+
+    /// Builds a valid document whose table column carries a `requiredLogic` with a single
+    /// `Condition` equal to `condition`, so the `oneOf` at `Condition` is actually exercised.
+    /// Unlike `SchemaLogicCondition` this definition backs every `Logic` in a document —
+    /// field show/hide, column `logic`, `cellVisibilityLogic`, `requiredLogic`, `cellRequiredLogic`.
+    private func documentWithCondition(_ condition: [String: Any]) -> JoyDoc {
+        documentWithColumnLogic(slot: "requiredLogic", logic: [
+            "action": "enforce",
+            "eval": "and",
+            "conditions": [condition]
+        ])
+    }
+
+    /// Builds a valid document whose single table column carries `logic` under `slot` — one of the
+    /// column logic slots (`logic`, `requiredLogic`, `cellRequiredLogic`, `cellVisibilityLogic`).
+    private func documentWithColumnLogic(slot: String, logic: Any) -> JoyDoc {
+        var docDict = minimalValidDocumentDictionary()
+        let tableField: [String: Any] = [
+            "_id": "table1",
+            "type": "table",
+            "file": "file1",
+            "value": [],
+            "rowOrder": [],
+            "tableColumnOrder": ["text1"],
+            "tableColumns": [
+                [
+                    "_id": "text1",
+                    "type": "text",
+                    slot: logic
+                ]
+            ]
+        ]
+        docDict["fields"] = [tableField]
+        return JoyDoc(dictionary: docDict)
+    }
+
+    // (a) Field form (file/page/field/condition) validates.
+    func testCondition_FieldForm_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "field": "field1",
+            "condition": "=",
+            "value": "foo"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertNil(err, "Field-form Condition (file/page/field/condition) should validate")
+    }
+
+    // (b) Column form (column/condition) validates.
+    func testCondition_ColumnForm_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "column": "col1",
+            "condition": "=",
+            "value": "foo"
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertNil(err, "Column-form Condition (column/condition) should validate")
+    }
+
+    // (b') Column form carrying file/page but no `field` still matches only branch 2.
+    func testCondition_ColumnForm_WithFileAndPage_ShouldValidate() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "column": "col1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertNil(err, "Column-form Condition with file/page but no field should validate")
+    }
+
+    // (c) A mixed object matches BOTH oneOf branches → exactly-one semantics must reject it.
+    func testCondition_MixedForm_ShouldFail() {
+        let condition: [String: Any] = [
+            "_id": "cond1",
+            "file": "file1",
+            "page": "page1",
+            "field": "field1",
+            "column": "col1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "A condition satisfying both oneOf branches must fail (oneOf = exactly one)")
+        XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
+
+    // (d) Field form without `page` must fail. Note this diverges from `SchemaLogicCondition`,
+    // where `page` is optional — see `testSchemaLogicCondition_FieldForm_WithoutOptionalPage_ShouldValidate`.
+    // 1.0.5's `Condition` already required file/page, so this is not new for `logic`; it is new for
+    // the slots 1.0.5 left undeclared — see the 1.0.5 -> 1.0.6 migration tests below.
+    func testCondition_FieldForm_WithoutPage_ShouldFail() {
+        let condition: [String: Any] = [
+            "file": "file1",
+            "field": "field1",
+            "condition": "="
+        ]
+        let err = JoyfillSchemaManager().validateSchema(document: documentWithCondition(condition))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "Field-form Condition without `page` must fail")
+        XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+    }
+
+    // MARK: - Column logic slots (requiredLogic / cellRequiredLogic / cellVisibilityLogic)
+
+    /// The three slots 1.0.6 adds to every column type. `requiredLogic` and `cellRequiredLogic`
+    /// resolve to `RequiredLogic`, `cellVisibilityLogic` to `Logic`; the two definitions are
+    /// currently identical, so all three require the same keys.
+    private let columnLogicSlots = ["requiredLogic", "cellRequiredLogic", "cellVisibilityLogic"]
+
+    /// A column-form `Condition` — the shape column logic uses, referencing a sibling column.
+    private func siblingColumnLogic(action: String) -> [String: Any] {
+        [
+            "action": action,
+            "eval": "and",
+            "conditions": [["column": "other1", "condition": "=", "value": "foo"]]
+        ]
+    }
+
+    func testColumnLogicSlots_ShouldValidate() {
+        for slot in columnLogicSlots {
+            let action = slot == "cellVisibilityLogic" ? "show" : "enforce"
+            let doc = documentWithColumnLogic(slot: slot, logic: siblingColumnLogic(action: action))
+            XCTAssertNil(JoyfillSchemaManager().validateSchema(document: doc), "A well-formed `\(slot)` should validate")
+        }
+    }
+
+    /// `action`, `eval` and `conditions` are all required. The runtime fall-back for a missing
+    /// `action` is therefore only reachable with validation off — see
+    /// `RequiredLogicTests.testFieldRequiredLogicWithoutActionFallsBackToStaticRequired`.
+    func testColumnLogicSlots_MissingRequiredKeys_ShouldFail() {
+        for slot in columnLogicSlots {
+            let action = slot == "cellVisibilityLogic" ? "show" : "enforce"
+            for key in ["action", "eval", "conditions"] {
+                var logic = siblingColumnLogic(action: action)
+                logic.removeValue(forKey: key)
+                let doc = documentWithColumnLogic(slot: slot, logic: logic)
+                let err = JoyfillSchemaManager().validateSchema(document: doc)
+                XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "`\(slot)` without `\(key)` must fail validation")
+                XCTAssertEqual(expectedSchemaVersion, err?.details.schemaVersion)
+            }
+        }
+    }
+
+    /// `cellsHidden` is a boolean, so the string form some hand-written documents carry now fails.
+    func testColumnCellsHidden_StringForm_ShouldFail() {
+        var docDict = minimalValidDocumentDictionary()
+        let tableField: [String: Any] = [
+            "_id": "table1",
+            "type": "table",
+            "file": "file1",
+            "value": [],
+            "rowOrder": [],
+            "tableColumnOrder": ["text1"],
+            "tableColumns": [["_id": "text1", "type": "text", "cellsHidden": "true"]]
+        ]
+        docDict["fields"] = [tableField]
+        let err = JoyfillSchemaManager().validateSchema(document: JoyDoc(dictionary: docDict))
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "`cellsHidden` as a string must fail validation")
+    }
+
+    // MARK: - Field-level requiredLogic
+
+    private func documentWithFieldRequiredLogic(_ logic: Any) -> JoyDoc {
+        var docDict = minimalValidDocumentDictionary()
+        let textField: [String: Any] = [
+            "_id": "text1",
+            "type": "text",
+            "file": "file1",
+            "value": "",
+            "requiredLogic": logic
+        ]
+        docDict["fields"] = [textField]
+        return JoyDoc(dictionary: docDict)
+    }
+
+    func testFieldRequiredLogic_ShouldValidate() {
+        let logic: [String: Any] = [
+            "action": "enforce",
+            "eval": "and",
+            "conditions": [["file": "file1", "page": "page1", "field": "dropdown1", "condition": "=", "value": "yes"]]
+        ]
+        XCTAssertNil(JoyfillSchemaManager().validateSchema(document: documentWithFieldRequiredLogic(logic)),
+                     "A well-formed field-level `requiredLogic` should validate")
+    }
+
+    func testFieldRequiredLogic_MissingRequiredKeys_ShouldFail() {
+        let complete: [String: Any] = [
+            "action": "enforce",
+            "eval": "and",
+            "conditions": [["file": "file1", "page": "page1", "field": "dropdown1", "condition": "="]]
+        ]
+        for key in ["action", "eval", "conditions"] {
+            var logic = complete
+            logic.removeValue(forKey: key)
+            let err = JoyfillSchemaManager().validateSchema(document: documentWithFieldRequiredLogic(logic))
+            XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "Field `requiredLogic` without `\(key)` must fail validation")
+        }
+    }
+
+    // MARK: - 1.0.5 -> 1.0.6 migration
+
+    /// The shape 1.0.5 accepted and 1.0.6 rejects: a `requiredLogic` whose field-form condition
+    /// carries no `file`/`page`. No definition in the schema sets `additionalProperties: false`, so
+    /// while 1.0.5 left `requiredLogic` undeclared the whole subtree went unvalidated — declaring it
+    /// is what starts validating it. This is the pre-PR `RequiredLogic.json` fixture shape.
+    private func legacyDocumentWithUnvalidatedRequiredLogic() -> JoyDoc {
+        documentWithCondition(["field": "field1", "condition": "=", "value": "foo"])
+    }
+
+    func testLegacyRequiredLogicDocument_FailsUnderCurrentSchema() {
+        let err = JoyfillSchemaManager().validateSchema(document: legacyDocumentWithUnvalidatedRequiredLogic())
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", err?.code, "1.0.6 rejects the requiredLogic shape 1.0.5 accepted")
+    }
+
+    /// And the consequence is total: `DocumentEditor` swaps in an empty `JoyDoc`, so `FormView`
+    /// renders the error screen instead of the form. One legacy condition blanks the document.
+    func testLegacyRequiredLogicDocument_BlanksTheDocumentWhenValidated() {
+        let editor = DocumentEditor(document: legacyDocumentWithUnvalidatedRequiredLogic())
+        XCTAssertEqual("ERROR_SCHEMA_VALIDATION", editor.schemaError?.code)
+        XCTAssertTrue(editor.allFields.isEmpty, "A failed validation replaces the whole document, not just the offending field")
+    }
+
+    /// `validateSchema: false` still loads the document as-is, so a host can take the SDK upgrade
+    /// before its stored documents are backfilled.
+    func testLegacyRequiredLogicDocument_LoadsWithValidationDisabled() {
+        let editor = DocumentEditor(document: legacyDocumentWithUnvalidatedRequiredLogic(), validateSchema: false)
+        XCTAssertNil(editor.schemaError)
+        XCTAssertNotNil(editor.field(fieldID: "table1"), "With validation off the legacy document still renders")
+    }
+
+    /// The migrated form of the same document — `file`/`page` added — loads with validation on.
+    /// Together with `testLegacyRequiredLogicDocument_BlanksTheDocumentWhenValidated` this is the
+    /// `validateSchema: false` -> `true` switch: conforming documents render, others blank.
+    func testMigratedRequiredLogicDocument_LoadsWithValidationEnabled() {
+        let document = documentWithCondition([
+            "file": "file1",
+            "page": "page1",
+            "field": "field1",
+            "condition": "=",
+            "value": "foo"
+        ])
+        let editor = DocumentEditor(document: document)
+        XCTAssertNil(editor.schemaError, "The migrated document must survive validation")
+        XCTAssertNotNil(editor.field(fieldID: "table1"))
     }
 }
 

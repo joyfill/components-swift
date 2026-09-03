@@ -33,26 +33,59 @@ final class RequiredLogicTests: XCTestCase {
     func documentEditor(
         document: JoyDoc,
         mode: Mode = .fill,
-        isPageDuplicateEnabled: Bool = false
+        isPageDuplicateEnabled: Bool = false,
+        validateSchema: Bool = true,
+        file: StaticString = #filePath,
+        line: UInt = #line
     ) -> DocumentEditor {
-        DocumentEditor(
+        let editor = DocumentEditor(
             document: document,
             mode: mode,
             isPageDuplicateEnabled: isPageDuplicateEnabled,
-            validateSchema: false,
+            validateSchema: validateSchema,
             license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
         )
+        if validateSchema {
+            XCTAssertNil(editor.schemaError, "Fixture must satisfy the JoyDoc schema", file: file, line: line)
+        }
+        return editor
+    }
+
+    // MARK: - Schema scaffolding
+    //
+    // The JoyDoc schema requires layout geometry on every page and field position. It is irrelevant
+    // to required logic, so these helpers supply it once instead of at every fixture site.
+
+    private func page(_ id: String, fieldPositions: [[String: Any]]) -> [String: Any] {
+        [
+            "_id": id, "name": "Page \(id)", "fieldPositions": fieldPositions,
+            "width": 816, "height": 1056, "cols": 8, "rowHeight": 8,
+            "layout": "grid", "presentation": "normal"
+        ]
+    }
+
+    private func fieldPosition(_ id: String, field: String, type: String) -> [String: Any] {
+        ["_id": id, "field": field, "type": type, "displayType": "original",
+         "x": 0, "y": 0, "width": 4, "height": 8]
     }
 
     // MARK: - Builders
 
+    /// A page-field condition. The schema requires `file` and `page` alongside `field`.
+    private func fieldCondition(_ field: String, value: Any, condition: String = "=") -> [String: Any] {
+        ["file": fileID, "page": pageID, "field": field,
+         "condition": condition, "value": value, "_id": UUID().uuidString]
+    }
+
+    /// A sibling-column condition, resolved against the same row's cells.
+    private func columnCondition(_ column: String, value: Any, condition: String = "=") -> [String: Any] {
+        ["column": column, "condition": condition, "value": value, "_id": UUID().uuidString]
+    }
+
     private func requiredLogic(action: String?, condField: String, value: Any, condition: String = "=") -> [String: Any] {
         var logic: [String: Any] = [
             "eval": "and",
-            "conditions": [[
-                "file": fileID, "page": pageID, "field": condField,
-                "condition": condition, "value": value, "_id": UUID().uuidString
-            ]],
+            "conditions": [fieldCondition(condField, value: value, condition: condition)],
             "_id": UUID().uuidString
         ]
         if let action { logic["action"] = action }
@@ -64,10 +97,7 @@ final class RequiredLogicTests: XCTestCase {
         [
             "action": action,
             "eval": eval,
-            "conditions": conditions.map { c in
-                ["file": fileID, "page": pageID, "field": c.field,
-                 "condition": c.condition, "value": c.value, "_id": UUID().uuidString] as [String: Any]
-            },
+            "conditions": conditions.map { fieldCondition($0.field, value: $0.value, condition: $0.condition) },
             "_id": UUID().uuidString
         ]
     }
@@ -77,10 +107,7 @@ final class RequiredLogicTests: XCTestCase {
     private func cellRequiredLogic(action: String?, condColumn: String, value: Any, condition: String = "=") -> [String: Any] {
         var logic: [String: Any] = [
             "eval": "and",
-            "conditions": [[
-                "column": condColumn,
-                "condition": condition, "value": value, "_id": UUID().uuidString
-            ]],
+            "conditions": [columnCondition(condColumn, value: value, condition: condition)],
             "_id": UUID().uuidString
         ]
         if let action { logic["action"] = action }
@@ -99,13 +126,10 @@ final class RequiredLogicTests: XCTestCase {
             "_id": "doc-1",
             "files": [[
                 "_id": fileID, "pageOrder": [pageID],
-                "pages": [[
-                    "_id": pageID,
-                    "fieldPositions": [
-                        ["_id": "fp-text", "field": textFieldID, "type": "text"],
-                        ["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"],
-                    ],
-                ]],
+                "pages": [page(pageID, fieldPositions: [
+                    fieldPosition("fp-text", field: textFieldID, type: "text"),
+                    fieldPosition("fp-dd", field: dropdownFieldID, type: "dropdown"),
+                ])],
             ]],
             "fields": [
                 textField,
@@ -151,13 +175,15 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(textStatus(editor), .invalid)
     }
 
+    /// The schema requires `action` on requiredLogic, so this fallback is only reachable with
+    /// validation off — which is a supported `DocumentEditor` configuration.
     func testFieldRequiredLogicWithoutActionFallsBackToStaticRequired() {
         let requiredEditor = documentEditor(document: makeFieldLevelDoc(
             action: nil,
             staticRequired: true,
             textValue: nil,
             dropdownValue: optYes
-        ))
+        ), validateSchema: false)
         XCTAssertTrue(requiredEditor.isFieldRequired(fieldID: textFieldID))
         XCTAssertEqual(textStatus(requiredEditor), .invalid)
 
@@ -166,7 +192,7 @@ final class RequiredLogicTests: XCTestCase {
             staticRequired: false,
             textValue: nil,
             dropdownValue: optYes
-        ))
+        ), validateSchema: false)
         XCTAssertFalse(optionalEditor.isFieldRequired(fieldID: textFieldID))
         XCTAssertEqual(textStatus(optionalEditor), .valid)
     }
@@ -196,7 +222,7 @@ final class RequiredLogicTests: XCTestCase {
         dropdownValue: String,
         fieldRequiredLogic: [String: Any]? = nil
     ) -> JoyDoc {
-        var fieldPositions: [[String: Any]] = [["_id": "fp-table", "field": tableFieldID, "type": "table"]]
+        var fieldPositions: [[String: Any]] = [fieldPosition("fp-table", field: tableFieldID, type: "table")]
         var tableField: [String: Any] = [
             "_id": tableFieldID, "file": fileID, "type": "table", "required": false,
             "tableColumns": [
@@ -212,7 +238,7 @@ final class RequiredLogicTests: XCTestCase {
         var fields: [[String: Any]] = [tableField]
 
         if includePageDropdown {
-            fieldPositions.append(["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"])
+            fieldPositions.append(fieldPosition("fp-dd", field: dropdownFieldID, type: "dropdown"))
             fields.append(["_id": dropdownFieldID, "file": fileID, "type": "dropdown", "value": dropdownValue,
                            "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]])
         }
@@ -221,7 +247,7 @@ final class RequiredLogicTests: XCTestCase {
             "_id": "doc-1",
             "files": [[
                 "_id": fileID, "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": fieldPositions]],
+                "pages": [page(pageID, fieldPositions: fieldPositions)],
             ]],
             "fields": fields,
         ])
@@ -322,6 +348,8 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(noMatchEditor, rowId: "row-2", columnId: textColumnID), .valid)
     }
 
+    /// The schema requires `action` on requiredLogic, so this fallback is only reachable with
+    /// validation off — which is a supported `DocumentEditor` configuration.
     func testColumnRequiredLogicWithoutActionFallsBackToStaticRequired() {
         let rows: [[String: Any]] = [[
             "_id": "row-1",
@@ -340,7 +368,7 @@ final class RequiredLogicTests: XCTestCase {
             rows: rows,
             includePageDropdown: true,
             dropdownValue: optYes
-        ))
+        ), validateSchema: false)
         XCTAssertTrue(requiredEditor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID))
         XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
 
@@ -356,7 +384,7 @@ final class RequiredLogicTests: XCTestCase {
             rows: rows,
             includePageDropdown: true,
             dropdownValue: optYes
-        ))
+        ), validateSchema: false)
         XCTAssertFalse(optionalEditor.isColumnRequired(columnID: textColumnID, fieldID: tableFieldID))
         XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
     }
@@ -379,6 +407,8 @@ final class RequiredLogicTests: XCTestCase {
         XCTAssertEqual(cellStatus(editor, rowId: "row-nomatch", columnId: textColumnID), .valid)
     }
 
+    /// The schema requires `action` on cellRequiredLogic, so this fallback is only reachable with
+    /// validation off — which is a supported `DocumentEditor` configuration.
     func testCellRequiredLogicWithoutActionFallsBackToColumnRequiredState() {
         let rows: [[String: Any]] = [[
             "_id": "row-1",
@@ -397,7 +427,7 @@ final class RequiredLogicTests: XCTestCase {
             rows: rows,
             includePageDropdown: false,
             dropdownValue: optNo
-        ))
+        ), validateSchema: false)
         XCTAssertTrue(requiredEditor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
         XCTAssertEqual(cellStatus(requiredEditor, rowId: "row-1", columnId: textColumnID), .invalid)
 
@@ -413,7 +443,7 @@ final class RequiredLogicTests: XCTestCase {
             rows: rows,
             includePageDropdown: false,
             dropdownValue: optNo
-        ))
+        ), validateSchema: false)
         XCTAssertFalse(optionalEditor.isCellRequired(columnID: textColumnID, fieldID: tableFieldID, rowID: "row-1"))
         XCTAssertEqual(cellStatus(optionalEditor, rowId: "row-1", columnId: textColumnID), .valid)
     }
@@ -609,17 +639,17 @@ final class RequiredLogicTests: XCTestCase {
                 "action": cellAction, "eval": cellEval, "_id": UUID().uuidString,
                 "conditions": [
                     // sibling-column condition (resolved against the row's own cells)
-                    ["column": ddColumnID, "condition": "=", "value": conditionSiblingValue, "_id": UUID().uuidString],
+                    columnCondition(ddColumnID, value: conditionSiblingValue),
                     // page-field condition (resolved against the document)
-                    ["field": numberFieldID, "condition": "=", "value": conditionPageNumberValue, "_id": UUID().uuidString],
+                    fieldCondition(numberFieldID, value: conditionPageNumberValue),
                 ] as [[String: Any]],
             ] as [String: Any],
         ]
         if let columnRequiredLogic = columnRequiredLogic { textColumn["requiredLogic"] = columnRequiredLogic }
 
         var fieldPositions: [[String: Any]] = [
-            ["_id": "fp-table", "field": tableFieldID, "type": "table"],
-            ["_id": "fp-num", "field": numberFieldID, "type": "number"],
+            fieldPosition("fp-table", field: tableFieldID, type: "table"),
+            fieldPosition("fp-num", field: numberFieldID, type: "number"),
         ]
         var fields: [[String: Any]] = [
             [
@@ -635,7 +665,7 @@ final class RequiredLogicTests: XCTestCase {
             ["_id": numberFieldID, "file": fileID, "type": "number", "value": pageNumberValue],
         ]
         if includePageDropdown {
-            fieldPositions.append(["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"])
+            fieldPositions.append(fieldPosition("fp-dd", field: dropdownFieldID, type: "dropdown"))
             fields.append(["_id": dropdownFieldID, "file": fileID, "type": "dropdown", "value": dropdownValue,
                            "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]])
         }
@@ -644,7 +674,7 @@ final class RequiredLogicTests: XCTestCase {
             "_id": "doc-1",
             "files": [[
                 "_id": fileID, "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": fieldPositions]],
+                "pages": [page(pageID, fieldPositions: fieldPositions)],
             ]],
             "fields": fields,
         ])
@@ -755,13 +785,13 @@ final class RequiredLogicTests: XCTestCase {
             "_id": "text1", "type": "text", "title": "Text Column", "required": true,
             "requiredLogic": [
                 "action": "unenforce", "eval": "and", "_id": UUID().uuidString,
-                "conditions": [["field": pageDropdownID, "condition": "=", "value": pageYes, "_id": UUID().uuidString]] as [[String: Any]],
+                "conditions": [fieldCondition(pageDropdownID, value: pageYes)] as [[String: Any]],
             ] as [String: Any],
             "cellRequiredLogic": [
                 "action": "enforce", "eval": "and", "_id": UUID().uuidString,
                 "conditions": [
-                    ["column": "dropdown1", "condition": "=", "value": tblNo, "_id": UUID().uuidString],
-                    ["field": numberFieldID, "condition": "=", "value": number1Value, "_id": UUID().uuidString],
+                    columnCondition("dropdown1", value: tblNo),
+                    fieldCondition(numberFieldID, value: number1Value),
                 ] as [[String: Any]],
             ] as [String: Any],
         ]
@@ -778,11 +808,11 @@ final class RequiredLogicTests: XCTestCase {
             "_id": "doc-1",
             "files": [[
                 "_id": fileID, "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": [
-                    ["_id": "fp-table", "field": tableFieldID, "type": "table"],
-                    ["_id": "fp-dd", "field": pageDropdownID, "type": "dropdown"],
-                    ["_id": "fp-num", "field": numberFieldID, "type": "number"],
-                ]]],
+                "pages": [page(pageID, fieldPositions: [
+                    fieldPosition("fp-table", field: tableFieldID, type: "table"),
+                    fieldPosition("fp-dd", field: pageDropdownID, type: "dropdown"),
+                    fieldPosition("fp-num", field: numberFieldID, type: "number"),
+                ])],
             ]],
             "fields": [
                 ["_id": tableFieldID, "file": fileID, "type": "table", "required": false,
@@ -840,8 +870,8 @@ final class RequiredLogicTests: XCTestCase {
             "cellRequiredLogic": [
                 "action": "enforce", "eval": "and", "_id": UUID().uuidString,
                 "conditions": [
-                    ["column": rootDdCol, "condition": "=", "value": optYes, "_id": UUID().uuidString],
-                    ["field": dropdownFieldID, "condition": "=", "value": optYes, "_id": UUID().uuidString],
+                    columnCondition(rootDdCol, value: optYes),
+                    fieldCondition(dropdownFieldID, value: optYes),
                 ] as [[String: Any]],
             ] as [String: Any],
         ]
@@ -1019,11 +1049,11 @@ final class RequiredLogicTests: XCTestCase {
                 "_id": "doc-1",
                 "files": [[
                     "_id": fileID, "pageOrder": [pageID],
-                    "pages": [["_id": pageID, "fieldPositions": [
-                        ["_id": "fp-text", "field": textFieldID, "type": "text"],
-                        ["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"],
-                        ["_id": "fp-dd2", "field": dropdown2ID, "type": "dropdown"],
-                    ]]],
+                    "pages": [page(pageID, fieldPositions: [
+                        fieldPosition("fp-text", field: textFieldID, type: "text"),
+                        fieldPosition("fp-dd", field: dropdownFieldID, type: "dropdown"),
+                        fieldPosition("fp-dd2", field: dropdown2ID, type: "dropdown"),
+                    ])],
                 ]],
                 "fields": [
                     ["_id": textFieldID, "file": fileID, "type": "text", "required": false,
@@ -1062,7 +1092,7 @@ final class RequiredLogicTests: XCTestCase {
         includePageDropdown: Bool = false,
         dropdownValue: String = ""
     ) -> JoyDoc {
-        var fieldPositions: [[String: Any]] = [["_id": "fp-collection", "field": collectionFieldID, "type": "collection"]]
+        var fieldPositions: [[String: Any]] = [fieldPosition("fp-collection", field: collectionFieldID, type: "collection")]
         var collectionField: [String: Any] = [
             "_id": collectionFieldID, "file": fileID, "type": "collection", "required": false,
             "schema": [
@@ -1075,7 +1105,7 @@ final class RequiredLogicTests: XCTestCase {
         var fields: [[String: Any]] = [collectionField]
 
         if includePageDropdown {
-            fieldPositions.append(["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"])
+            fieldPositions.append(fieldPosition("fp-dd", field: dropdownFieldID, type: "dropdown"))
             fields.append(["_id": dropdownFieldID, "file": fileID, "type": "dropdown", "value": dropdownValue,
                            "options": [["_id": optYes, "value": "Yes"], ["_id": optNo, "value": "No"]]])
         }
@@ -1084,7 +1114,7 @@ final class RequiredLogicTests: XCTestCase {
             "_id": "doc-1",
             "files": [[
                 "_id": fileID, "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": fieldPositions]],
+                "pages": [page(pageID, fieldPositions: fieldPositions)],
             ]],
             "fields": fields,
         ])
@@ -1672,14 +1702,11 @@ final class RequiredLogicTests: XCTestCase {
             "files": [[
                 "_id": fileID,
                 "pageOrder": [pageID],
-                "pages": [[
-                    "_id": pageID,
-                    "fieldPositions": [
-                        ["_id": "fp-page-trigger", "field": dropdownFieldID, "type": "dropdown"],
-                        ["_id": "fp-table", "field": tableFieldID, "type": "table"],
-                        ["_id": "fp-collection", "field": collectionFieldID, "type": "collection"]
-                    ]
-                ]]
+                "pages": [page(pageID, fieldPositions: [
+                    fieldPosition("fp-page-trigger", field: dropdownFieldID, type: "dropdown"),
+                    fieldPosition("fp-table", field: tableFieldID, type: "table"),
+                    fieldPosition("fp-collection", field: collectionFieldID, type: "collection")
+                ])]
             ]],
             "fields": [pageField.dictionary, tableField.dictionary, collectionField.dictionary]
         ])

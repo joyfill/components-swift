@@ -45,7 +45,7 @@
       "identifier": "field_table1",
       "requiredLogic": {
         "action": "enforce", "eval": "and",
-        "conditions": [ { "field": "trigger1", "condition": "*=" } ]
+        "conditions": [ { "file": "file1", "page": "page1", "field": "trigger1", "condition": "*=" } ]
       },
       "tableColumns": [
         {
@@ -53,7 +53,7 @@
           "identifier": "table1_column_text1", "width": 0,
           "requiredLogic": {
             "action": "enforce", "eval": "and",
-            "conditions": [ { "field": "number1", "condition": "*=" } ]
+            "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "*=" } ]
           }
         },
         {
@@ -77,7 +77,7 @@
           "identifier": "table1_column_text3", "width": 0, "required": true,
           "requiredLogic": {
             "action": "unenforce", "eval": "and",
-            "conditions": [ { "field": "number1", "condition": "null=" } ]
+            "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "null=" } ]
           }
         },
         {
@@ -85,7 +85,7 @@
           "identifier": "table1_column_text4", "width": 0,
           "requiredLogic": {
             "action": "enforce", "eval": "and",
-            "conditions": [ { "field": "number1", "condition": "*=" } ]
+            "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "*=" } ]
           },
           "cellRequiredLogic": {
             "action": "unenforce", "eval": "and",
@@ -99,7 +99,7 @@
             "action": "enforce", "eval": "and",
             "conditions": [
               { "column": "dropdown1", "condition": "=", "value": "optNo" },
-              { "field": "number1", "condition": "=", "value": 100 }
+              { "file": "file1", "page": "page1", "field": "number1", "condition": "=", "value": 100 }
             ]
           }
         }
@@ -118,7 +118,7 @@
       "identifier": "field_collection1",
       "requiredLogic": {
         "action": "enforce", "eval": "and",
-        "conditions": [ { "field": "trigger1", "condition": "*=" } ]
+        "conditions": [ { "file": "file1", "page": "page1", "field": "trigger1", "condition": "*=" } ]
       },
       "schema": {
         "rootSchema": {
@@ -129,7 +129,7 @@
               "identifier": "collection1_column_text1", "width": 0,
               "requiredLogic": {
                 "action": "enforce", "eval": "and",
-                "conditions": [ { "field": "number1", "condition": "*=" } ]
+                "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "*=" } ]
               }
             },
             {
@@ -154,7 +154,7 @@
               "identifier": "collection1_column_dual1", "width": 0,
               "requiredLogic": {
                 "action": "enforce", "eval": "and",
-                "conditions": [ { "field": "number1", "condition": "*=" } ]
+                "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "*=" } ]
               },
               "cellRequiredLogic": {
                 "action": "unenforce", "eval": "and",
@@ -166,7 +166,7 @@
               "identifier": "collection1_column_text3", "width": 0, "required": true,
               "requiredLogic": {
                 "action": "unenforce", "eval": "and",
-                "conditions": [ { "field": "number1", "condition": "null=" } ]
+                "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "null=" } ]
               }
             }
           ]
@@ -191,7 +191,7 @@
               "identifier": "childSchema_column_flag1", "width": 0,
               "requiredLogic": {
                 "action": "enforce", "eval": "and",
-                "conditions": [ { "field": "number1", "condition": "*=" } ]
+                "conditions": [ { "file": "file1", "page": "page1", "field": "number1", "condition": "*=" } ]
               }
             }
           ]
