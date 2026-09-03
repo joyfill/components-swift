@@ -25,6 +25,7 @@ struct DropdownView: View {
                 eventHandler.onDecoratorAction(event: dropdownDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
             Button(action: {
+                dismissKeyboard()
                 activeFieldSheet = FieldSheetPresentation(model: dropdownDataModel)
                 eventHandler.onFocus(event: dropdownDataModel.fieldIdentifier)
             }, label: {

@@ -62,9 +62,13 @@ struct CollectionModalView : View {
                 viewModel: viewModel,
                 onEditTap: {
                     viewModel.tableDataModel.navigationIntent = .none
+                    dismissKeyboard()
                     showEditMultipleRowsSheetView = true
                 },
-                onFilterTap: { showFilterModal = true })
+                onFilterTap: {
+                    dismissKeyboard()
+                    showFilterModal = true
+                })
             .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
                 if isDismissingForNavigation {
                     isDismissingForNavigation = false
@@ -625,6 +629,7 @@ struct CollectionRowsHeaderView: View {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
                             viewModel.tableDataModel.navigationIntent = .none
+                            dismissKeyboard()
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
@@ -673,6 +678,7 @@ struct CollectionRowsHeaderView: View {
                             viewModel.tableDataModel.emptySelection()
                             viewModel.tableDataModel.toggleSelectionForCollection(rowID: rowModel.rowID)
                             viewModel.tableDataModel.navigationIntent = .none
+                            dismissKeyboard()
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")

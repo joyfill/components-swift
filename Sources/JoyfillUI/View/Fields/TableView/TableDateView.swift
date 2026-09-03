@@ -59,6 +59,7 @@ struct TableDateView: View {
                 HStack(spacing: 8) {
                     if !dateString.isEmpty {
                         Button {
+                            dismissKeyboard()
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                             isDatePickerPresented = true
                         } label: {

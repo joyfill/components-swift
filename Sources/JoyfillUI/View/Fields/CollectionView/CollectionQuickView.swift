@@ -89,6 +89,7 @@ struct CollectionQuickView : View {
     }
     
     func openCollection() {
+        dismissKeyboard()
         isTableModalViewPresented = true
         tableDataModel.documentEditor?.setOpenNavigationFieldID(tableDataModel.fieldIdentifier.fieldID)
         if tableDataModel.mode == .fill {

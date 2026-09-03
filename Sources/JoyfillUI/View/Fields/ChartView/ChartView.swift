@@ -56,6 +56,7 @@ struct ChartView: View {
             .hidden()
             
             Button(action: {
+                dismissKeyboard()
                 showDetailChartView = true
                 if chartDataModel.mode == .fill {
                     eventHandler.onFocus(event: chartDataModel.fieldIdentifier)

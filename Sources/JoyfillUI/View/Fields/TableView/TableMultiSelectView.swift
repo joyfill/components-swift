@@ -56,6 +56,7 @@ struct TableMultiSelectView: View {
 
     var body: some View {
         Button(action: {
+            dismissKeyboard()
             cellModel.didFocusBlur?(.focus, cellModel.data)
             showMoreImages = Int.random(in: 0...100)
         }) {

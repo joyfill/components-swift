@@ -88,6 +88,7 @@ struct ImageView: View {
                             Spacer()
                             
                             Button(action: {
+                                dismissKeyboard()
                                 showMoreImages = true
                                 if imageDataModel.mode == .fill {
                                     eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
@@ -111,6 +112,7 @@ struct ImageView: View {
                 }
             } else {
                 Button(action: {
+                    dismissKeyboard()
                     eventHandler.onFocus(event: imageDataModel.fieldIdentifier)
                     uploadAction()
                 }, label: {

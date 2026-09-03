@@ -39,6 +39,7 @@ import JoyfillModel
         } else {
         if #available(iOS 16, *) {
             Button(action: {
+                dismissKeyboard()
                 cellModel.didFocusBlur?(.focus, cellModel.data)
                 showMoreImages = Int.random(in: 0...100)
             }, label: {
@@ -72,6 +73,7 @@ import JoyfillModel
             }
         } else {
             Button(action: {
+                dismissKeyboard()
                 cellModel.didFocusBlur?(.focus, cellModel.data)
                 showMoreImages = Int.random(in: 0...100)
             }, label: {

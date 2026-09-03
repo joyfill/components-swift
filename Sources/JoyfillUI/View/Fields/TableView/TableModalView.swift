@@ -70,6 +70,7 @@ struct TableModalView : View {
                 viewModel: viewModel,
                 onEditTap: {
                 viewModel.tableDataModel.navigationIntent = .none
+                dismissKeyboard()
                 showEditMultipleRowsSheetView = true
             })
             .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
@@ -398,6 +399,7 @@ struct TableModalView : View {
                                 viewModel.tableDataModel.emptySelection()
                                 viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
                                 viewModel.tableDataModel.navigationIntent = .none
+                                dismissKeyboard()
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")

@@ -58,6 +58,7 @@ struct SignatureView: View {
                 })
             
             Button(action: {
+                dismissKeyboard()
                 showCanvasSignatureView = true
                 signatureDataModel.documentEditor?.setOpenNavigationFieldID(signatureDataModel.fieldIdentifier.fieldID)
                 eventHandler.onFocus(event: signatureDataModel.fieldIdentifier)

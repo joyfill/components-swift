@@ -18,6 +18,7 @@ struct TableModalTopNavigationView: View {
 
             if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
+                    dismissKeyboard()
                     showingPopover = true
                 }) {
                     Text("More ^")

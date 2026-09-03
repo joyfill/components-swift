@@ -125,6 +125,7 @@ struct PagesView: View {
         VStack(alignment: .leading) {
             if documentEditor.showPageNavigationView {
                 Button(action: {
+                    dismissKeyboard()
                     isSheetPresented = true
                 }, label: {
                     HStack {
