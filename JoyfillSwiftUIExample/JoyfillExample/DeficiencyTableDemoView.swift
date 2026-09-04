@@ -17,7 +17,15 @@ struct DeficiencyTableDemoView: View, FormChangeEvent {
     
     init() {
         let document = sampleJSONDocument(fileName: "hint_and_deficiency_demo")
-        deficiencyDemoDocumentEditor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, validateSchema: false, license: licenseKey)
+        deficiencyDemoDocumentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                events: self,
+                license: licenseKey,
+                validateSchema: false,
+                page: PageConfig(enableDuplicates: true)
+            )
+        )
     }
     
     var body: some View {
@@ -29,7 +37,7 @@ struct DeficiencyTableDemoView: View, FormChangeEvent {
 }
 extension DeficiencyTableDemoView {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-        print("onChange documentID:", document.id)
+        print("onChange documentID:", document.id as Any)
         let updatedChanges = deficiencyDemoDocumentEditor.getHintChanges(changes: changes)
         deficiencyDemoDocumentEditor.change(changes: updatedChanges)
     }

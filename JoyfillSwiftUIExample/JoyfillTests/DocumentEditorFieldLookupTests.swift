@@ -23,7 +23,7 @@ final class DocumentEditorFieldLookupTests: XCTestCase {
         document.id = "test_doc_1"
         document.identifier = "doc_test_1"
         document.fields = fields
-        return DocumentEditor(document: document, validateSchema: false)
+        return DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     // MARK: - field(identifier:) — input validation

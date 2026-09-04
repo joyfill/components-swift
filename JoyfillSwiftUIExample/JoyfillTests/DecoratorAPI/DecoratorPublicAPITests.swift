@@ -639,10 +639,10 @@ final class DecoratorPublicAPITests: XCTestCase {
         let mock = MockDecoratorEvents()
         let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
             .trimmingCharacters(in: .whitespacesAndNewlines)
-        return DocumentEditor(document: JoyDoc(dictionary: dict),
-                              events: mock,
-                              validateSchema: false,
-                              license: license.isEmpty ? nil : license)
+        return DocumentEditor(
+            document: JoyDoc(dictionary: dict),
+            config: DocumentEditorConfig(events: mock, license: license.isEmpty ? nil : license, validateSchema: false)
+        )
     }
 
     /// Builds a collection field dict with two schemas: root and one nested child.

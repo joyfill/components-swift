@@ -1233,7 +1233,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
     // Swipe for siganture column
     func swipeLeftForSignatureColumn() {
         let element = app.children(matching: .window).element(boundBy: 0).children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .other).element.children(matching: .scrollView).element(boundBy: 2).children(matching: .other).element.children(matching: .other).element
-        app.cells[""]
+//        app.cells[""]
         element.swipeLeft()
         element.swipeLeft()
     }

@@ -17,7 +17,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     let collectionFieldID = "67ddc52d35de157f6d7ebb63"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     // Delete Row tests
     func testDeleteRow() {
@@ -42,7 +42,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d","67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d","67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.filter({ row in
@@ -75,7 +75,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         // Pass row id empty
-        documentEditor.deleteRows(rowIDs: [], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: [], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.filter({ row in
@@ -108,7 +108,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         // Pass row id empty
-        documentEditor.deleteRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.filter({ row in
@@ -140,7 +140,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         //4 rows should left - No row deleted
@@ -174,7 +174,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -203,7 +203,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         // Row order count now 6 , +1 after duplicate
@@ -237,7 +237,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -268,7 +268,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.count, nil)
@@ -297,7 +297,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         // Row order count remain same
@@ -328,7 +328,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "67612793a6cd1f9d39c8433d"), 3)// Row up and index should be 3 now
@@ -358,7 +358,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -389,7 +389,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.count, nil)
@@ -419,7 +419,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
+        _ = documentEditor.moveRowUp(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "676127938056dcd158942bad"), 0)// Row not up
@@ -449,7 +449,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
+        _ = documentEditor.moveRowDown(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "676127938056dcd158942bad"), 1)// Row Down and index should be 1 now
@@ -479,7 +479,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "67612793a6cd1f9d39c8433d"), 4)// Row not up
@@ -509,7 +509,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -541,7 +541,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.count, nil)
@@ -847,14 +847,14 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793a6cd1f9d39c8433d"
         ]
         // 5 total rows , 1 deleted by default
-        
-        //Table columns Ids
-        let columnIds = [
-            "676127938fb7c5fd4321a2f4",
-            "67612793b5f860ae8d6a4ae6",
-            "67612793c76286eb2763c366"
-        ]
-                
+
+//        //Table columns Ids
+//        let columnIds = [
+//            "676127938fb7c5fd4321a2f4",
+//            "67612793b5f860ae8d6a4ae6",
+//            "67612793c76286eb2763c366"
+//        ]
+
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -889,23 +889,23 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     // Pass different row id - when row id not match for bulk edit
     func testBulkEditPassDifferentRowId() {
         let tableFieldID = "67612793c4e6a5e6a05e64a3"
-        //RowIds
-        let rowIds = [
-            "676127938056dcd158942bad",
-            "67612793f70928da78973744",
-            "67612793a6cd1f9d39c8433b",
-            "67612793a6cd1f9d39c8433c",// deleted
-            "67612793a6cd1f9d39c8433d"
-        ]
-        // 5 total rows , 1 deleted by default
-        
-        //Table columns Ids
-        let columnIds = [
-            "676127938fb7c5fd4321a2f4",
-            "67612793b5f860ae8d6a4ae6",
-            "67612793c76286eb2763c366"
-        ]
-                
+//        //RowIds
+//        let rowIds = [
+//            "676127938056dcd158942bad",
+//            "67612793f70928da78973744",
+//            "67612793a6cd1f9d39c8433b",
+//            "67612793a6cd1f9d39c8433c",// deleted
+//            "67612793a6cd1f9d39c8433d"
+//        ]
+//        // 5 total rows , 1 deleted by default
+//
+//        //Table columns Ids
+//        let columnIds = [
+//            "676127938fb7c5fd4321a2f4",
+//            "67612793b5f860ae8d6a4ae6",
+//            "67612793c76286eb2763c366"
+//        ]
+
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -1000,7 +1000,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         let initialElements = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements
 
@@ -1037,7 +1037,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [existingRowID, nonExistingRowID],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1077,7 +1077,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: rowIDs,
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1122,7 +1122,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [duplicatedRowID, duplicatedRowID],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1155,7 +1155,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1194,7 +1194,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1379,13 +1379,13 @@ extension DocumentEditorChangeHandlerTests {
         
         // Insert a new nested row below the first nested row.
         let cellValues: [String: ValueUnion] = ["dummyKey": .string("New Nested Item")]
-        guard let insertResult = documentEditor.insertBelowNestedRow(selectedRowID: initialNestedRows.first!.id!,
-                                                                     cellValues: cellValues,
-                                                                     fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
-                                                                     childrenKeys: [nestedKey],
-                                                                     rootSchemaKey: collectionFieldID,
-                                                                     nestedKey: nestedKey,
-                                                                     parentRowId: parentRowId, fieldData: field.valueToValueElements ?? []) else {
+        guard documentEditor.insertBelowNestedRow(selectedRowID: initialNestedRows.first!.id!,
+                                                 cellValues: cellValues,
+                                                 fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                                 childrenKeys: [nestedKey],
+                                                 rootSchemaKey: collectionFieldID,
+                                                 nestedKey: nestedKey,
+                                                 parentRowId: parentRowId, fieldData: field.valueToValueElements ?? []) != nil else {
             XCTFail("Insertion failed")
             return
         }
@@ -1440,7 +1440,7 @@ extension DocumentEditorChangeHandlerTests {
         for nestedRowId in nestedRowIds {
             newChanges[nestedRowId] = changes
         }
-        _ = await documentEditor.bulkEditForNested(changes: newChanges,
+        _ = documentEditor.bulkEditForNested(changes: newChanges,
                                             selectedRows: nestedRowIds,
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
                                             parentRowId: parentRowId,

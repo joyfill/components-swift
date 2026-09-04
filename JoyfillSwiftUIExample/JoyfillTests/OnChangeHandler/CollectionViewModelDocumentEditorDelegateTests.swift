@@ -33,7 +33,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
             fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
         )
         guard let tableDataModel else { fatalError("TableViewModel not found") }
-        return try await CollectionViewModel(tableDataModel: tableDataModel)
+        return CollectionViewModel(tableDataModel: tableDataModel)
     }
     
     func waitForMainQueueToDrain(file: StaticString = #filePath, line: UInt = #line) {
@@ -44,7 +44,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_AddNewRow() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
@@ -88,7 +88,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_BulkUpdate() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         
@@ -222,7 +222,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_AddAndInsert() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict1: [String: Any] = [
@@ -300,7 +300,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_DeleteAddAndInsert() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         // 1) rowDelete — "68575bb9cdb3707c78d6b2ff"
@@ -463,7 +463,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MoveUpRow() async throws{
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict: [String: Any] = [
@@ -506,7 +506,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MoveDownRow() async throws {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict: [String: Any] = [
@@ -568,7 +568,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     // Core of the fix: changes are keyed by columnID, so each entry must land in its
     // own root column across every type in the switch, on all selected rows.
     func testBulkEdit_mapsEachColumnIDToItsOwnColumnAcrossTypes() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -605,7 +605,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_appliesValueToAllSelectedRows() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -621,7 +621,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_unknownColumnID_isNoOpAndDoesNotCrash() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -635,7 +635,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_emptyChanges_isNoOp() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -649,7 +649,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_rowWithFewerCellsThanColumns_doesNotCrash() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 

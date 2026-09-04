@@ -98,7 +98,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         textField.tap()
         textField.clearText()
         textField.typeText("hide")
-        let multiline = app.textViews["MultilineTextFieldIdentifier"]
+//        let multiline = app.textViews["MultilineTextFieldIdentifier"]
         let displayText = app.staticTexts["Display text will be hidden when text is 'hide' and multiline should not 'show'"]
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         XCTAssertFalse(displayText.exists)

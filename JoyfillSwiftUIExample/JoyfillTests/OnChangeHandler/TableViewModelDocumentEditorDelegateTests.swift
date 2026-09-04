@@ -46,7 +46,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_AddNewRow() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict: [String: Any] = [
@@ -82,7 +82,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_BulkUpdate() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict1: [String: Any] = [
@@ -210,7 +210,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_AddAndInsert() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         let changeDict1: [String: Any] = [
@@ -302,7 +302,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_DeleteAndAddRow() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         // 1) rowDelete — "684c3fedfed2b76677110b19"
@@ -450,7 +450,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MoveUpRow() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
           
         // 1) rowMove — move row to index 0
@@ -492,7 +492,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MoveDownRow() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         
         // 1) rowMove — move row to index 4
@@ -537,7 +537,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_CellIdIsBumpedAndValueSurvivesFilterRowsIfNeeded() {
         // Arrange
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         let rowID = "684c3fedfed2b76677110b19"
@@ -612,7 +612,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     // rather than as a confusing downstream symptom in bulk-edit / delete flows.
     func testInsertBelow_KeepsValueElementsAndRowOrderInSync() {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         let initialNonDeletedCount = (viewModel.tableDataModel.valueToValueElements ?? [])
@@ -655,7 +655,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     func testClearFocusColumnIfNeeded_publishesOnlyWhenFocusIsSet() {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         viewModel.tableDataModel.navigationIntent.focusColumnId = nil
 
@@ -696,7 +696,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     // Core of the fix: changes are keyed by columnID, so each entry must land in its
     // own column across every type in the switch, on all selected rows.
     func testBulkEdit_mapsEachColumnIDToItsOwnColumnAcrossTypes() async {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         let dropdownColumnID = "684c3feda4ab2268f6ac00c8"
@@ -727,7 +727,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_appliesValueToAllSelectedRows() async {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         let unselectedBefore = cellText(documentEditor, row: rowUnselected, column: textColumnID)
@@ -742,7 +742,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_unknownColumnID_isNoOpAndDoesNotCrash() async {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         let before = cellText(documentEditor, row: rowA, column: textColumnID)
@@ -755,7 +755,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_emptyChanges_isNoOp() async {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         let before = cellText(documentEditor, row: rowA, column: textColumnID)
@@ -768,7 +768,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_rowWithFewerCellsThanColumns_doesNotCrash() async {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         XCTAssertGreaterThan(viewModel.tableDataModel.tableColumns.count, 0, "Fixture must have columns for this test to be meaningful")

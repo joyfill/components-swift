@@ -19,11 +19,17 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
     init() {
         var document = sampleJSONDocument(fileName: "OnChangeHandler")
         document.id = UUID().uuidString
-        print("documentEditor1", document.id)
-        documentEditor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
+        print("documentEditor1", document.id as Any)
+        documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(events: self, license: licenseKey, validateSchema: false)
+        )
         document.id = UUID().uuidString
-        print("documentEditor2", document.id)
-        documentEditor2 = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
+        print("documentEditor2", document.id as Any)
+        documentEditor2 = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(events: self, license: licenseKey, validateSchema: false)
+        )
     }
     
     var body: some View {
@@ -39,7 +45,7 @@ struct OnChangeHandlerTest: View, FormChangeEvent {
     }
 
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
-        print("onChange documentID:", document.id)
+        print("onChange documentID:", document.id as Any)
         if document.id == documentEditor.documentID {
             // documentEditor changes
             documentEditor2.change(changes: changes)

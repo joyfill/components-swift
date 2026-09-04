@@ -516,7 +516,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
         let currentEpochMsEditForm = Int64(Date().timeIntervalSince1970 * 1000)
         dismissSheet()
         let convertedTime2 = formatEpoch(currentEpochMsEditForm, timeZoneTitle: "Asia/Kolkata", format: "MM/dd/yyyy hh:mma")?.normalizedSpaces
-        let dateField2 = app.buttons[convertedTime2 as? String ?? ""].firstMatch
+        let dateField2 = app.buttons[convertedTime2 ?? ""].firstMatch
         XCTAssertEqual(dateField2.label, convertedTime2, "Datetime should be same after epoch convert")
         
         let payload3 = onChangeResult().dictionary
@@ -573,7 +573,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
             XCTAssertEqual(timezoneField.label, convertedTime)
         }
         
-        let result = onChangeResult()
+//        let result = onChangeResult()
 
 //        if let payloadArray = result.dictionary as? [[String: Any]] {
 //            // Multiple payloads
@@ -1278,7 +1278,7 @@ final class TimeZoneUITestCases: JoyfillUITestsBaseClass {
             XCTAssertEqual(timezoneField.label, convertedTime)
         }
         
-        let result = onChangeResult()
+//        let result = onChangeResult()
 
 //        if let payloadArray = result.dictionary as? [[String: Any]] {
 //            // Multiple payloads

@@ -35,7 +35,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
     }
 
     private func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     private func waitForMainQueue(timeout: TimeInterval = 1.0) {
@@ -54,7 +54,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID)
         )
         guard let tableDataModel else { fatalError("TableViewModel not found") }
-        return try await CollectionViewModel(tableDataModel: tableDataModel)
+        return CollectionViewModel(tableDataModel: tableDataModel)
     }
 
     // MARK: - Apply field metadata from change API (handleFieldUpdate)
@@ -197,7 +197,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
     func testApplyRowMetadataFromRowCreateChange() {
         let document = createTestDocument()
         let editor = documentEditor(document: document)
-        let viewModel = createTableViewModel(documentEditor: editor)
+        _ = createTableViewModel(documentEditor: editor)
         waitForMainQueue()
         let newRowId = "row_new_\(Int(Date().timeIntervalSince1970))"
 
@@ -344,7 +344,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         let document = makeMinimalDocWithTextField()
         let textFieldID = "field_text_1"
         let fpID = "fp_1"
-        let editor = DocumentEditor(document: document, mode: .fill, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(mode: .fill, validateSchema: false))
         XCTAssertNil(editor.field(fieldID: textFieldID)?.metadata?.dictionary["linkedPageId"])
 
         let setMetaChange = Change(
@@ -380,7 +380,7 @@ final class DocumentEditorChangeHandlerMetadataTests: XCTestCase {
         let document = makeMinimalDocWithTextField()
         let textFieldID = "field_text_1"
         let fpID = "fp_1"
-        let editor = DocumentEditor(document: document, mode: .fill, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(mode: .fill, validateSchema: false))
         let setMetaChange = Change(
             v: 1,
             sdk: "swift",

@@ -30,10 +30,12 @@ final class CellVisibilityLogicTest: XCTestCase {
     ) -> DocumentEditor {
         DocumentEditor(
             document: document,
-            mode: mode,
-            isPageDuplicateEnabled: isPageDuplicateEnabled,
-            validateSchema: false,
-            license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
+            config: DocumentEditorConfig(
+                mode: mode,
+                license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey,
+                validateSchema: false,
+                page: PageConfig(enableDuplicates: isPageDuplicateEnabled)
+            )
         )
     }
 
@@ -1988,8 +1990,8 @@ final class CellVisibilityLogicTest: XCTestCase {
             pageID: duplicated.pageID
         )])
 
-        let updatedTable = editor.field(fieldID: duplicatedTableID)!
-        let updatedCollection = editor.field(fieldID: duplicatedCollectionID)!
+        _ = editor.field(fieldID: duplicatedTableID)!
+        _ = editor.field(fieldID: duplicatedCollectionID)!
         XCTAssertFalse(editor.shouldShowCell(columnID: reasonColumnID, fieldID: duplicatedTableID,
                                              rowID: row1ID),
                        "Changing Page 2 hides only Page 2's table reason")

@@ -9,7 +9,7 @@ final class ConditionLogicUnitTests: XCTestCase {
     let pageID = "66aa286569ad25c65517385e"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     
     func testTextFieldOnNullCondition() {
@@ -222,8 +222,8 @@ final class ConditionLogicUnitTests: XCTestCase {
     
     func testSetConditionFieldToNil() {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
-        let numberFieldID = "6629fb3df03de10b26270ab3"
-        
+//        let numberFieldID = "6629fb3df03de10b26270ab3"
+
         // Set fieldID to nil
         let logicDictionary = getLogicDictionary(isShow: true, fieldID: nil, conditionType: .equals, value: .double(100))
         
@@ -245,8 +245,8 @@ final class ConditionLogicUnitTests: XCTestCase {
     
     func testSetConditionFieldToNilBothFieldHidden() {
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
-        let numberFieldID = "6629fb3df03de10b26270ab3"
-        
+//        let numberFieldID = "6629fb3df03de10b26270ab3"
+
         // Set fieldID to nil
         let logicDictionary = getLogicDictionary(isShow: true, fieldID: nil, conditionType: .equals, value: .double(100))
         
@@ -608,8 +608,9 @@ final class ConditionLogicUnitTests: XCTestCase {
     func testNumberOnTextField() {
         //Number Field should hide when test is not nill
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
-        let numberFieldID = "6629fb3df03de10b26270ab3"
         
+//        let numberFieldID = "6629fb3df03de10b26270ab3"
+
         let logicDictionary = getLogicDictionary(isShow: false, fieldID: textFieldID, conditionType: .isNull, value: .null)
         let document = JoyDoc()
             .setDocument()
@@ -630,8 +631,9 @@ final class ConditionLogicUnitTests: XCTestCase {
     func testNumberOnNotNullConditionTextField() {
         //Number Field should hide when test is not nill
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
-        let numberFieldID = "6629fb3df03de10b26270ab3"
         
+//        let numberFieldID = "6629fb3df03de10b26270ab3"
+
         let logicDictionary = getLogicDictionary(isShow: false, fieldID: textFieldID, conditionType: .isNotNull, value: .null)
         let document = JoyDoc()
             .setDocument()
@@ -916,7 +918,7 @@ final class ConditionLogicUnitTests: XCTestCase {
     
     // page condition logic tests
     func testPageConditionLogic() {
-        let page1ID = "6629fab320fca7c8107a6cf6"
+//        let page1ID = "6629fab320fca7c8107a6cf6"
         let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
         
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
@@ -983,7 +985,7 @@ final class ConditionLogicUnitTests: XCTestCase {
     }
     
     func testPageOnORConditionLogic() {
-        let page1ID = "6629fab320fca7c8107a6cf6"
+//        let page1ID = "6629fab320fca7c8107a6cf6"
         let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
         
         let textFieldID = "66aa2865da10ac1c7b7acb1d"
@@ -1019,17 +1021,17 @@ final class ConditionLogicUnitTests: XCTestCase {
     
     func testSetPageLogicToNil() {
         let page2ID = "66600801dc1d8b4f72f54917" //we will add the logic to page 2 and fields in page 1
-        
-        let textFieldID = "66aa2865da10ac1c7b7acb1d"
-        let dropdownFieldID = "6781040987a55e48b4507a38"
-        
-        let conditionTestModel1 = LogicConditionTest(fieldID: textFieldID,
-                                                     conditionType: .equals,
-                                                     value: .string("Hello"))
-        let conditionTestModel2 = LogicConditionTest(fieldID: dropdownFieldID,
-                                                     conditionType: .equals,
-                                                     value: .string("677e2bfab0d5dce4162c36c1"))
-        
+
+//        let textFieldID = "66aa2865da10ac1c7b7acb1d"
+//        let dropdownFieldID = "6781040987a55e48b4507a38"
+//
+//        let conditionTestModel1 = LogicConditionTest(fieldID: textFieldID,
+//                                                     conditionType: .equals,
+//                                                     value: .string("Hello"))
+//        let conditionTestModel2 = LogicConditionTest(fieldID: dropdownFieldID,
+//                                                     conditionType: .equals,
+//                                                     value: .string("677e2bfab0d5dce4162c36c1"))
+
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -1446,7 +1448,7 @@ final class ConditionLogicUnitTests: XCTestCase {
                 [
                     "file": fileID,
                     "page": pageID,
-                    "field": fieldID,
+                    "field": fieldID as Any,
                     "condition": conditionType.rawValue,
                     "value": value,
                     "_id": "66aa2a7c4bbc669133bad221"
@@ -1464,7 +1466,7 @@ final class ConditionLogicUnitTests: XCTestCase {
                 [
                     "file": fileID,
                     "page": customePageID ?? pageID,
-                    "field": logicConditionTests[0].fieldID,
+                    "field": logicConditionTests[0].fieldID as Any,
                     "condition": logicConditionTests[0].conditionType.rawValue,
                     "value": logicConditionTests[0].value,
                     "_id": "66aa2a7c4bbc669133bad221"
@@ -1472,7 +1474,7 @@ final class ConditionLogicUnitTests: XCTestCase {
                 [
                     "file": fileID,
                     "page": customePageID ?? pageID,
-                    "field": logicConditionTests[1].fieldID,
+                    "field": logicConditionTests[1].fieldID as Any,
                     "condition": logicConditionTests[1].conditionType.rawValue,
                     "value": logicConditionTests[1].value,
                     "_id": "66aa2a7c4bbc669133bad221"
@@ -1495,7 +1497,7 @@ final class ConditionLogicUnitTests: XCTestCase {
             [
                 "file": fileID,
                 "page": page,
-                "field": test.fieldID,
+                "field": test.fieldID as Any,
                 "condition": test.conditionType.rawValue,
                 "value": test.value,
                 "_id": UUID().uuidString

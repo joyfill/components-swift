@@ -16,7 +16,7 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
     // MARK: - Helpers
 
     private func makeEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     /// Applies a closure to the page with the given id and returns the modified document.

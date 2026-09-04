@@ -142,8 +142,8 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
         goBack()
 
         goToChartDetailField(index: 0)
-        let horizontalAfterClear = app.textFields.matching(identifier: "HorizontalPointsValue").element(boundBy: 0)
-        let verticalAfterClear = app.textFields.matching(identifier: "VerticalPointsValue").element(boundBy: 0)
+//        let horizontalAfterClear = app.textFields.matching(identifier: "HorizontalPointsValue").element(boundBy: 0)
+//        let verticalAfterClear = app.textFields.matching(identifier: "VerticalPointsValue").element(boundBy: 0)
 
         XCTAssertNil(onChangeResultValue().valueElements?.first?.points?.first?.x, "Horizontal coordinate should be nil after clearing")
         XCTAssertNil(onChangeResultValue().valueElements?.first?.points?.first?.y, "Vertical coordinate should be nil after clearing")

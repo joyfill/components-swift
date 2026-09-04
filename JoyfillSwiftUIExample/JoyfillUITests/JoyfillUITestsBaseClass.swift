@@ -129,7 +129,7 @@ class JoyfillUITestsBaseClass: XCTestCase {
             return false
         }
 
-        do {
+//        do {
             app.launch()
             
             // Wait for app to be running and stable
@@ -160,10 +160,10 @@ class JoyfillUITestsBaseClass: XCTestCase {
             checkTestSkipped()
             
             print("✅ Fresh app instance created for test: \(self.name)")
-        } catch {
-            print("⚠️  App launch failed: \(error)")
-            // Don't fail the test, just log the error
-        }
+//        } catch {
+//            print("⚠️  App launch failed: \(error)")
+//            // Don't fail the test, just log the error
+//        }
     }
 
     override func tearDownWithError() throws {
@@ -277,15 +277,15 @@ class JoyfillUITestsBaseClass: XCTestCase {
             print("⚠️  App crashed or stopped running")
             
             // Try to relaunch the app
-            do {
+//            do {
                 app.terminate()
                 // REPLACED sleep(2) with state wait
                 _ = waitUntil(5) { self.app.state != .runningForeground }
                 app.launch()
                 XCTAssertTrue(app.wait(for: .runningForeground, timeout: 10), "App relaunch failed")
-            } catch {
-                print("❌ Failed to relaunch app after crash: \(error)")
-            }
+//            } catch {
+//                print("❌ Failed to relaunch app after crash: \(error)")
+//            }
         }
     }
     
@@ -343,7 +343,7 @@ class JoyfillUITestsBaseClass: XCTestCase {
             print("⚠️  Detected potential exit code -1 issue")
             
             // Try to recover gracefully
-            do {
+//            do {
                 app.terminate()
                 // REPLACED sleep(3) with state wait
                 _ = waitUntil(8) { self.app.state != .runningForeground }
@@ -351,9 +351,9 @@ class JoyfillUITestsBaseClass: XCTestCase {
                 XCTAssertTrue(app.wait(for: .runningForeground, timeout: 20), "App recovery failed")
                 app.activate()
                 XCTAssertTrue(waitForAppStability(timeout: 10), "App not stable after recovery")
-            } catch {
-                print("❌ Failed to recover from exit code -1: \(error)")
-            }
+//            } catch {
+//                print("❌ Failed to recover from exit code -1: \(error)")
+//            }
         }
     }
     
@@ -486,7 +486,7 @@ extension JoyfillUITestsBaseClass {
     func onChangeResultChanges() -> [ValueUnion] {
         let results = onChangeOptionalResults().map { $0.change }
         return results.compactMap {
-            ValueUnion(value: $0)!
+            ValueUnion(value: $0 as Any)!
         }
     }
 

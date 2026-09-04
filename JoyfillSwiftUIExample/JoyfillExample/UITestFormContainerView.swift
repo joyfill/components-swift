@@ -97,13 +97,7 @@ private func createDefaultJoyDoc() -> JoyDoc {
         ]
     ]
     
-    do {
-        return JoyDoc(dictionary: defaultDict)
-    } catch {
-        print("Error creating default JoyDoc: \(error)")
-        // Return an even more minimal structure
-        return JoyDoc(dictionary: ["id": "fallback-doc", "pages": []])
-    }
+    return JoyDoc(dictionary: defaultDict)
 }
 
 struct UITestFormContainerView: View {

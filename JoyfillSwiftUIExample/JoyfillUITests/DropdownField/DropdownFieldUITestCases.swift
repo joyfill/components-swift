@@ -263,7 +263,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
     func testMultilineFieldConditionalHideLogic() {
         let dropdown1 = app.buttons.matching(identifier: "Dropdown").element(boundBy: 0)
         let dropdown2 = app.buttons.matching(identifier: "Dropdown").element(boundBy: 2)
-        let dropdown3 = app.buttons.matching(identifier: "Dropdown").element(boundBy: 1)
+//        let dropdown3 = app.buttons.matching(identifier: "Dropdown").element(boundBy: 1)
         let multilineField = app.textViews["MultilineTextFieldIdentifier"]
 
         // Case 1: Dropdown 1 = N/A (686de9ba91350da2a4d4d614)

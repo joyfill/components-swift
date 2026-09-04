@@ -20,7 +20,15 @@ struct FailureCaptureDemoView: View {
     init() {
         let document = sampleJSONDocument(fileName: "testDoc")
         let eventHandler = FailureCaptureEventHandler()
-        failureCaptureDocumentEditor = DocumentEditor(document: document, events: eventHandler, isPageDuplicateEnabled: false, validateSchema: false, license: licenseKey)
+        failureCaptureDocumentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                events: eventHandler,
+                license: licenseKey,
+                validateSchema: false,
+                page: PageConfig(enableDuplicates: false)
+            )
+        )
     }
     
     var body: some View {
@@ -175,7 +183,7 @@ extension FailureCaptureEventHandler {
                 continue
             }
             
-            print("🔍 Checking dropdown column: \(column.title ?? "nil")")
+            print("🔍 Checking dropdown column: \(column.title)")
             
             // Extract the selected option ID from cell value
             var selectedOptionId: String?
@@ -240,7 +248,7 @@ extension FailureCaptureEventHandler {
                 continue
             }
             
-            print("🔍 Checking dropdown column: \(column.title ?? "nil")")
+            print("🔍 Checking dropdown column: \(column.title)")
             
             // Extract the selected option ID from cell value
             var selectedOptionId: String?
@@ -293,13 +301,13 @@ extension FailureCaptureDemoView {
               let tableColumns = summaryTable.tableColumns,
               let textColumn = tableColumns.first(where: { $0.type == .text }),
               let columnId = textColumn.id,
-              let tableFieldId = summaryTable.id else {
+              summaryTable.id != nil else {
             print("❌ Could not find Deficiencies Summary table or text column")
             return
         }
         
         print("✅ Found summary table: \(summaryTable.identifier ?? "nil")")
-        print("✅ Found text column: \(textColumn.title ?? "nil") with ID: \(columnId)")
+        print("✅ Found text column: \(textColumn.title) with ID: \(columnId)")
         
         // Create cell values for the new row
         let cellValues: [String: Any] = [

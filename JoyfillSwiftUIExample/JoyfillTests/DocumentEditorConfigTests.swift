@@ -94,7 +94,7 @@ final class DocumentEditorConfigTests: XCTestCase {
 
     /// A default config must produce the same editor as the legacy init's defaults.
     func testConfigInit_defaultsMatchLegacyInit() {
-        let legacy = DocumentEditor(document: JoyDoc(), validateSchema: false)
+        let legacy = DocumentEditor(document: JoyDoc(), config: DocumentEditorConfig(validateSchema: false))
         let viaConfig = DocumentEditor(document: JoyDoc(),
                                        config: DocumentEditorConfig(validateSchema: false))
 
@@ -137,16 +137,14 @@ final class DocumentEditorConfigTests: XCTestCase {
 
         let legacy = DocumentEditor(
             document: JoyDoc(),
-            mode: .fill,
-            events: nil,
-            pageID: nil,
-            navigation: false,
-            isPageDuplicateEnabled: true,
-            isPageDeleteEnabled: true,
-            validateSchema: false,
-            license: nil,
-            singleClickRowEdit: true,
-            decoratorConfig: decorators
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: nil,
+                license: nil,
+                validateSchema: false,
+                page: PageConfig(navigation: false, enableDuplicates: true, enableDeletes: true, currentPageID: nil),
+                display: DisplayConfig(singleClickRowEdit: true, decorators: decorators)
+            )
         )
 
         let viaConfig = DocumentEditor(
@@ -251,9 +249,10 @@ final class DocumentEditorConfigTests: XCTestCase {
     /// A nil `currentPageID` must fall back to the document's first valid page,
     /// matching the legacy init with `pageID: nil`.
     func testConfigInit_nilCurrentPageID_matchesLegacyFirstValidPage() {
-        let legacy = DocumentEditor(document: multiPageDocument(),
-                                    pageID: nil,
-                                    validateSchema: false)
+        let legacy = DocumentEditor(
+            document: multiPageDocument(),
+            config: DocumentEditorConfig(validateSchema: false, page: PageConfig(currentPageID: nil))
+        )
         let viaConfig = DocumentEditor(document: multiPageDocument(),
                                        config: DocumentEditorConfig(validateSchema: false))
 

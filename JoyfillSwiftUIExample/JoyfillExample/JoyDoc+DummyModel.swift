@@ -522,7 +522,7 @@ extension JoyDoc {
         field.identifier = "field_6629fab87c5c8ff831b8d223"
         field.title = "Image"
         field.description = ""
-        var dict = ["url":"https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw",
+        let dict = ["url":"https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw",
                     "fileName":"6629fad945f22ce76d678f37-1714027225742.png",
                     "_id":"6629fad9a6d0c81c8c217fc5",
                     "filePath":"6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0"
@@ -548,12 +548,6 @@ extension JoyDoc {
         field.identifier = "field_6629fab87c5c8ff831b8d223"
         field.title = "Image"
         field.description = ""
-        var dict = ["url":"https://media.licdn.com/dms/image/D4E0BAQE3no_UvLOtkw/company-logo_200_200/0/1692901341712/joyfill_logo?e=2147483647&v=beta&t=AuKT_5TP9s5F0f2uBzMHOtoc7jFGddiNdyqC0BRtETw",
-                    "fileName":"6629fad945f22ce76d678f37-1714027225742.png",
-                    "_id":"6629fad9a6d0c81c8c217fc5",
-                    "filePath":"6628f1034892618fc118503b/documents/template_6629fab38559d3017b0308b0"
-        ]
-        let arrayOfValueElements = [ValueElement(dictionary: dict)]
         field.value = .valueElementArray([])
         field.required = true
         field.tipTitle = ""
@@ -1322,10 +1316,6 @@ extension JoyDoc {
         field.tipDescription = ""
         field.tipVisible = false
         field.file = "6629fab3c0ba3fb775b4a55c"
-        let point1 = Point(dictionary: ["_id" : "662a4ac3a09a7fa900990da3"])
-        let point2 = Point(dictionary: ["_id" : "662a4ac332c49d08cc4da9b8"])
-        let point3 = Point(dictionary: ["_id" : "662a4ac305c6948e2ffe8ab1"])
-        let pointValueElement: ValueElement = ValueElement(id: "662a4ac36cb46cb39dd48090", points: [point1, point2, point3])
         field.value = .valueElementArray([])
         field.yTitle = "Vertical"
         field.yMax = 100

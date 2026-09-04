@@ -224,8 +224,10 @@ struct DocumentSubmissionsListView: View {
 
 class ImagePicker {
     func showPickerOptions(currentUploadHandler: (([String]) -> Void)?) {
-        guard let topViewController = UIApplication.shared.windows
-            .filter({ $0.isKeyWindow }).first?
+        guard let topViewController = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?
             .rootViewController?.topMostViewController() else {
             print("No view controller found to present from")
             return

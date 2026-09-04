@@ -38,7 +38,7 @@ final class ValidationTestCase: XCTestCase {
         }
     }
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     func collectionDocumentEditor(document: JoyDoc) -> DocumentEditor {
@@ -46,7 +46,7 @@ final class ValidationTestCase: XCTestCase {
             .trimmingCharacters(in: .whitespacesAndNewlines)
         XCTAssertFalse(license.isEmpty, "Missing license: set JOYFILL_TEST_LICENSE env var or check licenseKey")
         XCTAssertTrue(LicenseValidator.isCollectionEnabled(licenseToken: license), "License verification failed — the token does not match the public key in LicenseValidator")
-        return DocumentEditor(document: document, validateSchema: false, license: license)
+        return DocumentEditor(document: document, config: DocumentEditorConfig(license: license, validateSchema: false))
     }
     //
     // Test Case for check at same time web and mobile view fields
@@ -1318,7 +1318,7 @@ final class ValidationTestCase: XCTestCase {
     // MARK: - Duplicate Page Additional Tests
     /// Duplicate when document has no files should not mutate document.
     func testPageDuplication_noFile_doesNotMutateDocument() {
-        var document = JoyDoc().setDocument()
+        let document = JoyDoc().setDocument()
         // setDocument() sets files = []; do not call setFile()
         XCTAssertTrue(document.files.isEmpty, "Test setup should have no files.")
 
@@ -1338,7 +1338,14 @@ final class ValidationTestCase: XCTestCase {
             .setHeadingText()
             .setTextField()
 
-        let documentEditor = DocumentEditor(document: document, events: changeCapture, isPageDuplicateEnabled: true, validateSchema: false)
+        let documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                events: changeCapture,
+                validateSchema: false,
+                page: PageConfig(enableDuplicates: true)
+            )
+        )
         let originalPageID = "6629fab320fca7c8107a6cf6"
         let initialChangeCount = changeCapture.capturedChanges.count
 
@@ -2043,10 +2050,20 @@ final class ValidationTestCase: XCTestCase {
             .setHeadingText()
             .setTextField()
 
-        let editorFillEnabled = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editorFillEnabled = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         XCTAssertTrue(editorFillEnabled.isPageDuplicateEnabled, "Fill mode with isPageDuplicateEnabled true should have it true.")
 
-        let editorReadonly = DocumentEditor(document: document, mode: .readonly, isPageDuplicateEnabled: true, validateSchema: false)
+        let editorReadonly = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                mode: .readonly,
+                validateSchema: false,
+                page: PageConfig(enableDuplicates: true)
+            )
+        )
         XCTAssertFalse(editorReadonly.isPageDuplicateEnabled, "Readonly mode should force isPageDuplicateEnabled to false.")
     }
     /// Duplicate page with zero field positions still creates a new page and updates pageOrder.
@@ -2954,7 +2971,7 @@ final class ValidationTestCase: XCTestCase {
         document.files[0] = file
         
         let changeCapture = ChangeCapture()
-        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: changeCapture, validateSchema: false))
         
         let pageToDeleteID = "second_page_id_12345"
         
@@ -3059,7 +3076,7 @@ final class ValidationTestCase: XCTestCase {
         document.files[0] = file
         
         let changeCapture = ChangeCapture()
-        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: changeCapture, validateSchema: false))
         
         let pageToDeleteID = "second_page_id_12345"
         let result = documentEditor.deletePage(pageID: pageToDeleteID)
@@ -3147,7 +3164,7 @@ final class ValidationTestCase: XCTestCase {
         document.files[0] = file
         
         let changeCapture = ChangeCapture()
-        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: changeCapture, validateSchema: false))
         
         let pageToDeleteID = "second_page_id_12345"
         let result = documentEditor.deletePage(pageID: pageToDeleteID)
@@ -3210,7 +3227,7 @@ final class ValidationTestCase: XCTestCase {
         }
         
         let changeCapture = ChangeCapture()
-        let documentEditor = DocumentEditor(document: document, events: changeCapture, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: changeCapture, validateSchema: false))
         
         let pageToDeleteID = "second_page_id_12345"
         let result = documentEditor.deletePage(pageID: pageToDeleteID)
@@ -3543,13 +3560,12 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: pageID,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            isPageDeleteEnabled: false,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(navigation: true, enableDuplicates: false, enableDeletes: false, currentPageID: pageID)
+            )
         )
         
         // Clear any initial events
@@ -3579,20 +3595,24 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: page1ID,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            isPageDeleteEnabled: false,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(
+                    navigation: true,
+                    enableDuplicates: false,
+                    enableDeletes: false,
+                    currentPageID: page1ID
+                )
+            )
         )
         
         // Clear any initial events
         eventCapture.reset()
         
         // Jump to different page
-        documentEditor.goto(page2ID)
+        _ = documentEditor.goto(page2ID)
         
         // Should fire blur for page1 and focus for page2
         XCTAssertEqual(eventCapture.capturedBlurEvents.count, 1, "One blur event should fire")
@@ -3627,13 +3647,17 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: page1ID,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            isPageDeleteEnabled: false,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(
+                    navigation: true,
+                    enableDuplicates: false,
+                    enableDeletes: false,
+                    currentPageID: page1ID
+                )
+            )
         )
         
         // Clear any initial events
@@ -3674,13 +3698,17 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: originalPageID,
-            navigation: true,
-            isPageDuplicateEnabled: true,
-            isPageDeleteEnabled: false,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(
+                    navigation: true,
+                    enableDuplicates: true,
+                    enableDeletes: false,
+                    currentPageID: originalPageID
+                )
+            )
         )
         
         // Clear any initial events
@@ -3713,13 +3741,12 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: page1ID,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            isPageDeleteEnabled: true,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(navigation: true, enableDuplicates: false, enableDeletes: true, currentPageID: page1ID)
+            )
         )
         
         // Clear any initial events
@@ -3766,13 +3793,12 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: page1ID,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            isPageDeleteEnabled: true,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(navigation: true, enableDuplicates: false, enableDeletes: true, currentPageID: page1ID)
+            )
         )
         
         // Clear any initial events
@@ -3807,13 +3833,17 @@ final class ValidationTestCase: XCTestCase {
         let eventCapture = ChangeCapture()
         let documentEditor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: eventCapture,
-            pageID: page1ID,
-            navigation: true,
-            isPageDuplicateEnabled: false,
-            isPageDeleteEnabled: false,
-            validateSchema: false
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: eventCapture,
+                validateSchema: false,
+                page: PageConfig(
+                    navigation: true,
+                    enableDuplicates: false,
+                    enableDeletes: false,
+                    currentPageID: page1ID
+                )
+            )
         )
         
         // Clear any initial events

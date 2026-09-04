@@ -18,7 +18,7 @@ final class HiddenViewsTests: XCTestCase {
     private let tableColumn1ID = "676127938fb7c5fd4321a2f4"
 
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     // MARK: - isMobileViewActive

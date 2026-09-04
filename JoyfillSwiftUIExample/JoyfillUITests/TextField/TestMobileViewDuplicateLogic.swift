@@ -61,17 +61,17 @@ final class TestMobileViewDuplicateLogic: JoyfillUITestsBaseClass {
         }
         
         // Launch app
-        do {
+//        do {
             app.launch()
             XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15), "App did not launch")
             app.activate()
             XCTAssertTrue(waitForAppStability(timeout: 15), "App not stable")
             verifyHardwareKeyboardDisabled()
             ensureAppStability()
-        } catch {
-            print("❌ Launch failed: \(error)")
-            throw error
-        }
+//        } catch {
+//            print("❌ Launch failed: \(error)")
+//            throw error
+//        }
     }
     
     func testMobileViewConditonalLogic() {
