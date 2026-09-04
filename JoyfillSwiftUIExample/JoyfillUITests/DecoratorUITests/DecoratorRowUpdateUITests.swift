@@ -91,8 +91,8 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
         // Block → display-only, no row-form editor
         tapDecoratorDisplayOnly(action: tableBlockAction)
-        // Barcode → "Updated #1" (TextEditor inside TableBarcodeView, identifier "TableBarcodeFieldIdentifier")
-        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        // Barcode → "Updated #1" (row form wraps TableBarcodeView as "EditRowsBarcodeFieldIdentifier")
+        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         // Signature → field container renders after URL is set
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
@@ -123,7 +123,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         tapDecoratorAndAssertTextField(action: tableNumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
         tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
         tapDecoratorDisplayOnly(action: tableBlockAction)
-        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
         dismissSheet()
@@ -143,7 +143,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
         assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
         assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
-        assertRowFormTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormTextView(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
 
         dismissSheet()
@@ -172,7 +172,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         tapDecoratorAndAssertTextField(action: tableNumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
         tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
         tapDecoratorDisplayOnly(action: tableBlockAction)
-        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
         // "+" button inserts a row below and navigates the form to the new row
@@ -194,7 +194,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
         assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
         assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
-        assertRowFormTextView(identifier: "TableBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormTextView(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
 
         dismissSheet()
@@ -636,12 +636,26 @@ final class DecoratorRowUpdateUITests: XCTestCase {
     }
 
     /// Grid cell that exists as a tappable button once any value is set (e.g. signature).
+    /// Grid rows are a LazyHStack, so trailing columns are not instantiated until scrolled into view.
     private func assertGridButtonExists(identifier: String) {
         let cell = app.buttons.matching(identifier: identifier).element(boundBy: 0)
+        if !cell.waitForExistence(timeout: 2) {
+            scrollGridToTrailingColumns()
+        }
         XCTAssertTrue(
             cell.waitForExistence(timeout: 2),
             "Grid '\(identifier)'[0] should exist"
         )
+    }
+
+    /// Scroll the table grid horizontally so the trailing columns are rendered.
+    private func scrollGridToTrailingColumns() {
+        let grid = app.scrollViews["TableScrollView"]
+        guard grid.waitForExistence(timeout: 2) else { return }
+        for _ in 0..<4 {
+            grid.swipeLeft()
+            spinRunloop(0.2)
+        }
     }
     
     private func dismissSheet() {
