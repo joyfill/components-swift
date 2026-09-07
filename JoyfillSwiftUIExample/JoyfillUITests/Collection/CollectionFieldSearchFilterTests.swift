@@ -3269,14 +3269,16 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         
         let addRowButton = app.buttons["collectionSchemaAddRowButton"].firstMatch
         XCTAssertTrue(addRowButton.waitForNonExistence(timeout: 5))
-        let cells = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly")
+        // Every cell in this collection is empty, so the read-only `Text` contributes no `StaticText`.
+        // The scroll wrapper is what a read-only text cell always renders, one per cell.
+        let cells = app.descendants(matching: .any).matching(identifier: "TableTextFieldReadonlyScrollView")
         XCTAssertEqual(cells.count, 2)
         expandRow(number: 1)
         expandRow(number: 2)
         XCTAssertTrue(addRowButton.waitForNonExistence(timeout: 5))
         XCTAssertEqual(cells.count, 6)
-        let textField = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly").element(boundBy: 0)
-        XCTAssertFalse(textField.isEnabled)
+        XCTAssertFalse(app.textViews.matching(identifier: "TabelTextFieldIdentifier").element(boundBy: 0).exists,
+                       "Readonly text cell should not render an editable TextEditor")
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         
         let dropdownButtons = app.buttons.matching(identifier: "TableDropdownIdentifier").firstMatch
@@ -3294,8 +3296,11 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         numberField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         app.swipeLeft()
-        let barcodeField = app.staticTexts.matching(identifier: "TableBarcodeFieldIdentifierReadonly").firstMatch
-        XCTAssertFalse(barcodeField.isEnabled)
+        // Same as the text column: the barcode cells are empty, so only the wrapper is queryable.
+        let barcodeField = app.descendants(matching: .any).matching(identifier: "TableBarcodeFieldReadonlyScrollView").firstMatch
+        XCTAssertTrue(barcodeField.waitForExistence(timeout: 5), "Readonly barcode cell should be present")
+        XCTAssertFalse(app.textViews["TableBarcodeFieldIdentifier"].exists,
+                       "Barcode cell should not be an editable TextEditor in readonly mode")
         barcodeField.tap()
         XCTAssertFalse(app.keyboards.element.exists, "Keyboard should not be visible for readonly field")
         
