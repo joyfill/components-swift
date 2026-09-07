@@ -423,6 +423,7 @@
 		E29FF8682F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
 		E29FF8692F215C9C0079A614 /* Navigation.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF8662F215C9C0079A614 /* Navigation.json */; };
 		E29FF86B2F2161DD0079A614 /* NavigationJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */; };
+		E2AA11022F30000100000002 /* PageSelectionSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2AA11012F30000100000001 /* PageSelectionSheetTests.swift */; };
 		E29FF87F2F2527540079A614 /* TestMobileViewDuplicateLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF87E2F2527540079A614 /* TestMobileViewDuplicateLogic.json */; };
 		E29FF8802F2527540079A614 /* TestMobileViewDuplicateLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = E29FF87E2F2527540079A614 /* TestMobileViewDuplicateLogic.json */; };
 		E29FF8822F2527790079A614 /* TestMobileViewDuplicateLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FF8812F2527790079A614 /* TestMobileViewDuplicateLogic.swift */; };
@@ -992,6 +993,7 @@
 		E29FF8502F1F77C10079A614 /* SimpleNavigationTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleNavigationTestView.swift; sourceTree = "<group>"; };
 		E29FF8662F215C9C0079A614 /* Navigation.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = Navigation.json; sourceTree = "<group>"; };
 		E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationJSONTests.swift; sourceTree = "<group>"; };
+		E2AA11012F30000100000001 /* PageSelectionSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageSelectionSheetTests.swift; sourceTree = "<group>"; };
 		E29FF87E2F2527540079A614 /* TestMobileViewDuplicateLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TestMobileViewDuplicateLogic.json; sourceTree = "<group>"; };
 		E29FF8812F2527790079A614 /* TestMobileViewDuplicateLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMobileViewDuplicateLogic.swift; sourceTree = "<group>"; };
 		E2A11B002F8000010000AAA0 /* TableEditabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableEditabilityTests.swift; sourceTree = "<group>"; };
@@ -1283,6 +1285,7 @@
 				363A34CA2ED82AD800B578B2 /* ValueUnionNSNumberTests.swift */,
 				DA7EFA0011111111111111A1 /* DateFormattingTests.swift */,
 				E29FF86A2F2161DD0079A614 /* NavigationJSONTests.swift */,
+				E2AA11012F30000100000001 /* PageSelectionSheetTests.swift */,
 				E2173C2E2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift */,
 				E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */,
 				E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */,
@@ -2871,6 +2874,7 @@
 				E225D1C92F3B19F3000674CF /* DocumentEditor+ChangeHandlerMetadataTests.swift in Sources */,
 				E27061CA2E797E5F006BAD18 /* CollectionViewModelDocumentEditorDelegateTests.swift in Sources */,
 				E29FF86B2F2161DD0079A614 /* NavigationJSONTests.swift in Sources */,
+				E2AA11022F30000100000002 /* PageSelectionSheetTests.swift in Sources */,
 				E254BF802D410F990083C3E4 /* ConditionLogicUnitTests.swift in Sources */,
 				E2B8E3D22E43753300AC6018 /* ConditionalLogic_FormulaTemplateTests.swift in Sources */,
 				E2B8E3D32E43753300AC6018 /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests.swift in Sources */,
