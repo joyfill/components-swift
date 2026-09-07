@@ -117,7 +117,10 @@ public class DocumentEditor: ObservableObject {
     public var mode: Mode = .fill
     public var isPageDuplicateEnabled: Bool = true
     public var isPageDeleteEnabled: Bool = true
-    public var showPageNavigationView: Bool = true
+    @Published public var showPageNavigationView: Bool = true
+    @Published public var showPageSelectionSheet: Bool = false
+    // True while a row form is open, so it owns the page-selection sheet instead of PagesView.
+    var isRowFormPresented: Bool = false
     public var singleClickRowEdit: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     

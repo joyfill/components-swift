@@ -108,7 +108,6 @@ struct FileView: View {
 }
 
 struct PagesView: View {
-    @State private var isSheetPresented = false
     let pageOrder: [String]?
     @Binding var pageFieldModels: [String: PageModel]
     @ObservedObject var documentEditor: DocumentEditor
@@ -126,7 +125,7 @@ struct PagesView: View {
             if documentEditor.showPageNavigationView {
                 Button(action: {
                     dismissKeyboard()
-                    isSheetPresented = true
+                    documentEditor.showPageSelectionSheet = true
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
@@ -136,14 +135,6 @@ struct PagesView: View {
                 .accessibilityIdentifier("PageNavigationIdentifier")
                 .buttonStyle(.bordered)
                 .padding(.leading, 16)
-                .sheet(isPresented: $isSheetPresented) {
-                    if #available(iOS 16, *) {
-                        PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
-                            .presentationDetents([.medium])
-                    } else {
-                        PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
-                    }
-                }
             }
 
             if let firstPage = pageFieldModels.first?.value ?? pageFieldModels[documentEditor.currentPageID] {
@@ -160,6 +151,37 @@ struct PagesView: View {
                 Text("No pages available")
             }
         }
+        // On the container, not the button, so hosts can present it while the button is hidden.
+        .sheet(isPresented: Binding(
+            get: { documentEditor.showPageSelectionSheet && !documentEditor.isRowFormPresented },
+            set: { documentEditor.showPageSelectionSheet = $0 }
+        )) {
+            if #available(iOS 16, *) {
+                PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
+                    .presentationDetents([.medium])
+            } else {
+                PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
+            }
+        }
+    }
+}
+
+// A row form is a real sheet, so it must own this anchor: presenting from PagesView tears it down.
+struct RowFormPageSelectionSheet: View {
+    @ObservedObject var documentEditor: DocumentEditor
+
+    var body: some View {
+        Color.clear
+            .sheet(isPresented: $documentEditor.showPageSelectionSheet) {
+                if #available(iOS 16, *) {
+                    PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: documentEditor.currentPageOrder, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+                        .presentationDetents([.medium])
+                } else {
+                    PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: documentEditor.currentPageOrder, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+                }
+            }
+            .onAppear { documentEditor.isRowFormPresented = true }
+            .onDisappear { documentEditor.isRowFormPresented = false }
     }
 }
 
@@ -478,8 +500,9 @@ struct PageDuplicateListView: View {
                                     isSelected: currentPageID == pageID,
                                     documentEditor: documentEditor,
                                     onSelect: {
-                                        currentPageID = pageID
-                                        presentationMode.wrappedValue.dismiss()
+                                        // goto, not currentPageID: it closes any open modal first.
+                                        documentEditor.showPageSelectionSheet = false
+                                        _ = documentEditor.goto(pageID)
                                     },
                                     onDuplicate: {
                                         handleDuplicatePage(pageID: pageID)

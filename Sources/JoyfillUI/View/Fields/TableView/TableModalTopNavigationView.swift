@@ -684,6 +684,11 @@ struct EditMultipleRowsSheetView: View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
+        .background {
+            if let documentEditor = viewModel.tableDataModel.documentEditor {
+                RowFormPageSelectionSheet(documentEditor: documentEditor)
+            }
+        }
     }
 
 }
