@@ -117,8 +117,8 @@ public class DocumentEditor: ObservableObject {
     public var mode: Mode = .fill
     public var isPageDuplicateEnabled: Bool = true
     public var isPageDeleteEnabled: Bool = true
-    @Published public var showPageNavigationView: Bool = true
-    @Published public var showPageSelectionSheet: Bool = false
+    @Published public internal(set) var showPageNavigationView: Bool = true
+    @Published var showPageSelectionSheet: Bool = false
     // True while a row form is open, so it owns the page-selection sheet instead of PagesView.
     var isRowFormPresented: Bool = false
     public var singleClickRowEdit: Bool = false
@@ -625,6 +625,16 @@ extension DocumentEditor {
         }
     }
     
+    /// Opens or closes the page picker, and works while the built-in navigation button is hidden.
+    public func presentPageSelectionSheet(_ present: Bool) {
+        runOnMain { self.showPageSelectionSheet = present }
+    }
+
+    /// Shows or hides the built-in page navigation button without affecting the page picker.
+    public func setPageNavigationVisible(_ visible: Bool) {
+        runOnMain { self.showPageNavigationView = visible }
+    }
+
     public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
         let field = field(fieldID: fieldID)
         let fileID = field?.file

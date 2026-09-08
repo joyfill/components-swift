@@ -2,9 +2,12 @@
 //  PageSelectionSheetTests.swift
 //  JoyfillTests
 //
-//  Unit coverage for the public `showPageSelectionSheet` API: the host-facing
-//  contract, the `@Published` guarantees both sheet anchors rely on, the
-//  `isRowFormPresented` gate, and the `goto` unwind performed on selection.
+//  Unit coverage for the public `presentPageSelectionSheet(_:)` API: the
+//  host-facing contract, the `@Published` guarantees both sheet anchors rely
+//  on, the `isRowFormPresented` gate, and the `goto` unwind on selection.
+//
+//  `showPageSelectionSheet` is internal — these tests reach it via
+//  `@testable` to assert state, but drive it through the public method.
 //
 //  Not coverable here (needs a UI test / manual pass): that a sheet actually
 //  presents, that `PagesView`'s anchor is torn down while a row form is open,
@@ -73,8 +76,44 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertNotNil(editor.schemaError, "this document is expected to fail validation")
         XCTAssertFalse(editor.showPageSelectionSheet, "flag must default false even on the early-return path")
 
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
         XCTAssertTrue(editor.showPageSelectionSheet, "a host must still be able to set the flag")
+    }
+
+    // MARK: - The public method
+
+    func testPresentPageSelectionSheet_opensAndCloses() {
+        let editor = makeEditor()
+
+        editor.presentPageSelectionSheet(true)
+        XCTAssertTrue(editor.showPageSelectionSheet, "passing true must open the sheet")
+
+        editor.presentPageSelectionSheet(false)
+        XCTAssertFalse(editor.showPageSelectionSheet, "passing false must close it")
+    }
+
+    func testSetPageNavigationVisible_showsAndHides() {
+        let editor = makeEditor()
+
+        editor.setPageNavigationVisible(false)
+        XCTAssertFalse(editor.showPageNavigationView, "passing false must hide the nav button")
+
+        editor.setPageNavigationVisible(true)
+        XCTAssertTrue(editor.showPageNavigationView, "passing true must show it again")
+    }
+
+    /// Calling it with the value it already holds must stay a plain write, so a
+    /// host can call it unconditionally without special-casing current state.
+    func testPresentPageSelectionSheet_isIdempotent() {
+        let editor = makeEditor()
+
+        editor.presentPageSelectionSheet(true)
+        editor.presentPageSelectionSheet(true)
+        XCTAssertTrue(editor.showPageSelectionSheet)
+
+        editor.presentPageSelectionSheet(false)
+        editor.presentPageSelectionSheet(false)
+        XCTAssertFalse(editor.showPageSelectionSheet)
     }
 
     // MARK: - Independence from the built-in navigation button
@@ -84,8 +123,8 @@ final class PageSelectionSheetTests: XCTestCase {
     func testShowPageSelectionSheet_worksWhileNavigationButtonHidden() {
         let editor = makeEditor()
 
-        editor.showPageNavigationView = false
-        editor.showPageSelectionSheet = true
+        editor.setPageNavigationVisible(false)
+        editor.presentPageSelectionSheet(true)
 
         XCTAssertFalse(editor.showPageNavigationView, "button stays hidden")
         XCTAssertTrue(editor.showPageSelectionSheet, "hiding the button must not block the sheet")
@@ -96,10 +135,10 @@ final class PageSelectionSheetTests: XCTestCase {
         let editor = makeEditor()
         let original = editor.showPageNavigationView
 
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
         XCTAssertEqual(editor.showPageNavigationView, original, "opening the sheet must not touch the button")
 
-        editor.showPageSelectionSheet = false
+        editor.presentPageSelectionSheet(false)
         XCTAssertEqual(editor.showPageNavigationView, original, "closing the sheet must not touch the button")
     }
 
@@ -114,14 +153,14 @@ final class PageSelectionSheetTests: XCTestCase {
     }
 
     /// The footer example toggles this flag; it must survive a round trip.
-    func testShowPageNavigationView_toggleRoundTrip() {
+    func testSetPageNavigationVisible_toggleRoundTrip() {
         let editor = makeEditor()
         XCTAssertTrue(editor.showPageNavigationView, "default is visible")
 
-        editor.showPageNavigationView.toggle()
+        editor.setPageNavigationVisible(!editor.showPageNavigationView)
         XCTAssertFalse(editor.showPageNavigationView)
 
-        editor.showPageNavigationView.toggle()
+        editor.setPageNavigationVisible(!editor.showPageNavigationView)
         XCTAssertTrue(editor.showPageNavigationView, "toggling twice returns to the original state")
     }
 
@@ -133,11 +172,11 @@ final class PageSelectionSheetTests: XCTestCase {
         let editor = makeEditor()
 
         let emissions = countEmissions(on: editor) {
-            editor.showPageSelectionSheet = true
-            editor.showPageSelectionSheet = false
+            editor.presentPageSelectionSheet(true)
+            editor.presentPageSelectionSheet(false)
         }
 
-        XCTAssertEqual(emissions, 2, "each write to showPageSelectionSheet must publish")
+        XCTAssertEqual(emissions, 2, "each presentPageSelectionSheet(_:) call must publish")
     }
 
     /// Regression guard: this was a plain `var` before the sheet work. As a
@@ -146,8 +185,8 @@ final class PageSelectionSheetTests: XCTestCase {
         let editor = makeEditor()
 
         let emissions = countEmissions(on: editor) {
-            editor.showPageNavigationView = false
-            editor.showPageNavigationView = true
+            editor.setPageNavigationVisible(false)
+            editor.setPageNavigationVisible(true)
         }
 
         XCTAssertEqual(emissions, 2, "showPageNavigationView must stay @Published")
@@ -178,7 +217,7 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertFalse(rowFormAnchorIsLive(editor))
 
         // Open, no row form: PagesView owns it.
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
         XCTAssertTrue(pagesViewAnchorIsLive(editor), "PagesView presents when no row form is open")
 
         // Open, row form up: the row form owns it, PagesView must stand down.
@@ -196,7 +235,7 @@ final class PageSelectionSheetTests: XCTestCase {
     func testGate_doesNotClearTheSheetFlag() {
         let editor = makeEditor()
 
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
         editor.isRowFormPresented = true
 
         XCTAssertTrue(editor.showPageSelectionSheet, "the flag survives the gate flipping")
@@ -216,7 +255,8 @@ final class PageSelectionSheetTests: XCTestCase {
 
     // MARK: - Selection: the goto unwind
 
-    /// Mirrors `PageDuplicateListView`'s `onSelect` at `FormView.swift:503-505`.
+    /// Mirrors `PageDuplicateListView`'s `onSelect` at `FormView.swift:503-505`, which
+    /// assigns the internal flag directly rather than going through the public method.
     private func selectPage(_ pageID: String, on editor: DocumentEditor) -> NavigationStatus {
         editor.showPageSelectionSheet = false
         return editor.goto(pageID)
@@ -224,7 +264,7 @@ final class PageSelectionSheetTests: XCTestCase {
 
     func testSelectingPage_changesPageAndClosesSheet() {
         let editor = makeEditor()
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
 
         let status = selectPage(secondPageID, on: editor)
 
@@ -240,7 +280,7 @@ final class PageSelectionSheetTests: XCTestCase {
     /// would immediately re-present the picker the user just dismissed.
     func testSelectingPageFromRowForm_doesNotRePresentAfterUnwind() {
         let editor = makeEditor()
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
         editor.isRowFormPresented = true
 
         let status = selectPage(secondPageID, on: editor)
@@ -257,7 +297,7 @@ final class PageSelectionSheetTests: XCTestCase {
     func testSelectingCurrentPage_isANoOpButStillCloses() {
         let editor = makeEditor()
         let startingPageID = editor.currentPageID
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
 
         _ = selectPage(startingPageID, on: editor)
 
@@ -268,7 +308,7 @@ final class PageSelectionSheetTests: XCTestCase {
     /// A failed `goto` must not leave the picker open in a half-dismissed state.
     func testFailedSelection_stillClosesSheet() {
         let editor = makeEditor()
-        editor.showPageSelectionSheet = true
+        editor.presentPageSelectionSheet(true)
         let startingPageID = editor.currentPageID
 
         let status = selectPage("no-such-page-id", on: editor)
