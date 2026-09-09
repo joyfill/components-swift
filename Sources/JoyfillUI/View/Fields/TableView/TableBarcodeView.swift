@@ -14,11 +14,13 @@ struct TableBarcodeView: View {
     @FocusState private var isTextFieldFocused: Bool
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     private var isUsedForBulkEdit: Bool
+    private var isRowForm: Bool
     var viewModel: TableDataViewModelProtocol?
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil, viewModel: TableDataViewModelProtocol? = nil) {
+    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil, viewModel: TableDataViewModelProtocol? = nil, isRowForm: Bool = false) {
         _cellModel = cellModel
         self.isUsedForBulkEdit = isUsedForBulkEdit
+        self.isRowForm = isRowForm
         if let providedText = text {
             _text = State(initialValue: providedText)
         } else if !isUsedForBulkEdit {
@@ -57,7 +59,28 @@ struct TableBarcodeView: View {
             }
         } else {
             HStack(spacing: 0) {
-                if #available(iOS 16.0, *) {
+                if isRowForm {
+                    TextField("", text: $text)
+                        .accessibilityIdentifier("TableBarcodeFieldIdentifier")
+                        .font(.system(size: 15))
+                        .padding(.horizontal, 10)
+                        .focused($isTextFieldFocused)
+                        .onChange(of: text) { newValue in
+                            updateFieldValue(newText: newValue)
+                        }
+                        .onChange(of: isTextFieldFocused) { focused in
+                            if focused {
+                                cellModel.didFocusBlur?(.focus, cellModel.data)
+                            } else {
+                                cellModel.didFocusBlur?(.blur, cellModel.data)
+                            }
+                        }
+                        .onAppear {
+                            if navigationFocusColumnId == cellModel.data.id {
+                                isTextFieldFocused = true
+                            }
+                        }
+                } else if #available(iOS 16.0, *) {
                     TextEditor(text: $text)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
