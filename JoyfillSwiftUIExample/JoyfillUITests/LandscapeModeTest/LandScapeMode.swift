@@ -53,6 +53,55 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
         _ = waitUntil(3) { self.app.buttons["PageNavigationIdentifier"].exists }
     }
 
+    /// Same as `goToPage(_:)`, but tolerant of the page-selection list clipping a row.
+    private func goToPageFullyVisible(_ name: String) {
+        let navButton = app.buttons["PageNavigationIdentifier"]
+        XCTAssertTrue(navButton.waitForExistence(timeout: 10), "Page navigation button should exist")
+        navButton.tap()
+
+        let list = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        XCTAssertTrue(list.waitForExistence(timeout: 5), "Page selection list should exist")
+
+        let rows = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        let pageButton = rows.element(matching: NSPredicate(format: "label == %@", name))
+
+        func visibleSlice() -> CGRect {
+            guard pageButton.exists else { return .zero }
+            let row = pageButton.frame
+            guard row.height > 0 else { return .zero }
+            return row.intersection(list.frame)
+        }
+
+        var attempts = 0
+        while visibleSlice().height < 24 && attempts < 12 {
+            let bounds = list.frame
+            var delta = bounds.height * 0.6
+            if pageButton.exists, pageButton.frame.height > 0 {
+                delta = pageButton.frame.midY - bounds.midY
+                delta = max(-bounds.height * 0.6, min(bounds.height * 0.6, delta))
+            }
+            guard abs(delta) > 1 else { break }
+
+            let anchorY = bounds.midY + delta / 2
+            let origin = app.coordinate(withNormalizedOffset: .zero)
+            let start = origin.withOffset(CGVector(dx: bounds.midX, dy: anchorY))
+            let end = origin.withOffset(CGVector(dx: bounds.midX, dy: anchorY - delta))
+            start.press(forDuration: 0.1, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.2)
+            _ = waitUntil(1) { visibleSlice().height >= 24 }
+            attempts += 1
+        }
+
+        let slice = visibleSlice()
+        XCTAssertTrue(slice.height >= 12, "\(name) should be visible in the navigation sheet")
+        app.coordinate(withNormalizedOffset: .zero)
+            .withOffset(CGVector(dx: slice.midX, dy: slice.midY))
+            .tap()
+        XCTAssertTrue(
+            waitUntil(5) { navButton.label == name },
+            "Expected to land on \(name), but the page navigation button reads '\(navButton.label)'"
+        )
+    }
+
     // MARK: - Text (Page 2)
 
     func testTextFieldInLandscape() {
@@ -80,7 +129,7 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
     // MARK: - Number (Page 4)
 
     func testNumberFieldInLandscape() {
-        goToPage("Page 4")
+        goToPageFullyVisible("Page 4")
         let numberField = app.textFields.element(boundBy: 0)
         XCTAssertTrue(numberField.waitForExistence(timeout: 5), "Number field should exist")
         numberField.tap()
@@ -212,7 +261,7 @@ final class LandscapeModeUITestCases: JoyfillUITestsBaseClass {
     // MARK: - Signature (Page 9)
 
     func testSignatureFieldInLandscape() {
-        goToPage("Page 9")
+        goToPageFullyVisible("Page 9")
         let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)
         XCTAssertTrue(signatureButton.waitForExistence(timeout: 5), "Signature button should exist")
         signatureButton.tap()

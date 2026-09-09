@@ -24,8 +24,7 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
         XCTAssertTrue(field.waitForExistence(timeout: 5), "trigger1 text field should exist")
         field.tap()
         field.typeText(text)
-        app.dismissKeyboardIfVisible()
-        spinRunloop(0.3)
+        dismissKeyboardByScrolling()
     }
 
     private func clearPageText() {
@@ -34,8 +33,7 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
         XCTAssertTrue(field.waitForExistence(timeout: 5), "trigger1 text field should exist")
         field.tap()
         field.clearText()
-        app.dismissKeyboardIfVisible()
-        spinRunloop(0.3)
+        dismissKeyboardByScrolling()
     }
 
     private func setPageNumber(_ text: String) {
@@ -44,8 +42,7 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
         XCTAssertTrue(field.waitForExistence(timeout: 5), "number1 field should exist")
         field.tap()
         field.typeText(text)
-        app.dismissKeyboardIfVisible()
-        spinRunloop(0.3)
+        dismissKeyboardByScrolling()
     }
 
     private func clearPageNumber() {
@@ -54,7 +51,20 @@ final class RequiredLogic: JoyfillUITestsBaseClass {
         XCTAssertTrue(field.waitForExistence(timeout: 5), "number1 field should exist")
         field.tap()
         field.clearText()
-        app.dismissKeyboardIfVisible()
+        dismissKeyboardByScrolling()
+    }
+
+    private func dismissKeyboardByScrolling() {
+        let form = app.collectionViews.firstMatch.exists ? app.collectionViews.firstMatch : app.tables.firstMatch
+        var n = 0
+        while n < 3 && app.keyboards.element.exists {
+            let start = form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15))
+            let end = form.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            start.press(forDuration: 0.05, thenDragTo: end)
+            spinRunloop(0.2)
+            n += 1
+        }
+        scrollToTop()
         spinRunloop(0.3)
     }
 
