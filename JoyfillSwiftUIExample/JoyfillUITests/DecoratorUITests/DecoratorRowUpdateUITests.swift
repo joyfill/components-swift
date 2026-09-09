@@ -92,7 +92,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         // Block → display-only, no row-form editor
         tapDecoratorDisplayOnly(action: tableBlockAction)
         // Barcode → "Updated #1" (row form wraps TableBarcodeView as "EditRowsBarcodeFieldIdentifier")
-        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextField(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         // Signature → field container renders after URL is set
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
@@ -123,7 +123,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         tapDecoratorAndAssertTextField(action: tableNumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
         tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
         tapDecoratorDisplayOnly(action: tableBlockAction)
-        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextField(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
         dismissSheet()
@@ -143,7 +143,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
         assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
         assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
-        assertRowFormTextView(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormTextField(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
 
         dismissSheet()
@@ -172,7 +172,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         tapDecoratorAndAssertTextField(action: tableNumberAction, identifier: "TabelNumberFieldIdentifier", expected: "10")
         tapDecoratorAndAssertButtonHasValue(action: tableDateAction, identifier: "ChangeCellDateIdentifier")
         tapDecoratorDisplayOnly(action: tableBlockAction)
-        tapDecoratorAndAssertTextView(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextField(action: tableBarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         tapDecoratorAndAssertExists(action: tableSignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
 
         // "+" button inserts a row below and navigates the form to the new row
@@ -194,7 +194,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         assertRowFormExists(identifier: "EditRowsImageFieldIdentifier")
         assertRowFormTextField(identifier: "TabelNumberFieldIdentifier", expected: "10")
         assertRowFormButtonHasValue(identifier: "ChangeCellDateIdentifier")
-        assertRowFormTextView(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormTextField(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
 
         dismissSheet()
@@ -271,7 +271,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         // Signature → container renders after URL is set
         tapDecoratorAndAssertExists(action: collL2SignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
         // Barcode → "Updated #1" (row form wraps TableBarcodeView as "EditRowsBarcodeFieldIdentifier")
-        tapDecoratorAndAssertTextView(action: collL2BarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextField(action: collL2BarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         // Block → display-only, no row-form editor
         tapDecoratorDisplayOnly(action: collL2BlockAction)
 
@@ -434,7 +434,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
 
         tapDecoratorAndAssertExists(action: collL2SignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
-        tapDecoratorAndAssertTextView(action: collL2BarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextField(action: collL2BarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         tapDecoratorDisplayOnly(action: collL2BlockAction)
 
         dismissSheet()
@@ -450,7 +450,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
 
         assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
-        assertRowFormTextView(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormTextField(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
 
         dismissSheet()
 
@@ -469,7 +469,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         S.openCollectionNestedRowEditForm(rowIndex: 1, boundBy: 1, in: app)
 
         tapDecoratorAndAssertExists(action: collL2SignatureAction, identifier: "EditRowsSignatureFieldIdentifier")
-        tapDecoratorAndAssertTextView(action: collL2BarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        tapDecoratorAndAssertTextField(action: collL2BarcodeAction, identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
         tapDecoratorDisplayOnly(action: collL2BlockAction)
 
         let plusBtn = app.buttons["PlusTheRowButtonIdentifier"]
@@ -483,7 +483,7 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         spinRunloop(0.5)
 
         assertRowFormExists(identifier: "EditRowsSignatureFieldIdentifier")
-        assertRowFormTextView(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
+        assertRowFormTextField(identifier: "EditRowsBarcodeFieldIdentifier", expected: "Updated #1")
 
         dismissSheet()
 
@@ -494,7 +494,8 @@ final class DecoratorRowUpdateUITests: XCTestCase {
     // MARK: - Row-form tap + assert helpers
 
     /// Taps decorator, waits for a SwiftUI TextField (→ .textField) to show expected value.
-    /// Used for: text column (EditRowsTextFieldIdentifier), number (TabelNumberFieldIdentifier).
+    /// Used for: text column (EditRowsTextFieldIdentifier), number (TabelNumberFieldIdentifier),
+    /// barcode (EditRowsBarcodeFieldIdentifier — single-line TextField in the row form).
     private func tapDecoratorAndAssertTextField(action: String, identifier: String, expected: String) {
         tapDecorator(action: action)
         let field = app.textFields.matching(identifier: identifier).firstMatch
@@ -505,15 +506,15 @@ final class DecoratorRowUpdateUITests: XCTestCase {
     }
 
     /// Taps decorator, waits for a SwiftUI TextEditor (→ .textView) to show expected value.
-    /// Used for: barcode column (EditRowsBarcodeFieldIdentifier in the row form).
-    private func tapDecoratorAndAssertTextView(action: String, identifier: String, expected: String) {
-        tapDecorator(action: action)
-        let field = app.textViews.matching(identifier: identifier).firstMatch
-        XCTAssertTrue(
-            waitUntil(3) { field.exists && field.value as? String == expected },
-            "'\(identifier)' should show '\(expected)' after tapping '\(action)' decorator"
-        )
-    }
+    /// No caller since the row-form barcode column became a single-line TextField.
+//    private func tapDecoratorAndAssertTextView(action: String, identifier: String, expected: String) {
+//        tapDecorator(action: action)
+//        let field = app.textViews.matching(identifier: identifier).firstMatch
+//        XCTAssertTrue(
+//            waitUntil(3) { field.exists && field.value as? String == expected },
+//            "'\(identifier)' should show '\(expected)' after tapping '\(action)' decorator"
+//        )
+//    }
 
     /// Taps decorator, waits for a static text with the given label to appear.
     /// Used for: dropdown and multiSelect (selected option value is rendered as Text).
@@ -566,13 +567,13 @@ final class DecoratorRowUpdateUITests: XCTestCase {
         )
     }
 
-    private func assertRowFormTextView(identifier: String, expected: String) {
-        let field = app.textViews.matching(identifier: identifier).firstMatch
-        XCTAssertTrue(
-            waitUntil(3) { field.exists && field.value as? String == expected },
-            "Row form '\(identifier)' should show '\(expected)'"
-        )
-    }
+//    private func assertRowFormTextView(identifier: String, expected: String) {
+//        let field = app.textViews.matching(identifier: identifier).firstMatch
+//        XCTAssertTrue(
+//            waitUntil(3) { field.exists && field.value as? String == expected },
+//            "Row form '\(identifier)' should show '\(expected)'"
+//        )
+//    }
 
     private func assertRowFormStaticText(_ expected: String) {
         XCTAssertTrue(

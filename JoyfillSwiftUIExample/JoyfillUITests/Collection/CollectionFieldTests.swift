@@ -874,7 +874,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
         
         // Barcode Column
-        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textField) else {
             XCTFail("Failed to find barcode field after swiping")
             return
         }
@@ -1089,7 +1089,7 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         firstImageButton.tap()
         dismissSheet()
         
-        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
+        guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textField) else {
             XCTFail("Failed to find barcode text field after swiping")
             return
         }

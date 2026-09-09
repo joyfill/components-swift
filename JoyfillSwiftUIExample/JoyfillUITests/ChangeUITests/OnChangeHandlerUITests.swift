@@ -1831,7 +1831,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
         
-        let textField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
+        let textField = app.textFields.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
@@ -1866,7 +1866,7 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].firstMatch.tap()
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
         
-        let textField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
+        let textField = app.textFields.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         textField.tap()
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
@@ -1877,10 +1877,10 @@ final class OnChangeHandlerUITests: JoyfillUITestsBaseClass {
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
         
         let editTextFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("Edit Single rowsFirst row", editTextFieldData.value as! String)
+        XCTAssertEqual("Edit Single rows", editTextFieldData.value as! String)
         
         goBack()
-        XCTAssertEqual("Edit Single rowsFirst row", editTextFieldData.value as! String)
+        XCTAssertEqual("Edit Single rows", editTextFieldData.value as! String)
     }
     
     func testClearExistingSignature() throws {
