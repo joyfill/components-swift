@@ -30,7 +30,7 @@ struct TableBarcodeView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             HStack(spacing: 0) {
-                Text(cellModel.data.title)
+                Text(showsFormula ? cellModel.formulaDisplayText : cellModel.data.title)
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
@@ -42,7 +42,7 @@ struct TableBarcodeView: View {
         } else if cellModel.editMode == .readonly {
             HStack(spacing: 0) {
                 ScrollView {
-                    Text(cellModel.data.title)
+                    Text(showsFormula ? cellModel.formulaDisplayText : cellModel.data.title)
                         .font(.system(size: 15))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 5)
@@ -59,6 +59,7 @@ struct TableBarcodeView: View {
             HStack(spacing: 0) {
                 if #available(iOS 16.0, *) {
                     TextEditor(text: $text)
+                        .opacity(showsFormula && !isTextFieldFocused ? 0 : 1)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .scrollContentBackground(.hidden)
@@ -78,8 +79,10 @@ struct TableBarcodeView: View {
                                 isTextFieldFocused = true
                             }
                         }
+                        .overlay(resultOverlay())
                 } else {
                     TextEditor(text: $text)
+                        .opacity(showsFormula && !isTextFieldFocused ? 0 : 1)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .focused($isTextFieldFocused)
@@ -98,6 +101,7 @@ struct TableBarcodeView: View {
                                 isTextFieldFocused = true
                             }
                         }
+                        .overlay(resultOverlay())
                 }
                 
                 Image(systemName: "barcode.viewfinder")
@@ -109,7 +113,26 @@ struct TableBarcodeView: View {
             }
         }
     }
-    
+
+    @ViewBuilder
+    private func resultOverlay() -> some View {
+        if showsFormula && !isTextFieldFocused {
+            Text(cellModel.formulaDisplayText)
+                .font(.system(size: 15))
+                .foregroundColor(cellModel.isFormulaInError ? .red : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 8)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("TableFormulaCellIdentifier")
+        }
+    }
+
+    /// A formula belongs to one row. Bulk edit spans several, so it keeps the plain editor.
+    private var showsFormula: Bool {
+        cellModel.isFormulaCell && !isUsedForBulkEdit
+    }
+
     func updateFieldValue(newText: String) {
         var cellModelData = cellModel.data
         cellModelData.title = newText

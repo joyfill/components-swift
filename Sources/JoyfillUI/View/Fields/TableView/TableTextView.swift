@@ -18,13 +18,13 @@ struct TableTextView: View {
     
     var body: some View {
         if cellModel.viewMode == .quickView {
-            Text(cellModel.data.title)
+            Text(cellModel.isFormulaCell ? cellModel.formulaDisplayText : cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
                 .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
         } else if cellModel.editMode == .readonly {
             ScrollView {
-                Text(cellModel.data.title)
+                Text(cellModel.isFormulaCell ? cellModel.formulaDisplayText : cellModel.data.title)
                     .font(.system(size: 15))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 5)
@@ -37,6 +37,7 @@ struct TableTextView: View {
         } else {
             if #available(iOS 16.0, *) {
                 TextEditor(text: $cellModel.data.title)
+                     .opacity(showsResult ? 0 : 1)
                     .font(.system(size: 15))
                     .scrollContentBackground(.hidden)
                     .accessibilityIdentifier("TabelTextFieldIdentifier")
@@ -52,8 +53,10 @@ struct TableTextView: View {
                         }
                     }
                     .onAppear { autoFocusIfNeeded() }
+                    .overlay(resultOverlay())
             } else {
                 TextEditor(text: $cellModel.data.title)
+                    .opacity(showsResult ? 0 : 1)
                     .font(.system(size: 15))
                     .accessibilityIdentifier("TabelTextFieldIdentifier")
                     .onChange(of: cellModel.data.title) { _ in
@@ -68,10 +71,30 @@ struct TableTextView: View {
                         }
                     }
                     .onAppear { autoFocusIfNeeded() }
+                    .overlay(resultOverlay())
             }
         }
     }
     
+    /// `true` while an unfocused formula cell should show its result instead of its text.
+    private var showsResult: Bool {
+        cellModel.isFormulaCell && !isTextFieldFocused
+    }
+
+    @ViewBuilder
+    private func resultOverlay() -> some View {
+        if showsResult {
+            Text(cellModel.formulaDisplayText)
+                .font(.system(size: 15))
+                .foregroundColor(cellModel.isFormulaInError ? .red : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 8)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("TableFormulaCellIdentifier")
+        }
+    }
+
     private func autoFocusIfNeeded() {
         if navigationFocusColumnId == cellModel.data.id {
             isTextFieldFocused = true

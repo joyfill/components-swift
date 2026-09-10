@@ -27,7 +27,7 @@ struct TableTextRowFormView: View {
     var body: some View {
         if cellModel.viewMode == .quickView || cellModel.editMode == .readonly {
             HStack(spacing: 0) {
-                Text(cellModel.data.title)
+                Text(showsFormula ? cellModel.formulaDisplayText : cellModel.data.title)
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
@@ -36,6 +36,7 @@ struct TableTextRowFormView: View {
         } else {
             HStack(spacing: 0) {
                 TextField("", text: $text)
+                    .opacity(showsFormula && !isTextFieldFocused ? 0 : 1)
                     .font(.system(size: 15))
                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                     .padding(.horizontal, 10)
@@ -51,10 +52,29 @@ struct TableTextRowFormView: View {
                         }
                     }
                     .onAppear { autoFocusIfNeeded() }
+                    .overlay(resultOverlay())
             }
         }
     }
-    
+
+    @ViewBuilder
+    private func resultOverlay() -> some View {
+        if showsFormula && !isTextFieldFocused {
+            Text(cellModel.formulaDisplayText)
+                .font(.system(size: 15))
+                .foregroundColor(cellModel.isFormulaInError ? .red : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .padding(.horizontal, 10)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("TableFormulaCellIdentifier")
+        }
+    }
+
+    /// A formula belongs to one row. Bulk edit spans several, so it keeps the plain editor.
+    private var showsFormula: Bool {
+        cellModel.isFormulaCell && !isUsedForBulkEdit
+    }
+
     func updateFieldValue(newText: String) {
         var cellModelData = cellModel.data
         cellModelData.title = newText
