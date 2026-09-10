@@ -1650,7 +1650,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             
             if change.isEmpty {
                 // No filter Applied, Extract default value if present
-                if let defaultValue = columns.first(where: { $0.id == columnId })?.value {
+                if let defaultValue = columns.first(where: { $0.id == columnId })?.value,
+                   JoyfillDocContext.formulaSource(of: defaultValue.text) == nil {
                     cellValues[columnId] = defaultValue
                 }
             } else {
