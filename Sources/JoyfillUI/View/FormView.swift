@@ -481,7 +481,7 @@ struct PageDuplicateListView: View {
                                     isSelected: currentPageID == pageID,
                                     documentEditor: documentEditor,
                                     onSelect: {
-                                        // goto, not currentPageID: it closes any open modal first.
+                                        currentPageID = pageID
                                         documentEditor.showPageSelectionSheet = false
                                         _ = documentEditor.goto(pageID)
                                     },
