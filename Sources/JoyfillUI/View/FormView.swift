@@ -152,10 +152,7 @@ struct PagesView: View {
             }
         }
         // On the container, not the button, so hosts can present it while the button is hidden.
-        .sheet(isPresented: Binding(
-            get: { documentEditor.showPageSelectionSheet && !documentEditor.isRowFormPresented },
-            set: { documentEditor.showPageSelectionSheet = $0 }
-        )) {
+        .sheet(isPresented: $documentEditor.showPageSelectionSheet) {
             if #available(iOS 16, *) {
                 PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
                     .presentationDetents([.medium])
@@ -163,25 +160,6 @@ struct PagesView: View {
                 PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
             }
         }
-    }
-}
-
-// A row form is a real sheet, so it must own this anchor: presenting from PagesView tears it down.
-struct RowFormPageSelectionSheet: View {
-    @ObservedObject var documentEditor: DocumentEditor
-
-    var body: some View {
-        Color.clear
-            .sheet(isPresented: $documentEditor.showPageSelectionSheet) {
-                if #available(iOS 16, *) {
-                    PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: documentEditor.currentPageOrder, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
-                        .presentationDetents([.medium])
-                } else {
-                    PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: documentEditor.currentPageOrder, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
-                }
-            }
-            .onAppear { documentEditor.isRowFormPresented = true }
-            .onDisappear { documentEditor.isRowFormPresented = false }
     }
 }
 
