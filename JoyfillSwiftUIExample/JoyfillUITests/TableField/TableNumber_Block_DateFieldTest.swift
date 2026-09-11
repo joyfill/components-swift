@@ -1001,7 +1001,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         tapOnMoreButton()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        let textField = app.textFields.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
+        let textField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
         Thread.sleep(forTimeInterval: 0.5)
         textField.tap()
         Thread.sleep(forTimeInterval: 0.5)
@@ -1031,7 +1031,7 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         app.buttons["TableMoreButtonIdentifier"].tap()
         app.buttons["TableEditRowsIdentifier"].tap()
         
-        let textField = app.textFields.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
+        let textField = app.textViews.matching(identifier: "EditRowsBarcodeFieldIdentifier").element(boundBy: 0)
         Thread.sleep(forTimeInterval: 0.5)
         textField.tap()
         Thread.sleep(forTimeInterval: 0.5)
@@ -1043,13 +1043,13 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         Thread.sleep(forTimeInterval: 0.5)
         
         let editTextFieldData = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 0)
-        XCTAssertEqual("Edit Single rows", editTextFieldData.value as! String)
+        XCTAssertEqual("Edit Single rowsFirst row", editTextFieldData.value as! String)
         Thread.sleep(forTimeInterval: 0.5)
          
         let value = try XCTUnwrap(onChangeResultChange().dictionary as? [String: Any])
         let newRow = try XCTUnwrap(value["row"] as? [String: Any])
         let cells = try XCTUnwrap(newRow["cells"] as? [String: Any])
-        XCTAssertEqual("Edit Single rows", cells["676137715cb7a772624dd5ab"] as! String)
+        XCTAssertEqual("Edit Single rowsFirst row", cells["676137715cb7a772624dd5ab"] as! String)
     }
     
     // Add Row with filter text

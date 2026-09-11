@@ -1014,8 +1014,8 @@ final class RowFormReadonlyUITests: DecoratorAPIUITestsBase {
             ("date",        app.images["EditRowsDateFieldIdentifier"]),
             ("signature",   app.buttons["EditRowsSignatureFieldIdentifier"]),
         ])
-        XCTAssertFalse(app.textFields["EditRowsBarcodeFieldIdentifier"].exists,
-                       "Barcode cell should not be an editable TextField in readonly row form")
+        XCTAssertFalse(app.textViews["EditRowsBarcodeFieldIdentifier"].exists,
+                       "Barcode cell should not be an editable TextEditor in readonly row form")
         // Decorator tap still fires onFocus despite the parent .disabled wrapper.
         decoratorButton.tap()
         XCTAssertTrue(waitUntil(2) {

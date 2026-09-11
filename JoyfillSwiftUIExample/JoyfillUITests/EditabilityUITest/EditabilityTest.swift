@@ -623,7 +623,7 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
         // editable branch here even though the same cells are locked in the grid. Cells are
         // addressed by their `EditRows*FieldIdentifier` wrapper, which replaces the grid-level
         // identifier of whatever it contains.
-        let barcode = app.textFields["EditRowsBarcodeFieldIdentifier"]
+        let barcode = app.textViews["EditRowsBarcodeFieldIdentifier"]
         XCTAssertTrue(barcode.waitForExistence(timeout: 5), "Barcode must be editable inside the row form")
         XCTAssertEqual(barcode.value as? String, "BAR-111")
 
@@ -640,7 +640,7 @@ final class EditabilityTest: JoyfillUITestsBaseClass {
         navigateToTable(.typesBFormOnly)
 
         app.images["SingleClickEditButton0"].tap()
-        let barcode = app.textFields["EditRowsBarcodeFieldIdentifier"]
+        let barcode = app.textViews["EditRowsBarcodeFieldIdentifier"]
         replaceText(in: barcode, with: "BAR-ROWFORM")
 
         app.buttons["DismissEditSingleRowSheetButtonIdentifier"].tap()
