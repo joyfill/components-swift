@@ -89,6 +89,7 @@ struct TableModalView : View {
             }
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
