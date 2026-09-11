@@ -124,8 +124,7 @@ struct PagesView: View {
         VStack(alignment: .leading) {
             if documentEditor.showPageNavigationView {
                 Button(action: {
-                    dismissKeyboard()
-                    documentEditor.showPageSelectionSheet = true
+                    documentEditor.presentPageSelectionSheet(true)
                 }, label: {
                     HStack {
                         Image(systemName: "chevron.down")
@@ -150,6 +149,10 @@ struct PagesView: View {
             } else {
                 Text("No pages available")
             }
+        }
+        // Here rather than at the button, so a host opening the picker also dismisses the keyboard.
+        .onChange(of: documentEditor.showPageSelectionSheet) { isPresented in
+            if isPresented { dismissKeyboard() }
         }
         // On the container, not the button, so hosts can present it while the button is hidden.
         .sheet(isPresented: $documentEditor.showPageSelectionSheet) {
