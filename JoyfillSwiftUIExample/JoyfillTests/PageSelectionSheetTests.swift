@@ -37,6 +37,23 @@ final class PageSelectionSheetTests: XCTestCase {
         return DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
+    /// The same two pages, but the second is hidden. With more than one page and no
+    /// logic model, `shouldShow(page:)` falls through to the page's own `hidden` flag,
+    /// which is the guard `goto` rejects on.
+    private func makeEditorWithHiddenSecondPage() -> DocumentEditor {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setPageWithFieldPosition()
+            .addSecondPage()
+            .setHeadingText()
+            .setTextField()
+        if let index = document.files[0].pages?.firstIndex(where: { $0.id == secondPageID }) {
+            document.files[0].pages?[index].hidden = true
+        }
+        return DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
+    }
+
     private func countEmissions(on editor: DocumentEditor,
                                 during body: () -> Void) -> Int {
         var emissions = 0
@@ -268,5 +285,21 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertEqual(status, .failure, "an unknown page must not resolve")
         XCTAssertNil(editor.pendingNavigationTarget, "a failed goto must not park anything")
         XCTAssertFalse(editor.showPageSelectionSheet, "the sheet must not reopen on a failed goto")
+    }
+
+    /// The silent-no-op case: `goto` rejects a page hidden by conditional logic. The
+    /// row list filters on `shouldShow(pageID:)`, so this is only reachable if logic
+    /// re-evaluates between render and tap — but the sheet must still close cleanly
+    /// rather than strand the user mid-dismissal.
+    func testSelectingHiddenPage_failsButStillClosesSheet() {
+        let editor = makeEditorWithHiddenSecondPage()
+        XCTAssertFalse(editor.shouldShow(pageID: secondPageID), "the second page must be hidden")
+        editor.presentPageSelectionSheet(true)
+
+        let status = selectPage(secondPageID, on: editor)
+
+        XCTAssertEqual(status, .failure, "goto must reject a hidden page")
+        XCTAssertNil(editor.pendingNavigationTarget, "a rejected goto must not park anything")
+        XCTAssertFalse(editor.showPageSelectionSheet, "the sheet must still close")
     }
 }
