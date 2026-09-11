@@ -744,7 +744,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                             case .barcode:
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel, isRowForm: true)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")

@@ -590,7 +590,7 @@ struct EditMultipleRowsSheetView: View {
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                             case .barcode:
                                 columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel, isRowForm: true)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
