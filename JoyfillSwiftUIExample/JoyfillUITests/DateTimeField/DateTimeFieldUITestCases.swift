@@ -296,9 +296,6 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
     }
     //Custom format Text cases
     func testCustomDateFormat() {
-        app.swipeUp()
-        app.swipeUp()
-        
         // Additional verification for all ChangeDateIdentifier buttons visible in the hierarchy
         let allButtons = [
             "07/10/2025",
@@ -311,6 +308,12 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
         ]
         for label in allButtons {
             let button = app.buttons[label]
+            var swipes = 0
+            while !button.exists && swipes < 10 {
+                app.swipeUp()
+                spinRunloop(0.15)
+                swipes += 1
+            }
             XCTAssertTrue(button.waitForExistence(timeout: 3), "Button with label \(label) should exist in UI")
         }
         app.swipeDown()

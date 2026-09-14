@@ -51,6 +51,7 @@ enum DecoratorUITestSupport {
             return
         }
         input.tap()
+        input.tap()
         input.typeText(json)
         button.tap()
     }
@@ -101,6 +102,7 @@ enum DecoratorUITestSupport {
     static func openCollectionDetailView(in app: XCUIApplication) {
         let btn = app.buttons.matching(identifier: "CollectionDetailViewIdentifier").firstMatch
         if !btn.waitForExistence(timeout: 3) {
+            app.swipeUp()
             app.swipeUp()
             _ = btn.waitForExistence(timeout: 3)
         }

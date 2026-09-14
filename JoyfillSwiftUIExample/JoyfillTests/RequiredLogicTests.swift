@@ -1985,10 +1985,10 @@ final class RequiredLogicTests: XCTestCase {
             "files": [[
                 "_id": fileID,
                 "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": [
-                    ["_id": "fp-text", "field": textFieldID, "type": "text"],
-                    ["_id": "fp-dd", "field": dropdownFieldID, "type": "dropdown"]
-                ]]]
+                "pages": [page(pageID, fieldPositions: [
+                    fieldPosition("fp-text", field: textFieldID, type: "text"),
+                    fieldPosition("fp-dd", field: dropdownFieldID, type: "dropdown")
+                ])]
             ]],
             "fields": [
                 textField,
@@ -2054,9 +2054,9 @@ final class RequiredLogicTests: XCTestCase {
             "files": [[
                 "_id": fileID,
                 "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": [
-                    ["_id": "fp-text", "field": textFieldID, "type": "text"]
-                ]]]
+                "pages": [page(pageID, fieldPositions: [
+                    fieldPosition("fp-text", field: textFieldID, type: "text")
+                ])]
             ]],
             "fields": [[
                 "_id": textFieldID,
@@ -2073,21 +2073,18 @@ final class RequiredLogicTests: XCTestCase {
             "files": [[
                 "_id": fileID,
                 "pageOrder": [pageID],
-                "pages": [["_id": pageID, "fieldPositions": [
-                    ["_id": "fp-text", "field": textFieldID, "type": "text"]
-                ]]]
+                "pages": [page(pageID, fieldPositions: [
+                    fieldPosition("fp-text", field: textFieldID, type: "text")
+                ])]
             ]],
             "fields": [[
                 "_id": textFieldID,
                 "file": fileID,
                 "type": "text",
                 "required": false,
-                "requiredLogic": requiredLogicWithConditions(action: "enforce", conditions: [[
-                    "field": "missing-field",
-                    "condition": "=",
-                    "value": optYes,
-                    "_id": UUID().uuidString
-                ]])
+                "requiredLogic": requiredLogicWithConditions(action: "enforce", conditions: [
+                    fieldCondition("missing-field", value: optYes)
+                ])
             ]]
         ])
         XCTAssertEqual(textStatus(documentEditor(document: missingFieldOptional)), .valid)
@@ -2169,25 +2166,18 @@ final class RequiredLogicTests: XCTestCase {
     func testRequiredFieldOnHiddenPageIsSkippedByValidation() {
         let hiddenPageID = "hidden-page"
         let visiblePageID = "visible-page"
+        var hiddenPage = page(hiddenPageID, fieldPositions: [
+            fieldPosition("fp-hidden-text", field: textFieldID, type: "text")
+        ])
+        hiddenPage["hidden"] = true
+        var visiblePage = page(visiblePageID, fieldPositions: [])
+        visiblePage["hidden"] = false
         let document = JoyDoc(dictionary: [
             "_id": "doc-1",
             "files": [[
                 "_id": fileID,
                 "pageOrder": [hiddenPageID, visiblePageID],
-                "pages": [
-                    [
-                        "_id": hiddenPageID,
-                        "hidden": true,
-                        "fieldPositions": [
-                            ["_id": "fp-hidden-text", "field": textFieldID, "type": "text"]
-                        ]
-                    ],
-                    [
-                        "_id": visiblePageID,
-                        "hidden": false,
-                        "fieldPositions": []
-                    ]
-                ]
+                "pages": [hiddenPage, visiblePage]
             ]],
             "fields": [[
                 "_id": textFieldID,

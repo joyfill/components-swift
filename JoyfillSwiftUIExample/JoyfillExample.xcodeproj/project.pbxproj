@@ -206,8 +206,11 @@
 		95288F4E2FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F252FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift */; };
 		95288F4F2FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F212FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift */; };
 		9587E749302F441B00293EF7 /* EditabilityTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9587E748302F440F00293EF7 /* EditabilityTest.json */; };
-		9587E751302F441B00293EF7 /* EditabilityTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9587E748302F440F00293EF7 /* EditabilityTest.json */; };
 		9587E74D302F445500293EF7 /* EditabilityTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9587E74C302F445000293EF7 /* EditabilityTest.swift */; };
+		9587E751302F441B00293EF7 /* EditabilityTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9587E748302F440F00293EF7 /* EditabilityTest.json */; };
+		95926EB0304E6AFD008C964A /* testDoc.json in Resources */ = {isa = PBXBuildFile; fileRef = 95926EAF304E6AFD008C964A /* testDoc.json */; };
+		95926EB1304E6AFD008C964A /* testDoc.json in Resources */ = {isa = PBXBuildFile; fileRef = 95926EAF304E6AFD008C964A /* testDoc.json */; };
+		95926EB2304E6AFD008C964A /* testDoc.json in Resources */ = {isa = PBXBuildFile; fileRef = 95926EAF304E6AFD008C964A /* testDoc.json */; };
 		95C0BE9C3006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
 		95C0BE9D3006200400D207B9 /* LandScapeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BE9A3006200400D207B9 /* LandScapeMode.swift */; };
 		95C0BEA03006200400D207B9 /* LandscapeMode.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BE993006200400D207B9 /* LandscapeMode.json */; };
@@ -893,6 +896,7 @@
 		95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_YearFunctionTests.swift; sourceTree = "<group>"; };
 		9587E748302F440F00293EF7 /* EditabilityTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = EditabilityTest.json; sourceTree = "<group>"; };
 		9587E74C302F445000293EF7 /* EditabilityTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditabilityTest.swift; sourceTree = "<group>"; };
+		95926EAF304E6AFD008C964A /* testDoc.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testDoc.json; sourceTree = "<group>"; };
 		95C0BE993006200400D207B9 /* LandscapeMode.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = LandscapeMode.json; sourceTree = "<group>"; };
 		95C0BE9A3006200400D207B9 /* LandScapeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandScapeMode.swift; sourceTree = "<group>"; };
 		95C0BEE8300A442500D207B9 /* RequiredLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RequiredLogic.json; sourceTree = "<group>"; };
@@ -1404,6 +1408,7 @@
 				E29FF8662F215C9C0079A614 /* Navigation.json */,
 				36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */,
 				E2FBBABF2E67122E001FBF5B /* 10kRowsCollection.json */,
+				95926EAF304E6AFD008C964A /* testDoc.json */,
 				36A5EF2F2E29725B0059C2A6 /* testrow.json */,
 			);
 			path = others;
@@ -2426,6 +2431,7 @@
 				E274CA4F2E2E7FB000B35C09 /* multiSelectField.json in Resources */,
 				E28D10AB2E2E08F700E59B5F /* ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate.json in Resources */,
 				E2F568A82E2A473D005216A6 /* DisplayTextFieldTestData.json in Resources */,
+				95926EB0304E6AFD008C964A /* testDoc.json in Resources */,
 				E274CA782E2E7FDE00B35C09 /* fileSettingsTemplate.json in Resources */,
 				9587E749302F441B00293EF7 /* EditabilityTest.json in Resources */,
 				E28D10A72E2E08E100E59B5F /* EncapsulatedCircularReference_FormulaTemplate.json in Resources */,
@@ -2521,6 +2527,7 @@
 				E28D10AF2E2E090800E59B5F /* FormulaTemplate_ConditionalEvaluationCircularReference.json in Resources */,
 				E274CB392E2E84F700B35C09 /* collectionTableFieldValidation.json in Resources */,
 				E29FF8682F215C9C0079A614 /* Navigation.json in Resources */,
+				95926EB1304E6AFD008C964A /* testDoc.json in Resources */,
 				E274CB3A2E2E84F700B35C09 /* collectionInputGroupFieldValidation.json in Resources */,
 				E274CB3B2E2E84F700B35C09 /* imageAndFileFieldValidation.json in Resources */,
 				E274CB3C2E2E84F700B35C09 /* baseSignatureTemplateValidation.json in Resources */,
@@ -2653,6 +2660,7 @@
 				E2C904612FEBDEB700DF0F92 /* countIf.md in Resources */,
 				E2C904622FEBDEB700DF0F92 /* contains.json in Resources */,
 				E2C904632FEBDEB700DF0F92 /* mod.json in Resources */,
+				95926EB2304E6AFD008C964A /* testDoc.json in Resources */,
 				E2C904642FEBDEB700DF0F92 /* and.md in Resources */,
 				E2C904652FEBDEB700DF0F92 /* toNumber.md in Resources */,
 				E2C904662FEBDEB700DF0F92 /* dateSubtract.md in Resources */,
