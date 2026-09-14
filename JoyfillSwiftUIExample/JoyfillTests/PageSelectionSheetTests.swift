@@ -195,6 +195,89 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertEqual(emissions, 2, "showPageNavigationView must stay @Published")
     }
 
+    // MARK: - Threading
+
+    /// Waits for the next write to `keyPath` and reports whether it landed on the
+    /// main thread. `@Published` fires in `willSet`, so the value here is still the
+    /// old one — the thread is what this is asking about.
+    private func threadOfNextWrite(to publisher: Published<Bool>.Publisher,
+                                   triggeredBy trigger: @escaping () -> Void) -> Bool? {
+        let written = expectation(description: "the flag was written")
+        var landedOnMain: Bool?
+
+        let cancellable = publisher
+            .dropFirst()            // drop the current-value replay
+            .sink { _ in
+                landedOnMain = Thread.isMainThread
+                written.fulfill()
+            }
+
+        trigger()
+        wait(for: [written], timeout: 2)
+        cancellable.cancel()
+        return landedOnMain
+    }
+
+    /// The `else` branch of `runOnMain`. A host calling from a background queue must
+    /// not mutate published state off the main thread — SwiftUI requires the write,
+    /// and the `objectWillChange` that rides with it, to happen on main.
+    func testPresentPageSelectionSheet_fromBackgroundQueue_marshalsToMain() {
+        let editor = makeEditor()
+
+        let landedOnMain = threadOfNextWrite(to: editor.$showPageSelectionSheet) {
+            DispatchQueue.global(qos: .userInitiated).async {
+                editor.presentPageSelectionSheet(true)
+            }
+        }
+
+        XCTAssertEqual(landedOnMain, true, "the write must be marshalled to the main thread")
+        XCTAssertTrue(editor.showPageSelectionSheet, "and it must actually land")
+    }
+
+    func testSetPageNavigationVisible_fromBackgroundQueue_marshalsToMain() {
+        let editor = makeEditor()
+
+        let landedOnMain = threadOfNextWrite(to: editor.$showPageNavigationView) {
+            DispatchQueue.global(qos: .userInitiated).async {
+                editor.setPageNavigationVisible(false)
+            }
+        }
+
+        XCTAssertEqual(landedOnMain, true, "the write must be marshalled to the main thread")
+        XCTAssertFalse(editor.showPageNavigationView, "and it must actually land")
+    }
+
+    /// The other half of `runOnMain`, and the reason it exists rather than a plain
+    /// `DispatchQueue.main.async`: on the main thread the block runs inline, so a host
+    /// can read the value back on the very next line. A raw `async` would defer a
+    /// runloop turn and both of these would still hold their old values.
+    func testPublicMethods_onMainThread_applySynchronously() {
+        let editor = makeEditor()
+
+        editor.presentPageSelectionSheet(true)
+        XCTAssertTrue(editor.showPageSelectionSheet, "must be readable immediately, not a runloop later")
+
+        editor.setPageNavigationVisible(false)
+        XCTAssertFalse(editor.showPageNavigationView, "must be readable immediately, not a runloop later")
+    }
+
+    /// Hammering the same entry point from several queues must converge rather than
+    /// tear: every call funnels through the main queue, so the last write wins and
+    /// nothing is lost or written concurrently.
+    func testPresentPageSelectionSheet_concurrentCalls_converge() {
+        let editor = makeEditor()
+        let finished = expectation(description: "all calls dispatched")
+        finished.expectedFulfillmentCount = 50
+
+        DispatchQueue.concurrentPerform(iterations: 50) { _ in
+            editor.presentPageSelectionSheet(true)
+            DispatchQueue.main.async { finished.fulfill() }
+        }
+
+        wait(for: [finished], timeout: 5)
+        XCTAssertTrue(editor.showPageSelectionSheet, "every call set it true, so it must end true")
+    }
+
     // MARK: - Selection: the goto unwind
 
     /// Mirrors `PageDuplicateListView.onSelect`, in its order: the page binding is
