@@ -481,7 +481,6 @@ struct PageDuplicateListView: View {
                                     isSelected: currentPageID == pageID,
                                     documentEditor: documentEditor,
                                     onSelect: {
-                                        currentPageID = pageID
                                         documentEditor.showPageSelectionSheet = false
                                         _ = documentEditor.goto(pageID)
                                     },

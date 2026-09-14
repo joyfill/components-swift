@@ -48,7 +48,7 @@ final class PageSelectionSheetTests: XCTestCase {
             .addSecondPage()
             .setHeadingText()
             .setTextField()
-        if let index = document.files[0].pages?.firstIndex(where: { $0.id == secondPageID }) {
+        if let index = document.files.first?.pages?.firstIndex(where: { $0.id == secondPageID }) {
             document.files[0].pages?[index].hidden = true
         }
         return DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
@@ -280,12 +280,10 @@ final class PageSelectionSheetTests: XCTestCase {
 
     // MARK: - Selection: the goto unwind
 
-    /// Mirrors `PageDuplicateListView.onSelect`, in its order: the page binding is
-    /// assigned first, then the internal flag is cleared directly rather than through
-    /// the public method, then `goto` runs to unwind any open modal.
+    /// Mirrors `PageDuplicateListView.onSelect`: it clears the internal flag directly
+    /// rather than through the public method, and leaves the page change to `goto`.
     @discardableResult
     private func selectPage(_ pageID: String, on editor: DocumentEditor) -> NavigationStatus {
-        editor.currentPageID = pageID
         editor.showPageSelectionSheet = false
         return editor.goto(pageID)
     }
@@ -315,30 +313,34 @@ final class PageSelectionSheetTests: XCTestCase {
 
     // MARK: - Selection with a modal open
 
-    /// The reason `onSelect` calls `goto` at all. `onSelect` assigns the page first,
-    /// so the page change itself is immediate; `goto` then parks the target and asks
-    /// the open modal to unwind via `dismissNavigationPublisher` instead of firing
-    /// the navigation event straight away.
-    func testSelectingPage_whileModalIsOpen_parksNavigationUntilItUnwinds() {
+    /// The whole reason `onSelect` calls `goto` rather than assigning `currentPageID`.
+    /// With a modal open the page change is deferred: the target is parked and the
+    /// modal is asked to unwind, and only once it has does the page actually move.
+    /// A direct assignment would have switched the page behind the open modal.
+    func testSelectingPage_whileModalIsOpen_defersUntilItUnwinds() {
         let editor = makeEditor()
+        let startingPageID = editor.currentPageID
         editor.setOpenNavigationFieldID("someOpenFieldID")
         editor.presentPageSelectionSheet(true)
 
         selectPage(secondPageID, on: editor)
 
-        XCTAssertEqual(editor.currentPageID, secondPageID, "the page change itself is immediate")
+        XCTAssertEqual(editor.currentPageID, startingPageID,
+                       "the page must not move while the modal is still up")
         XCTAssertEqual(editor.pendingNavigationTarget?.pageId, secondPageID,
-                       "navigation must be parked while the modal is still up")
+                       "the target must be parked instead")
         XCTAssertFalse(editor.showPageSelectionSheet, "the sheet still closes")
 
         editor.setOpenNavigationFieldID(nil)   // the modal finished dismissing
 
-        XCTAssertNil(editor.pendingNavigationTarget, "the parked target must be consumed on unwind")
+        XCTAssertEqual(editor.currentPageID, secondPageID,
+                       "the page change lands once the modal has unwound")
+        XCTAssertNil(editor.pendingNavigationTarget, "the parked target must be consumed")
     }
 
     /// `executeNavigation` defers on `openedNavigationFieldID` alone and never checks
     /// whether the page actually changed, so re-selecting the page you are already on
-    /// also unwinds an open modal. The old `currentPageID = pageID` left it alone.
+    /// also unwinds an open modal. A direct assignment would have left it alone.
     func testSelectingCurrentPage_whileModalIsOpen_alsoUnwindsIt() {
         let editor = makeEditor()
         let startingPageID = editor.currentPageID
@@ -353,17 +355,17 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertFalse(editor.showPageSelectionSheet, "the sheet still closes")
     }
 
-    /// A failed `goto` must not leave the picker open in a half-dismissed state.
-    ///
-    /// Note the ordering `onSelect` uses: the page is assigned before `goto` validates,
-    /// so an unresolvable ID still lands on `currentPageID` and only the return value
-    /// reports the failure. Not reachable from the UI — `PageDuplicateListView` renders
-    /// only rows that pass `shouldShow(pageID:)`.
+    /// A failed `goto` must not leave the picker open in a half-dismissed state, and
+    /// must not move the user anywhere. `goto` validates before it assigns, so a
+    /// rejected ID never reaches `currentPageID`.
     func testFailedSelection_stillClosesSheet() {
         let editor = makeEditor()
         editor.presentPageSelectionSheet(true)
+        let startingPageID = editor.currentPageID
 
         let status = selectPage("no-such-page-id", on: editor)
+
+        XCTAssertEqual(editor.currentPageID, startingPageID, "the page must not change")
 
         XCTAssertEqual(status, .failure, "an unknown page must not resolve")
         XCTAssertNil(editor.pendingNavigationTarget, "a failed goto must not park anything")
@@ -378,10 +380,13 @@ final class PageSelectionSheetTests: XCTestCase {
         let editor = makeEditorWithHiddenSecondPage()
         XCTAssertFalse(editor.shouldShow(pageID: secondPageID), "the second page must be hidden")
         editor.presentPageSelectionSheet(true)
+        let startingPageID = editor.currentPageID
 
         let status = selectPage(secondPageID, on: editor)
 
         XCTAssertEqual(status, .failure, "goto must reject a hidden page")
+        XCTAssertEqual(editor.currentPageID, startingPageID,
+                       "a rejected page must never land on currentPageID — it would strand the user on \"No pages available\"")
         XCTAssertNil(editor.pendingNavigationTarget, "a rejected goto must not park anything")
         XCTAssertFalse(editor.showPageSelectionSheet, "the sheet must still close")
     }
