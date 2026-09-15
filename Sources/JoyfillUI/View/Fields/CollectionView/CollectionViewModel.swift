@@ -344,9 +344,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .text:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return (cell1.title ?? "") < (cell2.title ?? "")
+                        return cell1.searchableText < cell2.searchableText
                     case .descending:
-                        return (cell1.title ?? "") > (cell2.title ?? "")
+                        return cell1.searchableText > cell2.searchableText
                     case .none:
                         return true
                     }
@@ -371,9 +371,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .barcode:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return (cell1.title ?? "") < (cell2.title ?? "")
+                        return cell1.searchableText < cell2.searchableText
                     case .descending:
-                        return (cell1.title ?? "") > (cell2.title ?? "")
+                        return cell1.searchableText > cell2.searchableText
                     case .none:
                         return true
                     }
@@ -437,6 +437,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         rowToValueElementMap = getBuildRowToValueElementMap(tableDataModel: tableDataModel)
     }
     
+    func rowElement(forRowID rowID: String) -> ValueElement? {
+        rowToValueElementMap[rowID]
+    }
+
     func getBuildRowToValueElementMap(tableDataModel: TableDataModel) -> [String: ValueElement] {
         var rowToValueElementMap: [String: ValueElement] = [:]
         let valueElements = tableDataModel.valueToValueElements ?? []
@@ -2048,7 +2052,7 @@ extension CollectionViewModel {
     /// Updates UI models for a given ValueElement row.
     private func updateUIModels(for rowID: String, schemaID: String, using row: ValueElement) {
         let columns = tableDataModel.filterTableColumns(key: schemaID)
-        let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, row)
+        let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, row, schemaKey: schemaID)
         for cell in cellDataModels {
             let colIndex = columns.firstIndex(where: { $0.id == cell.id }) ?? 0
             tableDataModel.updateCellModelForNested(

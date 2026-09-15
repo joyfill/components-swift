@@ -36,30 +36,9 @@ enum FocusBlurAction: String {
 
 // MARK: - Formulas
 
+/// Forwarded so the views need not reach through `data` for a result.
 extension TableCellModel {
-
-    /// Column types whose stored value is a string, and so can carry a formula.
-    static let formulaCapableTypes: Set<ColumnTypes> = [.text, .barcode]
-
-    private var context: JoyfillDocContext? {
-        documentEditor?.joyDocContext
-    }
-
-    /// `true` when this cell's stored value is a formula.
-    var isFormulaCell: Bool {
-        guard let type = data.type, Self.formulaCapableTypes.contains(type) else { return false }
-        return context?.isFormulaCell(fieldID: fieldIdentifier.fieldID, rowID: rowID, columnID: data.id) ?? false
-    }
-
-    /// The evaluated result to show while the cell is idle, or `"Error"` if it failed.
-    var formulaDisplayText: String {
-        context?.cellFormulaValue(fieldID: fieldIdentifier.fieldID, rowID: rowID, columnID: data.id)?.text ?? ""
-    }
-
-    /// `true` when the formula failed to evaluate.
-    var isFormulaInError: Bool {
-        context?.cellFormulaValue(fieldID: fieldIdentifier.fieldID, rowID: rowID, columnID: data.id)?.isError ?? false
-    }
+    var isFormulaCell: Bool { data.isFormulaCell }
+    var formulaValue: CellFormulaValue? { data.formulaValue }
+    var formulaDisplayText: String { data.formulaDisplayText }
 }
-
-

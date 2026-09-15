@@ -2774,6 +2774,9 @@ struct TableCellFormulaSetup {
     /// Column id → a formula declared on the column, applying to every row that has
     /// not overridden it. Never copied into a cell; evaluated per row.
     let columnFormulas: [String: String]
+    /// Column id → the formula columns to recompute when it changes, chains included.
+    /// Comes from the column definitions, so no cell edit can invalidate it.
+    let columnDependents: [String: Set<String>]
 }
 
 /// What the view model gets back for a single cell.
@@ -2807,21 +2810,22 @@ extension JoyfillDocContext {
     /// Bulk edit spans many rows and writes one literal to all of them, which would turn
     /// a computed column into plain data. Callers use this to keep such a column
     /// read-only in the bulk-edit sheet.
-    func isFormulaColumn(fieldID: String, rowID: String, columnID: String) -> Bool {
-        guard let found = tableRow(fieldID: fieldID, rowID: rowID),
-              let setup = tableSetup(fieldID: fieldID, schemaID: found.schemaID) else { return false }
-        return setup.columnFormulas[columnID] != nil
+    func isFormulaColumn(fieldID: String, schemaID: String?, columnID: String) -> Bool {
+        tableSetup(fieldID: fieldID, schemaID: schemaID)?.columnFormulas[columnID] != nil
     }
 
-    func isFormulaCell(fieldID: String, rowID: String, columnID: String) -> Bool {
-        activeFormula(fieldID: fieldID, rowID: rowID, columnID: columnID) != nil
+    func isFormulaCell(fieldID: String, schemaID: String?, row: ValueElement, columnID: String) -> Bool {
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID) else { return false }
+        return activeFormula(setup: setup, row: row, columnID: columnID) != nil
     }
 
     /// Evaluates one cell and returns what to display. The view model's single entry point.
-    func cellFormulaValue(fieldID: String, rowID: String, columnID: String) -> CellFormulaValue? {
-        guard let found = tableRow(fieldID: fieldID, rowID: rowID),
-              let setup = tableSetup(fieldID: fieldID, schemaID: found.schemaID),
-              let result = evaluateCell(fieldID: fieldID, setup: setup, row: found.row, columnID: columnID) else {
+    func cellFormulaValue(fieldID: String,
+                          schemaID: String?,
+                          row: ValueElement,
+                          columnID: String) -> CellFormulaValue? {
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID),
+              let result = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID) else {
             return nil
         }
         switch result {
@@ -2837,19 +2841,10 @@ extension JoyfillDocContext {
 
     /// Evaluates a cell, or returns `nil` when it holds no formula.
     ///
+    /// The row arrives from the view model that owns it, so nothing here has to find it.
     /// Recursion is how a formula reading another computed column gets a fresh value:
     /// `RowCellContext` calls back in here per column reference, and `cellsInProgress`
     /// stops that recursion becoming a loop.
-    func evaluateCell(fieldID: String, rowID: String, columnID: String) -> Result<FormulaValue, FormulaError>? {
-        guard let found = tableRow(fieldID: fieldID, rowID: rowID),
-              let setup = tableSetup(fieldID: fieldID, schemaID: found.schemaID) else { return nil }
-        return evaluateCell(fieldID: fieldID, setup: setup, row: found.row, columnID: columnID)
-    }
-
-    /// The real evaluation, for callers that already hold the row and its setup.
-    ///
-    /// Locating a row means walking a collection's nested tree, so the recursive path —
-    /// one call per column a formula references — must not repeat it.
     func evaluateCell(fieldID: String,
                       setup: TableCellFormulaSetup,
                       row: ValueElement,
@@ -2981,13 +2976,6 @@ extension JoyfillDocContext {
 
     // MARK: Formula lookup
 
-    /// Same as above, addressed by ids rather than by an already-resolved row.
-    private func activeFormula(fieldID: String, rowID: String, columnID: String) -> String? {
-        guard let found = tableRow(fieldID: fieldID, rowID: rowID),
-              let setup = tableSetup(fieldID: fieldID, schemaID: found.schemaID) else { return nil }
-        return activeFormula(setup: setup, row: found.row, columnID: columnID)
-    }
-
     /// A value is a formula only when it starts with `=`. The single rule, applied
     /// identically to a cell's value and to a column's default.
     static func formulaSource(of raw: String?) -> String? {
@@ -3032,36 +3020,6 @@ extension JoyfillDocContext {
 
     // MARK: Table setup
 
-    /// Finds a row and the schema it belongs to.
-    ///
-    /// A table field has one flat list of rows and no schema. A collection nests rows
-    /// under `childrens`, keyed by schema, to any depth — so the search is recursive and
-    /// reports the schema key it arrived at, which is what selects the column set.
-    private func tableRow(fieldID: String, rowID: String) -> (row: ValueElement, schemaID: String?)? {
-        guard let field = docProviderField(fieldID) else { return nil }
-        let rows = field.valueToValueElements ?? []
-
-        guard let schema = field.schema, !schema.isEmpty else {
-            return rows.first { $0.id == rowID }.map { ($0, nil) }
-        }
-        let rootSchemaKey = schema.first { $0.value.root == true }?.key ?? ""
-        return findRow(rowID, in: rows, schemaKey: rootSchemaKey)
-    }
-
-    private func findRow(_ rowID: String,
-                         in elements: [ValueElement],
-                         schemaKey: String) -> (row: ValueElement, schemaID: String?)? {
-        for element in elements {
-            if element.id == rowID { return (element, schemaKey) }
-            for (childSchemaKey, child) in element.childrens ?? [:] {
-                if let found = findRow(rowID, in: child.valueToValueElements ?? [], schemaKey: childSchemaKey) {
-                    return found
-                }
-            }
-        }
-        return nil
-    }
-
     func tableSetup(fieldID: String, schemaID: String?) -> TableCellFormulaSetup? {
         // Column letters are positional, so every schema needs its own resolver.
         let key = schemaID.map { "\(fieldID)\u{1}\($0)" } ?? fieldID
@@ -3090,13 +3048,52 @@ extension JoyfillDocContext {
             }
         }
 
+        // Parsing needs this schema's resolver, so build the setup before its map.
+        let base = TableCellFormulaSetup(cacheKey: key,
+                                         resolver: ColumnReferenceResolver(columns: columns),
+                                         types: types,
+                                         optionLabels: optionLabels,
+                                         columnFormulas: columnFormulas,
+                                         columnDependents: [:])
         let setup = TableCellFormulaSetup(cacheKey: key,
-                                          resolver: ColumnReferenceResolver(columns: columns),
+                                          resolver: base.resolver,
                                           types: types,
                                           optionLabels: optionLabels,
-                                          columnFormulas: columnFormulas)
+                                          columnFormulas: columnFormulas,
+                                          columnDependents: columnDependents(for: base))
         tableSetups[key] = setup
         return setup
+    }
+
+    // MARK: Column dependencies
+
+    /// The formula columns to recompute when `changedColumnID` changes.
+    func formulaColumnsAffected(fieldID: String, schemaID: String?, by changedColumnID: String) -> Set<String> {
+        tableSetup(fieldID: fieldID, schemaID: schemaID)?.columnDependents[changedColumnID] ?? []
+    }
+
+    /// Inverts the column formulas into that map, following chains; `visited` guards cycles.
+    /// Cell-level formulas belong to a row, not the schema, so they are not in here.
+    private func columnDependents(for setup: TableCellFormulaSetup) -> [String: Set<String>] {
+        var reads: [String: Set<String>] = [:]
+        for (columnID, body) in setup.columnFormulas {
+            guard let ast = parsedCellFormula(body: body, setup: setup) else { continue }
+            var references: [String] = []
+            extractReferencesFromNode(ast, references: &references)
+            reads[columnID] = Set(references.compactMap { setup.resolver.columnID(forEscapedToken: $0) })
+        }
+
+        var dependents: [String: Set<String>] = [:]
+        for columnID in reads.keys {
+            var visited: Set<String> = [columnID]
+            var pending = Array(reads[columnID] ?? [])
+            while let next = pending.popLast() {
+                guard visited.insert(next).inserted else { continue }
+                dependents[next, default: []].insert(columnID)
+                pending.append(contentsOf: reads[next] ?? [])
+            }
+        }
+        return dependents
     }
 }
 

@@ -182,9 +182,9 @@ struct TableModalView : View {
                 case .text:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (column1.title ?? "") < (column2.title ?? "")
+                        return column1.searchableText < column2.searchableText
                     case .descending:
-                        return (column1.title ?? "") > (column2.title ?? "")
+                        return column1.searchableText > column2.searchableText
                     case .none:
                         return true
                     }
@@ -209,9 +209,9 @@ struct TableModalView : View {
                 case .barcode:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (column1.title ?? "") < (column2.title ?? "")
+                        return column1.searchableText < column2.searchableText
                     case .descending:
-                        return (column1.title ?? "") > (column2.title ?? "")
+                        return column1.searchableText > column2.searchableText
                     case .none:
                         return true
                     }

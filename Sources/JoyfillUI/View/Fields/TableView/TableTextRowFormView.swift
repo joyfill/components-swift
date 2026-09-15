@@ -60,9 +60,10 @@ struct TableTextRowFormView: View {
     @ViewBuilder
     private func resultOverlay() -> some View {
         if showsFormula && !isTextFieldFocused {
-            Text(cellModel.formulaDisplayText)
+            let value = cellModel.formulaValue
+            Text(value?.text ?? "")
                 .font(.system(size: 15))
-                .foregroundColor(cellModel.isFormulaInError ? .red : .primary)
+                .foregroundColor(value?.isError == true ? .red : .primary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .padding(.horizontal, 10)
                 .allowsHitTesting(false)
