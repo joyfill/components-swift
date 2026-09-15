@@ -595,7 +595,7 @@ struct EditMultipleRowsSheetView: View {
                                 TableBarcodeView(cellModel: Binding.constant(cellModel),
                                                  formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row),
                                                  isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
-                                    .frame(minHeight: 40)
+                                    .frame(height: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                             case .image:
@@ -683,6 +683,7 @@ struct EditMultipleRowsSheetView: View {
         .onTapGesture {
             viewModel.clearFocusColumnIfNeeded()
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 15) }
         }
         }
         .safeAreaInset(edge: .bottom) {
