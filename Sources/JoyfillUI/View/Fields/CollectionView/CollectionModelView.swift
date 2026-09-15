@@ -82,10 +82,10 @@ struct CollectionModalView : View {
                 CollectionFilterModal(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isSearching)
             }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+            .padding(EdgeInsets(top: 16, leading: 10, bottom: 0, trailing: 10))
 
             scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
         .safeAreaInset(edge: .bottom) {

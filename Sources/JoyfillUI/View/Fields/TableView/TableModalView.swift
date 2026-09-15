@@ -82,13 +82,13 @@ struct TableModalView : View {
                 EditMultipleRowsSheetView(viewModel: viewModel)
                     .interactiveDismissDisabled(viewModel.isBulkLoading)
             }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+            .padding(EdgeInsets(top: 16, leading: 10, bottom: 0, trailing: 10))
             if currentSelectedCol != Int.min {
                 SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
         .safeAreaInset(edge: .bottom) {
