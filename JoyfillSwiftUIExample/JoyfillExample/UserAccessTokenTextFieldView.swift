@@ -309,6 +309,21 @@ struct FormDestinationView: View {
         VStack {
             if enableChangelogs {
                 HStack {
+                    if let editor = documentEditor {
+                        Button(action: {
+                            editor.presentPageSelectionSheet(true)
+                        }) {
+                            HStack {
+                                Image(systemName: "chevron.down")
+                                Text(editor.firstValidPageFor(currentPageID: editor.currentPageID)?.name ?? "")
+                            }
+                        }
+                        .buttonStyle(.bordered)
+                        .accessibilityIdentifier("PageNavigationIdentifier")
+                        .padding(.leading, 16)
+                        .padding(.top, 8)
+                    }
+
                     Spacer()
                     Button(action: {
                         showPublicApis = true
@@ -351,11 +366,14 @@ struct FormDestinationView: View {
                     .padding(.trailing, 16)
                     .padding(.top, 8)
                 }
+                .font(.caption)
+                .controlSize(.small)
             }
 
             if let editor = documentEditor {
                 Form(documentEditor: editor)
                     .id("\(editor.singleClickRowEdit)\(editor.mode)")
+                    .onAppear { editor.setPageNavigationVisible(!enableChangelogs) }
                 SaveButtonView(changeManager: changeManager, documentEditor: editor, showBothButtons: enableChangelogs ? true : false) { validation in
                     // Only show validation results if there are field validities
                     guard !validation.fieldValidities.isEmpty else {
