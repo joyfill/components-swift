@@ -46,6 +46,10 @@ class JoyfillDocContext: EvaluationContext {
     /// itself, so this can never go stale — it only avoids re-parsing the same string.
     internal var cellASTs: [String: [String: ASTNode]] = [:]
 
+    /// Evaluated cell results, per field. Row ids are unique across a collection's
+    /// schemas, so a read needs no schema — only a write, which picks the resolver.
+    private var cellResults: [String: [CellID: CellFormulaValue]] = [:]
+
     /// `docProvider` is private; the table-formula extension reaches fields through this.
     internal func docProviderField(_ fieldID: String) -> JoyDocField? {
         docProvider?.field(fieldID: fieldID)
@@ -2819,39 +2823,6 @@ extension JoyfillDocContext {
 
     // MARK: Queries used by the view model
 
-    /// `true` when this cell shows a computed value rather than what is stored.
-    /// `true` when the **column** declares a formula, whatever any individual row holds.
-    ///
-    /// Bulk edit spans many rows and writes one literal to all of them, which would turn
-    /// a computed column into plain data. Callers use this to keep such a column
-    /// read-only in the bulk-edit sheet.
-    func isFormulaColumn(fieldID: String, schemaID: String?, columnID: String) -> Bool {
-        return tableSetup(fieldID: fieldID, schemaID: schemaID)?.columnFormulas[columnID] != nil
-    }
-
-    func isFormulaCell(fieldID: String, schemaID: String?, row: ValueElement, columnID: String) -> Bool {
-        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID) else { return false }
-        return activeFormula(setup: setup, row: row, columnID: columnID) != nil
-    }
-
-    /// Evaluates one cell and returns what to display. The view model's single entry point.
-    func cellFormulaValue(fieldID: String,
-                          schemaID: String?,
-                          row: ValueElement,
-                          columnID: String) -> CellFormulaValue? {
-        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID),
-              let result = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID) else {
-            return nil
-        }
-        switch result {
-        case .failure:
-            return CellFormulaValue(text: "Error", isError: true)
-        case .success(let value):
-            return CellFormulaValue(text: cellDisplayText(value, setup: setup, columnID: columnID),
-                                    isError: false)
-        }
-    }
-
     // MARK: Evaluation
 
     /// Evaluates a cell, or returns `nil` when it holds no formula.
@@ -3083,12 +3054,79 @@ extension JoyfillDocContext {
         return setup
     }
 
-    // MARK: Column dependencies
+    // MARK: Stored results
 
-    /// The formula columns to recompute when `changedColumnID` changes.
-    func formulaColumnsAffected(fieldID: String, schemaID: String?, by changedColumnID: String) -> Set<String> {
-        return tableSetup(fieldID: fieldID, schemaID: schemaID)?.columnDependents[changedColumnID] ?? []
+    /// Column types whose stored value is a string, and so can carry a formula.
+    static let formulaCapableTypes: Set<ColumnTypes> = [.text, .barcode]
+
+    /// The evaluated result for one cell, or `nil` when it holds no formula.
+    /// The single read for everything that displays, filters or sorts a formula cell.
+    func cellFormulaValue(columnID: String, fieldID: String, rowID: String) -> CellFormulaValue? {
+        lock.lock(); defer { lock.unlock() }
+        return cellResults[fieldID]?[CellID(rowID: rowID, columnID: columnID)]
     }
+
+    /// Evaluates every formula cell of a row. Called as rows are built, so a row has its
+    /// values before anything asks for them.
+    func storeFormulaValues(fieldID: String, schemaID: String?, row: ValueElement) {
+        lock.lock(); defer { lock.unlock() }
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+        store(setup.types.keys, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
+    }
+
+    /// Recomputes the cells of one row after a change to `editedColumnID`.
+    ///
+    /// References are same-row, so only this row can be affected. Three things are
+    /// recomputed: the edited column itself, because clearing a cell hands the row back to
+    /// its column formula; whatever `columnDependents` says reads it, chains included; and
+    /// any cell carrying a formula of its own, invisible to a map built from the columns.
+    func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
+        lock.lock(); defer { lock.unlock() }
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+
+        var columns = setup.columnDependents[editedColumnID] ?? []
+        columns.insert(editedColumnID)
+        for (columnID, value) in row.cells ?? [:]
+        where JoyfillDocContext.formulaSource(of: value.text) != nil {
+            columns.insert(columnID)
+        }
+        store(columns, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
+    }
+
+    /// Drops the results of rows that no longer exist.
+    func removeFormulaValues(fieldID: String, rowIDs: [String]) {
+        lock.lock(); defer { lock.unlock() }
+        guard let field = cellResults[fieldID] else { return }
+        let dropped = Set(rowIDs)
+        cellResults[fieldID] = field.filter { !dropped.contains($0.key.rowID) }
+    }
+
+    /// Evaluates the given columns of one row and writes the results. A column with no
+    /// formula is cleared rather than skipped, so deleting a formula drops its result.
+    private func store<C: Sequence>(_ columns: C,
+                                    fieldID: String,
+                                    setup: TableCellFormulaSetup,
+                                    row: ValueElement,
+                                    rowID: String) where C.Element == String {
+        for columnID in columns {
+            let cell = CellID(rowID: rowID, columnID: columnID)
+            guard let type = setup.types[columnID],
+                  JoyfillDocContext.formulaCapableTypes.contains(type),
+                  let result = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID) else {
+                cellResults[fieldID]?[cell] = nil
+                continue
+            }
+            switch result {
+            case .failure:
+                cellResults[fieldID, default: [:]][cell] = CellFormulaValue(text: "Error", isError: true)
+            case .success(let value):
+                cellResults[fieldID, default: [:]][cell] = CellFormulaValue(
+                    text: cellDisplayText(value, setup: setup, columnID: columnID), isError: false)
+            }
+        }
+    }
+
+    // MARK: Column dependencies
 
     /// Inverts the column formulas into that map, following chains; `visited` guards cycles.
     /// Cell-level formulas belong to a row, not the schema, so they are not in here.

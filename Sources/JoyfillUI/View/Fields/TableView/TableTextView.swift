@@ -11,20 +11,23 @@ struct TableTextView: View {
     @FocusState private var isTextFieldFocused: Bool
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @Binding var cellModel: TableCellModel
+    /// Pulled by the cell builder. Passing it in is what lets SwiftUI see it change.
+    let formulaValue: CellFormulaValue?
 
-    public init(cellModel: Binding<TableCellModel>) {
+    public init(cellModel: Binding<TableCellModel>, formulaValue: CellFormulaValue? = nil) {
         _cellModel = cellModel
+        self.formulaValue = formulaValue
     }
     
     var body: some View {
         if cellModel.viewMode == .quickView {
-            Text(cellModel.isFormulaCell ? cellModel.formulaDisplayText : cellModel.data.title)
+            Text(formulaValue?.text ?? cellModel.data.title)
                 .font(.system(size: 15))
                 .lineLimit(1)
                 .accessibilityIdentifier("TableTextFieldIdentifierReadonly")
         } else if cellModel.editMode == .readonly {
             ScrollView {
-                Text(cellModel.isFormulaCell ? cellModel.formulaDisplayText : cellModel.data.title)
+                Text(formulaValue?.text ?? cellModel.data.title)
                     .font(.system(size: 15))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 5)
@@ -78,13 +81,13 @@ struct TableTextView: View {
     
     /// `true` while an unfocused formula cell should show its result instead of its text.
     private var showsResult: Bool {
-        cellModel.isFormulaCell && !isTextFieldFocused
+        formulaValue != nil && !isTextFieldFocused
     }
 
     @ViewBuilder
     private func resultOverlay() -> some View {
         if showsResult {
-            let value = cellModel.formulaValue
+            let value = formulaValue
             Text(value?.text ?? "")
                 .font(.system(size: 15))
                 .foregroundColor(value?.isError == true ? .red : .primary)

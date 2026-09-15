@@ -387,6 +387,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         
         let elements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
         refreshDependentCellLogic(rowId: rowId, editedColumnID: cellDataModel.id, in: elements)
+        refreshFormulas(rowId: rowId, editedColumnID: cellDataModel.id, in: elements)
         return elements
     }
 
@@ -492,9 +493,13 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         self.tableDataModel.cellModels = updatedCellModels
         self.tableDataModel.filterRowsIfNeeded()
         let editedColumnIDs = changes.keys
-        for rowId in tableDataModel.selectedRows {
+        // `tableDataModel` here is the snapshot taken before the edit; evaluate against
+        // the rows just written back.
+        let elements = self.tableDataModel.valueToValueElements ?? []
+        for rowId in self.tableDataModel.selectedRows {
             for columnID in editedColumnIDs {
                 refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
+                refreshFormulas(rowId: rowId, editedColumnID: columnID, in: elements)
             }
         }
         isBulkLoading = false
@@ -575,6 +580,23 @@ extension TableViewModel {
 
     func rowElement(forRowID rowID: String) -> ValueElement? {
         tableDataModel.valueToValueElements?.first(where: { $0.id == rowID })
+    }
+
+    /// The evaluated result for one cell, or `nil` when it holds no formula.
+    func formulaValue(columnID: String, rowID: String) -> CellFormulaValue? {
+        tableDataModel.documentEditor?.cellFormulaValue(columnID: columnID,
+                                                        fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                        rowID: rowID)
+    }
+
+    /// Recomputes the formula cells of a row after one of its cells changed.
+    func refreshFormulas(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId })
+        else { return }
+        documentEditor.refreshDependentCellFormulas(fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                    editedColumnID: editedColumnID,
+                                                    row: row)
     }
 
     func refreshDependentCellLogic(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {

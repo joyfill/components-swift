@@ -9,13 +9,16 @@ import JoyfillModel
 
 struct TableTextRowFormView: View {
     @Binding var cellModel: TableCellModel
+    /// Pulled by the row form. Passing it in is what lets SwiftUI see it change.
+    let formulaValue: CellFormulaValue?
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @FocusState private var isTextFieldFocused: Bool
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
+    public init(cellModel: Binding<TableCellModel>, formulaValue: CellFormulaValue? = nil, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
+        self.formulaValue = formulaValue
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if let providedText = text {
             _text = State(initialValue: providedText)
@@ -27,7 +30,7 @@ struct TableTextRowFormView: View {
     var body: some View {
         if cellModel.viewMode == .quickView || cellModel.editMode == .readonly {
             HStack(spacing: 0) {
-                Text(showsFormula ? cellModel.formulaDisplayText : cellModel.data.title)
+                Text(showsFormula ? (formulaValue?.text ?? "") : cellModel.data.title)
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
@@ -60,7 +63,7 @@ struct TableTextRowFormView: View {
     @ViewBuilder
     private func resultOverlay() -> some View {
         if showsFormula && !isTextFieldFocused {
-            let value = cellModel.formulaValue
+            let value = formulaValue
             Text(value?.text ?? "")
                 .font(.system(size: 15))
                 .foregroundColor(value?.isError == true ? .red : .primary)
@@ -73,7 +76,7 @@ struct TableTextRowFormView: View {
 
     /// A formula belongs to one row. Bulk edit spans several, so it keeps the plain editor.
     private var showsFormula: Bool {
-        cellModel.isFormulaCell && !isUsedForBulkEdit
+        formulaValue != nil && !isUsedForBulkEdit
     }
 
     func updateFieldValue(newText: String) {

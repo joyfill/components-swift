@@ -33,12 +33,3 @@ enum FocusBlurAction: String {
     case focus = "field.focus"
     case blur = "field.blur"
 }
-
-// MARK: - Formulas
-
-/// Forwarded so the views need not reach through `data` for a result.
-extension TableCellModel {
-    var isFormulaCell: Bool { data.isFormulaCell }
-    var formulaValue: CellFormulaValue? { data.formulaValue }
-    var formulaDisplayText: String { data.formulaDisplayText }
-}

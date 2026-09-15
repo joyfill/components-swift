@@ -178,13 +178,15 @@ struct TableModalView : View {
             viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
                 let column1 = rowModel1.cells[currentSelectedCol].data
                 let column2 = rowModel2.cells[currentSelectedCol].data
+                let text1 = viewModel.tableDataModel.searchableText(rowID: rowModel1.rowID, column: column1)
+                let text2 = viewModel.tableDataModel.searchableText(rowID: rowModel2.rowID, column: column2)
                 switch column1.type {
                 case .text:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return column1.searchableText < column2.searchableText
+                        return text1 < text2
                     case .descending:
-                        return column1.searchableText > column2.searchableText
+                        return text1 > text2
                     case .none:
                         return true
                     }
@@ -209,9 +211,9 @@ struct TableModalView : View {
                 case .barcode:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return column1.searchableText < column2.searchableText
+                        return text1 < text2
                     case .descending:
-                        return column1.searchableText > column2.searchableText
+                        return text1 > text2
                     case .none:
                         return true
                     }

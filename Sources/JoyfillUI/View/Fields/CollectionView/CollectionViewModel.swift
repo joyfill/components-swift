@@ -334,6 +334,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
                 let cell1 = row1.cells[colIndex].data
                 let cell2 = row2.cells[colIndex].data
+                let text1 = tableDataModel.searchableText(rowID: row1.rowID, column: cell1)
+                let text2 = tableDataModel.searchableText(rowID: row2.rowID, column: cell2)
 
                 // Only compare if types match
                 guard cell1.type == cell2.type else {
@@ -344,9 +346,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .text:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return cell1.searchableText < cell2.searchableText
+                        return text1 < text2
                     case .descending:
-                        return cell1.searchableText > cell2.searchableText
+                        return text1 > text2
                     case .none:
                         return true
                     }
@@ -371,9 +373,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .barcode:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return cell1.searchableText < cell2.searchableText
+                        return text1 < text2
                     case .descending:
-                        return cell1.searchableText > cell2.searchableText
+                        return text1 > text2
                     case .none:
                         return true
                     }
@@ -1715,6 +1717,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
         refreshDependentCellLogic(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
+        refreshFormulas(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
@@ -1740,6 +1743,26 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 //        sortRowsIfNeeded()
     }
     
+
+    /// The evaluated result for one cell, or `nil` when it holds no formula.
+    ///
+    /// No schema: it is consumed when the value is written, where it picks the resolver,
+    /// and row ids are unique across a collection's schemas.
+    func formulaValue(columnID: String, rowID: String) -> CellFormulaValue? {
+        tableDataModel.documentEditor?.cellFormulaValue(columnID: columnID,
+                                                        fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                        rowID: rowID)
+    }
+
+    /// Recomputes the formula cells of a row after one of its cells changed.
+    func refreshFormulas(rowId: String, schemaKey: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowId] else { return }
+        documentEditor.refreshDependentCellFormulas(fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                    schemaID: schemaKey,
+                                                    editedColumnID: editedColumnID,
+                                                    row: row)
+    }
 
     func refreshDependentCellLogic(rowId: String, schemaKey: String, editedColumnID: String) {
         guard let documentEditor = tableDataModel.documentEditor,
@@ -1903,6 +1926,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
                 refreshDependentCellLogic(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
+                refreshFormulas(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: row)
                 }

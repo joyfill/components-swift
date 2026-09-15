@@ -505,6 +505,14 @@ struct TableDataModel {
         return selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
     }
 
+    /// The text filtering and sorting match against: the evaluated result for a formula
+    /// cell, the stored text for every other.
+    func searchableText(rowID: String, column: CellDataModel) -> String {
+        documentEditor?.cellFormulaValue(columnID: column.id,
+                                         fieldID: fieldIdentifier.fieldID,
+                                         rowID: rowID)?.text ?? column.title
+    }
+
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
         for filter in filters {
             if filter.filterText.isEmpty {
@@ -515,7 +523,7 @@ struct TableDataModel {
             let match: Bool
             switch column.type {
             case .text:
-                match = column.searchableText.localizedCaseInsensitiveContains(filter.filterText)
+                match = searchableText(rowID: row.rowID, column: column).localizedCaseInsensitiveContains(filter.filterText)
             case .dropdown:
                 match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
             case .number:
@@ -527,7 +535,7 @@ struct TableDataModel {
             case .multiSelect:
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
-                match = column.searchableText.localizedCaseInsensitiveContains(filter.filterText)
+                match = searchableText(rowID: row.rowID, column: column).localizedCaseInsensitiveContains(filter.filterText)
             case .date:
                 if filter.filterText == FilterModel.emptyDateSentinel {
                     match = column.date == nil      // empty filter → only rows with no date
@@ -625,10 +633,11 @@ struct TableDataModel {
                                                 format: DateFormatType(rawValue: columnData.format ?? ""),
                                                 multiSelectValues: columnData.multiSelectValues,
                                                 multi: columnData.multi)
-            if let cell = buildCell(data: columnDataLocal, row: row, column: columnID, schemaKey: schemaKey) {
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
         }
+        documentEditor?.storeFormulaValues(fieldID: fieldIdentifier.fieldID, schemaID: schemaKey, row: row)
         return cells
     }
 
@@ -665,14 +674,15 @@ struct TableDataModel {
                                                 format: columnData.getFormat(from: fieldPositionTableColumns),
                                                 multiSelectValues: columnData.multiSelectValues,
                                                 multi: columnData.multi)
-            if let cell = buildCell(data: columnDataLocal, row: row, column: columnID, schemaKey: schemaKey) {
+            if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
         }
+        documentEditor?.storeFormulaValues(fieldID: fieldIdentifier.fieldID, schemaID: schemaKey, row: row)
         return cells
     }
     
-    private func buildCell(data: CellDataModel?, row: ValueElement, column: String, schemaKey: String?) -> CellDataModel? {
+    private func buildCell(data: CellDataModel?, row: ValueElement, column: String) -> CellDataModel? {
         var cell = data
         let valueUnion = row.cells?.first(where: { $0.key == column })?.value
         
@@ -702,23 +712,9 @@ struct TableDataModel {
         default:
             return nil
         }
-        cell?.formulaValue = formulaValue(for: row, columnID: column, type: data?.type, schemaKey: schemaKey)
         return cell
     }
 
-    /// Evaluates a cell's formula, or `nil` when it holds none. Every table and
-    /// collection cell is built through `buildCell`, so this is the only place it runs.
-    private func formulaValue(for row: ValueElement,
-                              columnID: String,
-                              type: ColumnTypes?,
-                              schemaKey: String?) -> CellFormulaValue? {
-        guard let type = type, CellDataModel.formulaCapableTypes.contains(type) else { return nil }
-        return documentEditor?.joyDocContext?.cellFormulaValue(fieldID: fieldIdentifier.fieldID,
-                                                              schemaID: schemaKey,
-                                                              row: row,
-                                                              columnID: columnID)
-    }
-    
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data = cellDataModel
@@ -1242,9 +1238,6 @@ struct CellDataModel: Hashable, Equatable {
     var format: DateFormatType?
     var multiSelectValues: [String]?
     var multi: Bool?
-    /// The evaluated result for a formula cell, held so filtering need not evaluate
-    /// every row on every keystroke. `nil` when the cell holds no formula.
-    var formulaValue: CellFormulaValue?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)
@@ -1270,19 +1263,6 @@ struct CellDataModel: Hashable, Equatable {
             return false
         }
     }
-}
-
-extension CellDataModel {
-    /// Column types whose stored value is a string, and so can carry a formula.
-    static let formulaCapableTypes: Set<ColumnTypes> = [.text, .barcode]
-
-    var isFormulaCell: Bool { formulaValue != nil }
-
-    /// The result, or `"Error"`; empty when the cell holds no formula.
-    var formulaDisplayText: String { formulaValue?.text ?? "" }
-
-    /// What filtering and sorting match against: the result for a formula cell.
-    var searchableText: String { isFormulaCell ? formulaDisplayText : title }
 }
 
 struct OptionLocal: Identifiable {
