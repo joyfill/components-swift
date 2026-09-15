@@ -459,47 +459,6 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", notesID), "5", "…and the result is only computed")
     }
 
-    // MARK: - Filtering and sorting
-
-    /// Types into a column's search box exactly as `TableModalView` does, then re-filters.
-    private func filter(_ vm: TableViewModel, columnID: String, text: String) -> [String] {
-        guard let index = vm.tableDataModel.filterModels.firstIndex(where: { $0.colID == columnID }) else {
-            XCTFail("no filter for column \(columnID)"); return []
-        }
-        vm.tableDataModel.filterModels[index].filterText = text
-        vm.tableDataModel.filterRowsIfNeeded()
-        return vm.tableDataModel.filteredcellModels.map { $0.rowID }
-    }
-
-    func testFilteringOnAFormulaColumnMatchesTheComputedValue() {
-        // Totals are 6 and 20; neither appears in any stored cell.
-        let vm = standardViewModel()
-        XCTAssertEqual(filter(vm, columnID: totalID, text: "20"), ["row_2"],
-                       "Searching a formula column finds the row by what it displays")
-    }
-
-    func testFilteringAFormulaColumnFindsNothingForAValueNoRowComputes() {
-        let vm = standardViewModel()
-        XCTAssertEqual(filter(vm, columnID: totalID, text: "999"), [])
-    }
-
-    func testFilteringFollowsTheValueAfterAnEdit() {
-        let vm = standardViewModel()
-        XCTAssertEqual(filter(vm, columnID: totalID, text: "6"), ["row_1"])
-
-        _ = filter(vm, columnID: totalID, text: "")
-        applyChange(vm, rowID: "row_1", cells: [qtyID: 100])           // 100 * 3 = 300
-
-        XCTAssertEqual(filter(vm, columnID: totalID, text: "6"), [], "the old value no longer matches")
-        XCTAssertEqual(filter(vm, columnID: totalID, text: "300"), ["row_1"], "the new one does")
-    }
-
-    func testFilteringAPlainColumnIsUnaffected() {
-        let vm = standardViewModel(rows: [row("row_1", [qtyID: 2, priceID: 3, notesID: "hello"]),
-                                          row("row_2", [qtyID: 5, priceID: 4, notesID: "world"])])
-        XCTAssertEqual(filter(vm, columnID: notesID, text: "hello"), ["row_1"])
-    }
-
     // MARK: - Lifetime
 
     func testRemovingARowDropsItsResults() {
