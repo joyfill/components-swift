@@ -1558,6 +1558,31 @@ extension DocumentEditor {
         return conditionalLogicHandler.isCellRequired(columnID: columnID, fieldID: fieldID, rowID: rowID)
     }
 
+    // MARK: - Table cell formulas
+
+    /// The evaluated result for one table cell, or `nil` when it holds no formula.
+    ///
+    /// `joyDocContext` is never built for a document that failed schema validation, so
+    /// every one of these reaches it optionally.
+    func cellFormulaValue(columnID: String, fieldID: String, rowID: String) -> CellFormulaValue? {
+        joyDocContext?.cellFormulaValue(columnID: columnID, fieldID: fieldID, rowID: rowID)
+    }
+
+    /// Evaluates every formula cell of a row. Called as rows are built.
+    func storeFormulaValues(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        joyDocContext?.storeFormulaValues(fieldID: fieldID, schemaID: schemaID, row: row)
+    }
+
+    /// Recomputes the formula cells of a row after one of its cells changed.
+    func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
+        joyDocContext?.refreshDependentCellFormulas(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
+    }
+
+    /// Drops the results of rows that no longer exist.
+    func removeFormulaValues(fieldID: String, rowIDs: [String]) {
+        joyDocContext?.removeFormulaValues(fieldID: fieldID, rowIDs: rowIDs)
+    }
+
     func hasCellLogicDependents(fieldID: String, editedColumnID: String) -> Bool {
         return conditionalLogicHandler.hasCellDependents(fieldID: fieldID, editedColumnID: editedColumnID)
     }

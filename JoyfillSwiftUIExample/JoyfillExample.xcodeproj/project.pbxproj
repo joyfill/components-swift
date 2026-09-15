@@ -693,6 +693,7 @@
 		E2CC9FEE2E375E0400797331 /* SchemaValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */; };
 		E2CC9FF02E377AA800797331 /* JSONSchema in Frameworks */ = {isa = PBXBuildFile; productRef = E2CC9FEF2E377AA800797331 /* JSONSchema */; };
 		E2CE11B0CE11B04D000504A3 /* CellVisibilityLogicTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CE11B0CE11B04B000504A3 /* CellVisibilityLogicTest.swift */; };
+		E2CE11B0CE11B04D000504B1 /* TableCellFormulaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2CE11B0CE11B04B000504B1 /* TableCellFormulaTests.swift */; };
 		E2E27C882E7AF4E60041FF1F /* CreateRowUISample.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */; };
 		E2E27D022E8C10000041FF1F /* MetadataChangeAPIDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */; };
 		E2E3E7632E8450A3002A10C2 /* OnChangeHandler.json in Resources */ = {isa = PBXBuildFile; fileRef = E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */; };
@@ -1113,6 +1114,7 @@
 		E2C905332FEBE14A00DF0F92 /* FormulaFunctionTestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaFunctionTestsView.swift; sourceTree = "<group>"; };
 		E2CC9FED2E375DF100797331 /* SchemaValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemaValidationTests.swift; sourceTree = "<group>"; };
 		E2CE11B0CE11B04B000504A3 /* CellVisibilityLogicTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogicTest.swift; sourceTree = "<group>"; };
+		E2CE11B0CE11B04B000504B1 /* TableCellFormulaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableCellFormulaTests.swift; sourceTree = "<group>"; };
 		E2E27C872E7AF4E60041FF1F /* CreateRowUISample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateRowUISample.swift; sourceTree = "<group>"; };
 		E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataChangeAPIDemoView.swift; sourceTree = "<group>"; };
 		E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = OnChangeHandler.json; sourceTree = "<group>"; };
@@ -1294,6 +1296,7 @@
 				E2C8BD262E4628A900B93B9E /* MobileTitleDisplayTests.swift */,
 				E2459A7C2F442B4B000504A3 /* ColumnConditionalLogicTests.swift */,
 				E2CE11B0CE11B04B000504A3 /* CellVisibilityLogicTest.swift */,
+				E2CE11B0CE11B04B000504B1 /* TableCellFormulaTests.swift */,
 				DEC0F40000000000000040F1 /* RequiredLogicTests.swift */,
 				E27061C62E797E12006BAD18 /* OnChangeHandler */,
 				134FC0792BDA82E9008B7030 /* JoyfillTests.swift */,
@@ -2960,6 +2963,7 @@
 				DEC000B500000000000000A5 /* DecoratorLiveUpdateTests.swift in Sources */,
 				E2459A7D2F442B4B000504A3 /* ColumnConditionalLogicTests.swift in Sources */,
 				E2CE11B0CE11B04D000504A3 /* CellVisibilityLogicTest.swift in Sources */,
+				E2CE11B0CE11B04D000504B1 /* TableCellFormulaTests.swift in Sources */,
 				DEC0F40000000000000040F0 /* RequiredLogicTests.swift in Sources */,
 				3682A4CC2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift in Sources */,
 				362746762E26E266005B0FA7 /* FormulaTemplate_DateFieldTests.swift in Sources */,

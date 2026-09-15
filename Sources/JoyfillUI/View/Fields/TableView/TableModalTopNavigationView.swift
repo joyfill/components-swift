@@ -559,7 +559,9 @@ struct EditMultipleRowsSheetView: View {
                             switch cellModel.data.type {
                             case .text:
                                 columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                                TableTextRowFormView(cellModel: Binding.constant(cellModel),
+                                                     formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row),
+                                                     isUsedForBulkEdit: isUsedForBulkEdit)
                                     .frame(minHeight: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
@@ -590,7 +592,9 @@ struct EditMultipleRowsSheetView: View {
                                     .accessibilityIdentifier("EditRowsMultiSelecionFieldIdentifier")
                             case .barcode:
                                 columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel),
+                                                 formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row),
+                                                 isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(height: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")

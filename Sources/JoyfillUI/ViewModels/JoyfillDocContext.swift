@@ -29,8 +29,31 @@ class JoyfillDocContext: EvaluationContext {
     private var formulaCache: [String: FormulaValue] = [:]
     private var dependencyGraph: [String: Set<String>] = [:]  // field -> fields it depends on
     private var evaluationInProgress: Set<String> = []  // For circular dependency detection
+    /// `Parser` is stateful and the caches below are shared, so one thread at a time.
+    private let lock = NSRecursiveLock()
+
     private let parser = Parser()
     private let evaluator = Evaluator()
+
+    // MARK: Table cell formulas (see the extension at the end of this file)
+
+    /// Per-table column metadata, built once from the column definitions.
+    internal var tableSetups: [String: TableCellFormulaSetup] = [:]
+    /// Cells currently being evaluated, so a cell that reads itself is caught rather than
+    /// recursing forever. Same idea as `evaluationInProgress`, one level down.
+    internal var cellsInProgress: Set<CellID> = []
+    /// Parsed cell formulas, keyed by field and formula text. The key is the text
+    /// itself, so this can never go stale — it only avoids re-parsing the same string.
+    internal var cellASTs: [String: [String: ASTNode]] = [:]
+
+    /// Evaluated cell results, per field. Row ids are unique across a collection's
+    /// schemas, so a read needs no schema — only a write, which picks the resolver.
+    private var cellResults: [String: [CellID: CellFormulaValue]] = [:]
+
+    /// `docProvider` is private; the table-formula extension reaches fields through this.
+    internal func docProviderField(_ fieldID: String) -> JoyDocField? {
+        docProvider?.field(fieldID: fieldID)
+    }
     
     /// Initialize with a JoyDocProvider instance
     /// - Parameter docProvider: The provider to resolve references against
@@ -44,6 +67,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter name: Reference string (e.g., "fieldIdentifier", "fruits[0]", "user.name")
     /// - Returns: Result containing the resolved FormulaValue or an error
     public func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError> {
+        lock.lock(); defer { lock.unlock() }
         // First check temporary variables (for lambda parameters)
         if let tempValue = resolveTemporaryVariable(name) {
             return .success(tempValue)
@@ -66,17 +90,20 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter identifier: Field identifier
     /// - Returns: Cached formula value if available
     public func getCachedFormulaValue(for identifier: String) -> FormulaValue? {
+        lock.lock(); defer { lock.unlock() }
         return formulaCache[identifier]
     }
     
     /// Clears formula cache to force re-evaluation
     public func clearFormulaCache() {
+        lock.lock(); defer { lock.unlock() }
         formulaCache.removeAll()
     }
     
     /// Clears cached value for specific field and its dependents
     /// - Parameter identifier: Field identifier whose cache should be cleared
     public func clearCacheForField(_ identifier: String) {
+        lock.lock(); defer { lock.unlock() }
         // Clear the field's own cache
         formulaCache.removeValue(forKey: identifier)
         
@@ -93,6 +120,7 @@ class JoyfillDocContext: EvaluationContext {
     ///   - identifier: Field identifier
     ///   - value: New value for the field
     public func updateFieldValue(identifier: String, value: ValueUnion) {
+        lock.lock(); defer { lock.unlock() }
         // Update the field value through the provider
         docProvider?.updateValue(for: identifier, value: value)
         
@@ -103,6 +131,7 @@ class JoyfillDocContext: EvaluationContext {
     /// Gets all field identifiers that have dependencies
     /// - Returns: Array of field identifiers with formula dependencies
     public func getFieldsWithDependencies() -> [String] {
+        lock.lock(); defer { lock.unlock() }
         return Array(dependencyGraph.keys)
     }
     
@@ -110,6 +139,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter identifier: Field identifier
     /// - Returns: Set of field identifiers that this field depends on
     public func getDependencies(for identifier: String) -> Set<String> {
+        lock.lock(); defer { lock.unlock() }
         return dependencyGraph[identifier] ?? Set()
     }
 
@@ -1393,6 +1423,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of cache entries that were invalidated
     @discardableResult
     public func invalidateCache(forFieldIdentifier identifier: String) -> Int {
+        lock.lock(); defer { lock.unlock() }
         // Track how many cache entries we invalidate
         var invalidatedCount = 0
         
@@ -1419,6 +1450,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of cache entries that were invalidated
     @discardableResult
     public func invalidateCache(forFieldIdentifiers identifiers: [String]) -> Int {
+        lock.lock(); defer { lock.unlock() }
         // Use a set to avoid duplicate invalidation
         var fieldsToInvalidate = Set(identifiers)
         
@@ -1483,6 +1515,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of fields that were updated
     @discardableResult
     public func updateDependentFormulas(forFieldIdentifier identifier: String) -> Int {
+        lock.lock(); defer { lock.unlock() }
         // First invalidate the cache for the changed field
         invalidateCache(for: identifier)
         
@@ -1554,6 +1587,7 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of fields that were updated
     @discardableResult
     public func updateDependentFormulas(forFieldIdentifiers identifiers: [String]) -> Int {
+        lock.lock(); defer { lock.unlock() }
         // Collect all dependent fields for all identifiers
         var allDependentFields = Set<String>()
         
@@ -1677,6 +1711,7 @@ class JoyfillDocContext: EvaluationContext {
     
     /// Evaluates all formula fields and updates their values
     public func evaluateAllFormulas() {
+        lock.lock(); defer { lock.unlock() }
         Log("🚀 evaluateAllFormulas started", type: .debug)
         
         // Get all formula fields
@@ -1839,7 +1874,7 @@ class JoyfillDocContext: EvaluationContext {
     /// Returns the appropriate default FormulaValue for a given column type
     /// - Parameter columnType: The column type to get default value for
     /// - Returns: A FormulaValue representing the default value for that column type
-    private func getDefaultFormulaValue(for columnType: JoyfillModel.ColumnTypes) -> FormulaValue {
+    internal func getDefaultFormulaValue(for columnType: JoyfillModel.ColumnTypes) -> FormulaValue {
         switch columnType {
         case .text, .dropdown, .block:
             return .string("")
@@ -2301,7 +2336,7 @@ extension JoyDocField {
         var columnsToResolve: [String: (fieldType: ColumnTypes, options: [Option]?)] = [:]
         if let schema = schemaToUse, let tableColumns = schema.tableColumns {
             for column in tableColumns {
-                if column.type == .dropdown || column.type == .multiSelect {
+            if column.type == .dropdown || column.type == .multiSelect {
                     if let columnId = column.id, let columnType = column.type {
                         columnsToResolve[columnId] = (fieldType: columnType, options: column.options)
                     }
@@ -2576,5 +2611,576 @@ extension JoyDocField {
         default:
             return value
         }
+    }
+}
+
+// MARK: - Table cell formulas
+
+/// Maps the identifiers written inside a column formula onto canonical column IDs.
+///
+/// Resolution priority, highest first:
+/// 1. column `id`
+/// 2. column `identifier`, then column `title`
+/// 3. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
+///
+/// Matching is case-insensitive throughout, so `=A+B` and `=a+b` are the same formula.
+/// Within a single tier the left-most column wins, so a duplicated title never
+/// silently re-points an existing formula when a column is appended.
+struct ColumnReferenceResolver {
+    private let idMap: [String: String]
+    private let nameMap: [String: String]
+    private let letterMap: [String: String]
+
+    /// `true` when any column id begins with a digit, so the escape pass has work to do.
+    private let hasDigitLeadingIDs: Bool
+
+    /// - Parameter columns: the table's columns, in display order. Position determines
+    ///   the spreadsheet letter, so the order matters.
+    init(columns: [FieldTableColumn]) {
+        var ids: [String: String] = [:]
+        var names: [String: String] = [:]
+        var letters: [String: String] = [:]
+        var digitLeading = false
+
+        for (index, column) in columns.enumerated() {
+            guard let id = column.id else { continue }
+            if id.first?.isNumber == true { digitLeading = true }
+            Self.insertIfAbsent(&ids, key: id, value: id)
+            Self.insertIfAbsent(&names, key: column.identifier, value: id)
+            Self.insertIfAbsent(&letters, key: Self.columnLetter(forIndex: index), value: id)
+        }
+        // Titles are a lower-confidence match than identifiers, so they only claim a key
+        // once every identifier has had its turn.
+        for column in columns {
+            guard let id = column.id else { continue }
+            Self.insertIfAbsent(&names, key: column.title, value: id)
+        }
+
+        self.idMap = ids
+        self.nameMap = names
+        self.letterMap = letters
+        self.hasDigitLeadingIDs = digitLeading
+    }
+
+    /// Resolves a formula token to a canonical column ID, or `nil` when the token
+    /// names something outside this table (a document field, for instance).
+    func columnID(for token: String) -> String? {
+        let key = Self.normalize(token)
+        guard !key.isEmpty else { return nil }
+        return idMap[key] ?? nameMap[key] ?? letterMap[key]
+    }
+
+    // MARK: - Spreadsheet letters
+
+    /// Bijective base-26 column letter for a zero-based index: 0 → `A`, 25 → `Z`, 26 → `AA`.
+    static func columnLetter(forIndex index: Int) -> String {
+        guard index >= 0 else { return "" }
+        var remaining = index
+        var letters = ""
+        repeat {
+            let scalar = UnicodeScalar(UInt8(65 + remaining % 26))
+            letters = String(Character(scalar)) + letters
+            remaining = remaining / 26 - 1
+        } while remaining >= 0
+        return letters
+    }
+
+    // MARK: - Digit-leading column ids
+
+    /// Rewrites column ids the lexer cannot tokenise into safe placeholders.
+    ///
+    /// Joyfill column ids are Mongo ObjectIds, so they begin with a digit. The shared
+    /// lexer only starts an identifier on a letter or `_`, which would split
+    /// `6aa0ea5666f683e02ea449b5` into the number `6` followed by a stray identifier and
+    /// fail to parse. Without this, "ColumnId" — the first tier of the resolution
+    /// priority — would not work for any real document.
+    ///
+    /// Two things are deliberately left alone:
+    ///
+    /// * anything inside a string literal, so `="6aa0…"` stays text;
+    /// * any run that reads as a number, so a bare `2024` remains the literal 2024 even
+    ///   when a column happens to be titled "2024".
+    ///
+    /// The placeholder is simply `_` followed by the column id. An underscore is a valid
+    /// identifier start, so the escaped token lexes cleanly and still says which column it
+    /// means — no lookup table has to be carried alongside the parsed formula.
+    func escapingDigitLeadingIDs(in body: String) -> String {
+        guard hasDigitLeadingIDs else { return body }
+
+        var output = ""
+        var index = body.startIndex
+
+        while index < body.endIndex {
+            let character = body[index]
+
+            // Copy string literals through untouched. The lexer has no escape handling,
+            // so a literal simply runs to the next matching quote.
+            if character == "\"" || character == "'" {
+                let quote = character
+                output.append(character)
+                index = body.index(after: index)
+                while index < body.endIndex, body[index] != quote {
+                    output.append(body[index])
+                    index = body.index(after: index)
+                }
+                if index < body.endIndex {
+                    output.append(quote)
+                    index = body.index(after: index)
+                }
+                continue
+            }
+
+            guard character.isNumber else {
+                output.append(character)
+                index = body.index(after: index)
+                continue
+            }
+
+            // Take the whole word so a column id is matched in full, never as a prefix.
+            var end = index
+            while end < body.endIndex, body[end].isLetter || body[end].isNumber || body[end] == "_" {
+                end = body.index(after: end)
+            }
+            let run = String(body[index..<end])
+
+            if Double(run) == nil, let columnID = columnID(for: run) {
+                output.append(Self.escapePrefix + columnID)
+            } else {
+                output.append(run)
+            }
+            index = end
+        }
+        return output
+    }
+
+    /// Marks a column id that had to be escaped past the lexer.
+    static let escapePrefix = "_"
+
+    /// Resolves a token, including one the escape pass rewrote.
+    func columnID(forEscapedToken token: String) -> String? {
+        if let columnID = columnID(for: token) { return columnID }
+        guard token.hasPrefix(Self.escapePrefix) else { return nil }
+        return columnID(for: String(token.dropFirst()))
+    }
+
+    // MARK: - Private
+
+    private static func normalize(_ token: String) -> String {
+        token.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+    private static func insertIfAbsent(_ map: inout [String: String], key: String?, value: String) {
+        guard let key = key else { return }
+        let normalized = normalize(key)
+        guard !normalized.isEmpty, map[normalized] == nil else { return }
+        map[normalized] = value
+    }
+}
+
+
+/// Column metadata for one table, built once from its column definitions.
+struct TableCellFormulaSetup {
+    /// Identifies the field and schema this setup describes. Anything derived from it —
+    /// notably parsed formulas, whose escaping depends on this schema's column ids —
+    /// must be cached under the same key, never under the field id alone.
+    let cacheKey: String
+    /// Maps a token in a formula to a canonical column id, by id → name → letter.
+    let resolver: ColumnReferenceResolver
+    /// Column id → its declared type, so a cell is read as what it is rather than guessed.
+    let types: [String: ColumnTypes]
+    /// Column id → (option id → label), for dropdown and multiSelect columns.
+    let optionLabels: [String: [String: String]]
+    /// Column id → a formula declared on the column, applying to every row that has
+    /// not overridden it. Never copied into a cell; evaluated per row.
+    let columnFormulas: [String: String]
+    /// Column id → the formula columns to recompute when it changes, chains included.
+    /// Comes from the column definitions, so no cell edit can invalidate it.
+    let columnDependents: [String: Set<String>]
+}
+
+/// What the view model gets back for a single cell.
+struct CellFormulaValue {
+    /// Text to display: the evaluated result, or `"Error"`.
+    let text: String
+    let isError: Bool
+}
+
+/// Excel-style formulas for table cells.
+///
+/// Built on the same machinery as field formulas rather than beside it: the same parser,
+/// the same evaluator, the same 46 functions, and the same recursive resolution with an
+/// in-progress set for cycles that `resolveSimpleFieldReference` uses. Anything that is
+/// not a column of the row falls through to this context, so a cell formula can read a
+/// document field (`=A * taxRate`).
+///
+/// Nothing is cached and nothing is written back: a cell's stored value is the formula the
+/// author typed, and the result is computed on demand and only displayed.
+///
+/// The rule for what counts as a formula, in one place: a **cell** whose value starts with
+/// `=` owns its formula; otherwise the **column**'s default applies; a cell holding real
+/// data is a literal and is never computed.
+extension JoyfillDocContext {
+
+    // MARK: Queries used by the view model
+
+    // MARK: Evaluation
+
+    /// Evaluates a cell, or returns `nil` when it holds no formula.
+    ///
+    /// The row arrives from the view model that owns it, so nothing here has to find it.
+    /// Recursion is how a formula reading another computed column gets a fresh value:
+    /// `RowCellContext` calls back in here per column reference, and `cellsInProgress`
+    /// stops that recursion becoming a loop.
+    func evaluateCell(fieldID: String,
+                      setup: TableCellFormulaSetup,
+                      row: ValueElement,
+                      columnID: String) -> Result<FormulaValue, FormulaError>? {
+        lock.lock(); defer { lock.unlock() }
+        guard let rowID = row.id,
+              let body = activeFormula(setup: setup, row: row, columnID: columnID) else { return nil }
+
+        let cellID = CellID(rowID: rowID, columnID: columnID)
+        guard !cellsInProgress.contains(cellID) else {
+            return .failure(.circularReference("Circular reference at column '\(columnID)'"))
+        }
+        cellsInProgress.insert(cellID)
+        defer { cellsInProgress.remove(cellID) }
+
+        guard let ast = parsedCellFormula(body: body, setup: setup) else {
+            return .failure(.syntaxError("Invalid formula '=\(body)'"))
+        }
+
+        let context = RowCellContext(document: self, setup: setup, fieldID: fieldID, row: row)
+        let result = evaluator.evaluate(node: ast, context: context)
+
+        // An engine-level `.error` value is an error to the caller.
+        if case .success(.error(let error)) = result { return .failure(error) }
+        return result
+    }
+
+    /// Reads a cell as data: its literal value, or its result when it holds a formula.
+    func cellInputValue(setup: TableCellFormulaSetup,
+                        fieldID: String,
+                        row: ValueElement,
+                        columnID: String) -> FormulaValue {
+        if let result = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID) {
+            switch result {
+            case .success(let value):
+                return value
+            case .failure(let error):
+                // Surface the failure as a value so it propagates rather than silently
+                // reading as zero — this is what makes a cycle visible.
+                return .error(error)
+            }
+        }
+        return storedCellValue(row.cells?[columnID], setup: setup, columnID: columnID)
+    }
+
+    // MARK: Reading and displaying cells
+
+    /// Converts a stored cell into the value a formula should see.
+    ///
+    /// Driven by the column's declared type rather than the value's shape, so a large
+    /// number in a number column stays a number — `convertValueUnionToFormulaValue`
+    /// would read it as a date. Blanks come from the SDK's own `getDefaultFormulaValue`,
+    /// so an empty numeric cell is `0` and `=A+C` over two blanks is `0`, not a type error.
+    func storedCellValue(_ value: ValueUnion?,
+                         setup: TableCellFormulaSetup,
+                         columnID: String) -> FormulaValue {
+        let type = setup.types[columnID] ?? .unknown
+        guard let value = value, !isBlankCell(value) else {
+            return getDefaultFormulaValue(for: type)
+        }
+
+        switch type {
+        case .number, .progress:
+            if let number = value.number { return .number(number) }
+            if case .string(let text) = value, let number = Double(text) { return .number(number) }
+            return getDefaultFormulaValue(for: type)
+
+        case .date:
+            guard let millis = value.number else { return .null }
+            return .date(Date(timeIntervalSince1970: millis / 1000))
+
+        case .dropdown:
+            guard let id = value.text else { return .string("") }
+            return .string(setup.optionLabels[columnID]?[id] ?? id)
+
+        case .multiSelect:
+            let ids = value.multiSelector ?? []
+            let labels = setup.optionLabels[columnID] ?? [:]
+            return .array(ids.map { .string(labels[$0] ?? $0) })
+
+        default:
+            return value.text.map(FormulaValue.string) ?? .null
+        }
+    }
+
+    /// Renders a computed value as the text the grid should show.
+    func cellDisplayText(_ value: FormulaValue,
+                         setup: TableCellFormulaSetup?,
+                         columnID: String) -> String {
+        switch value {
+        case .null, .undefined:
+            return ""
+        case .string(let text):
+            // A result may come back as an option id; show its label.
+            return setup?.optionLabels[columnID]?[text] ?? text
+        case .boolean(let flag):
+            return flag ? "true" : "false"
+        case .number(let number):
+            if setup?.types[columnID] == .date {
+                return ValueUnion.double(number).dateTime(format: .empty) ?? ""
+            }
+            // Whole numbers lose the trailing .0, so `=1+1` reads as `2`.
+            if number.rounded() == number, let whole = Int(exactly: number.rounded()) {
+                return String(whole)
+            }
+            return String(number)
+        case .date(let date):
+            return ValueUnion.double(date.timeIntervalSince1970 * 1000).dateTime(format: .empty) ?? ""
+        case .array(let elements):
+            return elements.map { cellDisplayText($0, setup: setup, columnID: columnID) }.joined(separator: ", ")
+        case .dictionary, .lambda, .error:
+            return ""
+        }
+    }
+
+    /// `true` when a stored cell holds no meaningful value.
+    ///
+    /// Deliberately not `ValueUnion.nullOrEmpty`, whose `.bool` case returns the boolean
+    /// itself and whose numeric cases can never be true. A real `0` or `false` is data.
+    func isBlankCell(_ value: ValueUnion) -> Bool {
+        switch value {
+        case .null:                         return true
+        case .string(let text):             return text.isEmpty
+        case .array(let items):             return items.isEmpty
+        case .valueElementArray(let items): return items.isEmpty
+        case .dictionary(let items):        return items.isEmpty
+        case .double, .int, .bool:          return false
+        }
+    }
+
+    // MARK: Formula lookup
+
+    /// A value is a formula only when it starts with `=`. The single rule, applied
+    /// identically to a cell's value and to a column's default.
+    static func formulaSource(of raw: String?) -> String? {
+        guard let raw = raw else { return nil }
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.first == "=" else { return nil }
+        let body = String(trimmed.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+        return body.isEmpty ? nil : body
+    }
+
+    /// Parses a formula with the shared parser, escaping column ids the lexer cannot read.
+    func parsedCellFormula(body: String, setup: TableCellFormulaSetup) -> ASTNode? {
+        lock.lock(); defer { lock.unlock() }
+        // Keyed by the setup, not the field: escaping a digit-leading column id depends
+        // on this schema's columns, so two schemas can compile the same text differently.
+        if let ast = cellASTs[setup.cacheKey]?[body] { return ast }
+        let prepared = setup.resolver.escapingDigitLeadingIDs(in: body)
+        guard case .success(let ast) = parser.parse(formula: prepared) else { return nil }
+        cellASTs[setup.cacheKey, default: [:]][body] = ast
+        return ast
+    }
+
+    /// The formula that applies to a cell, or `nil` when it holds none.
+    ///
+    /// Priority, and how each case persists:
+    ///
+    /// 1. the **cell**'s own value starts with `=` — the user typed it, and it is stored
+    ///    on the cell in the JSON;
+    /// 2. the cell holds any other real value — a plain entry, left exactly as it is;
+    /// 3. the cell is empty and the **column** declares a formula — it applies to this
+    ///    row, and the cell stays `null`. Neither the formula nor its result is written
+    ///    to the cell, so a column-driven table persists as nulls.
+    func activeFormula(setup: TableCellFormulaSetup, row: ValueElement, columnID: String) -> String? {
+        let cell = row.cells?[columnID]
+        if let body = JoyfillDocContext.formulaSource(of: cell?.text) {
+            return body
+        }
+        if let cell = cell, !isBlankCell(cell) {
+            return nil
+        }
+        return setup.columnFormulas[columnID]
+    }
+
+    // MARK: Table setup
+
+    func tableSetup(fieldID: String, schemaID: String?) -> TableCellFormulaSetup? {
+        lock.lock(); defer { lock.unlock() }
+        // Column letters are positional, so every schema needs its own resolver.
+        let key = schemaID.map { "\(fieldID)\u{1}\($0)" } ?? fieldID
+        if let cached = tableSetups[key] { return cached }
+
+        guard let field = docProviderField(fieldID) else { return nil }
+        let schemaColumns = schemaID.flatMap { field.schema?[$0]?.tableColumns } ?? field.tableColumns
+        guard let columns = schemaColumns, !columns.isEmpty else { return nil }
+
+        var types: [String: ColumnTypes] = [:]
+        var optionLabels: [String: [String: String]] = [:]
+        var columnFormulas: [String: String] = [:]
+
+        for column in columns {
+            guard let columnID = column.id else { continue }
+            types[columnID] = column.type ?? .unknown
+            if let body = JoyfillDocContext.formulaSource(of: column.value?.text) {
+                columnFormulas[columnID] = body
+            }
+            if column.type == .dropdown || column.type == .multiSelect {
+                var labels: [String: String] = [:]
+                for option in column.options ?? [] {
+                    if let id = option.id { labels[id] = option.value ?? "" }
+                }
+                optionLabels[columnID] = labels
+            }
+        }
+
+        // Parsing needs this schema's resolver, so build the setup before its map.
+        let base = TableCellFormulaSetup(cacheKey: key,
+                                         resolver: ColumnReferenceResolver(columns: columns),
+                                         types: types,
+                                         optionLabels: optionLabels,
+                                         columnFormulas: columnFormulas,
+                                         columnDependents: [:])
+        let setup = TableCellFormulaSetup(cacheKey: key,
+                                          resolver: base.resolver,
+                                          types: types,
+                                          optionLabels: optionLabels,
+                                          columnFormulas: columnFormulas,
+                                          columnDependents: columnDependents(for: base))
+        tableSetups[key] = setup
+        return setup
+    }
+
+    // MARK: Stored results
+
+    /// Column types whose stored value is a string, and so can carry a formula.
+    static let formulaCapableTypes: Set<ColumnTypes> = [.text, .barcode]
+
+    /// The evaluated result for one cell, or `nil` when it holds no formula.
+    /// The single read for everything that displays, filters or sorts a formula cell.
+    func cellFormulaValue(columnID: String, fieldID: String, rowID: String) -> CellFormulaValue? {
+        lock.lock(); defer { lock.unlock() }
+        return cellResults[fieldID]?[CellID(rowID: rowID, columnID: columnID)]
+    }
+
+    /// Evaluates every formula cell of a row. Called as rows are built, so a row has its
+    /// values before anything asks for them.
+    func storeFormulaValues(fieldID: String, schemaID: String?, row: ValueElement) {
+        lock.lock(); defer { lock.unlock() }
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+        store(setup.types.keys, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
+    }
+
+    /// Recomputes the cells of one row after a change to `editedColumnID`.
+    ///
+    /// References are same-row, so only this row can be affected. Three things are
+    /// recomputed: the edited column itself, because clearing a cell hands the row back to
+    /// its column formula; whatever `columnDependents` says reads it, chains included; and
+    /// any cell carrying a formula of its own, invisible to a map built from the columns.
+    func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
+        lock.lock(); defer { lock.unlock() }
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+
+        var columns = setup.columnDependents[editedColumnID] ?? []
+        columns.insert(editedColumnID)
+        for (columnID, value) in row.cells ?? [:]
+        where JoyfillDocContext.formulaSource(of: value.text) != nil {
+            columns.insert(columnID)
+        }
+        store(columns, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
+    }
+
+    /// Drops the results of rows that no longer exist.
+    func removeFormulaValues(fieldID: String, rowIDs: [String]) {
+        lock.lock(); defer { lock.unlock() }
+        guard let field = cellResults[fieldID] else { return }
+        let dropped = Set(rowIDs)
+        cellResults[fieldID] = field.filter { !dropped.contains($0.key.rowID) }
+    }
+
+    /// Evaluates the given columns of one row and writes the results. A column with no
+    /// formula is cleared rather than skipped, so deleting a formula drops its result.
+    private func store<C: Sequence>(_ columns: C,
+                                    fieldID: String,
+                                    setup: TableCellFormulaSetup,
+                                    row: ValueElement,
+                                    rowID: String) where C.Element == String {
+        for columnID in columns {
+            let cell = CellID(rowID: rowID, columnID: columnID)
+            guard let type = setup.types[columnID],
+                  JoyfillDocContext.formulaCapableTypes.contains(type),
+                  let result = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID) else {
+                cellResults[fieldID]?[cell] = nil
+                continue
+            }
+            switch result {
+            case .failure:
+                cellResults[fieldID, default: [:]][cell] = CellFormulaValue(text: "Error", isError: true)
+            case .success(let value):
+                cellResults[fieldID, default: [:]][cell] = CellFormulaValue(
+                    text: cellDisplayText(value, setup: setup, columnID: columnID), isError: false)
+            }
+        }
+    }
+
+    // MARK: Column dependencies
+
+    /// Inverts the column formulas into that map, following chains; `visited` guards cycles.
+    /// Cell-level formulas belong to a row, not the schema, so they are not in here.
+    private func columnDependents(for setup: TableCellFormulaSetup) -> [String: Set<String>] {
+        var reads: [String: Set<String>] = [:]
+        for (columnID, body) in setup.columnFormulas {
+            guard let ast = parsedCellFormula(body: body, setup: setup) else { continue }
+            var references: [String] = []
+            extractReferencesFromNode(ast, references: &references)
+            reads[columnID] = Set(references.compactMap { setup.resolver.columnID(forEscapedToken: $0) })
+        }
+
+        var dependents: [String: Set<String>] = [:]
+        for columnID in reads.keys {
+            var visited: Set<String> = [columnID]
+            var pending = Array(reads[columnID] ?? [])
+            while let next = pending.popLast() {
+                guard visited.insert(next).inserted else { continue }
+                dependents[next, default: []].insert(columnID)
+                pending.append(contentsOf: reads[next] ?? [])
+            }
+        }
+        return dependents
+    }
+}
+
+/// Row scope for a cell formula.
+///
+/// Layered over `JoyfillDocContext` exactly as `TemporaryVariableContext` is: it answers
+/// for the row's own columns and hands everything else to the document, so `=A * taxRate`
+/// reads column A from this row and `taxRate` from the document.
+private struct RowCellContext: EvaluationContext {
+    let document: JoyfillDocContext
+    let setup: TableCellFormulaSetup
+    let fieldID: String
+    let row: ValueElement
+    var variables: [String: FormulaValue] = [:]
+
+    func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError> {
+        // Lambda parameters shadow columns.
+        if let variable = variables[name] {
+            return .success(variable)
+        }
+        // Resolution happens here rather than at parse time: id -> name -> letter.
+        if let columnID = setup.resolver.columnID(forEscapedToken: name) {
+            return .success(document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID))
+        }
+        // Not a column of this row — let the document answer (e.g. `=A * taxRate`).
+        return document.resolveReference(name)
+    }
+
+    func contextByAdding(variable name: String, value: FormulaValue) -> EvaluationContext {
+        var copy = self
+        copy.variables[name] = value
+        return copy
     }
 }

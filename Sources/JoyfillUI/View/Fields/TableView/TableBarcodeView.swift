@@ -10,14 +10,17 @@ import JoyfillModel
 
 struct TableBarcodeView: View {
     @Binding var cellModel: TableCellModel
+    /// Pulled by the cell builder. Passing it in is what lets SwiftUI see it change.
+    let formulaValue: CellFormulaValue?
     @State var text: String = ""
     @FocusState private var isTextFieldFocused: Bool
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     private var isUsedForBulkEdit: Bool
     var viewModel: TableDataViewModelProtocol?
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil, viewModel: TableDataViewModelProtocol? = nil) {
+    public init(cellModel: Binding<TableCellModel>, formulaValue: CellFormulaValue? = nil, isUsedForBulkEdit: Bool = false, text: String? = nil, viewModel: TableDataViewModelProtocol? = nil) {
         _cellModel = cellModel
+        self.formulaValue = formulaValue
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if let providedText = text {
             _text = State(initialValue: providedText)
@@ -30,7 +33,7 @@ struct TableBarcodeView: View {
     var body: some View {
         if cellModel.viewMode == .quickView {
             HStack(spacing: 0) {
-                Text(cellModel.data.title)
+                Text(showsFormula ? (formulaValue?.text ?? "") : cellModel.data.title)
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
@@ -42,7 +45,7 @@ struct TableBarcodeView: View {
         } else if cellModel.editMode == .readonly {
             HStack(spacing: 0) {
                 ScrollView {
-                    Text(cellModel.data.title)
+                    Text(showsFormula ? (formulaValue?.text ?? "") : cellModel.data.title)
                         .font(.system(size: 15))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 5)
@@ -59,6 +62,7 @@ struct TableBarcodeView: View {
             HStack(spacing: 0) {
                 if #available(iOS 16.0, *) {
                     TextEditor(text: $text)
+                        .foregroundColor(showsFormula && !isTextFieldFocused ? .clear : .primary)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .scrollContentBackground(.hidden)
@@ -78,8 +82,10 @@ struct TableBarcodeView: View {
                                 isTextFieldFocused = true
                             }
                         }
+                        .overlay(resultOverlay())
                 } else {
                     TextEditor(text: $text)
+                        .foregroundColor(showsFormula && !isTextFieldFocused ? .clear : .primary)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .focused($isTextFieldFocused)
@@ -98,6 +104,7 @@ struct TableBarcodeView: View {
                                 isTextFieldFocused = true
                             }
                         }
+                        .overlay(resultOverlay())
                 }
                 
                 Image(systemName: "barcode.viewfinder")
@@ -109,7 +116,27 @@ struct TableBarcodeView: View {
             }
         }
     }
-    
+
+    @ViewBuilder
+    private func resultOverlay() -> some View {
+        if showsFormula && !isTextFieldFocused {
+            let value = formulaValue
+            Text(value?.text ?? "")
+                .font(.system(size: 15))
+                .foregroundColor(value?.isError == true ? .red : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 8)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("TableFormulaCellIdentifier")
+        }
+    }
+
+    /// A formula belongs to one row. Bulk edit spans several, so it keeps the plain editor.
+    private var showsFormula: Bool {
+        formulaValue != nil && !isUsedForBulkEdit
+    }
+
     func updateFieldValue(newText: String) {
         var cellModelData = cellModel.data
         cellModelData.title = newText

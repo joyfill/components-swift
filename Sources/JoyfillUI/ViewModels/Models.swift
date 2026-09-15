@@ -505,6 +505,14 @@ struct TableDataModel {
         return selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
     }
 
+    /// The text filtering and sorting match against: the evaluated result for a formula
+    /// cell, the stored text for every other.
+    func searchableText(rowID: String, column: CellDataModel) -> String {
+        documentEditor?.cellFormulaValue(columnID: column.id,
+                                         fieldID: fieldIdentifier.fieldID,
+                                         rowID: rowID)?.text ?? column.title
+    }
+
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
         for filter in filters {
             if filter.filterText.isEmpty {
@@ -515,7 +523,7 @@ struct TableDataModel {
             let match: Bool
             switch column.type {
             case .text:
-                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+                match = searchableText(rowID: row.rowID, column: column).localizedCaseInsensitiveContains(filter.filterText)
             case .dropdown:
                 match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
             case .number:
@@ -527,7 +535,7 @@ struct TableDataModel {
             case .multiSelect:
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
-                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+                match = searchableText(rowID: row.rowID, column: column).localizedCaseInsensitiveContains(filter.filterText)
             case .date:
                 if filter.filterText == FilterModel.emptyDateSentinel {
                     match = column.date == nil      // empty filter → only rows with no date
@@ -629,10 +637,11 @@ struct TableDataModel {
                 cells.append(cell)
             }
         }
+        documentEditor?.storeFormulaValues(fieldID: fieldIdentifier.fieldID, schemaID: schemaKey, row: row)
         return cells
     }
 
-    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
+    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String? = nil) -> [CellDataModel] {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
             guard let columnID = columnData.id else {
@@ -669,6 +678,7 @@ struct TableDataModel {
                 cells.append(cell)
             }
         }
+        documentEditor?.storeFormulaValues(fieldID: fieldIdentifier.fieldID, schemaID: schemaKey, row: row)
         return cells
     }
     
@@ -704,7 +714,7 @@ struct TableDataModel {
         }
         return cell
     }
-    
+
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data = cellDataModel
