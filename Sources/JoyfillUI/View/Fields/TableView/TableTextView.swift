@@ -40,7 +40,7 @@ struct TableTextView: View {
         } else {
             if #available(iOS 16.0, *) {
                 TextEditor(text: $cellModel.data.title)
-                     .opacity(showsResult ? 0 : 1)
+                    .foregroundColor(showsResult ? .clear : .primary)
                     .font(.system(size: 15))
                     .scrollContentBackground(.hidden)
                     .accessibilityIdentifier("TabelTextFieldIdentifier")
@@ -59,7 +59,7 @@ struct TableTextView: View {
                     .overlay(resultOverlay())
             } else {
                 TextEditor(text: $cellModel.data.title)
-                    .opacity(showsResult ? 0 : 1)
+                    .foregroundColor(showsResult ? .clear : .primary)
                     .font(.system(size: 15))
                     .accessibilityIdentifier("TabelTextFieldIdentifier")
                     .onChange(of: cellModel.data.title) { _ in

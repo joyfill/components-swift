@@ -39,7 +39,7 @@ struct TableTextRowFormView: View {
         } else {
             HStack(spacing: 0) {
                 TextField("", text: $text)
-                    .opacity(showsFormula && !isTextFieldFocused ? 0 : 1)
+                    .foregroundColor(showsFormula && !isTextFieldFocused ? .clear : .primary)
                     .font(.system(size: 15))
                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                     .padding(.horizontal, 10)

@@ -62,7 +62,7 @@ struct TableBarcodeView: View {
             HStack(spacing: 0) {
                 if #available(iOS 16.0, *) {
                     TextEditor(text: $text)
-                        .opacity(showsFormula && !isTextFieldFocused ? 0 : 1)
+                        .foregroundColor(showsFormula && !isTextFieldFocused ? .clear : .primary)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .scrollContentBackground(.hidden)
@@ -85,7 +85,7 @@ struct TableBarcodeView: View {
                         .overlay(resultOverlay())
                 } else {
                     TextEditor(text: $text)
-                        .opacity(showsFormula && !isTextFieldFocused ? 0 : 1)
+                        .foregroundColor(showsFormula && !isTextFieldFocused ? .clear : .primary)
                         .accessibilityIdentifier("TableBarcodeFieldIdentifier")
                         .font(.system(size: 15))
                         .focused($isTextFieldFocused)
