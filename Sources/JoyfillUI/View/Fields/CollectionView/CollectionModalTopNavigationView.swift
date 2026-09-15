@@ -521,6 +521,7 @@ struct CollectionEditMultipleRowsSheetView: View {
         .onTapGesture {
             viewModel.clearFocusColumnIfNeeded()
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 15) }
         }
         }
         .safeAreaInset(edge: .bottom) {
@@ -745,7 +746,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             case .barcode:
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
                                 TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
-                                    .frame(minHeight: 40)
+                                    .frame(height: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")
                             case .block:
