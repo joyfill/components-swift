@@ -3076,19 +3076,26 @@ extension JoyfillDocContext {
 
     /// Recomputes the cells of one row after a change to `editedColumnID`.
     ///
-    /// References are same-row, so only this row can be affected. Three things are
-    /// recomputed: the edited column itself, because clearing a cell hands the row back to
-    /// its column formula; whatever `columnDependents` says reads it, chains included; and
-    /// any cell carrying a formula of its own, invisible to a map built from the columns.
+    /// References are same-row, so only this row can be affected. The set starts with the
+    /// edited column itself, because clearing a cell hands the row back to its column
+    /// formula, and with every cell carrying a formula of its own — those belong to the
+    /// row, so a map built from the column definitions cannot see them. It then closes
+    /// over `columnDependents`, which is what picks up a column formula reading either.
     func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
         lock.lock(); defer { lock.unlock() }
         guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
 
-        var columns = setup.columnDependents[editedColumnID] ?? []
-        columns.insert(editedColumnID)
+        var columns: Set<String> = [editedColumnID]
         for (columnID, value) in row.cells ?? [:]
         where JoyfillDocContext.formulaSource(of: value.text) != nil {
             columns.insert(columnID)
+        }
+
+        // One pass is enough. `columnDependents` is already transitive across column
+        // formulas, and a chain can only leave it through a cell formula — whose column
+        // is in the seed already, so whatever reads it is one lookup away.
+        for columnID in Array(columns) {
+            columns.formUnion(setup.columnDependents[columnID] ?? [])
         }
         store(columns, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }

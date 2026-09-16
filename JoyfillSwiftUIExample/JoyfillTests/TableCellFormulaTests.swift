@@ -173,6 +173,26 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", totalID), "99", "The column named A, not the column at position A")
     }
 
+    func testAnIdentifierBeatsAnotherColumnsTitle() {
+        // Identifiers and titles share one lookup, but every identifier is claimed before
+        // any title is, so the second column's title loses to the first's identifier.
+        let columns = [column(id: qtyID, type: .number, title: "Alpha", identifier: "shared"),
+                       column(id: priceID, type: .number, title: "shared", identifier: "i_price"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=shared")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 7, priceID: 99])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "7", "The column whose identifier is `shared`")
+    }
+
+    func testDuplicateIdentifiersResolveToTheLeftmostColumn() {
+        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "dup"),
+                       column(id: priceID, type: .number, title: "Price", identifier: "dup"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=dup")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 7, priceID: 99])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "7")
+    }
+
     func testDuplicateTitlesResolveToTheLeftmostColumn() {
         let columns = [column(id: qtyID, type: .number, title: "Dup"),
                        column(id: priceID, type: .number, title: "Dup"),
@@ -315,8 +335,7 @@ final class TableCellFormulaTests: XCTestCase {
     /// Edits a cell the way anything outside the view does: through the change API.
     private func applyChange(_ vm: TableViewModel, rowID: String, cells: [String: Any]) {
         vm.tableDataModel.documentEditor?.change(changes: [externalRowUpdate(rowID: rowID, cells: cells)])
-        // The row-update handler defers to the next main-loop turn.
-        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+        settle()
     }
 
     func testEditingASourceColumnRefreshesDependentsAndTheirChain() {
@@ -324,6 +343,40 @@ final class TableCellFormulaTests: XCTestCase {
         applyChange(vm, rowID: "row_1", cells: [qtyID: 10])
         XCTAssertEqual(result(vm, "row_1", totalID), "30", "10 * 3")
         XCTAssertEqual(result(vm, "row_1", doubleID), "60", "The chain through Total follows")
+    }
+
+    /// Edits a cell the way the grid does when the user types in it, which is the path
+    /// that goes through `refreshDependentCellFormulas` rather than rebuilding the row.
+    private func editCell(_ vm: TableViewModel, rowID: String, colIndex: Int,
+                          _ mutate: (inout CellDataModel) -> Void) {
+        var cell = vm.tableDataModel.filteredcellModels
+            .first(where: { $0.rowID == rowID })!
+            .cells[colIndex]
+            .data
+        mutate(&cell)
+        vm.tableDataModel.valueToValueElements = vm.cellDidChange(
+            rowId: rowID, colIndex: colIndex, cellDataModel: cell,
+            isNestedCell: false, callOnChange: false)
+    }
+
+    /// The chain can leave the column definitions and come back: a column formula reading
+    /// a column whose *cell* holds the formula is invisible to a map built from columns
+    /// alone, so the refresh set has to close over the cells it picked up.
+    func testAColumnFormulaReadingACellFormulaFollowsTheChain() {
+        // A=Qty, B=Price, C=Notes (no column formula, the cell carries one), D=Echo.
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: notesID, type: .text,   title: "Notes"),
+                       column(id: totalID, type: .text,   title: "Echo", formula: "=C*2")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3, notesID: "=A+B"])]))
+        XCTAssertEqual(result(vm, "row_1", notesID), "5",  "The cell formula, 2 + 3")
+        XCTAssertEqual(result(vm, "row_1", totalID), "10", "Echo reads it, 5 * 2")
+
+        editCell(vm, rowID: "row_1", colIndex: 0) { $0.number = 10 }
+
+        XCTAssertEqual(result(vm, "row_1", notesID), "13", "10 + 3")
+        XCTAssertEqual(result(vm, "row_1", totalID), "26", "Echo follows through the cell formula")
     }
 
     func testEditingOneRowLeavesOtherRowsAlone() {
@@ -384,10 +437,17 @@ final class TableCellFormulaTests: XCTestCase {
                          "row": ["_id": rowID, "cells": cells] as [String: Any]])
     }
 
-    /// `handleFieldValueRowUpdate` hands the change to the delegate on the next main-loop
-    /// turn, so an external cell change lands one turn later than a row create.
+    /// Waits for work the SDK deferred with `DispatchQueue.main.async`.
+    ///
+    /// The main queue is FIFO, so a block enqueued now can only run once that work has.
+    /// Spinning the run loop directly is not enough: `RunLoop.run(mode:before:)` returns
+    /// immediately when nothing is attached to the loop, so these waits only worked when
+    /// an earlier test happened to leave something on it — and the tests failed when run
+    /// on their own.
     private func settle() {
-        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+        let drained = expectation(description: "deferred main-queue work ran")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: 2)
     }
 
     func testExternalCellChangeRefreshesTheRowsFormulas() {
@@ -568,8 +628,17 @@ final class CollectionCellFormulaTests: XCTestCase {
         vm.formulaValue(columnID: columnID, rowID: rowID)?.text
     }
 
+    /// Waits for work the SDK deferred with `DispatchQueue.main.async`.
+    ///
+    /// The main queue is FIFO, so a block enqueued now can only run once that work has.
+    /// Spinning the run loop directly is not enough: `RunLoop.run(mode:before:)` returns
+    /// immediately when nothing is attached to the loop, so these waits only worked when
+    /// an earlier test happened to leave something on it — and the tests failed when run
+    /// on their own.
     private func settle() {
-        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+        let drained = expectation(description: "deferred main-queue work ran")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: 2)
     }
 
     private func externalRowUpdate(rowID: String, cells: [String: Any], schemaID: String) -> Change {
@@ -619,6 +688,20 @@ final class CollectionCellFormulaTests: XCTestCase {
 
         XCTAssertEqual(value(vm, "root_1", totalID), "7",  "A is Qty in the root schema")
         XCTAssertEqual(value(vm, "child_1", totalID), "99", "A is Price in the child schema")
+    }
+
+    func testTheSameTitleMeansEachSchemasOwnColumn() {
+        // Both schemas have a column titled "Qty", but they are different columns.
+        let rootColumns = [column(id: "root_qty", type: .number, title: "Qty"),
+                           column(id: totalID, type: .text, title: "Total", formula: "=Qty")]
+        let childColumns = [column(id: "child_qty", type: .number, title: "Qty"),
+                            column(id: totalID, type: .text, title: "Total", formula: "=Qty")]
+        let (vm, _) = open(rootColumns: rootColumns, childColumns: childColumns,
+                           rows: [row("root_1", ["root_qty": 7],
+                                      children: [row("child_1", ["child_qty": 99])])])
+
+        XCTAssertEqual(value(vm, "root_1", totalID), "7",  "the root schema's Qty")
+        XCTAssertEqual(value(vm, "child_1", totalID), "99", "the child schema's Qty")
     }
 
     func testACellFormulaInANestedRowOverridesItsColumnFormula() {
