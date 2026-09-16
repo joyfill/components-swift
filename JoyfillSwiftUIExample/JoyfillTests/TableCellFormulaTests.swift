@@ -448,6 +448,24 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(standardViewModel(totalFormula: "=1234.5678*1"), "row_1", totalID), "1234.5678")
     }
 
+    func testABarcodeColumnDoesNotCarryAFormula() {
+        let columns = [column(id: qtyID,   type: .number,  title: "Qty"),
+                       column(id: priceID, type: .number,  title: "Price"),
+                       column(id: totalID, type: .barcode, title: "Total", formula: "=A*B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 2, priceID: 3])]))
+        XCTAssertNil(result(vm, "row_1", totalID), "Formulas are text columns only for now")
+    }
+
+    /// The cell carries its column's formula, which is what the editor shows on tap so a
+    /// column formula reads and edits like one typed into the cell.
+    func testTheCellCarriesItsColumnFormula() {
+        let vm = standardViewModel()
+        let cells = vm.tableDataModel.filteredcellModels.first(where: { $0.rowID == "row_1" })!.cells
+        XCTAssertEqual(cells.first(where: { $0.data.id == totalID })?.data.columnFormula, "=A*B")
+        XCTAssertNil(cells.first(where: { $0.data.id == notesID })?.data.columnFormula,
+                     "Notes declares no formula")
+    }
+
     func testEditingOneRowLeavesOtherRowsAlone() {
         let vm = standardViewModel()
         applyChange(vm, rowID: "row_1", cells: [qtyID: 10])

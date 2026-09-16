@@ -2998,8 +2998,8 @@ extension JoyfillDocContext {
 
     // MARK: Stored results
 
-    /// Column types whose stored value is a string, and so can carry a formula.
-    static let formulaCapableTypes: Set<ColumnTypes> = [.text, .barcode]
+    /// Column types that can carry a formula.
+    static let formulaCapableTypes: Set<ColumnTypes> = [.text]
 
     /// The evaluated result for one cell, or `nil` when it holds no formula.
     /// The single read for everything that displays, filters or sorts a formula cell.

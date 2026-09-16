@@ -748,7 +748,6 @@ struct CollectionEditMultipleRowsSheetView: View {
                             case .barcode:
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
                                 TableBarcodeView(cellModel: Binding.constant(cellModel),
-                                                 formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row),
                                                  isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(height: 40)
                                     .cellBorder(isFocused: isFocused)

@@ -58,7 +58,7 @@ struct TableViewCellBuilder: View {
         case .progress:
             TableProgressView(cellModel: $cellModel, viewModel: viewModel)
         case .barcode:
-            TableBarcodeView(cellModel: $cellModel, formulaValue: formulaValue)
+            TableBarcodeView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)
         case .signature:
             TableSignatureView(cellModel: $cellModel)
