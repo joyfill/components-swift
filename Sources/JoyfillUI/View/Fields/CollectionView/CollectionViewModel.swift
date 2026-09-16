@@ -546,6 +546,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
         tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
+        tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: schemaKey)
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
@@ -1415,6 +1416,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
         tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: tableDataModel.fieldIdentifier.fieldID, rowIDs: [rowID])
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1566,6 +1568,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
                 tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
+                tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
                 refreshCollectionSchema(rowID: parentRowID)
                 appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {

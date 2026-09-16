@@ -58,6 +58,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
         tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
+        tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let gridEditMode = tableDataModel.editModeForGrid()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
@@ -281,6 +282,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
         tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: tableDataModel.fieldIdentifier.fieldID, rowIDs: [rowID])
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()

@@ -1567,15 +1567,14 @@ extension DocumentEditor {
     func cellFormulaValue(columnID: String, fieldID: String, rowID: String) -> CellFormulaValue? {
         joyDocContext?.cellFormulaValue(columnID: columnID, fieldID: fieldID, rowID: rowID)
     }
-
-    /// Evaluates every formula cell of a row. Called as rows are built.
-    func storeFormulaValues(fieldID: String, schemaID: String? = nil, row: ValueElement) {
-        joyDocContext?.storeFormulaValues(fieldID: fieldID, schemaID: schemaID, row: row)
-    }
-
     /// Recomputes the formula cells of a row after one of its cells changed.
     func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
         joyDocContext?.refreshDependentCellFormulas(fieldID: fieldID, schemaID: schemaID, editedColumnID: editedColumnID, row: row)
+    }
+
+    /// Evaluates the formula cells of a row that was just added.
+    func addFormulaValuesForNewRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        joyDocContext?.storeFormulaValues(fieldID: fieldID, schemaID: schemaID, row: row)
     }
 
     /// Drops the results of rows that no longer exist.

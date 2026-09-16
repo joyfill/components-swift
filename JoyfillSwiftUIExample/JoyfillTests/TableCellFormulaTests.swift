@@ -776,6 +776,19 @@ final class CollectionCellFormulaTests: XCTestCase {
         XCTAssertEqual(value(vm, "child_1", totalID), "99", "the child schema's Qty")
     }
 
+    /// Results come from the context's init, not from building cells — so a nested row
+    /// nothing has expanded still has its value. `editor(...)` alone builds no view model.
+    func testNestedRowsAreEvaluatedWithoutBuildingAnyCells() {
+        let editor = editor(rootColumns: columns(), childColumns: columns(),
+                            rows: [row("root_1", [qtyID: 2, priceID: 3],
+                                       children: [row("child_1", [qtyID: 4, priceID: 5])])])
+
+        XCTAssertEqual(editor.cellFormulaValue(columnID: totalID, fieldID: collectionFieldID,
+                                               rowID: "child_1")?.text, "20", "4 * 5, never expanded")
+        XCTAssertEqual(editor.cellFormulaValue(columnID: totalID, fieldID: collectionFieldID,
+                                               rowID: "root_1")?.text, "6", "2 * 3")
+    }
+
     func testACellFormulaInANestedRowOverridesItsColumnFormula() {
         let (vm, _) = open(rows: [row("root_1", [qtyID: 2, priceID: 3],
                                       children: [row("child_1", [qtyID: 4, priceID: 5, totalID: "=A+B"])])])

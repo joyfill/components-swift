@@ -637,7 +637,6 @@ struct TableDataModel {
                 cells.append(cell)
             }
         }
-        documentEditor?.storeFormulaValues(fieldID: fieldIdentifier.fieldID, schemaID: schemaKey, row: row)
         return cells
     }
 
@@ -678,7 +677,6 @@ struct TableDataModel {
                 cells.append(cell)
             }
         }
-        documentEditor?.storeFormulaValues(fieldID: fieldIdentifier.fieldID, schemaID: schemaKey, row: row)
         return cells
     }
     

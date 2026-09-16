@@ -6,6 +6,7 @@ import JoyfillFormulas
 protocol JoyDocProvider: AnyObject {
     func field(fieldID: String?) -> JoyDocField?
     func allFormulsFields() -> [JoyDocField]
+    var allFields: [JoyDocField] { get }
     func formula(with id: String) -> Formula?
     func updateValue(for identifier: String, value: ValueUnion)
     func setFieldHidden(_ hidden: Bool, for identifier: String)
@@ -50,17 +51,47 @@ class JoyfillDocContext: EvaluationContext {
     /// schemas, so a read needs no schema — only a write, which picks the resolver.
     private var cellResults: [String: [CellID: CellFormulaValue]] = [:]
 
-    /// `docProvider` is private; the table-formula extension reaches fields through this.
-    internal func docProviderField(_ fieldID: String) -> JoyDocField? {
-        docProvider?.field(fieldID: fieldID)
-    }
-    
     /// Initialize with a JoyDocProvider instance
     /// - Parameter docProvider: The provider to resolve references against
     init(docProvider: JoyDocProvider) {
         self.docProvider = docProvider
         buildDependencyGraph()
         evaluateAllFormulas()
+        buildTableFormulaCache()
+    }
+
+    /// Builds the column metadata and evaluates every formula cell, so a result is there
+    /// before anything asks for it — including rows nothing has built cells for yet, such
+    /// as a collapsed nested table.
+    ///
+    /// Doing it here is also what keeps the document off the background queue a collection
+    /// builds its cells on: afterwards `tableSetup` is a pure cache read.
+    private func buildTableFormulaCache() {
+        for field in docProvider?.allFields ?? []
+        where field.fieldType == .table || field.fieldType == .collection {
+            guard let fieldID = field.id else { continue }
+            cacheTableSetup(fieldID: fieldID, schemaID: nil, columns: field.tableColumns)
+            for (schemaID, schema) in field.schema ?? [:] {
+                cacheTableSetup(fieldID: fieldID, schemaID: schemaID, columns: schema.tableColumns)
+            }
+            let rootSchemaID = field.schema?.first(where: { $0.value.root == true })?.key
+            evaluateRows(field.valueToValueElements ?? [], fieldID: fieldID, schemaID: rootSchemaID)
+        }
+    }
+
+    /// A collection nests rows under a schema key per level, so this recurses.
+    private func evaluateRows(_ rows: [ValueElement], fieldID: String, schemaID: String?) {
+        for row in rows where !(row.deleted ?? false) {
+            storeFormulaValues(fieldID: fieldID, schemaID: schemaID, row: row)
+            for (childSchemaID, children) in row.childrens ?? [:] {
+                evaluateRows(children.valueToValueElements ?? [], fieldID: fieldID, schemaID: childSchemaID)
+            }
+        }
+    }
+
+    /// Column letters are positional, so every schema needs its own resolver and key.
+    private func setupKey(fieldID: String, schemaID: String?) -> String {
+        schemaID.map { "\(fieldID)\u{1}\($0)" } ?? fieldID
     }
 
     /// Resolve a reference string against the JoyDoc
@@ -3008,15 +3039,17 @@ extension JoyfillDocContext {
 
     // MARK: Table setup
 
+    /// Reads what `buildTableFormulaSetups` cached in `init`. Never touches the document,
+    /// so it is safe from the background queue a collection builds its cells on.
     func tableSetup(fieldID: String, schemaID: String?) -> TableCellFormulaSetup? {
         lock.lock(); defer { lock.unlock() }
-        // Column letters are positional, so every schema needs its own resolver.
-        let key = schemaID.map { "\(fieldID)\u{1}\($0)" } ?? fieldID
-        if let cached = tableSetups[key] { return cached }
+        return tableSetups[setupKey(fieldID: fieldID, schemaID: schemaID)]
+    }
 
-        guard let field = docProviderField(fieldID) else { return nil }
-        let schemaColumns = schemaID.flatMap { field.schema?[$0]?.tableColumns } ?? field.tableColumns
-        guard let columns = schemaColumns, !columns.isEmpty else { return nil }
+    private func cacheTableSetup(fieldID: String, schemaID: String?, columns: [FieldTableColumn]?) {
+        lock.lock(); defer { lock.unlock() }
+        let key = setupKey(fieldID: fieldID, schemaID: schemaID)
+        guard let columns = columns, !columns.isEmpty else { return }
 
         var types: [String: ColumnTypes] = [:]
         var optionLabels: [String: [String: String]] = [:]
@@ -3051,7 +3084,6 @@ extension JoyfillDocContext {
                                           columnFormulas: columnFormulas,
                                           columnDependents: columnDependents(for: base))
         tableSetups[key] = setup
-        return setup
     }
 
     // MARK: Stored results
@@ -3071,7 +3103,7 @@ extension JoyfillDocContext {
     func storeFormulaValues(fieldID: String, schemaID: String?, row: ValueElement) {
         lock.lock(); defer { lock.unlock() }
         guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
-        store(setup.types.keys, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
+        store(Array(setup.types.keys), fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }
 
     /// All three matter: a cleared cell formula still leaves a result to drop, and a cell
@@ -3107,7 +3139,7 @@ extension JoyfillDocContext {
         for columnID in Array(columns) {
             columns.formUnion(setup.columnDependents[columnID] ?? [])
         }
-        store(columns, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
+        store(Array(columns), fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }
 
     /// Drops the results of rows that no longer exist.
@@ -3120,11 +3152,11 @@ extension JoyfillDocContext {
 
     /// Evaluates the given columns of one row and writes the results. A column with no
     /// formula is cleared rather than skipped, so deleting a formula drops its result.
-    private func store<C: Sequence>(_ columns: C,
-                                    fieldID: String,
-                                    setup: TableCellFormulaSetup,
-                                    row: ValueElement,
-                                    rowID: String) where C.Element == String {
+    private func store(_ columns: [String],
+                       fieldID: String,
+                       setup: TableCellFormulaSetup,
+                       row: ValueElement,
+                       rowID: String) {
         for columnID in columns {
             let cell = CellID(rowID: rowID, columnID: columnID)
             guard let type = setup.types[columnID],
