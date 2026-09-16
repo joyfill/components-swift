@@ -49,6 +49,10 @@ struct TableTextRowFormView: View {
                     .focused($isTextFieldFocused)
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
+                            // The column's formula edits like one typed into the cell.
+                            if text.isEmpty, let formula = cellModel.data.columnFormula {
+                                text = formula
+                            }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                         } else {
                             cellModel.didFocusBlur?(.blur, cellModel.data)
@@ -80,6 +84,9 @@ struct TableTextRowFormView: View {
     }
 
     func updateFieldValue(newText: String) {
+        // Showing the column's formula is not an edit. Until the author changes it the
+        // cell still holds nothing, so nothing is written.
+        guard newText != cellModel.data.columnFormula else { return }
         var cellModelData = cellModel.data
         cellModelData.title = newText
         cellModel.data = cellModelData

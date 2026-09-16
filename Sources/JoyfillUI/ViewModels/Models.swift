@@ -586,7 +586,8 @@ struct TableDataModel {
                 date: fieldTableColumn.date,
                 format: fieldTableColumn.getFormat(from: fieldPositionTableColumns),
                 multiSelectValues: fieldTableColumn.multiSelectValues,
-                multi: fieldTableColumn.multi)
+                multi: fieldTableColumn.multi,
+                columnFormula: JoyfillDocContext.formulaSource(of: fieldTableColumn.value?.text).map { "=" + $0 })
             columnIdToColumnMap[columnId] = fieldTableColumnLocal
         }
     }
@@ -632,7 +633,8 @@ struct TableDataModel {
                                                 date: columnData.date,
                                                 format: DateFormatType(rawValue: columnData.format ?? ""),
                                                 multiSelectValues: columnData.multiSelectValues,
-                                                multi: columnData.multi)
+                                                multi: columnData.multi,
+                                                columnFormula: JoyfillDocContext.formulaSource(of: columnData.value?.text).map { "=" + $0 })
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
@@ -672,7 +674,8 @@ struct TableDataModel {
                                                 date: columnData.date,
                                                 format: columnData.getFormat(from: fieldPositionTableColumns),
                                                 multiSelectValues: columnData.multiSelectValues,
-                                                multi: columnData.multi)
+                                                multi: columnData.multi,
+                                                columnFormula: JoyfillDocContext.formulaSource(of: columnData.value?.text).map { "=" + $0 })
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
@@ -1236,6 +1239,7 @@ struct CellDataModel: Hashable, Equatable {
     var format: DateFormatType?
     var multiSelectValues: [String]?
     var multi: Bool?
+    var columnFormula: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)

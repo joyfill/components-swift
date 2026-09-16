@@ -50,6 +50,10 @@ struct TableTextView: View {
                     .focused($isTextFieldFocused)
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
+                            // The column's formula edits like one typed into the cell.
+                            if cellModel.data.title.isEmpty, let formula = cellModel.data.columnFormula {
+                                cellModel.data.title = formula
+                            }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                         } else {
                             cellModel.didFocusBlur?(.blur, cellModel.data)
@@ -68,6 +72,10 @@ struct TableTextView: View {
                     .focused($isTextFieldFocused)
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
+                            // The column's formula edits like one typed into the cell.
+                            if cellModel.data.title.isEmpty, let formula = cellModel.data.columnFormula {
+                                cellModel.data.title = formula
+                            }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                         } else {
                             cellModel.didFocusBlur?(.blur, cellModel.data)
@@ -87,10 +95,9 @@ struct TableTextView: View {
     @ViewBuilder
     private func resultOverlay() -> some View {
         if showsResult {
-            let value = formulaValue
-            Text(value?.text ?? "")
+            Text(formulaValue?.text ?? "")
                 .font(.system(size: 15))
-                .foregroundColor(value?.isError == true ? .red : .primary)
+                .foregroundColor(formulaValue?.isError == true ? .red : .primary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding(.horizontal, 5)
                 .padding(.vertical, 8)
@@ -106,6 +113,9 @@ struct TableTextView: View {
     }
     
     func updateFieldValue() {
+        // Showing the column's formula is not an edit. Until the author changes it the
+        // cell still holds nothing, so nothing is written.
+        guard cellModel.data.title != cellModel.data.columnFormula else { return }
         cellModel.didChange?(cellModel.data)
     }
 }
