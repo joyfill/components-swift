@@ -345,8 +345,8 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", doubleID), "60", "The chain through Total follows")
     }
 
-    /// Edits a cell the way the grid does when the user types in it, which is the path
-    /// that goes through `refreshDependentCellFormulas` rather than rebuilding the row.
+    /// Types into a cell the way the grid does, bypassing the row rebuild that the
+    /// change API performs.
     private func editCell(_ vm: TableViewModel, rowID: String, colIndex: Int,
                           _ mutate: (inout CellDataModel) -> Void) {
         var cell = vm.tableDataModel.filteredcellModels
@@ -377,6 +377,66 @@ final class TableCellFormulaTests: XCTestCase {
 
         XCTAssertEqual(result(vm, "row_1", notesID), "13", "10 + 3")
         XCTAssertEqual(result(vm, "row_1", totalID), "26", "Echo follows through the cell formula")
+    }
+
+    func testClearingTheOnlyCellFormulaInAFormulaFreeTableDropsItsResult() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: notesID, type: .text,   title: "Notes")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3, notesID: "=A+B"])]))
+        XCTAssertEqual(result(vm, "row_1", notesID), "5", "The cell formula computes")
+
+        editCell(vm, rowID: "row_1", colIndex: 2) { $0.title = "plain" }
+
+        XCTAssertNil(result(vm, "row_1", notesID), "The stale result must not survive")
+    }
+
+    func testTypingACellFormulaIntoAFormulaFreeTableStartsComputingIt() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: notesID, type: .text,   title: "Notes")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3])]))
+        XCTAssertNil(result(vm, "row_1", notesID))
+
+        editCell(vm, rowID: "row_1", colIndex: 2) { $0.title = "=A+B" }
+
+        XCTAssertEqual(result(vm, "row_1", notesID), "5", "Nothing declared a formula before this")
+    }
+
+    func testBulkEditingAFormulaIntoAFormulaFreeTableComputesEveryRow() async {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: notesID, type: .text,   title: "Notes")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3]),
+                                           row("row_2", [qtyID: 5, priceID: 4])]))
+        XCTAssertNil(result(vm, "row_1", notesID))
+        XCTAssertNil(result(vm, "row_2", notesID))
+
+        vm.tableDataModel.selectedRows = ["row_1", "row_2"]
+        await vm.bulkEdit(changes: [notesID: ValueUnion.string("=A+B")])
+
+        XCTAssertEqual(result(vm, "row_1", notesID), "5",  "2 + 3")
+        XCTAssertEqual(result(vm, "row_2", notesID), "9",  "5 + 4, per row")
+    }
+
+    func testBulkClearingAFormulaDropsEveryRowsResult() async {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: notesID, type: .text,   title: "Notes")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3, notesID: "=A+B"]),
+                                           row("row_2", [qtyID: 5, priceID: 4, notesID: "=A+B"])]))
+        XCTAssertEqual(result(vm, "row_1", notesID), "5")
+        XCTAssertEqual(result(vm, "row_2", notesID), "9")
+
+        vm.tableDataModel.selectedRows = ["row_1", "row_2"]
+        await vm.bulkEdit(changes: [notesID: ValueUnion.string("plain")])
+
+        XCTAssertNil(result(vm, "row_1", notesID), "No stale result may survive")
+        XCTAssertNil(result(vm, "row_2", notesID))
     }
 
     func testEditingOneRowLeavesOtherRowsAlone() {

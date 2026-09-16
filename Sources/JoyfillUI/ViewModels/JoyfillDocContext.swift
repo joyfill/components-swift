@@ -3074,6 +3074,14 @@ extension JoyfillDocContext {
         store(setup.types.keys, fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }
 
+    /// All three matter: a cleared cell formula still leaves a result to drop, and a cell
+    /// can carry a formula in a table whose columns declare none.
+    private func hasFormulaWork(setup: TableCellFormulaSetup, fieldID: String, row: ValueElement) -> Bool {
+        if !setup.columnFormulas.isEmpty { return true }
+        if !(cellResults[fieldID]?.isEmpty ?? true) { return true }
+        return row.cells?.values.contains { JoyfillDocContext.formulaSource(of: $0.text) != nil } ?? false
+    }
+
     /// Recomputes the cells of one row after a change to `editedColumnID`.
     ///
     /// References are same-row, so only this row can be affected. The set starts with the
@@ -3084,6 +3092,8 @@ extension JoyfillDocContext {
     func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
         lock.lock(); defer { lock.unlock() }
         guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+
+        guard hasFormulaWork(setup: setup, fieldID: fieldID, row: row) else { return }
 
         var columns: Set<String> = [editedColumnID]
         for (columnID, value) in row.cells ?? [:]

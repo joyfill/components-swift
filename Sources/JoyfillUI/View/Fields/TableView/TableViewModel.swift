@@ -495,11 +495,16 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         let editedColumnIDs = changes.keys
         // `tableDataModel` here is the snapshot taken before the edit; evaluate against
         // the rows just written back.
-        let elements = self.tableDataModel.valueToValueElements ?? []
+        let rowsByID = Dictionary(
+            (self.tableDataModel.valueToValueElements ?? []).compactMap { row in row.id.map { ($0, row) } },
+            uniquingKeysWith: { first, _ in first })
         for rowId in self.tableDataModel.selectedRows {
+            let row = rowsByID[rowId]
             for columnID in editedColumnIDs {
                 refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
-                refreshFormulas(rowId: rowId, editedColumnID: columnID, in: elements)
+                if let row = row {
+                    refreshFormulas(row: row, editedColumnID: columnID)
+                }
             }
         }
         isBulkLoading = false
@@ -755,9 +760,13 @@ extension TableViewModel {
 
     /// Recomputes the formula cells of a row after one of its cells changed.
     func refreshFormulas(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {
-        guard let documentEditor = tableDataModel.documentEditor,
-              let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId })
+        guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId })
         else { return }
+        refreshFormulas(row: row, editedColumnID: editedColumnID)
+    }
+
+    func refreshFormulas(row: ValueElement, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor else { return }
         documentEditor.refreshDependentCellFormulas(fieldID: tableDataModel.fieldIdentifier.fieldID,
                                                     editedColumnID: editedColumnID,
                                                     row: row)
