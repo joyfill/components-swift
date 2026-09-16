@@ -1,0 +1,368 @@
+{
+  "identifier": "template_6a391e43940fb2521fffd584",
+  "files": [
+    {
+      "_id": "6a391e43a8cddd370e37c724",
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "padding": 24,
+          "layout": "grid",
+          "deletable": true,
+          "metadata": {},
+          "width": 816,
+          "_id": "6a391e434954ed9d02ebbf70",
+          "presentation": "normal",
+          "cols": 8,
+          "margin": 0,
+          "borderWidth": 0,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ],
+          "fieldPositions": [
+            {
+              "_id": "6aaa3c1911110000000000f1",
+              "type": "number",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 8,
+              "field": "taxRate"
+            },
+            {
+              "_id": "6aaa3c1977c0780cf9b882f7",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 8,
+              "width": 8,
+              "height": 40,
+              "field": "6aaa3c19cd3c5261876db4d4"
+            },
+            {
+              "_id": "6aaa3c2b1b7cc251942050e4",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 48,
+              "width": 8,
+              "height": 40,
+              "field": "6aaa3c2b31eed6c73246717c"
+            }
+          ],
+          "hidden": false,
+          "height": 1056,
+          "rowHeight": 8,
+          "name": "Page 1"
+        }
+      ],
+      "pageOrder": [
+        "6a391e434954ed9d02ebbf70"
+      ],
+      "version": 1,
+      "views": [],
+      "metadata": {},
+      "name": "Page 1",
+      "orientation": "portrait"
+    }
+  ],
+  "metadata": {},
+  "formulas": [],
+  "_id": "6a391e43940fb2521fffd584",
+  "createdOn": 1782128197930,
+  "deleted": false,
+  "stage": "draft",
+  "type": "template",
+  "fields": [
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "taxRate",
+      "identifier": "field_taxRate",
+      "type": "number",
+      "title": "Rate",
+      "value": 2
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6aaa3c19cd3c5261876db4d4",
+      "type": "table",
+      "title": "Table",
+      "identifier": "field_6aaa3c19cd3c5261876db4d4",
+      "tableColumns": [
+        {
+          "_id": "6aaa3c25766e371e368282c2",
+          "type": "number",
+          "title": "Qty",
+          "deleted": false,
+          "width": 0,
+          "identifier": "6aaa3c19cd3c5261876db4d4_column_6aaa3c25766e371e368282c2"
+        },
+        {
+          "_id": "6aaa3c266dd2f692c4aaf941",
+          "type": "number",
+          "title": "Price",
+          "deleted": false,
+          "width": 0,
+          "identifier": "6aaa3c19cd3c5261876db4d4_column_6aaa3c266dd2f692c4aaf941"
+        },
+        {
+          "_id": "6aa91ddd08ef14e356a4b465",
+          "type": "text",
+          "title": "Total",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6aaa3c19cd3c5261876db4d4_column_6aa91ddd08ef14e356a4b465",
+          "value": "=A * B"
+        },
+        {
+          "_id": "6aaa3c990000000000000001",
+          "type": "text",
+          "title": "Summary",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6aaa3c19cd3c5261876db4d4_column_6aaa3c990000000000000001",
+          "value": "=CONCAT(\"T\", C)"
+        }
+      ],
+      "tableColumnOrder": [
+        "6aaa3c25766e371e368282c2",
+        "6aaa3c266dd2f692c4aaf941",
+        "6aa91ddd08ef14e356a4b465",
+        "6aaa3c990000000000000001"
+      ],
+      "rowOrder": [
+        "6aaa3c4900000000000000r1",
+        "6aaa3c4900000000000000r2",
+        "6aaa3c4900000000000000r3",
+        "6aaa3c4900000000000000r4",
+        "6aaa3c4900000000000000r5",
+        "6aaa3c4900000000000000r6",
+        "6aaa3c4900000000000000r7",
+        "6aaa3c4900000000000000r8",
+        "6aaa3c4900000000000000r9",
+        "6aaa3c490000000000000r10"
+      ],
+      "value": [
+        {
+          "_id": "6aaa3c4900000000000000r1",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 2,
+            "6aaa3c266dd2f692c4aaf941": 3
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r2",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 5,
+            "6aaa3c266dd2f692c4aaf941": 4
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r3",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6aaa3c4900000000000000r4",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 10,
+            "6aaa3c266dd2f692c4aaf941": 7,
+            "6aa91ddd08ef14e356a4b465": "=A + B"
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r5",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 1,
+            "6aaa3c266dd2f692c4aaf941": 1,
+            "6aa91ddd08ef14e356a4b465": "MANUAL"
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r6",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 8,
+            "6aaa3c266dd2f692c4aaf941": 2,
+            "6aa91ddd08ef14e356a4b465": "=NOSUCH(A)"
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r7",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 6,
+            "6aaa3c266dd2f692c4aaf941": 5,
+            "6aa91ddd08ef14e356a4b465": "=Qty * Price"
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r8",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 3,
+            "6aaa3c266dd2f692c4aaf941": 9,
+            "6aa91ddd08ef14e356a4b465": "=6aaa3c25766e371e368282c2 + 6aaa3c266dd2f692c4aaf941"
+          }
+        },
+        {
+          "_id": "6aaa3c4900000000000000r9",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 4,
+            "6aaa3c266dd2f692c4aaf941": 2,
+            "6aa91ddd08ef14e356a4b465": "=6aaa3c19cd3c5261876db4d4_column_6aaa3c25766e371e368282c2 * 6aaa3c19cd3c5261876db4d4_column_6aaa3c266dd2f692c4aaf941"
+          }
+        },
+        {
+          "_id": "6aaa3c490000000000000r10",
+          "deleted": false,
+          "cells": {
+            "6aaa3c25766e371e368282c2": 5,
+            "6aaa3c266dd2f692c4aaf941": 0,
+            "6aa91ddd08ef14e356a4b465": "=A * taxRate"
+          }
+        }
+      ]
+    },
+    {
+      "file": "6a391e43a8cddd370e37c724",
+      "_id": "6aaa3c2b31eed6c73246717c",
+      "type": "collection",
+      "title": "Collection",
+      "identifier": "field_6aaa3c2b31eed6c73246717c",
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "children": [
+            "level1Table1"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6aaa3c3b34d6a895befea8a6",
+              "type": "number",
+              "title": "Qty",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6aaa3c2b31eed6c73246717c_column_6aaa3c3b34d6a895befea8a6"
+            },
+            {
+              "_id": "6aaa3c3d81a2e4bdada17994",
+              "type": "number",
+              "title": "Price",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6aaa3c2b31eed6c73246717c_column_6aaa3c3d81a2e4bdada17994"
+            },
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Total",
+              "deleted": false,
+              "identifier": "6aaa3c2b31eed6c73246717c_column_6813008e76da519a97819c69",
+              "width": 0,
+              "value": "=A * B"
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "Level 1",
+          "children": [],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6ab1000000000000000000a1",
+              "type": "number",
+              "title": "Rate",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6aaa3c2b31eed6c73246717c_column_6ab1000000000000000000a1"
+            },
+            {
+              "_id": "6ab1000000000000000000a2",
+              "type": "number",
+              "title": "Hours",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6aaa3c2b31eed6c73246717c_column_6ab1000000000000000000a2"
+            },
+            {
+              "_id": "6ab1000000000000000000a3",
+              "type": "text",
+              "title": "Cost",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6aaa3c2b31eed6c73246717c_column_6ab1000000000000000000a3",
+              "value": "=A * B"
+            }
+          ]
+        }
+      },
+      "value": [
+        {
+          "_id": "6aaa3c2fcf0c94edbc824163",
+          "cells": {
+            "6aaa3c3b34d6a895befea8a6": 2,
+            "6aaa3c3d81a2e4bdada17994": 3
+          },
+          "children": {
+            "level1Table1": {
+              "value": [
+                {
+                  "_id": "6ab2000000000000000000b1",
+                  "cells": {
+                    "6ab1000000000000000000a1": 10,
+                    "6ab1000000000000000000a2": 4
+                  },
+                  "children": {}
+                },
+                {
+                  "_id": "6ab2000000000000000000b2",
+                  "cells": {
+                    "6ab1000000000000000000a1": 7,
+                    "6ab1000000000000000000a2": 3,
+                    "6ab1000000000000000000a3": "=A + B"
+                  },
+                  "children": {}
+                }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "6aaa3c30197dfe478618a63e",
+          "cells": {
+            "6aaa3c3b34d6a895befea8a6": 9,
+            "6aaa3c3d81a2e4bdada17994": 9
+          },
+          "children": {}
+        },
+        {
+          "_id": "6aaa3c31592b21edc445bd0f",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6aaa3c475811617e5a313632",
+          "cells": {
+            "6aaa3c3b34d6a895befea8a6": 4,
+            "6aaa3c3d81a2e4bdada17994": 4,
+            "6813008e76da519a97819c69": "=Qty + Price"
+          },
+          "children": {}
+        }
+      ]
+    }
+  ],
+  "name": "Page 1",
+  "categories": []
+}
