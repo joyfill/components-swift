@@ -138,6 +138,49 @@ final class NavigationGotoUITests: XCTestCase {
                       "App should stay alive through the collection bulk edit")
     }
 
+    /// The footer renders inside row-form sheets too, so `presentPageSelectionSheet(true)`
+    /// must present from there and must not leave `showPageSelectionSheet` stuck true.
+    func testPageSelectionSheetOpensFromHostFooterInsideRowForm() throws {
+        let picker = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        let footerSheetButton = app.buttons["ShowPageSelectionSheetButtonIdentifier"].firstMatch
+
+        openCollectionRowForm()
+        let rowFormDismissButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch
+        XCTAssertTrue(rowFormDismissButton.waitForExistence(timeout: 5), "Row form did not open")
+        XCTAssertTrue(footerSheetButton.exists, "Host footer should render inside the row form")
+
+        footerSheetButton.tap()
+
+        XCTAssertTrue(picker.waitForExistence(timeout: 3),
+                      "Picker should present from inside a row form, not swallow the tap")
+        XCTAssertTrue(picker.isHittable,
+                      "Picker should be interactive, not merely present in the tree")
+
+        app.buttons["ClosePageSelectionSheetIdentifier"].firstMatch.tap()
+        spinRunloop(0.5)
+        XCTAssertFalse(picker.exists, "Picker should close")
+
+        if rowFormDismissButton.exists { rowFormDismissButton.tap(); spinRunloop(0.5) }
+        let backButton = app.buttons["BackButton"].firstMatch
+        if backButton.exists && backButton.isHittable { backButton.tap(); spinRunloop(0.5) }
+
+        let navButton = app.buttons["PageNavigationIdentifier"].firstMatch
+        XCTAssertTrue(navButton.waitForExistence(timeout: 5), "Should be back on the form")
+        navButton.tap()
+        XCTAssertTrue(picker.waitForExistence(timeout: 3),
+                      "Picker should still open after being used from a row form — a stuck showPageSelectionSheet would block it")
+    }
+
+    private func openCollectionRowForm() {
+        app.buttons["CollectionDetailViewIdentifier"].firstMatch.tap()
+        spinRunloop(0.5)
+        app.images["selectRowItem1"].firstMatch.tap()
+        spinRunloop(0.3)
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        if moreButton.exists { moreButton.tap(); spinRunloop(0.3) }
+        app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+    }
+
     @discardableResult
     private func fillTextCell() -> Bool {
         let textField = app.textFields["EditRowsTextFieldIdentifier"].firstMatch

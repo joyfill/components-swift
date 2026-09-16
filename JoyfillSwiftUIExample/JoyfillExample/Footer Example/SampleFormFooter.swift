@@ -13,12 +13,15 @@ import UIKit
 @MainActor
 final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
-    weak var documentEditor: DocumentEditor?
+    weak var documentEditor: DocumentEditor? {
+        didSet { isPageNavigationVisible = documentEditor?.showPageNavigationView ?? true }
+    }
 
     @Published private(set) var isFooterVisible = true
     @Published private(set) var showValidationBar = false
     @Published private(set) var completedText = ""
     @Published private(set) var navigationEnabled = false
+    @Published private(set) var isPageNavigationVisible = true
 
     private var footerPageID: String?
     private var fieldPaths: [String] = []
@@ -36,6 +39,16 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
         completedText = "\(completed) of \(total) Completed"
         navigationEnabled = validation.status == .invalid
         showValidationBar = true
+    }
+
+    func togglePageNavigationTapped() {
+        guard let editor = documentEditor else { return }
+        editor.setPageNavigationVisible(!editor.showPageNavigationView)
+        isPageNavigationVisible = editor.showPageNavigationView
+    }
+
+    func showPageSelectionSheetTapped() {
+        documentEditor?.presentPageSelectionSheet(true)
     }
 
     func upTapped() {
@@ -176,15 +189,45 @@ struct SampleFormFooterBar: View {
     }
 
     private var submitContent: some View {
-        Button(action: { controller.submitTapped() }) {
-            Text("Submit")
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: 56)
+        HStack(spacing: 0) {
+            Button(action: { controller.togglePageNavigationTapped() }) {
+                Text(controller.isPageNavigationVisible ? "Hide Pages" : "Show Pages")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 56)
+            }
+            .accessibilityIdentifier("TogglePageNavigationButtonIdentifier")
+            .buttonStyle(.plain)
+
+            Rectangle()
+                .fill(Color.white.opacity(0.4))
+                .frame(width: 1, height: 26)
+
+            Button(action: { controller.showPageSelectionSheetTapped() }) {
+                Text("Pages Sheet")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 56)
+            }
+            .accessibilityIdentifier("ShowPageSelectionSheetButtonIdentifier")
+            .buttonStyle(.plain)
+
+            Rectangle()
+                .fill(Color.white.opacity(0.4))
+                .frame(width: 1, height: 26)
+
+            Button(action: { controller.submitTapped() }) {
+                Text("Submit")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 56)
+            }
+            .accessibilityIdentifier("SubmitValidateButtonIdentifier")
+            .buttonStyle(.plain)
         }
-        .accessibilityIdentifier("SubmitValidateButtonIdentifier")
-        .buttonStyle(.plain)
     }
 
     private var validationContent: some View {
