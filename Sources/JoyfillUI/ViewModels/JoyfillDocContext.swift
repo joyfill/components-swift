@@ -2936,7 +2936,7 @@ extension JoyfillDocContext {
             if number.rounded() == number, let whole = Int(exactly: number.rounded()) {
                 return String(whole)
             }
-            return String(number)
+            return number.trimmedDisplayText
         case .date(let date):
             return ValueUnion.double(date.timeIntervalSince1970 * 1000).dateTime(format: .empty) ?? ""
         case .array(let elements):
@@ -3167,6 +3167,14 @@ extension JoyfillDocContext {
             }
         }
         return dependents
+    }
+}
+
+private extension Double {
+    /// `%.15g` drops the binary-float tail — a double carries about 15 usable significant
+    /// digits — so `1.1 * 3` reads as `3.3` rather than `3.3000000000000003`.
+    var trimmedDisplayText: String {
+        isFinite ? String(format: "%.15g", self) : String(self)
     }
 }
 

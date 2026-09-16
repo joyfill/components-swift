@@ -439,6 +439,18 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertNil(result(vm, "row_2", notesID))
     }
 
+    func testFractionalResultsDropTheBinaryFloatTail() {
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=1.1*3"), "row_1", totalID), "3.3")
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=0.1+0.2"), "row_1", totalID), "0.3")
+    }
+
+    func testFractionalResultsKeepDigitsThatAreReal() {
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=A*B"),
+                              "row_1", totalID), "6", "whole numbers are unchanged")
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=5/2"), "row_1", totalID), "2.5")
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=1234.5678*1"), "row_1", totalID), "1234.5678")
+    }
+
     func testEditingOneRowLeavesOtherRowsAlone() {
         let vm = standardViewModel()
         applyChange(vm, rowID: "row_1", cells: [qtyID: 10])
