@@ -123,21 +123,17 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", totalID), "6", "Identifier resolves before the letter")
     }
 
-    func testColumnCanBeReferencedByItsColumnID() {
-        let vm = standardViewModel(totalFormula: "=col_qty * col_price")
-        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Column id is the highest-priority match")
-    }
 
-    func testDigitLeadingColumnIDResolves() {
-        // Real Joyfill column ids are ObjectIds and start with a digit, which the shared
-        // lexer cannot begin an identifier with.
+    /// References resolve by identifier, title, then letter. A column id is not a tier:
+    /// real ids are ObjectIds, which the shared lexer cannot begin an identifier with, and
+    /// teaching it to would be a change to JoyfillFormulas rather than a rewrite here.
+    func testAColumnIDIsNotAReference() {
         let qty = "6aa0ea5666f683e02ea449b5"
-        let price = "6aa0ea588f17267ec201838f"
         let columns = [column(id: qty, type: .number, title: "Qty"),
-                       column(id: price, type: .number, title: "Price"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=\(qty) + \(price)")]
-        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qty: 2, price: 3])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "5")
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=\(qty)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qty: 2, priceID: 3])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "Error")
     }
 
     func testColumnCanBeReferencedByItsTitle() {
@@ -152,15 +148,15 @@ final class TableCellFormulaTests: XCTestCase {
 
     // MARK: - Resolution priority: id, then name, then letter
 
-    func testColumnIDBeatsAnotherColumnsName() {
-        // The first column's id is the second column's title, so `=qty` is ambiguous
-        // unless id is tried first.
+    func testATitleIsNotShadowedByAnotherColumnsID() {
+        // The first column's id is the second column's title. Ids are not references, so
+        // `=qty` is the column *titled* qty and nothing is ambiguous.
         let columns = [column(id: "qty", type: .number, title: "Price"),
                        column(id: "price", type: .number, title: "qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=qty")]
         let vm = viewModel(document(columns: columns,
                                     rows: [row("row_1", ["qty": 7, "price": 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "7", "The column whose id is `qty`, not the one titled it")
+        XCTAssertEqual(result(vm, "row_1", totalID), "99", "The column titled `qty`")
     }
 
     func testColumnNameBeatsAPositionalLetter() {
@@ -212,9 +208,10 @@ final class TableCellFormulaTests: XCTestCase {
 
     // MARK: - A cell formula resolves references the same way
 
-    func testCellFormulaCanUseColumnIDsAndTitles() {
-        let vm = standardViewModel(rows: [row("row_1", [qtyID: 2, priceID: 3, notesID: "=col_qty + Price"])])
-        XCTAssertEqual(result(vm, "row_1", notesID), "5", "One reference by id, one by title, in a cell formula")
+    func testCellFormulaCanUseIdentifiersAndTitles() {
+        let vm = standardViewModel(rows: [row("row_1", [qtyID: 2, priceID: 3,
+                                                        notesID: "=field_column_col_qty + Price"])])
+        XCTAssertEqual(result(vm, "row_1", notesID), "5", "One by identifier, one by title, in a cell formula")
     }
 
     func testBlankCellsReadAsZeroRatherThanFailing() {

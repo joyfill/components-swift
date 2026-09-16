@@ -2650,33 +2650,24 @@ extension JoyDocField {
 /// Maps the identifiers written inside a column formula onto canonical column IDs.
 ///
 /// Resolution priority, highest first:
-/// 1. column `id`
-/// 2. column `identifier`, then column `title`
-/// 3. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
+/// 1. column `identifier`, then column `title`
+/// 2. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
 ///
 /// Matching is case-insensitive throughout, so `=A+B` and `=a+b` are the same formula.
 /// Within a single tier the left-most column wins, so a duplicated title never
 /// silently re-points an existing formula when a column is appended.
 struct ColumnReferenceResolver {
-    private let idMap: [String: String]
     private let nameMap: [String: String]
     private let letterMap: [String: String]
-
-    /// `true` when any column id begins with a digit, so the escape pass has work to do.
-    private let hasDigitLeadingIDs: Bool
 
     /// - Parameter columns: the table's columns, in display order. Position determines
     ///   the spreadsheet letter, so the order matters.
     init(columns: [FieldTableColumn]) {
-        var ids: [String: String] = [:]
         var names: [String: String] = [:]
         var letters: [String: String] = [:]
-        var digitLeading = false
 
         for (index, column) in columns.enumerated() {
             guard let id = column.id else { continue }
-            if id.first?.isNumber == true { digitLeading = true }
-            Self.insertIfAbsent(&ids, key: id, value: id)
             Self.insertIfAbsent(&names, key: column.identifier, value: id)
             Self.insertIfAbsent(&letters, key: Self.columnLetter(forIndex: index), value: id)
         }
@@ -2687,10 +2678,8 @@ struct ColumnReferenceResolver {
             Self.insertIfAbsent(&names, key: column.title, value: id)
         }
 
-        self.idMap = ids
         self.nameMap = names
         self.letterMap = letters
-        self.hasDigitLeadingIDs = digitLeading
     }
 
     /// Resolves a formula token to a canonical column ID, or `nil` when the token
@@ -2698,7 +2687,7 @@ struct ColumnReferenceResolver {
     func columnID(for token: String) -> String? {
         let key = Self.normalize(token)
         guard !key.isEmpty else { return nil }
-        return idMap[key] ?? nameMap[key] ?? letterMap[key]
+        return nameMap[key] ?? letterMap[key]
     }
 
     // MARK: - Spreadsheet letters
@@ -2714,84 +2703,6 @@ struct ColumnReferenceResolver {
             remaining = remaining / 26 - 1
         } while remaining >= 0
         return letters
-    }
-
-    // MARK: - Digit-leading column ids
-
-    /// Rewrites column ids the lexer cannot tokenise into safe placeholders.
-    ///
-    /// Joyfill column ids are Mongo ObjectIds, so they begin with a digit. The shared
-    /// lexer only starts an identifier on a letter or `_`, which would split
-    /// `6aa0ea5666f683e02ea449b5` into the number `6` followed by a stray identifier and
-    /// fail to parse. Without this, "ColumnId" — the first tier of the resolution
-    /// priority — would not work for any real document.
-    ///
-    /// Two things are deliberately left alone:
-    ///
-    /// * anything inside a string literal, so `="6aa0…"` stays text;
-    /// * any run that reads as a number, so a bare `2024` remains the literal 2024 even
-    ///   when a column happens to be titled "2024".
-    ///
-    /// The placeholder is simply `_` followed by the column id. An underscore is a valid
-    /// identifier start, so the escaped token lexes cleanly and still says which column it
-    /// means — no lookup table has to be carried alongside the parsed formula.
-    func escapingDigitLeadingIDs(in body: String) -> String {
-        guard hasDigitLeadingIDs else { return body }
-
-        var output = ""
-        var index = body.startIndex
-
-        while index < body.endIndex {
-            let character = body[index]
-
-            // Copy string literals through untouched. The lexer has no escape handling,
-            // so a literal simply runs to the next matching quote.
-            if character == "\"" || character == "'" {
-                let quote = character
-                output.append(character)
-                index = body.index(after: index)
-                while index < body.endIndex, body[index] != quote {
-                    output.append(body[index])
-                    index = body.index(after: index)
-                }
-                if index < body.endIndex {
-                    output.append(quote)
-                    index = body.index(after: index)
-                }
-                continue
-            }
-
-            guard character.isNumber else {
-                output.append(character)
-                index = body.index(after: index)
-                continue
-            }
-
-            // Take the whole word so a column id is matched in full, never as a prefix.
-            var end = index
-            while end < body.endIndex, body[end].isLetter || body[end].isNumber || body[end] == "_" {
-                end = body.index(after: end)
-            }
-            let run = String(body[index..<end])
-
-            if Double(run) == nil, let columnID = columnID(for: run) {
-                output.append(Self.escapePrefix + columnID)
-            } else {
-                output.append(run)
-            }
-            index = end
-        }
-        return output
-    }
-
-    /// Marks a column id that had to be escaped past the lexer.
-    static let escapePrefix = "_"
-
-    /// Resolves a token, including one the escape pass rewrote.
-    func columnID(forEscapedToken token: String) -> String? {
-        if let columnID = columnID(for: token) { return columnID }
-        guard token.hasPrefix(Self.escapePrefix) else { return nil }
-        return columnID(for: String(token.dropFirst()))
     }
 
     // MARK: - Private
@@ -3010,8 +2921,7 @@ extension JoyfillDocContext {
         // Keyed by the setup, not the field: escaping a digit-leading column id depends
         // on this schema's columns, so two schemas can compile the same text differently.
         if let ast = cellASTs[setup.cacheKey]?[body] { return ast }
-        let prepared = setup.resolver.escapingDigitLeadingIDs(in: body)
-        guard case .success(let ast) = parser.parse(formula: prepared) else { return nil }
+        guard case .success(let ast) = parser.parse(formula: body) else { return nil }
         cellASTs[setup.cacheKey, default: [:]][body] = ast
         return ast
     }
@@ -3185,7 +3095,7 @@ extension JoyfillDocContext {
             guard let ast = parsedCellFormula(body: body, setup: setup) else { continue }
             var references: [String] = []
             extractReferencesFromNode(ast, references: &references)
-            reads[columnID] = Set(references.compactMap { setup.resolver.columnID(forEscapedToken: $0) })
+            reads[columnID] = Set(references.compactMap { setup.resolver.columnID(for: $0) })
         }
 
         var dependents: [String: Set<String>] = [:]
@@ -3228,7 +3138,7 @@ private struct RowCellContext: EvaluationContext {
             return .success(variable)
         }
         // Resolution happens here rather than at parse time: id -> name -> letter.
-        if let columnID = setup.resolver.columnID(forEscapedToken: name) {
+        if let columnID = setup.resolver.columnID(for: name) {
             return .success(document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID))
         }
         // Not a column of this row — let the document answer (e.g. `=A * taxRate`).
