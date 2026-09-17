@@ -334,9 +334,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
                 let cell1 = row1.cells[colIndex].data
                 let cell2 = row2.cells[colIndex].data
-                let text1 = tableDataModel.searchableText(rowID: row1.rowID, column: cell1)
-                let text2 = tableDataModel.searchableText(rowID: row2.rowID, column: cell2)
-
                 // Only compare if types match
                 guard cell1.type == cell2.type else {
                     return false
@@ -344,6 +341,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 
                 switch cell1.type {
                 case .text:
+                    // Only a text column can hold a formula, so this is the one branch
+                    // that sorts on a computed value rather than what is stored.
+                    let text1 = tableDataModel.searchableText(rowID: row1.rowID, column: cell1)
+                    let text2 = tableDataModel.searchableText(rowID: row2.rowID, column: cell2)
                     switch tableDataModel.sortModel.order {
                     case .ascending:
                         return text1 < text2
@@ -373,9 +374,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .barcode:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return text1 < text2
+                        return cell1.title < cell2.title
                     case .descending:
-                        return text1 > text2
+                        return cell1.title > cell2.title
                     case .none:
                         return true
                     }

@@ -535,7 +535,7 @@ struct TableDataModel {
             case .multiSelect:
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
-                match = searchableText(rowID: row.rowID, column: column).localizedCaseInsensitiveContains(filter.filterText)
+                match = column.title.localizedCaseInsensitiveContains(filter.filterText)
             case .date:
                 if filter.filterText == FilterModel.emptyDateSentinel {
                     match = column.date == nil      // empty filter → only rows with no date

@@ -179,10 +179,12 @@ struct TableModalView : View {
             viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.filteredcellModels.sorted { rowModel1, rowModel2 in
                 let column1 = rowModel1.cells[currentSelectedCol].data
                 let column2 = rowModel2.cells[currentSelectedCol].data
-                let text1 = viewModel.tableDataModel.searchableText(rowID: rowModel1.rowID, column: column1)
-                let text2 = viewModel.tableDataModel.searchableText(rowID: rowModel2.rowID, column: column2)
                 switch column1.type {
                 case .text:
+                    // Only a text column can hold a formula, so this is the one branch
+                    // that sorts on a computed value rather than what is stored.
+                    let text1 = viewModel.tableDataModel.searchableText(rowID: rowModel1.rowID, column: column1)
+                    let text2 = viewModel.tableDataModel.searchableText(rowID: rowModel2.rowID, column: column2)
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
                         return text1 < text2
@@ -212,9 +214,9 @@ struct TableModalView : View {
                 case .barcode:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return text1 < text2
+                        return column1.title < column2.title
                     case .descending:
-                        return text1 > text2
+                        return column1.title > column2.title
                     case .none:
                         return true
                     }
