@@ -210,7 +210,7 @@
           "cells": {
             "6aaa3c25766e371e368282c2": 3,
             "6aaa3c266dd2f692c4aaf941": 9,
-            "6aa91ddd08ef14e356a4b465": "=6aaa3c25766e371e368282c2 + 6aaa3c266dd2f692c4aaf941"
+            "6aa91ddd08ef14e356a4b465": "=a + b"
           }
         },
         {
@@ -219,7 +219,7 @@
           "cells": {
             "6aaa3c25766e371e368282c2": 4,
             "6aaa3c266dd2f692c4aaf941": 2,
-            "6aa91ddd08ef14e356a4b465": "=6aaa3c19cd3c5261876db4d4_column_6aaa3c25766e371e368282c2 * 6aaa3c19cd3c5261876db4d4_column_6aaa3c266dd2f692c4aaf941"
+            "6aa91ddd08ef14e356a4b465": "=a * b"
           }
         },
         {

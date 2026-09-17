@@ -27,9 +27,9 @@ import JoyfillModel
 /// |  5  |  1  |   1   | `MANUAL`             | —     | TMANUAL |
 /// |  6  |  8  |   2   | `=NOSUCH(A)`         | Error | Error   |
 /// |  7  |  6  |   5   | `=Qty * Price`       | 30    | T30     |
-/// |  8  |  3  |   9   | `=<colId> + <colId>` | 12    | T12     |
-/// |  9  |  4  |   2   | `=<ident> * <ident>` | 8     | T8      |
-/// | 10  |  5  |   0   | `=A * taxRate`       | 10    | T10     |
+/// |  8  |  3  |   9   | `=a + b`             | 12    | T12     |
+/// |  9  |  4  |   2   | `=a * b`             | 8     | T8      |
+/// | 10  |  5  |   0   | `=A * taxRate`       | Error | Error   |
 final class FormulaInCell: JoyfillUITestsBaseClass {
 
     override func getJSONFileNameForTest() -> String {
@@ -51,16 +51,11 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         static let total = "6813008e76da519a97819c69"
     }
 
-    /// Identifier carried by the overlay that renders a formula result.
     private static let formulaCellID = "TableFormulaCellIdentifier"
 
     // MARK: - Locating formula results
 
-    /// Every formula result currently in the accessibility tree.
-    ///
-    /// Matched against `descendants(matching: .any)` rather than `staticTexts`: the overlay
-    /// sits on top of a `TextEditor` in the grid and a `TextField` in the row form, and the
-    /// two surfaces do not always expose it as the same element type.
+    /// `descendants`, not `staticTexts`: grid and row form expose the overlay differently.
     private func formulaCells() -> XCUIElementQuery {
         return app.descendants(matching: .any).matching(identifier: Self.formulaCellID)
     }
@@ -75,11 +70,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         return named.exists ? named : app.scrollViews.firstMatch
     }
 
-    /// Waits for a formula result, swiping the grid when it does not turn up.
-    ///
-    /// The grid is a lazy stack, so a column or row that is off-screen is absent from the
-    /// accessibility tree entirely rather than merely un-hittable. How far right the fourth
-    /// column sits depends on the device width, so the swipes are not optional on a phone.
+    /// The grid is a lazy stack, so an off-screen cell is absent from the tree, not just un-hittable.
     @discardableResult
     private func waitForFormulaCell(_ text: String, timeout: TimeInterval = 4) -> Bool {
         if formulaCell(text).waitForExistence(timeout: timeout) { return true }
@@ -184,17 +175,14 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         spinRunloop(0.5)
     }
 
-    /// `clearText()` reads the value once and sends that many backspaces in a single burst, so
-    /// keystrokes are lost while the keyboard is still animating in and the caret only deletes
-    /// what sits to its left. Wait for the keyboard, retype the caret to the trailing edge, and
-    /// delete until the field really is empty.
+    /// Focus fills an empty cell with the column formula a beat after the tap, so settle before deleting.
     private func clearRowFormField(_ field: XCUIElement) {
         field.tap()
         _ = app.keyboards.element.waitForExistence(timeout: 5)
+        spinRunloop(0.4)
         for _ in 0..<5 {
             let value = field.value as? String ?? ""
             if value.isEmpty { break }
-            field.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
             field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: value.count))
             spinRunloop(0.3)
         }
@@ -204,9 +192,12 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
     private func setRowFormText(_ index: Int, to text: String) {
         let field = rowFormTextField(index)
         XCTAssertTrue(field.waitForExistence(timeout: 5), "Row-form text field \(index) not found")
-        field.tap()
-        field.clearText()
-        field.typeText(text)
+        clearRowFormField(field)
+        // Every keystroke writes through to the document; full-speed typing drops trailing characters.
+        field.typeTextCharByChar(text)
+        XCTAssertTrue(waitUntil(3) { field.value as? String == text },
+                      "Row-form text field \(index) holds "
+                      + String(describing: field.value) + " rather than the typed \(text)")
         app.dismissKeyboardIfVisible()
         spinRunloop(0.5)
     }
@@ -244,8 +235,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
     }
 
     func testFormulaResult_rendersOnQuickViewWithoutOpeningTheModal() {
-        // The quick view renders cells read-only, so the result arrives as its own static text
-        // rather than as an overlay on an editor.
+        // The quick view is read-only, so the result is a static text, not an editor overlay.
         let readonly = app.staticTexts.matching(identifier: "TableTextFieldIdentifierReadonly")
         XCTAssertTrue(readonly.element(boundBy: 0).waitForExistence(timeout: 5),
                       "Quick view should render read-only table cells")
@@ -262,15 +252,12 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
 
     func testCellFormula_overridesColumnFormula() {
         openTable()
-        // The column would give 10 * 7 = 70; the cell's `=A + B` gives 17.
         assertFormulaCell("17", "Row 4's cell formula should win over the column's")
         XCTAssertFalse(formulaCell("70").exists, "The column formula must not also be applied")
     }
 
     func testChainedColumnFormula_followsACellFormula() {
         openTable()
-        // Summary is declared against the column, but Total is overridden on this row, so the
-        // chain has to pick up the cell's result rather than the column's.
         assertFormulaCell("T17", "Summary should read the cell formula's 17, not the column's 70")
     }
 
@@ -297,17 +284,19 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
     func testError_propagatesToTheDependentColumn() {
         openTable()
 
+        // Four cells, two causes: rows 6 and 10 each drag the Summary that reads their Total.
         let errors = gridScrollView().descendants(matching: .any)
             .matching(NSPredicate(format: "identifier == %@ AND label == %@",
                                   Self.formulaCellID, "Error"))
 
-        var found = waitUntil(5) { errors.count == 2 }
+        // Total and Summary have to be on screen at once, which needs a swipe when narrow.
+        var found = waitUntil(5) { errors.count == 4 }
         for _ in 0..<4 where !found {
             gridScrollView().swipeLeft()
             spinRunloop(0.3)
-            found = errors.count == 2
+            found = errors.count == 4
         }
-        XCTAssertTrue(found, "Both Total and Summary should read Error, got \(errors.count)")
+        XCTAssertTrue(found, "Each erroring Total should drag its Summary, got \(errors.count)")
     }
 
     // MARK: - Table: reference resolution tiers
@@ -317,22 +306,20 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         assertFormulaCell("30", "`=Qty * Price` should resolve both columns by title")
     }
 
-    func testReference_byColumnId() {
+    func testReference_byLowercaseLetter() {
         openTable()
-        // Column ids are ObjectIds and so begin with a digit; this only resolves because the
-        // parser escapes them first.
-        assertFormulaCell("12", "A formula written against raw column ids should resolve")
+        assertFormulaCell("12", "`=a + b` should resolve, matching is case-insensitive")
     }
 
-    func testReference_byColumnIdentifier() {
+    func testReference_byLowercaseLetterInAProduct() {
         openTable()
-        assertFormulaCell("8", "A formula written against column identifiers should resolve")
+        assertFormulaCell("8", "`=a * b` should resolve both columns by letter")
     }
 
-    func testReference_toADocumentField() {
+    func testReference_toADocumentField_isRefused() {
         openTable()
-        // `taxRate` is not a column, so the row scope hands it to the document.
-        assertFormulaCell("10", "`=A * taxRate` should read the page's Rate field, which is 2")
+        // Refused, not read: no dependency runs field -> table, so the result would go stale.
+        assertFormulaCell("Error", "`=A * taxRate` should be refused, not read from the page")
     }
 
     // MARK: - Table: recalculation
@@ -377,8 +364,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
 
         setRowFormNumber(0, to: "2")
 
-        // The refresh set is built from the column definitions, which cannot see a formula
-        // that belongs to a row, so a cell formula is seeded separately. This is that path.
+        // The refresh set comes from the columns, which cannot see a row's own formula.
         XCTAssertTrue(formulaCell("9").waitForExistence(timeout: 5),
                       "The cell formula should recompute to 2 + 7")
         XCTAssertTrue(formulaCell("T9").waitForExistence(timeout: 5),
@@ -396,17 +382,17 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         let total = rowFormTextField(0)
         XCTAssertTrue(total.waitForExistence(timeout: 5), "Total field not found in the row form")
         clearRowFormField(total)
-        app.dismissKeyboardIfVisible()
 
-        // The row form hides the result overlay while its field holds focus, so the fallback is
-        // read off the grid rather than the form.
-        closeRowForm()
+        // Blur restores the overlay, so the fallback is read from the form, not the grid.
+        app.dismissKeyboardIfVisible()
         spinRunloop(0.6)
 
-        // An empty cell carries no formula, so the column's `=A * B` takes the row back.
-        assertFormulaCell("70", "Total should fall back to the column's 10 * 7")
-        assertFormulaCell("T70", "Summary should follow the fallback to T70")
+        XCTAssertTrue(formulaCell("70").waitForExistence(timeout: 5),
+                      "Total should fall back to the column's 10 * 7")
+        XCTAssertTrue(formulaCell("T70").waitForExistence(timeout: 5),
+                      "Summary should follow the fallback to T70")
         XCTAssertFalse(formulaCell("17").exists, "The cleared cell formula's result should be gone")
+        closeRowForm()
     }
 
     func testRowFormNavigation_showsEachRowsOwnResult() {
@@ -425,7 +411,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
 
     // MARK: - Table: what reaches the document
 
-    func testFocusingAFormulaCell_revealsTheCellIsEmpty() {
+    func testFocusingAColumnDrivenCell_revealsTheColumnFormula() {
         openTable()
         openTableRowForm(1)
 
@@ -435,10 +421,14 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         total.tap()
         spinRunloop(0.4)
 
-        // The result is display-only: a column-driven cell holds nothing at all.
-        XCTAssertEqual(total.value as? String, "",
-                       "A column-driven cell should be empty once its overlay is out of the way")
+        XCTAssertEqual(total.value as? String, "=A * B",
+                       "Focusing a column-driven cell should offer the column's formula")
+
+        // Offering it is not an edit, so nothing is written until the author changes it.
         app.dismissKeyboardIfVisible()
+        spinRunloop(0.5)
+        XCTAssertTrue(formulaCell("6").waitForExistence(timeout: 5),
+                      "Blurring an untouched cell should put the result back")
         closeRowForm()
     }
 
@@ -480,9 +470,11 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
 
         setRowFormText(0, to: "=A + B")
 
-        let cells = lastChangedRowCells()
-        XCTAssertEqual(cells[TableColumn.total] as? String, "=A + B",
-                       "The cell should hold the formula text the author typed")
+        // Every keystroke emits a change, so poll: reading once catches a prefix like `=A + `.
+        let stored = waitUntil(5) { self.lastChangedRowCells()[TableColumn.total] as? String == "=A + B" }
+        XCTAssertTrue(stored,
+                      "The cell should hold the formula text the author typed, got "
+                      + String(describing: lastChangedRowCells()[TableColumn.total]))
         closeRowForm()
     }
 
@@ -536,8 +528,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
 
     func testCollectionRoot_cellFormulaOverridesColumnFormula() {
         openCollection()
-        // The column would give 4 * 4 = 16; the cell's `=Qty + Price` gives 8.
-        assertFormulaCell("8", "Root row 4's cell formula should win")
+        assertFormulaCell("8", "Root row 4's cell formula should win over the column's 4 * 4")
         XCTAssertFalse(formulaCell("16").exists, "The column formula must not also be applied")
     }
 
@@ -557,8 +548,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         openCollectionRootRowForm(1)
         setRowFormNumber(0, to: "7")
 
-        // The collection has its own view model and its own refresh call site, so the
-        // guarantee that a result is display-only has to be proved here too.
+        // The collection has its own view model and refresh call site, so prove it here too.
         let cells = lastChangedRowCells()
         XCTAssertNotNil(cells[CollectionColumn.qty], "The edited Qty should be in the change payload")
         XCTAssertNil(cells[CollectionColumn.total],
@@ -572,8 +562,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         openCollection()
         expandCollectionRootRow(1)
 
-        // Root and child both declare `=A * B`, but the letters are positional and each schema
-        // has its own columns: the child's A is Rate, not the root's Qty.
+        // Letters are positional per schema: the child's A is Rate, not the root's Qty.
         assertFormulaCell("40", "Nested row 1 Cost should be Rate 10 * Hours 4")
         XCTAssertTrue(formulaCell("6").exists,
                       "The root row's own 2 * 3 should be unaffected by the child schema")
@@ -583,8 +572,7 @@ final class FormulaInCell: JoyfillUITestsBaseClass {
         openCollection()
         expandCollectionRootRow(1)
 
-        // The column would give 7 * 3 = 21; the cell's `=A + B` gives 10.
-        assertFormulaCell("10", "Nested row 2's cell formula should win")
+        assertFormulaCell("10", "Nested row 2's cell formula should win over the column's 7 * 3")
         XCTAssertFalse(formulaCell("21").exists, "The column formula must not also be applied")
     }
 
