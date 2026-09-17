@@ -30,9 +30,6 @@ class JoyfillDocContext: EvaluationContext {
     private var formulaCache: [String: FormulaValue] = [:]
     private var dependencyGraph: [String: Set<String>] = [:]  // field -> fields it depends on
     private var evaluationInProgress: Set<String> = []  // For circular dependency detection
-    /// `Parser` is stateful and the caches below are shared, so one thread at a time.
-    private let lock = NSRecursiveLock()
-
     private let parser = Parser()
     private let evaluator = Evaluator()
 
@@ -98,7 +95,6 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter name: Reference string (e.g., "fieldIdentifier", "fruits[0]", "user.name")
     /// - Returns: Result containing the resolved FormulaValue or an error
     public func resolveReference(_ name: String) -> Result<FormulaValue, FormulaError> {
-        lock.lock(); defer { lock.unlock() }
         // First check temporary variables (for lambda parameters)
         if let tempValue = resolveTemporaryVariable(name) {
             return .success(tempValue)
@@ -121,20 +117,17 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter identifier: Field identifier
     /// - Returns: Cached formula value if available
     public func getCachedFormulaValue(for identifier: String) -> FormulaValue? {
-        lock.lock(); defer { lock.unlock() }
         return formulaCache[identifier]
     }
     
     /// Clears formula cache to force re-evaluation
     public func clearFormulaCache() {
-        lock.lock(); defer { lock.unlock() }
         formulaCache.removeAll()
     }
     
     /// Clears cached value for specific field and its dependents
     /// - Parameter identifier: Field identifier whose cache should be cleared
     public func clearCacheForField(_ identifier: String) {
-        lock.lock(); defer { lock.unlock() }
         // Clear the field's own cache
         formulaCache.removeValue(forKey: identifier)
         
@@ -151,7 +144,6 @@ class JoyfillDocContext: EvaluationContext {
     ///   - identifier: Field identifier
     ///   - value: New value for the field
     public func updateFieldValue(identifier: String, value: ValueUnion) {
-        lock.lock(); defer { lock.unlock() }
         // Update the field value through the provider
         docProvider?.updateValue(for: identifier, value: value)
         
@@ -162,7 +154,6 @@ class JoyfillDocContext: EvaluationContext {
     /// Gets all field identifiers that have dependencies
     /// - Returns: Array of field identifiers with formula dependencies
     public func getFieldsWithDependencies() -> [String] {
-        lock.lock(); defer { lock.unlock() }
         return Array(dependencyGraph.keys)
     }
     
@@ -170,7 +161,6 @@ class JoyfillDocContext: EvaluationContext {
     /// - Parameter identifier: Field identifier
     /// - Returns: Set of field identifiers that this field depends on
     public func getDependencies(for identifier: String) -> Set<String> {
-        lock.lock(); defer { lock.unlock() }
         return dependencyGraph[identifier] ?? Set()
     }
 
@@ -1454,7 +1444,6 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of cache entries that were invalidated
     @discardableResult
     public func invalidateCache(forFieldIdentifier identifier: String) -> Int {
-        lock.lock(); defer { lock.unlock() }
         // Track how many cache entries we invalidate
         var invalidatedCount = 0
         
@@ -1481,7 +1470,6 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of cache entries that were invalidated
     @discardableResult
     public func invalidateCache(forFieldIdentifiers identifiers: [String]) -> Int {
-        lock.lock(); defer { lock.unlock() }
         // Use a set to avoid duplicate invalidation
         var fieldsToInvalidate = Set(identifiers)
         
@@ -1546,7 +1534,6 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of fields that were updated
     @discardableResult
     public func updateDependentFormulas(forFieldIdentifier identifier: String) -> Int {
-        lock.lock(); defer { lock.unlock() }
         // First invalidate the cache for the changed field
         invalidateCache(for: identifier)
         
@@ -1618,7 +1605,6 @@ class JoyfillDocContext: EvaluationContext {
     /// - Returns: The number of fields that were updated
     @discardableResult
     public func updateDependentFormulas(forFieldIdentifiers identifiers: [String]) -> Int {
-        lock.lock(); defer { lock.unlock() }
         // Collect all dependent fields for all identifiers
         var allDependentFields = Set<String>()
         
@@ -1742,7 +1728,6 @@ class JoyfillDocContext: EvaluationContext {
     
     /// Evaluates all formula fields and updates their values
     public func evaluateAllFormulas() {
-        lock.lock(); defer { lock.unlock() }
         Log("🚀 evaluateAllFormulas started", type: .debug)
         
         // Get all formula fields
@@ -2777,7 +2762,6 @@ extension JoyfillDocContext {
                       setup: TableCellFormulaSetup,
                       row: ValueElement,
                       columnID: String) -> Result<FormulaValue, FormulaError>? {
-        lock.lock(); defer { lock.unlock() }
         guard let rowID = row.id,
               let body = activeFormula(setup: setup, row: row, columnID: columnID) else { return nil }
 
@@ -2938,7 +2922,6 @@ extension JoyfillDocContext {
 
     /// Parses a formula with the shared parser, escaping column ids the lexer cannot read.
     func parsedCellFormula(body: String, setup: TableCellFormulaSetup) -> ASTNode? {
-        lock.lock(); defer { lock.unlock() }
         // Keyed by the setup, not the field: escaping a digit-leading column id depends
         // on this schema's columns, so two schemas can compile the same text differently.
         if let ast = cellASTs[setup.cacheKey]?[body] { return ast }
@@ -2973,12 +2956,10 @@ extension JoyfillDocContext {
     /// Reads what `buildTableFormulaSetups` cached in `init`. Never touches the document,
     /// so it is safe from the background queue a collection builds its cells on.
     func tableSetup(fieldID: String, schemaID: String?) -> TableCellFormulaSetup? {
-        lock.lock(); defer { lock.unlock() }
         return tableSetups[setupKey(fieldID: fieldID, schemaID: schemaID)]
     }
 
     private func cacheTableSetup(fieldID: String, schemaID: String?, columns: [FieldTableColumn]?) {
-        lock.lock(); defer { lock.unlock() }
         let key = setupKey(fieldID: fieldID, schemaID: schemaID)
         guard let columns = columns, !columns.isEmpty else { return }
 
@@ -3025,14 +3006,12 @@ extension JoyfillDocContext {
     /// The evaluated result for one cell, or `nil` when it holds no formula.
     /// The single read for everything that displays, filters or sorts a formula cell.
     func cellFormulaValue(columnID: String, fieldID: String, rowID: String) -> CellFormulaValue? {
-        lock.lock(); defer { lock.unlock() }
         return cellResults[fieldID]?[CellID(rowID: rowID, columnID: columnID)]
     }
 
     /// Evaluates every formula cell of a row. Called as rows are built, so a row has its
     /// values before anything asks for them.
     func storeFormulaValues(fieldID: String, schemaID: String?, row: ValueElement) {
-        lock.lock(); defer { lock.unlock() }
         guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
         store(Array(setup.types.keys), fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }
@@ -3053,7 +3032,6 @@ extension JoyfillDocContext {
     /// row, so a map built from the column definitions cannot see them. It then closes
     /// over `columnDependents`, which is what picks up a column formula reading either.
     func refreshDependentCellFormulas(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
-        lock.lock(); defer { lock.unlock() }
         guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
 
         guard hasFormulaWork(setup: setup, fieldID: fieldID, row: row) else { return }
@@ -3075,7 +3053,6 @@ extension JoyfillDocContext {
 
     /// Drops the results of rows that no longer exist.
     func removeFormulaValues(fieldID: String, rowIDs: [String]) {
-        lock.lock(); defer { lock.unlock() }
         guard let field = cellResults[fieldID] else { return }
         let dropped = Set(rowIDs)
         cellResults[fieldID] = field.filter { !dropped.contains($0.key.rowID) }
