@@ -2059,7 +2059,7 @@ extension CollectionViewModel {
     /// Updates UI models for a given ValueElement row.
     private func updateUIModels(for rowID: String, schemaID: String, using row: ValueElement) {
         let columns = tableDataModel.filterTableColumns(key: schemaID)
-        let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, row, schemaKey: schemaID)
+        let cellDataModels = tableDataModel.buildAllCellsForRow(tableColumns: columns, row)
         for cell in cellDataModels {
             let colIndex = columns.firstIndex(where: { $0.id == cell.id }) ?? 0
             tableDataModel.updateCellModelForNested(

@@ -642,7 +642,7 @@ struct TableDataModel {
         return cells
     }
 
-    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement, schemaKey: String? = nil) -> [CellDataModel] {
+    func buildAllCellsForRow(tableColumns: [FieldTableColumn], _ row: ValueElement) -> [CellDataModel] {
         var cells: [CellDataModel] = []
         for columnData in tableColumns {
             guard let columnID = columnData.id else {
