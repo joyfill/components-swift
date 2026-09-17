@@ -33,12 +33,12 @@ extension TableCellModel {
     var isFilled: Bool {
         // A cell a formula applies to is judged by what it computes, never by the fact
         // that it holds formula text: `=A *` is stored and non-empty but shows Error.
-        // A failing formula counts as filled: the red indicator asks the user to act, and
-        // there is nothing they can do about a broken formula.
+        // `Error` is not a value, so a cell showing one is not filled and a required
+        // column still marks it.
         if let computed = documentEditor?.cellFormulaValue(columnID: data.id,
                                                            fieldID: fieldIdentifier.fieldID,
                                                            rowID: rowID) {
-            return computed.isError || !computed.text.isEmpty
+            return !computed.isError && !computed.text.isEmpty
         }
         return data.isCellFilled
     }

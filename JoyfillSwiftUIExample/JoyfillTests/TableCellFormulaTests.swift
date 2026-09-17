@@ -753,11 +753,17 @@ final class TableCellFormulaTests: XCTestCase {
                        .invalid, "An empty result is no better than an empty cell")
     }
 
-    /// Nobody filling the form can fix a broken formula, so it must not block them —
-    /// the same reasoning that makes a required-but-hidden cell valid.
-    func testAFailingFormulaDoesNotBlockTheFormFiller() {
+    func testARequiredFormulaColumnIsUnsatisfiedWhenTheFormulaFails() {
         XCTAssertEqual(validity(totalFormula: "=A *", rows: [row("row_1", [qtyID: 2, priceID: 3])]),
-                       .valid)
+                       .invalid, "Error is not a value")
+    }
+
+    /// The text of a formula is not a value either: a cell storing `=A *` is non-empty,
+    /// but it shows Error.
+    func testACellHoldingABrokenFormulaDoesNotSatisfyRequired() {
+        XCTAssertEqual(validity(totalFormula: "=A*B",
+                                rows: [row("row_1", [qtyID: 2, priceID: 3, totalID: "=A *"])]),
+                       .invalid)
     }
 
     func testARequiredColumnWithoutAFormulaStillNeedsAValue() {
@@ -806,12 +812,12 @@ final class TableCellFormulaTests: XCTestCase {
                        "The cell is null but it shows 6, so no red border")
     }
 
-    func testAFailingFormulaShowsNoRequiredIndicator() {
+    func testARequiredFormulaCellShowsTheIndicatorWhenTheFormulaFails() {
         let vm = viewModel(document(columns: requiredTotal(standardColumns(totalFormula: "=A *")),
                                     rows: [row("row_1", [qtyID: 2, priceID: 3])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "Error")
-        XCTAssertEqual(showsRequiredIndicator(vm, rowID: "row_1", columnID: totalID), false,
-                       "The indicator asks the user to act; they cannot fix a formula")
+        XCTAssertEqual(showsRequiredIndicator(vm, rowID: "row_1", columnID: totalID), true,
+                       "Error is not a value")
     }
 
     func testARequiredFormulaCellShowsTheIndicatorWhenItComputesNothing() {
@@ -1133,9 +1139,9 @@ final class CollectionCellFormulaTests: XCTestCase {
                        .invalid, "The nested row's formula produces nothing")
     }
 
-    func testAFailingNestedFormulaDoesNotBlockTheFormFiller() throws {
+    func testARequiredFormulaColumnIsUnsatisfiedWhenANestedFormulaFails() throws {
         XCTAssertEqual(try validity(rootFormula: "=A*B", childFormula: "=A *", rows: oneRootWithOneChild),
-                       .valid)
+                       .invalid, "Error is not a value")
     }
 
     // MARK: - Invalid formulas

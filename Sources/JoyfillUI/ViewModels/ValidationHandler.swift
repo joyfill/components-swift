@@ -206,14 +206,12 @@ class ValidationHandler {
         // A cell a formula applies to is judged by what it computes, never by the fact
         // that it holds formula text: `=A *` is stored and non-empty but shows Error.
         //
-        // A failing formula counts as satisfied. Nobody filling the form can fix a broken
-        // formula, so blocking them on one is the same dead end as requiring a hidden
-        // cell — which this handler already treats as valid. An empty result is
-        // different: it usually becomes a value once the cells it reads are filled.
+        // `Error` is not a value, so a required cell showing one is not satisfied. The
+        // form should not submit as complete when a required column produced nothing.
         if let computed = documentEditor.cellFormulaValue(columnID: columnID,
                                                           fieldID: fieldID,
                                                           rowID: rowID) {
-            return computed.isError || !computed.text.isEmpty
+            return !computed.isError && !computed.text.isEmpty
         }
         return stored.map { !$0.isEmpty } ?? false
     }
