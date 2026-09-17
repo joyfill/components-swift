@@ -191,6 +191,33 @@ class ValidationHandler {
 
     // MARK: - Table Validation
 
+    /// Whether a required cell is satisfied.
+    ///
+    /// A column-driven formula cell stores nothing — that is the persistence model — so
+    /// the stored value alone reports it empty while `6` is on screen, and a required
+    /// formula column could never be satisfied. What the cell shows is what counts.
+    ///
+    /// A formula that failed counts as unsatisfied: `Error` is not a value.
+    private func requiredCellIsSatisfied(stored: ValueUnion?,
+                                         columnID: String,
+                                         fieldID: String,
+                                         rowID: String,
+                                         documentEditor: DocumentEditor) -> Bool {
+        // A cell a formula applies to is judged by what it computes, never by the fact
+        // that it holds formula text: `=A *` is stored and non-empty but shows Error.
+        //
+        // A failing formula counts as satisfied. Nobody filling the form can fix a broken
+        // formula, so blocking them on one is the same dead end as requiring a hidden
+        // cell — which this handler already treats as valid. An empty result is
+        // different: it usually becomes a value once the cells it reads are filled.
+        if let computed = documentEditor.cellFormulaValue(columnID: columnID,
+                                                          fieldID: fieldID,
+                                                          rowID: rowID) {
+            return computed.isError || !computed.text.isEmpty
+        }
+        return stored.map { !$0.isEmpty } ?? false
+    }
+
     private func validateTableField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?, isFieldRequired: Bool) -> FieldValidity {
         guard let documentEditor = documentEditor else {
             return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
@@ -235,8 +262,9 @@ class ValidationHandler {
                     continue
                 }
 
-                if let cellValue = cells[columnID], !cellValue.isEmpty {
-                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cellValue))
+                if requiredCellIsSatisfied(stored: cells[columnID], columnID: columnID,
+                                           fieldID: fieldID, rowID: rowID, documentEditor: documentEditor) {
+                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 } else {
                     cellValidities.append(CellValidity(status: .invalid, columnId: columnID, value: cells[columnID]))
                     isTableValid = false
@@ -331,8 +359,9 @@ class ValidationHandler {
                 continue
             }
 
-            if let cellValue = cells[columnID], !cellValue.isEmpty {
-                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cellValue))
+            if requiredCellIsSatisfied(stored: cells[columnID], columnID: columnID,
+                                       fieldID: fieldID, rowID: rowID, documentEditor: documentEditor) {
+                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
             } else {
                 cellValidities.append(CellValidity(status: .invalid, columnId: columnID, value: cells[columnID]))
             }

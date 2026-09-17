@@ -663,6 +663,107 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", notesID), "5", "…and the result is only computed")
     }
 
+    // MARK: - Validation
+
+    /// A required formula column is satisfied by what it computes. The cell itself stays
+    /// null, so validating the stored value alone would make such a column impossible to
+    /// satisfy. No view model here — `validate()` is called on the editor directly.
+    private func validity(totalFormula: String, rows: [ValueElement],
+                          requiredColumn: Bool = true) -> ValidationStatus? {
+        var columns = standardColumns(totalFormula: totalFormula)
+        if requiredColumn, let index = columns.firstIndex(where: { $0.id == totalID }) {
+            var dict = columns[index].dictionary
+            dict["required"] = true
+            columns[index] = FieldTableColumn(dictionary: dict)
+        }
+        let editor = DocumentEditor(document: document(columns: columns, rows: rows), validateSchema: false)
+        return editor.validate().fieldValidities.first(where: { $0.fieldId == tableFieldID })?.status
+    }
+
+    func testARequiredFormulaColumnIsSatisfiedByItsComputedValue() {
+        XCTAssertEqual(validity(totalFormula: "=A*B", rows: [row("row_1", [qtyID: 2, priceID: 3])]),
+                       .valid, "The cell is null but it shows 6")
+    }
+
+    func testARequiredFormulaColumnIsUnsatisfiedWhenItComputesNothing() {
+        XCTAssertEqual(validity(totalFormula: "=\"\"", rows: [row("row_1", [qtyID: 2, priceID: 3])]),
+                       .invalid, "An empty result is no better than an empty cell")
+    }
+
+    /// Nobody filling the form can fix a broken formula, so it must not block them —
+    /// the same reasoning that makes a required-but-hidden cell valid.
+    func testAFailingFormulaDoesNotBlockTheFormFiller() {
+        XCTAssertEqual(validity(totalFormula: "=A *", rows: [row("row_1", [qtyID: 2, priceID: 3])]),
+                       .valid)
+    }
+
+    func testARequiredColumnWithoutAFormulaStillNeedsAValue() {
+        var columns = standardColumns()
+        let index = columns.firstIndex(where: { $0.id == totalID })!
+        var dict = columns[index].dictionary
+        dict["value"] = nil
+        dict["required"] = true
+        columns[index] = FieldTableColumn(dictionary: dict)
+        let editor = DocumentEditor(document: document(columns: columns,
+                                                       rows: [row("row_1", [qtyID: 2, priceID: 3])]),
+                                    validateSchema: false)
+        XCTAssertEqual(editor.validate().fieldValidities.first(where: { $0.fieldId == tableFieldID })?.status,
+                       .invalid, "No formula and no stored value")
+    }
+
+    func testARequiredFormulaColumnIsSatisfiedByACellFormulaToo() {
+        XCTAssertEqual(validity(totalFormula: "=A *",
+                                rows: [row("row_1", [qtyID: 2, priceID: 3, totalID: "=A+B"])]),
+                       .valid, "The cell's own formula computes even though the column's is broken")
+    }
+
+    // MARK: - The required indicator
+
+    /// What `TableModalView` puts the red border on: required, and not filled.
+    private func showsRequiredIndicator(_ vm: TableViewModel, rowID: String, columnID: String) -> Bool? {
+        guard let cell = vm.tableDataModel.cellModels.first(where: { $0.rowID == rowID })?
+            .cells.first(where: { $0.data.id == columnID }) else { return nil }
+        return vm.isCellRequired(columnID: columnID, rowID: rowID) && !cell.isFilled
+    }
+
+    private func requiredTotal(_ columns: [FieldTableColumn]) -> [FieldTableColumn] {
+        columns.map { column in
+            guard column.id == totalID else { return column }
+            var dict = column.dictionary
+            dict["required"] = true
+            return FieldTableColumn(dictionary: dict)
+        }
+    }
+
+    func testARequiredFormulaCellShowsNoIndicatorWhenItComputesAValue() {
+        let vm = viewModel(document(columns: requiredTotal(standardColumns()),
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "6")
+        XCTAssertEqual(showsRequiredIndicator(vm, rowID: "row_1", columnID: totalID), false,
+                       "The cell is null but it shows 6, so no red border")
+    }
+
+    func testAFailingFormulaShowsNoRequiredIndicator() {
+        let vm = viewModel(document(columns: requiredTotal(standardColumns(totalFormula: "=A *")),
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "Error")
+        XCTAssertEqual(showsRequiredIndicator(vm, rowID: "row_1", columnID: totalID), false,
+                       "The indicator asks the user to act; they cannot fix a formula")
+    }
+
+    func testARequiredFormulaCellShowsTheIndicatorWhenItComputesNothing() {
+        let vm = viewModel(document(columns: requiredTotal(standardColumns(totalFormula: "=\"\"")),
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3])]))
+        XCTAssertEqual(showsRequiredIndicator(vm, rowID: "row_1", columnID: totalID), true)
+    }
+
+    func testTheRequiredCounterCountsAComputedCellAsFilled() {
+        let vm = viewModel(document(columns: requiredTotal(standardColumns()),
+                                    rows: [row("row_1", [qtyID: 2, priceID: 3])]))
+        XCTAssertEqual(vm.getProgress(rowId: "row_1").0, 1,
+                       "The one required column is satisfied by its computed value")
+    }
+
     // MARK: - Lifetime
 
     func testRemovingARowDropsItsResults() {
@@ -931,6 +1032,47 @@ final class CollectionCellFormulaTests: XCTestCase {
         let rootRows = editor.field(fieldID: collectionFieldID)?.valueToValueElements ?? []
         let child = rootRows.first?.childrens?[childSchema]?.valueToValueElements?.first
         XCTAssertNil(child?.cells?[totalID], "Neither the formula nor the result is written to a nested cell")
+    }
+
+    // MARK: - Validation
+
+    /// Validation reads the document, where a column-driven cell is null, so it has to
+    /// consult what the cell computes — in nested rows as much as root ones.
+    /// Collections are excluded from validation without a licence, so these skip rather
+    /// than fail where one is not available.
+    private func validity(rootFormula: String, childFormula: String,
+                          rows: [[String: Any]]) throws -> ValidationStatus? {
+        let license = ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
+        try XCTSkipUnless(LicenseValidator.isCollectionEnabled(licenseToken: license),
+                          "No licence, so the collection field is excluded from validation")
+        func required(_ columns: [[String: Any]]) -> [[String: Any]] {
+            columns.map { c in
+                guard c["_id"] as? String == totalID else { return c }
+                var copy = c
+                copy["required"] = true
+                return copy
+            }
+        }
+        let document = editor(rootColumns: required(columns(totalFormula: rootFormula)),
+                              childColumns: required(columns(totalFormula: childFormula)),
+                              rows: rows).document
+        let licensed = DocumentEditor(document: document, validateSchema: false, license: license)
+        return licensed.validate().fieldValidities.first(where: { $0.fieldId == collectionFieldID })?.status
+    }
+
+    func testARequiredFormulaColumnIsSatisfiedInRootAndNestedRows() throws {
+        XCTAssertEqual(try validity(rootFormula: "=A*B", childFormula: "=A*B", rows: oneRootWithOneChild),
+                       .valid, "Both rows compute a value even though both cells are null")
+    }
+
+    func testARequiredFormulaColumnIsUnsatisfiedWhenANestedRowComputesNothing() throws {
+        XCTAssertEqual(try validity(rootFormula: "=A*B", childFormula: "=\"\"", rows: oneRootWithOneChild),
+                       .invalid, "The nested row's formula produces nothing")
+    }
+
+    func testAFailingNestedFormulaDoesNotBlockTheFormFiller() throws {
+        XCTAssertEqual(try validity(rootFormula: "=A*B", childFormula: "=A *", rows: oneRootWithOneChild),
+                       .valid)
     }
 
     // MARK: - Invalid formulas
