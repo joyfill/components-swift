@@ -2736,9 +2736,8 @@ struct CellFormulaValue {
 ///
 /// Built on the same machinery as field formulas rather than beside it: the same parser,
 /// the same evaluator, the same 46 functions, and the same recursive resolution with an
-/// in-progress set for cycles that `resolveSimpleFieldReference` uses. Anything that is
-/// not a column of the row falls through to this context, so a cell formula can read a
-/// document field (`=A * taxRate`).
+/// in-progress set for cycles that `resolveSimpleFieldReference` uses. A cell formula
+/// reads its own row only: anything that is not one of its columns is an error.
 ///
 /// Nothing is cached and nothing is written back: a cell's stored value is the formula the
 /// author typed, and the result is computed on demand and only displayed.
@@ -3103,9 +3102,9 @@ private extension Double {
 
 /// Row scope for a cell formula.
 ///
-/// Layered over `JoyfillDocContext` exactly as `TemporaryVariableContext` is: it answers
-/// for the row's own columns and hands everything else to the document, so `=A * taxRate`
-/// reads column A from this row and `taxRate` from the document.
+/// Layered over `JoyfillDocContext` exactly as `TemporaryVariableContext` is, but it
+/// answers for the row's own columns and refuses everything else — a formula reads its
+/// row, never the wider document.
 private struct RowCellContext: EvaluationContext {
     let document: JoyfillDocContext
     let setup: TableCellFormulaSetup
@@ -3122,8 +3121,12 @@ private struct RowCellContext: EvaluationContext {
         if let columnID = setup.resolver.columnID(for: name) {
             return .success(document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID))
         }
-        // Not a column of this row — let the document answer (e.g. `=A * taxRate`).
-        return document.resolveReference(name)
+        // A cell formula reads its own row and nothing else. Falling through to the
+        // document would make `=A * taxRate` evaluate once and then never again: results
+        // are cached per row and nothing registers a dependency from a field back to a
+        // table, so the cell would keep showing — and filtering and sorting on — a value
+        // computed from a field that has since changed.
+        return .failure(.invalidReference("'\(name)' is not a column of this row"))
     }
 
     func contextByAdding(variable name: String, value: FormulaValue) -> EvaluationContext {

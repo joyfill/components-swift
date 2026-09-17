@@ -42,7 +42,8 @@ final class TableCellFormulaTests: XCTestCase {
         ValueElement(dictionary: ["_id": id, "cells": cells])
     }
 
-    private func document(columns: [FieldTableColumn], rows: [ValueElement]) -> JoyDoc {
+    private func document(columns: [FieldTableColumn], rows: [ValueElement],
+                          extraFields: [JoyDocField] = []) -> JoyDoc {
         var field = JoyDocField()
         field.type = "table"
         field.id = tableFieldID
@@ -61,7 +62,13 @@ final class TableCellFormulaTests: XCTestCase {
             .setPageFieldInMobileView()
             .setPageField()
         document.fields.append(field)
-        return document.setFieldPositionToPage(pageId: pageID, idAndTypes: [tableFieldID: .table])
+        document.fields.append(contentsOf: extraFields)
+        // One call with every field: it replaces the page's positions rather than adding.
+        var idAndTypes: [String: FieldTypes] = [tableFieldID: .table]
+        for extra in extraFields {
+            if let id = extra.id { idAndTypes[id] = extra.fieldType }
+        }
+        return document.setFieldPositionToPage(pageId: pageID, idAndTypes: idAndTypes)
     }
 
     /// The standard fixture: Total = A*B on the column, Double = C*2 so it reads another
@@ -281,8 +288,27 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(standardViewModel(totalFormula: "=NOTAFUNCTION(1)"), "row_1", totalID), "Error")
     }
 
-    func testReferenceToSomethingThatIsNeitherColumnNorFieldIsAnError() {
+    func testReferenceToSomethingThatIsNotAColumnIsAnError() {
         XCTAssertEqual(result(standardViewModel(totalFormula: "=ZZZ"), "row_1", totalID), "Error")
+    }
+
+    /// A formula reads its own row only. Reaching a field outside the table used to work
+    /// and then go stale, because nothing registers a dependency from a field back to a
+    /// table — so it is refused instead.
+    func testAReferenceToADocumentFieldIsAnError() {
+        var field = JoyDocField()
+        field.type = "number"
+        field.id = "num_field_001"
+        field.identifier = "taxRate"
+        field.file = fileID
+        field.value = .double(3)
+
+        let document = self.document(columns: standardColumns(totalFormula: "=A * taxRate"),
+                                     rows: [row("row_1", [qtyID: 2, priceID: 3])],
+                                     extraFields: [field])
+
+        XCTAssertEqual(result(viewModel(document), "row_1", totalID), "Error",
+                       "`taxRate` is a document field, not a column of this row")
     }
 
     func testDivisionByZeroIsAnError() {
