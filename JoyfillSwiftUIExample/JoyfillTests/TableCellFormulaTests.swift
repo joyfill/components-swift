@@ -153,6 +153,69 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", totalID), "6")
     }
 
+    // MARK: - Names a formula can actually write
+
+    /// The lexer makes an identifier from letters, digits and `_`, so a multi-word title
+    /// is two tokens and can never be referenced. The column is still reachable by its
+    /// identifier or its letter.
+    func testAMultiWordTitleCannotBeReferenced() {
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+                       column(id: priceID, type: .number, title: "Qty"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=Unit Price * B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "Error")
+    }
+
+    func testAColumnWithAMultiWordTitleIsStillReachableByIdentifier() {
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+                       column(id: priceID, type: .number, title: "Qty"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=unitPrice * B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "12")
+    }
+
+    func testAColumnWithAMultiWordTitleIsStillReachableByLetter() {
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+                       column(id: priceID, type: .number, title: "Qty"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=A * B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "12")
+    }
+
+    func testTitlesWithPunctuationCannotBeReferenced() {
+        for title in ["Qty (kg)", "Price%", "Notes!", "Unit/Price"] {
+            let columns = [column(id: qtyID, type: .number, title: title, identifier: "i_qty"),
+                           column(id: totalID, type: .text, title: "Total", formula: "=\(title)")]
+            let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4])]))
+            XCTAssertEqual(result(vm, "row_1", totalID), "Error", "`\(title)` is not one token")
+        }
+    }
+
+    /// A title made of operators is read as the expression it looks like, not as a name.
+    /// `Total-Cost` subtracts, `50/50` divides — neither reaches the resolver.
+    func testATitleThatLooksLikeAnExpressionIsEvaluatedAsOne() {
+        let numeric = [column(id: qtyID, type: .number, title: "50/50", identifier: "i_qty"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=50/50")]
+        XCTAssertEqual(result(viewModel(document(columns: numeric, rows: [row("row_1", [qtyID: 4])])),
+                              "row_1", totalID), "1", "Arithmetic on two numbers, not the column titled 50/50")
+
+        let hyphen = [column(id: qtyID, type: .number, title: "Total-Cost", identifier: "i_qty"),
+                      column(id: priceID, type: .number, title: "Cost"),
+                      column(id: totalID, type: .text, title: "Total", formula: "=Total-Cost")]
+        XCTAssertEqual(result(viewModel(document(columns: hyphen,
+                                                 rows: [row("row_1", [qtyID: 4, priceID: 3])])),
+                              "row_1", totalID), "Error",
+                       "Reads as Total minus Cost; Total is a text column, so it fails rather than guessing")
+    }
+
+    /// A multi-word identifier is no more writable than a multi-word title.
+    func testAMultiWordIdentifierCannotBeReferencedEither() {
+        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "unit price"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=unit price")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "Error")
+    }
+
     // MARK: - Resolution priority: id, then name, then letter
 
     func testATitleIsNotShadowedByAnotherColumnsID() {
