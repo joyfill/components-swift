@@ -466,25 +466,35 @@ final class TableCellFormulaTests: XCTestCase {
                      "Notes declares no formula")
     }
 
-    func testANumberTypedIntoATextCellIsANumber() {
-        let vm = standardViewModel(totalFormula: "=E * 2",
-                                   rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])])
-        XCTAssertEqual(result(vm, "row_1", totalID), "46", "`=A * 2` on a text cell holding 23")
+    /// Text stays text, so arithmetic on it asks for TONUMBER. Coercing at read time
+    /// would change the value for every consumer, not only the operators.
+    func testArithmeticOnATextCellNeedsTONUMBER() {
+        let rows = [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])]
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=E * 2", rows: rows), "row_1", totalID),
+                       "Error", "`=E * 2` on a text cell is a type error")
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=TONUMBER(E) * 2", rows: rows), "row_1", totalID),
+                       "46", "…and TONUMBER is how you ask for it")
     }
 
-    func testTextThatIsNotANumberStaysText() {
-        let cases = ["abc": "Error", "0x10": "Error", "inf": "Error", "nan": "Error", "": "Error"]
-        for (stored, expected) in cases {
-            let vm = standardViewModel(totalFormula: "=E * 2",
-                                       rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: stored])])
-            XCTAssertEqual(result(vm, "row_1", totalID), expected, "`\(stored)` is not a number")
-        }
-    }
-
-    func testNumericTextKeepsWorkingAsText() {
+    func testTextThatLooksNumericIsStillTextToStringFunctions() {
         let vm = standardViewModel(totalFormula: "=CONCAT(\"n\", E)",
                                    rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])])
-        XCTAssertEqual(result(vm, "row_1", totalID), "n23", "Still concatenates as text")
+        XCTAssertEqual(result(vm, "row_1", totalID), "n23")
+    }
+
+    /// The regression that read-time coercion caused: `00123` reached CONCAT as `123`.
+    func testLeadingZerosSurviveStringFunctions() {
+        let vm = standardViewModel(totalFormula: "=CONCAT(E, \"-\")",
+                                   rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: "00123"])])
+        XCTAssertEqual(result(vm, "row_1", totalID), "00123-", "A part number is not a quantity")
+    }
+
+    func testIdentifiersThatBeginWithDigitsAreNotReshaped() {
+        for stored in ["00123", "0800", "+1 555 0100", "1.50.2", "007"] {
+            let vm = standardViewModel(totalFormula: "=CONCAT(E, \"|\")",
+                                       rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: stored])])
+            XCTAssertEqual(result(vm, "row_1", totalID), "\(stored)|", "\(stored) must reach CONCAT unchanged")
+        }
     }
 
     func testEditingOneRowLeavesOtherRowsAlone() {

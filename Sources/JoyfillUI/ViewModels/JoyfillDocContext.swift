@@ -2838,29 +2838,12 @@ extension JoyfillDocContext {
             return .array(ids.map { .string(labels[$0] ?? $0) })
 
         default:
-            guard let text = value.text else { return .null }
-            // A text cell holding a number is a number to a formula: `=A * 2` on "23" is
-            // 46, not a type error. The operators take numbers only and live in
-            // JoyfillFormulas, so the coercion has to happen as the value is read.
-            return JoyfillDocContext.numericText(text).map(FormulaValue.number) ?? .string(text)
+            // Text stays text. Reading it as a number would change the value for every
+            // consumer, not just arithmetic — `00123` would reach CONCAT as `123`, and the
+            // same goes for postcodes, part numbers and anything else that is digits but
+            // not a quantity. Arithmetic on a text cell asks for TONUMBER.
+            return value.text.map(FormulaValue.string) ?? .null
         }
-    }
-
-    /// The value of a string that is written as a plain decimal number, or `nil`.
-    ///
-    /// Deliberately stricter than `Double.init`, which also accepts hex (`0x10`), `inf`
-    /// and `nan` — a cell holding any of those is text a person typed, not a number.
-    static func numericText(_ text: String) -> Double? {
-        // Most text cells hold words, so reject those on the first character rather than
-        // allocating a trimmed copy for every read.
-        guard let first = text.first,
-              first.isNumber || first == "-" || first == "+" || first == "." || first == " "
-        else { return nil }
-        let trimmed = first == " " || text.hasSuffix(" ") ? text.trimmingCharacters(in: .whitespaces) : text
-        guard !trimmed.isEmpty,
-              trimmed.allSatisfy({ $0.isNumber || "+-.eE".contains($0) }),
-              let number = Double(trimmed), number.isFinite else { return nil }
-        return number
     }
 
     /// Renders a computed value as the text the grid should show.
