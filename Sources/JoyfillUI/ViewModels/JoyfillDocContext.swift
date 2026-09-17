@@ -84,6 +84,16 @@ class JoyfillDocContext: EvaluationContext {
         }
     }
 
+    /// Rebuilds one field's results. The cache is otherwise kept a row at a time, so a
+    /// whole-value replacement would leave old rows stale and new ones empty.
+    func rebuildFormulaValues(fieldID: String) {
+        guard let field = docProvider?.field(fieldID: fieldID),
+              field.fieldType == .table || field.fieldType == .collection else { return }
+        cellResults[fieldID] = nil
+        let rootSchemaID = field.schema?.first(where: { $0.value.root == true })?.key
+        evaluateRows(field.valueToValueElements ?? [], fieldID: fieldID, schemaID: rootSchemaID)
+    }
+
     /// A collection nests rows under a schema key per level, so this recurses.
     private func evaluateRows(_ rows: [ValueElement], fieldID: String, schemaID: String?) {
         for row in rows where !(row.deleted ?? false) {
@@ -2931,6 +2941,9 @@ extension JoyfillDocContext {
     ///    row, and the cell stays `null`. Neither the formula nor its result is written
     ///    to the cell, so a column-driven table persists as nulls.
     func activeFormula(setup: TableCellFormulaSetup, row: ValueElement, columnID: String) -> String? {
+        // Only a text column carries a formula; `=1+1` in a barcode cell is text.
+        guard let type = setup.types[columnID],
+              JoyfillDocContext.formulaCapableTypes.contains(type) else { return nil }
         let cell = row.cells?[columnID]
         if let body = JoyfillDocContext.formulaSource(of: cell?.text) {
             return body

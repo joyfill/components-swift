@@ -862,6 +862,62 @@ final class TableCellFormulaTests: XCTestCase {
                        "The one required column is satisfied by its computed value")
     }
 
+    // MARK: - Only a text column evaluates
+
+    /// A barcode column never carries a formula, so text that merely looks like one is
+    /// literal — including when another formula reads it.
+    func testABarcodeCellHoldingFormulaTextIsReadAsText() {
+        let columns = [column(id: qtyID, type: .barcode, title: "Code"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=CONCAT(A, \"x\")")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: "=1+1"])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "=1+1x", "Not 2x")
+    }
+
+    func testABarcodeColumnDefaultThatLooksLikeAFormulaIsAlsoText() {
+        let columns = [column(id: qtyID, type: .barcode, title: "Code", formula: "=1+1"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=CONCAT(A, \"x\")")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [:])]))
+        XCTAssertNil(result(vm, "row_1", qtyID), "A barcode column carries no formula")
+        XCTAssertNotEqual(result(vm, "row_1", totalID), "2x")
+    }
+
+    func testANumberCellIsNeverEvaluated() {
+        let columns = [column(id: qtyID, type: .number, title: "Qty"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=A*2")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 21])]))
+        XCTAssertEqual(result(vm, "row_1", totalID), "42")
+        XCTAssertNil(result(vm, "row_1", qtyID))
+    }
+
+    // MARK: - Replacing a field's whole value
+
+    /// `field.update` and `updateValue(for:value:)` can swap out every row at once. The
+    /// cache is maintained a row at a time, so it has to be rebuilt or the surviving rows
+    /// keep results from their old cells and the new rows have none.
+    func testReplacingTheWholeValueRefreshesSurvivingAndNewRows() {
+        let vm = standardViewModel()
+        XCTAssertEqual(result(vm, "row_1", totalID), "6")
+
+        vm.tableDataModel.documentEditor?.updateValue(for: tableFieldID, value: .valueElementArray([
+            ValueElement(dictionary: ["_id": "row_1", "cells": [qtyID: 50, priceID: 2]]),
+            ValueElement(dictionary: ["_id": "row_9", "cells": [qtyID: 9, priceID: 2]])
+        ]))
+
+        XCTAssertEqual(result(vm, "row_1", totalID), "100", "a surviving row recomputes from its new cells")
+        XCTAssertEqual(result(vm, "row_9", totalID), "18", "a row that did not exist before gets results")
+    }
+
+    func testReplacingTheWholeValueThroughTheChangeAPIRefreshesResults() {
+        let vm = standardViewModel()
+        let change = change(target: "field.update", payload: ["value": [
+            ["_id": "row_1", "cells": [qtyID: 7, priceID: 6]] as [String: Any]
+        ]])
+        vm.tableDataModel.documentEditor?.change(changes: [change])
+        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+
+        XCTAssertEqual(result(vm, "row_1", totalID), "42")
+    }
+
     // MARK: - Lifetime
 
     func testRemovingARowDropsItsResults() {

@@ -1577,6 +1577,11 @@ extension DocumentEditor {
         joyDocContext?.storeFormulaValues(fieldID: fieldID, schemaID: schemaID, row: row)
     }
 
+    /// Rebuilds a field's results after its whole value was replaced.
+    func rebuildFormulaValues(fieldID: String) {
+        joyDocContext?.rebuildFormulaValues(fieldID: fieldID)
+    }
+
     /// Drops the results of rows that no longer exist.
     func removeFormulaValues(fieldID: String, rowIDs: [String]) {
         joyDocContext?.removeFormulaValues(fieldID: fieldID, rowIDs: rowIDs)
