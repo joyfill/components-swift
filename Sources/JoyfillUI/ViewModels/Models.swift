@@ -33,7 +33,7 @@ struct RowDataModel: Equatable, Hashable {
     var rowType: RowType
     var isExpanded: Bool = false
     var filledCellCount: Int {
-        cells.filter { $0.data.isCellFilled }.count
+        cells.filter { $0.isFilled }.count
     }
     var rowWidth: CGFloat
     

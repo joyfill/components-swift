@@ -554,7 +554,7 @@ struct EditMultipleRowsSheetView: View {
                                 }
                             }
                             
-                            let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+                            let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.isFilled
                             
                             switch cellModel.data.type {
                             case .text:

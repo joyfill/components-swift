@@ -673,7 +673,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             }
                         }
                         
-                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.isFilled
                         
                         switch col.type {
                         case .text:

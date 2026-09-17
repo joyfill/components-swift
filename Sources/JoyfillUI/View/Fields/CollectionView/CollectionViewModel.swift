@@ -590,7 +590,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     func isColumnFilled(columnId: String) -> Bool {
         for rowDataModel in tableDataModel.filteredcellModels {
             if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
-                if !cellDataModel.data.isCellFilled {
+                if !cellDataModel.isFilled {
                     return false
                 }
             }
@@ -2418,7 +2418,7 @@ extension CollectionViewModel {
         }
 
         let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.isFilled
         }.count
 
         return (filledCount, requiredColumnIds.count)

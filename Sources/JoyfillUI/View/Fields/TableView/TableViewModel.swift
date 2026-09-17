@@ -567,7 +567,7 @@ extension TableViewModel {
         }
 
         let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.isFilled
         }.count
 
         return (filledCount, requiredColumnIds.count)
