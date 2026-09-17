@@ -66,6 +66,10 @@ extension DocumentEditor: JoyDocProvider {
             if let v = chartData.yMax   { field.yMax   = v }
         }
         fieldMap[fieldID] = field
+        // A whole-value replacement invalidates every row's result.
+        if value != nil, field.fieldType == .table || field.fieldType == .collection {
+            joyDocContext?.rebuildFormulaValues(fieldID: fieldID)
+        }
         refreshField(fieldId: fieldID)
         refreshDependent(for: fieldID)
         

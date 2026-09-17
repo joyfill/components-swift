@@ -12,6 +12,13 @@ struct CollectionViewCellBuilder: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Binding var cellModel: TableCellModel
 
+    /// Pulled here rather than inside the cell view: passing it down as a plain value is
+    /// what lets SwiftUI see it change. Read inside the cell, its inputs would be
+    /// unchanged and the body would not re-run.
+    private var formulaValue: CellFormulaValue? {
+        viewModel.formulaValue(columnID: cellModel.data.id, rowID: cellModel.rowID)
+    }
+
     var body: some View {
         if viewModel.shouldShowCell(columnID: cellModel.data.id, rowID: cellModel.rowID) {
             cellContent
@@ -24,7 +31,7 @@ struct CollectionViewCellBuilder: View {
     private var cellContent: some View {
         switch cellModel.data.type {
         case .text:
-            TableTextView(cellModel: $cellModel)
+            TableTextView(cellModel: $cellModel, formulaValue: formulaValue)
                 .disabled(cellModel.editMode == .readonly)
         case .dropdown:
             TableDropDownOptionListView(cellModel: $cellModel)

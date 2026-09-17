@@ -673,12 +673,14 @@ struct CollectionEditMultipleRowsSheetView: View {
                             }
                         }
                         
-                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.data.isCellFilled
+                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.isFilled
                         
                         switch col.type {
                         case .text:
                             fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                            TableTextRowFormView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit)
+                            TableTextRowFormView(cellModel: Binding.constant(cellModel),
+                                                     formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row),
+                                                     isUsedForBulkEdit: isUsedForBulkEdit)
                                 .frame(minHeight: 40)
                                 .cellBorder(isFocused: isFocused)
                                 .accessibilityIdentifier("EditRowsTextFieldIdentifier")
@@ -745,7 +747,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 .accessibilityIdentifier("EditRowsSignatureFieldIdentifier")
                             case .barcode:
                                 fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                                TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
+                                TableBarcodeView(cellModel: Binding.constant(cellModel),
+                                                 isUsedForBulkEdit: isUsedForBulkEdit, viewModel: viewModel)
                                     .frame(height: 40)
                                     .cellBorder(isFocused: isFocused)
                                     .accessibilityIdentifier("EditRowsBarcodeFieldIdentifier")

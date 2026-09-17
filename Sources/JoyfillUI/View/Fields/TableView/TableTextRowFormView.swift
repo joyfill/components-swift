@@ -9,13 +9,16 @@ import JoyfillModel
 
 struct TableTextRowFormView: View {
     @Binding var cellModel: TableCellModel
+    /// Pulled by the row form. Passing it in is what lets SwiftUI see it change.
+    let formulaValue: CellFormulaValue?
     @State var text: String = ""
     private var isUsedForBulkEdit: Bool
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @FocusState private var isTextFieldFocused: Bool
 
-    public init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false, text: String? = nil) {
+    public init(cellModel: Binding<TableCellModel>, formulaValue: CellFormulaValue? = nil, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
+        self.formulaValue = formulaValue
         self.isUsedForBulkEdit = isUsedForBulkEdit
         if let providedText = text {
             _text = State(initialValue: providedText)
@@ -27,7 +30,7 @@ struct TableTextRowFormView: View {
     var body: some View {
         if cellModel.viewMode == .quickView || cellModel.editMode == .readonly {
             HStack(spacing: 0) {
-                Text(cellModel.data.title)
+                Text(showsFormula ? (formulaValue?.text ?? "") : cellModel.data.title)
                     .font(.system(size: 15))
                     .lineLimit(1)
                     .padding(.leading, 4)
@@ -36,6 +39,7 @@ struct TableTextRowFormView: View {
         } else {
             HStack(spacing: 0) {
                 TextField("", text: $text)
+                    .foregroundColor(showsFormula && !isTextFieldFocused ? .clear : .primary)
                     .font(.system(size: 15))
                     .accessibilityIdentifier("EditRowsTextFieldIdentifier")
                     .padding(.horizontal, 10)
@@ -45,17 +49,44 @@ struct TableTextRowFormView: View {
                     .focused($isTextFieldFocused)
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
+                            // The column's formula edits like one typed into the cell.
+                            if text.isEmpty, let formula = cellModel.data.columnFormula {
+                                text = formula
+                            }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
                         } else {
                             cellModel.didFocusBlur?(.blur, cellModel.data)
                         }
                     }
                     .onAppear { autoFocusIfNeeded() }
+                    .overlay(resultOverlay())
             }
         }
     }
-    
+
+    @ViewBuilder
+    private func resultOverlay() -> some View {
+        if showsFormula && !isTextFieldFocused {
+            let value = formulaValue
+            Text(value?.text ?? "")
+                .font(.system(size: 15))
+                .foregroundColor(value?.isError == true ? .red : .primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .padding(.horizontal, 10)
+                .allowsHitTesting(false)
+                .accessibilityIdentifier("TableFormulaCellIdentifier")
+        }
+    }
+
+    /// A formula belongs to one row. Bulk edit spans several, so it keeps the plain editor.
+    private var showsFormula: Bool {
+        formulaValue != nil && !isUsedForBulkEdit
+    }
+
     func updateFieldValue(newText: String) {
+        // Showing the column's formula is not an edit. Until the author changes it the
+        // cell still holds nothing, so nothing is written.
+        guard newText != cellModel.data.columnFormula else { return }
         var cellModelData = cellModel.data
         cellModelData.title = newText
         cellModel.data = cellModelData

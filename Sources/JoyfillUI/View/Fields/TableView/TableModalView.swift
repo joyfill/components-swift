@@ -27,7 +27,7 @@ struct TableRowView : View {
                 .border(Color.tableCellBorderColor)
             }
             ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID) && !cellModel.data.isCellFilled
+                let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID) && !cellModel.isFilled
                 TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
                     .frame(width: Utility.singleColumnWidth, height: 60)
                     .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
@@ -181,11 +181,15 @@ struct TableModalView : View {
                 let column2 = rowModel2.cells[currentSelectedCol].data
                 switch column1.type {
                 case .text:
+                    // Only a text column can hold a formula, so this is the one branch
+                    // that sorts on a computed value rather than what is stored.
+                    let text1 = viewModel.tableDataModel.searchableText(rowID: rowModel1.rowID, column: column1)
+                    let text2 = viewModel.tableDataModel.searchableText(rowID: rowModel2.rowID, column: column2)
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (column1.title ?? "") < (column2.title ?? "")
+                        return text1 < text2
                     case .descending:
-                        return (column1.title ?? "") > (column2.title ?? "")
+                        return text1 > text2
                     case .none:
                         return true
                     }
@@ -210,9 +214,9 @@ struct TableModalView : View {
                 case .barcode:
                     switch viewModel.tableDataModel.sortModel.order {
                     case .ascending:
-                        return (column1.title ?? "") < (column2.title ?? "")
+                        return column1.title < column2.title
                     case .descending:
-                        return (column1.title ?? "") > (column2.title ?? "")
+                        return column1.title > column2.title
                     case .none:
                         return true
                     }
