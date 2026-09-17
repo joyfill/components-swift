@@ -67,7 +67,15 @@ class JoyfillDocContext: EvaluationContext {
         for field in docProvider?.allFields ?? []
         where field.fieldType == .table || field.fieldType == .collection {
             guard let fieldID = field.id else { continue }
-            cacheTableSetup(fieldID: fieldID, schemaID: nil, columns: field.tableColumns)
+            // Table columns are displayed in tableColumnOrder, which can differ from
+            // their storage order. Use that same order for spreadsheet references.
+            let columns = field.tableColumns
+            let orderedColumns = field.tableColumnOrder.map { order in
+                order.compactMap { columnID in
+                    columns?.first(where: { $0.id == columnID })
+                }
+            } ?? columns
+            cacheTableSetup(fieldID: fieldID, schemaID: nil, columns: orderedColumns)
             for (schemaID, schema) in field.schema ?? [:] {
                 cacheTableSetup(fieldID: fieldID, schemaID: schemaID, columns: schema.tableColumns)
             }

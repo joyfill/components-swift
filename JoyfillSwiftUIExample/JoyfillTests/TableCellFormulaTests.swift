@@ -119,6 +119,35 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", totalID), "6", "=a*b is the same formula as =A*B")
     }
 
+    private func reorderedTableViewModel() -> TableViewModel {
+        var doc = document(columns: standardColumns(totalFormula: "=A-B"),
+                           rows: [row("row_1", [qtyID: 2, priceID: 7, notesID: "=A/B"])])
+        let index = doc.fields.firstIndex(where: { $0.id == tableFieldID })!
+        var fields = doc.fields
+        fields[index].tableColumnOrder = [priceID, qtyID, totalID, doubleID, notesID]
+        doc.fields = fields
+        return viewModel(doc)
+    }
+
+    func testLetterReferencesFollowTableColumnOrder() {
+        let vm = reorderedTableViewModel()
+        XCTAssertEqual(vm.tableDataModel.tableColumns.first?.id, priceID)
+        XCTAssertEqual(result(vm, "row_1", totalID), "5", "A is Price and B is Qty")
+        XCTAssertEqual(result(vm, "row_1", doubleID), "10", "Chained formulas use the same order")
+        XCTAssertEqual(result(vm, "row_1", notesID), "3.5", "Cell formulas use the same order")
+    }
+
+    func testReorderedLetterReferencesRefreshAfterEditingTheirSource() {
+        let vm = reorderedTableViewModel()
+        vm.tableDataModel.documentEditor?.change(changes: [
+            externalRowUpdate(rowID: "row_1", cells: [priceID: 10])
+        ])
+        settle()
+        XCTAssertEqual(result(vm, "row_1", totalID), "8")
+        XCTAssertEqual(result(vm, "row_1", doubleID), "16")
+        XCTAssertEqual(result(vm, "row_1", notesID), "5")
+    }
+
     func testFormulaReadingAnotherFormulaColumnFollowsTheChain() {
         let vm = standardViewModel()
         XCTAssertEqual(result(vm, "row_1", doubleID), "12", "C is 6, so C*2 is 12")
