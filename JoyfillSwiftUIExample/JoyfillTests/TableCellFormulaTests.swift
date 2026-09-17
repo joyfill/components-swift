@@ -466,6 +466,27 @@ final class TableCellFormulaTests: XCTestCase {
                      "Notes declares no formula")
     }
 
+    func testANumberTypedIntoATextCellIsANumber() {
+        let vm = standardViewModel(totalFormula: "=E * 2",
+                                   rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])])
+        XCTAssertEqual(result(vm, "row_1", totalID), "46", "`=A * 2` on a text cell holding 23")
+    }
+
+    func testTextThatIsNotANumberStaysText() {
+        let cases = ["abc": "Error", "0x10": "Error", "inf": "Error", "nan": "Error", "": "Error"]
+        for (stored, expected) in cases {
+            let vm = standardViewModel(totalFormula: "=E * 2",
+                                       rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: stored])])
+            XCTAssertEqual(result(vm, "row_1", totalID), expected, "`\(stored)` is not a number")
+        }
+    }
+
+    func testNumericTextKeepsWorkingAsText() {
+        let vm = standardViewModel(totalFormula: "=CONCAT(\"n\", E)",
+                                   rows: [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])])
+        XCTAssertEqual(result(vm, "row_1", totalID), "n23", "Still concatenates as text")
+    }
+
     func testEditingOneRowLeavesOtherRowsAlone() {
         let vm = standardViewModel()
         applyChange(vm, rowID: "row_1", cells: [qtyID: 10])
