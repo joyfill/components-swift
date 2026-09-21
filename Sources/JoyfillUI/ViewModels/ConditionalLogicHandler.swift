@@ -193,20 +193,21 @@ class ConditionalLogicHandler {
 
         for element in valueElements {
             guard let rowID = element.id else { continue }
+            
+            if let childrens = element.childrens, childrens.count > 0 {
+                childrens.forEach { (childSchemaID, child) in
+                    let key = RowSchemaID(rowID: rowID, schemaID: childSchemaID)
+                    map[key] = shouldShow(fullSchema: schema, schemaID: childSchemaID, valueElement: element)
 
-            let childrens = element.childrens ?? [:]
-            var schemaIDs = schema[key]?.children ?? []
-            for childSchemaID in childrens.keys where !schemaIDs.contains(childSchemaID) {
-                schemaIDs.append(childSchemaID)
-            }
-
-            for schemaID in schemaIDs {
-                let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: schemaID)
-                map[rowSchemaID] = shouldShow(fullSchema: schema, schemaID: schemaID, valueElement: element)
-
-                if let nested = childrens[schemaID]?.valueToValueElements {
-                    let childMap = buildSchemaMap(valueElements: nested, schema: schema, key: schemaID)
-                    map.merge(childMap) { (_, new) in new }
+                    if let nested = child.valueToValueElements {
+                        let childMap = buildSchemaMap(valueElements: nested, schema: schema, key: childSchemaID)
+                        map.merge(childMap) { (_, new) in new }
+                    }
+                }
+            } else {
+                for schemaID in schema[key]?.children ?? [] {
+                    let key = RowSchemaID(rowID: rowID, schemaID: schemaID)
+                    map[key] = shouldShow(fullSchema: schema, schemaID: schemaID, valueElement: element)
                 }
             }
         }
