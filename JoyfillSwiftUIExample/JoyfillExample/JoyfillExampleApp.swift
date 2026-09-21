@@ -10,6 +10,8 @@ import JoyfillAPIService
 import JoyfillModel
 import Joyfill
 
+typealias Document = JoyfillModel.Document
+
 class AppState: ObservableObject {
     @Published var changeResult: String = ""
     @Published var uploadResult: String = ""

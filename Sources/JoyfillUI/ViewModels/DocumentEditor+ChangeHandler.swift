@@ -15,7 +15,7 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func deleteRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
-        guard var field = fieldMap[fieldId] else {
+        guard let field = fieldMap[fieldId] else {
             Log("Field not found: \(fieldId)", type: .error)
             return []
         }
@@ -65,7 +65,7 @@ extension DocumentEditor {
     
     public func deleteNestedRows(rowIDs: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
-        guard var field = fieldMap[fieldId] else {
+        guard let field = fieldMap[fieldId] else {
             Log("Field not found: \(fieldId)", type: .error)
             return []
         }
@@ -94,7 +94,7 @@ extension DocumentEditor {
         }
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         guard shouldSendEvent, !deletedRowIDs.isEmpty else { return elements }
-        var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         onChangeForDeleteNestedRow(fieldIdentifier: fieldIdentifier, rowIDs: deletedRowIDs, parentPath: parentPath, schemaId: nestedKey, rowsByID: deletedRowsByID)
         return elements
     }
@@ -191,7 +191,7 @@ extension DocumentEditor {
         
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
-        var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+        let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
         
         addNestedRowOnChange(event: changeEvent,
                              targetRowIndexes: targetRows,
@@ -252,7 +252,7 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func moveRowUp(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+        guard let elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
             return []
         }
@@ -354,7 +354,7 @@ extension DocumentEditor {
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func moveRowDown(rowID: String, fieldIdentifier: FieldIdentifier, shouldSendEvent: Bool = true) -> [ValueElement] {
         let fieldId = fieldIdentifier.fieldID
-        guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
+        guard let elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
             return []
         }
@@ -500,7 +500,7 @@ extension DocumentEditor {
             fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
 
             let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
-            var parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
+            let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
             addNestedRowOnChange(event: changeEvent,
                                  targetRowIndexes: [TargetRowModel(id: newRowID, index: insertIndex)],
                                  valueElements: [newRow],
@@ -752,7 +752,7 @@ extension DocumentEditor {
     }
     
     public func computeParentPath(targetParentId: String, nestedKey: String, in child: [String : [ValueElement]]) -> String? {
-        for (parentKey,elements) in child {
+        for (_,elements) in child {
             guard !elements.isEmpty else { continue }
             for i in 0..<elements.count {
                 if elements[i].id == targetParentId {
@@ -941,7 +941,7 @@ extension DocumentEditor {
                 
                 self.fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
                 
-                let fieldID = fieldIdentifier.fieldID
+//              let fieldID = fieldIdentifier.fieldID
                 let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
 
                 self.handleRowCellOnChange(event: changeEvent,
@@ -1022,10 +1022,10 @@ extension DocumentEditor {
             let key = tokens[i + 1]
             guard idx >= 0 && idx < current.count else { return [:] }
 
-            var parentEl = current[idx]
-            guard var children = parentEl.childrens,
-                  var child = children[key],
-                  var nested = child.valueToValueElements else {
+            let parentEl = current[idx]
+            guard let children = parentEl.childrens,
+                  let child = children[key],
+                  let nested = child.valueToValueElements else {
                 return [:]
             }
             stack.append((container: current, parentIndex: idx, childKey: key))
@@ -1091,11 +1091,11 @@ extension DocumentEditor {
         
         switch cellDataModel.type {
         case .text:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title), fieldId: fieldId, metadata: metadata)
         case .dropdown:
             elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? ""), fieldId: fieldId, metadata: metadata)
         case .image:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements ?? []), fieldId: fieldId, metadata: metadata)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.valueElementArray(cellDataModel.valueElements), fieldId: fieldId, metadata: metadata)
         case .date:
             elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.date.map(ValueUnion.double), fieldId: fieldId, metadata: metadata)
         case .number:
@@ -1103,13 +1103,13 @@ extension DocumentEditor {
         case .multiSelect:
             elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId, metadata: metadata)
         case .barcode:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title), fieldId: fieldId, metadata: metadata)
         case .table:
             elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: cellDataModel.multiSelectValues.map(ValueUnion.array), fieldId: fieldId, metadata: metadata)
         case .signature:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title), fieldId: fieldId, metadata: metadata)
         case .block:
-            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title ?? ""), fieldId: fieldId, metadata: metadata)
+            elements = changeCell(elements: elements, index: rowIndex, cellDataModelId: cellDataModel.id, newCell: ValueUnion.string(cellDataModel.title), fieldId: fieldId, metadata: metadata)
         default:
             return []
         }
@@ -1125,11 +1125,11 @@ extension DocumentEditor {
         var newCell: ValueUnion?
         switch cellDataModel.type {
         case .text:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
         case .dropdown:
             newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
         case .image:
-            newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
+            newCell = ValueUnion.valueElementArray(cellDataModel.valueElements)
         case .date:
             newCell = cellDataModel.date.map(ValueUnion.double)
         case .number:
@@ -1137,9 +1137,9 @@ extension DocumentEditor {
         case .multiSelect:
             newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
         case .barcode:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
         case .signature:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
         default:
             break
         }
@@ -1153,13 +1153,13 @@ extension DocumentEditor {
         var updatedElement: ValueElement? = nil
         switch cellDataModel.type {
         case .text:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .dropdown:
             newCell = ValueUnion.string(cellDataModel.defaultDropdownSelectedId ?? "")
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .image:
-            newCell = ValueUnion.valueElementArray(cellDataModel.valueElements ?? [])
+            newCell = ValueUnion.valueElementArray(cellDataModel.valueElements)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .date:
             newCell = cellDataModel.date.map(ValueUnion.double)
@@ -1171,13 +1171,13 @@ extension DocumentEditor {
             newCell = cellDataModel.multiSelectValues.map(ValueUnion.array)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .barcode:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .signature:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         case .block:
-            newCell = ValueUnion.string(cellDataModel.title ?? "")
+            newCell = ValueUnion.string(cellDataModel.title)
             updatedElement = recursiveChangeCell(in: &elements, rowId: rowId, cellDataModelId: cellDataModel.id, newCell: newCell, metadata: metadata)
         default:
             return ([], nil)
@@ -1199,7 +1199,7 @@ extension DocumentEditor {
             if updatedElement?.metadata != nil {
                 row["metadata"] = updatedElement?.metadata?.dictionary
             }
-            guard let currentField = fieldMap[fieldId] else {
+            guard fieldMap[fieldId] != nil else {
                 Log("Failed to find field \(fieldId)", type: .error)
                 return ([], nil)
             }
@@ -1290,7 +1290,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
-            var change = Change(v: 1,
+            let change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowCreate",
                                 _id: context.documentID,
@@ -1319,7 +1319,7 @@ extension DocumentEditor {
                 continue
             }
             
-            var change = Change(v: 1,
+            let change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowCreate",
                                 _id: context.documentID,
@@ -1346,7 +1346,7 @@ extension DocumentEditor {
         
         for targetRow in targetRowIndexes {
             let rowObject = rowsByID[targetRow.id] ?? [:]
-            var change = Change(v: 1,
+            let change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
                                 _id: context.documentID,
@@ -1370,13 +1370,13 @@ extension DocumentEditor {
     private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String, rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
-        let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
+//      let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
         let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
             let rowObject = rowsByID[targetRow.id] ?? [:]
-            var change = Change(v: 1,
+            let change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowDelete",
                                 _id: context.documentID,
@@ -1404,7 +1404,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
-            var change = Change(v: 1,
+            let change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowMove",
                                 _id: context.documentID,
@@ -1442,7 +1442,7 @@ extension DocumentEditor {
                                   fieldIdentifier: context.fieldIdentifier,
                                   fieldPositionId: context.fieldPositionID,
                                   change: [
-                                    "rowId": row["_id"],
+                                    "rowId": row["_id"] as Any,
                                     "row": row,
                                   ],
                                   createdOn: Date().timeIntervalSince1970)
@@ -1457,7 +1457,7 @@ extension DocumentEditor {
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
-            var change = Change(v: 1,
+            let change = Change(v: 1,
                                 sdk: "swift",
                                 target: "field.value.rowMove",
                                 _id: context.documentID,
@@ -1513,7 +1513,7 @@ extension DocumentEditor {
     func handleFieldsOnChange(fieldIdentifier: FieldIdentifier, currentField: JoyDocField) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
         
-        var change = Change(v: 1,
+        let change = Change(v: 1,
                             sdk: "swift",
                             target: "field.update",
                             _id: context.documentID,
@@ -1535,11 +1535,11 @@ extension DocumentEditor {
             return chartChanges(fieldData: fieldData)
         case "date":
             base = [
-                "value": fieldData.value?.dictionary,
-                "tz": fieldData.tz
+                "value": fieldData.value?.dictionary as Any,
+                "tz": fieldData.tz as Any
             ]
         default:
-            base = ["value": fieldData.value?.dictionary]
+            base = ["value": fieldData.value?.dictionary as Any]
         }
         if let meta = fieldData.metadata?.dictionary {
             base["metadata"] = meta
@@ -1575,7 +1575,7 @@ extension DocumentEditor {
         let lastValueElement = value.valueElements?.first(where: { valueElement in
             valueElement.id == targetRow.id
         })
-        var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary]
+        var valueDict: [String: Any] = ["row": lastValueElement?.anyDictionary as Any]
         valueDict["targetRowIndex"] = targetRow.index
         return valueDict
     }

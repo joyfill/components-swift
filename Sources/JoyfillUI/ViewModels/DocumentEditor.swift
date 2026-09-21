@@ -190,7 +190,7 @@ public class DocumentEditor: ObservableObject {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: config.page.currentPageID, conditionalLogicHandler: conditionalLogicHandler)
         self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
-        self.currentPageOrder = document.pageOrderForCurrentView ?? []
+        self.currentPageOrder = document.pageOrderForCurrentView
     }
     
     @available(*, deprecated, message: "Use init(document:config:) with DocumentEditorConfig instead.")
@@ -795,7 +795,7 @@ extension DocumentEditor {
         
         let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
         
-        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+        let fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -961,7 +961,7 @@ extension DocumentEditor {
     fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
         var fieldListModels = [FieldListModel]()
         let fieldPositions = mapWebViewToMobileViewIfNeeded(fieldPositions: duplicatedPage.fieldPositions ?? [], isMobileViewActive: isMobileViewActive)
-        for fieldPosition in fieldPositions ?? [] {
+        for fieldPosition in fieldPositions {
             guard let fieldPositionFieldID = fieldPosition.field else {
                 Log("FieldPositions has nil FieldID", type: .error)
                 continue
@@ -973,11 +973,11 @@ extension DocumentEditor {
             let fieldIdentifier = FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldPositionFieldID, fieldIdentifier: fieldData?.identifier, pageID: newPageID, fileID: fileId, fieldPositionId: fieldPosition.id)
             var dataModelType: FieldListModelType = .none
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
-            let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
-            
-            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
-            
-            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+//            let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
+
+//            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
+
+//            let fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
             
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
@@ -1350,7 +1350,7 @@ extension DocumentEditor {
     /// - Parameter pageID: The ID of the page to validate
     /// - Returns: Tuple with canDelete flag and array of warning messages
     public func canDeletePage(pageID: String) -> (canDelete: Bool, warnings: [String]) {
-        var warnings: [String] = []
+        let warnings: [String] = []
         
         guard let firstFile = document.files.first else {
             return (false, ["No file found in document"])

@@ -16,7 +16,7 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     func setFieldHidden(_ hidden: Bool, for identifier: String) {
-        guard var field = allFields.first(where: { $0.id == identifier }) else {
+        guard let field = allFields.first(where: { $0.id == identifier }) else {
             return
         }
         conditionalLogicHandler.showFieldMap[field.id!] = hidden
@@ -24,7 +24,7 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
-        guard var field = allFields.first(where: { $0.id == identifier }) else {
+        guard let field = allFields.first(where: { $0.id == identifier }) else {
             return
         }
         var value = value

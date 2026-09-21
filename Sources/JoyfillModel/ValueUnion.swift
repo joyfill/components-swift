@@ -56,8 +56,9 @@ public enum ValueUnion: Codable, Hashable, Equatable {
 
     public var nullOrEmpty: Bool {
         switch self {
-        case .double(let double):
-            return double == nil
+        case .double:
+            // The associated value is a non-optional `Double`, so this was always `false`.
+            return false
         case .string(let string):
             return string.isEmpty
         case .array(let stringArray):
@@ -70,8 +71,9 @@ public enum ValueUnion: Codable, Hashable, Equatable {
             return true
         case .dictionary(let dictionary):
             return dictionary.isEmpty
-        case .int(let int):
-            return int == nil
+        case .int:
+            // The associated value is a non-optional `Int64`, so this was always `false`.
+            return false
         }
     }
 
@@ -92,6 +94,17 @@ public enum ValueUnion: Codable, Hashable, Equatable {
     public init?(valueFromDictionary: [String: Any]) {
         guard let value = valueFromDictionary["value"] else { return nil }
         self.init(value: value)
+    }
+
+    /// Unwraps an `Optional` that was boxed into `Any`.
+    ///
+    /// Returns `nil` only when `value` is a boxed `Optional` holding `none`; a non-optional
+    /// `value` is returned unchanged. This mirrors the old `value as? Optional<Any>` cast,
+    /// which the compiler flagged as always succeeding.
+    private static func unwrappingBoxedOptional(_ value: Any) -> Any? {
+        let mirror = Mirror(reflecting: value)
+        guard mirror.displayStyle == .optional else { return value }
+        return mirror.children.first?.value
     }
 
     /// Creates a new `ValueUnion` with the given value.
@@ -161,12 +174,15 @@ public enum ValueUnion: Codable, Hashable, Equatable {
             return
         }
 
-        if value == nil || value is NSNull {
+        // `value` is a non-optional `Any`, so the old `value == nil` test was always false.
+        if value is NSNull {
             self = .null
             return
         }
-        
-        guard let optionalValue = value as? Optional<Any>, let value = optionalValue else {
+
+        // `value` may still be an `Optional` that was boxed into `Any`. The old
+        // `value as? Optional<Any>` cast always succeeded; the real check was unwrapping it.
+        guard let value = Self.unwrappingBoxedOptional(value) else {
             self = .null
             return
         }
@@ -289,7 +305,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
 
     public var isEmpty: Bool {
         switch self {
-        case .double(let double):
+        case .double:
             return false
         case .string(let string):
             return string.isEmpty
@@ -303,7 +319,7 @@ public enum ValueUnion: Codable, Hashable, Equatable {
             return true
         case .dictionary(let dictionary):
             return dictionary.isEmpty
-        case .int(let int):
+        case .int:
             return false
         }
     }

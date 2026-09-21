@@ -482,8 +482,8 @@ class ConditionalLogicHandler {
         switch condition.condition {
         case "=":
             if fieldType == .multiSelect || fieldType == .dropdown {
-                if let valueUnion = fieldValue as? ValueUnion,
-                   let selectedArray = valueUnion.stringArray as? [String],
+                if let valueUnion = fieldValue,
+                   let selectedArray = valueUnion.stringArray,
                    let conditionText = condition.value?.text {
                     return selectedArray.contains { $0 == conditionText }
                 }
@@ -500,8 +500,8 @@ class ConditionalLogicHandler {
             return fieldValue == condition.value
         case "!=":
             if fieldType == .multiSelect || fieldType == .dropdown {
-                if let valueUnion = fieldValue as? ValueUnion,
-                   let selectedArray = valueUnion.stringArray as? [String],
+                if let valueUnion = fieldValue,
+                   let selectedArray = valueUnion.stringArray,
                    let conditionText = condition.value?.text {
                     return !selectedArray.contains { $0 == conditionText }
                 }
@@ -546,8 +546,8 @@ class ConditionalLogicHandler {
             }
         case "null=":
             if fieldType == .multiSelect || fieldType == .dropdown {
-                if let valueUnion = fieldValue as? ValueUnion,
-                   let selectedArray = valueUnion.stringArray as? [String] {
+                if let valueUnion = fieldValue,
+                   let selectedArray = valueUnion.stringArray {
                     return selectedArray.isEmpty || selectedArray.allSatisfy { $0.isEmpty }
                 }
             }
@@ -560,8 +560,8 @@ class ConditionalLogicHandler {
             }
         case "*=":
             if fieldType == .multiSelect || fieldType == .dropdown {
-                if let valueUnion = fieldValue as? ValueUnion,
-                   let selectedArray = valueUnion.stringArray as? [String] {
+                if let valueUnion = fieldValue,
+                   let selectedArray = valueUnion.stringArray {
                     return !(selectedArray.isEmpty || selectedArray.allSatisfy { $0.isEmpty })
                 }
             }
@@ -640,7 +640,7 @@ class ConditionalLogicHandler {
         
         guard let field = documentEditor.field(fieldID: collectionFieldID) else { return }
         
-        for (childSchemaID, child) in valueElement?.childrens ?? [:] {
+        for (childSchemaID, _) in valueElement?.childrens ?? [:] {
             let rowSchemaID = RowSchemaID(rowID: rowID, schemaID: childSchemaID)
             let shouldBeShown = shouldShow(
                 fullSchema: field.schema,
@@ -711,7 +711,7 @@ extension ConditionalLogicHandler {
         for column in columns {
             guard let columnID = column.id else { continue }
             updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
-            updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+            _ = updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
         }
     }
 
@@ -889,7 +889,7 @@ extension ConditionalLogicHandler {
               let columns = tableColumns(fieldID: fieldID, schemaID: schemaID) else { return }
         for columnID in dependentColumns {
             updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
-            updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+            _ = updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
         }
     }
 }

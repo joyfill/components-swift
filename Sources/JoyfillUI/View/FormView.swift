@@ -289,7 +289,7 @@ struct FormView: View {
         case .collection(let model):
             CollectionQuickView(tableDataModel: model, eventHandler: self)
                 .id(model.id)
-        case .image(let model):
+        case .image(_):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
             EmptyView()
@@ -336,7 +336,8 @@ struct FormView: View {
             }
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
-                guard newValue != nil else { return }
+                // `newValue` is a non-optional String, so this guard could never trigger.
+//                guard newValue != nil else { return }
                 guard lastFocusedFieldsID != newValue else { return }
                 if let lastFocusedFieldsID = lastFocusedFieldsID {
                     let fieldEvent = documentEditor.getFieldIdentifier(for: lastFocusedFieldsID)

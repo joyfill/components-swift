@@ -308,11 +308,11 @@ struct LinesView: View {
 
     func addNewLine() {
         var points: [Point] = []
-        for i in 0..<3 {
+        for _ in 0..<3 {
             let point: Point = Point(id: generateObjectId())
             points.append(point)
         }
-        var valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
+        let valueElement: ValueElement = ValueElement(id: generateObjectId(),points: points)
         valueElements.append(valueElement)
         updateValueElements(valueElements)
     }
@@ -428,7 +428,7 @@ struct PointsView: View {
             points?[index] = point
             updatePoints(points)
         } else {
-            Log("Point with ID \(point.id) not found", type: .error)
+            Log("Point with ID \(String(describing: point.id)) not found", type: .error)
             return
         }
     }

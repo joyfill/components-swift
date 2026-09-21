@@ -310,7 +310,7 @@ class JoyfillDocContext: EvaluationContext {
 
         // Check if the first component contains array indexing syntax
         var fieldIdentifier = firstComponent
-        var remainingPath = Array(pathComponents.dropFirst())
+        let remainingPath = Array(pathComponents.dropFirst())
 
         // If the first component has array indexing like "fruits[0]" or "matrix[1][2]"
         if firstComponent.contains("[") && firstComponent.contains("]") {
@@ -319,7 +319,7 @@ class JoyfillDocContext: EvaluationContext {
                 fieldIdentifier = String(firstComponent[..<bracketIndex])
 
                 // Extract and split multiple array index parts like [1][2]
-                let indexPart = String(firstComponent[bracketIndex...])
+//                let indexPart = String(firstComponent[bracketIndex...])
 //                let indexComponents = splitArrayIndexes(indexPart)
 //                remainingPath = indexComponents + remainingPath
             }
@@ -411,7 +411,7 @@ class JoyfillDocContext: EvaluationContext {
             // Check if this is a pure array index reference: [index] (without property name)
             if component.hasPrefix("[") && component.hasSuffix("]") {
                 // Extract index from [index]
-                var indexStr = String(component.dropFirst().dropLast()) // Remove [ and ]
+                let indexStr = String(component.dropFirst().dropLast()) // Remove [ and ]
                 
                 // Parse the index
                 if let index = Int(indexStr) {

@@ -327,6 +327,8 @@ private extension DocumentEditor {
     /// skips the scan.
     ///
     /// Mutates `field` in place. Returns true if anything changed.
+    // `internal` is NOT redundant here: the extension is `private`, and
+    // DocumentEditor.swift calls this across files.
     internal func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
         switch field.fieldType {
         case .table:

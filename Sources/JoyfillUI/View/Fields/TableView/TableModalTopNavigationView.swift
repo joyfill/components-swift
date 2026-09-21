@@ -35,7 +35,7 @@ struct TableModalTopNavigationView: View {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
-                                    viewModel.insertBelow()
+                                    _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
                                         .foregroundStyle(.blue)
@@ -123,7 +123,7 @@ struct TableModalTopNavigationView: View {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
-                                    viewModel.insertBelow()
+                                    _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
                                         .foregroundStyle(.blue)
@@ -512,12 +512,12 @@ struct EditMultipleRowsSheetView: View {
                                 case .signature:
                                     if isUsedForBulkEdit {
                                         if !cellDataModel.title.isEmpty {
-                                            self.changes[columnID] = ValueUnion.string(cellDataModel.title ?? "")
+                                            self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                         } else {
                                             self.changes.removeValue(forKey: columnID)
                                         }
                                     } else {
-                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title ?? "")
+                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                     }
                                 default:
                                     break
