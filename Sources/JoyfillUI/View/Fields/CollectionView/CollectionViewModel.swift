@@ -334,7 +334,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 }
                 let cell1 = row1.cells[colIndex].data
                 let cell2 = row2.cells[colIndex].data
-
                 // Only compare if types match
                 guard cell1.type == cell2.type else {
                     return false
@@ -342,11 +341,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 
                 switch cell1.type {
                 case .text:
+                    // Only a text column can hold a formula, so this is the one branch
+                    // that sorts on a computed value rather than what is stored.
+                    let text1 = tableDataModel.searchableText(rowID: row1.rowID, column: cell1)
+                    let text2 = tableDataModel.searchableText(rowID: row2.rowID, column: cell2)
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return (cell1.title ?? "") < (cell2.title ?? "")
+                        return text1 < text2
                     case .descending:
-                        return (cell1.title ?? "") > (cell2.title ?? "")
+                        return text1 > text2
                     case .none:
                         return true
                     }
@@ -371,9 +374,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 case .barcode:
                     switch tableDataModel.sortModel.order {
                     case .ascending:
-                        return (cell1.title ?? "") < (cell2.title ?? "")
+                        return cell1.title < cell2.title
                     case .descending:
-                        return (cell1.title ?? "") > (cell2.title ?? "")
+                        return cell1.title > cell2.title
                     case .none:
                         return true
                     }
@@ -437,6 +440,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         rowToValueElementMap = getBuildRowToValueElementMap(tableDataModel: tableDataModel)
     }
     
+    func rowElement(forRowID rowID: String) -> ValueElement? {
+        rowToValueElementMap[rowID]
+    }
+
     func getBuildRowToValueElementMap(tableDataModel: TableDataModel) -> [String: ValueElement] {
         var rowToValueElementMap: [String: ValueElement] = [:]
         let valueElements = tableDataModel.valueToValueElements ?? []
@@ -540,6 +547,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func addNestedCellModel(rowID: String, index: Int, valueElement: ValueElement, columns: [FieldTableColumn], level: Int, rowType: RowType, schemaKey: String) {
         tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
+        tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: schemaKey, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let gridEditMode = tableDataModel.editModeForGrid(forSchemaKey: schemaKey)
         let rowDataModels = tableDataModel.buildAllCellsForNestedRow(tableColumns: columns, valueElement, schemaKey: schemaKey)
@@ -582,7 +590,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     func isColumnFilled(columnId: String) -> Bool {
         for rowDataModel in tableDataModel.filteredcellModels {
             if let cellDataModel = rowDataModel.cells.first(where: { $0.data.id == columnId }) {
-                if !cellDataModel.data.isCellFilled {
+                if !cellDataModel.isFilled {
                     return false
                 }
             }
@@ -1409,6 +1417,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         self.tableDataModel.filteredcellModels.remove(at: index)
         tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: tableDataModel.fieldIdentifier.fieldID, rowIDs: [rowID])
 //        tableDataModel.filterCollectionRowsIfNeeded()
 //        sortRowsIfNeeded()
     }
@@ -1560,6 +1569,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let rowIndex = tableDataModel.filteredcellModels.filter({$0.rowType.isRow}).count + 1
             if let parentRowID = parentRowID, let nestedKey = nestedKey {
                 tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
+                tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, schemaID: nestedKey, row: valueElement)
                 refreshCollectionSchema(rowID: parentRowID)
                 appendChild(newRowID, to: parentRowID, schemaID: nestedKey)
             } else {
@@ -1650,7 +1660,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             
             if change.isEmpty {
                 // No filter Applied, Extract default value if present
-                if let defaultValue = columns.first(where: { $0.id == columnId })?.value {
+                if let defaultValue = columns.first(where: { $0.id == columnId })?.value,
+                   JoyfillDocContext.formulaSource(of: defaultValue.text) == nil {
                     cellValues[columnId] = defaultValue
                 }
             } else {
@@ -1710,6 +1721,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: rowToValueElementMap[rowId])
         refreshDependentCellLogic(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
+        refreshFormulas(rowId: rowId, schemaKey: nestedKey, editedColumnID: cellDataModel.id)
         if let shouldRefreshSchema = tableDataModel.documentEditor?.shouldRefreshSchema(for: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id), shouldRefreshSchema {
             refreshCollectionSchema(rowID: rowId)
         }
@@ -1845,9 +1857,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 rowDataModel.cells[colIndex].data = cellDataModel
                 rowDataModel.cells[colIndex].id = UUID()
                 updatedCellModels[rowIndex] = rowDataModel
-                
-                //Update conditional logic
-                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: self.rowToValueElementMap[rowId])
             }
         }
     }
@@ -1897,7 +1906,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             let schemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey ?? rootSchemaKey
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
+                // Main thread only - the visibility map is read during SwiftUI body evaluation.
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: columnID, rowID: row, valueElement: rowToValueElementMap[row])
                 refreshDependentCellLogic(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
+                refreshFormulas(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
                     refreshCollectionSchema(rowID: row)
                 }
@@ -2405,9 +2417,34 @@ extension CollectionViewModel {
         }
 
         let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.isFilled
         }.count
 
         return (filledCount, requiredColumnIds.count)
+    }
+}
+
+// MARK: - Formulas
+
+extension CollectionViewModel {
+
+    /// The evaluated result for one cell, or `nil` when it holds no formula.
+    ///
+    /// No schema: it is consumed when the value is written, where it picks the resolver,
+    /// and row ids are unique across a collection's schemas.
+    func formulaValue(columnID: String, rowID: String) -> CellFormulaValue? {
+        tableDataModel.documentEditor?.cellFormulaValue(columnID: columnID,
+                                                        fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                        rowID: rowID)
+    }
+
+    /// Recomputes the formula cells of a row after one of its cells changed.
+    func refreshFormulas(rowId: String, schemaKey: String, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor,
+              let row = rowToValueElementMap[rowId] else { return }
+        documentEditor.refreshDependentCellFormulas(fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                    schemaID: schemaKey,
+                                                    editedColumnID: editedColumnID,
+                                                    row: row)
     }
 }

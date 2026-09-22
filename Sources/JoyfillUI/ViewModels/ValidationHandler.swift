@@ -191,6 +191,31 @@ class ValidationHandler {
 
     // MARK: - Table Validation
 
+    /// Whether a required cell is satisfied.
+    ///
+    /// A column-driven formula cell stores nothing — that is the persistence model — so
+    /// the stored value alone reports it empty while `6` is on screen, and a required
+    /// formula column could never be satisfied. What the cell shows is what counts.
+    ///
+    /// A formula that failed counts as unsatisfied: `Error` is not a value.
+    private func requiredCellIsSatisfied(stored: ValueUnion?,
+                                         columnID: String,
+                                         fieldID: String,
+                                         rowID: String,
+                                         documentEditor: DocumentEditor) -> Bool {
+        // A cell a formula applies to is judged by what it computes, never by the fact
+        // that it holds formula text: `=A *` is stored and non-empty but shows Error.
+        //
+        // `Error` is not a value, so a required cell showing one is not satisfied. The
+        // form should not submit as complete when a required column produced nothing.
+        if let computed = documentEditor.cellFormulaValue(columnID: columnID,
+                                                          fieldID: fieldID,
+                                                          rowID: rowID) {
+            return !computed.isError && !computed.text.isEmpty
+        }
+        return stored.map { !$0.isEmpty } ?? false
+    }
+
     private func validateTableField(field: JoyDocField, fieldID: String, fieldPosition: FieldPosition, pageId: String?, fieldPositionId: String?, isFieldRequired: Bool) -> FieldValidity {
         guard let documentEditor = documentEditor else {
             return FieldValidity(field: field, status: .valid, pageId: pageId, fieldId: fieldID, fieldPositionId: fieldPositionId)
@@ -235,8 +260,9 @@ class ValidationHandler {
                     continue
                 }
 
-                if let cellValue = cells[columnID], !cellValue.isEmpty {
-                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cellValue))
+                if requiredCellIsSatisfied(stored: cells[columnID], columnID: columnID,
+                                           fieldID: fieldID, rowID: rowID, documentEditor: documentEditor) {
+                    cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
                 } else {
                     cellValidities.append(CellValidity(status: .invalid, columnId: columnID, value: cells[columnID]))
                     isTableValid = false
@@ -331,8 +357,9 @@ class ValidationHandler {
                 continue
             }
 
-            if let cellValue = cells[columnID], !cellValue.isEmpty {
-                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cellValue))
+            if requiredCellIsSatisfied(stored: cells[columnID], columnID: columnID,
+                                       fieldID: fieldID, rowID: rowID, documentEditor: documentEditor) {
+                cellValidities.append(CellValidity(status: .valid, columnId: columnID, value: cells[columnID]))
             } else {
                 cellValidities.append(CellValidity(status: .invalid, columnId: columnID, value: cells[columnID]))
             }

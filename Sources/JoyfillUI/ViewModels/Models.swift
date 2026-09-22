@@ -33,7 +33,7 @@ struct RowDataModel: Equatable, Hashable {
     var rowType: RowType
     var isExpanded: Bool = false
     var filledCellCount: Int {
-        cells.filter { $0.data.isCellFilled }.count
+        cells.filter { $0.isFilled }.count
     }
     var rowWidth: CGFloat
     
@@ -505,6 +505,14 @@ struct TableDataModel {
         return selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed
     }
 
+    /// The text filtering and sorting match against: the evaluated result for a formula
+    /// cell, the stored text for every other.
+    func searchableText(rowID: String, column: CellDataModel) -> String {
+        documentEditor?.cellFormulaValue(columnID: column.id,
+                                         fieldID: fieldIdentifier.fieldID,
+                                         rowID: rowID)?.text ?? column.title
+    }
+
     func rowMatchesFilter(_ row: RowDataModel, filters: [FilterModel]) -> Bool {
         for filter in filters {
             if filter.filterText.isEmpty {
@@ -515,7 +523,7 @@ struct TableDataModel {
             let match: Bool
             switch column.type {
             case .text:
-                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+                match = searchableText(rowID: row.rowID, column: column).localizedCaseInsensitiveContains(filter.filterText)
             case .dropdown:
                 match = (column.defaultDropdownSelectedId ?? "") == filter.filterText
             case .number:
@@ -527,7 +535,7 @@ struct TableDataModel {
             case .multiSelect:
                 match = column.multiSelectValues?.contains(filter.filterText) ?? false
             case .barcode:
-                match = (column.title ?? "").localizedCaseInsensitiveContains(filter.filterText)
+                match = column.title.localizedCaseInsensitiveContains(filter.filterText)
             case .date:
                 if filter.filterText == FilterModel.emptyDateSentinel {
                     match = column.date == nil      // empty filter → only rows with no date
@@ -578,7 +586,8 @@ struct TableDataModel {
                 date: fieldTableColumn.date,
                 format: fieldTableColumn.getFormat(from: fieldPositionTableColumns),
                 multiSelectValues: fieldTableColumn.multiSelectValues,
-                multi: fieldTableColumn.multi)
+                multi: fieldTableColumn.multi,
+                columnFormula: JoyfillDocContext.formulaSource(of: fieldTableColumn.value?.text).map { "=" + $0 })
             columnIdToColumnMap[columnId] = fieldTableColumnLocal
         }
     }
@@ -624,7 +633,8 @@ struct TableDataModel {
                                                 date: columnData.date,
                                                 format: DateFormatType(rawValue: columnData.format ?? ""),
                                                 multiSelectValues: columnData.multiSelectValues,
-                                                multi: columnData.multi)
+                                                multi: columnData.multi,
+                                                columnFormula: JoyfillDocContext.formulaSource(of: columnData.value?.text).map { "=" + $0 })
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
@@ -664,7 +674,8 @@ struct TableDataModel {
                                                 date: columnData.date,
                                                 format: columnData.getFormat(from: fieldPositionTableColumns),
                                                 multiSelectValues: columnData.multiSelectValues,
-                                                multi: columnData.multi)
+                                                multi: columnData.multi,
+                                                columnFormula: JoyfillDocContext.formulaSource(of: columnData.value?.text).map { "=" + $0 })
             if let cell = buildCell(data: columnDataLocal, row: row, column: columnID) {
                 cells.append(cell)
             }
@@ -704,7 +715,7 @@ struct TableDataModel {
         }
         return cell
     }
-    
+
     mutating func updateCellModel(rowIndex: Int, rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
         var cellModel = cellModels[rowIndex].cells[colIndex]
         cellModel.data = cellDataModel
@@ -1228,6 +1239,7 @@ struct CellDataModel: Hashable, Equatable {
     var format: DateFormatType?
     var multiSelectValues: [String]?
     var multi: Bool?
+    var columnFormula: String?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(uuid)

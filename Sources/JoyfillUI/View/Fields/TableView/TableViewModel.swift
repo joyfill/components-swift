@@ -58,6 +58,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
 
     func addCellModel(rowID: String, index: Int, valueElement: ValueElement) {
         tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
+        tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: tableDataModel.fieldIdentifier.fieldID, row: valueElement)
         var rowCellModels = [TableCellModel]()
         let gridEditMode = tableDataModel.editModeForGrid()
         let rowDataModels = tableDataModel.buildAllCellsForRow(tableColumns: tableDataModel.tableColumns, valueElement)
@@ -281,6 +282,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     fileprivate func deleteRow(at index: Int, rowID: String) {
         tableDataModel.documentEditor?.removeCellLogicForRow(fieldID: tableDataModel.fieldIdentifier.fieldID, rowID: rowID)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: tableDataModel.fieldIdentifier.fieldID, rowIDs: [rowID])
         tableDataModel.rowOrder.remove(at: index)
         self.tableDataModel.cellModels.remove(at: index)
         tableDataModel.filterRowsIfNeeded()
@@ -341,7 +343,8 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             
             if change.isEmpty {
                 // No filter Applied, Extract default value if present
-                if let defaultValue = tableDataModel.tableColumns.first(where: { $0.id == columnId })?.value {
+                if let defaultValue = tableDataModel.tableColumns.first(where: { $0.id == columnId })?.value,
+                   JoyfillDocContext.formulaSource(of: defaultValue.text) == nil {
                     cellValues[columnId] = defaultValue
                 }
             } else {
@@ -386,6 +389,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         
         let elements = tableDataModel.documentEditor?.cellDidChange(rowId: rowId, cellDataModel: cellDataModel, fieldIdentifier: tableDataModel.fieldIdentifier, callOnChange: callOnChange, metadata: metadata) ?? []
         refreshDependentCellLogic(rowId: rowId, editedColumnID: cellDataModel.id, in: elements)
+        refreshFormulas(rowId: rowId, editedColumnID: cellDataModel.id, in: elements)
         return elements
     }
 
@@ -491,9 +495,18 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         self.tableDataModel.cellModels = updatedCellModels
         self.tableDataModel.filterRowsIfNeeded()
         let editedColumnIDs = changes.keys
-        for rowId in tableDataModel.selectedRows {
+        // `tableDataModel` here is the snapshot taken before the edit; evaluate against
+        // the rows just written back.
+        let rowsByID = Dictionary(
+            (self.tableDataModel.valueToValueElements ?? []).compactMap { row in row.id.map { ($0, row) } },
+            uniquingKeysWith: { first, _ in first })
+        for rowId in self.tableDataModel.selectedRows {
+            let row = rowsByID[rowId]
             for columnID in editedColumnIDs {
                 refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
+                if let row = row {
+                    refreshFormulas(row: row, editedColumnID: columnID)
+                }
             }
         }
         isBulkLoading = false
@@ -554,7 +567,7 @@ extension TableViewModel {
         }
 
         let filledCount = rowCells.filter { cellModel in
-            requiredColumnIds.contains(cellModel.data.id) && cellModel.data.isCellFilled
+            requiredColumnIds.contains(cellModel.data.id) && cellModel.isFilled
         }.count
 
         return (filledCount, requiredColumnIds.count)
@@ -733,5 +746,31 @@ extension TableViewModel: DocumentEditorDelegate {
     func cellVisibilityDidChange(columnIDs: Set<String>) {
         guard !columnIDs.isEmpty else { return }
         uuid = UUID()
+    }
+}
+
+// MARK: - Formulas
+
+extension TableViewModel {
+
+    /// The evaluated result for one cell, or `nil` when it holds no formula.
+    func formulaValue(columnID: String, rowID: String) -> CellFormulaValue? {
+        tableDataModel.documentEditor?.cellFormulaValue(columnID: columnID,
+                                                        fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                        rowID: rowID)
+    }
+
+    /// Recomputes the formula cells of a row after one of its cells changed.
+    func refreshFormulas(rowId: String, editedColumnID: String, in elements: [ValueElement]? = nil) {
+        guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId })
+        else { return }
+        refreshFormulas(row: row, editedColumnID: editedColumnID)
+    }
+
+    func refreshFormulas(row: ValueElement, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor else { return }
+        documentEditor.refreshDependentCellFormulas(fieldID: tableDataModel.fieldIdentifier.fieldID,
+                                                    editedColumnID: editedColumnID,
+                                                    row: row)
     }
 }
