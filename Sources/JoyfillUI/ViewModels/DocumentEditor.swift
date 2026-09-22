@@ -112,6 +112,7 @@ public class DocumentEditor: ObservableObject {
     let dismissNavigationPublisher = PassthroughSubject<String, Never>()
     public private(set) var openedNavigationFieldID: String? = nil
     var pendingNavigationTarget: NavigationTarget? = nil
+    var pendingPageSelectionSheet: Bool = false
     public private(set) var isCollectionFieldEnabled: Bool = false
 
     public var mode: Mode = .fill
@@ -625,7 +626,19 @@ extension DocumentEditor {
     
     /// Opens or closes the page picker, and works while the built-in navigation button is hidden.
     public func presentPageSelectionSheet(_ present: Bool) {
-        runOnMain { self.showPageSelectionSheet = present }
+        runOnMain {
+            guard present else {
+                self.pendingPageSelectionSheet = false
+                self.showPageSelectionSheet = false
+                return
+            }
+            if let openFieldID = self.openedNavigationFieldID {
+                self.pendingPageSelectionSheet = true
+                self.sendDismissNavigation(fieldID: openFieldID)
+            } else {
+                self.showPageSelectionSheet = true
+            }
+        }
     }
 
     /// Shows or hides the built-in page navigation button without affecting the page picker.
@@ -924,6 +937,7 @@ extension DocumentEditor {
             self.openedNavigationFieldID = fieldID
             if fieldID == nil {
                 self.dispatchPendingNavigationIfNeeded()
+                self.dispatchPendingPageSelectionSheetIfNeeded()
             }
         }
     }
