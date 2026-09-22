@@ -314,8 +314,12 @@ private extension DocumentEditor {
         walk(top)
         return collected
     }
+}
 
-    // MARK: Decorate normalization
+// MARK: Decorate normalization
+
+// Not in the `private extension` below: DocumentEditor.swift calls this across files.
+extension DocumentEditor {
 
     /// Infers an effective `decorate` flag from the actual decorator data on a
     /// freshly loaded field, but only when the JSON omits the flag entirely.
@@ -327,9 +331,7 @@ private extension DocumentEditor {
     /// skips the scan.
     ///
     /// Mutates `field` in place. Returns true if anything changed.
-    // `internal` is NOT redundant here: the extension is `private`, and
-    // DocumentEditor.swift calls this across files.
-    internal func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
+    func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
         switch field.fieldType {
         case .table:
             guard field.decorate == nil else { return false }
@@ -350,6 +352,9 @@ private extension DocumentEditor {
             return false
         }
     }
+}
+
+private extension DocumentEditor {
 
     /// Load-path scan: returns true if `field` has any displayable row decorator
     /// in scope. Used by `normalizeDecorateFlag`. Walks raw JSON dictionaries to
