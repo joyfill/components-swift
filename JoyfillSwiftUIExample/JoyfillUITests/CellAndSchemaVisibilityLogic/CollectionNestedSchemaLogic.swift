@@ -1,46 +1,42 @@
 //
-//  CollectionNestedCollection.swift
+//  CollectionNestedSchemaLogic.swift
 //  JoyfillExample
 //
 //  Created by Vivek's Mac on 22/09/26.
 //
 
-import Foundation
 import XCTest
-import JoyfillModel
 
-final class CollectionNestedCollection: JoyfillUITestsBaseClass {
+final class CollectionNestedSchemaLogic: JoyfillUITestsBaseClass {
+
+    private typealias S = DecoratorUITestSupport
 
     override func getJSONFileNameForTest() -> String {
-        return "CollectionNestedCondition"
+        return "CellVisibilityLogic"
     }
 
-    private func openCollection() {
-        let button = app.buttons["CollectionDetailViewIdentifier"]
-        for _ in 0..<8 where !button.exists {
-            app.swipeUp()
-            spinRunloop(0.2)
-        }
-        XCTAssertTrue(button.waitForExistence(timeout: 5), "Collection quick-view button never appeared")
-        button.tap()
+    private func openNestedSchemaCollection() {
+        let navigation = app.buttons["PageNavigationIdentifier"]
+        XCTAssertTrue(navigation.waitForExistence(timeout: 10), "Page navigation button never appeared")
+        navigation.tap()
+
+        let pageRow = app.staticTexts["Nested Schema Logic"]
+        XCTAssertTrue(pageRow.waitForExistence(timeout: 5), "Nested Schema Logic page never appeared")
+        pageRow.tap()
+        XCTAssertTrue(waitForAppStability(timeout: 10), "Page did not settle")
+
+        S.openCollectionDetailView(in: app)
         XCTAssertTrue(waitForAppStability(timeout: 10), "Collection modal did not settle")
-    }
 
-    private func expandRootRow() {
         let expander = app.images["CollectionExpandCollapseButton1"]
         XCTAssertTrue(expander.waitForExistence(timeout: 15), "Root row expander never appeared")
         expander.tap()
         XCTAssertTrue(waitForAppStability(timeout: 10), "Nested tables did not settle after expanding")
     }
 
-    private func gridScrollView() -> XCUIElement {
-        let named = app.scrollViews["TableScrollView"]
-        return named.exists ? named : app.scrollViews.firstMatch
-    }
-
     private func openRootMultiSelectCell() {
         let cell = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
-        let grid = gridScrollView()
+        let grid = app.scrollViews["TableScrollView"].exists ? app.scrollViews["TableScrollView"] : app.scrollViews.firstMatch
         for _ in 0..<4 where !cell.exists {
             grid.swipeLeft()
             spinRunloop(0.3)
@@ -49,24 +45,21 @@ final class CollectionNestedCollection: JoyfillUITestsBaseClass {
         cell.tap()
     }
 
-    private func toggleOption(_ label: String) {
-        let predicate = NSPredicate(format: "identifier == %@ AND label CONTAINS[c] %@",
-                                    "TableMultiSelectOptionsSheetIdentifier", label)
-        let option = app.buttons.matching(predicate).firstMatch
-        XCTAssertTrue(option.waitForExistence(timeout: 5), "\(label) not found in the options sheet")
-        option.tap()
-    }
-
     private func toggleRootMultiSelect(_ labels: [String]) {
         openRootMultiSelectCell()
-        labels.forEach(toggleOption)
+        for label in labels {
+            let predicate = NSPredicate(format: "identifier == %@ AND label CONTAINS[c] %@",
+                                        "TableMultiSelectOptionsSheetIdentifier", label)
+            let option = app.buttons.matching(predicate).firstMatch
+            XCTAssertTrue(option.waitForExistence(timeout: 5), "\(label) not found in the options sheet")
+            option.tap()
+        }
         app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
         XCTAssertTrue(waitForAppStability(timeout: 10), "Collection did not settle after the multi-select change")
     }
 
     func testNestedSchemaWithoutRowDataFollowsItsShowLogic() {
-        openCollection()
-        expandRootRow()
+        openNestedSchemaCollection()
 
         XCTAssertTrue(app.staticTexts["New Table 2"].waitForExistence(timeout: 10),
                       "The MultiSelect cell matches New Table 2's show condition, so it must be visible")
@@ -77,8 +70,7 @@ final class CollectionNestedCollection: JoyfillUITestsBaseClass {
     }
 
     func testChangingMultiSelectSwitchesTheVisibleNestedTable() {
-        openCollection()
-        expandRootRow()
+        openNestedSchemaCollection()
 
         XCTAssertTrue(app.staticTexts["New Table 2"].waitForExistence(timeout: 10),
                       "Precondition: Option 2 is selected, so New Table 2 starts visible")
@@ -94,8 +86,7 @@ final class CollectionNestedCollection: JoyfillUITestsBaseClass {
     }
 
     func testSelectingEveryOptionShowsAllNestedTablesAndClearingHidesThemAll() {
-        openCollection()
-        expandRootRow()
+        openNestedSchemaCollection()
 
         toggleRootMultiSelect(["Option 1", "Option 3"])
 

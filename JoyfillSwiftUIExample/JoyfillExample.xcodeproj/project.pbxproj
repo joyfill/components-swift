@@ -205,9 +205,6 @@
 		95288F4D2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F1C2FECEB73000A2CC1 /* FormulaTemplate_MapFunctionTests.swift */; };
 		95288F4E2FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F252FECEB73000A2CC1 /* FormulaTemplate_RoundFunctionTests.swift */; };
 		95288F4F2FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95288F212FECEB73000A2CC1 /* FormulaTemplate_NowFunctionTests.swift */; };
-		9571FC203062509C0040F309 /* CollectionNestedCondition.json in Resources */ = {isa = PBXBuildFile; fileRef = 9571FC1F306250860040F309 /* CollectionNestedCondition.json */; };
-		9571FC22306250AD0040F309 /* CollectionNestedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9571FC21306250A30040F309 /* CollectionNestedCollection.swift */; };
-		9571FC233062509C0040F309 /* CollectionNestedCondition.json in Resources */ = {isa = PBXBuildFile; fileRef = 9571FC1F306250860040F309 /* CollectionNestedCondition.json */; };
 		9587E749302F441B00293EF7 /* EditabilityTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9587E748302F440F00293EF7 /* EditabilityTest.json */; };
 		9587E74D302F445500293EF7 /* EditabilityTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9587E74C302F445000293EF7 /* EditabilityTest.swift */; };
 		9587E751302F441B00293EF7 /* EditabilityTest.json in Resources */ = {isa = PBXBuildFile; fileRef = 9587E748302F440F00293EF7 /* EditabilityTest.json */; };
@@ -224,6 +221,7 @@
 		95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BEEA300A444900D207B9 /* RequiredLogic.swift */; };
 		95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
 		95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */; };
+		95C0BF9A3018A70000D207B9 /* CollectionNestedSchemaLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */; };
 		95C0BF663018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		95C0BF673018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -902,8 +900,6 @@
 		95288F292FECEB73000A2CC1 /* FormulaTemplate_ToNumberFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_ToNumberFunctionTests.swift; sourceTree = "<group>"; };
 		95288F2A2FECEB73000A2CC1 /* FormulaTemplate_UpperFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_UpperFunctionTests.swift; sourceTree = "<group>"; };
 		95288F2B2FECEB73000A2CC1 /* FormulaTemplate_YearFunctionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_YearFunctionTests.swift; sourceTree = "<group>"; };
-		9571FC1F306250860040F309 /* CollectionNestedCondition.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionNestedCondition.json; sourceTree = "<group>"; };
-		9571FC21306250A30040F309 /* CollectionNestedCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionNestedCollection.swift; sourceTree = "<group>"; };
 		9587E748302F440F00293EF7 /* EditabilityTest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = EditabilityTest.json; sourceTree = "<group>"; };
 		9587E74C302F445000293EF7 /* EditabilityTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditabilityTest.swift; sourceTree = "<group>"; };
 		95926EAF304E6AFD008C964A /* testDoc.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = testDoc.json; sourceTree = "<group>"; };
@@ -914,6 +910,7 @@
 		95C0BEE8300A442500D207B9 /* RequiredLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RequiredLogic.json; sourceTree = "<group>"; };
 		95C0BEEA300A444900D207B9 /* RequiredLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredLogic.swift; sourceTree = "<group>"; };
 		95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogic.swift; sourceTree = "<group>"; };
+		95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionNestedSchemaLogic.swift; sourceTree = "<group>"; };
 		95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CellVisibilityLogic.json; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
@@ -1260,10 +1257,9 @@
 		1307CF1A2BE36ECE00B19FBA /* JoyfillUITests */ = {
 			isa = PBXGroup;
 			children = (
-				9571FC1E3062506C0040F309 /* Collection Nested Conditonal Logic */,
 				95A671CC305A747400FDC608 /* Formula in table and collection */,
 				9587E747302F43F900293EF7 /* EditabilityUITest */,
-				95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */,
+				95C0BF603018A60100D207B9 /* CellAndSchemaVisibilityLogic */,
 				95C0BEE7300A441300D207B9 /* RequiredLogicTest */,
 				95C0BE9B3006200400D207B9 /* LandscapeModeTest */,
 				BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */,
@@ -1474,15 +1470,6 @@
 			path = Functions;
 			sourceTree = "<group>";
 		};
-		9571FC1E3062506C0040F309 /* Collection Nested Conditonal Logic */ = {
-			isa = PBXGroup;
-			children = (
-				9571FC21306250A30040F309 /* CollectionNestedCollection.swift */,
-				9571FC1F306250860040F309 /* CollectionNestedCondition.json */,
-			);
-			path = "Collection Nested Conditonal Logic";
-			sourceTree = "<group>";
-		};
 		9587E747302F43F900293EF7 /* EditabilityUITest */ = {
 			isa = PBXGroup;
 			children = (
@@ -1519,13 +1506,14 @@
 			path = RequiredLogicTest;
 			sourceTree = "<group>";
 		};
-		95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */ = {
+		95C0BF603018A60100D207B9 /* CellAndSchemaVisibilityLogic */ = {
 			isa = PBXGroup;
 			children = (
 				95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */,
 				95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */,
+				95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */,
 			);
-			path = CellVisibilityLogicTest;
+			path = CellAndSchemaVisibilityLogic;
 			sourceTree = "<group>";
 		};
 		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
@@ -2379,7 +2367,6 @@
 				E2C904A82FEBDEB700DF0F92 /* contains.json in Resources */,
 				E2C904A92FEBDEB700DF0F92 /* mod.json in Resources */,
 				E2C904AA2FEBDEB700DF0F92 /* and.md in Resources */,
-				9571FC203062509C0040F309 /* CollectionNestedCondition.json in Resources */,
 				E2C904AB2FEBDEB700DF0F92 /* toNumber.md in Resources */,
 				E2C904AC2FEBDEB700DF0F92 /* dateSubtract.md in Resources */,
 				E2C904AD2FEBDEB700DF0F92 /* sum.json in Resources */,
@@ -2660,7 +2647,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9571FC233062509C0040F309 /* CollectionNestedCondition.json in Resources */,
 				95A671D1305A74B000FDC608 /* FormulaInCell.json in Resources */,
 				95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */,
 				95C0BF673018A65000D207B9 /* CellVisibilityLogic.json in Resources */,
@@ -2863,11 +2849,11 @@
 				E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */,
 				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
 				95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */,
+				95C0BF9A3018A70000D207B9 /* CollectionNestedSchemaLogic.swift in Sources */,
 				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
 				E2B4CFD92F9A060700F2128D /* DecoratorUITestSupport.swift in Sources */,
 				95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */,
 				E2408A022F7CF023005C4885 /* NavigationGotoUITests.swift in Sources */,
-				9571FC22306250AD0040F309 /* CollectionNestedCollection.swift in Sources */,
 				95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */,
 				E29FF8822F2527790079A614 /* TestMobileViewDuplicateLogic.swift in Sources */,
 				1307CF1E2BE36ECE00B19FBA /* JoyfillUITestsLaunchTests.swift in Sources */,
