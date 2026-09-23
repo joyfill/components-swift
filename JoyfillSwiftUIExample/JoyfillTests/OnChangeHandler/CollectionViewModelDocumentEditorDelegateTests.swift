@@ -664,4 +664,97 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
         XCTAssertEqual(cellText(documentEditor, row: rootRowA, column: rootTextColumnID), "Testing", "bulkEdit must complete and persist despite a truncated cells array")
     }
+
+    // MARK: - bulkEdit(changes:) keeps the nested-schema visibility map in step
+    //
+    // The visibility map is read on the main thread from SwiftUI body evaluation, so the
+    // update has to happen in refreshRowsOnLogic (main actor) rather than inside
+    // updateBulkLocalCellModels (bulk-edit queue). These lock in the *behaviour* that move
+    // has to preserve: drop the call and the map goes stale, so the nested table stays on
+    // screen after a bulk edit that should have hidden it.
+    //
+    // Schema 685753949107b403e2e4a949 declares `action: hide, eval: and` over five root
+    // columns, so it hides only when all five match at once.
+
+    private var hideDepth2SchemaID: String { "685753949107b403e2e4a949" }
+    private var rootDropdownColumnID: String { "684c3fed52b1d1145f1e2790" }
+    private var rootNumberColumnID: String { "685753044b333dd442ea29d4" }
+    private var rootMultiColumnID: String { "6857530158fb7edb102344fa" }
+    private var rootBarcodeColumnID: String { "68575312d8c5679a05ee29e0" }
+
+    private func schemaIsVisible(_ documentEditor: DocumentEditor, row: String, schema: String) -> Bool {
+        documentEditor.shouldShowSchema(
+            for: tableFieldID,
+            rowSchemaID: RowSchemaID(rowID: row, schemaID: schema)
+        )
+    }
+
+    /// Values that satisfy every condition of the hide logic at once.
+    /// `?=` is "contains", `*=` is "is not empty", `!=` needs any other dropdown option.
+    private var hidingChanges: [String: ValueUnion] {
+        [
+            rootTextColumnID: .string("hide depth2"),
+            rootDropdownColumnID: .string("684c3fedf47cc0fea6bca947"),
+            rootNumberColumnID: .double(1000),
+            rootBarcodeColumnID: .string("BC-567"),
+            rootMultiColumnID: .array(["68575301e490d0ce22ae5e7b"])
+        ]
+    }
+
+    func testBulkEdit_hidesNestedSchemaOnEveryEditedRow() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        for row in [rootRowA, rootRowB, rootRowUnselected] {
+            XCTAssertTrue(schemaIsVisible(documentEditor, row: row, schema: hideDepth2SchemaID),
+                          "Precondition: nested schema starts visible on \(row)")
+        }
+
+        viewModel.tableDataModel.selectedRows = [rootRowA, rootRowB]
+        await viewModel.bulkEdit(changes: hidingChanges)
+        waitForMainQueueToDrain()
+
+        XCTAssertFalse(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                       "All five hide conditions now match on row A, so the nested schema must be hidden")
+        XCTAssertFalse(schemaIsVisible(documentEditor, row: rootRowB, schema: hideDepth2SchemaID),
+                       "The bulk edit applies to every selected row, so row B must hide too")
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowUnselected, schema: hideDepth2SchemaID),
+                      "An unselected row was not edited, so its visibility must be untouched")
+    }
+
+    /// The map has to move back as well — `updateSchemaVisibility` only writes when the
+    /// state actually changed, so a one-way test would pass on a half-broken update.
+    func testBulkEdit_revealsNestedSchemaWhenConditionsStopMatching() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        viewModel.tableDataModel.selectedRows = [rootRowA]
+        await viewModel.bulkEdit(changes: hidingChanges)
+        waitForMainQueueToDrain()
+        XCTAssertFalse(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                       "Precondition: the schema is hidden before we break the condition")
+
+        // Breaking the text condition alone is enough - the logic evaluates with `and`.
+        await viewModel.bulkEdit(changes: [rootTextColumnID: .string("show depth2 again")])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                      "One condition no longer matches, so the nested schema must come back")
+    }
+
+    /// A bulk edit on a column no schema logic depends on must not disturb the map.
+    func testBulkEdit_onUnrelatedColumnLeavesVisibilityUntouched() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        viewModel.tableDataModel.selectedRows = [rootRowA]
+        await viewModel.bulkEdit(changes: [rootDateColumnID: .double(1749000000000)])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                      "The date column is not referenced by any schema logic, so nothing should change")
+    }
 }
