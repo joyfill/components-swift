@@ -567,6 +567,34 @@ struct PageDuplicateListView: View {
     }
 }
 
+// Presents page picker from the host it's attached to
+struct PageSelectionSheetPresenter: ViewModifier {
+    let documentEditor: DocumentEditor?
+
+    func body(content: Content) -> some View {
+        if let documentEditor {
+            content.modifier(BoundPageSelectionSheetPresenter(documentEditor: documentEditor))
+        } else {
+            content
+        }
+    }
+}
+
+private struct BoundPageSelectionSheetPresenter: ViewModifier {
+    @ObservedObject var documentEditor: DocumentEditor
+
+    func body(content: Content) -> some View {
+        content.sheet(isPresented: $documentEditor.showPageSelectionSheet) {
+            let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: nil, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+            if #available(iOS 16, *) {
+                pickerView.presentationDetents([.medium])
+            } else {
+                pickerView
+            }
+        }
+    }
+}
+
 // MARK: - Page Row View
 struct PageRowView: View {
     let page: Page

@@ -91,6 +91,7 @@ struct CollectionModalView : View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
+        .modifier(PageSelectionSheetPresenter(documentEditor: viewModel.tableDataModel.documentEditor))
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
                   fieldID == viewModel.tableDataModel.fieldIdentifier.fieldID else {
