@@ -1860,9 +1860,6 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol, @unchec
                 rowDataModel.cells[colIndex].data = cellDataModel
                 rowDataModel.cells[colIndex].id = UUID()
                 updatedCellModels[rowIndex] = rowDataModel
-                
-                //Update conditional logic
-                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: cellDataModel.id, rowID: rowId, valueElement: self.rowToValueElementMap[rowId])
             }
         }
     }
@@ -1912,6 +1909,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol, @unchec
             let schemaKey = rowDataModel.rowType.parentSchemaKey == "" ? rootSchemaKey : rowDataModel.rowType.parentSchemaKey
             for tableColumn in tableColumns {
                 guard let columnID = tableColumn.id else { continue }
+                // Main thread only - the visibility map is read during SwiftUI body evaluation.
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnCellChange(collectionFieldID: tableDataModel.fieldIdentifier.fieldID, columnID: columnID, rowID: row, valueElement: rowToValueElementMap[row])
                 refreshDependentCellLogic(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 refreshFormulas(rowId: row, schemaKey: schemaKey, editedColumnID: columnID)
                 if let shouldRefreshSchema = self.tableDataModel.documentEditor?.shouldRefreshSchema(for: self.tableDataModel.fieldIdentifier.fieldID, columnID: columnID), shouldRefreshSchema {
