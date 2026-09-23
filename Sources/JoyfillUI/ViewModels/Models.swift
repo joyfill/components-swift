@@ -984,9 +984,7 @@ struct TableDataModel {
     
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         if rowOrder.isEmpty {
-//            let id = generateObjectId()
             let columnData = tableColumns
-//            var columnDataLocal: [CellDataModel] = []
             let column = columnData[col]
             var optionsLocal: [OptionLocal] = []
             for option in column.options ?? []{

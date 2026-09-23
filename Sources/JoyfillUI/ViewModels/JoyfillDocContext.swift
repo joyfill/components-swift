@@ -319,7 +319,6 @@ class JoyfillDocContext: EvaluationContext {
                 fieldIdentifier = String(firstComponent[..<bracketIndex])
 
                 // Extract and split multiple array index parts like [1][2]
-//                let indexPart = String(firstComponent[bracketIndex...])
 //                let indexComponents = splitArrayIndexes(indexPart)
 //                remainingPath = indexComponents + remainingPath
             }

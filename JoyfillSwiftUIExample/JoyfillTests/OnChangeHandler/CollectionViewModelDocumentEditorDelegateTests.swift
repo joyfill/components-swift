@@ -702,7 +702,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_hidesNestedSchemaOnEveryEditedRow() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -726,7 +726,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     /// The map has to move back as well — `updateSchemaVisibility` only writes when the
     /// state actually changed, so a one-way test would pass on a half-broken update.
     func testBulkEdit_revealsNestedSchemaWhenConditionsStopMatching() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -746,7 +746,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     /// A bulk edit on a column no schema logic depends on must not disturb the map.
     func testBulkEdit_onUnrelatedColumnLeavesVisibilityUntouched() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 

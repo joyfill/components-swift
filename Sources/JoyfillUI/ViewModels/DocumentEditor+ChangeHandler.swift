@@ -941,7 +941,6 @@ extension DocumentEditor {
                 
                 self.fieldMap[fieldIdentifier.fieldID]?.value = ValueUnion.valueElementArray(elements)
                 
-//              let fieldID = fieldIdentifier.fieldID
                 let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
 
                 self.handleRowCellOnChange(event: changeEvent,
@@ -1369,8 +1368,7 @@ extension DocumentEditor {
     
     private func onChangeForDeleteNestedRow(fieldIdentifier: FieldIdentifier, rowIDs: [String], parentPath: String, schemaId: String, rowsByID: [String: [String: Any]]) {
         guard let context = makeFieldChangeContext(for: fieldIdentifier) else { return }
-        
-//      let event = FieldChangeData(fieldIdentifier: fieldIdentifier)
+
         let targetRowIndexes = rowIDs.map { TargetRowModel.init(id: $0, index: 0)}
         var changes = [Change]()
         

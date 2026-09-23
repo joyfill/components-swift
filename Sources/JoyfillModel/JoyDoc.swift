@@ -1512,10 +1512,6 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
                 return ValueElement(dictionary: dictAny)
             }
 
-            // `map` already yields a non-optional `[ValueElement]`, so this guard never failed.
-//            guard let dictValueUnion else {
-//                fatalError()
-//            }
             self.dictionary["points"] = .valueElementArray(dictValueUnion)
         }
     }

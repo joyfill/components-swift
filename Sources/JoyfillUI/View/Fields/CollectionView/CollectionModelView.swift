@@ -529,10 +529,6 @@ struct CollectionRowsHeaderView: View {
                         }
                     }
                 case .tableExpander(schemaValue: _, level: let level, parentID: _, _):
-//                    let backgroundColor = (colorScheme == .dark)
-//                    ? Color(UIColor.systemGray6)
-//                    : Color.tableColumnBgColor
-
                     HStack(spacing: 0){
                         if level == 0 {
                             EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
