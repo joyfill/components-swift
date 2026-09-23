@@ -673,6 +673,14 @@ final class TableCellFormulaTests: XCTestCase {
                          "row": ["_id": rowID, "cells": cells] as [String: Any]])
     }
 
+    private func externalRowDelete(rowID: String) -> Change {
+        change(target: "field.value.rowDelete", payload: ["rowId": rowID])
+    }
+
+    private func externalRowMove(rowID: String, to index: Int) -> Change {
+        change(target: "field.value.rowMove", payload: ["rowId": rowID, "targetRowIndex": index])
+    }
+
     /// Waits for work the SDK deferred with `DispatchQueue.main.async`.
     ///
     /// The main queue is FIFO, so a block enqueued now can only run once that work has.
@@ -708,6 +716,27 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", notesID), "5", "A formula arriving from outside is evaluated too")
     }
 
+    /// Integrators are not required to call the Change API on the main thread. The call
+    /// itself may run on a background queue; only the internal `DispatchQueue.main.async`
+    /// hop inside `handleFieldValueRowUpdate` needs main. This must recompute correctly
+    /// and must not crash.
+    func testExternalCellChangeFromBackgroundQueueRecomputesWithoutCrashing() {
+        let vm = standardViewModel()
+        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowUpdate(rowID: "row_1", cells: [self.qtyID: 10])])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+        settle() // drain the main-queue hop the background call just scheduled
+
+        XCTAssertEqual(result(vm, "row_1", totalID), "30", "10 * 3 after a background-thread change")
+        XCTAssertEqual(result(vm, "row_1", doubleID), "60", "and the chain through Total follows")
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "other rows untouched")
+    }
+
     func testExternallyAddedRowGetsItsFormulaValues() {
         let vm = standardViewModel()
         vm.tableDataModel.documentEditor?.change(changes: [externalRowCreate(rowID: "row_3", cells: [qtyID: 6, priceID: 7], at: 2)])
@@ -720,6 +749,59 @@ final class TableCellFormulaTests: XCTestCase {
         let vm = standardViewModel()
         vm.tableDataModel.documentEditor?.change(changes: [externalRowCreate(rowID: "row_3", cells: [:], at: 2)])
         XCTAssertEqual(result(vm, "row_3", totalID), "0", "Blank cells read as zero")
+    }
+
+    /// Unlike rowUpdate, `handleFieldValueRowCreate` has no internal `DispatchQueue.main.async`
+    /// hop — it runs entirely inline on whatever thread called `change`. A background-thread
+    /// caller is therefore the harder case: no waiting on `settle()` cushions it.
+    func testExternalRowCreateFromBackgroundQueueRecomputesWithoutCrashing() {
+        let vm = standardViewModel()
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowCreate(rowID: "row_3", cells: [self.qtyID: 6, self.priceID: 7], at: 2)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(result(vm, "row_3", totalID), "42", "A new row is primed as its cells are built")
+        XCTAssertEqual(result(vm, "row_3", doubleID), "84")
+    }
+
+    /// Same reasoning as row create: `handleFieldValueRowDelete` runs inline, so a
+    /// background-thread caller must still remove the row cleanly and leave the remaining
+    /// rows' formulas intact.
+    func testExternalRowDeleteFromBackgroundQueueDoesNotCrash() {
+        let vm = standardViewModel()
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowDelete(rowID: "row_1")])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        let rows = vm.tableDataModel.documentEditor?.field(fieldID: tableFieldID)?.valueToValueElements?.filter { $0.deleted != true }
+        XCTAssertEqual(rows?.count, 1, "row_1 must be gone")
+        XCTAssertNil(rows?.first(where: { $0.id == "row_1" }))
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "the surviving row's formula is untouched")
+    }
+
+    /// Same reasoning again for `handleFieldValueRowMove`: inline execution, background caller.
+    func testExternalRowMoveFromBackgroundQueueDoesNotCrash() {
+        let vm = standardViewModel()
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowMove(rowID: "row_2", to: 0)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(vm.tableDataModel.rowOrder.first, "row_2", "row_2 must now lead")
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "moving a row must not disturb its formula")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6",  "or the row it passed")
     }
 
     func testCheckChangeCheckRepeatedly() {
@@ -1058,9 +1140,82 @@ final class CollectionCellFormulaTests: XCTestCase {
         ])
     }
 
+    /// `parentPath` is `"<rootRowIndex>.<schemaId>"` — how `insertRow(for:)`/`moveRow(for:)`
+    /// find the parent row via `decodeParentPath`. Root-only rows (`parentPath: nil`) skip it.
+    private func externalRowCreate(rowID: String, cells: [String: Any], at index: Int,
+                                   schemaID: String, parentPath: String? = nil) -> Change {
+        var payload: [String: Any] = ["schemaId": schemaID, "targetRowIndex": index,
+                                      "row": ["_id": rowID, "cells": cells] as [String: Any]]
+        if let parentPath = parentPath { payload["parentPath"] = parentPath }
+        return Change(dictionary: [
+            "v": 1,
+            "sdk": "swift",
+            "_id": documentID,
+            "identifier": "doc_\(documentID)",
+            "target": "field.value.rowCreate",
+            "fileId": fileID,
+            "pageId": pageID,
+            "fieldId": collectionFieldID,
+            "fieldIdentifier": "field_\(collectionFieldID)",
+            "fieldPositionId": fieldPositionID,
+            "change": payload,
+            "createdOn": Date().timeIntervalSince1970
+        ])
+    }
+
+    private func externalRowDelete(rowID: String, schemaID: String) -> Change {
+        Change(dictionary: [
+            "v": 1,
+            "sdk": "swift",
+            "_id": documentID,
+            "identifier": "doc_\(documentID)",
+            "target": "field.value.rowDelete",
+            "fileId": fileID,
+            "pageId": pageID,
+            "fieldId": collectionFieldID,
+            "fieldIdentifier": "field_\(collectionFieldID)",
+            "fieldPositionId": fieldPositionID,
+            "change": ["rowId": rowID, "schemaId": schemaID],
+            "createdOn": Date().timeIntervalSince1970
+        ])
+    }
+
+    private func externalRowMove(rowID: String, to index: Int, schemaID: String, parentPath: String? = nil) -> Change {
+        var payload: [String: Any] = ["rowId": rowID, "targetRowIndex": index, "schemaId": schemaID]
+        if let parentPath = parentPath { payload["parentPath"] = parentPath }
+        return Change(dictionary: [
+            "v": 1,
+            "sdk": "swift",
+            "_id": documentID,
+            "identifier": "doc_\(documentID)",
+            "target": "field.value.rowMove",
+            "fileId": fileID,
+            "pageId": pageID,
+            "fieldId": collectionFieldID,
+            "fieldIdentifier": "field_\(collectionFieldID)",
+            "fieldPositionId": fieldPositionID,
+            "change": payload,
+            "createdOn": Date().timeIntervalSince1970
+        ])
+    }
+
+    /// The child rows under `parentRowID`, in document order, skipping soft-deleted ones.
+    private func childRows(_ editor: DocumentEditor, parentRowID: String, schemaID: String) -> [ValueElement] {
+        guard let parent = editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowID }),
+              case .valueElementArray(let children) = parent.childrens?[schemaID]?.value
+        else { return [] }
+        return children.filter { $0.deleted != true }
+    }
+
     private var oneRootWithOneChild: [[String: Any]] {
         [row("root_1", [qtyID: 2, priceID: 3],
              children: [row("child_1", [qtyID: 4, priceID: 5])])]
+    }
+
+    private var oneRootWithTwoChildren: [[String: Any]] {
+        [row("root_1", [qtyID: 2, priceID: 3],
+             children: [row("child_1", [qtyID: 4, priceID: 5]),
+                        row("child_2", [qtyID: 1, priceID: 1])])]
     }
 
     // MARK: - Opening a collection shows computed values
@@ -1175,6 +1330,84 @@ final class CollectionCellFormulaTests: XCTestCase {
         settle()
 
         XCTAssertEqual(value(vm, "child_1", notesID), "9", "4 + 5")
+    }
+
+    /// Same as the table-level version above: the Change API call itself may come from a
+    /// background queue. Only the internal main-queue hop needs main, and nested rows must
+    /// recompute correctly through that path without crashing.
+    func testExternalCellChangeFromBackgroundQueueOnANestedRowRecomputesWithoutCrashing() {
+        let (vm, editor) = open(rows: oneRootWithOneChild)
+        XCTAssertEqual(value(vm, "child_1", totalID), "20")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowUpdate(rowID: "child_1", cells: [self.qtyID: 10], schemaID: self.childSchema)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+        settle() // drain the main-queue hop the background call just scheduled
+
+        XCTAssertEqual(value(vm, "child_1", totalID), "50", "10 * 5")
+        XCTAssertEqual(value(vm, "root_1", totalID), "6",  "the parent row is untouched")
+    }
+
+    /// `handleFieldValueRowCreate` has no internal main-queue hop, so a nested row created
+    /// from a background thread must still get its formula values primed as it is built.
+    /// The new row is never expanded in the view model (nothing tapped to reveal it), so
+    /// this reads the context directly — the same lookup `testNestedRowsAreEvaluatedWithoutBuildingAnyCells`
+    /// uses for a row nothing has expanded.
+    func testExternalRowCreateFromBackgroundQueueOnANestedRowRecomputesWithoutCrashing() {
+        let (vm, editor) = open(rows: oneRootWithOneChild)
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowCreate(rowID: "child_2", cells: [self.qtyID: 6, self.priceID: 7],
+                                                            at: 1, schemaID: self.childSchema, parentPath: "0.\(self.childSchema)")])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(editor.cellFormulaValue(columnID: totalID, fieldID: collectionFieldID, rowID: "child_2")?.text,
+                       "42", "6 * 7, primed as the row is built")
+        XCTAssertEqual(value(vm, "root_1", totalID), "6",  "the parent row is untouched")
+    }
+
+    /// Same reasoning for `handleFieldValueRowDelete`: inline execution, so a background
+    /// caller must still remove the nested row cleanly.
+    func testExternalRowDeleteFromBackgroundQueueOnANestedRowDoesNotCrash() {
+        let (vm, editor) = open(rows: oneRootWithOneChild)
+        XCTAssertEqual(value(vm, "child_1", totalID), "20", "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowDelete(rowID: "child_1", schemaID: self.childSchema)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertTrue(childRows(editor, parentRowID: "root_1", schemaID: childSchema).isEmpty,
+                      "child_1 must be gone")
+        XCTAssertEqual(value(vm, "root_1", totalID), "6", "the parent row's formula is untouched")
+    }
+
+    /// Same reasoning again for `handleFieldValueRowMove`: inline execution, background caller.
+    func testExternalRowMoveFromBackgroundQueueOnANestedRowDoesNotCrash() {
+        let (vm, editor) = open(rows: oneRootWithTwoChildren)
+        XCTAssertEqual(childRows(editor, parentRowID: "root_1", schemaID: childSchema).map { $0.id },
+                       ["child_1", "child_2"], "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowMove(rowID: "child_2", to: 0, schemaID: self.childSchema,
+                                                         parentPath: "0.\(self.childSchema)")])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(childRows(editor, parentRowID: "root_1", schemaID: childSchema).map { $0.id },
+                       ["child_2", "child_1"], "child_2 must now lead")
+        XCTAssertEqual(value(vm, "child_1", totalID), "20", "moving a row must not disturb its formula")
+        XCTAssertEqual(value(vm, "child_2", totalID), "1",  "or the row it passed")
     }
 
     // MARK: - The document is never written
