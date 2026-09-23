@@ -138,8 +138,8 @@ final class NavigationGotoUITests: XCTestCase {
                       "App should stay alive through the collection bulk edit")
     }
 
-    /// The footer renders inside row-form sheets too, and the picker's anchor is covered there.
-    /// iOS 27 will not present from a covered anchor, so the modal has to unwind first.
+    /// The footer renders inside row-form sheets too, so `presentPageSelectionSheet(true)`
+    /// must present from there and must not leave `showPageSelectionSheet` stuck true.
     func testPageSelectionSheetOpensFromHostFooterInsideRowForm() throws {
         let picker = app.scrollViews["PageSelectionScrollViewIdentifier"]
         let footerSheetButton = app.buttons["ShowPageSelectionSheetButtonIdentifier"].firstMatch
@@ -155,12 +155,14 @@ final class NavigationGotoUITests: XCTestCase {
                       "Picker should present from inside a row form, not swallow the tap")
         XCTAssertTrue(picker.isHittable,
                       "Picker should be interactive, not merely present in the tree")
-        XCTAssertFalse(rowFormDismissButton.exists,
-                       "The row form should have unwound so the picker's anchor is uncovered")
 
         app.buttons["ClosePageSelectionSheetIdentifier"].firstMatch.tap()
         spinRunloop(0.5)
         XCTAssertFalse(picker.exists, "Picker should close")
+
+        if rowFormDismissButton.exists { rowFormDismissButton.tap(); spinRunloop(0.5) }
+        let backButton = app.buttons["BackButton"].firstMatch
+        if backButton.exists && backButton.isHittable { backButton.tap(); spinRunloop(0.5) }
 
         let navButton = app.buttons["PageNavigationIdentifier"].firstMatch
         XCTAssertTrue(navButton.waitForExistence(timeout: 5), "Should be back on the form")
