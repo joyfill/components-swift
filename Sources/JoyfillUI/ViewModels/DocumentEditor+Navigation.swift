@@ -121,12 +121,6 @@ extension DocumentEditor {
         }
     }
     
-    func dispatchPendingPageSelectionSheetIfNeeded() {
-        guard pendingPageSelectionSheet else { return }
-        pendingPageSelectionSheet = false
-        showPageSelectionSheet = true
-    }
-
     /// Navigates to a specific page, field, row, or cell
     /// - Parameters:
     ///   - path: Navigation path in format "pageId", "pageId/fieldPositionId", "pageId/fieldPositionId/rowId", or "pageId/fieldPositionId/rowId/columnId"
