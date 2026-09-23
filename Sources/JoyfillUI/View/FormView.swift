@@ -336,8 +336,7 @@ struct FormView: View {
             }
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
-                // `newValue` is a non-optional String, so this guard could never trigger.
-//                guard newValue != nil else { return }
+                guard newValue != nil else { return }
                 guard lastFocusedFieldsID != newValue else { return }
                 if let lastFocusedFieldsID = lastFocusedFieldsID {
                     let fieldEvent = documentEditor.getFieldIdentifier(for: lastFocusedFieldsID)
