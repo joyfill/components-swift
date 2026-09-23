@@ -1,4 +1,5 @@
 import JoyfillModel
+import CoreFoundation
 
 public extension DocumentEditor {
 
@@ -751,5 +752,15 @@ public struct DecoratorConfig: Equatable, Sendable {
     public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1) {
         self.visibleLimitInFields = max(0, visibleLimitInFields)
         self.visibleLimitInRows = max(0, visibleLimitInRows)
+    }
+
+    public static func rowCellWidth(forVisibleLimit visibleLimitInRows: Int) -> CGFloat {
+        if visibleLimitInRows <= 1 {
+            return 40
+        } else if visibleLimitInRows == 2 {
+            return 80
+        } else {
+            return 100
+        }
     }
 }

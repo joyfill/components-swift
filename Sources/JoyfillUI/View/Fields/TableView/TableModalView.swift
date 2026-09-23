@@ -9,7 +9,7 @@ struct TableRowView : View {
     var isSelected: Bool = false
 
     var body: some View {
-        LazyHStack(alignment: .top, spacing: 0) {
+        HStack(alignment: .top, spacing: 0) {
             if viewModel.showRowDecorators {
                 RowDecoratorMenuView(
                     decorators: viewModel.tableDataModel.getTableRowDecorators(forRowID: rowDataModel.rowID),
@@ -26,23 +26,25 @@ struct TableRowView : View {
                 .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
                 .border(Color.tableCellBorderColor)
             }
-            ForEach($rowDataModel.cells, id: \.id) { $cellModel in
-                let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID) && !cellModel.isFilled
-                TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
-                    .frame(width: Utility.singleColumnWidth, height: 60)
-                    .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 0)
-                            .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
-                    )
-                    .overlay {
-                        if showRequired {
-                            RoundedRectangle(cornerRadius: 8)
-                                .inset(by: 2)
-                                .stroke(colorScheme == .dark ? Color.pink : Color.red,
-                                        lineWidth: colorScheme == .dark ? 1 : 0.5)
+            LazyHStack(alignment: .top, spacing: 0) {
+                ForEach($rowDataModel.cells, id: \.id) { $cellModel in
+                    let showRequired = viewModel.isCellRequired(columnID: cellModel.data.id, rowID: rowDataModel.rowID) && !cellModel.isFilled
+                    TableViewCellBuilder(viewModel: viewModel, cellModel: $cellModel)
+                        .frame(width: Utility.singleColumnWidth, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isSelected, colorScheme: colorScheme))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 0)
+                                .stroke(Color.tableCellBorderColor, lineWidth: 1.5)
+                        )
+                        .overlay {
+                            if showRequired {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .inset(by: 2)
+                                    .stroke(colorScheme == .dark ? Color.pink : Color.red,
+                                            lineWidth: colorScheme == .dark ? 1 : 0.5)
+                            }
                         }
-                    }
+                }
             }
         }
     }

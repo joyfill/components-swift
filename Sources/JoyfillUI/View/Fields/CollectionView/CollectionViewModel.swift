@@ -2330,14 +2330,7 @@ extension TableDataViewModelProtocol {
     }
 
     func decoratorsCellWidth(for tableDataModel: TableDataModel) -> CGFloat {
-        let config = decoratorConfig(for: tableDataModel)
-        if config.visibleLimitInRows <= 1 {
-            return 40
-        } else if config.visibleLimitInRows == 2 {
-            return 80
-        } else {
-            return 100
-        }
+        DecoratorConfig.rowCellWidth(forVisibleLimit: decoratorConfig(for: tableDataModel).visibleLimitInRows)
     }
 }
 
