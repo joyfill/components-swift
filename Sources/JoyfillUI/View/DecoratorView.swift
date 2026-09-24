@@ -252,10 +252,10 @@ struct RowDecoratorMenuView: View {
     private var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
 
     var body: some View {
-        let displayable = self.displayable
-        let exceedsLimit = displayable.count > visibleLimit
+        let visibleDecorators = displayable
+        let exceedsLimit = visibleDecorators.count > visibleLimit
 
-        if displayable.isEmpty {
+        if visibleDecorators.isEmpty {
             Color.clear.frame(width: 40, height: 60)
         } else if exceedsLimit {
             kebabButton.frame(width: 40, height: 60)
@@ -263,7 +263,7 @@ struct RowDecoratorMenuView: View {
             let width = DecoratorConfig.rowCellWidth(forVisibleLimit: visibleLimit)
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
-                    ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
+                    ForEach(Array(visibleDecorators.enumerated()), id: \.offset) { _, decorator in
                         DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
                     }
                 }
