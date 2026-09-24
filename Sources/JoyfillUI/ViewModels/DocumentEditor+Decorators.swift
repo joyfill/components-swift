@@ -754,7 +754,7 @@ public struct DecoratorConfig: Equatable, Sendable {
         self.visibleLimitInRows = max(0, visibleLimitInRows)
     }
 
-    public static func rowCellWidth(forVisibleLimit visibleLimitInRows: Int) -> CGFloat {
+    static func rowCellWidth(forVisibleLimit visibleLimitInRows: Int) -> CGFloat {
         if visibleLimitInRows <= 1 {
             return 40
         } else if visibleLimitInRows == 2 {
