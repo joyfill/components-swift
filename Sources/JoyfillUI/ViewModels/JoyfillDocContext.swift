@@ -3061,6 +3061,15 @@ extension JoyfillDocContext {
         cellResults[fieldID] = field.filter { !dropped.contains($0.key.rowID) }
     }
 
+    /// Markers `Evaluator.stringify(_:)` renders an unconsumed `.error` value as (e.g. a
+    /// circular reference reaching `+`) instead of failing outright.
+    private static let leakedFormulaErrorMarkers =
+        ["#SYNTAX!(", "#REF!(", "#TYPE!(", "#ARGS!(", "#DIV/0!", "#CIRC!(", "#ERROR!("]
+
+    private func isLeakedFormulaErrorText(_ text: String) -> Bool {
+        Self.leakedFormulaErrorMarkers.contains { text.contains($0) }
+    }
+
     /// Evaluates the given columns of one row and writes the results. A column with no
     /// formula is cleared rather than skipped, so deleting a formula drops its result.
     private func store(_ columns: [String],
@@ -3080,8 +3089,10 @@ extension JoyfillDocContext {
             case .failure:
                 cellResults[fieldID, default: [:]][cell] = CellFormulaValue(text: "Error", isError: true)
             case .success(let value):
-                cellResults[fieldID, default: [:]][cell] = CellFormulaValue(
-                    text: cellDisplayText(value, setup: setup, columnID: columnID), isError: false)
+                let text = cellDisplayText(value, setup: setup, columnID: columnID)
+                cellResults[fieldID, default: [:]][cell] = isLeakedFormulaErrorText(text)
+                    ? CellFormulaValue(text: "Error", isError: true)
+                    : CellFormulaValue(text: text, isError: false)
             }
         }
     }

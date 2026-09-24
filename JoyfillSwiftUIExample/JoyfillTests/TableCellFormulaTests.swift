@@ -366,6 +366,18 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", totalID), "Error", "B and D reference each other")
     }
 
+    /// A bare reference to a circular cell surfaces cleanly (the test above), but `+`
+    /// stringifies its operands — so without the fix a circular value reached through it
+    /// rendered as raw text like `prefix#CIRC!(Circular reference at column 'B')` instead.
+    func testCircularReferenceInsideConcatenationStillSurfacesAsError() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: totalID, type: .text,   title: "Total",  formula: "=D"),
+                       column(id: doubleID, type: .text,  title: "Double", formula: "=B"),
+                       column(id: notesID, type: .text,   title: "Notes",  formula: "=\"prefix\" + B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 1])]))
+        XCTAssertEqual(result(vm, "row_1", notesID), "Error", "not the raw '#CIRC!(...)' text")
+    }
+
     // MARK: - Invalid formulas
 
     func testUnbalancedParenthesisIsAnError() {
@@ -716,10 +728,7 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", notesID), "5", "A formula arriving from outside is evaluated too")
     }
 
-    /// Integrators are not required to call the Change API on the main thread. The call
-    /// itself may run on a background queue; only the internal `DispatchQueue.main.async`
-    /// hop inside `handleFieldValueRowUpdate` needs main. This must recompute correctly
-    /// and must not crash.
+    /// Called from a background queue; only the internal main-queue hop needs main.
     func testExternalCellChangeFromBackgroundQueueRecomputesWithoutCrashing() {
         let vm = standardViewModel()
         XCTAssertEqual(result(vm, "row_1", totalID), "6", "Before the change")
@@ -751,9 +760,7 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_3", totalID), "0", "Blank cells read as zero")
     }
 
-    /// Unlike rowUpdate, `handleFieldValueRowCreate` has no internal `DispatchQueue.main.async`
-    /// hop — it runs entirely inline on whatever thread called `change`. A background-thread
-    /// caller is therefore the harder case: no waiting on `settle()` cushions it.
+    /// Unlike rowUpdate, rowCreate has no main-queue hop — it runs inline on the caller's thread.
     func testExternalRowCreateFromBackgroundQueueRecomputesWithoutCrashing() {
         let vm = standardViewModel()
 
@@ -768,9 +775,7 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_3", doubleID), "84")
     }
 
-    /// Same reasoning as row create: `handleFieldValueRowDelete` runs inline, so a
-    /// background-thread caller must still remove the row cleanly and leave the remaining
-    /// rows' formulas intact.
+    /// Same reasoning: rowDelete also runs inline.
     func testExternalRowDeleteFromBackgroundQueueDoesNotCrash() {
         let vm = standardViewModel()
         XCTAssertEqual(result(vm, "row_2", totalID), "20", "Before the change")
@@ -788,7 +793,7 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_2", totalID), "20", "the surviving row's formula is untouched")
     }
 
-    /// Same reasoning again for `handleFieldValueRowMove`: inline execution, background caller.
+    /// Same reasoning for rowMove.
     func testExternalRowMoveFromBackgroundQueueDoesNotCrash() {
         let vm = standardViewModel()
 
@@ -1332,9 +1337,7 @@ final class CollectionCellFormulaTests: XCTestCase {
         XCTAssertEqual(value(vm, "child_1", notesID), "9", "4 + 5")
     }
 
-    /// Same as the table-level version above: the Change API call itself may come from a
-    /// background queue. Only the internal main-queue hop needs main, and nested rows must
-    /// recompute correctly through that path without crashing.
+    /// Same as the table-level version, for the nested/collection path.
     func testExternalCellChangeFromBackgroundQueueOnANestedRowRecomputesWithoutCrashing() {
         let (vm, editor) = open(rows: oneRootWithOneChild)
         XCTAssertEqual(value(vm, "child_1", totalID), "20")
@@ -1351,11 +1354,8 @@ final class CollectionCellFormulaTests: XCTestCase {
         XCTAssertEqual(value(vm, "root_1", totalID), "6",  "the parent row is untouched")
     }
 
-    /// `handleFieldValueRowCreate` has no internal main-queue hop, so a nested row created
-    /// from a background thread must still get its formula values primed as it is built.
-    /// The new row is never expanded in the view model (nothing tapped to reveal it), so
-    /// this reads the context directly — the same lookup `testNestedRowsAreEvaluatedWithoutBuildingAnyCells`
-    /// uses for a row nothing has expanded.
+    /// The new row is never expanded in the view model, so this reads the context directly —
+    /// same lookup as `testNestedRowsAreEvaluatedWithoutBuildingAnyCells`.
     func testExternalRowCreateFromBackgroundQueueOnANestedRowRecomputesWithoutCrashing() {
         let (vm, editor) = open(rows: oneRootWithOneChild)
 
@@ -1372,8 +1372,6 @@ final class CollectionCellFormulaTests: XCTestCase {
         XCTAssertEqual(value(vm, "root_1", totalID), "6",  "the parent row is untouched")
     }
 
-    /// Same reasoning for `handleFieldValueRowDelete`: inline execution, so a background
-    /// caller must still remove the nested row cleanly.
     func testExternalRowDeleteFromBackgroundQueueOnANestedRowDoesNotCrash() {
         let (vm, editor) = open(rows: oneRootWithOneChild)
         XCTAssertEqual(value(vm, "child_1", totalID), "20", "Before the change")
@@ -1390,7 +1388,6 @@ final class CollectionCellFormulaTests: XCTestCase {
         XCTAssertEqual(value(vm, "root_1", totalID), "6", "the parent row's formula is untouched")
     }
 
-    /// Same reasoning again for `handleFieldValueRowMove`: inline execution, background caller.
     func testExternalRowMoveFromBackgroundQueueOnANestedRowDoesNotCrash() {
         let (vm, editor) = open(rows: oneRootWithTwoChildren)
         XCTAssertEqual(childRows(editor, parentRowID: "root_1", schemaID: childSchema).map { $0.id },
