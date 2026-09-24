@@ -587,6 +587,7 @@ private struct BoundPageSelectionSheetPresenter: ViewModifier {
 
     func body(content: Content) -> some View {
         content.sheet(isPresented: $documentEditor.showPageSelectionSheet) {
+            // pageOrder is unused by PageDuplicateListView (it reads documentEditor.currentPageOrder instead), so nil is safe here.
             let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: nil, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
             if #available(iOS 16, *) {
                 pickerView.presentationDetents([.medium])
