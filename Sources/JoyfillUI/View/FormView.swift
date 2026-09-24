@@ -567,7 +567,9 @@ struct PageDuplicateListView: View {
     }
 }
 
-// Presents page picker from the host it's attached to
+// iOS 27 won't present a sheet from a non-topmost view controller, so each host anchors its own.
+// `documentEditor` is optional here but `@ObservedObject` can't wrap an Optional, so this
+// unwraps and delegates to `BoundPageSelectionSheetPresenter`. Keep the split.
 struct PageSelectionSheetPresenter: ViewModifier {
     let documentEditor: DocumentEditor?
 
