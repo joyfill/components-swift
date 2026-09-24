@@ -278,7 +278,7 @@ extension JoyDoc {
     /// - Parameter key: The key for which the value should be retrieved.
     /// - Returns: The value associated with the given key, or `nil` if the key does not exist or the value cannot be decoded.
     mutating private func getValue(key: String) -> [JSONAny]? {
-        guard dictionary[key] is [String: Any] else {
+        guard let value = dictionary[key] as? [String: Any] else {
             return nil
         }
         guard let data = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted) else {
@@ -666,7 +666,7 @@ public struct JoyDocField: Equatable {
 
 
     public mutating func moveUP(rowID: String)  -> [TargetRowModel] {
-        guard valueToValueElements != nil else {
+        guard var elements = valueToValueElements else {
             return []
         }
         var lastRowOrder = self.rowOrder ?? []
@@ -681,7 +681,7 @@ public struct JoyDocField: Equatable {
     }
 
     public mutating func moveDown(rowID: String)  -> [TargetRowModel] {
-        guard valueToValueElements != nil else {
+        guard var elements = valueToValueElements else {
             return []
         }
         var lastRowOrder = self.rowOrder ?? []
@@ -714,7 +714,7 @@ public struct JoyDocField: Equatable {
 
         selectedRows.forEach { rowID in
             let newRowID = generateObjectId()
-            let element = ValueElement(id: newRowID)
+            var element = ValueElement(id: newRowID)
             elements.append(element)
             let lastRowIndex = lastRowOrder.firstIndex(of: rowID)!
             lastRowOrder.insert(newRowID, at: lastRowIndex+1)
@@ -730,7 +730,7 @@ public struct JoyDocField: Equatable {
     public mutating func addRowWithFilter(id: String, filterModels: [FilterModel]) {
         var elements = valueToValueElements ?? []
 
-        let newRow = ValueElement(id: id)
+        var newRow = ValueElement(id: id)
         elements.append(newRow)
         self.value = ValueUnion.valueElementArray(elements)
         rowOrder?.append(id)
@@ -750,13 +750,13 @@ public struct JoyDocField: Equatable {
     ///
     /// - Note: The `editedCell` parameter is of type `FieldTableColumn`, which includes properties such as `type`, `id`, `title`, `defaultDropdownSelectedId`, and `images`.
     public mutating func cellDidChange(rowId: String, colIndex: Int, editedCell: FieldTableColumn) {
-        guard let elements = valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+        guard var elements = valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
             return
         }
         
         switch editedCell.type {
         case .text:
-            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title))
+            changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.title ?? ""))
         case .dropdown:
             changeCell(elements: elements, index: index, editedCellId: editedCell.id, newCell: ValueUnion.string(editedCell.defaultDropdownSelectedId ?? ""))
         case .image:
@@ -767,7 +767,7 @@ public struct JoyDocField: Equatable {
     }
 
     public mutating func cellDidChange(rowId: String, colIndex: Int, editedCellId: String, value: String) {
-        guard let elements = valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
+        guard var elements = valueToValueElements, let index = elements.firstIndex(where: { $0.id == rowId }) else {
             return
         }
 
@@ -1388,8 +1388,10 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         for (key, value) in dictionary {
-            guard let codingKey = CodingKeys(stringValue: key) else { return }
-            try container.encode(value, forKey: codingKey)
+            if let value = value as? ValueUnion {
+                guard let codingKey = CodingKeys(stringValue: key) else { return }
+                try container.encode(value, forKey: codingKey)
+            }
         }
     }
 
@@ -1450,45 +1452,45 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
 
     /// The ID of the value element.
     public var id: String? {
-        get { dictionary["_id"]?.text}
+        get { (dictionary["_id"] as? ValueUnion)?.text}
         set { setValue(newValue, key: "_id") }
     }
 
     /// The URL of the value element.
     public var url: String? {
-        get { dictionary["url"]?.text}
+        get { (dictionary["url"] as? ValueUnion)?.text}
         set { setValue(newValue, key: "url") }
     }
 
     /// The file name of the value element.
     public var fileName: String? {
-        get { dictionary["fileName"]?.text}
+        get { (dictionary["fileName"] as? ValueUnion)?.text}
         set { setValue(newValue, key: "fileName") }
     }
 
     /// The file path of the value element.
     public var filePath: String? {
-        get { dictionary["filePath"]?.text}
+        get { (dictionary["filePath"] as? ValueUnion)?.text}
         set { setValue(newValue, key: "filePath") }
     }
 
     /// A flag indicating if the value element is deleted.
     public var deleted: Bool? {
-        get { dictionary["deleted"]?.bool}
+        get { (dictionary["deleted"] as? ValueUnion)?.bool}
         set { setValue(newValue, key: "deleted") }
 
     }
 
     /// The title of the value element.
     public var title: String? {
-        get { dictionary["title"]?.text}
+        get { (dictionary["title"] as? ValueUnion)?.text}
 
         set { setValue(newValue, key: "title") }
     }
 
     /// The description of the value element.
     public var description: String? {
-        get { dictionary["description"]?.text}
+        get { (dictionary["description"] as? ValueUnion)?.text}
 
         set { setValue(newValue, key: "description") }
     }
@@ -1496,7 +1498,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     /// The points associated with the value element.
     public var points: [Point]? {
         get {
-            let value = (dictionary["points"]?.dictionaryWithValueUnionTypes as? [ValueElement])
+            let value = ((dictionary["points"] as? ValueUnion)?.dictionaryWithValueUnionTypes as? [ValueElement])
             return value?.compactMap(Point.init)
         }
 
@@ -1504,14 +1506,18 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
             guard let value = newValue else {
                 return
             }
-            let dictValueUnion: [ValueElement] = value.map { point in
+            let dictValueUnion = value.flatMap { point in
                 var dictAny = [String: ValueUnion]()
-                point.dictionary.forEach { (key, value) in
+                let dict = point.dictionary.forEach { (key, value) in
                     dictAny[key] = ValueUnion(value: value)
                 }
                 return ValueElement(dictionary: dictAny)
-            }
+            } as? [ValueElement]
 
+            guard let dictValueUnion else {
+                fatalError()
+                return
+            }
             self.dictionary["points"] = .valueElementArray(dictValueUnion)
         }
     }
@@ -1519,7 +1525,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     /// The cells associated with the value element.
     public var cells: [String: ValueUnion]? {
         get {
-            let value = dictionary["cells"]
+            let value = dictionary["cells"] as? ValueUnion
             return value?.dictionaryWithValueUnionTypes as? [String: ValueUnion]
         }
         set {
@@ -1532,7 +1538,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     /// Supports access and updating for workflows that reference a specific field or row.
     public var metadata: Metadata? {
         get {
-            guard let valueUnion = dictionary["metadata"],
+            guard let valueUnion = dictionary["metadata"] as? ValueUnion,
                   let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
             return Metadata(dictionary: anyDict)
         }
@@ -1547,7 +1553,7 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     
     public var childrens: [String: Children]? {
         get {
-            guard let value = dictionary["children"],
+            guard let value = dictionary["children"] as? ValueUnion,
                   let rawDict = value.dictionaryWithValueUnionTypes as? [String: ValueUnion] else {
                 return nil
             }
@@ -1571,14 +1577,14 @@ public struct ValueElement: Codable, Equatable, Hashable, Identifiable {
     
     /// The timezone of the date
     public var tz: String? {
-        get { dictionary["tz"]?.text }
+        get { (dictionary["tz"] as? ValueUnion)?.text }
         set { setValue(newValue, key: "tz") }
     }
 
     /// Per-row decorators: `all` for row-level, `cells` for per-cell keyed by column ID.
     public var decorators: Decorators? {
         get {
-            guard let valueUnion = dictionary["decorators"],
+            guard let valueUnion = dictionary["decorators"] as? ValueUnion,
                   let anyDict = valueUnion.dictionary as? [String: Any] else { return nil }
             return Decorators(dictionary: anyDict)
         }
@@ -1650,7 +1656,9 @@ public struct Point: Codable,Hashable, Equatable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         for (key, value) in dictionary {
-            try container.encode(value, forKey: CodingKeys(stringValue: key)!)
+            if let value = value as? ValueUnion {
+                try container.encode(value, forKey: CodingKeys(stringValue: key)!)
+            }
         }
     }
 
@@ -1708,20 +1716,20 @@ public struct Point: Codable,Hashable, Equatable {
 
     /// The id of the `Point`.
     public var id: String? {
-        get { dictionary["_id"]?.text }
+        get { (dictionary["_id"] as? ValueUnion)?.text }
         set { setValue(newValue, key: "_id") }
     }
 
     /// The label of the `Point`.
     public var label: String? {
-        get { dictionary["label"]?.text }
+        get { (dictionary["label"] as? ValueUnion)?.text }
         set { setValue(newValue, key: "label") }
     }
 
     /// The y-coordinate of the `Point`.
     public var y: CGFloat? {
         get {
-            guard let valueUnion = dictionary["y"]?.number else { return nil }
+            guard let valueUnion = (dictionary["y"] as? ValueUnion)?.number else { return nil }
             return CGFloat(valueUnion)
         }
         set { setValue(newValue, key: "y") }
@@ -1730,7 +1738,7 @@ public struct Point: Codable,Hashable, Equatable {
     /// The x-coordinate of the `Point`.
     public var x: CGFloat? {
         get {
-            guard let valueUnion = dictionary["x"]?.number else { return nil }
+            guard let valueUnion = (dictionary["x"] as? ValueUnion)?.number else { return nil }
             return CGFloat(valueUnion)
         }
         set { setValue(newValue, key: "x") }
