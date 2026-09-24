@@ -7,11 +7,9 @@
 
 import Foundation
 import SwiftUI
-@preconcurrency import JoyfillModel
+import JoyfillModel
 
-// `@unchecked`: background blocks work off a main-thread snapshot of `tableDataModel`,
-// never reading published state through `self` off-main.
-class CollectionViewModel: ObservableObject, TableDataViewModelProtocol, @unchecked Sendable {
+class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     @Published var tableDataModel: TableDataModel
     
     @Published var shouldShowAddRowButton: Bool = false
