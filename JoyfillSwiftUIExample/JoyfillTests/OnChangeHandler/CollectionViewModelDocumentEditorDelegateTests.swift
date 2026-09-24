@@ -791,15 +791,9 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         ])
     }
 
-    /// The raw-JSON twin of `hidingChanges` - satisfies all five hide conditions at once.
+    /// The raw-JSON form of `hidingChanges`, derived from it so the two cannot drift apart.
     private var hidingCells: [String: Any] {
-        [
-            rootTextColumnID: "hide depth2",
-            rootDropdownColumnID: "684c3fedf47cc0fea6bca947",
-            rootNumberColumnID: 1000,
-            rootBarcodeColumnID: "BC-567",
-            rootMultiColumnID: ["68575301e490d0ce22ae5e7b"]
-        ]
+        hidingChanges.compactMapValues { $0.dictionary }
     }
 
     func testExternalRowUpdate_hidesNestedSchemaOnTheEditedRow() async throws {

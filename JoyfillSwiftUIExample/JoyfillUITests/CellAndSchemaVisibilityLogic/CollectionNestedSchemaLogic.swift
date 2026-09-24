@@ -36,9 +36,8 @@ final class CollectionNestedSchemaLogic: JoyfillUITestsBaseClass {
 
     private func openRootMultiSelectCell() {
         let cell = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").firstMatch
-        let grid = app.scrollViews["TableScrollView"].exists ? app.scrollViews["TableScrollView"] : app.scrollViews.firstMatch
         for _ in 0..<4 where !cell.exists {
-            grid.swipeLeft()
+            app.swipeLeft()
             spinRunloop(0.3)
         }
         XCTAssertTrue(cell.waitForExistence(timeout: 5), "MultiSelect cell never appeared")
@@ -92,18 +91,18 @@ final class CollectionNestedSchemaLogic: JoyfillUITestsBaseClass {
 
         XCTAssertTrue(app.staticTexts["New Table 1"].waitForExistence(timeout: 10),
                       "Option 1 is selected, so New Table 1 must be visible")
-        XCTAssertTrue(app.staticTexts["New Table 2"].exists,
+        XCTAssertTrue(app.staticTexts["New Table 2"].waitForExistence(timeout: 10),
                       "Option 2 is still selected, so New Table 2 must stay visible")
-        XCTAssertTrue(app.staticTexts["New Table 3"].exists,
+        XCTAssertTrue(app.staticTexts["New Table 3"].waitForExistence(timeout: 10),
                       "Option 3 is selected, so New Table 3 must be visible")
 
         toggleRootMultiSelect(["Option 1", "Option 2", "Option 3"])
 
         XCTAssertTrue(app.staticTexts["New Table 1"].waitForNonExistence(timeout: 10),
                       "No option is selected, so New Table 1 must be hidden")
-        XCTAssertFalse(app.staticTexts["New Table 2"].exists,
-                       "No option is selected, so New Table 2 must be hidden")
-        XCTAssertFalse(app.staticTexts["New Table 3"].exists,
-                       "No option is selected, so New Table 3 must be hidden")
+        XCTAssertTrue(app.staticTexts["New Table 2"].waitForNonExistence(timeout: 10),
+                      "No option is selected, so New Table 2 must be hidden")
+        XCTAssertTrue(app.staticTexts["New Table 3"].waitForNonExistence(timeout: 10),
+                      "No option is selected, so New Table 3 must be hidden")
     }
 }
