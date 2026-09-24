@@ -154,16 +154,16 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_2", doubleID), "40")
     }
 
-    func testColumnCanBeReferencedByItsIdentifier() {
-        let vm = standardViewModel(totalFormula: "=field_column_col_qty * field_column_col_price")
-        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Identifier resolves before the letter")
+    func testColumnCanBeReferencedByItsID() {
+        let vm = standardViewModel(totalFormula: "=\(qtyID) * \(priceID)")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6", "id resolves before the title or the letter")
     }
 
-
-    /// References resolve by identifier, title, then letter. A column id is not a tier:
-    /// real ids are ObjectIds, which the shared lexer cannot begin an identifier with, and
-    /// teaching it to would be a change to JoyfillFormulas rather than a rewrite here.
-    func testAColumnIDIsNotAReference() {
+    /// References resolve by id, title, then letter. A column's `identifier` field plays no
+    /// part. Real ids are ObjectIds, which start with a digit — the shared lexer cannot begin
+    /// an identifier with one, so this specific shape of id is still unreachable; teaching the
+    /// lexer to accept it would be a change to JoyfillFormulas rather than a rewrite here.
+    func testADigitLeadingColumnIDIsNotAReference() {
         let qty = "6aa0ea5666f683e02ea449b5"
         let columns = [column(id: qty, type: .number, title: "Qty"),
                        column(id: priceID, type: .number, title: "Price"),
@@ -174,7 +174,7 @@ final class TableCellFormulaTests: XCTestCase {
 
     func testColumnCanBeReferencedByItsTitle() {
         let vm = standardViewModel(totalFormula: "=Qty * Price")
-        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Title resolves when no id or identifier matches")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Title resolves when no id matches")
     }
 
     func testTitleIsMatchedCaseInsensitively() {
@@ -186,25 +186,25 @@ final class TableCellFormulaTests: XCTestCase {
 
     /// The lexer makes an identifier from letters, digits and `_`, so a multi-word title
     /// is two tokens and can never be referenced. The column is still reachable by its
-    /// identifier or its letter.
+    /// id or its letter.
     func testAMultiWordTitleCannotBeReferenced() {
-        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price"),
                        column(id: priceID, type: .number, title: "Qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=Unit Price * B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "Error")
     }
 
-    func testAColumnWithAMultiWordTitleIsStillReachableByIdentifier() {
-        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+    func testAColumnWithAMultiWordTitleIsStillReachableByID() {
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price"),
                        column(id: priceID, type: .number, title: "Qty"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=unitPrice * B")]
+                       column(id: totalID, type: .text, title: "Total", formula: "=\(qtyID) * B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "12")
     }
 
     func testAColumnWithAMultiWordTitleIsStillReachableByLetter() {
-        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price"),
                        column(id: priceID, type: .number, title: "Qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=A * B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
@@ -213,7 +213,7 @@ final class TableCellFormulaTests: XCTestCase {
 
     func testTitlesWithPunctuationCannotBeReferenced() {
         for title in ["Qty (kg)", "Price%", "Notes!", "Unit/Price"] {
-            let columns = [column(id: qtyID, type: .number, title: title, identifier: "i_qty"),
+            let columns = [column(id: qtyID, type: .number, title: title),
                            column(id: totalID, type: .text, title: "Total", formula: "=\(title)")]
             let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4])]))
             XCTAssertEqual(result(vm, "row_1", totalID), "Error", "`\(title)` is not one token")
@@ -223,12 +223,12 @@ final class TableCellFormulaTests: XCTestCase {
     /// A title made of operators is read as the expression it looks like, not as a name.
     /// `Total-Cost` subtracts, `50/50` divides — neither reaches the resolver.
     func testATitleThatLooksLikeAnExpressionIsEvaluatedAsOne() {
-        let numeric = [column(id: qtyID, type: .number, title: "50/50", identifier: "i_qty"),
+        let numeric = [column(id: qtyID, type: .number, title: "50/50"),
                        column(id: totalID, type: .text, title: "Total", formula: "=50/50")]
         XCTAssertEqual(result(viewModel(document(columns: numeric, rows: [row("row_1", [qtyID: 4])])),
                               "row_1", totalID), "1", "Arithmetic on two numbers, not the column titled 50/50")
 
-        let hyphen = [column(id: qtyID, type: .number, title: "Total-Cost", identifier: "i_qty"),
+        let hyphen = [column(id: qtyID, type: .number, title: "Total-Cost"),
                       column(id: priceID, type: .number, title: "Cost"),
                       column(id: totalID, type: .text, title: "Total", formula: "=Total-Cost")]
         XCTAssertEqual(result(viewModel(document(columns: hyphen,
@@ -237,25 +237,36 @@ final class TableCellFormulaTests: XCTestCase {
                        "Reads as Total minus Cost; Total is a text column, so it fails rather than guessing")
     }
 
-    /// A multi-word identifier is no more writable than a multi-word title.
-    func testAMultiWordIdentifierCannotBeReferencedEither() {
-        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "unit price"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=unit price")]
+    /// A column's `identifier` field is not part of resolution at all — a formula typing it
+    /// finds nothing, whether it is one word or several.
+    func testAColumnsIdentifierFieldDoesNotResolveAnything() {
+        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "myIdentifier"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=myIdentifier")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "Error")
     }
 
     // MARK: - Resolution priority: id, then name, then letter
 
-    func testATitleIsNotShadowedByAnotherColumnsID() {
-        // The first column's id is the second column's title. Ids are not references, so
-        // `=qty` is the column *titled* qty and nothing is ambiguous.
+    func testAColumnsIDBeatsAnotherColumnsTitle() {
+        // The first column's id is the second column's title. id is the top resolution
+        // tier, so `=qty` is the column *whose id is* qty, not the column titled qty.
         let columns = [column(id: "qty", type: .number, title: "Price"),
                        column(id: "price", type: .number, title: "qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=qty")]
         let vm = viewModel(document(columns: columns,
                                     rows: [row("row_1", ["qty": 7, "price": 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "99", "The column titled `qty`")
+        XCTAssertEqual(result(vm, "row_1", totalID), "7", "The column whose id is `qty`")
+    }
+
+    /// A column's own id is referenceable even when its `identifier` is something else
+    /// entirely and its title is multi-word (and so unreferenceable on its own).
+    func testAColumnIsReferenceableByItsOwnID() {
+        let columns = [column(id: "text1", type: .text, title: "Operand A", identifier: "table3_column_text1"),
+                       column(id: "text2", type: .text, title: "Operand B", identifier: "table3_column_text2"),
+                       column(id: "text3", type: .text, title: "SUM(A,B)", formula: "=SUM(text1,text2)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["text1": "10", "text2": "21"])]))
+        XCTAssertEqual(result(vm, "row_1", "text3"), "31")
     }
 
     func testColumnNameBeatsAPositionalLetter() {
@@ -266,26 +277,6 @@ final class TableCellFormulaTests: XCTestCase {
         let vm = viewModel(document(columns: columns,
                                     rows: [row("row_1", [qtyID: 7, priceID: 99])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "99", "The column named A, not the column at position A")
-    }
-
-    func testAnIdentifierBeatsAnotherColumnsTitle() {
-        // Identifiers and titles share one lookup, but every identifier is claimed before
-        // any title is, so the second column's title loses to the first's identifier.
-        let columns = [column(id: qtyID, type: .number, title: "Alpha", identifier: "shared"),
-                       column(id: priceID, type: .number, title: "shared", identifier: "i_price"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=shared")]
-        let vm = viewModel(document(columns: columns,
-                                    rows: [row("row_1", [qtyID: 7, priceID: 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "7", "The column whose identifier is `shared`")
-    }
-
-    func testDuplicateIdentifiersResolveToTheLeftmostColumn() {
-        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "dup"),
-                       column(id: priceID, type: .number, title: "Price", identifier: "dup"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=dup")]
-        let vm = viewModel(document(columns: columns,
-                                    rows: [row("row_1", [qtyID: 7, priceID: 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "7")
     }
 
     func testDuplicateTitlesResolveToTheLeftmostColumn() {
@@ -307,10 +298,10 @@ final class TableCellFormulaTests: XCTestCase {
 
     // MARK: - A cell formula resolves references the same way
 
-    func testCellFormulaCanUseIdentifiersAndTitles() {
+    func testCellFormulaCanUseIDsAndTitles() {
         let vm = standardViewModel(rows: [row("row_1", [qtyID: 2, priceID: 3,
-                                                        notesID: "=field_column_col_qty + Price"])])
-        XCTAssertEqual(result(vm, "row_1", notesID), "5", "One by identifier, one by title, in a cell formula")
+                                                        notesID: "=\(qtyID) + Price"])])
+        XCTAssertEqual(result(vm, "row_1", notesID), "5", "One by id, one by title, in a cell formula")
     }
 
     func testBlankCellsReadAsZeroRatherThanFailing() {
@@ -598,12 +589,117 @@ final class TableCellFormulaTests: XCTestCase {
 
     /// Text stays text, so arithmetic on it asks for TONUMBER. Coercing at read time
     /// would change the value for every consumer, not only the operators.
-    func testArithmeticOnATextCellNeedsTONUMBER() {
+    /// `*` (like the rest of arithmetic) now coerces a text-cell operand automatically —
+    /// explicit TONUMBER is no longer required, though it still reads the same.
+    func testArithmeticOnATextCellCoercesAutomatically() {
         let rows = [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])]
         XCTAssertEqual(result(standardViewModel(totalFormula: "=E * 2", rows: rows), "row_1", totalID),
-                       "Error", "`=E * 2` on a text cell is a type error")
+                       "46", "`=E * 2` on a text cell coerces automatically")
         XCTAssertEqual(result(standardViewModel(totalFormula: "=TONUMBER(E) * 2", rows: rows), "row_1", totalID),
-                       "46", "…and TONUMBER is how you ask for it")
+                       "46", "TONUMBER still works too")
+    }
+
+    /// SUM's whole job is numeric aggregation, so its own direct column arguments get the
+    /// same implicit TONUMBER a whole-column array argument already gets — same rule as
+    /// the arithmetic operators just above.
+    func testSumCoercesTextCellsHoldingNumbers() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=SUM(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "3"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "5", "SUM reads numeric-looking text cells")
+    }
+
+    /// The coercion is still TONUMBER underneath, so genuinely non-numeric text is still an
+    /// error rather than being silently treated as zero.
+    func testSumStillErrorsOnGenuinelyNonNumericText() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=SUM(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "hello", "col_b": "3"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "Error")
+    }
+
+    func testSumStillWorksOnNumberColumns() {
+        let vm = standardViewModel(totalFormula: "=SUM(A,B)")
+        XCTAssertEqual(result(vm, "row_1", totalID), "5", "2 + 3, unaffected by the text-cell coercion")
+    }
+
+    /// The same rule applies to the rest of the numeric-function family, not just SUM.
+    func testOtherNumericFunctionsAlsoCoerceTextCells() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_min", type: .text, title: "Min", formula: "=MIN(A, B)"),
+                       column(id: "col_max", type: .text, title: "Max", formula: "=MAX(A, B)"),
+                       column(id: "col_avg", type: .text, title: "Avg", formula: "=AVG(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "8"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_min"), "2")
+        XCTAssertEqual(result(vm, "row_1", "col_max"), "8")
+        XCTAssertEqual(result(vm, "row_1", "col_avg"), "5")
+    }
+
+    /// `-`/`*`/`/` have no string meaning, unlike `+`, so a text-cell operand is always safe
+    /// to coerce — this is the direct `=text2-text1` case.
+    func testArithmeticOperatorsCoerceTextCellsDirectly() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_sub", type: .text, title: "Sub", formula: "=B-A"),
+                       column(id: "col_mul", type: .text, title: "Mul", formula: "=A*B"),
+                       column(id: "col_div", type: .text, title: "Div", formula: "=B/A")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "8"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_sub"), "6")
+        XCTAssertEqual(result(vm, "row_1", "col_mul"), "16")
+        XCTAssertEqual(result(vm, "row_1", "col_div"), "4")
+    }
+
+    /// The coercion recurses, so an arithmetic expression nested inside a numeric function's
+    /// argument is reached too, not just a bare reference — e.g. `ROUND(text2/text1, 2)`.
+    func testArithmeticNestedInsideANumericFunctionArgumentIsAlsoCoerced() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=ROUND(B/A, 2)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "3", "col_b": "10"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "3.33")
+    }
+
+    /// `+` stays ambiguous on purpose: two text cells still concatenate rather than add.
+    /// Two bare column references either side of `+` add, matching `-`/`*`/`/`.
+    func testPlusAddsTwoTextCellColumnReferences() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=A+B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "8"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "10", "2 + 8, not string concatenation")
+    }
+
+    /// A already-numeric column needs no coercion; only B (text) is wrapped in TONUMBER.
+    /// The result is still plain numeric addition, not concatenation.
+    func testPlusAddsANumberColumnAndATextColumn() {
+        let columns = [column(id: "col_a", type: .number, title: "A"),
+                       column(id: "col_b", type: .text,   title: "B"),
+                       column(id: "col_c", type: .text,   title: "C", formula: "=A+B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": 5, "col_b": "5"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "10", "5 + 5, not \"55\"")
+    }
+
+    /// But a text cell next to anything that is not itself a bare column reference — a
+    /// literal, a function result — still concatenates, including when the cell holds
+    /// genuinely non-numeric text. Coercing this case would turn a working formula into
+    /// an error the moment the cell held something TONUMBER can't parse.
+    /// `+` means addition unconditionally now, even against a non-numeric text cell — use
+    /// CONCAT() to join strings instead.
+    func testPlusOnANonNumericTextCellIsAnErrorNotConcatenation() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B", formula: "=A + \" notes\"")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "hello"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "Error", "use CONCAT(A, \" notes\") to join text")
+    }
+
+    func testConcatIsHowToJoinATextCellWithALiteral() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B", formula: "=CONCAT(A, \" notes\")")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "hello"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "hello notes")
     }
 
     func testTextThatLooksNumericIsStillTextToStringFunctions() {

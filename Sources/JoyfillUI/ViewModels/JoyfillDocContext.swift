@@ -2653,8 +2653,11 @@ extension JoyDocField {
 /// Maps the identifiers written inside a column formula onto canonical column IDs.
 ///
 /// Resolution priority, highest first:
-/// 1. column `identifier`, then column `title`
-/// 2. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
+/// 1. column `id` — the one handle guaranteed unique and never reassigned
+/// 2. column `title`
+/// 3. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
+///
+/// A column's `identifier` field plays no part here — only `id`, `title` and letter resolve.
 ///
 /// Matching is case-insensitive throughout, so `=A+B` and `=a+b` are the same formula.
 /// Within a single tier the left-most column wins, so a duplicated title never
@@ -2669,13 +2672,17 @@ struct ColumnReferenceResolver {
         var names: [String: String] = [:]
         var letters: [String: String] = [:]
 
+        // id claims first: it is the only one of these that is always unique and stable.
+        for column in columns {
+            guard let id = column.id else { continue }
+            Self.insertIfAbsent(&names, key: id, value: id)
+        }
         for (index, column) in columns.enumerated() {
             guard let id = column.id else { continue }
-            Self.insertIfAbsent(&names, key: column.identifier, value: id)
             Self.insertIfAbsent(&letters, key: Self.columnLetter(forIndex: index), value: id)
         }
-        // Titles are a lower-confidence match than identifiers, so they only claim a key
-        // once every identifier has had its turn.
+        // Titles are a lower-confidence match than id, so they only claim a key once
+        // every id has had its turn.
         for column in columns {
             guard let id = column.id else { continue }
             Self.insertIfAbsent(&names, key: column.title, value: id)
@@ -2925,9 +2932,58 @@ extension JoyfillDocContext {
         // Keyed by the setup, not the field: escaping a digit-leading column id depends
         // on this schema's columns, so two schemas can compile the same text differently.
         if let ast = cellASTs[setup.cacheKey]?[body] { return ast }
-        guard case .success(let ast) = parser.parse(formula: body) else { return nil }
+        guard case .success(let parsed) = parser.parse(formula: body) else { return nil }
+        let ast = JoyfillDocContext.coerceTextCellsForArithmetic(parsed, setup: setup)
         cellASTs[setup.cacheKey, default: [:]][body] = ast
         return ast
+    }
+
+    /// `SUM`/`MIN`/`MAX`/`AVG`/etc., and the arithmetic operators `+`/`-`/`*`/`/`, are a type
+    /// error on text columns otherwise — text cells stay `.string` by design (see
+    /// `storedCellValue`). One rule for the whole family rather than a per-function patch.
+    /// `+` means addition here, not concatenation — use `CONCAT()` for joining text.
+    private static let numericFunctionNames: Set<String> =
+        ["SUM", "MIN", "MAX", "AVG", "AVERAGE", "ROUND", "CEIL", "FLOOR", "SQRT", "MOD", "POW"]
+    private static let arithmeticOperators: Set<String> = ["+", "-", "*", "/"]
+    private static let alreadyNumericTypes: Set<ColumnTypes> = [.number, .progress, .multiSelect]
+
+    private static func coerceTextCellsForArithmetic(_ node: ASTNode, setup: TableCellFormulaSetup) -> ASTNode {
+        func recurse(_ node: ASTNode) -> ASTNode { coerceTextCellsForArithmetic(node, setup: setup) }
+        // A bare reference is coerced directly; anything else (a nested call or operation)
+        // is walked instead, so e.g. `ROUND(text2/text1, 2)` still reaches the division.
+        func operand(_ node: ASTNode) -> ASTNode {
+            guard case .reference(let token) = node else { return recurse(node) }
+            guard let columnID = setup.resolver.columnID(for: token),
+                  let type = setup.types[columnID],
+                  !alreadyNumericTypes.contains(type)
+            else { return node }
+            return .functionCall(name: "TONUMBER", arguments: [node])
+        }
+
+        switch node {
+        case .functionCall(let name, let arguments) where numericFunctionNames.contains(name.uppercased()):
+            return .functionCall(name: name, arguments: arguments.map(operand))
+        case .functionCall(let name, let arguments):
+            return .functionCall(name: name, arguments: arguments.map(recurse))
+        case .infixOperation(let op, let left, let right) where arithmeticOperators.contains(op):
+            return .infixOperation(operator: op, left: operand(left), right: operand(right))
+        case .infixOperation(let op, let left, let right):
+            return .infixOperation(operator: op, left: recurse(left), right: recurse(right))
+        case .prefixOperation(let op, let operand):
+            return .prefixOperation(operator: op, operand: recurse(operand))
+        case .arrayLiteral(let elements):
+            return .arrayLiteral(elements.map(recurse))
+        case .objectLiteral(let pairs):
+            return .objectLiteral(pairs.map { ($0.0, recurse($0.1)) })
+        case .lambda(let parameters, let body):
+            return .lambda(parameters: parameters, body: recurse(body))
+        case .arrayAccess(let array, let index):
+            return .arrayAccess(array: recurse(array), index: recurse(index))
+        case .propertyAccess(let object, let property):
+            return .propertyAccess(object: recurse(object), property: property)
+        case .literal, .reference:
+            return node
+        }
     }
 
     /// The formula that applies to a cell, or `nil` when it holds none.
