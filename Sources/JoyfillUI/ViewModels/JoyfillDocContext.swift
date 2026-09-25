@@ -2957,7 +2957,14 @@ extension JoyfillDocContext {
                   let type = setup.types[columnID],
                   !alreadyNumericTypes.contains(type)
             else { return node }
-            return .functionCall(name: "TONUMBER", arguments: [node])
+            // A blank text cell is `""`, which TONUMBER rejects. Blank means 0 here, as it
+            // does for a blank number cell, so an empty row computes `0` rather than `Error`.
+            // `== ""` rather than EMPTY(): EMPTY counts an error as empty and would hide it.
+            let blankAsZero = ASTNode.functionCall(name: "IF", arguments: [
+                .infixOperation(operator: "==", left: node, right: .literal(.string(""))),
+                .literal(.number(0)), node
+            ])
+            return .functionCall(name: "TONUMBER", arguments: [blankAsZero])
         }
 
         switch node {

@@ -599,6 +599,127 @@ final class TableCellFormulaTests: XCTestCase {
                        "46", "TONUMBER still works too")
     }
 
+    /// A blank text cell is 0 in arithmetic, as a blank number cell is — not `Error`.
+    func testArithmeticOnABlankTextCellReadsAsZero() {
+        let rows = [row("row_1", [qtyID: 1, priceID: 1])]
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=E * 2", rows: rows), "row_1", totalID), "0")
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=E + 5", rows: rows), "row_1", totalID), "5")
+    }
+
+    func testSumSkipsABlankTextCell() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=SUM(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_b": "3"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "3", "Blank A reads as 0")
+    }
+
+    func testExternallyAddedEmptyRowWithTextArithmeticIsZeroNotError() {
+        let vm = standardViewModel(totalFormula: "=E * 2")
+        vm.tableDataModel.documentEditor?.change(changes: [externalRowCreate(rowID: "row_3", cells: [:], at: 2)])
+        XCTAssertEqual(result(vm, "row_3", totalID), "0", "A new row's blank text cell is 0")
+    }
+
+    // MARK: - Operators on text cells
+    //
+    // A and B are text columns, N is a number column. Each operator is checked against
+    // filled, blank and non-numeric text, since a blank text cell is `""`, not `0`.
+
+    private let filled:    [String: Any] = ["col_a": "6", "col_b": "2", "col_n": 3]
+    private let blankA:    [String: Any] = ["col_b": "2", "col_n": 3]
+    private let blankBoth: [String: Any] = ["col_n": 3]
+    private let wordA:     [String: Any] = ["col_a": "hi", "col_b": "2", "col_n": 3]
+
+    private func operatorResult(_ formula: String, _ cells: [String: Any]) -> String? {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_n", type: .number, title: "N"),
+                       column(id: "col_r", type: .text, title: "R", formula: formula)]
+        return result(viewModel(document(columns: columns, rows: [row("row_1", cells)])), "row_1", "col_r")
+    }
+
+    private func assertOperator(_ formula: String, filled f: String, blankA a: String, blankBoth b: String,
+                                wordA w: String = "Error", line: UInt = #line) {
+        XCTAssertEqual(operatorResult(formula, filled), f, "\(formula), A=6 B=2", line: line)
+        XCTAssertEqual(operatorResult(formula, blankA), a, "\(formula), A blank", line: line)
+        XCTAssertEqual(operatorResult(formula, blankBoth), b, "\(formula), A and B blank", line: line)
+        XCTAssertEqual(operatorResult(formula, wordA), w, "\(formula), A=hi", line: line)
+    }
+
+    func testAdditionOnTextCells() {
+        assertOperator("=A + B", filled: "8", blankA: "2", blankBoth: "0")
+        assertOperator("=A + N", filled: "9", blankA: "3", blankBoth: "3")
+    }
+
+    func testSubtractionOnTextCells() {
+        assertOperator("=A - B", filled: "4", blankA: "-2", blankBoth: "0")
+        assertOperator("=N - A", filled: "-3", blankA: "3", blankBoth: "3")
+    }
+
+    func testMultiplicationOnTextCells() {
+        assertOperator("=A * B", filled: "12", blankA: "0", blankBoth: "0")
+        assertOperator("=A * N", filled: "18", blankA: "0", blankBoth: "0")
+    }
+
+    /// A blank divisor is 0, so dividing by it is a division-by-zero error, as in Excel.
+    func testDivisionOnTextCells() {
+        assertOperator("=A / B", filled: "3", blankA: "0", blankBoth: "Error")
+        assertOperator("=N / A", filled: "0.5", blankA: "Error", blankBoth: "Error")
+        assertOperator("=A / 0", filled: "Error", blankA: "Error", blankBoth: "Error")
+    }
+
+    func testGroupedArithmeticOnTextCells() {
+        assertOperator("=(A + B) * N", filled: "24", blankA: "6", blankBoth: "0")
+    }
+
+    /// Equality compares the cell as text — no coercion — so a blank cell equals `""`, not `0`.
+    func testEqualityOnTextCellsComparesText() {
+        assertOperator("=A == B", filled: "false", blankA: "false", blankBoth: "true", wordA: "false")
+        assertOperator("=A != B", filled: "true", blankA: "true", blankBoth: "false", wordA: "true")
+        assertOperator("=A == \"\"", filled: "false", blankA: "true", blankBoth: "true", wordA: "false")
+        assertOperator("=A == 0", filled: "false", blankA: "false", blankBoth: "false", wordA: "false")
+    }
+
+    /// Text is not a boolean, so the logical operators reject a text cell.
+    func testLogicalOperatorsRejectTextCells() {
+        assertOperator("=A && B", filled: "Error", blankA: "Error", blankBoth: "Error")
+        assertOperator("=A || B", filled: "Error", blankA: "Error", blankBoth: "Error")
+        assertOperator("=!A", filled: "Error", blankA: "Error", blankBoth: "Error")
+    }
+
+    /// CONCAT is not arithmetic, so a blank cell joins as `""` — only arithmetic nested
+    /// inside it (`A + B`) is coerced.
+    func testConcatJoinsABlankTextCellAsEmptyNotZero() {
+        XCTAssertEqual(operatorResult("=CONCAT(A, \"x\")", blankA), "x")
+        XCTAssertEqual(operatorResult("=CONCAT(A, B)", blankBoth), "")
+        XCTAssertEqual(operatorResult("=CONCAT(A, \"x\")", filled), "6x")
+        XCTAssertEqual(operatorResult("=CONCAT(A + B, \"x\")", blankA), "2x", "the nested sum still adds")
+    }
+
+    // MARK: Known gaps — XCTExpectFailure turns into a failure once these are fixed
+
+    func testUnaryMinusOnATextCell() {
+        XCTExpectFailure("Unary minus is not coerced: `=-A` errors even when A is \"6\"")
+        XCTAssertEqual(operatorResult("=-A", filled), "-6")
+    }
+
+    func testPlusWithAStringLiteralConcatenates() {
+        XCTAssertEqual(operatorResult("=A + \"x\"", filled), "6x")
+        XCTExpectFailure("A blank text cell becomes 0 next to a string literal, and word text errors")
+        XCTAssertEqual(operatorResult("=A + \"x\"", blankA), "x")
+        XCTAssertEqual(operatorResult("=A + \"x\"", wordA), "hix")
+        XCTAssertEqual(operatorResult("=\"x\" + A", blankA), "x")
+    }
+
+    func testOrderingComparisonsOnTextCells() {
+        XCTExpectFailure("`> < >= <=` are always false on text cells, even \"6\" > \"2\"")
+        XCTAssertEqual(operatorResult("=A > B", filled), "true")
+        XCTAssertEqual(operatorResult("=A >= B", filled), "true")
+        XCTAssertEqual(operatorResult("=A < B", filled), "false")
+        XCTAssertEqual(operatorResult("=B <= A", filled), "true")
+        XCTAssertEqual(operatorResult("=A > N", filled), "true")
+    }
+
     /// SUM's whole job is numeric aggregation, so its own direct column arguments get the
     /// same implicit TONUMBER a whole-column array argument already gets — same rule as
     /// the arithmetic operators just above.
