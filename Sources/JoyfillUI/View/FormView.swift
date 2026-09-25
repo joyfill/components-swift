@@ -482,7 +482,13 @@ struct PageDuplicateListView: View {
                                     documentEditor: documentEditor,
                                     onSelect: {
                                         documentEditor.showPageSelectionSheet = false
-                                        _ = documentEditor.goto(pageID)
+                                        if documentEditor.openedNavigationFieldID != nil {
+                                            DispatchQueue.main.async {
+                                                _ = documentEditor.goto(pageID)
+                                            }
+                                        } else {
+                                            _ = documentEditor.goto(pageID)
+                                        }
                                     },
                                     onDuplicate: {
                                         handleDuplicatePage(pageID: pageID)

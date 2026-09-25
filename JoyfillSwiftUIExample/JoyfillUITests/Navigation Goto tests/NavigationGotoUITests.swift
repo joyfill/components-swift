@@ -171,6 +171,22 @@ final class NavigationGotoUITests: XCTestCase {
                       "Picker should still open after being used from a row form — a stuck showPageSelectionSheet would block it")
     }
 
+    func testPageSelectionSheetOpensFromHostFooterInsideChartDetail() throws {
+        let picker = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        let footerSheetButton = app.buttons["ShowPageSelectionSheetButtonIdentifier"].firstMatch
+
+        openChartDetail()
+        XCTAssertTrue(footerSheetButton.waitForExistence(timeout: 5),
+                      "Host footer should render inside the chart detail view")
+
+        footerSheetButton.tap()
+
+        XCTAssertTrue(picker.waitForExistence(timeout: 3),
+                      "Picker should present from inside chart detail")
+        XCTAssertTrue(picker.isHittable,
+                      "Picker should be interactive, not merely present in the tree")
+    }
+
     private func openCollectionRowForm() {
         app.buttons["CollectionDetailViewIdentifier"].firstMatch.tap()
         spinRunloop(0.5)
@@ -179,6 +195,19 @@ final class NavigationGotoUITests: XCTestCase {
         let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
         if moreButton.exists { moreButton.tap(); spinRunloop(0.3) }
         app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+    }
+
+    private func openChartDetail() {
+        let chartButton = app.buttons["ChartViewIdentifier"].firstMatch
+        var attempts = 0
+        while !chartButton.exists && attempts < 6 {
+            app.swipeUp()
+            spinRunloop(0.4)
+            attempts += 1
+        }
+        XCTAssertTrue(chartButton.waitForExistence(timeout: 5), "Chart detail button not found")
+        chartButton.tap()
+        spinRunloop(0.5)
     }
 
     @discardableResult
