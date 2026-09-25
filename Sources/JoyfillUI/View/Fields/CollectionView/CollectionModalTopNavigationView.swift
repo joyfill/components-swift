@@ -527,6 +527,7 @@ struct CollectionEditMultipleRowsSheetView: View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
+        .modifier(PageSelectionSheetPresenter(documentEditor: viewModel.tableDataModel.documentEditor))
     }
 
     @ViewBuilder
