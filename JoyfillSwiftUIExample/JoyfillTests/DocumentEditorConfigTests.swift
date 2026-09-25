@@ -93,8 +93,12 @@ final class DocumentEditorConfigTests: XCTestCase {
     // MARK: - Defaults parity
 
     /// A default config must produce the same editor as the legacy init's defaults.
+    ///
+    /// Deliberately calls the deprecated overload — that is the thing under test.
+    /// Marking the method deprecated suppresses the expected warning at that call.
+    @available(*, deprecated, message: "Intentionally exercises the deprecated initializer.")
     func testConfigInit_defaultsMatchLegacyInit() {
-        let legacy = DocumentEditor(document: JoyDoc(), config: DocumentEditorConfig(validateSchema: false))
+        let legacy = DocumentEditor(document: JoyDoc(), validateSchema: false)
         let viaConfig = DocumentEditor(document: JoyDoc(),
                                        config: DocumentEditorConfig(validateSchema: false))
 
@@ -132,19 +136,22 @@ final class DocumentEditorConfigTests: XCTestCase {
 
     /// With NON-default values the config init must produce the same editor as the
     /// legacy init given the equivalent parameters — this guards the delegation mapping.
+    @available(*, deprecated, message: "Intentionally exercises the deprecated initializer.")
     func testConfigInit_matchesLegacyInit_withNonDefaultValues() {
         let decorators = DecoratorConfig(visibleLimitInFields: 7, visibleLimitInRows: 4)
 
         let legacy = DocumentEditor(
             document: JoyDoc(),
-            config: DocumentEditorConfig(
-                mode: .fill,
-                events: nil,
-                license: nil,
-                validateSchema: false,
-                page: PageConfig(navigation: false, enableDuplicates: true, enableDeletes: true, currentPageID: nil),
-                display: DisplayConfig(singleClickRowEdit: true, decorators: decorators)
-            )
+            mode: .fill,
+            events: nil,
+            pageID: nil,
+            navigation: false,
+            isPageDuplicateEnabled: true,
+            isPageDeleteEnabled: true,
+            validateSchema: false,
+            license: nil,
+            singleClickRowEdit: true,
+            decoratorConfig: decorators
         )
 
         let viaConfig = DocumentEditor(
@@ -248,11 +255,11 @@ final class DocumentEditorConfigTests: XCTestCase {
 
     /// A nil `currentPageID` must fall back to the document's first valid page,
     /// matching the legacy init with `pageID: nil`.
+    @available(*, deprecated, message: "Intentionally exercises the deprecated initializer.")
     func testConfigInit_nilCurrentPageID_matchesLegacyFirstValidPage() {
-        let legacy = DocumentEditor(
-            document: multiPageDocument(),
-            config: DocumentEditorConfig(validateSchema: false, page: PageConfig(currentPageID: nil))
-        )
+        let legacy = DocumentEditor(document: multiPageDocument(),
+                                    pageID: nil,
+                                    validateSchema: false)
         let viaConfig = DocumentEditor(document: multiPageDocument(),
                                        config: DocumentEditorConfig(validateSchema: false))
 
