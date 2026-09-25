@@ -250,25 +250,26 @@ struct RowDecoratorMenuView: View {
     @State private var showingPopover = false
 
     private var displayable: [DecoratorLocal] { decorators.filter { $0.isDisplayable } }
-    private var exceedsLimit: Bool { displayable.count > visibleLimit }
 
     var body: some View {
-        if displayable.isEmpty {
+        let visibleDecorators = displayable
+        let exceedsLimit = visibleDecorators.count > visibleLimit
+
+        if visibleDecorators.isEmpty {
             Color.clear.frame(width: 40, height: 60)
         } else if exceedsLimit {
             kebabButton.frame(width: 40, height: 60)
         } else {
-            GeometryReader { geometry in
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
-                        ForEach(Array(displayable.enumerated()), id: \.offset) { _, decorator in
-                            DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
-                        }
+            let width = DecoratorConfig.rowCellWidth(forVisibleLimit: visibleLimit)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 4) {
+                    ForEach(Array(visibleDecorators.enumerated()), id: \.offset) { _, decorator in
+                        DecoratorButton(decorator: decorator, onTap: onDecoratorTap)
                     }
-                    .frame(minWidth: geometry.size.width, alignment: .center)
                 }
+                .frame(minWidth: width, alignment: .center)
             }
-            .frame(height: 32)
+            .frame(width: width, height: 32)
         }
     }
 

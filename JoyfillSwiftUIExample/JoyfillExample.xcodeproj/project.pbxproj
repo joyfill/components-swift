@@ -221,6 +221,7 @@
 		95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BEEA300A444900D207B9 /* RequiredLogic.swift */; };
 		95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
 		95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */; };
+		95C0BF9A3018A70000D207B9 /* CollectionNestedSchemaLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */; };
 		95C0BF663018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		95C0BF673018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -909,6 +910,7 @@
 		95C0BEE8300A442500D207B9 /* RequiredLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RequiredLogic.json; sourceTree = "<group>"; };
 		95C0BEEA300A444900D207B9 /* RequiredLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredLogic.swift; sourceTree = "<group>"; };
 		95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogic.swift; sourceTree = "<group>"; };
+		95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionNestedSchemaLogic.swift; sourceTree = "<group>"; };
 		95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CellVisibilityLogic.json; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
@@ -1257,7 +1259,7 @@
 			children = (
 				95A671CC305A747400FDC608 /* Formula in table and collection */,
 				9587E747302F43F900293EF7 /* EditabilityUITest */,
-				95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */,
+				95C0BF603018A60100D207B9 /* CellAndSchemaVisibilityLogic */,
 				95C0BEE7300A441300D207B9 /* RequiredLogicTest */,
 				95C0BE9B3006200400D207B9 /* LandscapeModeTest */,
 				BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */,
@@ -1504,13 +1506,14 @@
 			path = RequiredLogicTest;
 			sourceTree = "<group>";
 		};
-		95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */ = {
+		95C0BF603018A60100D207B9 /* CellAndSchemaVisibilityLogic */ = {
 			isa = PBXGroup;
 			children = (
 				95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */,
 				95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */,
+				95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */,
 			);
-			path = CellVisibilityLogicTest;
+			path = CellAndSchemaVisibilityLogic;
 			sourceTree = "<group>";
 		};
 		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
@@ -2846,6 +2849,7 @@
 				E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */,
 				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
 				95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */,
+				95C0BF9A3018A70000D207B9 /* CollectionNestedSchemaLogic.swift in Sources */,
 				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
 				E2B4CFD92F9A060700F2128D /* DecoratorUITestSupport.swift in Sources */,
 				95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */,
