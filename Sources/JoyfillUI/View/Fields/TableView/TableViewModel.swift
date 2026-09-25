@@ -339,7 +339,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         
         for filterModel in tableDataModel.filterModels {
             let change = filterModel.filterText
-            let columnId = filterModel.colID ?? ""
+            let columnId = filterModel.colID
             
             if change.isEmpty {
                 // No filter Applied, Extract default value if present
@@ -396,7 +396,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     fileprivate func makeChangeDict(_ newChanges: inout [String : [String : ValueUnion]], _ columnIDChanges: [String : ValueUnion], _ tableColumns: [FieldTableColumn], rowIndexMap: [String: Int], tableDataModel: TableDataModel) {
         for rowId in tableDataModel.selectedRows {
             guard let rowIndex = rowIndexMap[rowId] else { continue }
-            var rowDataModel = tableDataModel.cellModels[rowIndex]
+            let rowDataModel = tableDataModel.cellModels[rowIndex]
             var perRowChanges: [String: ValueUnion] = newChanges[rowId] ?? [:]
             for (key,value) in columnIDChanges {
                 if let column = tableColumns.first(where: { $0.id == key }) {
@@ -604,7 +604,7 @@ extension TableViewModel: DocumentEditorDelegate {
     
     func insertRow(for change: Change) {
         var cellValues: [String: ValueUnion] = [:]
-        var newRowDict = change.change?["row"] as? [String : Any] ?? [:]
+        let newRowDict = change.change?["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
         cellValues = newRow.cells ?? [:]
         let metadata = newRow.metadata
@@ -632,7 +632,7 @@ extension TableViewModel: DocumentEditorDelegate {
             return
         }
         
-        guard var targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
+        guard let targetRowIndex = change.change?["targetRowIndex"] as? Int else { return }
         
         var nonDeletedElements = tableDataModel.valueToValueElements?.filter { $0.deleted != true }
         let rowOrder = tableDataModel.rowOrder

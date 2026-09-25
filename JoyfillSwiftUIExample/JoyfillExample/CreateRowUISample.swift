@@ -14,7 +14,10 @@ struct CreateRowUISample: View, FormChangeEvent {
     
     init() {
         let document = sampleJSONDocument(fileName: "FieldTemplate_TableCollection_Poplated")
-        documentEditor = DocumentEditor(document: document, events: self, validateSchema: false, license: licenseKey)
+        documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(events: self, license: licenseKey, validateSchema: false)
+        )
     }
     
     var body: some View {
@@ -324,8 +327,7 @@ struct CreateRowUISample: View, FormChangeEvent {
         print("[TEST:] getChildrenForParent - parent: \(parentRow.id ?? "nil")")
         var children: [ChildRowData] = []
 
-        if let parentDict = parentRow.dictionary as? [String: Any],
-           let childrenValue = parentDict["children"] as? ValueUnion,
+        if let childrenValue = parentRow.dictionary["children"],
            let childrenDict = childrenValue.dictionary as? [String: Any] {
 
             print("[TEST:] getChildrenForParent - found children keys: \(childrenDict.keys)")

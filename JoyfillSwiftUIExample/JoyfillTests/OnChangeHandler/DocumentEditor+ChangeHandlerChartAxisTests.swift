@@ -26,7 +26,10 @@ final class DocumentEditorChangeHandlerChartAxisTests: XCTestCase {
     private let dateFieldPositionId = "68e3414d0318c1bd80740d93"
 
     private func makeEditor() -> DocumentEditor {
-        DocumentEditor(document: sampleJSONDocument(fileName: "OnChangeHandler"), validateSchema: false)
+        DocumentEditor(
+            document: sampleJSONDocument(fileName: "OnChangeHandler"),
+            config: DocumentEditorConfig(validateSchema: false)
+        )
     }
 
     private func makeChange(_ payload: [String: Any], editor: DocumentEditor) -> Change {

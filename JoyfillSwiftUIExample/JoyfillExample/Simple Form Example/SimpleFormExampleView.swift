@@ -15,7 +15,21 @@ struct SimpleFormExampleView: View {
     let document = loadDoc(named: "first-form")
 
     init() {
-        self.documentEditor = DocumentEditor(document: document, mode: .fill, events: changeHandler, pageID: "your_Page_Id", navigation: true, isPageDuplicateEnabled: true, isPageDeleteEnabled: true, validateSchema: true, singleClickRowEdit: true)
+        self.documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: changeHandler,
+                validateSchema: true,
+                page: PageConfig(
+                    navigation: true,
+                    enableDuplicates: true,
+                    enableDeletes: true,
+                    currentPageID: "your_Page_Id"
+                ),
+                display: DisplayConfig(singleClickRowEdit: true)
+            )
+        )
     }
 
     var body: some View {

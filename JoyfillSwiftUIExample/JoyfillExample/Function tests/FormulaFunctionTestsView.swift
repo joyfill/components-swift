@@ -157,12 +157,12 @@ struct FormulaFunctionTestsView: View {
             
             documentEditor = DocumentEditor(
                 document: document,
-                mode: .fill,
-                events: nil,
-                pageID: "",
-                navigation: true,
-                isPageDuplicateEnabled: false,
-                validateSchema: false
+                config: DocumentEditorConfig(
+                    mode: .fill,
+                    events: nil,
+                    validateSchema: false,
+                    page: PageConfig(navigation: true, enableDuplicates: false, currentPageID: "")
+                )
             )
             
             showForm = true

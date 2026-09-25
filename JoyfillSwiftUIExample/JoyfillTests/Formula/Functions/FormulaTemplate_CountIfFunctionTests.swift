@@ -18,7 +18,7 @@ class countIfTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "countIf")
-        documentEditor = DocumentEditor(document: document, validateSchema: false)
+        documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     
     override func tearDown() {
@@ -135,8 +135,8 @@ class countIfTests: XCTestCase {
         // Get initial percentage
         let initialResult = getFieldValue("advanced_example_percentage")
         XCTAssertFalse(initialResult.isEmpty, "Initial percentage should be non-empty")
-        let initialPercentage = Double(initialResult) ?? 0
-        
+//        let initialPercentage = Double(initialResult) ?? 0
+
         // Update to have all correct
         updateFieldValue("answers", "[\"Correct\", \"Correct\", \"Correct\", \"Correct\", \"Correct\"]")
         

@@ -18,7 +18,7 @@ class flatMapTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "flatMap")
-        documentEditor = DocumentEditor(document: document, validateSchema: false)
+        documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     
     override func tearDown() {

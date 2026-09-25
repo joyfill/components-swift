@@ -393,8 +393,10 @@ final class DecoratorErrorHandlingTests: XCTestCase {
     // MARK: - No events handler (must not crash)
 
     func testNoEventsHandler_noCrash_invalidPath() {
-        let editor = DocumentEditor(document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
-                                    events: nil, validateSchema: false)
+        let editor = DocumentEditor(
+            document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
+            config: DocumentEditorConfig(events: nil, validateSchema: false)
+        )
         // Should be a no-op, not a crash.
         editor.addDecorators(path: "bogus/path", decorators: [makeDecorator(action: "x")])
         editor.removeDecorator(path: "bogus/path", action: "x")
@@ -403,8 +405,10 @@ final class DecoratorErrorHandlingTests: XCTestCase {
     }
 
     func testNoEventsHandler_noCrash_validation() {
-        let editor = DocumentEditor(document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
-                                    events: nil, validateSchema: false)
+        let editor = DocumentEditor(
+            document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
+            config: DocumentEditorConfig(events: nil, validateSchema: false)
+        )
         editor.addDecorators(path: ChangerHandlerSample.tableFieldPath(),
                              decorators: [makeDecorator(action: "x", color: "notHex")])
         XCTAssertEqual(editor.getDecorators(path: ChangerHandlerSample.tableFieldPath()).count, 0)

@@ -20,7 +20,7 @@ final class ValidatePathTests: XCTestCase {
     // MARK: - Helpers
 
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     func makeDocumentWithHiddenRequiredImageField() -> DocumentEditor {

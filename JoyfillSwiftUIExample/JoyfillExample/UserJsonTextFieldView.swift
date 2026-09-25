@@ -177,15 +177,19 @@ struct UserJsonTextFieldView: View {
                         let license = await useCustomLicense ? customLicenseKey : licenseKey
                         let editor = DocumentEditor(
                             document: JoyDoc(dictionary: dictionary),
-                            mode: .fill,
-                            events: cm,
-                            pageID: "",
-                            navigation: true,
-                            isPageDuplicateEnabled: true,
-                            isPageDeleteEnabled: true,
-                            validateSchema: true,
-                            license: license,
-                            singleClickRowEdit: true
+                            config: DocumentEditorConfig(
+                                mode: .fill,
+                                events: cm,
+                                license: license,
+                                validateSchema: true,
+                                page: PageConfig(
+                                    navigation: true,
+                                    enableDuplicates: true,
+                                    enableDeletes: true,
+                                    currentPageID: ""
+                                ),
+                                display: DisplayConfig(singleClickRowEdit: true)
+                            )
                         )
                         await MainActor.run {
                             self.preparedEditor = editor

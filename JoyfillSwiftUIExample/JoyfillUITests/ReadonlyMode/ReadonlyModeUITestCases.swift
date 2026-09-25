@@ -218,7 +218,7 @@ final class ReadonlyModeSpecificTests: JoyfillUITestsBaseClass {
             return false
         }
         
-        do {
+//        do {
             app.launch()
             
             // Wait for app to be running and stable
@@ -248,9 +248,9 @@ final class ReadonlyModeSpecificTests: JoyfillUITestsBaseClass {
             checkTestSkipped()
             
             print("✅ Fresh app instance created in READONLY mode for test: \(self.name)")
-        } catch {
-            print("⚠️  App launch failed: \(error)")
-        }
+//        } catch {
+//            print("⚠️  App launch failed: \(error)")
+//        }
     }
     
 
@@ -397,15 +397,15 @@ final class PageDuplicateDisabledTests: JoyfillUITestsBaseClass {
         // Add fresh instance flag
         app.launchArguments.append("--fresh-instance")
         
-        do {
+//        do {
             app.launch()
             XCTAssertTrue(app.wait(for: .runningForeground, timeout: 15), "App did not launch properly")
             app.activate()
             XCTAssertTrue(waitForAppStability(timeout: 15), "App did not become stable")
             print("✅ App launched with page duplication disabled")
-        } catch {
-            print("⚠️  App launch failed: \(error)")
-        }
+//        } catch {
+//            print("⚠️  App launch failed: \(error)")
+//        }
     }
     
     /// Open page navigation sheet

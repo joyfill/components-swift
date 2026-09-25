@@ -132,21 +132,21 @@ struct AllSampleJSONs: View, FormChangeEvent {
     private func loadDocumentAsync(fileName: String) {
         isLoading = true
         DispatchQueue.global(qos: .userInitiated).async {
-            do {
-                let document = sampleJSONDocument(fileName: fileName)
-                // Construct the editor off the main thread to avoid UI hitching
-                let editor = DocumentEditor(document: document, events: self, isPageDuplicateEnabled: true, isPageDeleteEnabled: true, validateSchema: false, license: licenseKey, singleClickRowEdit: true)
-                DispatchQueue.main.async {
-                    self.documentEditor = editor
-                    self.isLoading = false
-                }
-            } catch {
-                let fallback = sampleJSONDocument(fileName: "JoyfillResolver_DirectSelfCircularReference")
-                let editor = DocumentEditor(document: fallback, events: self, validateSchema: false, license: licenseKey)
-                DispatchQueue.main.async {
-                    self.documentEditor = editor
-                    self.isLoading = false
-                }
+            let document = sampleJSONDocument(fileName: fileName)
+            // Construct the editor off the main thread to avoid UI hitching
+            let editor = DocumentEditor(
+                document: document,
+                config: DocumentEditorConfig(
+                    events: self,
+                    license: licenseKey,
+                    validateSchema: false,
+                    page: PageConfig(enableDuplicates: true, enableDeletes: true),
+                    display: DisplayConfig(singleClickRowEdit: true)
+                )
+            )
+            DispatchQueue.main.async {
+                self.documentEditor = editor
+                self.isLoading = false
             }
         }
     }

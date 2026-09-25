@@ -397,15 +397,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: document,
-                    mode: editor.mode,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: editor.showPageNavigationView,
-                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
-                    isPageDeleteEnabled: isPageDelete,
-                    validateSchema: newValue,
-                    license: self.license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    config: DocumentEditorConfig(
+                        mode: editor.mode,
+                        events: editor.events,
+                        license: self.license,
+                        validateSchema: newValue,
+                        page: PageConfig(
+                            navigation: editor.showPageNavigationView,
+                            enableDuplicates: editor.isPageDuplicateEnabled,
+                            enableDeletes: isPageDelete,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                    )
                 )
             }
         }
@@ -413,15 +417,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: editor.document,
-                    mode: editor.mode,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: newValue,
-                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
-                    isPageDeleteEnabled: isPageDelete,
-                    validateSchema: validateSchema,
-                    license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    config: DocumentEditorConfig(
+                        mode: editor.mode,
+                        events: editor.events,
+                        license: license,
+                        validateSchema: validateSchema,
+                        page: PageConfig(
+                            navigation: newValue,
+                            enableDuplicates: editor.isPageDuplicateEnabled,
+                            enableDeletes: isPageDelete,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                    )
                 )
             }
         }
@@ -429,15 +437,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: editor.document,
-                    mode: editor.mode,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: editor.showPageNavigationView,
-                    isPageDuplicateEnabled: newValue,
-                    isPageDeleteEnabled: isPageDelete,
-                    validateSchema: validateSchema,
-                    license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    config: DocumentEditorConfig(
+                        mode: editor.mode,
+                        events: editor.events,
+                        license: license,
+                        validateSchema: validateSchema,
+                        page: PageConfig(
+                            navigation: editor.showPageNavigationView,
+                            enableDuplicates: newValue,
+                            enableDeletes: isPageDelete,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                    )
                 )
             }
         }
@@ -445,15 +457,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: editor.document,
-                    mode: editor.mode,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: editor.showPageNavigationView,
-                    isPageDuplicateEnabled: isPageDuplicate,
-                    isPageDeleteEnabled: newValue,
-                    validateSchema: validateSchema,
-                    license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    config: DocumentEditorConfig(
+                        mode: editor.mode,
+                        events: editor.events,
+                        license: license,
+                        validateSchema: validateSchema,
+                        page: PageConfig(
+                            navigation: editor.showPageNavigationView,
+                            enableDuplicates: isPageDuplicate,
+                            enableDeletes: newValue,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                    )
                 )
             }
         }
@@ -461,15 +477,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: editor.document,
-                    mode: newValue,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: editor.showPageNavigationView,
-                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
-                    isPageDeleteEnabled: isPageDelete,
-                    validateSchema: validateSchema,
-                    license: license,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    config: DocumentEditorConfig(
+                        mode: newValue,
+                        events: editor.events,
+                        license: license,
+                        validateSchema: validateSchema,
+                        page: PageConfig(
+                            navigation: editor.showPageNavigationView,
+                            enableDuplicates: editor.isPageDuplicateEnabled,
+                            enableDeletes: isPageDelete,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                    )
                 )
             }
         }
@@ -477,15 +497,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: editor.document,
-                    mode: editor.mode,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: editor.showPageNavigationView,
-                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
-                    isPageDeleteEnabled: isPageDelete,
-                    validateSchema: validateSchema,
-                    license: newValue,
-                    singleClickRowEdit: editor.singleClickRowEdit
+                    config: DocumentEditorConfig(
+                        mode: editor.mode,
+                        events: editor.events,
+                        license: newValue,
+                        validateSchema: validateSchema,
+                        page: PageConfig(
+                            navigation: editor.showPageNavigationView,
+                            enableDuplicates: editor.isPageDuplicateEnabled,
+                            enableDeletes: isPageDelete,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                    )
                 )
             }
         }
@@ -493,15 +517,19 @@ struct PublicApiExamples: View {
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
                     document: editor.document,
-                    mode: editor.mode,
-                    events: editor.events,
-                    pageID: editor.currentPageID,
-                    navigation: editor.showPageNavigationView,
-                    isPageDuplicateEnabled: editor.isPageDuplicateEnabled,
-                    isPageDeleteEnabled: isPageDelete,
-                    validateSchema: validateSchema,
-                    license: license,
-                    singleClickRowEdit: newValue
+                    config: DocumentEditorConfig(
+                        mode: editor.mode,
+                        events: editor.events,
+                        license: license,
+                        validateSchema: validateSchema,
+                        page: PageConfig(
+                            navigation: editor.showPageNavigationView,
+                            enableDuplicates: editor.isPageDuplicateEnabled,
+                            enableDeletes: isPageDelete,
+                            currentPageID: editor.currentPageID
+                        ),
+                        display: DisplayConfig(singleClickRowEdit: newValue)
+                    )
                 )
             }
         }

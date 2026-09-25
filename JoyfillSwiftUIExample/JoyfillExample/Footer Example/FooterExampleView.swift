@@ -15,7 +15,15 @@ struct FooterExampleView: View {
     init() {
         let doc = Self.loadDoc(named: "footer-form")
         let controller = SampleFormFooterController()
-        let editor = DocumentEditor(document: doc, mode: .fill, events: controller, pageID: nil, navigation: true, license: licenseKey)
+        let editor = DocumentEditor(
+            document: doc,
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: controller,
+                license: licenseKey,
+                page: PageConfig(navigation: true, currentPageID: nil)
+            )
+        )
         controller.documentEditor = editor
         self.footerController = controller
         self.documentEditor = editor

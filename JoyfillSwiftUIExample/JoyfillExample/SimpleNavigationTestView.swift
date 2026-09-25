@@ -74,12 +74,13 @@ struct SimpleNavigationTestView: View {
         let sampleDoc = sampleJSONDocument(fileName: "Navigation")
         let editor = DocumentEditor(
             document: sampleDoc,
-            mode: .fill,
-            isPageDuplicateEnabled: true,
-            isPageDeleteEnabled: true,
-            validateSchema: false,
-            license: licenseKey,
-            singleClickRowEdit: true
+            config: DocumentEditorConfig(
+                mode: .fill,
+                license: licenseKey,
+                validateSchema: false,
+                page: PageConfig(enableDuplicates: true, enableDeletes: true),
+                display: DisplayConfig(singleClickRowEdit: true)
+            )
         )
         _documentEditor = StateObject(wrappedValue: editor)
         _showAlert = showAlert

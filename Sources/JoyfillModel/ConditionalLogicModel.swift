@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import JoyfillModel
 import SwiftUI
 
 public struct LogicModel {

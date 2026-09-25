@@ -267,7 +267,7 @@ public class APIService {
         }
         
         var request = URLRequest(url: url)
-        let data = try! joyDocJSON.get() as! Data
+        let data = try! joyDocJSON.get()
         
         var dictionaryObject = try! JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
         

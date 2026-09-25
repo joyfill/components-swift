@@ -85,7 +85,7 @@ enum RowType: Equatable {
     
     var level: Int {
         switch self {
-        case let .row:
+        case .row:
             return 0
         case let .header(level, _, _):
             return level
@@ -107,7 +107,7 @@ enum RowType: Equatable {
     
     var width: CGFloat? {
         switch self {
-        case .tableExpander(let _, _, _, let rowWidth):
+        case .tableExpander(_, _, _, let rowWidth):
             return rowWidth
         default:
             return nil
@@ -128,9 +128,9 @@ enum RowType: Equatable {
         case .nestedRow(_, index: let index, _, _): return index
         case .row(index: let index):
             return index
-        case .header(level: let level, tableColumns: let tableColumns, _):
+        case .header(level: _, tableColumns: _, _):
             return 0
-        case .tableExpander(schemaValue: let schemaValue, level: let level, _, _):
+        case .tableExpander(schemaValue: _, level: _, _, _):
             return 0
         }
     }
@@ -558,7 +558,7 @@ struct TableDataModel {
 
     
     mutating private func setupColumns() {
-        guard let fieldData = documentEditor?.field(fieldID: fieldIdentifier.fieldID) else { return }
+        guard documentEditor?.field(fieldID: fieldIdentifier.fieldID) != nil else { return }
         
         for fieldTableColumn in self.tableColumns {
             guard let columnId = fieldTableColumn.id else {
@@ -865,7 +865,7 @@ struct TableDataModel {
         
         let selectedRow = filteredcellModels[index]
         switch selectedRow.rowType {
-        case .row(index: let index):
+        case .row(index: _):
             return false
         default:
             break
@@ -883,7 +883,7 @@ struct TableDataModel {
         let nextRow = filteredcellModels[nextIndex]
         
         switch nextRow.rowType {
-        case .nestedRow(level: let nestedLevel, index: let index, parentID: _, _):
+        case .nestedRow(level: let nestedLevel, index: _, parentID: _, _):
             return !(nestedLevel == selectedRow.rowType.level)
         default:
             return true
@@ -984,9 +984,7 @@ struct TableDataModel {
     
     func getQuickFieldTableColumn(row: String, col: Int) -> CellDataModel? {
         if rowOrder.isEmpty {
-            let id = generateObjectId()
-            let columnData = tableColumns ?? []
-            var columnDataLocal: [CellDataModel] = []
+            let columnData = tableColumns
             let column = columnData[col]
             var optionsLocal: [OptionLocal] = []
             for option in column.options ?? []{

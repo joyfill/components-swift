@@ -1307,8 +1307,8 @@ struct BuilderFormula: Identifiable {
 }
 
 // Extension to add UI properties to FieldTypes from JoyfillModel
-extension FieldTypes: CaseIterable {
-    public static var allCases: [FieldTypes] {
+extension FieldTypes {
+    static var selectableCases: [FieldTypes] {
         return [.text, .textarea, .richText, .number, .date, .dropdown, .multiSelect, .signature, .image, .block, .chart, .table, .collection]
     }
     
@@ -1558,7 +1558,7 @@ struct AddFieldView: View {
                                     .foregroundColor(.primary)
                                 
                                 Menu {
-                                    ForEach(FieldTypes.allCases, id: \.self) { type in
+                                    ForEach(FieldTypes.selectableCases, id: \.self) { type in
                                         Button(action: { 
                                             fieldType = type
                                             // Reset value when changing field type
@@ -2712,13 +2712,13 @@ struct AddColumnImageSettingsView: View {
 // Supported column types (all except table and unknown)
 extension ColumnTypes {
     static var tableColumnTypes: [ColumnTypes] {
-        return allCases.filter { $0 != .table && $0 != .unknown }
+        return selectableCases.filter { $0 != .table && $0 != .unknown }
     }
 }
 
 // Extension to add UI properties to ColumnTypes from JoyfillModel
-extension ColumnTypes: CaseIterable {
-    public static var allCases: [ColumnTypes] {
+extension ColumnTypes {
+    static var selectableCases: [ColumnTypes] {
         return [.text, .dropdown, .image, .block, .date, .number, .multiSelect, .progress, .barcode, .signature]
     }
     

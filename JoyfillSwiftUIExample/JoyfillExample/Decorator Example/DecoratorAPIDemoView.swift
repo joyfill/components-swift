@@ -1126,9 +1126,7 @@ private class EditorBox: ObservableObject {
         let handler = DecoratorEventHandler()
         let ed = DocumentEditor(
             document: sampleJSONDocument(fileName: "Navigation"),
-            events: handler,
-            validateSchema: false,
-            license: licenseKey
+            config: DocumentEditorConfig(events: handler, license: licenseKey, validateSchema: false)
         )
         handler.editor = ed
         self.editor = ed

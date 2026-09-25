@@ -26,7 +26,7 @@ struct RichTextView: View {
 }
 
 func parseRT(data: Data) -> AttributedString? {
-    var attributedTextArray = NSMutableAttributedString()
+    let attributedTextArray = NSMutableAttributedString()
     do {
         let richTextJoyDocData = try JSONDecoder().decode(RichTextData.self, from: data)
         let blocks = richTextJoyDocData.blocks

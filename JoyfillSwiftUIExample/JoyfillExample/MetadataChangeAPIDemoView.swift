@@ -23,9 +23,7 @@ struct MetadataChangeAPIDemoView: View, FormChangeEvent {
         let document = sampleJSONDocument(fileName: "ChangerHandlerUnit")
         _documentEditor = StateObject(wrappedValue: DocumentEditor(
             document: document,
-            events: nil,
-            validateSchema: false,
-            license: licenseKey
+            config: DocumentEditorConfig(events: nil, license: licenseKey, validateSchema: false)
         ))
     }
 

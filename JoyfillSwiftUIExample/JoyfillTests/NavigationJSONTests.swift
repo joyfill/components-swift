@@ -21,7 +21,7 @@ final class NavigationJSONTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "Navigation")
-        documentEditor = DocumentEditor(document: document, validateSchema: false)
+        documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     
     override func tearDown() {
@@ -938,7 +938,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_PageChange_FiresOnFocusAndOnBlur() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         eventCapture.reset()
         let page1 = editor.currentPageID
         let page2 = "691f376206195944e65eef76"
@@ -961,7 +961,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_SamePage_NoFocusBlurEvents() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         eventCapture.reset()
         let currentPage = editor.currentPageID
         _ = editor.goto(currentPage)
@@ -973,7 +973,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_FieldOnSamePage_NoPageFocusBlurEvents() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         eventCapture.reset()
         let currentPage = editor.currentPageID
         let path = "\(currentPage)/6970918d350238d0738dd5c9"
@@ -988,7 +988,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_FieldOnDifferentPage_FiresPageFocusBlur() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         eventCapture.reset()
         let originalPage = editor.currentPageID
         let targetPage = "691f376206195944e65eef76"
@@ -1008,7 +1008,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_MultiplePageChanges_FiresCorrectSequence() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         
         let page1 = editor.currentPageID
         let page2 = "691f376206195944e65eef76"
@@ -1032,7 +1032,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_RoundTripPageChange_FiresBlurAndFocusInOrder() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         let pageA = editor.currentPageID
         let pageB = "691f376206195944e65eef76"
         eventCapture.reset()
@@ -1049,7 +1049,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_InvalidPageId_NoPageFocusOrBlur() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         eventCapture.reset()
         let result = editor.goto("nonExistentPageId123")
         XCTAssertEqual(result, .failure)
@@ -1062,7 +1062,7 @@ final class NavigationJSONTests: XCTestCase {
     func testFocusCallback_HiddenPage_NoPageFocusOrBlur() {
         let eventCapture = ChangeFocusCapture()
         let document = sampleJSONDocument(fileName: "Navigation")
-        let editor = DocumentEditor(document: document, events: eventCapture, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: eventCapture, validateSchema: false))
         eventCapture.reset()
         let hiddenPageId = "69709965bf69fedffee003a9"
         let result = editor.goto(hiddenPageId)
