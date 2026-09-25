@@ -2945,7 +2945,9 @@ extension JoyfillDocContext {
     private static let numericFunctionNames: Set<String> =
         ["SUM", "MIN", "MAX", "AVG", "AVERAGE", "ROUND", "CEIL", "FLOOR", "SQRT", "MOD", "POW"]
     private static let arithmeticOperators: Set<String> = ["+", "-", "*", "/"]
-    private static let alreadyNumericTypes: Set<ColumnTypes> = [.number, .progress, .multiSelect]
+    /// Types left unwrapped: numbers need no TONUMBER, and TONUMBER would reject a
+    /// multi-select array or a date — both of which the evaluator already handles itself.
+    private static let alreadyNumericTypes: Set<ColumnTypes> = [.number, .progress, .multiSelect, .date]
 
     private static func coerceTextCellsForArithmetic(_ node: ASTNode, setup: TableCellFormulaSetup) -> ASTNode {
         func recurse(_ node: ASTNode) -> ASTNode { coerceTextCellsForArithmetic(node, setup: setup) }

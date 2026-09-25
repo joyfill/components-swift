@@ -696,6 +696,57 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(operatorResult("=CONCAT(A + B, \"x\")", blankA), "2x", "the nested sum still adds")
     }
 
+    // MARK: Non-text columns are not coerced
+
+    private func typedResult(_ formula: String, _ columns: [FieldTableColumn], _ cells: [String: Any]) -> String? {
+        let all = columns + [column(id: "col_r", type: .text, title: "R", formula: formula)]
+        return result(viewModel(document(columns: all, rows: [row("row_1", cells)])), "row_1", "col_r")
+    }
+
+    private let day = 86_400_000.0
+    private let start = 1_700_000_000_000.0
+    private var dateColumns: [FieldTableColumn] {
+        [column(id: "col_s", type: .date, title: "S"), column(id: "col_e", type: .date, title: "E")]
+    }
+
+    /// Date arithmetic belongs to the evaluator: wrapping a date in TONUMBER would fail it.
+    func testDateSubtractionIsNotCoerced() {
+        let cells: [String: Any] = ["col_s": start, "col_e": start + 3 * day]
+        XCTAssertEqual(typedResult("=E - S", dateColumns, cells), String(Int(3 * day)), "difference in ms")
+        XCTAssertEqual(typedResult("=(E - S) / 86400000", dateColumns, cells), "3", "days between")
+    }
+
+    func testDatePlusANumberShiftsTheDate() {
+        let cells: [String: Any] = ["col_s": start, "col_e": start + day]
+        XCTAssertEqual(typedResult("=S + 86400000", dateColumns, cells),
+                       typedResult("=E", dateColumns, cells), "S plus one day is E")
+    }
+
+    /// Multi-select is an array; SUM walks it itself, so it must not be wrapped in TONUMBER.
+    func testSumOverAMultiSelectColumnIsNotCoerced() {
+        let multi = FieldTableColumn(dictionary: ["_id": "col_m", "type": ColumnTypes.multiSelect.rawValue, "title": "M",
+                                                  "options": [["_id": "o1", "value": "1"], ["_id": "o3", "value": "3"],
+                                                              ["_id": "o5", "value": "5"]]])
+        XCTAssertEqual(typedResult("=SUM(M)", [multi], ["col_m": ["o1", "o3", "o5"]]), "9")
+        XCTAssertEqual(typedResult("=SUM(M)", [multi], [:]), "0", "blank multi-select sums to 0")
+    }
+
+    func testProgressColumnArithmeticIsUnaffected() {
+        let progress = [column(id: "col_p", type: .progress, title: "P")]
+        XCTAssertEqual(typedResult("=P * 2", progress, ["col_p": 40]), "80")
+        XCTAssertEqual(typedResult("=P + 1", progress, [:]), "1", "blank progress is 0")
+    }
+
+    /// A dropdown reads as its option label, so it coerces like a text cell.
+    func testDropdownArithmeticCoercesItsLabel() {
+        let dropdown = FieldTableColumn(dictionary: ["_id": "col_d", "type": ColumnTypes.dropdown.rawValue, "title": "D",
+                                                     "options": [["_id": "o5", "value": "5"], ["_id": "or", "value": "Red"]]])
+        XCTAssertEqual(typedResult("=D * 2", [dropdown], ["col_d": "o5"]), "10")
+        XCTAssertEqual(typedResult("=D * 2", [dropdown], [:]), "0", "blank dropdown is 0")
+        XCTAssertEqual(typedResult("=D * 2", [dropdown], ["col_d": "or"]), "Error")
+        XCTAssertEqual(typedResult("=CONCAT(D, \"!\")", [dropdown], ["col_d": "or"]), "Red!")
+    }
+
     // MARK: Known gaps — XCTExpectFailure turns into a failure once these are fixed
 
     func testUnaryMinusOnATextCell() {
