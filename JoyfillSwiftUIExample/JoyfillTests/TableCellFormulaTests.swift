@@ -154,16 +154,16 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_2", doubleID), "40")
     }
 
-    func testColumnCanBeReferencedByItsIdentifier() {
-        let vm = standardViewModel(totalFormula: "=field_column_col_qty * field_column_col_price")
-        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Identifier resolves before the letter")
+    func testColumnCanBeReferencedByItsID() {
+        let vm = standardViewModel(totalFormula: "=\(qtyID) * \(priceID)")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6", "id resolves before the title or the letter")
     }
 
-
-    /// References resolve by identifier, title, then letter. A column id is not a tier:
-    /// real ids are ObjectIds, which the shared lexer cannot begin an identifier with, and
-    /// teaching it to would be a change to JoyfillFormulas rather than a rewrite here.
-    func testAColumnIDIsNotAReference() {
+    /// References resolve by id, title, then letter. A column's `identifier` field plays no
+    /// part. Real ids are ObjectIds, which start with a digit — the shared lexer cannot begin
+    /// an identifier with one, so this specific shape of id is still unreachable; teaching the
+    /// lexer to accept it would be a change to JoyfillFormulas rather than a rewrite here.
+    func testADigitLeadingColumnIDIsNotAReference() {
         let qty = "6aa0ea5666f683e02ea449b5"
         let columns = [column(id: qty, type: .number, title: "Qty"),
                        column(id: priceID, type: .number, title: "Price"),
@@ -174,7 +174,7 @@ final class TableCellFormulaTests: XCTestCase {
 
     func testColumnCanBeReferencedByItsTitle() {
         let vm = standardViewModel(totalFormula: "=Qty * Price")
-        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Title resolves when no id or identifier matches")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Title resolves when no id matches")
     }
 
     func testTitleIsMatchedCaseInsensitively() {
@@ -186,25 +186,25 @@ final class TableCellFormulaTests: XCTestCase {
 
     /// The lexer makes an identifier from letters, digits and `_`, so a multi-word title
     /// is two tokens and can never be referenced. The column is still reachable by its
-    /// identifier or its letter.
+    /// id or its letter.
     func testAMultiWordTitleCannotBeReferenced() {
-        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price"),
                        column(id: priceID, type: .number, title: "Qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=Unit Price * B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "Error")
     }
 
-    func testAColumnWithAMultiWordTitleIsStillReachableByIdentifier() {
-        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+    func testAColumnWithAMultiWordTitleIsStillReachableByID() {
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price"),
                        column(id: priceID, type: .number, title: "Qty"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=unitPrice * B")]
+                       column(id: totalID, type: .text, title: "Total", formula: "=\(qtyID) * B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "12")
     }
 
     func testAColumnWithAMultiWordTitleIsStillReachableByLetter() {
-        let columns = [column(id: qtyID, type: .number, title: "Unit Price", identifier: "unitPrice"),
+        let columns = [column(id: qtyID, type: .number, title: "Unit Price"),
                        column(id: priceID, type: .number, title: "Qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=A * B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4, priceID: 3])]))
@@ -213,7 +213,7 @@ final class TableCellFormulaTests: XCTestCase {
 
     func testTitlesWithPunctuationCannotBeReferenced() {
         for title in ["Qty (kg)", "Price%", "Notes!", "Unit/Price"] {
-            let columns = [column(id: qtyID, type: .number, title: title, identifier: "i_qty"),
+            let columns = [column(id: qtyID, type: .number, title: title),
                            column(id: totalID, type: .text, title: "Total", formula: "=\(title)")]
             let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4])]))
             XCTAssertEqual(result(vm, "row_1", totalID), "Error", "`\(title)` is not one token")
@@ -223,12 +223,12 @@ final class TableCellFormulaTests: XCTestCase {
     /// A title made of operators is read as the expression it looks like, not as a name.
     /// `Total-Cost` subtracts, `50/50` divides — neither reaches the resolver.
     func testATitleThatLooksLikeAnExpressionIsEvaluatedAsOne() {
-        let numeric = [column(id: qtyID, type: .number, title: "50/50", identifier: "i_qty"),
+        let numeric = [column(id: qtyID, type: .number, title: "50/50"),
                        column(id: totalID, type: .text, title: "Total", formula: "=50/50")]
         XCTAssertEqual(result(viewModel(document(columns: numeric, rows: [row("row_1", [qtyID: 4])])),
                               "row_1", totalID), "1", "Arithmetic on two numbers, not the column titled 50/50")
 
-        let hyphen = [column(id: qtyID, type: .number, title: "Total-Cost", identifier: "i_qty"),
+        let hyphen = [column(id: qtyID, type: .number, title: "Total-Cost"),
                       column(id: priceID, type: .number, title: "Cost"),
                       column(id: totalID, type: .text, title: "Total", formula: "=Total-Cost")]
         XCTAssertEqual(result(viewModel(document(columns: hyphen,
@@ -237,25 +237,36 @@ final class TableCellFormulaTests: XCTestCase {
                        "Reads as Total minus Cost; Total is a text column, so it fails rather than guessing")
     }
 
-    /// A multi-word identifier is no more writable than a multi-word title.
-    func testAMultiWordIdentifierCannotBeReferencedEither() {
-        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "unit price"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=unit price")]
+    /// A column's `identifier` field is not part of resolution at all — a formula typing it
+    /// finds nothing, whether it is one word or several.
+    func testAColumnsIdentifierFieldDoesNotResolveAnything() {
+        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "myIdentifier"),
+                       column(id: totalID, type: .text, title: "Total", formula: "=myIdentifier")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 4])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "Error")
     }
 
     // MARK: - Resolution priority: id, then name, then letter
 
-    func testATitleIsNotShadowedByAnotherColumnsID() {
-        // The first column's id is the second column's title. Ids are not references, so
-        // `=qty` is the column *titled* qty and nothing is ambiguous.
+    func testAColumnsIDBeatsAnotherColumnsTitle() {
+        // The first column's id is the second column's title. id is the top resolution
+        // tier, so `=qty` is the column *whose id is* qty, not the column titled qty.
         let columns = [column(id: "qty", type: .number, title: "Price"),
                        column(id: "price", type: .number, title: "qty"),
                        column(id: totalID, type: .text, title: "Total", formula: "=qty")]
         let vm = viewModel(document(columns: columns,
                                     rows: [row("row_1", ["qty": 7, "price": 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "99", "The column titled `qty`")
+        XCTAssertEqual(result(vm, "row_1", totalID), "7", "The column whose id is `qty`")
+    }
+
+    /// A column's own id is referenceable even when its `identifier` is something else
+    /// entirely and its title is multi-word (and so unreferenceable on its own).
+    func testAColumnIsReferenceableByItsOwnID() {
+        let columns = [column(id: "text1", type: .text, title: "Operand A", identifier: "table3_column_text1"),
+                       column(id: "text2", type: .text, title: "Operand B", identifier: "table3_column_text2"),
+                       column(id: "text3", type: .text, title: "SUM(A,B)", formula: "=SUM(text1,text2)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["text1": "10", "text2": "21"])]))
+        XCTAssertEqual(result(vm, "row_1", "text3"), "31")
     }
 
     func testColumnNameBeatsAPositionalLetter() {
@@ -266,26 +277,6 @@ final class TableCellFormulaTests: XCTestCase {
         let vm = viewModel(document(columns: columns,
                                     rows: [row("row_1", [qtyID: 7, priceID: 99])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "99", "The column named A, not the column at position A")
-    }
-
-    func testAnIdentifierBeatsAnotherColumnsTitle() {
-        // Identifiers and titles share one lookup, but every identifier is claimed before
-        // any title is, so the second column's title loses to the first's identifier.
-        let columns = [column(id: qtyID, type: .number, title: "Alpha", identifier: "shared"),
-                       column(id: priceID, type: .number, title: "shared", identifier: "i_price"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=shared")]
-        let vm = viewModel(document(columns: columns,
-                                    rows: [row("row_1", [qtyID: 7, priceID: 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "7", "The column whose identifier is `shared`")
-    }
-
-    func testDuplicateIdentifiersResolveToTheLeftmostColumn() {
-        let columns = [column(id: qtyID, type: .number, title: "Qty", identifier: "dup"),
-                       column(id: priceID, type: .number, title: "Price", identifier: "dup"),
-                       column(id: totalID, type: .text, title: "Total", formula: "=dup")]
-        let vm = viewModel(document(columns: columns,
-                                    rows: [row("row_1", [qtyID: 7, priceID: 99])]))
-        XCTAssertEqual(result(vm, "row_1", totalID), "7")
     }
 
     func testDuplicateTitlesResolveToTheLeftmostColumn() {
@@ -307,10 +298,10 @@ final class TableCellFormulaTests: XCTestCase {
 
     // MARK: - A cell formula resolves references the same way
 
-    func testCellFormulaCanUseIdentifiersAndTitles() {
+    func testCellFormulaCanUseIDsAndTitles() {
         let vm = standardViewModel(rows: [row("row_1", [qtyID: 2, priceID: 3,
-                                                        notesID: "=field_column_col_qty + Price"])])
-        XCTAssertEqual(result(vm, "row_1", notesID), "5", "One by identifier, one by title, in a cell formula")
+                                                        notesID: "=\(qtyID) + Price"])])
+        XCTAssertEqual(result(vm, "row_1", notesID), "5", "One by id, one by title, in a cell formula")
     }
 
     func testBlankCellsReadAsZeroRatherThanFailing() {
@@ -364,6 +355,18 @@ final class TableCellFormulaTests: XCTestCase {
                        column(id: doubleID, type: .text,  title: "Double", formula: "=B")]
         let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 1])]))
         XCTAssertEqual(result(vm, "row_1", totalID), "Error", "B and D reference each other")
+    }
+
+    /// A bare reference to a circular cell surfaces cleanly (the test above), but `+`
+    /// stringifies its operands — so without the fix a circular value reached through it
+    /// rendered as raw text like `prefix#CIRC!(Circular reference at column 'B')` instead.
+    func testCircularReferenceInsideConcatenationStillSurfacesAsError() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: totalID, type: .text,   title: "Total",  formula: "=D"),
+                       column(id: doubleID, type: .text,  title: "Double", formula: "=B"),
+                       column(id: notesID, type: .text,   title: "Notes",  formula: "=\"prefix\" + B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [qtyID: 1])]))
+        XCTAssertEqual(result(vm, "row_1", notesID), "Error", "not the raw '#CIRC!(...)' text")
     }
 
     // MARK: - Invalid formulas
@@ -586,12 +589,289 @@ final class TableCellFormulaTests: XCTestCase {
 
     /// Text stays text, so arithmetic on it asks for TONUMBER. Coercing at read time
     /// would change the value for every consumer, not only the operators.
-    func testArithmeticOnATextCellNeedsTONUMBER() {
+    /// `*` (like the rest of arithmetic) now coerces a text-cell operand automatically —
+    /// explicit TONUMBER is no longer required, though it still reads the same.
+    func testArithmeticOnATextCellCoercesAutomatically() {
         let rows = [row("row_1", [qtyID: 1, priceID: 1, notesID: "23"])]
         XCTAssertEqual(result(standardViewModel(totalFormula: "=E * 2", rows: rows), "row_1", totalID),
-                       "Error", "`=E * 2` on a text cell is a type error")
+                       "46", "`=E * 2` on a text cell coerces automatically")
         XCTAssertEqual(result(standardViewModel(totalFormula: "=TONUMBER(E) * 2", rows: rows), "row_1", totalID),
-                       "46", "…and TONUMBER is how you ask for it")
+                       "46", "TONUMBER still works too")
+    }
+
+    /// A blank text cell is 0 in arithmetic, as a blank number cell is — not `Error`.
+    func testArithmeticOnABlankTextCellReadsAsZero() {
+        let rows = [row("row_1", [qtyID: 1, priceID: 1])]
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=E * 2", rows: rows), "row_1", totalID), "0")
+        XCTAssertEqual(result(standardViewModel(totalFormula: "=E + 5", rows: rows), "row_1", totalID), "5")
+    }
+
+    func testSumSkipsABlankTextCell() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=SUM(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_b": "3"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "3", "Blank A reads as 0")
+    }
+
+    func testExternallyAddedEmptyRowWithTextArithmeticIsZeroNotError() {
+        let vm = standardViewModel(totalFormula: "=E * 2")
+        vm.tableDataModel.documentEditor?.change(changes: [externalRowCreate(rowID: "row_3", cells: [:], at: 2)])
+        XCTAssertEqual(result(vm, "row_3", totalID), "0", "A new row's blank text cell is 0")
+    }
+
+    // MARK: - Operators on text cells
+    //
+    // A and B are text columns, N is a number column. Each operator is checked against
+    // filled, blank and non-numeric text, since a blank text cell is `""`, not `0`.
+
+    private let filled:    [String: Any] = ["col_a": "6", "col_b": "2", "col_n": 3]
+    private let blankA:    [String: Any] = ["col_b": "2", "col_n": 3]
+    private let blankBoth: [String: Any] = ["col_n": 3]
+    private let wordA:     [String: Any] = ["col_a": "hi", "col_b": "2", "col_n": 3]
+
+    private func operatorResult(_ formula: String, _ cells: [String: Any]) -> String? {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_n", type: .number, title: "N"),
+                       column(id: "col_r", type: .text, title: "R", formula: formula)]
+        return result(viewModel(document(columns: columns, rows: [row("row_1", cells)])), "row_1", "col_r")
+    }
+
+    private func assertOperator(_ formula: String, filled f: String, blankA a: String, blankBoth b: String,
+                                wordA w: String = "Error", line: UInt = #line) {
+        XCTAssertEqual(operatorResult(formula, filled), f, "\(formula), A=6 B=2", line: line)
+        XCTAssertEqual(operatorResult(formula, blankA), a, "\(formula), A blank", line: line)
+        XCTAssertEqual(operatorResult(formula, blankBoth), b, "\(formula), A and B blank", line: line)
+        XCTAssertEqual(operatorResult(formula, wordA), w, "\(formula), A=hi", line: line)
+    }
+
+    func testAdditionOnTextCells() {
+        assertOperator("=A + B", filled: "8", blankA: "2", blankBoth: "0")
+        assertOperator("=A + N", filled: "9", blankA: "3", blankBoth: "3")
+    }
+
+    func testSubtractionOnTextCells() {
+        assertOperator("=A - B", filled: "4", blankA: "-2", blankBoth: "0")
+        assertOperator("=N - A", filled: "-3", blankA: "3", blankBoth: "3")
+    }
+
+    func testMultiplicationOnTextCells() {
+        assertOperator("=A * B", filled: "12", blankA: "0", blankBoth: "0")
+        assertOperator("=A * N", filled: "18", blankA: "0", blankBoth: "0")
+    }
+
+    /// A blank divisor is 0, so dividing by it is a division-by-zero error, as in Excel.
+    func testDivisionOnTextCells() {
+        assertOperator("=A / B", filled: "3", blankA: "0", blankBoth: "Error")
+        assertOperator("=N / A", filled: "0.5", blankA: "Error", blankBoth: "Error")
+        assertOperator("=A / 0", filled: "Error", blankA: "Error", blankBoth: "Error")
+    }
+
+    func testGroupedArithmeticOnTextCells() {
+        assertOperator("=(A + B) * N", filled: "24", blankA: "6", blankBoth: "0")
+    }
+
+    /// Equality compares the cell as text — no coercion — so a blank cell equals `""`, not `0`.
+    func testEqualityOnTextCellsComparesText() {
+        assertOperator("=A == B", filled: "false", blankA: "false", blankBoth: "true", wordA: "false")
+        assertOperator("=A != B", filled: "true", blankA: "true", blankBoth: "false", wordA: "true")
+        assertOperator("=A == \"\"", filled: "false", blankA: "true", blankBoth: "true", wordA: "false")
+        assertOperator("=A == 0", filled: "false", blankA: "false", blankBoth: "false", wordA: "false")
+    }
+
+    /// Text is not a boolean, so the logical operators reject a text cell.
+    func testLogicalOperatorsRejectTextCells() {
+        assertOperator("=A && B", filled: "Error", blankA: "Error", blankBoth: "Error")
+        assertOperator("=A || B", filled: "Error", blankA: "Error", blankBoth: "Error")
+        assertOperator("=!A", filled: "Error", blankA: "Error", blankBoth: "Error")
+    }
+
+    /// CONCAT is not arithmetic, so a blank cell joins as `""` — only arithmetic nested
+    /// inside it (`A + B`) is coerced.
+    func testConcatJoinsABlankTextCellAsEmptyNotZero() {
+        XCTAssertEqual(operatorResult("=CONCAT(A, \"x\")", blankA), "x")
+        XCTAssertEqual(operatorResult("=CONCAT(A, B)", blankBoth), "")
+        XCTAssertEqual(operatorResult("=CONCAT(A, \"x\")", filled), "6x")
+        XCTAssertEqual(operatorResult("=CONCAT(A + B, \"x\")", blankA), "2x", "the nested sum still adds")
+    }
+
+    // MARK: Non-text columns are not coerced
+
+    private func typedResult(_ formula: String, _ columns: [FieldTableColumn], _ cells: [String: Any]) -> String? {
+        let all = columns + [column(id: "col_r", type: .text, title: "R", formula: formula)]
+        return result(viewModel(document(columns: all, rows: [row("row_1", cells)])), "row_1", "col_r")
+    }
+
+    private let day = 86_400_000.0
+    private let start = 1_700_000_000_000.0
+    private var dateColumns: [FieldTableColumn] {
+        [column(id: "col_s", type: .date, title: "S"), column(id: "col_e", type: .date, title: "E")]
+    }
+
+    /// Date arithmetic belongs to the evaluator: wrapping a date in TONUMBER would fail it.
+    func testDateSubtractionIsNotCoerced() {
+        let cells: [String: Any] = ["col_s": start, "col_e": start + 3 * day]
+        XCTAssertEqual(typedResult("=E - S", dateColumns, cells), String(Int(3 * day)), "difference in ms")
+        XCTAssertEqual(typedResult("=(E - S) / 86400000", dateColumns, cells), "3", "days between")
+    }
+
+    func testDatePlusANumberShiftsTheDate() {
+        let cells: [String: Any] = ["col_s": start, "col_e": start + day]
+        XCTAssertEqual(typedResult("=S + 86400000", dateColumns, cells),
+                       typedResult("=E", dateColumns, cells), "S plus one day is E")
+    }
+
+    /// Multi-select is an array; SUM walks it itself, so it must not be wrapped in TONUMBER.
+    func testSumOverAMultiSelectColumnIsNotCoerced() {
+        let multi = FieldTableColumn(dictionary: ["_id": "col_m", "type": ColumnTypes.multiSelect.rawValue, "title": "M",
+                                                  "options": [["_id": "o1", "value": "1"], ["_id": "o3", "value": "3"],
+                                                              ["_id": "o5", "value": "5"]]])
+        XCTAssertEqual(typedResult("=SUM(M)", [multi], ["col_m": ["o1", "o3", "o5"]]), "9")
+        XCTAssertEqual(typedResult("=SUM(M)", [multi], [:]), "0", "blank multi-select sums to 0")
+    }
+
+    func testProgressColumnArithmeticIsUnaffected() {
+        let progress = [column(id: "col_p", type: .progress, title: "P")]
+        XCTAssertEqual(typedResult("=P * 2", progress, ["col_p": 40]), "80")
+        XCTAssertEqual(typedResult("=P + 1", progress, [:]), "1", "blank progress is 0")
+    }
+
+    /// A dropdown reads as its option label, so it coerces like a text cell.
+    func testDropdownArithmeticCoercesItsLabel() {
+        let dropdown = FieldTableColumn(dictionary: ["_id": "col_d", "type": ColumnTypes.dropdown.rawValue, "title": "D",
+                                                     "options": [["_id": "o5", "value": "5"], ["_id": "or", "value": "Red"]]])
+        XCTAssertEqual(typedResult("=D * 2", [dropdown], ["col_d": "o5"]), "10")
+        XCTAssertEqual(typedResult("=D * 2", [dropdown], [:]), "0", "blank dropdown is 0")
+        XCTAssertEqual(typedResult("=D * 2", [dropdown], ["col_d": "or"]), "Error")
+        XCTAssertEqual(typedResult("=CONCAT(D, \"!\")", [dropdown], ["col_d": "or"]), "Red!")
+    }
+
+    // MARK: Known gaps — XCTExpectFailure turns into a failure once these are fixed
+
+    func testUnaryMinusOnATextCell() {
+        XCTExpectFailure("Unary minus is not coerced: `=-A` errors even when A is \"6\"")
+        XCTAssertEqual(operatorResult("=-A", filled), "-6")
+    }
+
+    func testPlusWithAStringLiteralConcatenates() {
+        XCTAssertEqual(operatorResult("=A + \"x\"", filled), "6x")
+        XCTExpectFailure("A blank text cell becomes 0 next to a string literal, and word text errors")
+        XCTAssertEqual(operatorResult("=A + \"x\"", blankA), "x")
+        XCTAssertEqual(operatorResult("=A + \"x\"", wordA), "hix")
+        XCTAssertEqual(operatorResult("=\"x\" + A", blankA), "x")
+    }
+
+    func testOrderingComparisonsOnTextCells() {
+        XCTExpectFailure("`> < >= <=` are always false on text cells, even \"6\" > \"2\"")
+        XCTAssertEqual(operatorResult("=A > B", filled), "true")
+        XCTAssertEqual(operatorResult("=A >= B", filled), "true")
+        XCTAssertEqual(operatorResult("=A < B", filled), "false")
+        XCTAssertEqual(operatorResult("=B <= A", filled), "true")
+        XCTAssertEqual(operatorResult("=A > N", filled), "true")
+    }
+
+    /// SUM's whole job is numeric aggregation, so its own direct column arguments get the
+    /// same implicit TONUMBER a whole-column array argument already gets — same rule as
+    /// the arithmetic operators just above.
+    func testSumCoercesTextCellsHoldingNumbers() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=SUM(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "3"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "5", "SUM reads numeric-looking text cells")
+    }
+
+    /// The coercion is still TONUMBER underneath, so genuinely non-numeric text is still an
+    /// error rather than being silently treated as zero.
+    func testSumStillErrorsOnGenuinelyNonNumericText() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=SUM(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "hello", "col_b": "3"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "Error")
+    }
+
+    func testSumStillWorksOnNumberColumns() {
+        let vm = standardViewModel(totalFormula: "=SUM(A,B)")
+        XCTAssertEqual(result(vm, "row_1", totalID), "5", "2 + 3, unaffected by the text-cell coercion")
+    }
+
+    /// The same rule applies to the rest of the numeric-function family, not just SUM.
+    func testOtherNumericFunctionsAlsoCoerceTextCells() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_min", type: .text, title: "Min", formula: "=MIN(A, B)"),
+                       column(id: "col_max", type: .text, title: "Max", formula: "=MAX(A, B)"),
+                       column(id: "col_avg", type: .text, title: "Avg", formula: "=AVG(A, B)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "8"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_min"), "2")
+        XCTAssertEqual(result(vm, "row_1", "col_max"), "8")
+        XCTAssertEqual(result(vm, "row_1", "col_avg"), "5")
+    }
+
+    /// `-`/`*`/`/` have no string meaning, unlike `+`, so a text-cell operand is always safe
+    /// to coerce — this is the direct `=text2-text1` case.
+    func testArithmeticOperatorsCoerceTextCellsDirectly() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_sub", type: .text, title: "Sub", formula: "=B-A"),
+                       column(id: "col_mul", type: .text, title: "Mul", formula: "=A*B"),
+                       column(id: "col_div", type: .text, title: "Div", formula: "=B/A")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "8"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_sub"), "6")
+        XCTAssertEqual(result(vm, "row_1", "col_mul"), "16")
+        XCTAssertEqual(result(vm, "row_1", "col_div"), "4")
+    }
+
+    /// The coercion recurses, so an arithmetic expression nested inside a numeric function's
+    /// argument is reached too, not just a bare reference — e.g. `ROUND(text2/text1, 2)`.
+    func testArithmeticNestedInsideANumericFunctionArgumentIsAlsoCoerced() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=ROUND(B/A, 2)")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "3", "col_b": "10"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "3.33")
+    }
+
+    /// `+` stays ambiguous on purpose: two text cells still concatenate rather than add.
+    /// Two bare column references either side of `+` add, matching `-`/`*`/`/`.
+    func testPlusAddsTwoTextCellColumnReferences() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B"),
+                       column(id: "col_c", type: .text, title: "C", formula: "=A+B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "2", "col_b": "8"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "10", "2 + 8, not string concatenation")
+    }
+
+    /// A already-numeric column needs no coercion; only B (text) is wrapped in TONUMBER.
+    /// The result is still plain numeric addition, not concatenation.
+    func testPlusAddsANumberColumnAndATextColumn() {
+        let columns = [column(id: "col_a", type: .number, title: "A"),
+                       column(id: "col_b", type: .text,   title: "B"),
+                       column(id: "col_c", type: .text,   title: "C", formula: "=A+B")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": 5, "col_b": "5"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "10", "5 + 5, not \"55\"")
+    }
+
+    /// But a text cell next to anything that is not itself a bare column reference — a
+    /// literal, a function result — still concatenates, including when the cell holds
+    /// genuinely non-numeric text. Coercing this case would turn a working formula into
+    /// an error the moment the cell held something TONUMBER can't parse.
+    /// `+` means addition unconditionally now, even against a non-numeric text cell — use
+    /// CONCAT() to join strings instead.
+    func testPlusOnANonNumericTextCellIsAnErrorNotConcatenation() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B", formula: "=A + \" notes\"")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "hello"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "Error", "use CONCAT(A, \" notes\") to join text")
+    }
+
+    func testConcatIsHowToJoinATextCellWithALiteral() {
+        let columns = [column(id: "col_a", type: .text, title: "A"),
+                       column(id: "col_b", type: .text, title: "B", formula: "=CONCAT(A, \" notes\")")]
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", ["col_a": "hello"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "hello notes")
     }
 
     func testTextThatLooksNumericIsStillTextToStringFunctions() {
@@ -673,6 +953,14 @@ final class TableCellFormulaTests: XCTestCase {
                          "row": ["_id": rowID, "cells": cells] as [String: Any]])
     }
 
+    private func externalRowDelete(rowID: String) -> Change {
+        change(target: "field.value.rowDelete", payload: ["rowId": rowID])
+    }
+
+    private func externalRowMove(rowID: String, to index: Int) -> Change {
+        change(target: "field.value.rowMove", payload: ["rowId": rowID, "targetRowIndex": index])
+    }
+
     /// Waits for work the SDK deferred with `DispatchQueue.main.async`.
     ///
     /// The main queue is FIFO, so a block enqueued now can only run once that work has.
@@ -708,6 +996,24 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", notesID), "5", "A formula arriving from outside is evaluated too")
     }
 
+    /// Called from a background queue; only the internal main-queue hop needs main.
+    func testExternalCellChangeFromBackgroundQueueRecomputesWithoutCrashing() {
+        let vm = standardViewModel()
+        XCTAssertEqual(result(vm, "row_1", totalID), "6", "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowUpdate(rowID: "row_1", cells: [self.qtyID: 10])])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+        settle() // drain the main-queue hop the background call just scheduled
+
+        XCTAssertEqual(result(vm, "row_1", totalID), "30", "10 * 3 after a background-thread change")
+        XCTAssertEqual(result(vm, "row_1", doubleID), "60", "and the chain through Total follows")
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "other rows untouched")
+    }
+
     func testExternallyAddedRowGetsItsFormulaValues() {
         let vm = standardViewModel()
         vm.tableDataModel.documentEditor?.change(changes: [externalRowCreate(rowID: "row_3", cells: [qtyID: 6, priceID: 7], at: 2)])
@@ -720,6 +1026,55 @@ final class TableCellFormulaTests: XCTestCase {
         let vm = standardViewModel()
         vm.tableDataModel.documentEditor?.change(changes: [externalRowCreate(rowID: "row_3", cells: [:], at: 2)])
         XCTAssertEqual(result(vm, "row_3", totalID), "0", "Blank cells read as zero")
+    }
+
+    /// Unlike rowUpdate, rowCreate has no main-queue hop — it runs inline on the caller's thread.
+    func testExternalRowCreateFromBackgroundQueueRecomputesWithoutCrashing() {
+        let vm = standardViewModel()
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowCreate(rowID: "row_3", cells: [self.qtyID: 6, self.priceID: 7], at: 2)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(result(vm, "row_3", totalID), "42", "A new row is primed as its cells are built")
+        XCTAssertEqual(result(vm, "row_3", doubleID), "84")
+    }
+
+    /// Same reasoning: rowDelete also runs inline.
+    func testExternalRowDeleteFromBackgroundQueueDoesNotCrash() {
+        let vm = standardViewModel()
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowDelete(rowID: "row_1")])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        let rows = vm.tableDataModel.documentEditor?.field(fieldID: tableFieldID)?.valueToValueElements?.filter { $0.deleted != true }
+        XCTAssertEqual(rows?.count, 1, "row_1 must be gone")
+        XCTAssertNil(rows?.first(where: { $0.id == "row_1" }))
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "the surviving row's formula is untouched")
+    }
+
+    /// Same reasoning for rowMove.
+    func testExternalRowMoveFromBackgroundQueueDoesNotCrash() {
+        let vm = standardViewModel()
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            vm.tableDataModel.documentEditor?.change(changes: [self.externalRowMove(rowID: "row_2", to: 0)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(vm.tableDataModel.rowOrder.first, "row_2", "row_2 must now lead")
+        XCTAssertEqual(result(vm, "row_2", totalID), "20", "moving a row must not disturb its formula")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6",  "or the row it passed")
     }
 
     func testCheckChangeCheckRepeatedly() {
@@ -1058,9 +1413,82 @@ final class CollectionCellFormulaTests: XCTestCase {
         ])
     }
 
+    /// `parentPath` is `"<rootRowIndex>.<schemaId>"` — how `insertRow(for:)`/`moveRow(for:)`
+    /// find the parent row via `decodeParentPath`. Root-only rows (`parentPath: nil`) skip it.
+    private func externalRowCreate(rowID: String, cells: [String: Any], at index: Int,
+                                   schemaID: String, parentPath: String? = nil) -> Change {
+        var payload: [String: Any] = ["schemaId": schemaID, "targetRowIndex": index,
+                                      "row": ["_id": rowID, "cells": cells] as [String: Any]]
+        if let parentPath = parentPath { payload["parentPath"] = parentPath }
+        return Change(dictionary: [
+            "v": 1,
+            "sdk": "swift",
+            "_id": documentID,
+            "identifier": "doc_\(documentID)",
+            "target": "field.value.rowCreate",
+            "fileId": fileID,
+            "pageId": pageID,
+            "fieldId": collectionFieldID,
+            "fieldIdentifier": "field_\(collectionFieldID)",
+            "fieldPositionId": fieldPositionID,
+            "change": payload,
+            "createdOn": Date().timeIntervalSince1970
+        ])
+    }
+
+    private func externalRowDelete(rowID: String, schemaID: String) -> Change {
+        Change(dictionary: [
+            "v": 1,
+            "sdk": "swift",
+            "_id": documentID,
+            "identifier": "doc_\(documentID)",
+            "target": "field.value.rowDelete",
+            "fileId": fileID,
+            "pageId": pageID,
+            "fieldId": collectionFieldID,
+            "fieldIdentifier": "field_\(collectionFieldID)",
+            "fieldPositionId": fieldPositionID,
+            "change": ["rowId": rowID, "schemaId": schemaID],
+            "createdOn": Date().timeIntervalSince1970
+        ])
+    }
+
+    private func externalRowMove(rowID: String, to index: Int, schemaID: String, parentPath: String? = nil) -> Change {
+        var payload: [String: Any] = ["rowId": rowID, "targetRowIndex": index, "schemaId": schemaID]
+        if let parentPath = parentPath { payload["parentPath"] = parentPath }
+        return Change(dictionary: [
+            "v": 1,
+            "sdk": "swift",
+            "_id": documentID,
+            "identifier": "doc_\(documentID)",
+            "target": "field.value.rowMove",
+            "fileId": fileID,
+            "pageId": pageID,
+            "fieldId": collectionFieldID,
+            "fieldIdentifier": "field_\(collectionFieldID)",
+            "fieldPositionId": fieldPositionID,
+            "change": payload,
+            "createdOn": Date().timeIntervalSince1970
+        ])
+    }
+
+    /// The child rows under `parentRowID`, in document order, skipping soft-deleted ones.
+    private func childRows(_ editor: DocumentEditor, parentRowID: String, schemaID: String) -> [ValueElement] {
+        guard let parent = editor.field(fieldID: collectionFieldID)?.valueToValueElements?.first(where: { $0.id == parentRowID }),
+              case .valueElementArray(let children) = parent.childrens?[schemaID]?.value
+        else { return [] }
+        return children.filter { $0.deleted != true }
+    }
+
     private var oneRootWithOneChild: [[String: Any]] {
         [row("root_1", [qtyID: 2, priceID: 3],
              children: [row("child_1", [qtyID: 4, priceID: 5])])]
+    }
+
+    private var oneRootWithTwoChildren: [[String: Any]] {
+        [row("root_1", [qtyID: 2, priceID: 3],
+             children: [row("child_1", [qtyID: 4, priceID: 5]),
+                        row("child_2", [qtyID: 1, priceID: 1])])]
     }
 
     // MARK: - Opening a collection shows computed values
@@ -1175,6 +1603,76 @@ final class CollectionCellFormulaTests: XCTestCase {
         settle()
 
         XCTAssertEqual(value(vm, "child_1", notesID), "9", "4 + 5")
+    }
+
+    /// Same as the table-level version, for the nested/collection path.
+    func testExternalCellChangeFromBackgroundQueueOnANestedRowRecomputesWithoutCrashing() {
+        let (vm, editor) = open(rows: oneRootWithOneChild)
+        XCTAssertEqual(value(vm, "child_1", totalID), "20")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowUpdate(rowID: "child_1", cells: [self.qtyID: 10], schemaID: self.childSchema)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+        settle() // drain the main-queue hop the background call just scheduled
+
+        XCTAssertEqual(value(vm, "child_1", totalID), "50", "10 * 5")
+        XCTAssertEqual(value(vm, "root_1", totalID), "6",  "the parent row is untouched")
+    }
+
+    /// The new row is never expanded in the view model, so this reads the context directly —
+    /// same lookup as `testNestedRowsAreEvaluatedWithoutBuildingAnyCells`.
+    func testExternalRowCreateFromBackgroundQueueOnANestedRowRecomputesWithoutCrashing() {
+        let (vm, editor) = open(rows: oneRootWithOneChild)
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowCreate(rowID: "child_2", cells: [self.qtyID: 6, self.priceID: 7],
+                                                            at: 1, schemaID: self.childSchema, parentPath: "0.\(self.childSchema)")])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(editor.cellFormulaValue(columnID: totalID, fieldID: collectionFieldID, rowID: "child_2")?.text,
+                       "42", "6 * 7, primed as the row is built")
+        XCTAssertEqual(value(vm, "root_1", totalID), "6",  "the parent row is untouched")
+    }
+
+    func testExternalRowDeleteFromBackgroundQueueOnANestedRowDoesNotCrash() {
+        let (vm, editor) = open(rows: oneRootWithOneChild)
+        XCTAssertEqual(value(vm, "child_1", totalID), "20", "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowDelete(rowID: "child_1", schemaID: self.childSchema)])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertTrue(childRows(editor, parentRowID: "root_1", schemaID: childSchema).isEmpty,
+                      "child_1 must be gone")
+        XCTAssertEqual(value(vm, "root_1", totalID), "6", "the parent row's formula is untouched")
+    }
+
+    func testExternalRowMoveFromBackgroundQueueOnANestedRowDoesNotCrash() {
+        let (vm, editor) = open(rows: oneRootWithTwoChildren)
+        XCTAssertEqual(childRows(editor, parentRowID: "root_1", schemaID: childSchema).map { $0.id },
+                       ["child_1", "child_2"], "Before the change")
+
+        let dispatched = expectation(description: "background change call returned")
+        DispatchQueue.global(qos: .userInitiated).async {
+            editor.change(changes: [self.externalRowMove(rowID: "child_2", to: 0, schemaID: self.childSchema,
+                                                         parentPath: "0.\(self.childSchema)")])
+            dispatched.fulfill()
+        }
+        wait(for: [dispatched], timeout: 2)
+
+        XCTAssertEqual(childRows(editor, parentRowID: "root_1", schemaID: childSchema).map { $0.id },
+                       ["child_2", "child_1"], "child_2 must now lead")
+        XCTAssertEqual(value(vm, "child_1", totalID), "20", "moving a row must not disturb its formula")
+        XCTAssertEqual(value(vm, "child_2", totalID), "1",  "or the row it passed")
     }
 
     // MARK: - The document is never written
