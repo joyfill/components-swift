@@ -102,20 +102,17 @@ struct FileView: View {
 
     var body: some View {
         if let file = file {
-            PagesView(pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, documentEditor: documentEditor)
+            PagesView(pageFieldModels: $documentEditor.pageFieldModels, documentEditor: documentEditor)
         }
     }
 }
 
 struct PagesView: View {
-    let pageOrder: [String]?
     @Binding var pageFieldModels: [String: PageModel]
     @ObservedObject var documentEditor: DocumentEditor
 
-    init(pageOrder: [String]?,
-         pageFieldModels: Binding<[String : PageModel]>,
+    init(pageFieldModels: Binding<[String : PageModel]>,
          documentEditor: DocumentEditor) {
-        self.pageOrder = pageOrder
         _pageFieldModels = pageFieldModels
         self.documentEditor = documentEditor
     }
@@ -410,7 +407,6 @@ extension FormView: FieldChangeEvents {
 
 struct PageDuplicateListView: View {
     @Binding var currentPageID: String
-    let pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
     @State var documentEditor: DocumentEditor
     @Binding var pageFieldModels: [String: PageModel]
@@ -588,7 +584,7 @@ private struct PageSelectionSheetPresenter: ViewModifier {
             .onAppear { documentEditor.activatePageSheetHost(hostID) }
             .onDisappear { documentEditor.deactivatePageSheetHost(hostID) }
             .sheet(isPresented: isPresented) {
-            let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: nil, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+            let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
             if #available(iOS 16, *) {
                 pickerView.presentationDetents([.medium])
             } else {
