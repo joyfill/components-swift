@@ -17,7 +17,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     let collectionFieldID = "67ddc52d35de157f6d7ebb63"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     // Delete Row tests
     func testDeleteRow() {
@@ -42,7 +42,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d","67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d","67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.filter({ row in
@@ -75,7 +75,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         // Pass row id empty
-        documentEditor.deleteRows(rowIDs: [], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: [], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.filter({ row in
@@ -108,7 +108,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         // Pass row id empty
-        documentEditor.deleteRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.filter({ row in
@@ -140,7 +140,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         //4 rows should left - No row deleted
@@ -174,7 +174,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.deleteRows(rowIDs: ["67612793a6cd1f9d39c8433b"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -203,7 +203,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         // Row order count now 6 , +1 after duplicate
@@ -237,7 +237,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -268,7 +268,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.count, nil)
@@ -297,7 +297,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             .setTableFieldPosition(hideColumn: false)
         
         let documentEditor = documentEditor(document: document)
-        documentEditor.duplicateRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+        _ = documentEditor.duplicateRows(rowIDs: ["ID"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
         let field = documentEditor.field(fieldID: tableFieldID)
         
         // Row order count remain same
@@ -328,7 +328,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "67612793a6cd1f9d39c8433d"), 3)// Row up and index should be 3 now
@@ -358,7 +358,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -389,7 +389,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowUp(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.count, nil)
@@ -419,7 +419,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowUp(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
+        _ = documentEditor.moveRowUp(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "676127938056dcd158942bad"), 0)// Row not up
@@ -449,7 +449,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
+        _ = documentEditor.moveRowDown(rowID: "676127938056dcd158942bad", fieldIdentifier: fieldIdentifier)// Current index = 0
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "676127938056dcd158942bad"), 1)// Row Down and index should be 1 now
@@ -479,7 +479,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.firstIndex(of: "67612793a6cd1f9d39c8433d"), 4)// Row not up
@@ -509,7 +509,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.value?.valueElements?.count, nil)
@@ -541,7 +541,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         
         let documentEditor = documentEditor(document: document)
         let fieldIdentifier = FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
-        documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
+        _ = documentEditor.moveRowDown(rowID: "67612793a6cd1f9d39c8433d", fieldIdentifier: fieldIdentifier)// Current index = 4
         let field = documentEditor.field(fieldID: tableFieldID)
         
         XCTAssertEqual(field?.rowOrder?.count, nil)
@@ -847,14 +847,14 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
             "67612793a6cd1f9d39c8433d"
         ]
         // 5 total rows , 1 deleted by default
-        
-        //Table columns Ids
-        let columnIds = [
-            "676127938fb7c5fd4321a2f4",
-            "67612793b5f860ae8d6a4ae6",
-            "67612793c76286eb2763c366"
-        ]
-                
+
+//        //Table columns Ids
+//        let columnIds = [
+//            "676127938fb7c5fd4321a2f4",
+//            "67612793b5f860ae8d6a4ae6",
+//            "67612793c76286eb2763c366"
+//        ]
+
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -889,23 +889,23 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     // Pass different row id - when row id not match for bulk edit
     func testBulkEditPassDifferentRowId() {
         let tableFieldID = "67612793c4e6a5e6a05e64a3"
-        //RowIds
-        let rowIds = [
-            "676127938056dcd158942bad",
-            "67612793f70928da78973744",
-            "67612793a6cd1f9d39c8433b",
-            "67612793a6cd1f9d39c8433c",// deleted
-            "67612793a6cd1f9d39c8433d"
-        ]
-        // 5 total rows , 1 deleted by default
-        
-        //Table columns Ids
-        let columnIds = [
-            "676127938fb7c5fd4321a2f4",
-            "67612793b5f860ae8d6a4ae6",
-            "67612793c76286eb2763c366"
-        ]
-                
+//        //RowIds
+//        let rowIds = [
+//            "676127938056dcd158942bad",
+//            "67612793f70928da78973744",
+//            "67612793a6cd1f9d39c8433b",
+//            "67612793a6cd1f9d39c8433c",// deleted
+//            "67612793a6cd1f9d39c8433d"
+//        ]
+//        // 5 total rows , 1 deleted by default
+//
+//        //Table columns Ids
+//        let columnIds = [
+//            "676127938fb7c5fd4321a2f4",
+//            "67612793b5f860ae8d6a4ae6",
+//            "67612793c76286eb2763c366"
+//        ]
+
         let document = JoyDoc()
             .setDocument()
             .setFile()
@@ -1000,7 +1000,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         let initialElements = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements
 
@@ -1037,7 +1037,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [existingRowID, nonExistingRowID],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1077,7 +1077,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: rowIDs,
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1122,7 +1122,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [duplicatedRowID, duplicatedRowID],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1155,7 +1155,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1194,7 +1194,7 @@ extension DocumentEditorChangeHandlerTests {
 
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: document, events: events, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false))
 
         _ = documentEditor.deleteNestedRows(rowIDs: [rowToDelete],
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
@@ -1379,13 +1379,13 @@ extension DocumentEditorChangeHandlerTests {
         
         // Insert a new nested row below the first nested row.
         let cellValues: [String: ValueUnion] = ["dummyKey": .string("New Nested Item")]
-        guard let insertResult = documentEditor.insertBelowNestedRow(selectedRowID: initialNestedRows.first!.id!,
-                                                                     cellValues: cellValues,
-                                                                     fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
-                                                                     childrenKeys: [nestedKey],
-                                                                     rootSchemaKey: collectionFieldID,
-                                                                     nestedKey: nestedKey,
-                                                                     parentRowId: parentRowId, fieldData: field.valueToValueElements ?? []) else {
+        guard documentEditor.insertBelowNestedRow(selectedRowID: initialNestedRows.first!.id!,
+                                                 cellValues: cellValues,
+                                                 fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                                 childrenKeys: [nestedKey],
+                                                 rootSchemaKey: collectionFieldID,
+                                                 nestedKey: nestedKey,
+                                                 parentRowId: parentRowId, fieldData: field.valueToValueElements ?? []) != nil else {
             XCTFail("Insertion failed")
             return
         }
@@ -1440,7 +1440,7 @@ extension DocumentEditorChangeHandlerTests {
         for nestedRowId in nestedRowIds {
             newChanges[nestedRowId] = changes
         }
-        _ = await documentEditor.bulkEditForNested(changes: newChanges,
+        _ = documentEditor.bulkEditForNested(changes: newChanges,
                                             selectedRows: nestedRowIds,
                                             fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
                                             parentRowId: parentRowId,
@@ -2018,6 +2018,358 @@ extension DocumentEditorChangeHandlerTests {
         let isVisible = editor.shouldShowSchema(for: collectionFieldID, rowSchemaID: rowSchemaID)
         
         XCTAssertEqual(isVisible, false)
+    }
+
+    // MARK: - Nested Schema Visibility Map (buildSchemaMap)
+
+    // The tests above all assert against `valueElements.first`, whose `children` is
+    // empty in the shared fixture. The cases below cover rows that DO hold child data:
+    // their declared sibling schemas still have to be evaluated, because the collection
+    // view walks the declared children when expanding a row, and an unmapped schema
+    // reads back as visible.
+
+    private var visibilityRootSchemaKey: String { "collectionSchemaId" }
+    private var visibilityTypeColumnID: String { "multiselect1" }
+    private var visibilityOptionA: String { "option_a" }
+    private var visibilityOptionB: String { "option_b" }
+    private var visibilityPopulatedSchemaID: String { "schema_populated" }
+    private var visibilityMatchingSchemaID: String { "schema_matching" }
+    private var visibilityNonMatchingSchemaID: String { "schema_nonmatch" }
+    private var visibilityParentRowID: String { "row_001" }
+    private var visibilityNestedRowID: String { "nested_row_001" }
+
+    private func visibilityTypeColumn() -> [String: Any] {
+        [
+            "_id": visibilityTypeColumnID,
+            "type": "multiSelect",
+            "title": "Type",
+            "width": 0,
+            "multi": true,
+            "identifier": "properties_type",
+            "options": [
+                ["_id": visibilityOptionA, "value": "A"],
+                ["_id": visibilityOptionB, "value": "B"]
+            ]
+        ]
+    }
+
+    private func visibilityTextColumn(id: String) -> [String: Any] {
+        ["_id": id, "type": "text", "title": "Text", "width": 0, "identifier": "field_column_\(id)"]
+    }
+
+    /// A child schema hidden by default and revealed when the parent row's type column
+    /// equals `optionID` — the shape used by the NFPA-style inspection templates.
+    private func visibilityHiddenChildSchema(
+        title: String,
+        optionID: String,
+        parentSchemaKey: String,
+        action: String = "show"
+    ) -> [String: Any] {
+        [
+            "title": title,
+            "hidden": true,
+            "children": [String](),
+            "tableColumns": [visibilityTextColumn(id: "col_\(optionID)_\(action)")],
+            "logic": [
+                "action": action,
+                "eval": "or",
+                "conditions": [
+                    [
+                        "condition": "=",
+                        "value": optionID,
+                        "column": visibilityTypeColumnID,
+                        "schema": parentSchemaKey
+                    ]
+                ]
+            ]
+        ]
+    }
+
+    /// Root schema declaring three children; only one of them ever holds row data.
+    private func visibilitySchema() -> [String: Any] {
+        [
+            visibilityRootSchemaKey: [
+                "root": true,
+                "title": "",
+                "children": [visibilityPopulatedSchemaID, visibilityMatchingSchemaID, visibilityNonMatchingSchemaID],
+                "tableColumns": [visibilityTypeColumn()]
+            ],
+            visibilityPopulatedSchemaID: [
+                "title": "Populated",
+                "children": [String](),
+                "tableColumns": [visibilityTextColumn(id: "col_nested")]
+            ],
+            visibilityMatchingSchemaID: visibilityHiddenChildSchema(
+                title: "Matching",
+                optionID: visibilityOptionA,
+                parentSchemaKey: visibilityRootSchemaKey
+            ),
+            visibilityNonMatchingSchemaID: visibilityHiddenChildSchema(
+                title: "Non matching",
+                optionID: visibilityOptionB,
+                parentSchemaKey: visibilityRootSchemaKey
+            )
+        ]
+    }
+
+    /// A root row selecting `optionA`, carrying child data for the populated schema only.
+    private func visibilityParentRow(
+        rowID: String? = nil,
+        selecting optionID: String? = nil,
+        nestedChildren: [String: Any] = [:],
+        populatedRows: [[String: Any]]? = nil
+    ) -> [String: Any] {
+        let nestedRow: [String: Any] = [
+            "_id": visibilityNestedRowID,
+            "deleted": false,
+            "cells": ["col_nested": "value"],
+            "children": nestedChildren
+        ]
+        return [
+            "_id": rowID ?? visibilityParentRowID,
+            "deleted": false,
+            "cells": [visibilityTypeColumnID: [optionID ?? visibilityOptionA]],
+            "children": [
+                visibilityPopulatedSchemaID: ["value": populatedRows ?? [nestedRow]]
+            ]
+        ]
+    }
+
+    private func visibilityCollectionField(schema: [String: Any], rows: [[String: Any]]) -> JoyDocField {
+        var field = JoyDocField()
+        field.type = "collection"
+        field.id = collectionFieldID
+        field.identifier = "field_\(collectionFieldID)"
+        field.title = "Collection"
+        field.description = ""
+        field.file = fileID
+        field.dictionary["schema"] = schema
+        field.value = .valueElementArray(rows.map { ValueElement(dictionary: $0) })
+        return field
+    }
+
+    private func visibilityEditor(schema: [String: Any], rows: [[String: Any]]) -> DocumentEditor {
+        var document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+        document.fields.append(visibilityCollectionField(schema: schema, rows: rows))
+        document = document.setFieldPositionToPage(pageId: pageID, idAndTypes: [collectionFieldID: .collection])
+        return documentEditor(document: document)
+    }
+
+    private func visibilityShouldShow(_ editor: DocumentEditor, rowID: String, schemaID: String) -> Bool {
+        editor.shouldShowSchema(
+            for: collectionFieldID,
+            rowSchemaID: RowSchemaID(rowID: rowID, schemaID: schemaID)
+        )
+    }
+
+    /// Regression: a declared sibling with no data on the row must still be evaluated.
+    /// The map used to be built only from the keys present in `children`, so this hidden
+    /// schema had no entry and the read-side default made it visible.
+    func testSiblingSchemaWithoutRowDataStaysHiddenWhenLogicDoesNotMatch() {
+        let editor = visibilityEditor(schema: visibilitySchema(), rows: [visibilityParentRow()])
+
+        XCTAssertFalse(
+            visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityNonMatchingSchemaID),
+            "Schema is hidden and its show condition (type == B) does not match the row (type == A)"
+        )
+    }
+
+    /// The matching sibling — also without data — must be revealed by its logic.
+    func testSiblingSchemaWithoutRowDataIsShownWhenLogicMatches() {
+        let editor = visibilityEditor(schema: visibilitySchema(), rows: [visibilityParentRow()])
+
+        XCTAssertTrue(
+            visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityMatchingSchemaID),
+            "Schema's show condition (type == A) matches the row"
+        )
+    }
+
+    /// The schema that does hold data keeps working as before.
+    func testPopulatedChildSchemaRemainsVisible() {
+        let editor = visibilityEditor(schema: visibilitySchema(), rows: [visibilityParentRow()])
+
+        XCTAssertTrue(
+            visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityPopulatedSchemaID),
+            "Schema without logic and without a hidden flag is visible"
+        )
+    }
+
+    /// A row with no children at all already worked; keep it covered so the two paths
+    /// cannot drift apart again.
+    func testRowWithoutAnyChildrenEvaluatesAllDeclaredSchemas() {
+        let row: [String: Any] = [
+            "_id": visibilityParentRowID,
+            "deleted": false,
+            "cells": [visibilityTypeColumnID: [visibilityOptionA]],
+            "children": [String: Any]()
+        ]
+        let editor = visibilityEditor(schema: visibilitySchema(), rows: [row])
+
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityMatchingSchemaID))
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityNonMatchingSchemaID))
+    }
+
+    /// The same gap existed at every nesting level: a nested row's declared children
+    /// were only mapped when they already had data.
+    func testNestedRowDeclaredChildrenAreEvaluated() {
+        let grandChildID = "schema_grandchild"
+        var schema = visibilitySchema()
+        schema[visibilityPopulatedSchemaID] = [
+            "title": "Populated",
+            "children": [grandChildID],
+            "tableColumns": [visibilityTextColumn(id: "col_nested"), visibilityTypeColumn()]
+        ]
+        schema[grandChildID] = visibilityHiddenChildSchema(
+            title: "Grandchild",
+            optionID: visibilityOptionB,
+            parentSchemaKey: visibilityPopulatedSchemaID
+        )
+
+        let editor = visibilityEditor(schema: schema, rows: [visibilityParentRow()])
+
+        XCTAssertFalse(
+            visibilityShouldShow(editor, rowID: visibilityNestedRowID, schemaID: grandChildID),
+            "Nested row does not select option B, so its hidden grandchild schema stays hidden"
+        )
+    }
+
+    /// Defensive: child data under a schema the parent does not declare is still
+    /// evaluated rather than dropped from the map.
+    func testUndeclaredChildDataIsStillEvaluated() {
+        var schema = visibilitySchema()
+        schema[visibilityRootSchemaKey] = [
+            "root": true,
+            "title": "",
+            "children": [visibilityMatchingSchemaID, visibilityNonMatchingSchemaID], // populated schema omitted
+            "tableColumns": [visibilityTypeColumn()]
+        ]
+
+        let editor = visibilityEditor(schema: schema, rows: [visibilityParentRow()])
+
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityPopulatedSchemaID))
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityNonMatchingSchemaID))
+    }
+
+    /// A hidden schema carrying no logic at all must stay hidden on a row that has
+    /// child data — there is nothing to reveal it.
+    func testHiddenSchemaWithoutLogicStaysHiddenOnRowWithChildren() {
+        let plainHiddenID = "schema_plain_hidden"
+        var schema = visibilitySchema()
+        schema[visibilityRootSchemaKey] = [
+            "root": true,
+            "title": "",
+            "children": [visibilityPopulatedSchemaID, plainHiddenID],
+            "tableColumns": [visibilityTypeColumn()]
+        ]
+        schema[plainHiddenID] = [
+            "title": "Plain hidden",
+            "hidden": true,
+            "children": [String](),
+            "tableColumns": [visibilityTextColumn(id: "col_plain")]
+        ]
+
+        let editor = visibilityEditor(schema: schema, rows: [visibilityParentRow()])
+
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: plainHiddenID))
+    }
+
+    /// A `hide` action on a sibling without data must be honoured too.
+    func testHideActionOnSiblingSchemaWithoutRowData() {
+        let hideSchemaID = "schema_hide"
+        var schema = visibilitySchema()
+        schema[visibilityRootSchemaKey] = [
+            "root": true,
+            "title": "",
+            "children": [visibilityPopulatedSchemaID, hideSchemaID],
+            "tableColumns": [visibilityTypeColumn()]
+        ]
+        // Visible by default, hidden when the row selects option A — which it does.
+        schema[hideSchemaID] = [
+            "title": "Hide on A",
+            "hidden": false,
+            "children": [String](),
+            "tableColumns": [visibilityTextColumn(id: "col_hide")],
+            "logic": [
+                "action": "hide",
+                "eval": "or",
+                "conditions": [
+                    [
+                        "condition": "=",
+                        "value": visibilityOptionA,
+                        "column": visibilityTypeColumnID,
+                        "schema": visibilityRootSchemaKey
+                    ]
+                ]
+            ]
+        ]
+
+        let editor = visibilityEditor(schema: schema, rows: [visibilityParentRow()])
+
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: hideSchemaID))
+    }
+
+    /// A child entry present in the data but holding an empty row array is still a row
+    /// with children, so its siblings must not fall back to visible.
+    func testChildSchemaWithEmptyRowArrayStillEvaluatesSiblings() {
+        let row: [String: Any] = [
+            "_id": visibilityParentRowID,
+            "deleted": false,
+            "cells": [visibilityTypeColumnID: [visibilityOptionA]],
+            "children": [visibilityPopulatedSchemaID: ["value": [[String: Any]]()]]
+        ]
+        let editor = visibilityEditor(schema: visibilitySchema(), rows: [row])
+
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityMatchingSchemaID))
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityNonMatchingSchemaID))
+    }
+
+    /// Each row is evaluated against its own cells: two rows selecting different
+    /// options must resolve the same schema differently.
+    func testSchemaVisibilityIsEvaluatedPerRow() {
+        let secondRowID = "row_002"
+        let rows = [
+            visibilityParentRow(),
+            visibilityParentRow(
+                rowID: secondRowID,
+                selecting: visibilityOptionB,
+                populatedRows: [["_id": "nested_row_002", "deleted": false, "cells": [String: Any](), "children": [String: Any]()]]
+            )
+        ]
+        let editor = visibilityEditor(schema: visibilitySchema(), rows: rows)
+
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityMatchingSchemaID))
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: visibilityParentRowID, schemaID: visibilityNonMatchingSchemaID))
+
+        XCTAssertFalse(visibilityShouldShow(editor, rowID: secondRowID, schemaID: visibilityMatchingSchemaID))
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: secondRowID, schemaID: visibilityNonMatchingSchemaID))
+    }
+
+    /// The shared fixture's second row is the one that carries child data, and no test
+    /// above asserts against it. Its nested and grand-nested rows must be mapped.
+    func testFixtureRowWithChildrenMapsNestedAndGrandNestedSchemas() {
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+        let editor = documentEditor(document: document)
+
+        // Row 2 of the fixture holds children for both declared child schemas.
+        let rowWithChildren = "67ddc537b7c2fce05d0c8615"
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: rowWithChildren, schemaID: "67ddc5c9910a394a1324bfbe"))
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: rowWithChildren, schemaID: "67ddcf4f622984fb4518cbc2"))
+
+        // A nested row of that row declares a grandchild schema.
+        let nestedRow = "67ddd191ab6a428ea69c77ad"
+        XCTAssertTrue(visibilityShouldShow(editor, rowID: nestedRow, schemaID: "67ddc5f5c2477e8457956fb4"))
     }
 }
 

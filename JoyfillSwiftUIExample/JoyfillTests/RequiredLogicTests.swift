@@ -40,10 +40,12 @@ final class RequiredLogicTests: XCTestCase {
     ) -> DocumentEditor {
         let editor = DocumentEditor(
             document: document,
-            mode: mode,
-            isPageDuplicateEnabled: isPageDuplicateEnabled,
-            validateSchema: validateSchema,
-            license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey
+            config: DocumentEditorConfig(
+                mode: mode,
+                license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey,
+                validateSchema: validateSchema,
+                page: PageConfig(enableDuplicates: isPageDuplicateEnabled)
+            )
         )
         if validateSchema {
             XCTAssertNil(editor.schemaError, "Fixture must satisfy the JoyDoc schema", file: file, line: line)
@@ -1819,8 +1821,8 @@ final class RequiredLogicTests: XCTestCase {
             pageID: duplicated.pageID
         )])
 
-        let updatedTable = editor.field(fieldID: duplicatedTableID)!
-        let updatedCollection = editor.field(fieldID: duplicatedCollectionID)!
+        _ = editor.field(fieldID: duplicatedTableID)!
+        _ = editor.field(fieldID: duplicatedCollectionID)!
         XCTAssertFalse(editor.isColumnRequired(columnID: textColumnID, fieldID: duplicatedTableID))
         XCTAssertFalse(editor.isCellRequired(columnID: duplicatedTableCellRequiredColumnID,
                                              fieldID: duplicatedTableID,
@@ -2172,6 +2174,7 @@ final class RequiredLogicTests: XCTestCase {
         hiddenPage["hidden"] = true
         var visiblePage = page(visiblePageID, fieldPositions: [])
         visiblePage["hidden"] = false
+
         let document = JoyDoc(dictionary: [
             "_id": "doc-1",
             "files": [[

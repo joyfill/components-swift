@@ -19,7 +19,7 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "FormulaTemplate_DropdownField")
-        documentEditor = DocumentEditor(document: document, validateSchema: false)
+        documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     } 
 
     override func tearDown() {
@@ -84,7 +84,7 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         let result = documentEditor.value(ofFieldWithIdentifier: "number1")
         let resultNumber = result?.number
 
-        print("🎯 Result: \(resultNumber)")
+        print("🎯 Result: \(String(describing: resultNumber))")
         
         // The dropdown has value "Yes" selected, so should return 1
         XCTAssertEqual(resultNumber, 1,
@@ -303,7 +303,7 @@ class FormulaTemplate_DropdownFieldTests: XCTestCase {
         print("\n🔍 Dropdown Formula Debug:")
         
         let document = documentEditor.document
-        print("Document has \(document.formulas.count ?? 0) formulas:")
+        print("Document has \(document.formulas.count) formulas:")
         
             for formula in document.formulas {
                 if let id = formula.id, let expression = formula.expression {

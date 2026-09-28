@@ -289,7 +289,7 @@ struct FormView: View {
         case .collection(let model):
             CollectionQuickView(tableDataModel: model, eventHandler: self)
                 .id(model.id)
-        case .image(let model):
+        case .image(_):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
             EmptyView()
@@ -564,6 +564,37 @@ struct PageDuplicateListView: View {
         pageToDelete = pageID
         deleteWarningMessage = warnings.joined(separator: "\n• ")
         showDeleteConfirmation = true
+    }
+}
+
+// iOS 27 won't present a sheet from a non-topmost view controller, so each host anchors its own.
+// `documentEditor` is optional here but `@ObservedObject` can't wrap an Optional, so this
+// unwraps and delegates to `BoundPageSelectionSheetPresenter`. Keep the split.
+struct PageSelectionSheetPresenter: ViewModifier {
+    let documentEditor: DocumentEditor?
+
+    func body(content: Content) -> some View {
+        if let documentEditor {
+            content.modifier(BoundPageSelectionSheetPresenter(documentEditor: documentEditor))
+        } else {
+            content
+        }
+    }
+}
+
+private struct BoundPageSelectionSheetPresenter: ViewModifier {
+    @ObservedObject var documentEditor: DocumentEditor
+
+    func body(content: Content) -> some View {
+        content.sheet(isPresented: $documentEditor.showPageSelectionSheet) {
+            // pageOrder is unused by PageDuplicateListView (it reads documentEditor.currentPageOrder instead), so nil is safe here.
+            let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: nil, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+            if #available(iOS 16, *) {
+                pickerView.presentationDetents([.medium])
+            } else {
+                pickerView
+            }
+        }
     }
 }
 

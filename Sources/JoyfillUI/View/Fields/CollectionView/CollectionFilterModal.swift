@@ -180,7 +180,7 @@ struct CollectionFilterModal: View {
                     Menu {
                         let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
                         ForEach(columns, id: \.id) { column in
-                            Button("\(column.title ?? "")") {
+                            Button("\(column.title)") {
                                 selectedSortedColumnID = column.id ?? ""
                             }
                         }
@@ -346,7 +346,7 @@ struct FilteringView: View {
                             return false
                         }
                     ForEach(columns, id: \.id) { column in
-                        Button("\(column.title ?? "")") {
+                        Button("\(column.title)") {
                             if !currentSelectedFilterColumnID.isEmpty {
                                 clearFilterForColumn(columnID: currentSelectedFilterColumnID, changeFilterCount: false)
                             }

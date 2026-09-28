@@ -10,6 +10,8 @@ import JoyfillAPIService
 import JoyfillModel
 import Joyfill
 
+typealias Document = JoyfillModel.Document
+
 class AppState: ObservableObject {
     @Published var changeResult: String = ""
     @Published var uploadResult: String = ""
@@ -59,33 +61,17 @@ struct JoyfillExampleApp: App {
         // Get isPageDeleteEnabled from launch arguments
         let isPageDeleteEnabled = Self.getPageDeleteEnabledFromLaunchArguments()
         
-        // Create document editor with error handling
-        do {
-            self.documentEditor = DocumentEditor(
-                document: sampleJSONDocument(fileName: jsonFileName),
+        self.documentEditor = DocumentEditor(
+            document: sampleJSONDocument(fileName: jsonFileName),
+            config: DocumentEditorConfig(
                 mode: mode,
                 events: eventHandler,
-                isPageDuplicateEnabled: isPageDuplicateEnabled,
-                isPageDeleteEnabled: isPageDeleteEnabled,
-                validateSchema: false,
                 license: licenseKey,
-                singleClickRowEdit: true
-            )
-        } catch {
-            print("⚠️  Error creating document editor: \(error)")
-            // Create a fallback document editor
-            let fallbackDoc = sampleJSONDocument(fileName: "Joydocjson")
-            self.documentEditor = DocumentEditor(
-                document: fallbackDoc,
-                mode: mode,
-                events: eventHandler,
-                isPageDuplicateEnabled: isPageDuplicateEnabled,
-                isPageDeleteEnabled: isPageDeleteEnabled,
                 validateSchema: false,
-                license: licenseKey,
-                singleClickRowEdit: true
+                page: PageConfig(enableDuplicates: isPageDuplicateEnabled, enableDeletes: isPageDeleteEnabled),
+                display: DisplayConfig(singleClickRowEdit: true)
             )
-        }
+        )
         
         // Set up crash prevention for UI tests after all properties are initialized
         setupCrashPrevention()
