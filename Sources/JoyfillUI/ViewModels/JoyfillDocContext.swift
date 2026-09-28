@@ -3126,13 +3126,15 @@ extension JoyfillDocContext {
         cellResults[fieldID] = field.filter { !dropped.contains($0.key.rowID) }
     }
 
-    /// Markers `Evaluator.stringify(_:)` renders an unconsumed `.error` value as (e.g. a
-    /// circular reference reaching `+`) instead of failing outright.
-    private static let leakedFormulaErrorMarkers =
-        ["#SYNTAX!(", "#REF!(", "#TYPE!(", "#ARGS!(", "#DIV/0!", "#CIRC!(", "#ERROR!("]
-
-    private func isLeakedFormulaErrorText(_ text: String) -> Bool {
-        Self.leakedFormulaErrorMarkers.contains { text.contains($0) }
+    /// True when the value is, or holds, an evaluation error. Checked on the value rather
+    /// than its rendered text, so user text that merely looks like `#DIV/0!` stays text.
+    private static func containsFormulaError(_ value: FormulaValue) -> Bool {
+        switch value {
+        case .error: return true
+        case .array(let items): return items.contains(where: containsFormulaError)
+        case .dictionary(let dict): return dict.values.contains(where: containsFormulaError)
+        default: return false
+        }
     }
 
     /// Evaluates the given columns of one row and writes the results. A column with no
@@ -3154,10 +3156,10 @@ extension JoyfillDocContext {
             case .failure:
                 cellResults[fieldID, default: [:]][cell] = CellFormulaValue(text: "Error", isError: true)
             case .success(let value):
-                let text = cellDisplayText(value, setup: setup, columnID: columnID)
-                cellResults[fieldID, default: [:]][cell] = isLeakedFormulaErrorText(text)
+                cellResults[fieldID, default: [:]][cell] = Self.containsFormulaError(value)
                     ? CellFormulaValue(text: "Error", isError: true)
-                    : CellFormulaValue(text: text, isError: false)
+                    : CellFormulaValue(text: cellDisplayText(value, setup: setup, columnID: columnID),
+                                       isError: false)
             }
         }
     }
@@ -3216,7 +3218,11 @@ private struct RowCellContext: EvaluationContext {
         }
         // Resolution happens here rather than at parse time: id -> name -> letter.
         if let columnID = setup.resolver.columnID(for: name) {
-            return .success(document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID))
+            let value = document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID)
+            // A failed cell is a failed reference, so the evaluator stops here instead of
+            // letting `+` stringify the error into text like `prefix#CIRC!(...)`.
+            if case .error(let error) = value { return .failure(error) }
+            return .success(value)
         }
         // A cell formula reads its own row and nothing else. Falling through to the
         // document would make `=A * taxRate` evaluate once and then never again: results

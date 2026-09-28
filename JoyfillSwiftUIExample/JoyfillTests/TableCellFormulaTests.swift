@@ -369,6 +369,27 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", notesID), "Error", "not the raw '#CIRC!(...)' text")
     }
 
+    /// Text that merely looks like an error code is a successful result, not a failure.
+    func testLiteralTextThatLooksLikeAnErrorIsShownAsText() {
+        let vm = standardViewModel(totalFormula: "=\"#DIV/0!\"")
+        XCTAssertEqual(result(vm, "row_1", totalID), "#DIV/0!")
+        XCTAssertEqual(vm.formulaValue(columnID: totalID, rowID: "row_1")?.isError, false)
+    }
+
+    func testReferencedTextThatLooksLikeAnErrorIsShownAsText() {
+        let vm = standardViewModel(totalFormula: "=E",
+                                   rows: [row("row_1", [qtyID: 1, priceID: 1,
+                                                        notesID: "Documented #REF!(missing)"])])
+        XCTAssertEqual(result(vm, "row_1", totalID), "Documented #REF!(missing)")
+        XCTAssertEqual(vm.formulaValue(columnID: totalID, rowID: "row_1")?.isError, false)
+    }
+
+    func testGenuineDivisionByZeroIsStillFlaggedAsError() {
+        let vm = standardViewModel(totalFormula: "=1/0")
+        XCTAssertEqual(result(vm, "row_1", totalID), "Error")
+        XCTAssertEqual(vm.formulaValue(columnID: totalID, rowID: "row_1")?.isError, true)
+    }
+
     // MARK: - Invalid formulas
 
     func testUnbalancedParenthesisIsAnError() {
