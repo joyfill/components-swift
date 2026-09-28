@@ -15,6 +15,8 @@ struct TableTextRowFormView: View {
     private var isUsedForBulkEdit: Bool
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @FocusState private var isTextFieldFocused: Bool
+    /// True while the editor shows the untouched, pre-filled column formula.
+    @State private var isShowingColumnFormula = false
 
     public init(cellModel: Binding<TableCellModel>, formulaValue: CellFormulaValue? = nil, isUsedForBulkEdit: Bool = false, text: String? = nil) {
         _cellModel = cellModel
@@ -50,7 +52,9 @@ struct TableTextRowFormView: View {
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
                             // The column's formula edits like one typed into the cell.
+                            isShowingColumnFormula = false
                             if text.isEmpty, let formula = cellModel.data.columnFormula {
+                                isShowingColumnFormula = true
                                 text = formula
                             }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
@@ -86,7 +90,10 @@ struct TableTextRowFormView: View {
     func updateFieldValue(newText: String) {
         // Showing the column's formula is not an edit. Until the author changes it the
         // cell still holds nothing, so nothing is written.
-        guard newText != cellModel.data.columnFormula else { return }
+        if isShowingColumnFormula {
+            guard newText != cellModel.data.columnFormula else { return }
+            isShowingColumnFormula = false
+        }
         var cellModelData = cellModel.data
         cellModelData.title = newText
         cellModel.data = cellModelData
