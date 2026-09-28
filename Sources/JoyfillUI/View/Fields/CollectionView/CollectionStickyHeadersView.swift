@@ -21,6 +21,8 @@ final class CollectionStickyScrollTracker: ObservableObject {
     var cachedRootWidth: (revision: Int, width: CGFloat)?
 
     func update(_ y: CGFloat) {
+        // Non-finite offsets (zero-size layout passes) would crash the Int() conversions downstream.
+        guard y.isFinite else { return }
         if y != offsetY { offsetY = y }
     }
 }
