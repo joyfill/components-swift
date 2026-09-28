@@ -24,10 +24,14 @@ final class TableEditabilityTests: XCTestCase {
             XCTFail("Table field \(tableFieldID) missing from fixture")
         }
 
-        let documentEditor = DocumentEditor(document: document,
-                                            mode: mode,
-                                            validateSchema: false,
-                                            singleClickRowEdit: singleClickRowEdit)
+        let documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                mode: mode,
+                validateSchema: false,
+                display: DisplayConfig(singleClickRowEdit: singleClickRowEdit)
+            )
+        )
         let field = documentEditor.field(fieldID: tableFieldID)
         let fieldHeaderModel = FieldHeaderModel(title: field?.title,
                                                 required: field?.required,

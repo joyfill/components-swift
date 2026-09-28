@@ -101,7 +101,7 @@ public struct ArrayFunctions {
             switch result {
             case .success(let value):
                 results.append(value)
-            case .failure(let error):
+            case .failure(_):
                 continue
             }
         }

@@ -30,7 +30,7 @@ struct SearchBar: View {
                     { cellDataModel in
                         switch column.type {
                         case .text:
-                            self.model.filterText = cellDataModel.title ?? ""
+                            self.model.filterText = cellDataModel.title
                         case .dropdown:
                             self.model.filterText = cellDataModel.defaultDropdownSelectedId ?? ""
                         case .number:
@@ -44,7 +44,7 @@ struct SearchBar: View {
                         case .multiSelect:
                             self.model.filterText = cellDataModel.multiSelectValues?.first ?? ""
                         case .barcode:
-                            self.model.filterText = cellDataModel.title ?? ""
+                            self.model.filterText = cellDataModel.title
                         case .date:
                             if let dateEpoch = cellDataModel.date {
                                 self.model.filterText = String(dateEpoch)

@@ -14,7 +14,7 @@ struct TableSignatureView: View {
     init(cellModel: Binding<TableCellModel>, isUsedForBulkEdit: Bool = false) {
         _cellModel = cellModel
         if !isUsedForBulkEdit {
-            _title = State(initialValue: cellModel.wrappedValue.data.title ?? "")
+            _title = State(initialValue: cellModel.wrappedValue.data.title)
         }
     }
     
@@ -26,7 +26,7 @@ struct TableSignatureView: View {
             showCanvasSignatureView = true
         }, label: {
             Image(systemName: "signature")
-                .foregroundColor((title.isEmpty || title == nil) ? .gray : colorScheme == .dark ? .white : .black)
+                .foregroundColor(title.isEmpty ? .gray : colorScheme == .dark ? .white : .black)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .contentShape(Rectangle())
         })

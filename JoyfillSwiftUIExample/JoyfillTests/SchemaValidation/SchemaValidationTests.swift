@@ -267,7 +267,7 @@ final class SchemaValidationTests: XCTestCase {
 
     // MARK: - Type-mismatch tests
     func testTypeMismatch_TopLevelPropertiesShouldFail() {
-        var cases: [(String, Any)] = [
+        let cases: [(String, Any)] = [
             ("files", "not-array"), // should be array
             ("fields", "not-array")  // should be array
         ]
@@ -697,7 +697,10 @@ final class SchemaValidationTests: XCTestCase {
     /// `validateSchema: false` still loads the document as-is, so a host can take the SDK upgrade
     /// before its stored documents are backfilled.
     func testLegacyRequiredLogicDocument_LoadsWithValidationDisabled() {
-        let editor = DocumentEditor(document: legacyDocumentWithUnvalidatedRequiredLogic(), validateSchema: false)
+        let editor = DocumentEditor(
+            document: legacyDocumentWithUnvalidatedRequiredLogic(),
+            config: DocumentEditorConfig(validateSchema: false)
+        )
         XCTAssertNil(editor.schemaError)
         XCTAssertNotNil(editor.field(fieldID: "table1"), "With validation off the legacy document still renders")
     }
@@ -740,7 +743,7 @@ extension SchemaValidationTests {
             .setPageField()
         let mockEvents = MockFormChangeEvent()
 
-        _ = DocumentEditor(document: invalidDoc, events: mockEvents) // validateSchema defaults to `true`
+        _ = DocumentEditor(document: invalidDoc, config: DocumentEditorConfig(events: mockEvents)) // validateSchema defaults to `true`
 
         XCTAssertNotNil(mockEvents.capturedError, "onError should be called for invalid document")
         if case .schemaValidationError(let schemaError) = mockEvents.capturedError! {
@@ -758,7 +761,7 @@ extension SchemaValidationTests {
             .setPageField()
         let mockEvents = MockFormChangeEvent()
 
-        let editor = DocumentEditor(document: invalidDoc, events: mockEvents, validateSchema: false)
+        let editor = DocumentEditor(document: invalidDoc, config: DocumentEditorConfig(events: mockEvents, validateSchema: false))
 
         XCTAssertNil(mockEvents.capturedError, "onError should NOT be called when validation is disabled")
         XCTAssertNil(editor.schemaError, "schemaError should be nil when validation is disabled")
@@ -774,7 +777,7 @@ extension SchemaValidationTests {
         
         let mockEvents = MockFormChangeEvent()
 
-        let editor = DocumentEditor(document: document, events: mockEvents)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(events: mockEvents))
         XCTAssertNil(mockEvents.capturedError, "onError should NOT be called when document is valid")
         XCTAssertNil(editor.schemaError, "schemaError should be nil when document is valid")
     }

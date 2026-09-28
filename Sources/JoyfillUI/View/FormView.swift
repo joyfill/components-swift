@@ -289,7 +289,7 @@ struct FormView: View {
         case .collection(let model):
             CollectionQuickView(tableDataModel: model, eventHandler: self)
                 .id(model.id)
-        case .image(let model):
+        case .image(_):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
             EmptyView()

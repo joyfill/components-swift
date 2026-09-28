@@ -242,9 +242,9 @@ struct CollectionModalView : View {
                                     case .row, .nestedRow:
                                         CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
                                             .frame(height: 60)
-                                    case .header(level: let level, tableColumns: let tableColumns, schemaKey: let schemaKey):
+                                    case .header(level: _, tableColumns: let tableColumns, schemaKey: let schemaKey):
                                         CollectionColumnHeaderView(viewModel: viewModel,
-                                                                   tableColumns: tableColumns ?? [],
+                                                                   tableColumns: tableColumns,
                                                                    currentSelectedCol: $currentSelectedCol,
                                                                    colorScheme: colorScheme,
                                                                    isHeaderNested: true,
@@ -480,7 +480,7 @@ struct CollectionRowsHeaderView: View {
             // Expand Button View
             if viewModel.nestedTableCount > 0 {
                 switch rowModel.rowType {
-                case .header(level: let level, tableColumns: let columns, _):
+                case .header(level: let level, tableColumns: _, _):
                     if level == 0 {
                         EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
                     } else {
@@ -529,11 +529,7 @@ struct CollectionRowsHeaderView: View {
                             }
                         }
                     }
-                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                    let backgroundColor = (colorScheme == .dark)
-                    ? Color(UIColor.systemGray6)
-                    : Color.tableColumnBgColor
-
+                case .tableExpander(schemaValue: _, level: let level, parentID: _, _):
                     HStack(spacing: 0){
                         if level == 0 {
                             EmptyRectangleView(colorScheme: colorScheme, width: 40, height: 60, isLastRow: isLastRow)
@@ -576,7 +572,7 @@ struct CollectionRowsHeaderView: View {
                         .disabled(viewModel.tableDataModel.getAllNestedRowsForRow(rowID: rowModel.rowID).count == 0)
                         .accessibilityIdentifier("selectAllNestedRows")
                 }
-            case .nestedRow(let level, let index, _, _):
+            case .nestedRow(_, let index, _, _):
                 if viewModel.showRowSelector(for: viewModel.tableDataModel) {
                     Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
                         .frame(width: 40, height: 60)
@@ -605,7 +601,7 @@ struct CollectionRowsHeaderView: View {
                         .border(Color.tableCellBorderColor)
                         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 }
-            case .nestedRow(let level, let nastedRowIndex, let parentID, let parentSchemaKey):
+            case .nestedRow(_, let nastedRowIndex, _, let parentSchemaKey):
                 if !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
                     Image(systemName: "asterisk")
                         .foregroundColor(.red)

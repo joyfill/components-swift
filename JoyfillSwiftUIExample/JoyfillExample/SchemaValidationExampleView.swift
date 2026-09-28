@@ -18,7 +18,10 @@ struct SchemaValidationExampleView: View {
 
     init() {
         let document = sampleJSONDocument(fileName: "ErrorHandling")
-        self.documentEditor = DocumentEditor(document: document, events: changeManagerWraper.changeManager, license: licenseKey)
+        self.documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(events: changeManagerWraper.changeManager, license: licenseKey)
+        )
         
         // Initialize with the sample document JSON
         if let jsonData = try? JSONSerialization.data(withJSONObject: document.dictionary, options: .prettyPrinted),
@@ -420,7 +423,10 @@ struct SchemaValidationExampleView: View {
     
     private func getCurrentDocumentEditor() -> DocumentEditor {
         let document = getCurrentDocument()
-        return DocumentEditor(document: document, events: changeManagerWraper.changeManager, license: licenseKey)
+        return DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(events: changeManagerWraper.changeManager, license: licenseKey)
+        )
     }
     
     private func resetToSampleDocument() {
