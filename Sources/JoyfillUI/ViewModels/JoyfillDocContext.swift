@@ -40,6 +40,10 @@ class JoyfillDocContext: EvaluationContext {
     /// Cells currently being evaluated, so a cell that reads itself is caught rather than
     /// recursing forever. Same idea as `evaluationInProgress`, one level down.
     internal var cellsInProgress: Set<CellID> = []
+    /// Cell results for the current `store` pass; `nil` outside one.
+    internal var cellValuesInPass: [CellID: Result<FormulaValue, FormulaError>]?
+    /// Counts circular-reference hits; results that hit one are not cached.
+    internal var circularReferenceHits = 0
     /// Parsed cell formulas, keyed by field and formula text. The key is the text
     /// itself, so this can never go stale — it only avoids re-parsing the same string.
     internal var cellASTs: [String: [String: ASTNode]] = [:]
@@ -2789,21 +2793,30 @@ extension JoyfillDocContext {
               let body = activeFormula(setup: setup, row: row, columnID: columnID) else { return nil }
 
         let cellID = CellID(rowID: rowID, columnID: columnID)
+        if let computed = cellValuesInPass?[cellID] { return computed }
         guard !cellsInProgress.contains(cellID) else {
+            circularReferenceHits += 1
             return .failure(.circularReference("Circular reference at column '\(columnID)'"))
         }
         cellsInProgress.insert(cellID)
         defer { cellsInProgress.remove(cellID) }
+        let hitsBefore = circularReferenceHits
 
-        guard let ast = parsedCellFormula(body: body, setup: setup) else {
-            return .failure(.syntaxError("Invalid formula '=\(body)'"))
+        let result: Result<FormulaValue, FormulaError>
+        if let ast = parsedCellFormula(body: body, setup: setup) {
+            let context = RowCellContext(document: self, setup: setup, fieldID: fieldID, row: row)
+            let evaluated = evaluator.evaluate(node: ast, context: context)
+            // An engine-level `.error` value is an error to the caller.
+            if case .success(.error(let error)) = evaluated {
+                result = .failure(error)
+            } else {
+                result = evaluated
+            }
+        } else {
+            result = .failure(.syntaxError("Invalid formula '=\(body)'"))
         }
 
-        let context = RowCellContext(document: self, setup: setup, fieldID: fieldID, row: row)
-        let result = evaluator.evaluate(node: ast, context: context)
-
-        // An engine-level `.error` value is an error to the caller.
-        if case .success(.error(let error)) = result { return .failure(error) }
+        if circularReferenceHits == hitsBefore { cellValuesInPass?[cellID] = result }
         return result
     }
 
@@ -3153,7 +3166,16 @@ extension JoyfillDocContext {
                        setup: TableCellFormulaSetup,
                        row: ValueElement,
                        rowID: String) {
-        for columnID in columns {
+        cellValuesInPass = [:]
+        defer { cellValuesInPass = nil }
+
+        let requested = Set(columns)
+        for columnID in evaluationOrder(columns, setup: setup, row: row) {
+            // Read-only dependency: compute it for the cache, don't store it.
+            guard requested.contains(columnID) else {
+                _ = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID)
+                continue
+            }
             let cell = CellID(rowID: rowID, columnID: columnID)
             guard let type = setup.types[columnID],
                   JoyfillDocContext.formulaCapableTypes.contains(type),
@@ -3171,6 +3193,33 @@ extension JoyfillDocContext {
                                        isError: false)
             }
         }
+    }
+
+    /// `columns` with their dependencies first, so long chains don't recurse deeply.
+    private func evaluationOrder(_ columns: [String],
+                                 setup: TableCellFormulaSetup,
+                                 row: ValueElement) -> [String] {
+        var order: [String] = []
+        var seen: Set<String> = []
+        var pending: [(columnID: String, readsDone: Bool)] = columns.reversed().map { ($0, false) }
+        while let (columnID, readsDone) = pending.popLast() {
+            if readsDone {
+                order.append(columnID)
+                continue
+            }
+            guard seen.insert(columnID).inserted else { continue }
+            pending.append((columnID, true))
+            guard let body = activeFormula(setup: setup, row: row, columnID: columnID),
+                  let ast = parsedCellFormula(body: body, setup: setup) else { continue }
+            var references: [String] = []
+            extractReferencesFromNode(ast, references: &references)
+            for reference in references {
+                if let read = setup.resolver.columnID(for: reference), !seen.contains(read) {
+                    pending.append((read, false))
+                }
+            }
+        }
+        return order
     }
 
     // MARK: Column dependencies
