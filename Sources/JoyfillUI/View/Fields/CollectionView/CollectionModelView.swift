@@ -488,6 +488,7 @@ struct CollectionColumnHeaderView: View {
 
 struct CollectionRowsHeaderView: View {
     @ObservedObject var viewModel: CollectionViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var rowModel: RowDataModel
     let colorScheme: ColorScheme
     let index: Int
@@ -513,12 +514,17 @@ struct CollectionRowsHeaderView: View {
                 case .row(index: let index):
                     if let childrens = viewModel.tableDataModel.schema[viewModel.rootSchemaKey]?.children {
                         if !childrens.isEmpty {
-                            Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                            Image(systemName: "chevron.right.square")
+                                .rotationEffect(.degrees(rowModel.isExpanded ? 90 : 0))
+                                // One rotating icon no longer changes its name, so state goes to VoiceOver here.
+                                .accessibilityValue(rowModel.isExpanded ? "Expanded" : "Collapsed")
                                 .frame(width: 40, height: 60)
                                 .border(Color.tableCellBorderColor)
                                 .background(rowModel.isExpanded ? (colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color(UIColor.systemGray6) : .white))
                                 .onTapGesture {
-                                    viewModel.expandTables(rowDataModel: rowModel, level: 0)
+                                    withAnimation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.9)) {
+                                        viewModel.expandTables(rowDataModel: rowModel, level: 0)
+                                    }
                                 }
                                 .accessibilityIdentifier("CollectionExpandCollapseButton\(index)")
                         }
@@ -537,12 +543,17 @@ struct CollectionRowsHeaderView: View {
                         }
                         if let childrens = viewModel.tableDataModel.schema[parentSchemaKey]?.children {
                             if !childrens.isEmpty {
-                                Image(systemName: rowModel.isExpanded ? "chevron.down.square" : "chevron.right.square")
+                                Image(systemName: "chevron.right.square")
+                                .rotationEffect(.degrees(rowModel.isExpanded ? 90 : 0))
+                                // One rotating icon no longer changes its name, so state goes to VoiceOver here.
+                                .accessibilityValue(rowModel.isExpanded ? "Expanded" : "Collapsed")
                                     .frame(width: 40, height: 60)
                                     .border(Color.tableCellBorderColor)
                                     .background(rowModel.isExpanded ? (colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color(UIColor.systemGray6) : .white))
                                     .onTapGesture {
+                                        withAnimation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.9)) {
                                         viewModel.expandTables(rowDataModel: rowModel, level: level)
+                                    }
                                     }
                                     .accessibilityIdentifier("CollectionExpandCollapseNestedButton\(nestedIndex)")
                             } else {
