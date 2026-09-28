@@ -43,10 +43,14 @@ final class CollectionEditabilityTests: XCTestCase {
         }
         document.fields[index].schema = schema
 
-        let documentEditor = DocumentEditor(document: document,
-                                            mode: mode,
-                                            validateSchema: false,
-                                            singleClickRowEdit: singleClickRowEdit)
+        let documentEditor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(
+                mode: mode,
+                validateSchema: false,
+                display: DisplayConfig(singleClickRowEdit: singleClickRowEdit)
+            )
+        )
         let field = documentEditor.field(fieldID: collectionFieldID)
         let fieldHeaderModel = FieldHeaderModel(title: field?.title,
                                                 required: field?.required,

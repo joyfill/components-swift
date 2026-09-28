@@ -74,12 +74,12 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
             let start = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: dir == .up ? 0.85 : 0.15))
             let end   = scrollView.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: dir == .up ? 0.15 : 0.85))
             
-            do {
+//            do {
                 start.press(forDuration: 0.01, thenDragTo: end)
                 return true
-            } catch {
-                attempts += 1
-            }
+//            } catch {
+//                attempts += 1
+//            }
         }
         return false
     }

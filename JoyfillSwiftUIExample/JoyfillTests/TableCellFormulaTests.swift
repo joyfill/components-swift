@@ -83,7 +83,7 @@ final class TableCellFormulaTests: XCTestCase {
 
     /// Builds the view model, which is what primes the result map as it builds its cells.
     private func viewModel(_ document: JoyDoc) -> TableViewModel {
-        let editor = DocumentEditor(document: document, validateSchema: false)
+        let editor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let field = editor.field(fieldID: tableFieldID)
         let header = FieldHeaderModel(title: field?.title, required: field?.required,
                                       tipDescription: field?.tipDescription, tipTitle: field?.tipTitle,
@@ -768,7 +768,8 @@ final class TableCellFormulaTests: XCTestCase {
             dict["required"] = true
             columns[index] = FieldTableColumn(dictionary: dict)
         }
-        let editor = DocumentEditor(document: document(columns: columns, rows: rows), validateSchema: false)
+        let editor = DocumentEditor(document: document(columns: columns, rows: rows),
+                                    config: DocumentEditorConfig(validateSchema: false))
         return editor.validate().fieldValidities.first(where: { $0.fieldId == tableFieldID })?.status
     }
 
@@ -804,7 +805,7 @@ final class TableCellFormulaTests: XCTestCase {
         columns[index] = FieldTableColumn(dictionary: dict)
         let editor = DocumentEditor(document: document(columns: columns,
                                                        rows: [row("row_1", [qtyID: 2, priceID: 3])]),
-                                    validateSchema: false)
+                                    config: DocumentEditorConfig(validateSchema: false))
         XCTAssertEqual(editor.validate().fieldValidities.first(where: { $0.fieldId == tableFieldID })?.status,
                        .invalid, "No formula and no stored value")
     }
@@ -991,7 +992,7 @@ final class CollectionCellFormulaTests: XCTestCase {
         document.fields.append(field)
         document = document.setFieldPositionToPage(pageId: pageID,
                                                    idAndTypes: [collectionFieldID: .collection])
-        return DocumentEditor(document: document, validateSchema: false)
+        return DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
 
     /// Opens the collection the way the screen does, then expands every root row — which is
@@ -1018,7 +1019,7 @@ final class CollectionCellFormulaTests: XCTestCase {
         XCTAssertFalse(vm.isLoading, "CollectionViewModel did not finish loading")
 
         for rowModel in vm.tableDataModel.filteredcellModels where rowModel.rowType.isRow {
-            vm.expandTables(rowDataModel: rowModel, level: rowModel.rowType.level ?? 0)
+            vm.expandTables(rowDataModel: rowModel, level: rowModel.rowType.level)
         }
         return (vm, editor)
     }
@@ -1210,7 +1211,8 @@ final class CollectionCellFormulaTests: XCTestCase {
         let document = editor(rootColumns: required(columns(totalFormula: rootFormula)),
                               childColumns: required(columns(totalFormula: childFormula)),
                               rows: rows).document
-        let licensed = DocumentEditor(document: document, validateSchema: false, license: license)
+        let licensed = DocumentEditor(document: document,
+                                      config: DocumentEditorConfig(license: license, validateSchema: false))
         return licensed.validate().fieldValidities.first(where: { $0.fieldId == collectionFieldID })?.status
     }
 

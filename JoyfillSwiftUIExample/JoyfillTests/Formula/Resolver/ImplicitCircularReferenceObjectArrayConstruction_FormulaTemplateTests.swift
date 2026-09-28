@@ -19,7 +19,7 @@ class ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplateTests: XCT
     override func setUp() {
         super.setUp()
         let document = sampleJSONDocument(fileName: "ImplicitCircularReferenceObjectArrayConstruction_FormulaTemplate")
-        documentEditor = DocumentEditor(document: document, validateSchema: false)
+        documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     } 
 
     override func tearDown() {

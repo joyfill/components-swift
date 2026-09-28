@@ -284,17 +284,21 @@ struct FormDestinationView: View {
         Task.detached { [jsonString, changeManager] in
             let jsonData = jsonString.data(using: .utf8) ?? Data()
             let dictionary = (try? JSONSerialization.jsonObject(with: jsonData, options: .mutableContainers) as? [String: Any]) ?? [:]
-            let editor = await DocumentEditor(
+            let editor = DocumentEditor(
                 document: JoyDoc(dictionary: dictionary),
-                mode: .fill,
-                events: changeManager,
-                pageID: "",
-                navigation: true,
-                isPageDuplicateEnabled: isDuplicate,
-                isPageDeleteEnabled: isDelete,
-                validateSchema: currentSchema,
-                license: currentLicense,
-                singleClickRowEdit: isSingleClick
+                config: DocumentEditorConfig(
+                    mode: .fill,
+                    events: changeManager,
+                    license: currentLicense,
+                    validateSchema: currentSchema,
+                    page: PageConfig(
+                        navigation: true,
+                        enableDuplicates: isDuplicate,
+                        enableDeletes: isDelete,
+                        currentPageID: ""
+                    ),
+                    display: DisplayConfig(singleClickRowEdit: isSingleClick)
+                )
             )
 
             // Publish to UI on the main actor
