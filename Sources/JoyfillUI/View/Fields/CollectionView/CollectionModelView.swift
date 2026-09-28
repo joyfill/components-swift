@@ -50,6 +50,8 @@ struct CollectionModalView : View {
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     @State private var isDismissingForNavigation = false
+    /// Plain @State (not @StateObject) so scroll ticks re-render only the sticky overlay, not the whole grid.
+    @State private var stickyTracker = CollectionStickyScrollTracker()
     
     init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
@@ -201,6 +203,57 @@ struct CollectionModalView : View {
         return width
     }
 
+    var rootColumnHeaderRow: some View {
+        HStack(spacing: 0) {
+            rowSelectorHeader
+
+            CollectionColumnHeaderView(viewModel: viewModel,
+                                       tableColumns: viewModel.tableDataModel.tableColumns,
+                                       currentSelectedCol: $currentSelectedCol,
+                                       colorScheme: colorScheme,
+                                       isHeaderNested: false,
+                                       schemaKey: viewModel.rootSchemaKey)
+        }
+    }
+
+    @ViewBuilder
+    func collectionRow(at index: Int) -> some View {
+        let models = viewModel.tableDataModel.filteredcellModels
+        if index < models.count {
+            let rowCellModels = models[index]
+            HStack(spacing: 0) {
+                let bindingRowModel = Binding(get: {
+                    index < viewModel.tableDataModel.filteredcellModels.count ? viewModel.tableDataModel.filteredcellModels[index] : rowCellModels
+                }, set: { newValue in
+                    if index < viewModel.tableDataModel.filteredcellModels.count {
+                        viewModel.tableDataModel.filteredcellModels[index] = newValue
+                    } else {
+                        Log("Row not found at this index ", type: .error)
+                    }
+                })
+                CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView)
+
+                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
+                switch rowCellModels.rowType {
+                case .row, .nestedRow:
+                    CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
+                        .frame(height: 60)
+                case .header(level: _, tableColumns: let tableColumns, schemaKey: let schemaKey):
+                    CollectionColumnHeaderView(viewModel: viewModel,
+                                               tableColumns: tableColumns,
+                                               currentSelectedCol: $currentSelectedCol,
+                                               colorScheme: colorScheme,
+                                               isHeaderNested: true,
+                                               schemaKey: schemaKey)
+                    .frame(height: 60)
+                case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
+                    CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
+                        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+                }
+            }
+        }
+    }
+
     var collection: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
@@ -210,57 +263,22 @@ struct CollectionModalView : View {
                         RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: rootSchema)
                             .cornerRadius(14, corners: [.topLeft, .topRight], borderColor: Color.tableCellBorderColor)
                         
-                        HStack(spacing: 0) {
-                            rowSelectorHeader
-                            
-                            CollectionColumnHeaderView(viewModel: viewModel,
-                                                       tableColumns: viewModel.tableDataModel.tableColumns,
-                                                       currentSelectedCol: $currentSelectedCol,
-                                                       colorScheme: colorScheme,
-                                                       isHeaderNested: false,
-                                                       schemaKey: viewModel.rootSchemaKey)
-                        }
+                        rootColumnHeaderRow
                         
-                        var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
-                        ForEach(Array(safeFilteredModels.enumerated()), id: \.element.rowID) { (index, rowCellModels) in
-                            if index < safeFilteredModels.count {
-                                HStack(spacing: 0) {
-                                    let bindingRowModel = Binding(get: {
-                                        safeFilteredModels[index]
-                                    }, set: { newValue in
-                                        if index < viewModel.tableDataModel.filteredcellModels.count {
-                                            viewModel.tableDataModel.filteredcellModels[index] = newValue
-                                            safeFilteredModels[index] = newValue
-                                        } else {
-                                            Log("Row not found at this index ", type: .error)
-                                        }
-                                    })
-                                    CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView)
-
-                                    let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                    switch rowCellModels.rowType {
-                                    case .row, .nestedRow:
-                                        CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
-                                            .frame(height: 60)
-                                    case .header(level: _, tableColumns: let tableColumns, schemaKey: let schemaKey):
-                                        CollectionColumnHeaderView(viewModel: viewModel,
-                                                                   tableColumns: tableColumns,
-                                                                   currentSelectedCol: $currentSelectedCol,
-                                                                   colorScheme: colorScheme,
-                                                                   isHeaderNested: true,
-                                                                   schemaKey: schemaKey)
-                                        .frame(height: 60)
-                                    case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
-                                        CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
-                                            .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
-                                    }
-                                }
-                            }
+                        ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.element.rowID) { (index, _) in
+                            collectionRow(at: index)
                         }
-
                     }
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
+                    .background(CollectionScrollOffsetReader(tracker: stickyTracker))
+                    .overlay(alignment: .topLeading) {
+                        CollectionStickyHeadersView(viewModel: viewModel,
+                                                    tracker: stickyTracker,
+                                                    rootTitle: AnyView(RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: viewModel.tableDataModel.schema[viewModel.rootSchemaKey])),
+                                                    rootColumns: AnyView(rootColumnHeaderRow),
+                                                    rowBuilder: { AnyView(collectionRow(at: $0)) })
+                    }
                 }
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
