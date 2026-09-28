@@ -188,8 +188,12 @@ struct CollectionStickyHeadersView: View {
 
     /// The table a row belongs to. A nested table's title and column rows belong to that table.
     static func owner(of i: Int, in models: [RowDataModel]) -> Block {
+        // Falls back to root unless expander/header are a real pair (rows can change mid-scroll).
         func nested(expander: Int) -> Block {
-            Block(key: expander, indices: [expander, expander + 1], height: 2 * rowHeight, width: models[expander + 1].rowWidth)
+            guard expander >= 0, expander + 1 < models.count,
+                  case .tableExpander = models[expander].rowType,
+                  case .header = models[expander + 1].rowType else { return .root }
+            return Block(key: expander, indices: [expander, expander + 1], height: 2 * rowHeight, width: models[expander + 1].rowWidth)
         }
         switch models[i].rowType {
         case .row:
