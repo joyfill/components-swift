@@ -390,4 +390,87 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertNil(editor.pendingNavigationTarget, "a rejected goto must not park anything")
         XCTAssertFalse(editor.showPageSelectionSheet, "the sheet must still close")
     }
+
+    // MARK: - Host stack
+
+    /// Models: A (root) appears, B (pushed) appears, B presents the sheet, then an
+    /// interactive swipe-back starts (A's onAppear refires) but is cancelled, so B
+    /// never gets `onDisappear`. A becomes stack-top without ever asking for the sheet —
+    /// `activatePageSheetHost` must close it rather than leave it orphaned on A.
+    func testStackTopStolenByAnotherHost_closesTheSheet() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+
+        editor.activatePageSheetHost(hostA)          // A appears (root)
+        editor.activatePageSheetHost(hostB)           // B appears (pushed) — B is top
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostB)
+
+        editor.presentPageSelectionSheet(true)        // user opens picker from B
+        XCTAssertTrue(editor.showPageSelectionSheet)
+
+        // Interactive swipe-back begins and is cancelled: A's onAppear fires again,
+        // but B's onDisappear never does (B never actually left the screen).
+        editor.activatePageSheetHost(hostA)
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostA,
+                       "A is now top, even though B is still what's on screen")
+        XCTAssertFalse(editor.showPageSelectionSheet,
+                       "a host taking over top without the previous one deactivating must close the sheet, " +
+                       "not hand it to a host that never asked for it")
+    }
+
+    /// Continuation: because the steal above already closes the sheet, a third host that
+    /// later becomes top must not inherit anything — no auto-present with no tap.
+    func testStackTopStolenByAnotherHost_laterHostDoesNotInheritTheSheet() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+        let hostC = UUID()
+
+        editor.activatePageSheetHost(hostA)
+        editor.activatePageSheetHost(hostB)
+        editor.presentPageSelectionSheet(true)
+        editor.activatePageSheetHost(hostA)           // cancelled swipe-back, as above — B never deactivates
+
+        // Time passes; user navigates to a totally unrelated host C (e.g. opens a chart detail).
+        editor.activatePageSheetHost(hostC)
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostC)
+        XCTAssertFalse(editor.showPageSelectionSheet,
+                       "the sheet was already closed when A stole the top — C must not auto-present it")
+    }
+
+    /// The documented, intentional counterpart: when the top host deactivates cleanly
+    /// (a real `onDisappear`, not a steal), the sheet must carry over to whatever host
+    /// is left on top — this is `deactivatePageSheetHost`'s "regains automatically" contract.
+    func testHostDeactivating_handsTheOpenSheetToNewTop() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+
+        editor.activatePageSheetHost(hostA)
+        editor.activatePageSheetHost(hostB)
+        editor.presentPageSelectionSheet(true)
+
+        editor.deactivatePageSheetHost(hostB)          // B properly pops — real onDisappear
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostA)
+        XCTAssertTrue(editor.showPageSelectionSheet,
+                      "a clean hand-off must still let the revealed host regain the open sheet")
+    }
+
+    /// Re-activating the host that is already on top (e.g. a spurious duplicate `onAppear`)
+    /// must not be treated as a steal and must not close an open sheet.
+    func testReactivatingTheCurrentTopHost_doesNotCloseTheSheet() {
+        let editor = makeEditor()
+        let hostA = UUID()
+
+        editor.activatePageSheetHost(hostA)
+        editor.presentPageSelectionSheet(true)
+
+        editor.activatePageSheetHost(hostA)            // duplicate onAppear for the same host
+
+        XCTAssertTrue(editor.showPageSelectionSheet, "re-activating the current top host must not close its own sheet")
+    }
 }
