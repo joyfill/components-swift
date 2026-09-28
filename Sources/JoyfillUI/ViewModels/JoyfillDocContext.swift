@@ -2949,13 +2949,21 @@ extension JoyfillDocContext {
     /// multi-select array or a date — both of which the evaluator already handles itself.
     private static let alreadyNumericTypes: Set<ColumnTypes> = [.number, .progress, .multiSelect, .date]
 
-    private static func coerceTextCellsForArithmetic(_ node: ASTNode, setup: TableCellFormulaSetup) -> ASTNode {
-        func recurse(_ node: ASTNode) -> ASTNode { coerceTextCellsForArithmetic(node, setup: setup) }
+    /// `boundNames` holds the parameters of every enclosing lambda. They shadow columns at
+    /// evaluation time (`RowCellContext` checks variables first, by exact name), so a
+    /// reference to one is a local value, never a text cell to coerce.
+    private static func coerceTextCellsForArithmetic(_ node: ASTNode,
+                                                     setup: TableCellFormulaSetup,
+                                                     boundNames: Set<String> = []) -> ASTNode {
+        func recurse(_ node: ASTNode) -> ASTNode {
+            coerceTextCellsForArithmetic(node, setup: setup, boundNames: boundNames)
+        }
         // A bare reference is coerced directly; anything else (a nested call or operation)
         // is walked instead, so e.g. `ROUND(text2/text1, 2)` still reaches the division.
         func operand(_ node: ASTNode) -> ASTNode {
             guard case .reference(let token) = node else { return recurse(node) }
-            guard let columnID = setup.resolver.columnID(for: token),
+            guard !boundNames.contains(token),
+                  let columnID = setup.resolver.columnID(for: token),
                   let type = setup.types[columnID],
                   !alreadyNumericTypes.contains(type)
             else { return node }
@@ -2985,7 +2993,9 @@ extension JoyfillDocContext {
         case .objectLiteral(let pairs):
             return .objectLiteral(pairs.map { ($0.0, recurse($0.1)) })
         case .lambda(let parameters, let body):
-            return .lambda(parameters: parameters, body: recurse(body))
+            let body = coerceTextCellsForArithmetic(body, setup: setup,
+                                                    boundNames: boundNames.union(parameters))
+            return .lambda(parameters: parameters, body: body)
         case .arrayAccess(let array, let index):
             return .arrayAccess(array: recurse(array), index: recurse(index))
         case .propertyAccess(let object, let property):

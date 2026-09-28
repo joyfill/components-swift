@@ -384,6 +384,42 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(vm.formulaValue(columnID: totalID, rowID: "row_1")?.isError, false)
     }
 
+    // MARK: - Lambda parameters vs. text-cell coercion
+
+    /// Column A is text, so a bare `A` in arithmetic is wrapped in TONUMBER. A lambda
+    /// parameter spelled the same way is a local value and must be left alone.
+    private func lambdaViewModel(formula: String, textA: String = "5") -> TableViewModel {
+        let columns = [column(id: notesID, type: .text, title: "Name"),
+                       column(id: totalID, type: .text, title: "Total", formula: formula)]
+        return viewModel(document(columns: columns, rows: [row("row_1", [notesID: textA])]))
+    }
+
+    func testLambdaParameterNamedLikeATextColumnIsNotCoerced() {
+        let vm = lambdaViewModel(formula: "=MAP([\"a\", \"b\"], (A) -> A + \"!\")")
+        XCTAssertEqual(result(vm, "row_1", totalID), "a!, b!")
+    }
+
+    func testLowercaseLambdaParameterIsNotCoerced() {
+        let vm = lambdaViewModel(formula: "=MAP([\"a\", \"b\"], (a) -> a + \"!\")")
+        XCTAssertEqual(result(vm, "row_1", totalID), "a!, b!")
+    }
+
+    func testLambdaParameterNamedLikeAColumnTitleIsNotCoerced() {
+        let vm = lambdaViewModel(formula: "=MAP([\"a\", \"b\"], (Name) -> Name + \"!\")")
+        XCTAssertEqual(result(vm, "row_1", totalID), "a!, b!")
+    }
+
+    func testOuterLambdaParameterStaysBoundInsideANestedLambda() {
+        let vm = lambdaViewModel(formula: "=MAP([\"a\"], (A) -> MAP([\"b\"], (y) -> A + y))")
+        XCTAssertEqual(result(vm, "row_1", totalID), "ab")
+    }
+
+    /// Only the bound name is skipped: a real text column in the same lambda is still coerced.
+    func testTextColumnInsideALambdaIsStillCoerced() {
+        let vm = lambdaViewModel(formula: "=MAP([1, 2], (x) -> x + A)")
+        XCTAssertEqual(result(vm, "row_1", totalID), "6, 7")
+    }
+
     func testGenuineDivisionByZeroIsStillFlaggedAsError() {
         let vm = standardViewModel(totalFormula: "=1/0")
         XCTAssertEqual(result(vm, "row_1", totalID), "Error")
