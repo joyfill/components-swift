@@ -489,6 +489,48 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertLessThan(Date().timeIntervalSince(start), 1, "a 21-step chain should be instant")
     }
 
+    /// Step0 has `step0Formula`; each later column adds 1 to the one before.
+    private func chainViewModel(step0Formula: String, steps: Int = 18) -> TableViewModel {
+        var columns = [column(id: "col_step0", type: .text, title: "Step0", formula: step0Formula)]
+        for step in 1...steps {
+            columns.append(column(id: "col_step\(step)", type: .text, title: "Step\(step)",
+                                  formula: "=Step\(step - 1) + 1"))
+        }
+        return viewModel(document(columns: columns, rows: [row("row_1", [:])]))
+    }
+
+    func testChainAfterASelfReferenceIsAllErrorAndFast() {
+        let start = Date()
+        let vm = chainViewModel(step0Formula: "=Step0")
+        XCTAssertEqual(result(vm, "row_1", "col_step0"), "Error")
+        XCTAssertEqual(result(vm, "row_1", "col_step18"), "Error")
+        XCTAssertLessThan(Date().timeIntervalSince(start), 1, "a cycle must not stop caching the chain")
+    }
+
+    func testChainAfterARecoveredSelfReferenceIsCorrectAndFast() {
+        let start = Date()
+        let vm = chainViewModel(step0Formula: "=IF(EMPTY(Step0), 1, 0)")
+        XCTAssertEqual(result(vm, "row_1", "col_step0"), "1")
+        XCTAssertEqual(result(vm, "row_1", "col_step18"), "19")
+        XCTAssertLessThan(Date().timeIntervalSince(start), 1)
+    }
+
+    /// Nothing in a whole-chain cycle can be cached, so each operand must be read once.
+    func testCycleThroughAWholeChainIsAllErrorAndFast() {
+        let start = Date()
+        let vm = chainViewModel(step0Formula: "=Step18 + 1")
+        XCTAssertEqual(result(vm, "row_1", "col_step0"), "Error")
+        XCTAssertEqual(result(vm, "row_1", "col_step18"), "Error")
+        XCTAssertLessThan(Date().timeIntervalSince(start), 1)
+    }
+
+    /// A result read while its cycle partner is in progress is recomputed, as on base.
+    func testMutualCycleRecoveryKeepsItsValues() {
+        let vm = abcViewModel(a: "=IF(EMPTY(B), 1, 2)", b: "=A * 10")
+        XCTAssertEqual(result(vm, "row_1", "col_a"), "1")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "10")
+    }
+
     /// A number typed into a text cell is a number; anything else stays text.
     func testNumbersTypedIntoTextCellsAdd() {
         let vm = abcViewModel(a: "5", b: "3", c: "=A + B")

@@ -40,10 +40,12 @@ class JoyfillDocContext: EvaluationContext {
     /// Cells currently being evaluated, so a cell that reads itself is caught rather than
     /// recursing forever. Same idea as `evaluationInProgress`, one level down.
     internal var cellsInProgress: Set<CellID> = []
-    /// Cell results for the current `store` pass; `nil` outside one.
-    internal var cellValuesInPass: [CellID: Result<FormulaValue, FormulaError>]?
-    /// Counts circular-reference hits; results that hit one are not cached.
-    internal var circularReferenceHits = 0
+    /// Cell results for the current `store` pass, with the cells each read; `nil` outside one.
+    internal var cellValuesInPass: [CellID: (result: Result<FormulaValue, FormulaError>, reads: Set<CellID>)]?
+    /// Cells read by each evaluation in progress, innermost last.
+    internal var cellReadsInProgress: [Set<CellID>] = []
+    /// Table-cell evaluator; adds the single-read text-to-number function.
+    private let cellEvaluator = Evaluator(functionRegistry: JoyfillDocContext.cellFunctionRegistry())
     /// Parsed cell formulas, keyed by field and formula text. The key is the text
     /// itself, so this can never go stale — it only avoids re-parsing the same string.
     internal var cellASTs: [String: [String: ASTNode]] = [:]
@@ -2793,19 +2795,24 @@ extension JoyfillDocContext {
               let body = activeFormula(setup: setup, row: row, columnID: columnID) else { return nil }
 
         let cellID = CellID(rowID: rowID, columnID: columnID)
-        if let computed = cellValuesInPass?[cellID] { return computed }
+        noteCellReads([cellID])
+        // Reusable unless it, or a cell it read, is mid-evaluation now.
+        if let cached = cellValuesInPass?[cellID],
+           !cellsInProgress.contains(cellID), cached.reads.isDisjoint(with: cellsInProgress) {
+            noteCellReads(cached.reads)
+            return cached.result
+        }
         guard !cellsInProgress.contains(cellID) else {
-            circularReferenceHits += 1
             return .failure(.circularReference("Circular reference at column '\(columnID)'"))
         }
         cellsInProgress.insert(cellID)
         defer { cellsInProgress.remove(cellID) }
-        let hitsBefore = circularReferenceHits
+        cellReadsInProgress.append([])
 
         let result: Result<FormulaValue, FormulaError>
         if let ast = parsedCellFormula(body: body, setup: setup) {
             let context = RowCellContext(document: self, setup: setup, fieldID: fieldID, row: row)
-            let evaluated = evaluator.evaluate(node: ast, context: context)
+            let evaluated = cellEvaluator.evaluate(node: ast, context: context)
             // An engine-level `.error` value is an error to the caller.
             if case .success(.error(let error)) = evaluated {
                 result = .failure(error)
@@ -2816,8 +2823,19 @@ extension JoyfillDocContext {
             result = .failure(.syntaxError("Invalid formula '=\(body)'"))
         }
 
-        if circularReferenceHits == hitsBefore { cellValuesInPass?[cellID] = result }
+        let reads = cellReadsInProgress.removeLast()
+        // Cacheable when nothing it read was already in progress above it.
+        if reads.isDisjoint(with: cellsInProgress.subtracting([cellID])) {
+            cellValuesInPass?[cellID] = (result, reads)
+        }
+        noteCellReads(reads)
         return result
+    }
+
+    /// Adds `cells` to the reads of the evaluation that is asking, if any.
+    private func noteCellReads(_ cells: Set<CellID>) {
+        guard !cellReadsInProgress.isEmpty else { return }
+        cellReadsInProgress[cellReadsInProgress.count - 1].formUnion(cells)
     }
 
     /// Reads a cell as data: its literal value, or its result when it holds a formula.
@@ -2960,6 +2978,26 @@ extension JoyfillDocContext {
     /// Types left unwrapped: numbers need no TONUMBER, and TONUMBER would reject a
     /// multi-select array or a date — both of which the evaluator already handles itself.
     private static let alreadyNumericTypes: Set<ColumnTypes> = [.number, .progress, .multiSelect, .date]
+    /// Internal name of the text-to-number function the rewrite inserts.
+    private static let textCellNumberFunction = "__TEXT_CELL_NUMBER"
+
+    /// Default functions plus `textCellNumberFunction`: one read, blank → 0, else TONUMBER.
+    static func cellFunctionRegistry() -> FunctionRegistry {
+        let registry = FunctionRegistry()
+        guard let toNumber = registry.lookup(name: "TONUMBER") else { return registry }
+        registry.register(name: textCellNumberFunction) { args, context, evaluator in
+            guard args.count == 1 else { return toNumber(args, context, evaluator) }
+            switch evaluator.evaluate(node: args[0], context: context) {
+            case .failure(let error), .success(.error(let error)):
+                return .failure(error)
+            case .success(.string("")):
+                return .success(.number(0))
+            case .success(let value):
+                return toNumber([.literal(value)], context, evaluator)
+            }
+        }
+        return registry
+    }
 
     /// `boundNames` holds the parameters of every enclosing lambda. They shadow columns at
     /// evaluation time (`RowCellContext` checks variables first, by exact name), so a
@@ -2979,14 +3017,7 @@ extension JoyfillDocContext {
                   let type = setup.types[columnID],
                   !alreadyNumericTypes.contains(type)
             else { return node }
-            // A blank text cell is `""`, which TONUMBER rejects. Blank means 0 here, as it
-            // does for a blank number cell, so an empty row computes `0` rather than `Error`.
-            // `== ""` rather than EMPTY(): EMPTY counts an error as empty and would hide it.
-            let blankAsZero = ASTNode.functionCall(name: "IF", arguments: [
-                .infixOperation(operator: "==", left: node, right: .literal(.string(""))),
-                .literal(.number(0)), node
-            ])
-            return .functionCall(name: "TONUMBER", arguments: [blankAsZero])
+            return .functionCall(name: textCellNumberFunction, arguments: [node])
         }
 
         switch node {
@@ -3102,7 +3133,8 @@ extension JoyfillDocContext {
     /// Evaluates every formula cell of a row. Called as rows are built, so a row has its
     /// values before anything asks for them.
     func storeFormulaValues(fieldID: String, schemaID: String?, row: ValueElement) {
-        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id,
+              hasFormulaWork(setup: setup, fieldID: fieldID, row: row) else { return }
         store(Array(setup.types.keys), fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }
 
