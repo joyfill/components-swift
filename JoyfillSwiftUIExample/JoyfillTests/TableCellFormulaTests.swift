@@ -426,6 +426,90 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(vm.formulaValue(columnID: totalID, rowID: "row_1")?.isError, true)
     }
 
+    // MARK: - PR 383 review: runtime types, EMPTY recovery, chains, text-cell numbers
+
+    /// Three text columns A, B, C in that order, so letters and titles both resolve.
+    private func abcViewModel(a: Any, b: Any = "", c: Any = "") -> TableViewModel {
+        let columns = [column(id: "col_a", type: .text, title: "ColA"),
+                       column(id: "col_b", type: .text, title: "ColB"),
+                       column(id: "col_c", type: .text, title: "ColC")]
+        return viewModel(document(columns: columns,
+                                  rows: [row("row_1", ["col_a": a, "col_b": b, "col_c": c])]))
+    }
+
+    /// A text cell's formula result is not a number list, so SUM over it is an error.
+    func testSumOfAComputedArrayCellIsAnError() {
+        let vm = abcViewModel(a: "=[1,2]", b: "=SUM(A)")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "Error")
+        XCTAssertEqual(vm.formulaValue(columnID: "col_b", rowID: "row_1")?.isError, true)
+    }
+
+    func testMinOfAComputedArrayCellIsAnError() {
+        let vm = abcViewModel(a: "=[1,2]", b: "=MIN(A)")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "Error")
+        XCTAssertEqual(vm.formulaValue(columnID: "col_b", rowID: "row_1")?.isError, true)
+    }
+
+    /// A date computed in a text cell is text-column data, not a date to do arithmetic on.
+    func testAddingToAComputedDateInATextCellIsAnError() {
+        let vm = abcViewModel(a: "=DATE(2026,1,1)", b: "=A + 86400000")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "Error")
+        XCTAssertEqual(vm.formulaValue(columnID: "col_b", rowID: "row_1")?.isError, true)
+    }
+
+    /// EMPTY counts an error as empty; that is the only recovery path without IFERROR.
+    func testEmptyTreatsAFailedCellAsEmpty() {
+        let vm = abcViewModel(a: "=1/0", b: "=EMPTY(A)")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "true")
+        XCTAssertEqual(vm.formulaValue(columnID: "col_b", rowID: "row_1")?.isError, false)
+    }
+
+    func testIfEmptyRecoversFromAFailedCell() {
+        let vm = abcViewModel(a: "=1/0", b: "=IF(EMPTY(A), 0, A)")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "0")
+    }
+
+    /// Only a failed *cell* reads as empty; a failure inside EMPTY's own argument still fails.
+    func testEmptyOfAnInlineFailureIsStillAnError() {
+        let vm = abcViewModel(a: "", b: "=EMPTY(1/0)")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "Error")
+    }
+
+    /// Each reference must be evaluated once: re-evaluating a computed cell per mention
+    /// made this 21-step chain take ~2^20 evaluations (seconds) instead of ~20.
+    func testChainedFormulaColumnsStayFast() {
+        var columns = [column(id: "col_step0", type: .text, title: "Step0", formula: "=1")]
+        for step in 1...20 {
+            columns.append(column(id: "col_step\(step)", type: .text, title: "Step\(step)",
+                                  formula: "=Step\(step - 1) + 1"))
+        }
+        let start = Date()
+        let vm = viewModel(document(columns: columns, rows: [row("row_1", [:])]))
+        XCTAssertEqual(result(vm, "row_1", "col_step20"), "21")
+        XCTAssertLessThan(Date().timeIntervalSince(start), 1, "a 21-step chain should be instant")
+    }
+
+    /// A number typed into a text cell is a number; anything else stays text.
+    func testNumbersTypedIntoTextCellsAdd() {
+        let vm = abcViewModel(a: "5", b: "3", c: "=A + B")
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "8", "not \"53\"")
+    }
+
+    func testNumbersTypedIntoTextCellsSum() {
+        let vm = abcViewModel(a: "5", b: "3", c: "=SUM(A, B)")
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "8")
+    }
+
+    func testDecimalAndNegativeTextCellsAreNumbers() {
+        let vm = abcViewModel(a: "-2.5", b: "0.5", c: "=A * B")
+        XCTAssertEqual(result(vm, "row_1", "col_c"), "-1.25")
+    }
+
+    func testNonNumericTextCellStaysText() {
+        let vm = abcViewModel(a: "abc", b: "=UPPER(A)")
+        XCTAssertEqual(result(vm, "row_1", "col_b"), "ABC")
+    }
+
     // MARK: - Invalid formulas
 
     func testUnbalancedParenthesisIsAnError() {

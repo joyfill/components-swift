@@ -3276,11 +3276,7 @@ private struct RowCellContext: EvaluationContext {
         }
         // Resolution happens here rather than at parse time: id -> name -> letter.
         if let columnID = setup.resolver.columnID(for: name) {
-            let value = document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID)
-            // A failed cell is a failed reference, so the evaluator stops here instead of
-            // letting `+` stringify the error into text like `prefix#CIRC!(...)`.
-            if case .error(let error) = value { return .failure(error) }
-            return .success(value)
+            return .success(document.cellInputValue(setup: setup, fieldID: fieldID, row: row, columnID: columnID))
         }
         // A cell formula reads its own row and nothing else. Falling through to the
         // document would make `=A * taxRate` evaluate once and then never again: results
