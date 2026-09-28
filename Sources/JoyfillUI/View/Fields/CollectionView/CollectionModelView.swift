@@ -275,8 +275,10 @@ struct CollectionModalView : View {
                     .overlay(alignment: .topLeading) {
                         CollectionStickyHeadersView(viewModel: viewModel,
                                                     tracker: stickyTracker,
-                                                    rootTitle: AnyView(RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: viewModel.tableDataModel.schema[viewModel.rootSchemaKey])),
-                                                    rootColumns: AnyView(rootColumnHeaderRow),
+                                                    rootHeader: AnyView(VStack(alignment: .leading, spacing: 0) {
+                                                        RootTitleRowView(viewModel: viewModel, textHeight: textHeight, colorScheme: colorScheme, rootSchema: viewModel.tableDataModel.schema[viewModel.rootSchemaKey])
+                                                        rootColumnHeaderRow
+                                                    }),
                                                     rowBuilder: { AnyView(collectionRow(at: $0)) })
                     }
                 }

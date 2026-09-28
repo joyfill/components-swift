@@ -10,15 +10,11 @@ import SwiftUI
 final class CollectionStickyScrollTracker: ObservableObject {
     @Published private(set) var offsetY: CGFloat = 0
 
-    /// Bumped on every view-model change, so pinned rows rebuild when their content can
-    /// have changed (edits, selection, sort, expand/collapse) but never on a scroll tick.
+    /// Bumped on every view-model change (rows live in @Published tableDataModel), never on scroll.
     var revision = 0
 
-    /// Owners of the rows at the top; recomputed when the top row or the data change.
-    var cachedOwners: (key: [Int], owners: [(block: CollectionStickyHeadersView.Block, y: CGFloat)])?
-
-    /// Root table width, recomputed only when the data revision changes.
-    var cachedRootWidth: (revision: Int, width: CGFloat)?
+    /// Current/next header and root width; recomputed only when the top row or the data change.
+    var cache: (key: [Int], layout: CollectionStickyHeadersView.Layout)?
 
     func update(_ y: CGFloat) {
         // Non-finite offsets (zero-size layout passes) would crash the Int() conversions downstream.
@@ -64,17 +60,12 @@ struct CollectionScrollOffsetReader: UIViewRepresentable {
     }
 }
 
-/// Pins the header of whichever table the top row belongs to: the root title + columns, or
-/// one nested table's title + columns. Every change works the same way, like UITableView
-/// section headers: the next table's header rises from below and pushes the current one up
-/// and out, whether a nested table is starting, ending back into its parent, or ending into
-/// root. Drawn inside the scroll content so horizontal scrolling stays in sync; on a scroll
-/// tick only y offsets change.
+/// Pins the title + columns of the table owning the top row. Drawn inside the scroll content so
+/// it scrolls horizontally with the grid; a scroll tick only changes y offsets.
 struct CollectionStickyHeadersView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @ObservedObject var tracker: CollectionStickyScrollTracker
-    let rootTitle: AnyView
-    let rootColumns: AnyView
+    let rootHeader: AnyView
     let rowBuilder: (Int) -> AnyView
     @Environment(\.colorScheme) private var colorScheme
 
@@ -84,14 +75,6 @@ struct CollectionStickyHeadersView: View {
     static let titleHeight: CGFloat = 60
     static let rootHeaderHeight: CGFloat = 62
     static var firstRowY: CGFloat { titleHeight + rootHeaderHeight }
-
-    private func cachedRootWidth(revision: Int) -> CGFloat {
-        if let cached = tracker.cachedRootWidth, cached.revision == revision { return cached.width }
-        let model = viewModel.tableDataModel
-        let width = viewModel.rowWidth(model.tableColumns, 0, viewModel.rootSchemaKey, tableDataModel: model)
-        tracker.cachedRootWidth = (revision, width)
-        return width
-    }
 
     /// Square while a header is still arriving (it overlays its square real row), rounding to
     /// the card's 14pt as it reaches the top; stays rounded while pinned or leaving.
@@ -109,21 +92,28 @@ struct CollectionStickyHeadersView: View {
         var isRoot: Bool { key == -1 }
     }
 
+    /// Header owning the top row, the next different one below it (if any), and root width.
+    struct Layout {
+        let current: Block
+        let next: (block: Block, y: CGFloat)?
+        let rootWidth: CGFloat
+    }
+
     var body: some View {
         let offset = tracker.offsetY
         let revision = tracker.revision
         Group {
             if offset > 0 {
-                let placed = placedBlocks(offset: offset, revision: revision)
+                let layout = cachedLayout(offset: offset, revision: revision)
+                let placed = Self.placedBlocks(layout, offset: offset)
                 ZStack(alignment: .topLeading) {
                     // Root stays in the tree (hidden when not pinned) so it never rebuilds mid-scroll.
                     let root = placed.first(where: { $0.block.isRoot })
                     let rootY = root?.y ?? offset
-                    let rootWidth = cachedRootWidth(revision: revision)
                     StickyRows(indices: [], revision: revision, colorScheme: colorScheme,
-                               rootTitle: rootTitle, rootColumns: rootColumns, rowBuilder: rowBuilder)
+                               rootHeader: rootHeader, rowBuilder: rowBuilder)
                         .equatable()
-                        .frame(width: rootWidth, alignment: .leading)
+                        .frame(width: layout.rootWidth, alignment: .leading)
                         .clipped()
                         .modifier(PinnedHeaderChrome(radius: Self.cornerRadius(y: rootY, offset: offset), colorScheme: colorScheme))
                         .offset(y: rootY)
@@ -146,46 +136,46 @@ struct CollectionStickyHeadersView: View {
         .onReceive(viewModel.objectWillChange) { _ in tracker.revision &+= 1 }
     }
 
-    /// The current header pinned at the top, and the next one once it's within reach:
-    /// - Next table starts (its title row is right there): it rises with its real row and
-    ///   pushes the current header up and out.
-    /// - Current table ends (next row belongs to the parent or root): the current header rides
-    ///   up and away with its last row, revealing the parent's header already pinned beneath.
-    /// Blocks are returned bottom layer first.
-    private func placedBlocks(offset: CGFloat, revision: Int) -> [(block: Block, y: CGFloat)] {
-        let models = viewModel.tableDataModel.filteredcellModels
-        let owners = upcomingOwners(offset: offset, revision: revision, models: models)
-        guard let current = owners.first?.block else { return [(Block.root, offset)] }
-        let reach = offset + current.height
-        guard let next = owners.dropFirst().first(where: { $0.block != current && $0.y < reach }) else {
-            return [(current, offset)]
-        }
+    /// Next table starting: it rises with its real row and pushes the current header up.
+    /// Current table ending: its header rides up with its last row, revealing the parent beneath.
+    /// Returned bottom layer first.
+    static func placedBlocks(_ layout: Layout, offset: CGFloat) -> [(block: Block, y: CGFloat)] {
+        let current = layout.current
+        guard let next = layout.next, next.y < offset + current.height else { return [(current, offset)] }
         let leavingY = min(offset, next.y - current.height)
-        let nextStartsHere = !next.block.isRoot && next.block.key == Int((next.y - Self.firstRowY) / Self.rowHeight)
+        let nextStartsHere = !next.block.isRoot && next.block.key == Int((next.y - firstRowY) / rowHeight)
         if nextStartsHere {
             return [(current, leavingY), (next.block, next.y)]
         }
         return [(next.block, offset), (current, leavingY)]
     }
 
-    /// Owner of the top row and of the few rows below it (all a pinned block can span), with
-    /// each row's content y. Owners take a walk up the section, so this is cached until the
-    /// top row or the data changes.
-    private func upcomingOwners(offset: CGFloat, revision: Int, models: [RowDataModel]) -> [(block: Block, y: CGFloat)] {
-        guard viewModel.nestedTableCount > 0, !models.isEmpty else { return [] }
+    /// Owner lookups walk up the section, so the result is cached per top row and data revision.
+    private func cachedLayout(offset: CGFloat, revision: Int) -> Layout {
+        let models = viewModel.tableDataModel.filteredcellModels
         // Above the first row the viewport top is still inside the real root header (-1).
-        let top = offset < Self.firstRowY ? -1 : min(Int((offset - Self.firstRowY) / Self.rowHeight), models.count - 1)
+        let top = offset < Self.firstRowY || models.isEmpty ? -1 : min(Int((offset - Self.firstRowY) / Self.rowHeight), models.count - 1)
         let key = [top, revision]
-        if let cached = tracker.cachedOwners, cached.key == key { return cached.owners }
-        let current = top < 0 ? Block.root : Self.owner(of: top, in: models)
-        let first = top + 1
-        let last = min(top + Int(Block.root.height / Self.rowHeight) + 1, models.count - 1)
-        let below = first <= last ? (first...last).map { i in
-            (block: Self.owner(of: i, in: models), y: Self.firstRowY + CGFloat(i) * Self.rowHeight)
-        } : []
-        let owners = [(block: current, y: offset)] + below
-        tracker.cachedOwners = (key, owners)
-        return owners
+        if let cache = tracker.cache, cache.key == key { return cache.layout }
+
+        let model = viewModel.tableDataModel
+        let rootWidth = viewModel.rowWidth(model.tableColumns, 0, viewModel.rootSchemaKey, tableDataModel: model)
+        var current = Block.root
+        var next: (block: Block, y: CGFloat)?
+        if viewModel.nestedTableCount > 0, !models.isEmpty {
+            if top >= 0 { current = Self.owner(of: top, in: models) }
+            // A pinned block spans at most the root header's rows, so look no further than that.
+            let last = min(top + Int(Block.root.height / Self.rowHeight) + 1, models.count - 1)
+            if top + 1 <= last {
+                for i in (top + 1)...last {
+                    let owner = Self.owner(of: i, in: models)
+                    if owner != current { next = (owner, Self.firstRowY + CGFloat(i) * Self.rowHeight); break }
+                }
+            }
+        }
+        let layout = Layout(current: current, next: next, rootWidth: rootWidth)
+        tracker.cache = (key, layout)
+        return layout
     }
 
     /// The table a row belongs to. A nested table's title and column rows belong to that table.
@@ -221,24 +211,18 @@ private struct StickyRows: View, Equatable {
     let indices: [Int]
     let revision: Int
     let colorScheme: ColorScheme
-    var rootTitle: AnyView? = nil
-    var rootColumns: AnyView? = nil
+    var rootHeader: AnyView? = nil
     let rowBuilder: (Int) -> AnyView
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.indices == rhs.indices && lhs.revision == rhs.revision && lhs.colorScheme == rhs.colorScheme
-            && (lhs.rootTitle == nil) == (rhs.rootTitle == nil)
+            && (lhs.rootHeader == nil) == (rhs.rootHeader == nil)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let rootTitle, let rootColumns {
-                rootTitle
-                rootColumns
-            }
-            ForEach(Array(indices.enumerated()), id: \.element) { i, index in
-                rowBuilder(index)
-            }
+            if let rootHeader { rootHeader }
+            ForEach(indices, id: \.self) { rowBuilder($0) }
         }
         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color(UIColor.systemBackground))
     }
