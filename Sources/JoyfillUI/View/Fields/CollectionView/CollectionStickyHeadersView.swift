@@ -5,6 +5,14 @@
 
 import SwiftUI
 
+/// Fixed grid geometry the sticky headers rely on. Change here, not as literals.
+enum CollectionGridMetrics {
+    /// Every grid row (rows, nested headers, expanders) is this tall.
+    static let rowHeight: CGFloat = 60
+    static let titleHeight: CGFloat = 60
+    static let rootHeaderHeight: CGFloat = 60
+}
+
 /// Holds the grid's vertical offset. Kept out of the modal's observed state so a
 /// scroll tick only invalidates the sticky overlay, never the grid itself.
 final class CollectionStickyScrollTracker: ObservableObject {
@@ -53,8 +61,13 @@ struct CollectionScrollOffsetReader: UIViewRepresentable {
             guard let scrollView = view as? UIScrollView else { return }
             observation = scrollView.observe(\.contentOffset, options: [.initial, .new]) { [weak self] scrollView, _ in
                 let y = scrollView.contentOffset.y + scrollView.adjustedContentInset.top
-                // Synchronous: contentOffset KVO fires on main, and a hop would make the header lag a frame.
-                self?.tracker.update(y)
+                // User scrolls: update now so the header never lags a frame. Layout-driven offset
+                // changes fire inside a SwiftUI update, where publishing is not allowed, so defer those.
+                if scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating {
+                    self?.tracker.update(y)
+                } else {
+                    DispatchQueue.main.async { self?.tracker.update(y) }
+                }
             }
         }
     }
@@ -69,11 +82,9 @@ struct CollectionStickyHeadersView: View {
     let rowBuilder: (Int) -> AnyView
     @Environment(\.colorScheme) private var colorScheme
 
-    /// Every row in the grid (title, headers, rows, expanders) is this tall.
-    static let rowHeight: CGFloat = 60
-    /// Title row (60) + root column header (60 + 1pt vertical padding on each side).
-    static let titleHeight: CGFloat = 60
-    static let rootHeaderHeight: CGFloat = 62
+    static let rowHeight = CollectionGridMetrics.rowHeight
+    static let titleHeight = CollectionGridMetrics.titleHeight
+    static let rootHeaderHeight = CollectionGridMetrics.rootHeaderHeight
     static var firstRowY: CGFloat { titleHeight + rootHeaderHeight }
 
     /// Square while a header is still arriving (it overlays its square real row), rounding to

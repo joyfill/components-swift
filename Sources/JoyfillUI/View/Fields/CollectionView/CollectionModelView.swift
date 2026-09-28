@@ -214,6 +214,7 @@ struct CollectionModalView : View {
                                        isHeaderNested: false,
                                        schemaKey: viewModel.rootSchemaKey)
         }
+        .frame(height: CollectionGridMetrics.rowHeight)
     }
 
     @ViewBuilder
@@ -237,7 +238,7 @@ struct CollectionModalView : View {
                 switch rowCellModels.rowType {
                 case .row, .nestedRow:
                     CollectionRowView(viewModel: viewModel, rowDataModel: bindingRowModel, isSelected: isRowSelected)
-                        .frame(height: 60)
+                        .frame(height: CollectionGridMetrics.rowHeight)
                 case .header(level: _, tableColumns: let tableColumns, schemaKey: let schemaKey):
                     CollectionColumnHeaderView(viewModel: viewModel,
                                                tableColumns: tableColumns,
@@ -245,7 +246,7 @@ struct CollectionModalView : View {
                                                colorScheme: colorScheme,
                                                isHeaderNested: true,
                                                schemaKey: schemaKey)
-                    .frame(height: 60)
+                    .frame(height: CollectionGridMetrics.rowHeight)
                 case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                     CollectionExpanderView(rowDataModel: bindingRowModel, schemaValue: schemaValue, viewModel: viewModel, level: level, parentID: parentID ?? ("",""))
                         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
