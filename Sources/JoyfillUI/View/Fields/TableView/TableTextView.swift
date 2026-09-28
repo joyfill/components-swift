@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TableTextView: View {
     @FocusState private var isTextFieldFocused: Bool
+    /// True while the editor shows the untouched, pre-filled column formula.
+    @State private var isShowingColumnFormula = false
     @Environment(\.navigationFocusColumnId) private var navigationFocusColumnId
     @Binding var cellModel: TableCellModel
     /// Pulled by the cell builder. Passing it in is what lets SwiftUI see it change.
@@ -51,7 +53,9 @@ struct TableTextView: View {
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
                             // The column's formula edits like one typed into the cell.
+                            isShowingColumnFormula = false
                             if cellModel.data.title.isEmpty, let formula = cellModel.data.columnFormula {
+                                isShowingColumnFormula = true
                                 cellModel.data.title = formula
                             }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
@@ -73,7 +77,9 @@ struct TableTextView: View {
                     .onChange(of: isTextFieldFocused) { focused in
                         if focused {
                             // The column's formula edits like one typed into the cell.
+                            isShowingColumnFormula = false
                             if cellModel.data.title.isEmpty, let formula = cellModel.data.columnFormula {
+                                isShowingColumnFormula = true
                                 cellModel.data.title = formula
                             }
                             cellModel.didFocusBlur?(.focus, cellModel.data)
@@ -115,7 +121,10 @@ struct TableTextView: View {
     func updateFieldValue() {
         // Showing the column's formula is not an edit. Until the author changes it the
         // cell still holds nothing, so nothing is written.
-        guard cellModel.data.title != cellModel.data.columnFormula else { return }
+        if isShowingColumnFormula {
+            guard cellModel.data.title != cellModel.data.columnFormula else { return }
+            isShowingColumnFormula = false
+        }
         cellModel.didChange?(cellModel.data)
     }
 }

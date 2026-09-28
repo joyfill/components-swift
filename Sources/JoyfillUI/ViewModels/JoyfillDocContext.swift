@@ -40,6 +40,12 @@ class JoyfillDocContext: EvaluationContext {
     /// Cells currently being evaluated, so a cell that reads itself is caught rather than
     /// recursing forever. Same idea as `evaluationInProgress`, one level down.
     internal var cellsInProgress: Set<CellID> = []
+    /// Cell results for the current `store` pass, with the cells each read; `nil` outside one.
+    internal var cellValuesInPass: [CellID: (result: Result<FormulaValue, FormulaError>, reads: Set<CellID>)]?
+    /// Cells read by each evaluation in progress, innermost last.
+    internal var cellReadsInProgress: [Set<CellID>] = []
+    /// Table-cell evaluator; adds the single-read text-to-number function.
+    private let cellEvaluator = Evaluator(functionRegistry: JoyfillDocContext.cellFunctionRegistry())
     /// Parsed cell formulas, keyed by field and formula text. The key is the text
     /// itself, so this can never go stale — it only avoids re-parsing the same string.
     internal var cellASTs: [String: [String: ASTNode]] = [:]
@@ -2652,8 +2658,11 @@ extension JoyDocField {
 /// Maps the identifiers written inside a column formula onto canonical column IDs.
 ///
 /// Resolution priority, highest first:
-/// 1. column `identifier`, then column `title`
-/// 2. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
+/// 1. column `id` — the one handle guaranteed unique and never reassigned
+/// 2. column `title`
+/// 3. spreadsheet letter derived from the column's position (`A` … `Z`, `AA`, …)
+///
+/// A column's `identifier` field plays no part here — only `id`, `title` and letter resolve.
 ///
 /// Matching is case-insensitive throughout, so `=A+B` and `=a+b` are the same formula.
 /// Within a single tier the left-most column wins, so a duplicated title never
@@ -2668,13 +2677,17 @@ struct ColumnReferenceResolver {
         var names: [String: String] = [:]
         var letters: [String: String] = [:]
 
+        // id claims first: it is the only one of these that is always unique and stable.
+        for column in columns {
+            guard let id = column.id else { continue }
+            Self.insertIfAbsent(&names, key: id, value: id)
+        }
         for (index, column) in columns.enumerated() {
             guard let id = column.id else { continue }
-            Self.insertIfAbsent(&names, key: column.identifier, value: id)
             Self.insertIfAbsent(&letters, key: Self.columnLetter(forIndex: index), value: id)
         }
-        // Titles are a lower-confidence match than identifiers, so they only claim a key
-        // once every identifier has had its turn.
+        // Titles are a lower-confidence match than id, so they only claim a key once
+        // every id has had its turn.
         for column in columns {
             guard let id = column.id else { continue }
             Self.insertIfAbsent(&names, key: column.title, value: id)
@@ -2782,22 +2795,47 @@ extension JoyfillDocContext {
               let body = activeFormula(setup: setup, row: row, columnID: columnID) else { return nil }
 
         let cellID = CellID(rowID: rowID, columnID: columnID)
+        noteCellReads([cellID])
+        // Reusable unless it, or a cell it read, is mid-evaluation now.
+        if let cached = cellValuesInPass?[cellID],
+           !cellsInProgress.contains(cellID), cached.reads.isDisjoint(with: cellsInProgress) {
+            noteCellReads(cached.reads)
+            return cached.result
+        }
         guard !cellsInProgress.contains(cellID) else {
             return .failure(.circularReference("Circular reference at column '\(columnID)'"))
         }
         cellsInProgress.insert(cellID)
         defer { cellsInProgress.remove(cellID) }
+        cellReadsInProgress.append([])
 
-        guard let ast = parsedCellFormula(body: body, setup: setup) else {
-            return .failure(.syntaxError("Invalid formula '=\(body)'"))
+        let result: Result<FormulaValue, FormulaError>
+        if let ast = parsedCellFormula(body: body, setup: setup) {
+            let context = RowCellContext(document: self, setup: setup, fieldID: fieldID, row: row)
+            let evaluated = cellEvaluator.evaluate(node: ast, context: context)
+            // An engine-level `.error` value is an error to the caller.
+            if case .success(.error(let error)) = evaluated {
+                result = .failure(error)
+            } else {
+                result = evaluated
+            }
+        } else {
+            result = .failure(.syntaxError("Invalid formula '=\(body)'"))
         }
 
-        let context = RowCellContext(document: self, setup: setup, fieldID: fieldID, row: row)
-        let result = evaluator.evaluate(node: ast, context: context)
-
-        // An engine-level `.error` value is an error to the caller.
-        if case .success(.error(let error)) = result { return .failure(error) }
+        let reads = cellReadsInProgress.removeLast()
+        // Cacheable when nothing it read was already in progress above it.
+        if reads.isDisjoint(with: cellsInProgress.subtracting([cellID])) {
+            cellValuesInPass?[cellID] = (result, reads)
+        }
+        noteCellReads(reads)
         return result
+    }
+
+    /// Adds `cells` to the reads of the evaluation that is asking, if any.
+    private func noteCellReads(_ cells: Set<CellID>) {
+        guard !cellReadsInProgress.isEmpty else { return }
+        cellReadsInProgress[cellReadsInProgress.count - 1].formUnion(cells)
     }
 
     /// Reads a cell as data: its literal value, or its result when it holds a formula.
@@ -2924,9 +2962,90 @@ extension JoyfillDocContext {
         // Keyed by the setup, not the field: escaping a digit-leading column id depends
         // on this schema's columns, so two schemas can compile the same text differently.
         if let ast = cellASTs[setup.cacheKey]?[body] { return ast }
-        guard case .success(let ast) = parser.parse(formula: body) else { return nil }
+        guard case .success(let parsed) = parser.parse(formula: body) else { return nil }
+        let ast = JoyfillDocContext.coerceTextCellsForArithmetic(parsed, setup: setup)
         cellASTs[setup.cacheKey, default: [:]][body] = ast
         return ast
+    }
+
+    /// `SUM`/`MIN`/`MAX`/`AVG`/etc., and the arithmetic operators `+`/`-`/`*`/`/`, are a type
+    /// error on text columns otherwise — text cells stay `.string` by design (see
+    /// `storedCellValue`). One rule for the whole family rather than a per-function patch.
+    /// `+` means addition here, not concatenation — use `CONCAT()` for joining text.
+    private static let numericFunctionNames: Set<String> =
+        ["SUM", "MIN", "MAX", "AVG", "AVERAGE", "ROUND", "CEIL", "FLOOR", "SQRT", "MOD", "POW"]
+    private static let arithmeticOperators: Set<String> = ["+", "-", "*", "/"]
+    /// Types left unwrapped: numbers need no TONUMBER, and TONUMBER would reject a
+    /// multi-select array or a date — both of which the evaluator already handles itself.
+    private static let alreadyNumericTypes: Set<ColumnTypes> = [.number, .progress, .multiSelect, .date]
+    /// Internal name of the text-to-number function the rewrite inserts.
+    private static let textCellNumberFunction = "__TEXT_CELL_NUMBER"
+
+    /// Default functions plus `textCellNumberFunction`: one read, blank → 0, else TONUMBER.
+    static func cellFunctionRegistry() -> FunctionRegistry {
+        let registry = FunctionRegistry()
+        guard let toNumber = registry.lookup(name: "TONUMBER") else { return registry }
+        registry.register(name: textCellNumberFunction) { args, context, evaluator in
+            guard args.count == 1 else { return toNumber(args, context, evaluator) }
+            switch evaluator.evaluate(node: args[0], context: context) {
+            case .failure(let error), .success(.error(let error)):
+                return .failure(error)
+            case .success(.string("")):
+                return .success(.number(0))
+            case .success(let value):
+                return toNumber([.literal(value)], context, evaluator)
+            }
+        }
+        return registry
+    }
+
+    /// `boundNames` holds the parameters of every enclosing lambda. They shadow columns at
+    /// evaluation time (`RowCellContext` checks variables first, by exact name), so a
+    /// reference to one is a local value, never a text cell to coerce.
+    private static func coerceTextCellsForArithmetic(_ node: ASTNode,
+                                                     setup: TableCellFormulaSetup,
+                                                     boundNames: Set<String> = []) -> ASTNode {
+        func recurse(_ node: ASTNode) -> ASTNode {
+            coerceTextCellsForArithmetic(node, setup: setup, boundNames: boundNames)
+        }
+        // A bare reference is coerced directly; anything else (a nested call or operation)
+        // is walked instead, so e.g. `ROUND(text2/text1, 2)` still reaches the division.
+        func operand(_ node: ASTNode) -> ASTNode {
+            guard case .reference(let token) = node else { return recurse(node) }
+            guard !boundNames.contains(token),
+                  let columnID = setup.resolver.columnID(for: token),
+                  let type = setup.types[columnID],
+                  !alreadyNumericTypes.contains(type)
+            else { return node }
+            return .functionCall(name: textCellNumberFunction, arguments: [node])
+        }
+
+        switch node {
+        case .functionCall(let name, let arguments) where numericFunctionNames.contains(name.uppercased()):
+            return .functionCall(name: name, arguments: arguments.map(operand))
+        case .functionCall(let name, let arguments):
+            return .functionCall(name: name, arguments: arguments.map(recurse))
+        case .infixOperation(let op, let left, let right) where arithmeticOperators.contains(op):
+            return .infixOperation(operator: op, left: operand(left), right: operand(right))
+        case .infixOperation(let op, let left, let right):
+            return .infixOperation(operator: op, left: recurse(left), right: recurse(right))
+        case .prefixOperation(let op, let operand):
+            return .prefixOperation(operator: op, operand: recurse(operand))
+        case .arrayLiteral(let elements):
+            return .arrayLiteral(elements.map(recurse))
+        case .objectLiteral(let pairs):
+            return .objectLiteral(pairs.map { ($0.0, recurse($0.1)) })
+        case .lambda(let parameters, let body):
+            let body = coerceTextCellsForArithmetic(body, setup: setup,
+                                                    boundNames: boundNames.union(parameters))
+            return .lambda(parameters: parameters, body: body)
+        case .arrayAccess(let array, let index):
+            return .arrayAccess(array: recurse(array), index: recurse(index))
+        case .propertyAccess(let object, let property):
+            return .propertyAccess(object: recurse(object), property: property)
+        case .literal, .reference:
+            return node
+        }
     }
 
     /// The formula that applies to a cell, or `nil` when it holds none.
@@ -3014,7 +3133,8 @@ extension JoyfillDocContext {
     /// Evaluates every formula cell of a row. Called as rows are built, so a row has its
     /// values before anything asks for them.
     func storeFormulaValues(fieldID: String, schemaID: String?, row: ValueElement) {
-        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id else { return }
+        guard let setup = tableSetup(fieldID: fieldID, schemaID: schemaID), let rowID = row.id,
+              hasFormulaWork(setup: setup, fieldID: fieldID, row: row) else { return }
         store(Array(setup.types.keys), fieldID: fieldID, setup: setup, row: row, rowID: rowID)
     }
 
@@ -3060,6 +3180,17 @@ extension JoyfillDocContext {
         cellResults[fieldID] = field.filter { !dropped.contains($0.key.rowID) }
     }
 
+    /// True when the value is, or holds, an evaluation error. Checked on the value rather
+    /// than its rendered text, so user text that merely looks like `#DIV/0!` stays text.
+    private static func containsFormulaError(_ value: FormulaValue) -> Bool {
+        switch value {
+        case .error: return true
+        case .array(let items): return items.contains(where: containsFormulaError)
+        case .dictionary(let dict): return dict.values.contains(where: containsFormulaError)
+        default: return false
+        }
+    }
+
     /// Evaluates the given columns of one row and writes the results. A column with no
     /// formula is cleared rather than skipped, so deleting a formula drops its result.
     private func store(_ columns: [String],
@@ -3067,7 +3198,16 @@ extension JoyfillDocContext {
                        setup: TableCellFormulaSetup,
                        row: ValueElement,
                        rowID: String) {
-        for columnID in columns {
+        cellValuesInPass = [:]
+        defer { cellValuesInPass = nil }
+
+        let requested = Set(columns)
+        for columnID in evaluationOrder(columns, setup: setup, row: row) {
+            // Read-only dependency: compute it for the cache, don't store it.
+            guard requested.contains(columnID) else {
+                _ = evaluateCell(fieldID: fieldID, setup: setup, row: row, columnID: columnID)
+                continue
+            }
             let cell = CellID(rowID: rowID, columnID: columnID)
             guard let type = setup.types[columnID],
                   JoyfillDocContext.formulaCapableTypes.contains(type),
@@ -3079,10 +3219,39 @@ extension JoyfillDocContext {
             case .failure:
                 cellResults[fieldID, default: [:]][cell] = CellFormulaValue(text: "Error", isError: true)
             case .success(let value):
-                cellResults[fieldID, default: [:]][cell] = CellFormulaValue(
-                    text: cellDisplayText(value, setup: setup, columnID: columnID), isError: false)
+                cellResults[fieldID, default: [:]][cell] = Self.containsFormulaError(value)
+                    ? CellFormulaValue(text: "Error", isError: true)
+                    : CellFormulaValue(text: cellDisplayText(value, setup: setup, columnID: columnID),
+                                       isError: false)
             }
         }
+    }
+
+    /// `columns` with their dependencies first, so long chains don't recurse deeply.
+    private func evaluationOrder(_ columns: [String],
+                                 setup: TableCellFormulaSetup,
+                                 row: ValueElement) -> [String] {
+        var order: [String] = []
+        var seen: Set<String> = []
+        var pending: [(columnID: String, readsDone: Bool)] = columns.reversed().map { ($0, false) }
+        while let (columnID, readsDone) = pending.popLast() {
+            if readsDone {
+                order.append(columnID)
+                continue
+            }
+            guard seen.insert(columnID).inserted else { continue }
+            pending.append((columnID, true))
+            guard let body = activeFormula(setup: setup, row: row, columnID: columnID),
+                  let ast = parsedCellFormula(body: body, setup: setup) else { continue }
+            var references: [String] = []
+            extractReferencesFromNode(ast, references: &references)
+            for reference in references {
+                if let read = setup.resolver.columnID(for: reference), !seen.contains(read) {
+                    pending.append((read, false))
+                }
+            }
+        }
+        return order
     }
 
     // MARK: Column dependencies
