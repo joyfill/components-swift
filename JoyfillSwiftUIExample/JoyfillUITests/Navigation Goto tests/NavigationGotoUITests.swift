@@ -242,7 +242,21 @@ final class NavigationGotoUITests: XCTestCase {
     }
 
     private func openTableModal() {
-        app.buttons["TableDetailViewIdentifier"].firstMatch.tap()
+        let pageSelectionButton = app.buttons["PageNavigationIdentifier"].firstMatch
+        pageSelectionButton.tap()
+        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+        pageSheetSelectionButton.element(boundBy: 1).tap()
+        spinRunloop(0.5)
+
+        let tableButton = app.buttons["TableDetailViewIdentifier"].firstMatch
+        var attempts = 0
+        while !tableButton.exists && attempts < 6 {
+            app.swipeUp()
+            spinRunloop(0.3)
+            attempts += 1
+        }
+        XCTAssertTrue(tableButton.waitForExistence(timeout: 5), "Table detail view button not found")
+        tableButton.tap()
         spinRunloop(0.5)
     }
 
