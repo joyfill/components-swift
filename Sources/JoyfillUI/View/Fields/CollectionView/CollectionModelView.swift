@@ -329,14 +329,9 @@ struct CollectionExpanderView: View {
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
                     viewModel.addNestedRow(schemaKey: schemaValue?.0 ?? "", level: level, startingIndex: startingIndex, parentID: parentID)
                 }) {
-                    Text("+ Row")
-                        .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
-                        .font(.system(size: 14))
-                        .frame(height: 27)
-                        .padding(.horizontal, 16)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                    AddRowButtonLabel(isReadonly: viewModel.tableDataModel.mode == .readonly)
                 }
+                .buttonStyle(AddRowButtonStyle())
                 .accessibilityIdentifier("collectionSchemaAddRowButton")
             }
             let rowID = parentID.rowID
@@ -355,7 +350,8 @@ struct CollectionExpanderView: View {
                 Text(schemaValue?.1.title ?? "")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.all, 8)
-                    .frame(maxHeight: .infinity, alignment: .center)
+                    // Fill the bar's height so the title centers on the same line as + Row.
+                    .frame(minHeight: CollectionGridMetrics.rowHeight - 8, alignment: .center)
             }
 
             Spacer()
@@ -365,6 +361,37 @@ struct CollectionExpanderView: View {
         .font(.system(size: 15, weight: .bold))
         .frame(width: rowDataModel.rowType.width, height: 60)
         .border(Color.tableCellBorderColor)
+    }
+}
+
+/// "+ Row" in the title bars: white card, standard button border, blue text.
+struct AddRowButtonLabel: View {
+    let isReadonly: Bool
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        let tint: Color = isReadonly ? .gray : .blue
+        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+        HStack(spacing: 4) {
+            Image(systemName: "plus")
+                .font(.system(size: 12, weight: .semibold))
+            Text("Row")
+                .font(.system(size: 14, weight: .medium))
+        }
+        .foregroundStyle(tint)
+        .padding(.horizontal, 12)
+        .frame(height: 32)
+        // Dark: one surface step lighter than the systemGray6 title bar so it still lifts.
+        .background(shape.fill(colorScheme == .dark ? Color(UIColor.tertiarySystemBackground) : .white))
+        .overlay(shape.strokeBorder(Color.buttonBorderColor, lineWidth: 1))
+        .contentShape(shape)
+    }
+}
+
+/// Standard iOS pressed feedback for the "+ Row" label.
+struct AddRowButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.opacity(configuration.isPressed ? 0.6 : 1)
     }
 }
 
@@ -380,14 +407,9 @@ struct RootTitleRowView: View {
                 Button(action: {
                     viewModel.addRow()
                 }) {
-                    Text("+ Row")
-                        .foregroundStyle(viewModel.tableDataModel.mode == .readonly ? .gray : .blue)
-                        .font(.system(size: 14))
-                        .frame(height: 27)
-                        .padding(.horizontal, 16)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                    AddRowButtonLabel(isReadonly: viewModel.tableDataModel.mode == .readonly)
                 }
+                .buttonStyle(AddRowButtonStyle())
                 .accessibilityIdentifier("TableAddRowIdentifier")
             }
 
@@ -402,7 +424,8 @@ struct RootTitleRowView: View {
                 Text(rootSchema?.title ?? "")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.all, 8)
-                    .frame(maxHeight: .infinity, alignment: .center)
+                    // Fill the bar's height so the title centers on the same line as + Row.
+                    .frame(minHeight: CollectionGridMetrics.rowHeight - 8, alignment: .center)
             }
 
             Spacer()
