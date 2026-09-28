@@ -155,14 +155,7 @@ struct PagesView: View {
             if isPresented { dismissKeyboard() }
         }
         // On the container, not the button, so hosts can present it while the button is hidden.
-        .sheet(isPresented: $documentEditor.showPageSelectionSheet) {
-            if #available(iOS 16, *) {
-                PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
-                    .presentationDetents([.medium])
-            } else {
-                PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
-            }
-        }
+        .presentsPageSelectionSheet(documentEditor: documentEditor)
     }
 }
 
@@ -482,13 +475,7 @@ struct PageDuplicateListView: View {
                                     documentEditor: documentEditor,
                                     onSelect: {
                                         documentEditor.showPageSelectionSheet = false
-                                        if documentEditor.openedNavigationFieldID != nil {
-                                            DispatchQueue.main.async {
-                                                _ = documentEditor.goto(pageID)
-                                            }
-                                        } else {
-                                            _ = documentEditor.goto(pageID)
-                                        }
+                                        _ = documentEditor.goto(pageID)
                                     },
                                     onDuplicate: {
                                         handleDuplicatePage(pageID: pageID)
@@ -573,27 +560,34 @@ struct PageDuplicateListView: View {
     }
 }
 
-// iOS 27 won't present a sheet from a non-topmost view controller, so each host anchors its own.
-// `documentEditor` is optional here but `@ObservedObject` can't wrap an Optional, so this
-// unwraps and delegates to `BoundPageSelectionSheetPresenter`. Keep the split.
-struct PageSelectionSheetPresenter: ViewModifier {
-    let documentEditor: DocumentEditor?
-
-    func body(content: Content) -> some View {
+extension View {
+    @ViewBuilder
+    func presentsPageSelectionSheet(documentEditor: DocumentEditor?) -> some View {
         if let documentEditor {
-            content.modifier(BoundPageSelectionSheetPresenter(documentEditor: documentEditor))
+            modifier(PageSelectionSheetPresenter(documentEditor: documentEditor))
         } else {
-            content
+            self
         }
     }
 }
 
-private struct BoundPageSelectionSheetPresenter: ViewModifier {
+
+private struct PageSelectionSheetPresenter: ViewModifier {
     @ObservedObject var documentEditor: DocumentEditor
+    @State private var hostID = UUID()
+
+    private var isPresented: Binding<Bool> {
+        guard documentEditor.pageSheetHostStack.last == hostID else {
+            return .constant(false)
+        }
+        return $documentEditor.showPageSelectionSheet
+    }
 
     func body(content: Content) -> some View {
-        content.sheet(isPresented: $documentEditor.showPageSelectionSheet) {
-            // pageOrder is unused by PageDuplicateListView (it reads documentEditor.currentPageOrder instead), so nil is safe here.
+        content
+            .onAppear { documentEditor.activatePageSheetHost(hostID) }
+            .onDisappear { documentEditor.deactivatePageSheetHost(hostID) }
+            .sheet(isPresented: isPresented) {
             let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: nil, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
             if #available(iOS 16, *) {
                 pickerView.presentationDetents([.medium])

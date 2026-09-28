@@ -78,7 +78,7 @@ struct ChartDetailView: View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
-        .modifier(PageSelectionSheetPresenter(documentEditor: chartDataModel.documentEditor))
+        .presentsPageSelectionSheet(documentEditor: chartDataModel.documentEditor)
         .onDisappear {
             chartDataModel.documentEditor?.setOpenNavigationFieldID(nil)
         }

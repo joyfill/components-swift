@@ -187,6 +187,74 @@ final class NavigationGotoUITests: XCTestCase {
                       "Picker should be interactive, not merely present in the tree")
     }
 
+    /// Every screen reachable via `NavigationLink`/`.sheet` that should support
+    /// `presentPageSelectionSheet(_:)` must call `presentsPageSelectionSheet(documentEditor:)`
+    /// (see FormView.swift). Table/collection modals and their row-forms, and chart detail,
+    /// are covered here; add a case here whenever a new such screen is added.
+    func testPageSelectionSheetOpensFromTableModal() throws {
+        let picker = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        let footerSheetButton = app.buttons["ShowPageSelectionSheetButtonIdentifier"].firstMatch
+
+        openTableModal()
+        XCTAssertTrue(footerSheetButton.waitForExistence(timeout: 5),
+                      "Host footer should render inside the table modal")
+
+        footerSheetButton.tap()
+
+        XCTAssertTrue(picker.waitForExistence(timeout: 3),
+                      "Picker should present directly from the table modal")
+        XCTAssertTrue(picker.isHittable,
+                      "Picker should be interactive, not merely present in the tree")
+    }
+
+    func testPageSelectionSheetOpensFromCollectionModal() throws {
+        let picker = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        let footerSheetButton = app.buttons["ShowPageSelectionSheetButtonIdentifier"].firstMatch
+
+        app.buttons["CollectionDetailViewIdentifier"].firstMatch.tap()
+        spinRunloop(0.5)
+        XCTAssertTrue(footerSheetButton.waitForExistence(timeout: 5),
+                      "Host footer should render inside the collection modal")
+
+        footerSheetButton.tap()
+
+        XCTAssertTrue(picker.waitForExistence(timeout: 3),
+                      "Picker should present directly from the collection modal")
+        XCTAssertTrue(picker.isHittable,
+                      "Picker should be interactive, not merely present in the tree")
+    }
+
+    func testPageSelectionSheetOpensFromTableRowForm() throws {
+        let picker = app.scrollViews["PageSelectionScrollViewIdentifier"]
+        let footerSheetButton = app.buttons["ShowPageSelectionSheetButtonIdentifier"].firstMatch
+
+        openTableRowForm()
+        let rowFormDismissButton = app.buttons["DismissEditSingleRowSheetButtonIdentifier"].firstMatch
+        XCTAssertTrue(rowFormDismissButton.waitForExistence(timeout: 5), "Table row form did not open")
+        XCTAssertTrue(footerSheetButton.exists, "Host footer should render inside the table row form")
+
+        footerSheetButton.tap()
+
+        XCTAssertTrue(picker.waitForExistence(timeout: 3),
+                      "Picker should present from inside the table row form")
+        XCTAssertTrue(picker.isHittable,
+                      "Picker should be interactive, not merely present in the tree")
+    }
+
+    private func openTableModal() {
+        app.buttons["TableDetailViewIdentifier"].firstMatch.tap()
+        spinRunloop(0.5)
+    }
+
+    private func openTableRowForm() {
+        openTableModal()
+        app.images["MyButton"].firstMatch.tap()
+        spinRunloop(0.3)
+        let moreButton = app.buttons["TableMoreButtonIdentifier"].firstMatch
+        if moreButton.exists { moreButton.tap(); spinRunloop(0.3) }
+        app.buttons["TableEditRowsIdentifier"].firstMatch.tap()
+    }
+
     private func openCollectionRowForm() {
         app.buttons["CollectionDetailViewIdentifier"].firstMatch.tap()
         spinRunloop(0.5)
