@@ -516,8 +516,6 @@ struct CollectionRowsHeaderView: View {
                         if !childrens.isEmpty {
                             Image(systemName: "chevron.right.square")
                                 .rotationEffect(.degrees(rowModel.isExpanded ? 90 : 0))
-                                // One rotating icon no longer changes its name, so state goes to VoiceOver here.
-                                .accessibilityValue(rowModel.isExpanded ? "Expanded" : "Collapsed")
                                 .frame(width: 40, height: 60)
                                 .border(Color.tableCellBorderColor)
                                 .background(rowModel.isExpanded ? (colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color(UIColor.systemGray6) : .white))
@@ -545,8 +543,6 @@ struct CollectionRowsHeaderView: View {
                             if !childrens.isEmpty {
                                 Image(systemName: "chevron.right.square")
                                 .rotationEffect(.degrees(rowModel.isExpanded ? 90 : 0))
-                                // One rotating icon no longer changes its name, so state goes to VoiceOver here.
-                                .accessibilityValue(rowModel.isExpanded ? "Expanded" : "Collapsed")
                                     .frame(width: 40, height: 60)
                                     .border(Color.tableCellBorderColor)
                                     .background(rowModel.isExpanded ? (colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor) : (colorScheme == .dark ? Color(UIColor.systemGray6) : .white))
