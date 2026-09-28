@@ -83,11 +83,13 @@ private final class DecoratorRowUpdateBox: ObservableObject {
         let document = DecoratorRowUpdateBox.loadDoc(named: "DecoratorToRowUpdate")
         editor = DocumentEditor(
             document: document,
-            mode: .fill,
-            events: handler,
-            validateSchema: false,
-            license: licenseKey,
-            singleClickRowEdit: true
+            config: DocumentEditorConfig(
+                mode: .fill,
+                events: handler,
+                license: licenseKey,
+                validateSchema: false,
+                display: DisplayConfig(singleClickRowEdit: true)
+            )
         )
         handler.editor = editor
         handler.onStatus = { [weak self] text in

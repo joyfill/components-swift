@@ -167,9 +167,10 @@ func makeDecorator(action: String,
 
 func makeNavigationEditor(events: MockDecoratorEvents? = nil) -> (DocumentEditor, MockDecoratorEvents) {
     let mock = events ?? MockDecoratorEvents()
-    let editor = DocumentEditor(document: sampleJSONDocument(fileName: "Navigation"),
-                                events: mock,
-                                validateSchema: false)
+    let editor = DocumentEditor(
+        document: sampleJSONDocument(fileName: "Navigation"),
+        config: DocumentEditorConfig(events: mock, validateSchema: false)
+    )
     return (editor, mock)
 }
 
@@ -177,19 +178,19 @@ func makeChangerHandlerEditor(events: MockDecoratorEvents? = nil) -> (DocumentEd
     let mock = events ?? MockDecoratorEvents()
     let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
         .trimmingCharacters(in: .whitespacesAndNewlines)
-    let editor = DocumentEditor(document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
-                                events: mock,
-                                validateSchema: false,
-                                license: license.isEmpty ? nil : license)
+    let editor = DocumentEditor(
+        document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
+        config: DocumentEditorConfig(events: mock, license: license.isEmpty ? nil : license, validateSchema: false)
+    )
     return (editor, mock)
 }
 
 /// Editor with NO license — collection-field decorator writes are expected to fail.
 func makeUnlicensedChangerHandlerEditor(events: MockDecoratorEvents? = nil) -> (DocumentEditor, MockDecoratorEvents) {
     let mock = events ?? MockDecoratorEvents()
-    let editor = DocumentEditor(document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
-                                events: mock,
-                                validateSchema: false,
-                                license: nil)
+    let editor = DocumentEditor(
+        document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
+        config: DocumentEditorConfig(events: mock, license: nil, validateSchema: false)
+    )
     return (editor, mock)
 }

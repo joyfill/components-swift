@@ -33,7 +33,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
             fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)
         )
         guard let tableDataModel else { fatalError("TableViewModel not found") }
-        return try await CollectionViewModel(tableDataModel: tableDataModel)
+        return CollectionViewModel(tableDataModel: tableDataModel)
     }
     
     func waitForMainQueueToDrain(file: StaticString = #filePath, line: UInt = #line) {
@@ -44,7 +44,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_AddNewRow() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
@@ -88,7 +88,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_BulkUpdate() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         
@@ -222,7 +222,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_AddAndInsert() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict1: [String: Any] = [
@@ -300,7 +300,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     
     func testApplyRowEditChanges_DeleteAddAndInsert() async throws {
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         // 1) rowDelete — "68575bb9cdb3707c78d6b2ff"
@@ -463,7 +463,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MoveUpRow() async throws{
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict: [String: Any] = [
@@ -506,7 +506,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     func testApplyRowEditChanges_MoveDownRow() async throws {
         // Given
         let document = createTestDocument()
-        let documentEditor = DocumentEditor(document: document, validateSchema: false)
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         let changeDict: [String: Any] = [
@@ -568,7 +568,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     // Core of the fix: changes are keyed by columnID, so each entry must land in its
     // own root column across every type in the switch, on all selected rows.
     func testBulkEdit_mapsEachColumnIDToItsOwnColumnAcrossTypes() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -605,7 +605,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_appliesValueToAllSelectedRows() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -621,7 +621,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_unknownColumnID_isNoOpAndDoesNotCrash() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -635,7 +635,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_emptyChanges_isNoOp() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -649,7 +649,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_rowWithFewerCellsThanColumns_doesNotCrash() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -702,7 +702,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testBulkEdit_hidesNestedSchemaOnEveryEditedRow() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -726,7 +726,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     /// The map has to move back as well — `updateSchemaVisibility` only writes when the
     /// state actually changed, so a one-way test would pass on a half-broken update.
     func testBulkEdit_revealsNestedSchemaWhenConditionsStopMatching() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -746,7 +746,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     /// A bulk edit on a column no schema logic depends on must not disturb the map.
     func testBulkEdit_onUnrelatedColumnLeavesVisibilityUntouched() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
 
@@ -756,5 +756,118 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
         XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
                       "The date column is not referenced by any schema logic, so nothing should change")
+    }
+
+    // MARK: - External changes keep the nested-schema visibility map in step
+    //
+    // documentEditor.change(changes:) is the API/host-app entry point, a different route
+    // into the view model than bulkEdit: rowUpdate lands in applyRowEditChanges and
+    // rowCreate in addNestedCellModel. Both have to refresh the visibility map, otherwise
+    // a nested table stays on screen after a change the host pushed in.
+
+    private func externalChange(target: String, change: [String: Any]) -> Change {
+        Change(dictionary: [
+            "target": target,
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "fieldIdentifier": "field_68575112847f32f878c77daf",
+            "fieldPositionId": "68575112158ff5dbaa9f78e1",
+            "fieldId": tableFieldID,
+            "fileId": fileID,
+            "pageId": pageID,
+            "sdk": "swift",
+            "v": 1,
+            "createdOn": Date().timeIntervalSince1970,
+            "change": change
+        ])
+    }
+
+    private func externalRowUpdate(rowID: String, cells: [String: Any]) -> Change {
+        externalChange(target: "field.value.rowUpdate", change: [
+            "rowId": rowID,
+            "schemaId": "collectionSchemaId",
+            "parentPath": "",
+            "row": ["_id": rowID, "cells": cells] as [String: Any]
+        ])
+    }
+
+    /// The raw-JSON form of `hidingChanges`, derived from it so the two cannot drift apart.
+    private var hidingCells: [String: Any] {
+        hidingChanges.compactMapValues { $0.dictionary }
+    }
+
+    func testExternalRowUpdate_hidesNestedSchemaOnTheEditedRow() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                      "Precondition: nested schema starts visible on row A")
+
+        documentEditor.change(changes: [externalRowUpdate(rowID: rootRowA, cells: hidingCells)])
+        waitForMainQueueToDrain()
+
+        XCTAssertFalse(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                       "The external update makes all five hide conditions match, so the nested schema must be hidden")
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowB, schema: hideDepth2SchemaID),
+                      "The change targets one row, so every other row's visibility must be untouched")
+    }
+
+    /// The map has to move back too - `updateSchemaVisibility` only writes when the state
+    /// actually changed, so a one-way test would pass on a half-broken update.
+    func testExternalRowUpdate_revealsNestedSchemaWhenConditionsStopMatching() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        documentEditor.change(changes: [externalRowUpdate(rowID: rootRowA, cells: hidingCells)])
+        waitForMainQueueToDrain()
+        XCTAssertFalse(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                       "Precondition: the schema is hidden before we break the condition")
+
+        // Breaking the text condition alone is enough - the logic evaluates with `and`.
+        documentEditor.change(changes: [externalRowUpdate(rowID: rootRowA, cells: [rootTextColumnID: "show depth2 again"])])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                      "One condition no longer matches, so the nested schema must come back")
+    }
+
+    /// An external update on a column no schema logic depends on must not disturb the map.
+    func testExternalRowUpdate_onUnrelatedColumnLeavesVisibilityUntouched() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        documentEditor.change(changes: [externalRowUpdate(rowID: rootRowA, cells: [rootDateColumnID: 1749000000000])])
+        waitForMainQueueToDrain()
+
+        XCTAssertTrue(schemaIsVisible(documentEditor, row: rootRowA, schema: hideDepth2SchemaID),
+                      "The date column is not referenced by any schema logic, so nothing should change")
+    }
+
+    /// A row the host creates has to be evaluated too, not left to the read-side default.
+    func testExternalRowCreate_evaluatesVisibilityForTheNewRow() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), validateSchema: false)
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        let newRowID = "68b6cae471b0cf51b557e9e2"
+        let create = externalChange(target: "field.value.rowCreate", change: [
+            "schemaId": "collectionSchemaId",
+            "parentPath": "",
+            "targetRowIndex": 4,
+            "row": [
+                "_id": newRowID,
+                "cells": hidingCells,
+                "children": [hideDepth2SchemaID: ["value": [] as [Any]] as [String: Any]] as [String: Any]
+            ] as [String: Any]
+        ])
+
+        documentEditor.change(changes: [create])
+        waitForMainQueueToDrain()
+
+        XCTAssertFalse(schemaIsVisible(documentEditor, row: newRowID, schema: hideDepth2SchemaID),
+                       "The created row's cells match the hide logic, so its nested schema must start hidden")
     }
 }

@@ -93,6 +93,10 @@ final class DocumentEditorConfigTests: XCTestCase {
     // MARK: - Defaults parity
 
     /// A default config must produce the same editor as the legacy init's defaults.
+    ///
+    /// Deliberately calls the deprecated overload — that is the thing under test.
+    /// Marking the method deprecated suppresses the expected warning at that call.
+    @available(*, deprecated, message: "Intentionally exercises the deprecated initializer.")
     func testConfigInit_defaultsMatchLegacyInit() {
         let legacy = DocumentEditor(document: JoyDoc(), validateSchema: false)
         let viaConfig = DocumentEditor(document: JoyDoc(),
@@ -132,6 +136,7 @@ final class DocumentEditorConfigTests: XCTestCase {
 
     /// With NON-default values the config init must produce the same editor as the
     /// legacy init given the equivalent parameters — this guards the delegation mapping.
+    @available(*, deprecated, message: "Intentionally exercises the deprecated initializer.")
     func testConfigInit_matchesLegacyInit_withNonDefaultValues() {
         let decorators = DecoratorConfig(visibleLimitInFields: 7, visibleLimitInRows: 4)
 
@@ -250,6 +255,7 @@ final class DocumentEditorConfigTests: XCTestCase {
 
     /// A nil `currentPageID` must fall back to the document's first valid page,
     /// matching the legacy init with `pageID: nil`.
+    @available(*, deprecated, message: "Intentionally exercises the deprecated initializer.")
     func testConfigInit_nilCurrentPageID_matchesLegacyFirstValidPage() {
         let legacy = DocumentEditor(document: multiPageDocument(),
                                     pageID: nil,

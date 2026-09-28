@@ -20,7 +20,7 @@ class FormulaTemplate_Arithmetic_ResolverTests: XCTestCase {
         super.setUp()
         // Load the Resolver version of the Arithmetic template
         let document = sampleJSONDocument(fileName: "FormulaTemplate_Arithmetic")
-        documentEditor = DocumentEditor(document: document, validateSchema: false)
+        documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     } 
 
     override func tearDown() {
@@ -56,7 +56,7 @@ class FormulaTemplate_Arithmetic_ResolverTests: XCTestCase {
         }
         
         // Test that the resolver can handle arithmetic operations
-        let fieldCount = documentEditor.document.fields.count ?? 0
+        let fieldCount = documentEditor.document.fields.count
         print("Total fields in resolver arithmetic template: \(fieldCount)")
         XCTAssertGreaterThan(fieldCount, 0, "Should have fields to test")
     }
@@ -69,7 +69,7 @@ class FormulaTemplate_Arithmetic_ResolverTests: XCTestCase {
         let document = documentEditor.document
         XCTAssertNotNil(document.formulas, "Should have formulas in resolver context")
         
-        let formulaCount = document.formulas.count ?? 0
+        let formulaCount = document.formulas.count
         print("Total formulas in resolver arithmetic template: \(formulaCount)")
         XCTAssertGreaterThan(formulaCount, 0, "Should have formulas to resolve")
         
@@ -107,8 +107,8 @@ class FormulaTemplate_Arithmetic_ResolverTests: XCTestCase {
         print("\n🔍 Resolver Context Debug:")
         print("Document ID: \(documentEditor.document.id ?? "nil")")
         print("Document type: \(documentEditor.document.type ?? "nil")")
-        print("Fields count: \(documentEditor.document.fields.count ?? 0)")
-        print("Formulas count: \(documentEditor.document.formulas.count ?? 0)")
-        print("Files count: \(documentEditor.document.files.count ?? 0)")
+        print("Fields count: \(documentEditor.document.fields.count)")
+        print("Formulas count: \(documentEditor.document.formulas.count)")
+        print("Files count: \(documentEditor.document.files.count)")
     }
 }

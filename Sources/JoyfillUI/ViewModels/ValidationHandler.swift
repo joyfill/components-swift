@@ -88,7 +88,7 @@ class ValidationHandler {
         }
 
         guard fieldIdentifier.pageID == pageID else {
-            Log("Field position \(fieldPositionID) belongs to page \(fieldIdentifier.pageID), not \(pageID)", type: .warning)
+            Log("Field position \(fieldPositionID) belongs to page \(String(describing: fieldIdentifier.pageID)), not \(pageID)", type: .warning)
             return .notFound
         }
 

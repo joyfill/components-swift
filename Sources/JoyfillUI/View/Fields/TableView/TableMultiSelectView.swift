@@ -182,7 +182,7 @@ struct TableMultiSelectSheetView: View {
                             let optionValue = options[index].value ?? ""
                             let isSelected: Bool = {
                                 let selectedArray = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
-                                return selectedArray.contains(options[index].id ?? "") ?? false
+                                return selectedArray.contains(options[index].id ?? "")
                             }()
                             
                             if isMulti {
