@@ -474,6 +474,24 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertTrue(editor.showPageSelectionSheet, "re-activating the current top host must not close its own sheet")
     }
 
+    /// A caller can request the sheet before any host has mounted (e.g. right after creating
+    /// the `DocumentEditor`, before `Form` appears on screen). The presenter that eventually
+    /// registers built its `isPresented` binding against an empty stack — `.constant(false)` —
+    /// so becoming top must publish, or that pending request is silently lost forever.
+    func testFirstHostActivating_pendingRequestStillPresents() {
+        let editor = makeEditor()
+        let hostA = UUID()
+
+        editor.presentPageSelectionSheet(true)          // requested before any host exists
+        XCTAssertTrue(editor.pageSheetHostStack.isEmpty)
+
+        editor.activatePageSheetHost(hostA)              // form finally mounts
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostA)
+        XCTAssertTrue(editor.showPageSelectionSheet,
+                      "a pending request from before any host existed must survive the first host registering")
+    }
+
     // MARK: - Host stack: publish-on-write-only
 
     /// `pageSheetHostStack` is plain storage now, not `@Published` — every push/pop must stop
@@ -539,5 +557,19 @@ final class PageSelectionSheetTests: XCTestCase {
         }
 
         XCTAssertEqual(emissions, 1, "the revealed host needs exactly one publish to pick up the handed-off sheet")
+    }
+
+    /// The other case `activatePageSheetHost` is meant to publish for: the very first host
+    /// registering onto an empty stack while a presentation is already pending.
+    func testFirstHostGainingPendingSheet_emitsExactlyOnce() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        editor.presentPageSelectionSheet(true)
+
+        let emissions = countEmissions(on: editor) {
+            editor.activatePageSheetHost(hostA)
+        }
+
+        XCTAssertEqual(emissions, 1, "the first host to register needs exactly one publish to pick up the pending sheet")
     }
 }

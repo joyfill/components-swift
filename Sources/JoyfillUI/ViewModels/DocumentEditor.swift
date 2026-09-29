@@ -633,15 +633,18 @@ extension DocumentEditor {
 
     /// Registers a `presentsPageSelectionSheet` host as the topmost one — called from that
     /// modifier's `onAppear`. See `pageSheetHostStack`.
-    ///
-    /// Closes an open sheet if a different host steals the top (e.g. a cancelled interactive
-    /// swipe-back), so it can't stay stuck open and resurface on an unrelated host later.
     func activatePageSheetHost(_ id: UUID) {
-        if let previousTop = pageSheetHostStack.last, previousTop != id, showPageSelectionSheet {
-            showPageSelectionSheet = false
-        }
+        let previousTop = pageSheetHostStack.last
         pageSheetHostStack.removeAll { $0 == id }
         pageSheetHostStack.append(id)
+
+        guard previousTop != id, showPageSelectionSheet else { return }
+
+        if previousTop == nil {
+            objectWillChange.send()
+        } else {
+            showPageSelectionSheet = false
+        }
     }
 
     /// Un-registers a `presentsPageSelectionSheet` host — called from that modifier's
