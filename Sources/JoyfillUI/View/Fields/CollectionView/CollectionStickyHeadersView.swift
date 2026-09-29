@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-/// Fixed grid geometry the sticky headers rely on. Change here, not as literals.
+/// Fixed grid geometry the sticky headers rely on. Must match the grid's 60pt row literals.
 enum CollectionGridMetrics {
     /// Every grid row (rows, nested headers, expanders) is this tall.
     static let rowHeight: CGFloat = 60
