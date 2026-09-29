@@ -591,6 +591,7 @@ private struct PageSelectionSheetPresenter: ViewModifier {
                 pickerView
             }
         }
+            .id(ObjectIdentifier(documentEditor))
     }
 }
 
