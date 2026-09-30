@@ -136,13 +136,14 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
           // better than sleep: wait for your UI to update, if possible
           
           let backendValue = onChangeResultValue().number
-          if let str = backendValue as? String {
-            XCTAssertEqual(str, "", "Backend should return empty string for invalid input: \(input)")
-          }
-          else if backendValue == nil {
+          // `backendValue` is a `Double?`, so this branch could never be entered.
+//          if let str = backendValue as? String {
+//            XCTAssertEqual(str, "", "Backend should return empty string for invalid input: \(input)")
+//          }
+          if backendValue == nil {
             // still okay if you ever return nil
           }
-          else if let num = backendValue as? Double {
+          else if let num = backendValue {
             // **Now expect** 0.0 for pure-text errors:
             XCTAssertEqual(num, 0.0,
                            "Backend should return 0.0 for invalid input: \(input)")
@@ -333,7 +334,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
     func testSecondNumberFieldConditionalHideCases() throws {
         let firstField = app.textFields.element(boundBy: 0)
         let secondField = app.textFields.element(boundBy: 1)
-        let thirdField = app.textFields.element(boundBy: 2)
+//        let thirdField = app.textFields.element(boundBy: 2)
         let allFields = app.textFields
         
         // Case 1: First is empty → second should hide
@@ -412,7 +413,7 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
     func testThirdNumberFieldConditionalHideCases() throws {
         let firstField = app.textFields.element(boundBy: 0)
         let secondField = app.textFields.element(boundBy: 1)
-        let thirdField = app.textFields.element(boundBy: 2)
+//        let thirdField = app.textFields.element(boundBy: 2)
         let allFields = app.textFields
         
         // Case 1: First > 80 AND second is empty → third should hide
@@ -464,8 +465,8 @@ final class NumberFieldUITestCases: JoyfillUITestsBaseClass {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"]
         pageSelectionButton.tap()
         
-        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
-        let pageCount = pageSheetSelectionButton.count
+//        let pageSheetSelectionButton = app.buttons.matching(identifier: "PageSelectionIdentifier")
+//        let pageCount = pageSheetSelectionButton.count
         
         let pageDeleteButtons = app.buttons.matching(identifier: "PageDeleteIdentifier")
         if pageDeleteButtons.count > 0 {

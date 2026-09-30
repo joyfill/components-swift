@@ -1471,4 +1471,31 @@ extension TableFieldUITestCases {
                       "Bulk-edit form should dismiss after tapping the pinned Apply All button")
     }
 
+    func testTableSignatureEmptyCellOpensBlankCanvasThenStoresSignature() throws {
+        goToTableDetailPage()
+
+        let signatureButtons = app.buttons.matching(identifier: "TableSignatureOpenSheetButton")
+        scrollToElement(signatureButtons.firstMatch)
+        XCTAssertTrue(signatureButtons.firstMatch.waitForExistence(timeout: 5),
+                      "Signature cells should render for rows that have no stored signature")
+
+        let emptyCell = signatureButtons.element(boundBy: 0)
+        XCTAssertTrue(emptyCell.isEnabled, "An empty signature cell should still be tappable")
+
+        emptyCell.tap()
+        XCTAssertTrue(app.otherElements["CanvasIdentifier"].waitForExistence(timeout: 5),
+                      "An empty signature cell should open a blank canvas")
+        XCTAssertFalse(app.buttons["TableSignatureEditButton"].exists,
+                       "Nothing is stored yet, so the saved-signature Edit button must not appear")
+
+        drawSignatureLine()
+        app.buttons["SaveSignatureIdentifier"].tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        emptyCell.tap()
+        XCTAssertTrue(app.buttons["TableSignatureEditButton"].waitForExistence(timeout: 5),
+                      "Re-opening the cell should show the stored signature instead of a blank canvas")
+        dismissSheet()
+    }
+
 }

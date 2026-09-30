@@ -1,4 +1,5 @@
 import JoyfillModel
+import CoreFoundation
 
 public extension DocumentEditor {
 
@@ -314,8 +315,12 @@ private extension DocumentEditor {
         walk(top)
         return collected
     }
+}
 
-    // MARK: Decorate normalization
+// MARK: Decorate normalization
+
+// Not in the `private extension` below: DocumentEditor.swift calls this across files.
+extension DocumentEditor {
 
     /// Infers an effective `decorate` flag from the actual decorator data on a
     /// freshly loaded field, but only when the JSON omits the flag entirely.
@@ -327,7 +332,7 @@ private extension DocumentEditor {
     /// skips the scan.
     ///
     /// Mutates `field` in place. Returns true if anything changed.
-    internal func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
+    func normalizeDecorateFlag(field: inout JoyDocField) -> Bool {
         switch field.fieldType {
         case .table:
             guard field.decorate == nil else { return false }
@@ -348,6 +353,9 @@ private extension DocumentEditor {
             return false
         }
     }
+}
+
+private extension DocumentEditor {
 
     /// Load-path scan: returns true if `field` has any displayable row decorator
     /// in scope. Used by `normalizeDecorateFlag`. Walks raw JSON dictionaries to
@@ -751,5 +759,15 @@ public struct DecoratorConfig: Equatable, Sendable {
     public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1) {
         self.visibleLimitInFields = max(0, visibleLimitInFields)
         self.visibleLimitInRows = max(0, visibleLimitInRows)
+    }
+
+    static func rowCellWidth(forVisibleLimit visibleLimitInRows: Int) -> CGFloat {
+        if visibleLimitInRows <= 1 {
+            return 40
+        } else if visibleLimitInRows == 2 {
+            return 80
+        } else {
+            return 100
+        }
     }
 }

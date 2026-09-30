@@ -102,20 +102,17 @@ struct FileView: View {
 
     var body: some View {
         if let file = file {
-            PagesView(pageOrder: file.pageOrder, pageFieldModels: $documentEditor.pageFieldModels, documentEditor: documentEditor)
+            PagesView(pageFieldModels: $documentEditor.pageFieldModels, documentEditor: documentEditor)
         }
     }
 }
 
 struct PagesView: View {
-    let pageOrder: [String]?
     @Binding var pageFieldModels: [String: PageModel]
     @ObservedObject var documentEditor: DocumentEditor
 
-    init(pageOrder: [String]?,
-         pageFieldModels: Binding<[String : PageModel]>,
+    init(pageFieldModels: Binding<[String : PageModel]>,
          documentEditor: DocumentEditor) {
-        self.pageOrder = pageOrder
         _pageFieldModels = pageFieldModels
         self.documentEditor = documentEditor
     }
@@ -155,14 +152,7 @@ struct PagesView: View {
             if isPresented { dismissKeyboard() }
         }
         // On the container, not the button, so hosts can present it while the button is hidden.
-        .sheet(isPresented: $documentEditor.showPageSelectionSheet) {
-            if #available(iOS 16, *) {
-                PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
-                    .presentationDetents([.medium])
-            } else {
-                PageDuplicateListView(currentPageID: $documentEditor.currentPageID, pageOrder: pageOrder, documentEditor: documentEditor, pageFieldModels: $pageFieldModels)
-            }
-        }
+        .presentsPageSelectionSheet(documentEditor: documentEditor)
     }
 }
 
@@ -289,7 +279,7 @@ struct FormView: View {
         case .collection(let model):
             CollectionQuickView(tableDataModel: model, eventHandler: self)
                 .id(model.id)
-        case .image(let model):
+        case .image(_):
             ImageView(listModel: listModelBinding, eventHandler: self)
         case .none:
             EmptyView()
@@ -417,7 +407,6 @@ extension FormView: FieldChangeEvents {
 
 struct PageDuplicateListView: View {
     @Binding var currentPageID: String
-    let pageOrder: [String]?
     @Environment(\.presentationMode) var presentationMode
     @State var documentEditor: DocumentEditor
     @Binding var pageFieldModels: [String: PageModel]
@@ -564,6 +553,45 @@ struct PageDuplicateListView: View {
         pageToDelete = pageID
         deleteWarningMessage = warnings.joined(separator: "\n• ")
         showDeleteConfirmation = true
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func presentsPageSelectionSheet(documentEditor: DocumentEditor?) -> some View {
+        if let documentEditor {
+            modifier(PageSelectionSheetPresenter(documentEditor: documentEditor))
+        } else {
+            self
+        }
+    }
+}
+
+
+private struct PageSelectionSheetPresenter: ViewModifier {
+    @ObservedObject var documentEditor: DocumentEditor
+    @State private var hostID = UUID()
+
+    private var isPresented: Binding<Bool> {
+        guard documentEditor.pageSheetHostStack.last == hostID else {
+            return .constant(false)
+        }
+        return $documentEditor.showPageSelectionSheet
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .onAppear { documentEditor.activatePageSheetHost(hostID) }
+            .onDisappear { documentEditor.deactivatePageSheetHost(hostID) }
+            .sheet(isPresented: isPresented) {
+            let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+            if #available(iOS 16, *) {
+                pickerView.presentationDetents([.medium])
+            } else {
+                pickerView
+            }
+        }
+            .id(ObjectIdentifier(documentEditor))
     }
 }
 

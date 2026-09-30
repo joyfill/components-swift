@@ -19,7 +19,7 @@ final class ColumnConditionalLogicTests: XCTestCase {
     let imageColumnID = "col_image_001"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, validateSchema: false)
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
     }
     
     // MARK: - Builder Helpers
@@ -624,7 +624,10 @@ final class ColumnConditionalLogicTests: XCTestCase {
         file.views = []
         document.files = [file]
         
-        let editor = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         
         // Duplicate the page
         editor.duplicatePage(pageID: pageID)
@@ -718,7 +721,10 @@ final class ColumnConditionalLogicTests: XCTestCase {
         file.views = []
         document.files = [file]
         
-        let editor = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         
         // Verify original column shows (number=100, show when =100)
         let originalResult = editor.shouldShowColumn(columnID: textColumnID, fieldID: tableFieldID)
@@ -784,7 +790,10 @@ final class ColumnConditionalLogicTests: XCTestCase {
         file.views = []
         document.files = [file]
         
-        let editor = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         editor.duplicatePage(pageID: pageID)
         
         let duplicatedTableFields = editor.document.fields.filter { $0.id != tableFieldID && $0.type == "table" }
@@ -1304,7 +1313,7 @@ final class ColumnConditionalLogicTests: XCTestCase {
         field.file = fileID
         
         // Build schema entry with tableColumns
-        var schemaDict: [String: Any] = [
+        let schemaDict: [String: Any] = [
             "title": "Root Schema",
             "root": true,
             "children": [String](),
@@ -1604,7 +1613,10 @@ final class ColumnConditionalLogicTests: XCTestCase {
         document.fields = [numberField, tableField]
         document.files = [file]
         
-        let editor = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         
         // Duplicate the page
         editor.duplicatePage(pageID: pageID)
@@ -1708,7 +1720,10 @@ final class ColumnConditionalLogicTests: XCTestCase {
         document.fields = [numberField, tableField]
         document.files = [file]
         
-        let editor = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         
         // Verify original column shows
         let originalResult = editor.shouldShowColumn(columnID: textColumnID, fieldID: tableFieldID)
@@ -1782,7 +1797,10 @@ final class ColumnConditionalLogicTests: XCTestCase {
         file.views = []
         document.files = [file]
         
-        let editor = DocumentEditor(document: document, mode: .fill, isPageDuplicateEnabled: true, validateSchema: false)
+        let editor = DocumentEditor(
+            document: document,
+            config: DocumentEditorConfig(mode: .fill, validateSchema: false, page: PageConfig(enableDuplicates: true))
+        )
         
         // Duplicate the page
         editor.duplicatePage(pageID: pageID)

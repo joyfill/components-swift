@@ -119,6 +119,9 @@ public class DocumentEditor: ObservableObject {
     public var isPageDeleteEnabled: Bool = true
     @Published public internal(set) var showPageNavigationView: Bool = true
     @Published var showPageSelectionSheet: Bool = false
+
+    /// Not `@Published` — the activate/deactivate methods below publish manually, only when it matters.
+    private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
@@ -190,7 +193,7 @@ public class DocumentEditor: ObservableObject {
         self.validationHandler = ValidationHandler(documentEditor: self)
         self.currentPageID = document.firstValidPageID(for: config.page.currentPageID, conditionalLogicHandler: conditionalLogicHandler)
         self.joyDocContext = Joyfill.JoyfillDocContext(docProvider: self)
-        self.currentPageOrder = document.pageOrderForCurrentView ?? []
+        self.currentPageOrder = document.pageOrderForCurrentView
     }
     
     @available(*, deprecated, message: "Use init(document:config:) with DocumentEditorConfig instead.")
@@ -628,6 +631,32 @@ extension DocumentEditor {
         runOnMain { self.showPageSelectionSheet = present }
     }
 
+    /// Registers a `presentsPageSelectionSheet` host as the topmost one — called from that
+    /// modifier's `onAppear`. See `pageSheetHostStack`.
+    func activatePageSheetHost(_ id: UUID) {
+        let previousTop = pageSheetHostStack.last
+        pageSheetHostStack.removeAll { $0 == id }
+        pageSheetHostStack.append(id)
+
+        guard previousTop != id, showPageSelectionSheet else { return }
+
+        if previousTop == nil {
+            objectWillChange.send()
+        } else {
+            showPageSelectionSheet = false
+        }
+    }
+
+    /// Un-registers a `presentsPageSelectionSheet` host — called from that modifier's
+    /// `onDisappear`. Whatever host is left on top regains the picker automatically.
+    func deactivatePageSheetHost(_ id: UUID) {
+        let previousTop = pageSheetHostStack.last
+        pageSheetHostStack.removeAll { $0 == id }
+        if pageSheetHostStack.last != previousTop, showPageSelectionSheet {
+            objectWillChange.send()
+        }
+    }
+
     /// Shows or hides the built-in page navigation button without affecting the page picker.
     public func setPageNavigationVisible(_ visible: Bool) {
         runOnMain { self.showPageNavigationView = visible }
@@ -795,7 +824,7 @@ extension DocumentEditor {
         
         let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
         
-        var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
+        let fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
         
         switch fieldPosition.type {
         case .text:
@@ -961,7 +990,7 @@ extension DocumentEditor {
     fileprivate func updatePageFieldModels(_ duplicatedPage: Page, _ newPageID: String, _ fileId: String?) {
         var fieldListModels = [FieldListModel]()
         let fieldPositions = mapWebViewToMobileViewIfNeeded(fieldPositions: duplicatedPage.fieldPositions ?? [], isMobileViewActive: isMobileViewActive)
-        for fieldPosition in fieldPositions ?? [] {
+        for fieldPosition in fieldPositions {
             guard let fieldPositionFieldID = fieldPosition.field else {
                 Log("FieldPositions has nil FieldID", type: .error)
                 continue
@@ -973,12 +1002,7 @@ extension DocumentEditor {
             let fieldIdentifier = FieldIdentifier(_id: documentID, identifier: documentIdentifier, fieldID: fieldPositionFieldID, fieldIdentifier: fieldData?.identifier, pageID: newPageID, fileID: fileId, fieldPositionId: fieldPosition.id)
             var dataModelType: FieldListModelType = .none
             let fieldEditMode: Mode = ((fieldData?.disabled == true) || (mode == .readonly) ? .readonly : .fill)
-            let decorators = fieldData?.decorators?.filter({ $0.isDisplayable }).map(DecoratorLocal.init(from:)) ?? []
-            
-            let showTitle = (fieldPosition.titleDisplay == nil || fieldPosition.titleDisplay != "none")
-            
-            var fieldHeaderModel = FieldHeaderModel(title: showTitle ? fieldData?.title : nil, required: conditionalLogicHandler.isFieldRequired(fieldID: fieldPositionFieldID), tipDescription: fieldData?.tipDescription, tipTitle: fieldData?.tipTitle, tipVisible: fieldData?.tipVisible, decorators: decorators, mode: fieldEditMode, visibleLimitInFields: decoratorConfig.visibleLimitInFields)
-            
+
             dataModelType = getFieldModel(fieldPosition: fieldPosition, fieldIdentifier: fieldIdentifier)
             fieldListModels.append(FieldListModel(fieldIdentifier: fieldIdentifier, fieldEditMode: fieldEditMode, model: dataModelType))
             let index = fieldListModels.count - 1
@@ -1350,7 +1374,7 @@ extension DocumentEditor {
     /// - Parameter pageID: The ID of the page to validate
     /// - Returns: Tuple with canDelete flag and array of warning messages
     public func canDeletePage(pageID: String) -> (canDelete: Bool, warnings: [String]) {
-        var warnings: [String] = []
+        let warnings: [String] = []
         
         guard let firstFile = document.files.first else {
             return (false, ["No file found in document"])

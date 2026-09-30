@@ -221,6 +221,7 @@
 		95C0BEEB300A445300D207B9 /* RequiredLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BEEA300A444900D207B9 /* RequiredLogic.swift */; };
 		95C0BEEC300A443500D207B9 /* RequiredLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BEE8300A442500D207B9 /* RequiredLogic.json */; };
 		95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */; };
+		95C0BF9A3018A70000D207B9 /* CollectionNestedSchemaLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */; };
 		95C0BF663018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		95C0BF673018A65000D207B9 /* CellVisibilityLogic.json in Resources */ = {isa = PBXBuildFile; fileRef = 95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */; };
 		9EAAC7C02E979A20000B6F3C /* TimeZoneTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = 9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */; };
@@ -434,12 +435,11 @@
 		E29FF8822F2527790079A614 /* TestMobileViewDuplicateLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29FF8812F2527790079A614 /* TestMobileViewDuplicateLogic.swift */; };
 		E2A11B012F8000010000AAA1 /* TableEditabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A11B002F8000010000AAA0 /* TableEditabilityTests.swift */; };
 		E2A11B032F8000010000AAA3 /* CollectionEditabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A11B022F8000010000AAA2 /* CollectionEditabilityTests.swift */; };
+		E2A11B052F8000010000AAA5 /* CollectionStickyHeadersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A11B042F8000010000AAA4 /* CollectionStickyHeadersTests.swift */; };
 		E2A67F7C2E2FF618000E057F /* TableFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5688B2E2A45F9005216A6 /* TableFieldTestData.json */; };
 		E2A683EE2DC8F5FC00385FE1 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = E2A683ED2DC8F5FC00385FE1 /* JoyfillModel */; };
-		E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */; };
 		E2A684372DCA40AF00385FE1 /* FormContainerTestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */; };
 		E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */; };
-		E2A6843D2DCA41F000385FE1 /* JoyDoc+helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */; };
 		E2AA11022F30000100000002 /* PageSelectionSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2AA11012F30000100000001 /* PageSelectionSheetTests.swift */; };
 		E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */; };
 		E2B4CFBD2F97AF2300F2128D /* DecoratorCOWTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B4CFBC2F97AF2300F2128D /* DecoratorCOWTests.swift */; };
@@ -909,6 +909,7 @@
 		95C0BEE8300A442500D207B9 /* RequiredLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = RequiredLogic.json; sourceTree = "<group>"; };
 		95C0BEEA300A444900D207B9 /* RequiredLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequiredLogic.swift; sourceTree = "<group>"; };
 		95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellVisibilityLogic.swift; sourceTree = "<group>"; };
+		95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionNestedSchemaLogic.swift; sourceTree = "<group>"; };
 		95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CellVisibilityLogic.json; sourceTree = "<group>"; };
 		9EAAC7BD2E979A20000B6F3C /* TimeZoneTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TimeZoneTestData.json; sourceTree = "<group>"; };
 		9EAAC7BE2E979A20000B6F3C /* TimeZoneUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeZoneUITestCases.swift; sourceTree = "<group>"; };
@@ -1007,10 +1008,9 @@
 		E29FF8812F2527790079A614 /* TestMobileViewDuplicateLogic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMobileViewDuplicateLogic.swift; sourceTree = "<group>"; };
 		E2A11B002F8000010000AAA0 /* TableEditabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableEditabilityTests.swift; sourceTree = "<group>"; };
 		E2A11B022F8000010000AAA2 /* CollectionEditabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionEditabilityTests.swift; sourceTree = "<group>"; };
-		E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
+		E2A11B042F8000010000AAA4 /* CollectionStickyHeadersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionStickyHeadersTests.swift; sourceTree = "<group>"; };
 		E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormContainerTestView.swift; sourceTree = "<group>"; };
 		E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReplacementTest.swift; sourceTree = "<group>"; };
-		E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JoyDoc+helper.swift"; sourceTree = "<group>"; };
 		E2AA11012F30000100000001 /* PageSelectionSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageSelectionSheetTests.swift; sourceTree = "<group>"; };
 		E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangelogView.swift; sourceTree = "<group>"; };
 		E2B4CFBC2F97AF2300F2128D /* DecoratorCOWTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecoratorCOWTests.swift; sourceTree = "<group>"; };
@@ -1257,7 +1257,7 @@
 			children = (
 				95A671CC305A747400FDC608 /* Formula in table and collection */,
 				9587E747302F43F900293EF7 /* EditabilityUITest */,
-				95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */,
+				95C0BF603018A60100D207B9 /* CellAndSchemaVisibilityLogic */,
 				95C0BEE7300A441300D207B9 /* RequiredLogicTest */,
 				95C0BE9B3006200400D207B9 /* LandscapeModeTest */,
 				BA2353382FA1DFEF002D9345 /* PageDeletableCopyable */,
@@ -1318,6 +1318,7 @@
 				E225D1C42F3AE626000674CF /* HiddenViewsTests.swift */,
 				E2A11B002F8000010000AAA0 /* TableEditabilityTests.swift */,
 				E2A11B022F8000010000AAA2 /* CollectionEditabilityTests.swift */,
+				E2A11B042F8000010000AAA4 /* CollectionStickyHeadersTests.swift */,
 				E26315E32F76AEA70008B89B /* ValidatePathTests.swift */,
 			);
 			path = JoyfillTests;
@@ -1504,13 +1505,14 @@
 			path = RequiredLogicTest;
 			sourceTree = "<group>";
 		};
-		95C0BF603018A60100D207B9 /* CellVisibilityLogicTest */ = {
+		95C0BF603018A60100D207B9 /* CellAndSchemaVisibilityLogic */ = {
 			isa = PBXGroup;
 			children = (
 				95C0BF653018A64C00D207B9 /* CellVisibilityLogic.json */,
 				95C0BF613018A61700D207B9 /* CellVisibilityLogic.swift */,
+				95C0BF9B3018A70000D207B9 /* CollectionNestedSchemaLogic.swift */,
 			);
-			path = CellVisibilityLogicTest;
+			path = CellAndSchemaVisibilityLogic;
 			sourceTree = "<group>";
 		};
 		9EAAC7BF2E979A20000B6F3C /* TimeZone */ = {
@@ -2073,7 +2075,6 @@
 				FA28C96A2BB4359600A2D65C /* ChangeManager.swift */,
 				E2A684362DCA40AF00385FE1 /* FormContainerTestView.swift */,
 				E2B5F7602D75E67C0057FD85 /* TemplateSearchView.swift */,
-				E2A6843C2DCA41F000385FE1 /* JoyDoc+helper.swift */,
 				E2ABC23E2DF06C7800A33038 /* ChangelogView.swift */,
 				E2A6843A2DCA413B00385FE1 /* ImageReplacementTest.swift */,
 				364615A92E29692D00F237F6 /* DeficiencyTableDemoView.swift */,
@@ -2081,7 +2082,6 @@
 				E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */,
 				364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */,
 				369D45032E0E4C2600677280 /* AllSampleJSONs.swift */,
-				E2A683F12DC8FC3A00385FE1 /* FormContainerTestView.swift */,
 				E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
 				364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */,
 				36CE14662DB6680000799B25 /* LiveViewTest.swift */,
@@ -2846,6 +2846,7 @@
 				E2F568A72E2A473D005216A6 /* DisplayTextFieldUITestCases.swift in Sources */,
 				E2F568752E2A4594005216A6 /* ImageFieldUITestCases.swift in Sources */,
 				95C0BF623018A62900D207B9 /* CellVisibilityLogic.swift in Sources */,
+				95C0BF9A3018A70000D207B9 /* CollectionNestedSchemaLogic.swift in Sources */,
 				E2F568762E2A4594005216A6 /* ImageFieldTests.swift in Sources */,
 				E2B4CFD92F9A060700F2128D /* DecoratorUITestSupport.swift in Sources */,
 				95288E7E2FE2A46A000A2CC1 /* DecoratorRowUpdateUITests.swift in Sources */,
@@ -2930,6 +2931,7 @@
 				E225D1C52F3AE626000674CF /* HiddenViewsTests.swift in Sources */,
 				E2A11B012F8000010000AAA1 /* TableEditabilityTests.swift in Sources */,
 				E2A11B032F8000010000AAA3 /* CollectionEditabilityTests.swift in Sources */,
+				E2A11B052F8000010000AAA5 /* CollectionStickyHeadersTests.swift in Sources */,
 				E2B8E3EF2E43806700AC6018 /* FormulaTemplate_BlockFieldTests.swift in Sources */,
 				36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */,
 				E2173C2F2F6937AF000A2A63 /* PageDeletableCopyableValidationTests.swift in Sources */,
@@ -3007,7 +3009,6 @@
 				E2E27D022E8C10000041FF1F /* MetadataChangeAPIDemoView.swift in Sources */,
 				13B544462BE37D2A008AF9BC /* UITestFormContainerView.swift in Sources */,
 				36CE14672DB6680000799B25 /* LiveViewTest.swift in Sources */,
-				E2A6843D2DCA41F000385FE1 /* JoyDoc+helper.swift in Sources */,
 				E27C87E52D39438C008EA35C /* CameraScannerViewController.swift in Sources */,
 				3656F8992DF076DA001590B2 /* FormBuilderView.swift in Sources */,
 				E2C905322FEBDF9100DF0F92 /* FailureCaptureDemoView.swift in Sources */,
@@ -3018,7 +3019,6 @@
 				364615AC2E29692D00F237F6 /* DeficiencyTableDemoView.swift in Sources */,
 				36DEC0DA2E30000000F23702 /* DecoratorRowUpdateDemoView.swift in Sources */,
 				E2E3E7762E855F1B002A10C2 /* SimpleFormExampleView.swift in Sources */,
-				E2A683F22DC8FC3A00385FE1 /* FormContainerTestView.swift in Sources */,
 				E24089F52F7C28ED005C4885 /* SampleFormFooter.swift in Sources */,
 				E29FF8512F1F77C10079A614 /* SimpleNavigationTestView.swift in Sources */,
 				E2A6843B2DCA413B00385FE1 /* ImageReplacementTest.swift in Sources */,
@@ -3274,7 +3274,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -3315,7 +3314,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = JoyfillExample/JoyfillExample.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

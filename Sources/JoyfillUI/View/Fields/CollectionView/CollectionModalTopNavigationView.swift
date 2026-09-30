@@ -32,16 +32,9 @@ struct CollectionModalTopNavigationView: View {
             Button(action: {
                 onFilterTap?()
             }) {
-                HStack(spacing: 6) {
-                    Image(systemName: hasActiveFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
-                        .foregroundColor(hasActiveFilters ? .blue : .gray)
-                }
-                .font(.system(size: 14))
-                .frame(height: 27)
-                .padding(.horizontal, 12)
-                .overlay(RoundedRectangle(cornerRadius: 6)
-                    .stroke(hasActiveFilters ? Color.blue : Color.buttonBorderColor, lineWidth: 1))
+                FilterButtonLabel(isActive: hasActiveFilters)
             }
+            .buttonStyle(AddRowButtonStyle())
             .accessibilityIdentifier("CollectionFilterButtonIdentifier")
             
             if hasActiveFilters {
@@ -80,7 +73,7 @@ struct CollectionModalTopNavigationView: View {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
-                                    viewModel.insertBelow()
+                                    _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
                                         .foregroundStyle(.blue)
@@ -168,7 +161,7 @@ struct CollectionModalTopNavigationView: View {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
                                 Button(action: {
                                     showingPopover = false
-                                    viewModel.insertBelow()
+                                    _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
                                         .foregroundStyle(.blue)
@@ -527,6 +520,7 @@ struct CollectionEditMultipleRowsSheetView: View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
+        .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
     }
 
     @ViewBuilder
@@ -629,12 +623,12 @@ struct CollectionEditMultipleRowsSheetView: View {
                             case .signature:
                                 if isUsedForBulkEdit {
                                     if !cellDataModel.title.isEmpty {
-                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title ?? "")
+                                        self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                     } else {
                                         self.changes.removeValue(forKey: columnID)
                                     }
                                 } else {
-                                    self.changes[columnID] = ValueUnion.string(cellDataModel.title ?? "")
+                                    self.changes[columnID] = ValueUnion.string(cellDataModel.title)
                                 }
                                 
                             default:
@@ -770,5 +764,26 @@ struct CollectionEditMultipleRowsSheetView: View {
             }
         }
         .disabled(viewModel.tableDataModel.mode == .readonly)
+    }
+}
+
+/// Filter button, styled like "+ Row": 32pt tall, 8pt continuous corners, surface fill and standard button border.
+/// Active shows blue icon, border and a light blue fill.
+struct FilterButtonLabel: View {
+    let isActive: Bool
+    @Environment(\.colorScheme) private var colorScheme
+
+    var body: some View {
+        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+        let surface = colorScheme == .dark ? Color(UIColor.tertiarySystemBackground) : Color.white
+        let border = isActive ? Color.blue : Color.buttonBorderColor
+        Image(systemName: "line.3.horizontal.decrease")
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(isActive ? .blue : .gray)
+            .padding(.horizontal, 12)
+            .frame(height: 32)
+            .background(shape.fill(isActive ? Color.blue.opacity(0.12) : surface))
+            .overlay(shape.strokeBorder(border, lineWidth: 1))
+            .contentShape(shape)
     }
 }
