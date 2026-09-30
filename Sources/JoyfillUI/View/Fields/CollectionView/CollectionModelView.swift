@@ -219,15 +219,17 @@ struct CollectionModalView : View {
 
     @ViewBuilder
     func collectionRow(at index: Int) -> some View {
-        let models = viewModel.tableDataModel.filteredcellModels
-        if index < models.count {
-            let rowCellModels = models[index]
+        var safeFilteredModels = viewModel.tableDataModel.filteredcellModels
+        if index < safeFilteredModels.count {
+            let rowCellModels = safeFilteredModels[index]
             HStack(spacing: 0) {
+                // Same as before sticky headers: reads the render-time snapshot, writes both.
                 let bindingRowModel = Binding(get: {
-                    index < viewModel.tableDataModel.filteredcellModels.count ? viewModel.tableDataModel.filteredcellModels[index] : rowCellModels
+                    safeFilteredModels[index]
                 }, set: { newValue in
                     if index < viewModel.tableDataModel.filteredcellModels.count {
                         viewModel.tableDataModel.filteredcellModels[index] = newValue
+                        safeFilteredModels[index] = newValue
                     } else {
                         Log("Row not found at this index ", type: .error)
                     }

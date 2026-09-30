@@ -165,6 +165,10 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     func onChange(changes: [Change], document: JoyfillModel.JoyDoc) {
         didReceiveChange = true
         uploadCallback?(didReceiveUploadEvent, didReceiveChange)
+        if Self.captureRowMove != nil {
+            recordCaptureEntries(changes.map { $0.dictionary })
+            return
+        }
         let dictionary = changes.map { $0.dictionary }
         if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: .prettyPrinted),
            let jsonString = String(data: jsonData, encoding: .utf8) {
@@ -280,8 +284,32 @@ class UITestFormContainerViewHandler: FormChangeEvent {
                             fieldPositionId: field.fieldPositionId ?? "",
                             change: ["rowId": move.rowId, "targetRowIndex": move.targetIndex],
                             createdOn: Date().timeIntervalSince1970)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { editor.change(changes: [change]) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            editor.change(changes: [change])
+            self.recordCaptureEntries([["target": "uitest.rowMoveApplied", "change": ["rowOrder": self.rowIDs(fieldID: field.fieldID)]]])
+        }
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { event.captureHandler(.string("Scan Button Clicked")) }
+        // Final state of every row, so the test can check rows the capture must not have touched.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            let rows = editor.field(fieldID: field.fieldID)?.value?.valueElements?.filter { $0.deleted != true } ?? []
+            let cells = rows.map { ["_id": $0.id ?? "", "cells": ($0.cells ?? [:]).mapValues { $0.text ?? "" }] }
+            self.recordCaptureEntries([["target": "uitest.snapshot", "change": ["rows": cells]]])
+        }
+    }
+
+    /// Under --capture-move-row every change is kept (not just the latest) so no earlier write is hidden.
+    private var captureEntries: [[String: Any]] = []
+
+    private func recordCaptureEntries(_ entries: [[String: Any]]) {
+        captureEntries += entries
+        if let data = try? JSONSerialization.data(withJSONObject: captureEntries),
+           let json = String(data: data, encoding: .utf8) {
+            setResult(json)
+        }
+    }
+
+    private func rowIDs(fieldID: String) -> [String] {
+        documentEditor?.field(fieldID: fieldID)?.value?.valueElements?.filter { $0.deleted != true }.compactMap(\.id) ?? []
     }
 
     /// `--capture-move-row <rowId>:<targetIndex>`: row to move while a capture is pending.

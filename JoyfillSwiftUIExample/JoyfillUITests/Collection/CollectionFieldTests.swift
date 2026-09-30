@@ -676,25 +676,40 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
     }
     
-    /// PR #386 review: a capture that completes after its row was moved must still update that row.
+    /// PR #386 review: a capture that completes after its row was moved must update only that row.
     func testBarcodeCaptureAfterRowMoveUpdatesOriginatingRow() throws {
+        let rowA = "6805b69956590b01f3ef990d" // "Hello", scanned
+        let rowB = "6805b69adee7f8251d2cd79f" // "His", moved to index 0 while the capture is pending
+        let barcodeColumn = "6805b7a813ea45f5b681dec1"
         goToCollectionDetailField()
 
-        // Scan row 1 ("Hello"); the app then moves "His" to index 0 before the result arrives.
         let scanButton = try XCTUnwrap(app.swipeToFindElement(identifier: "TableScanButtonIdentifier", type: .image, direction: "left", index: 0, maxAttempts: 10),
                                        "Barcode scan button not found")
         scanButton.tap()
 
-        let rowUpdated = waitUntil(5) { self.onChangeOptionalResult()?.target == "field.value.rowUpdate" }
-        XCTAssertTrue(rowUpdated, "Capture result never produced a row update")
+        // The app records every change plus the move and a final snapshot (see --capture-move-row).
+        let finished = waitUntil(10) { self.onChangeOptionalResults().contains { $0.target == "uitest.snapshot" } }
+        XCTAssertTrue(finished, "Capture sequence never finished")
+        let entries = onChangeOptionalResults()
 
-        let change = try XCTUnwrap(onChangeResult().change)
-        XCTAssertEqual("6805b69956590b01f3ef990d", change["rowId"] as? String, "Capture must update the row it started on")
-        let row = try XCTUnwrap(change["row"] as? [String: Any])
-        let cells = try XCTUnwrap(row["cells"] as? [String: Any])
-        XCTAssertEqual("Scan Button Clicked", cells["6805b7a813ea45f5b681dec1"] as? String)
+        let move = try XCTUnwrap(entries.first { $0.target == "uitest.rowMoveApplied" }, "Row move was not applied")
+        XCTAssertEqual((move.change?["rowOrder"] as? [String])?.first, rowB, "B must be at index 0 before the capture completes")
+
+        let rowUpdates = entries.filter { $0.target == "field.value.rowUpdate" }
+        XCTAssertFalse(rowUpdates.isEmpty, "Capture never produced a row update")
+        for update in rowUpdates {
+            XCTAssertEqual(update.change?["rowId"] as? String, rowA, "A capture update targeted another row")
+        }
+
+        let snapshot = try XCTUnwrap(entries.last { $0.target == "uitest.snapshot" })
+        let rows = try XCTUnwrap(snapshot.change?["rows"] as? [[String: Any]])
+        func barcode(_ id: String) -> String? {
+            (rows.first { $0["_id"] as? String == id }?["cells"] as? [String: Any])?[barcodeColumn] as? String
+        }
+        XCTAssertEqual(barcode(rowA), "Scan Button Clicked", "A keeps the scanned value")
+        XCTAssertNotEqual(barcode(rowB), "Scan Button Clicked", "B must not receive A's scan")
     }
-
+    
     func testMoveDownRow() {
         goToCollectionDetailField()
         selectRow(number: 1)
