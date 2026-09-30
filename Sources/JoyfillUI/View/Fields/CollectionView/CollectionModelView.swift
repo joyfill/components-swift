@@ -350,7 +350,7 @@ struct CollectionExpanderView: View {
                 Text(schemaValue?.1.title ?? "")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.all, 8)
-                    // Fill the bar's height so the title centers on the same line as + Row.
+                    // Fill the bar's height (minus its 4pt vertical padding) so the title centers on the same line as + Row.
                     .frame(minHeight: CollectionGridMetrics.rowHeight - 8, alignment: .center)
             }
 
@@ -424,7 +424,7 @@ struct RootTitleRowView: View {
                 Text(rootSchema?.title ?? "")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.all, 8)
-                    // Fill the bar's height so the title centers on the same line as + Row.
+                    // Fill the bar's height (minus its 4pt vertical padding) so the title centers on the same line as + Row.
                     .frame(minHeight: CollectionGridMetrics.rowHeight - 8, alignment: .center)
             }
 
