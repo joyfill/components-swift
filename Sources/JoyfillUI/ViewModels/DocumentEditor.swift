@@ -119,6 +119,9 @@ public class DocumentEditor: ObservableObject {
     public var isPageDeleteEnabled: Bool = true
     @Published public internal(set) var showPageNavigationView: Bool = true
     @Published var showPageSelectionSheet: Bool = false
+
+    /// Not `@Published` — the activate/deactivate methods below publish manually, only when it matters.
+    private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
@@ -626,6 +629,32 @@ extension DocumentEditor {
     /// Opens or closes the page picker, and works while the built-in navigation button is hidden.
     public func presentPageSelectionSheet(_ present: Bool) {
         runOnMain { self.showPageSelectionSheet = present }
+    }
+
+    /// Registers a `presentsPageSelectionSheet` host as the topmost one — called from that
+    /// modifier's `onAppear`. See `pageSheetHostStack`.
+    func activatePageSheetHost(_ id: UUID) {
+        let previousTop = pageSheetHostStack.last
+        pageSheetHostStack.removeAll { $0 == id }
+        pageSheetHostStack.append(id)
+
+        guard previousTop != id, showPageSelectionSheet else { return }
+
+        if previousTop == nil {
+            objectWillChange.send()
+        } else {
+            showPageSelectionSheet = false
+        }
+    }
+
+    /// Un-registers a `presentsPageSelectionSheet` host — called from that modifier's
+    /// `onDisappear`. Whatever host is left on top regains the picker automatically.
+    func deactivatePageSheetHost(_ id: UUID) {
+        let previousTop = pageSheetHostStack.last
+        pageSheetHostStack.removeAll { $0 == id }
+        if pageSheetHostStack.last != previousTop, showPageSelectionSheet {
+            objectWillChange.send()
+        }
     }
 
     /// Shows or hides the built-in page navigation button without affecting the page picker.

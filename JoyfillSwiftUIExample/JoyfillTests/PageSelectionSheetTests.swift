@@ -390,4 +390,186 @@ final class PageSelectionSheetTests: XCTestCase {
         XCTAssertNil(editor.pendingNavigationTarget, "a rejected goto must not park anything")
         XCTAssertFalse(editor.showPageSelectionSheet, "the sheet must still close")
     }
+
+    // MARK: - Host stack
+
+    /// Models: A (root) appears, B (pushed) appears, B presents the sheet, then an
+    /// interactive swipe-back starts (A's onAppear refires) but is cancelled, so B
+    /// never gets `onDisappear`. A becomes stack-top without ever asking for the sheet —
+    /// `activatePageSheetHost` must close it rather than leave it orphaned on A.
+    func testStackTopStolenByAnotherHost_closesTheSheet() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+
+        editor.activatePageSheetHost(hostA)          // A appears (root)
+        editor.activatePageSheetHost(hostB)           // B appears (pushed) — B is top
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostB)
+
+        editor.presentPageSelectionSheet(true)        // user opens picker from B
+        XCTAssertTrue(editor.showPageSelectionSheet)
+
+        // Interactive swipe-back begins and is cancelled: A's onAppear fires again,
+        // but B's onDisappear never does (B never actually left the screen).
+        editor.activatePageSheetHost(hostA)
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostA,
+                       "A is now top, even though B is still what's on screen")
+        XCTAssertFalse(editor.showPageSelectionSheet,
+                       "a host taking over top without the previous one deactivating must close the sheet, " +
+                       "not hand it to a host that never asked for it")
+    }
+
+    /// Continuation: because the steal above already closes the sheet, a third host that
+    /// later becomes top must not inherit anything — no auto-present with no tap.
+    func testStackTopStolenByAnotherHost_laterHostDoesNotInheritTheSheet() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+        let hostC = UUID()
+
+        editor.activatePageSheetHost(hostA)
+        editor.activatePageSheetHost(hostB)
+        editor.presentPageSelectionSheet(true)
+        editor.activatePageSheetHost(hostA)           // cancelled swipe-back, as above — B never deactivates
+
+        // Time passes; user navigates to a totally unrelated host C (e.g. opens a chart detail).
+        editor.activatePageSheetHost(hostC)
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostC)
+        XCTAssertFalse(editor.showPageSelectionSheet,
+                       "the sheet was already closed when A stole the top — C must not auto-present it")
+    }
+
+    /// The documented, intentional counterpart: when the top host deactivates cleanly
+    /// (a real `onDisappear`, not a steal), the sheet must carry over to whatever host
+    /// is left on top — this is `deactivatePageSheetHost`'s "regains automatically" contract.
+    func testHostDeactivating_handsTheOpenSheetToNewTop() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+
+        editor.activatePageSheetHost(hostA)
+        editor.activatePageSheetHost(hostB)
+        editor.presentPageSelectionSheet(true)
+
+        editor.deactivatePageSheetHost(hostB)          // B properly pops — real onDisappear
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostA)
+        XCTAssertTrue(editor.showPageSelectionSheet,
+                      "a clean hand-off must still let the revealed host regain the open sheet")
+    }
+
+    /// Re-activating the host that is already on top (e.g. a spurious duplicate `onAppear`)
+    /// must not be treated as a steal and must not close an open sheet.
+    func testReactivatingTheCurrentTopHost_doesNotCloseTheSheet() {
+        let editor = makeEditor()
+        let hostA = UUID()
+
+        editor.activatePageSheetHost(hostA)
+        editor.presentPageSelectionSheet(true)
+
+        editor.activatePageSheetHost(hostA)            // duplicate onAppear for the same host
+
+        XCTAssertTrue(editor.showPageSelectionSheet, "re-activating the current top host must not close its own sheet")
+    }
+
+    /// A caller can request the sheet before any host has mounted (e.g. right after creating
+    /// the `DocumentEditor`, before `Form` appears on screen). The presenter that eventually
+    /// registers built its `isPresented` binding against an empty stack — `.constant(false)` —
+    /// so becoming top must publish, or that pending request is silently lost forever.
+    func testFirstHostActivating_pendingRequestStillPresents() {
+        let editor = makeEditor()
+        let hostA = UUID()
+
+        editor.presentPageSelectionSheet(true)          // requested before any host exists
+        XCTAssertTrue(editor.pageSheetHostStack.isEmpty)
+
+        editor.activatePageSheetHost(hostA)              // form finally mounts
+
+        XCTAssertEqual(editor.pageSheetHostStack.last, hostA)
+        XCTAssertTrue(editor.showPageSelectionSheet,
+                      "a pending request from before any host existed must survive the first host registering")
+    }
+
+    // MARK: - Host stack: publish-on-write-only
+
+    /// `pageSheetHostStack` is plain storage now, not `@Published` — every push/pop must stop
+    /// re-rendering hosts on its own. The only allowed emission is `showPageSelectionSheet`'s own,
+    /// which fires here because the steal closes it.
+    func testStackTopStolen_emitsOnlyForTheSheetClosing() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+        editor.activatePageSheetHost(hostA)
+        editor.activatePageSheetHost(hostB)
+        editor.presentPageSelectionSheet(true)
+
+        let emissions = countEmissions(on: editor) {
+            editor.activatePageSheetHost(hostA)
+        }
+
+        XCTAssertEqual(emissions, 1, "only showPageSelectionSheet's own publish should fire, not one from the stack mutation")
+    }
+
+    /// Ordinary forward navigation with no sheet open: pushing/popping hosts must be silent.
+    func testHostStackChangesWhileSheetClosed_emitNothing() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+
+        let emissions = countEmissions(on: editor) {
+            editor.activatePageSheetHost(hostA)
+            editor.activatePageSheetHost(hostB)
+            editor.deactivatePageSheetHost(hostB)
+            editor.deactivatePageSheetHost(hostA)
+        }
+
+        XCTAssertEqual(emissions, 0, "with the sheet closed, no host needs to know the stack changed")
+    }
+
+    /// Re-activating the current top host is a no-op for the stack: must not publish.
+    func testReactivatingCurrentTopHost_emitsNothing() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        editor.activatePageSheetHost(hostA)
+        editor.presentPageSelectionSheet(true)
+
+        let emissions = countEmissions(on: editor) {
+            editor.activatePageSheetHost(hostA)
+        }
+
+        XCTAssertEqual(emissions, 0, "re-activating the host that's already on top changes nothing observable")
+    }
+
+    /// The one case `deactivatePageSheetHost` is meant to publish for: a clean hand-off while
+    /// the sheet is open, so the revealed host's `isPresented` binding re-evaluates.
+    func testCleanHandoffWhileSheetOpen_emitsExactlyOnce() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        let hostB = UUID()
+        editor.activatePageSheetHost(hostA)
+        editor.activatePageSheetHost(hostB)
+        editor.presentPageSelectionSheet(true)
+
+        let emissions = countEmissions(on: editor) {
+            editor.deactivatePageSheetHost(hostB)
+        }
+
+        XCTAssertEqual(emissions, 1, "the revealed host needs exactly one publish to pick up the handed-off sheet")
+    }
+
+    /// The other case `activatePageSheetHost` is meant to publish for: the very first host
+    /// registering onto an empty stack while a presentation is already pending.
+    func testFirstHostGainingPendingSheet_emitsExactlyOnce() {
+        let editor = makeEditor()
+        let hostA = UUID()
+        editor.presentPageSelectionSheet(true)
+
+        let emissions = countEmissions(on: editor) {
+            editor.activatePageSheetHost(hostA)
+        }
+
+        XCTAssertEqual(emissions, 1, "the first host to register needs exactly one publish to pick up the pending sheet")
+    }
 }

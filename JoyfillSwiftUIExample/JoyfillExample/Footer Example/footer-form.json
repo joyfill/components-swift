@@ -431,6 +431,19 @@
         }
       },
       "identifier": "field_6a6304d09b40c4f73c013cd8"
+    },
+    {
+      "file": "695e36f283142b6b2f8bf493",
+      "_id": "6ab67e4998498cd826036153",
+      "type": "chart",
+      "title": "Chart",
+      "yTitle": "Vertical",
+      "yMax": 100,
+      "yMin": 0,
+      "xTitle": "Horizontal",
+      "xMax": 100,
+      "xMin": 0,
+      "identifier": "field_6ab67e4998498cd826036153"
     }
   ],
   "_id": "695e36f2ec467a1860e1cac8",
@@ -485,6 +498,17 @@
               "width": 8,
               "height": 36,
               "field": "6a6304d09b40c4f73c013cd8"
+            },
+            {
+              "_id": "6ab67e4996b2901d19aa42ce",
+              "type": "chart",
+              "displayType": "original",
+              "primaryDisplayOnly": true,
+              "x": 0,
+              "y": 36,
+              "width": 4,
+              "height": 27,
+              "field": "6ab67e4998498cd826036153"
             }
           ],
           "layout": "grid",

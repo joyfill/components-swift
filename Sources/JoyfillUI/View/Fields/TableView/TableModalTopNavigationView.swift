@@ -688,7 +688,7 @@ struct EditMultipleRowsSheetView: View {
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
-        .modifier(PageSelectionSheetPresenter(documentEditor: viewModel.tableDataModel.documentEditor))
+        .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
     }
 
 }
