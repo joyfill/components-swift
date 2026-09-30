@@ -44,6 +44,7 @@ struct CollectionScrollOffsetReader: UIViewRepresentable {
     final class ReaderView: UIView {
         let tracker: CollectionStickyScrollTracker
         private var observation: NSKeyValueObservation?
+        private var lastContentSize: CGSize = .zero
 
         init(tracker: CollectionStickyScrollTracker) {
             self.tracker = tracker
@@ -63,10 +64,14 @@ struct CollectionScrollOffsetReader: UIViewRepresentable {
                 let y = scrollView.contentOffset.y + scrollView.adjustedContentInset.top
                 // User scrolls: update now so the header never lags a frame. Layout-driven offset
                 // changes fire inside a SwiftUI update, where publishing is not allowed, so defer those.
-                if scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating {
-                    self?.tracker.update(y)
+                // A content size change means layout moved the offset, even mid-scroll.
+                guard let self else { return }
+                let resized = scrollView.contentSize != self.lastContentSize
+                self.lastContentSize = scrollView.contentSize
+                if !resized && (scrollView.isTracking || scrollView.isDragging || scrollView.isDecelerating) {
+                    self.tracker.update(y)
                 } else {
-                    DispatchQueue.main.async { self?.tracker.update(y) }
+                    DispatchQueue.main.async { [weak self] in self?.tracker.update(y) }
                 }
             }
         }
