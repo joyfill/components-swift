@@ -113,6 +113,8 @@ struct CollectionStickyHeadersView: View {
         let current: Block
         let next: (block: Block, y: CGFloat)?
         let rootWidth: CGFloat
+        /// The boundary after `next`, so a returning parent with one row left hands over on time.
+        var afterNext: (block: Block, y: CGFloat)? = nil
     }
 
     var body: some View {
@@ -153,17 +155,25 @@ struct CollectionStickyHeadersView: View {
     }
 
     /// Next table starting: it rises with its real row and pushes the current header up.
-    /// Current table ending: its header rides up with its last row, revealing the parent beneath.
+    /// Current table ending: the parent replaces it as soon as the parent's row touches the header.
     /// Returned bottom layer first.
     static func placedBlocks(_ layout: Layout, offset: CGFloat) -> [(block: Block, y: CGFloat)] {
         let current = layout.current
         guard let next = layout.next, next.y < offset + current.height else { return [(current, offset)] }
-        let leavingY = min(offset, next.y - current.height)
-        let nextStartsHere = !next.block.isRoot && next.block.key == Int((next.y - firstRowY) / rowHeight)
-        if nextStartsHere {
-            return [(current, leavingY), (next.block, next.y)]
+        if startsHere(next) {
+            return [(current, min(offset, next.y - current.height)), (next.block, next.y)]
         }
-        return [(next.block, offset), (current, leavingY)]
+        // Parent returns; its own next boundary may already be touching it (one row left).
+        guard let after = layout.afterNext, after.y < offset + next.block.height else { return [(next.block, offset)] }
+        if startsHere(after) {
+            return [(next.block, min(offset, after.y - next.block.height)), (after.block, after.y)]
+        }
+        return [(after.block, offset)]
+    }
+
+    /// A nested table whose title row is this boundary row (as opposed to a parent returning).
+    private static func startsHere(_ boundary: (block: Block, y: CGFloat)) -> Bool {
+        !boundary.block.isRoot && boundary.block.key == Int((boundary.y - firstRowY) / rowHeight)
     }
 
     /// Owner lookups walk up the section, so the result is cached per top row and data revision.
@@ -176,22 +186,33 @@ struct CollectionStickyHeadersView: View {
 
         let model = viewModel.tableDataModel
         let rootWidth = viewModel.rowWidth(model.tableColumns, 0, viewModel.rootSchemaKey, tableDataModel: model)
+        let layout = Self.layout(top: top, models: models, rootWidth: rootWidth, hasNestedTables: viewModel.nestedTableCount > 0)
+        tracker.cache = (key, layout)
+        return layout
+    }
+
+    /// Owner of `top` and the next two owner boundaries below it.
+    static func layout(top: Int, models: [RowDataModel], rootWidth: CGFloat, hasNestedTables: Bool) -> Layout {
         var current = Block.root
         var next: (block: Block, y: CGFloat)?
-        if viewModel.nestedTableCount > 0, !models.isEmpty {
-            if top >= 0 { current = Self.owner(of: top, in: models) }
+        var afterNext: (block: Block, y: CGFloat)?
+        if hasNestedTables, !models.isEmpty {
+            if top >= 0 { current = owner(of: top, in: models) }
             // A pinned block spans at most the root header's rows, so look no further than that.
-            let last = min(top + Int(Block.root.height / Self.rowHeight) + 1, models.count - 1)
+            let last = min(top + Int(Block.root.height / rowHeight) + 1, models.count - 1)
             if top + 1 <= last {
                 for i in (top + 1)...last {
-                    let owner = Self.owner(of: i, in: models)
-                    if owner != current { next = (owner, Self.firstRowY + CGFloat(i) * Self.rowHeight); break }
+                    let rowOwner = owner(of: i, in: models)
+                    let y = firstRowY + CGFloat(i) * rowHeight
+                    if let found = next {
+                        if rowOwner != found.block { afterNext = (rowOwner, y); break }
+                    } else if rowOwner != current {
+                        next = (rowOwner, y)
+                    }
                 }
             }
         }
-        let layout = Layout(current: current, next: next, rootWidth: rootWidth)
-        tracker.cache = (key, layout)
-        return layout
+        return Layout(current: current, next: next, rootWidth: rootWidth, afterNext: afterNext)
     }
 
     /// The table a row belongs to. A nested table's title and column rows belong to that table.

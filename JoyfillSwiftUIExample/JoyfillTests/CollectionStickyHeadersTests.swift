@@ -178,19 +178,18 @@ final class CollectionStickyHeadersTests: XCTestCase {
         XCTAssertEqual(placed.first?.y, offset)
     }
 
-    func testLeavingTableSlidesAwayRevealingParentPinned() {
+    func testParentReplacesLeavingTableWhenItsRowTouchesTheHeader() {
         // Depth 3 (key 4) ends; row 7 belongs to Depth 2 (key 1), no header row starts there.
         let current = block(key: 4)
         let next = (block: block(key: 1), y: y(ofRow: 7))
-        let overlap: CGFloat = 25
-        let offset = next.y - current.height + overlap
-        let placed = Sticky.placedBlocks(layout(current, next: next), offset: offset)
+        let justBefore = Sticky.placedBlocks(layout(current, next: next), offset: next.y - current.height)
+        XCTAssertEqual(justBefore.map(\.block.key), [4], "row not touching yet: child still pinned")
 
-        XCTAssertEqual(placed.count, 2)
-        XCTAssertEqual(placed[0].block.key, 1, "parent is the bottom layer")
-        XCTAssertEqual(placed[0].y, offset, "parent already pinned at the top")
-        XCTAssertEqual(placed[1].block.key, 4, "leaving child draws on top")
-        XCTAssertEqual(placed[1].y, next.y - current.height, "child rides up with its last row")
+        let offset = next.y - current.height + 1
+        let placed = Sticky.placedBlocks(layout(current, next: next), offset: offset)
+        XCTAssertEqual(placed.count, 1, "instant swap: the child is not drawn sliding away")
+        XCTAssertEqual(placed[0].block.key, 1)
+        XCTAssertEqual(placed[0].y, offset)
     }
 
     func testLastNestedTableEndingRevealsRoot() {
@@ -199,11 +198,9 @@ final class CollectionStickyHeadersTests: XCTestCase {
         let offset = next.y - current.height + 10
         let placed = Sticky.placedBlocks(layout(current, next: next), offset: offset)
 
-        XCTAssertEqual(placed.count, 2)
+        XCTAssertEqual(placed.count, 1)
         XCTAssertTrue(placed[0].block.isRoot)
         XCTAssertEqual(placed[0].y, offset)
-        XCTAssertEqual(placed[1].block.key, 1)
-        XCTAssertEqual(placed[1].y, next.y - current.height)
     }
 
     func testEmptyNestedTableEndingRevealsRoot() {
@@ -213,10 +210,9 @@ final class CollectionStickyHeadersTests: XCTestCase {
         let offset = next.y - current.height + 30
         let placed = Sticky.placedBlocks(layout(current, next: next), offset: offset)
 
-        XCTAssertEqual(placed.count, 2)
+        XCTAssertEqual(placed.count, 1, "root replaces the empty table")
         XCTAssertTrue(placed[0].block.isRoot)
-        XCTAssertEqual(placed[1].block.key, 1)
-        XCTAssertEqual(placed[1].y, next.y - current.height, "slides out with its column row")
+        XCTAssertEqual(placed[0].y, offset)
     }
 
     // MARK: - cornerRadius(y:offset:)
@@ -313,7 +309,75 @@ final class CollectionStickyHeadersTests: XCTestCase {
         // D4 ending into D3: D3 is revealed underneath.
         let layout = self.layout(Sticky.owner(of: 9, in: models), next: (Sticky.owner(of: 10, in: models), y(ofRow: 10)))
         let placed = Sticky.placedBlocks(layout, offset: y(ofRow: 9) + 10)
-        XCTAssertEqual(placed.map(\.block.key), [4, 7], "parent D3 below, leaving D4 on top")
+        XCTAssertEqual(placed.map(\.block.key), [4], "parent D3 replaces leaving D4")
+    }
+
+    // MARK: - Composed layout(top:) + placedBlocks
+
+    /// nestedGrid() plus extra root rows so every handoff is reachable by scrolling.
+    private func scrollableNestedGrid() -> [RowDataModel] {
+        nestedGrid() + (2...6).map { row(.row(index: $0)) }
+    }
+
+    private func placed(at offset: CGFloat, in models: [RowDataModel]) -> [(block: Sticky.Block, y: CGFloat)] {
+        let top = min(Int((offset - Sticky.firstRowY) / rowH), models.count - 1)
+        let layout = Sticky.layout(top: top, models: models, rootWidth: 600, hasNestedTables: true)
+        return Sticky.placedBlocks(layout, offset: offset)
+    }
+
+    func testReturningParentWithOneRowLeftHandsOverWithoutJump() {
+        // Review case: Depth 3 row at 6, one Depth 2 row at 7, root row at 8.
+        let models = scrollableNestedGrid()
+        let d2Touches = y(ofRow: 7) - 2 * rowH
+        let rootTouches = y(ofRow: 8) - 2 * rowH
+        XCTAssertEqual(placed(at: d2Touches + 1, in: models).map(\.block.key), [1], "Depth 2 row touched: Depth 2 pinned")
+        XCTAssertEqual(placed(at: rootTouches + 1, in: models).map(\.block.key), [-1], "root row touched: root pinned")
+        for offset in [rootTouches + 1, y(ofRow: 7) - 0.1, y(ofRow: 7), y(ofRow: 7) + 1] {
+            let blocks = placed(at: offset, in: models)
+            XCTAssertEqual(blocks.map(\.block.key), [-1], "offset \(offset)")
+            XCTAssertEqual(blocks.first?.y, offset, "root stays pinned at the top, no jump")
+        }
+    }
+
+    func testReturningParentIsPushedByTheNextTableStarting() {
+        // Depth 3 ends into one Depth 2 row, then a sibling Depth 3 table starts.
+        let models = [
+            row(.row(index: 0)),
+            row(.tableExpander(level: 0), width: 460), row(.header(level: 1, tableColumns: [], schemaKey: "d2"), width: 500),
+            row(.nestedRow(level: 1, index: 0)),
+            row(.tableExpander(level: 1), width: 500), row(.header(level: 2, tableColumns: [], schemaKey: "d3"), width: 540),
+            row(.nestedRow(level: 2, index: 0)),
+            row(.nestedRow(level: 1, index: 1)),
+            row(.tableExpander(level: 1), width: 500), row(.header(level: 2, tableColumns: [], schemaKey: "d3b"), width: 540),
+            row(.nestedRow(level: 2, index: 0)),
+            row(.row(index: 1)),
+        ]
+        let offset = y(ofRow: 8) - 2 * rowH + 20
+        let blocks = placed(at: offset, in: models)
+        XCTAssertEqual(blocks.map(\.block.key), [1, 8], "Depth 2 pushed up, sibling Depth 3 arriving")
+        XCTAssertEqual(blocks[0].y, offset - 20, "pushed by exactly the overlap")
+        XCTAssertEqual(blocks[1].y, y(ofRow: 8))
+    }
+
+    func testPinnedHeadersNeverJumpWhileScrolling() {
+        let step: CGFloat = 0.5
+        let grids = [scrollableNestedGrid(), emptyNestedGrid() + [row(.row(index: 2))],
+                     siblingGrid() + [row(.row(index: 2))], fourLevelGrid() + [row(.row(index: 2))]]
+        for models in grids {
+            var previous: [Int: CGFloat] = [:]
+            var offset = Sticky.firstRowY
+            let end = Sticky.firstRowY + CGFloat(models.count - 1) * rowH
+            while offset <= end {
+                let current = Dictionary(placed(at: offset, in: models).map { ($0.block.key, $0.y) }, uniquingKeysWith: { a, _ in a })
+                for (key, y) in current {
+                    if let prev = previous[key] {
+                        XCTAssertLessThanOrEqual(abs(y - prev), step + 0.001, "block \(key) jumped at offset \(offset)")
+                    }
+                }
+                previous = current
+                offset += step
+            }
+        }
     }
 
     // MARK: - CollectionStickyScrollTracker.update
