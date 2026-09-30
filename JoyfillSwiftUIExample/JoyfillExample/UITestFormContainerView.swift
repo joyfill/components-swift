@@ -125,6 +125,7 @@ struct UITestFormContainerView: View {
                     self.uploadReceived = didUpload
                     self.onChangeFlag = didChange
                 }
+                handler.documentEditor = documentEditor
             }
             triggerGotoFromLaunchArgumentsIfNeeded()
         }
@@ -152,6 +153,7 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     var didReceiveChange = false
     var didReceiveUploadEvent = false
     var uploadCallback: ((Bool, Bool) -> Void)?
+    weak var documentEditor: DocumentEditor?
     private var focusBlurEvents: [[String: Any]] = []
     
     init(setResult: @escaping (String) -> Void, setUploadResult: @escaping (String) -> Void, setFocusBlurResult: @escaping (String) -> Void) {
@@ -265,8 +267,31 @@ class UITestFormContainerViewHandler: FormChangeEvent {
     }()
     
     func onCapture(event: CaptureEvent) {
-        event.captureHandler(.string("Scan Button Clicked"))
+        guard let move = Self.captureRowMove, let editor = documentEditor else {
+            event.captureHandler(.string("Scan Button Clicked"))
+            return
+        }
+        // --capture-move-row: a rowMove lands while the capture is pending, then the result arrives.
+        let field = event.fieldEvent
+        let change = Change(v: 1, sdk: "swift", target: "field.value.rowMove",
+                            _id: editor.documentID ?? "", identifier: editor.documentIdentifier,
+                            fileId: field.fileID ?? "", pageId: field.pageID ?? "",
+                            fieldId: field.fieldID, fieldIdentifier: field.fieldIdentifier,
+                            fieldPositionId: field.fieldPositionId ?? "",
+                            change: ["rowId": move.rowId, "targetRowIndex": move.targetIndex],
+                            createdOn: Date().timeIntervalSince1970)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { editor.change(changes: [change]) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { event.captureHandler(.string("Scan Button Clicked")) }
     }
+
+    /// `--capture-move-row <rowId>:<targetIndex>`: row to move while a capture is pending.
+    private static let captureRowMove: (rowId: String, targetIndex: Int)? = {
+        let args = CommandLine.arguments
+        guard let i = args.firstIndex(of: "--capture-move-row"), i + 1 < args.count else { return nil }
+        let parts = args[i + 1].split(separator: ":")
+        guard parts.count == 2, let target = Int(parts[1]) else { return nil }
+        return (String(parts[0]), target)
+    }()
     func onError(error: JoyfillError) {}
 
 }

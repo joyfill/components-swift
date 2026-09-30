@@ -15,6 +15,12 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         return "Joydocjson"
     }
     
+    override func getGotoLaunchArguments() -> [(String, String?)] {
+        // Move row "His" to index 0 while a barcode capture is pending.
+        name.contains("testBarcodeCaptureAfterRowMoveUpdatesOriginatingRow")
+            ? [("--capture-move-row", "6805b69adee7f8251d2cd79f:0")] : []
+    }
+
     override func setUpWithError() throws {
         try super.setUpWithError()
         // Give the app a moment to fully launch before resetting state
@@ -670,6 +676,25 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         
     }
     
+    /// PR #386 review: a capture that completes after its row was moved must still update that row.
+    func testBarcodeCaptureAfterRowMoveUpdatesOriginatingRow() throws {
+        goToCollectionDetailField()
+
+        // Scan row 1 ("Hello"); the app then moves "His" to index 0 before the result arrives.
+        let scanButton = try XCTUnwrap(app.swipeToFindElement(identifier: "TableScanButtonIdentifier", type: .image, direction: "left", index: 0, maxAttempts: 10),
+                                       "Barcode scan button not found")
+        scanButton.tap()
+
+        let rowUpdated = waitUntil(5) { self.onChangeOptionalResult()?.target == "field.value.rowUpdate" }
+        XCTAssertTrue(rowUpdated, "Capture result never produced a row update")
+
+        let change = try XCTUnwrap(onChangeResult().change)
+        XCTAssertEqual("6805b69956590b01f3ef990d", change["rowId"] as? String, "Capture must update the row it started on")
+        let row = try XCTUnwrap(change["row"] as? [String: Any])
+        let cells = try XCTUnwrap(row["cells"] as? [String: Any])
+        XCTAssertEqual("Scan Button Clicked", cells["6805b7a813ea45f5b681dec1"] as? String)
+    }
+
     func testMoveDownRow() {
         goToCollectionDetailField()
         selectRow(number: 1)
