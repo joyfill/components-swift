@@ -96,7 +96,8 @@ struct SimpleNavigationTestView: View {
                         .textFieldStyle(.roundedBorder)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
-                    
+                        .accessibilityIdentifier("NavigationManualPathField")
+
                     Button(action: {
                         guard !manualPath.isEmpty else { return }
                         let status = documentEditor.goto(manualPath, gotoConfig: GotoConfig(open: openModal, focus: focusField))
@@ -115,6 +116,7 @@ struct SimpleNavigationTestView: View {
                     .background(manualPath.isEmpty ? Color.gray : Color.blue)
                     .cornerRadius(8)
                     .disabled(manualPath.isEmpty)
+                    .accessibilityIdentifier("NavigationManualPathGoButton")
                 }
                 
                 HStack {
