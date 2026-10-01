@@ -13,7 +13,7 @@ final class NavigationGotoScrollUITests: XCTestCase {
     private let collectionPageId = "69709dc281b4c8ab68c4db52"
     private let collectionFieldPositionId = "6970a3eceab9374076e43a0b"
     private let collectionLastRowId = "6abe2602448499a6a5483012"
-    private let collectionLastRowIndex = 37
+    private let collectionLastRowIndex = 38
 
     // Navigation.json table (page / fieldPosition) and its 38th row (40 rows baked in).
     private let tablePageId = "69709dc281b4c8ab68c4db52"
