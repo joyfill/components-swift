@@ -74,7 +74,7 @@ final class NavigationGotoScrollUITests: XCTestCase {
         dismissButton.tap()
 
         let selectedRowCell = app.images["selectRowItem\(collectionLastRowIndex)"]
-        XCTAssertTrue(waitUntil(5) { selectedRowCell.exists},
+        XCTAssertTrue(waitUntil(5) { selectedRowCell.exists && selectedRowCell.isHittable },
                       "Collection did not scroll down to the selected row after goto")
     }
 
@@ -96,7 +96,7 @@ final class NavigationGotoScrollUITests: XCTestCase {
 
         // Table rows have no per-row identifier; the row-number column shows index+1 as a staticText.
         let selectedRowNumber = app.staticTexts["\(tableLastRowNumber)"]
-        XCTAssertTrue(waitUntil(5) { selectedRowNumber.exists },
+        XCTAssertTrue(waitUntil(5) { selectedRowNumber.exists && selectedRowNumber.isHittable },
                       "Table did not scroll down to the selected row after goto")
     }
 
