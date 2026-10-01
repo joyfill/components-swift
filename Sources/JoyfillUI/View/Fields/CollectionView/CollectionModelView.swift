@@ -288,17 +288,17 @@ struct CollectionModalView : View {
                 .onAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
                         cellProxy.scrollTo(0, anchor: .leading)
-                    })
-                    let selectedRows = viewModel.tableDataModel.selectedRows
-                    if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            cellProxy.scrollTo(selectedRowID, anchor: .leading)
-                        }
-                        // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
+                        let selectedRows = viewModel.tableDataModel.selectedRows
+                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
+                            }
+                            // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
 //                        if let columnId = viewModel.tableDataModel.scrollToColumnId {
 //                            cellProxy.scrollTo(columnId, anchor: .leading)
 //                        }
-                    }
+                        }
+                    })
                 }
                 .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
                     // Scroll to keep selected row in view when navigating with arrows
