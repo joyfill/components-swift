@@ -83,38 +83,42 @@ struct CollectionFilterModal: View {
                 .padding(.horizontal, 16)
                 
                 VStack(alignment: .leading, spacing: 12) {
-                    Menu {
-                        ForEach(viewModel.getOrderedSchemaKeys(), id: \.self) { key in
-                            Button(action: {
-                                selectedSchemaKey = key
-                                clearAllFilters()
-                                refreshID = UUID()
-                            }) {
-                                Text(viewModel.tableDataModel.schema[key]?.title ?? "")
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(selectedSchemaKey.isEmpty ? "Select schema type" : getSelectedSchemaTitle())
-                                .font(.system(size: 14))
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 12))
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 8)
-                        .background(colorScheme == .dark ? Color.gray.opacity(0.15) : Color.gray.opacity(0.08))
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                        )
+                    HStack {
+                        Text(selectedSchemaKey.isEmpty ? "Select schema type" : getSelectedSchemaTitle())
+                            .font(.system(size: 14))
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
                     }
-                    .accessibilityIdentifier("SelectSchemaTypeIDentifier")
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
+                    .background(Color.searchFieldBackground)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    )
+                    .overlay(
+                        Menu {
+                            ForEach(viewModel.getOrderedSchemaKeys(), id: \.self) { key in
+                                Button(action: {
+                                    selectedSchemaKey = key
+                                    clearAllFilters()
+                                    refreshID = UUID()
+                                }) {
+                                    Text(viewModel.tableDataModel.schema[key]?.title ?? "")
+                                }
+                            }
+                        } label: {
+                            Color.clear
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityIdentifier("SelectSchemaTypeIDentifier")
+                    )
                     if !selectedSchemaKey.isEmpty {
                         sortingView
                         VStack(alignment: .leading) {
@@ -176,35 +180,39 @@ struct CollectionFilterModal: View {
                     .darkLightThemeColor()
                    
                 HStack {
-                    Menu {
-                        let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
-                        ForEach(columns, id: \.id) { column in
-                            Button("\(column.title)") {
-                                selectedSortedColumnID = column.id ?? ""
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text(selectedSortedColumnID.isEmpty ? "Select column type" : getSelectedSortedColumnTitle())
-                                .font(.system(size: 14))
-                                .foregroundColor(.primary)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 12))
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 8)
-                        .background(colorScheme == .dark ? Color.gray.opacity(0.15) : Color.gray.opacity(0.08))
-                        .cornerRadius(8)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                        )
+                    HStack {
+                        Text(selectedSortedColumnID.isEmpty ? "Select column type" : getSelectedSortedColumnTitle())
+                            .font(.system(size: 14))
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
                     }
-                    .accessibilityIdentifier("CollectionSortColumnSelectorIdentifier")
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
+                    .background(Color.searchFieldBackground)
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                    )
+                    .overlay(
+                        Menu {
+                            let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
+                            ForEach(columns, id: \.id) { column in
+                                Button("\(column.title)") {
+                                    selectedSortedColumnID = column.id ?? ""
+                                }
+                            }
+                        } label: {
+                            Color.clear
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityIdentifier("CollectionSortColumnSelectorIdentifier")
+                    )
                     
                     Button(action: {
                         order.next()
@@ -220,7 +228,7 @@ struct CollectionFilterModal: View {
                     })
                     .padding(.horizontal, 8)
                     .padding(.vertical, 8)
-                    .background(colorScheme == .dark ? Color.gray.opacity(0.15) : Color.gray.opacity(0.08))
+                    .background(Color.searchFieldBackground)
                     .cornerRadius(4)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
@@ -325,7 +333,6 @@ struct FilteringView: View {
     @Binding var selectedSchemaKey: String
     @State var currentSelectedFilterColumnID: String
     var selectedFilterColumnID: [String]
-    @Environment(\.colorScheme) var colorScheme
     @Binding var totalFiltersCount: Int
     @Binding var refreshID: UUID
     @Binding var collectionFilterModels: [FilterModel]
@@ -336,44 +343,48 @@ struct FilteringView: View {
                 Text("Filter")
                     .font(.system(size: 15, weight: .bold))
                 
-                Menu {
-                    let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
-                        .filter { column in
-                            if let id = column.id {
-                                return !selectedFilterColumnID.contains(id)
-                            }
-                            return false
-                        }
-                    ForEach(columns, id: \.id) { column in
-                        Button("\(column.title)") {
-                            if !currentSelectedFilterColumnID.isEmpty {
-                                clearFilterForColumn(columnID: currentSelectedFilterColumnID, changeFilterCount: false)
-                            }
-                            currentSelectedFilterColumnID = column.id ?? ""
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Text(currentSelectedFilterColumnID.isEmpty ? "Select column type" : getSelectedFilteredColumnTitle(columnID: currentSelectedFilterColumnID))
-                            .font(.system(size: 14))
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 8)
-                    .background(colorScheme == .dark ? Color.gray.opacity(0.15) : Color.gray.opacity(0.08))
-                    .cornerRadius(8)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                    )
+                HStack {
+                    Text(currentSelectedFilterColumnID.isEmpty ? "Select column type" : getSelectedFilteredColumnTitle(columnID: currentSelectedFilterColumnID))
+                        .font(.system(size: 14))
+                        .foregroundColor(.primary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12))
+                        .foregroundColor(.gray)
                 }
-                .accessibilityIdentifier("CollectionFilterColumnSelectorIdentifier")
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
+                .background(Color.searchFieldBackground)
+                .cornerRadius(8)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
+                .overlay(
+                    Menu {
+                        let columns = viewModel.getFilteredColumns(for: selectedSchemaKey)
+                            .filter { column in
+                                if let id = column.id {
+                                    return !selectedFilterColumnID.contains(id)
+                                }
+                                return false
+                            }
+                        ForEach(columns, id: \.id) { column in
+                            Button("\(column.title)") {
+                                if !currentSelectedFilterColumnID.isEmpty {
+                                    clearFilterForColumn(columnID: currentSelectedFilterColumnID, changeFilterCount: false)
+                                }
+                                currentSelectedFilterColumnID = column.id ?? ""
+                            }
+                        }
+                    } label: {
+                        Color.clear
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityIdentifier("CollectionFilterColumnSelectorIdentifier")
+                )
                 if let index = collectionFilterModels.firstIndex(where: { $0.colID == currentSelectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
                     if let column = getSelectedColumn(columnID: currentSelectedFilterColumnID) {
                         CollectionSearchBar(
