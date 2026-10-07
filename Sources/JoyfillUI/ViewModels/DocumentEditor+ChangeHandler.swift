@@ -1449,6 +1449,60 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
+    /// Builds one standardized v2 bulk event from a batch of per-row changes. Returns `nil` unless it's a multi-row `rowUpdate`/`rowDelete`.
+    /// `bulkRowUpdate` → `{ rows: [rowId], columns: [{ id, value }] }`; `bulkRowDelete` → `{ rows: [{ _id, cells }] }`.
+    public static func makeBulkChange(from changes: [Change]) -> Change? {
+        guard changes.count > 1, let first = changes.first, let target = first.target,
+              target == "field.value.rowUpdate" || target == "field.value.rowDelete" else {
+            return nil
+        }  
+        
+        let parentPath = first.change?["parentPath"] as? String
+        let schemaId = first.change?["schemaId"] as? String
+        guard changes.allSatisfy({
+            $0.target == target
+            && $0.fieldId == first.fieldId
+            && ($0.change?["parentPath"] as? String) == parentPath
+            && ($0.change?["schemaId"] as? String) == schemaId
+        }) else {
+            return nil
+        }
+        var change: [String: Any]
+        if target == "field.value.rowUpdate" {
+            let cells = (first.change?["row"] as? [String: Any])?["cells"] as? [String: Any] ?? [:]
+            let allRowsIdentical = changes.allSatisfy { ch in
+                let row = ch.change?["row"] as? [String: Any] ?? [:]
+                let rowCells = row["cells"] as? [String: Any] ?? [:]
+                let hasExtraContext = row["tz"] != nil || row["metadata"] != nil
+                return !hasExtraContext && NSDictionary(dictionary: rowCells).isEqual(to: cells)
+            }
+            guard allRowsIdentical else { return nil }
+            change = [
+                "rows": changes.compactMap { $0.change?["rowId"] as? String },
+                "columns": cells.map { ["id": $0.key, "value": $0.value] }
+            ]
+        } else {
+            let rows = changes.compactMap { $0.change?["row"] as? [String: Any] }
+            guard rows.count == changes.count,
+                  rows.allSatisfy({ ($0["_id"] as? String)?.isEmpty == false }) else { return nil }
+            change = ["rows": rows]
+        }
+        if let parentPath { change["parentPath"] = parentPath }
+        if let schemaId { change["schemaId"] = schemaId }
+        return Change(v: 2,
+                      sdk: "swift",
+                      target: target == "field.value.rowUpdate" ? "field.value.bulkRowUpdate" : "field.value.bulkRowDelete",
+                      _id: first.id ?? "",
+                      identifier: first.identifier,
+                      fileId: first.fileId ?? "",
+                      pageId: first.pageId ?? "",
+                      fieldId: first.fieldId ?? "",
+                      fieldIdentifier: first.fieldIdentifier,
+                      fieldPositionId: first.fieldPositionId ?? "",
+                      change: change,
+                      createdOn: Date().timeIntervalSince1970)
+    }
+
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
         
