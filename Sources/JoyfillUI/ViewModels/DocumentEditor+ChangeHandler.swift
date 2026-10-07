@@ -1455,7 +1455,7 @@ extension DocumentEditor {
         guard changes.count > 1, let first = changes.first, let target = first.target,
               target == "field.value.rowUpdate" || target == "field.value.rowDelete" else {
             return nil
-        }
+        }  
         
         let parentPath = first.change?["parentPath"] as? String
         let schemaId = first.change?["schemaId"] as? String
@@ -1470,6 +1470,13 @@ extension DocumentEditor {
         var change: [String: Any]
         if target == "field.value.rowUpdate" {
             let cells = (first.change?["row"] as? [String: Any])?["cells"] as? [String: Any] ?? [:]
+            let allRowsIdentical = changes.allSatisfy { ch in
+                let row = ch.change?["row"] as? [String: Any] ?? [:]
+                let rowCells = row["cells"] as? [String: Any] ?? [:]
+                let hasExtraContext = row["tz"] != nil || row["metadata"] != nil
+                return !hasExtraContext && NSDictionary(dictionary: rowCells).isEqual(to: cells)
+            }
+            guard allRowsIdentical else { return nil }
             change = [
                 "rows": changes.compactMap { $0.change?["rowId"] as? String },
                 "columns": cells.map { ["id": $0.key, "value": $0.value] }

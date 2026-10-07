@@ -1020,7 +1020,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testMakeBulkChange_UpdateEnvelope() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
-            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"])
         ]
         let bulk = DocumentEditor.makeBulkChange(from: changes)
         XCTAssertNotNil(bulk)
@@ -1040,17 +1040,17 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testMakeBulkChange_UpdateRowsAreOrderedStrings() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
-            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"]),
-            bulkRowUpdateChange(rowId: "r3", cells: ["c1": "c"])
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r3", cells: ["c1": "a"])
         ]
         let rows = DocumentEditor.makeBulkChange(from: changes)?.change?["rows"] as? [String]
         XCTAssertEqual(rows, ["r1", "r2", "r3"])
     }
 
-    func testMakeBulkChange_UpdateColumnsFromFirstRowCells() {
+    func testMakeBulkChange_UpdateColumnsReflectUniformCells() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a", "c2": "x"]),
-            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a", "c2": "x"])
         ]
         let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
         XCTAssertEqual(columns.count, 2)
@@ -1062,7 +1062,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testMakeBulkChange_UpdateColumnValueTypeFidelity() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["str": "s", "num": 42, "bool": true]),
-            bulkRowUpdateChange(rowId: "r2", cells: ["str": "t"])
+            bulkRowUpdateChange(rowId: "r2", cells: ["str": "s", "num": 42, "bool": true])
         ]
         let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
         func value(_ id: String) -> Any? { columns.first { $0["id"] as? String == id }?["value"] }
@@ -1074,7 +1074,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testMakeBulkChange_UpdateNoParentPathOrSchemaId() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
-            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"])
         ]
         let bulk = DocumentEditor.makeBulkChange(from: changes)
         XCTAssertNil(bulk?.change?["parentPath"])
@@ -1119,7 +1119,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testMakeBulkChange_NestedUpdateCarriesParentPathAndSchemaId() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
-            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"], parentPath: "p.0", schemaId: "sch1")
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1")
         ]
         let bulk = DocumentEditor.makeBulkChange(from: changes)
         XCTAssertEqual(bulk?.target, "field.value.bulkRowUpdate")
@@ -1165,6 +1165,33 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         dict["fieldId"] = "field2"
         let changes = [c1, Change(dictionary: dict)]
         XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateDivergentCellsReturnsNil() {
+        // The flat {rows, columns} shape cannot represent per-row values,
+        // so a batch whose rows carry different cell values must not consolidate.
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateWithPerRowTzReturnsNil() {
+        // Per-row tz/metadata (date columns) have no slot in the flat bulk shape.
+        func tzChange(rowId: String) -> Change {
+            Change(dictionary: [
+                "v": 1, "sdk": "swift", "target": "field.value.rowUpdate", "_id": "doc1",
+                "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+                "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+                "change": [
+                    "rowId": rowId,
+                    "row": ["_id": rowId, "cells": ["c1": "a"], "tz": "America/New_York"]
+                ],
+                "createdOn": 1.0
+            ])
+        }
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [tzChange(rowId: "r1"), tzChange(rowId: "r2")]))
     }
 }
 // MARK: - Collection (Nested Table) Tests
