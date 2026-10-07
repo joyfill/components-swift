@@ -11,7 +11,6 @@ import JoyfillModel
 struct CollectionFilterModal: View {
     @Environment(\.presentationMode) var presentationMode
     @ObservedObject var viewModel: CollectionViewModel
-    @Environment(\.colorScheme) var colorScheme
     @State var selectedSchemaKey: String = ""
     @State var selectedSortedColumnID: String = ""
     @State var order: SortOder = .none
@@ -228,7 +227,7 @@ struct CollectionFilterModal: View {
                                 .foregroundColor(getIconColor())
                         }
                         .font(.system(size: 14))
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                     })
                     .padding(.horizontal, 8)
                     .padding(.vertical, 8)
@@ -271,7 +270,7 @@ struct CollectionFilterModal: View {
     func getIconColor() -> Color {
         switch order {
         case .none:
-            return colorScheme == .dark ? .white : .black
+            return .primary
         case .ascending, .descending:
             return .blue
         }
