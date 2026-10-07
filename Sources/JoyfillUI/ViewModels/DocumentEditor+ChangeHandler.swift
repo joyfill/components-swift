@@ -1456,6 +1456,17 @@ extension DocumentEditor {
               target == "field.value.rowUpdate" || target == "field.value.rowDelete" else {
             return nil
         }
+        
+        let parentPath = first.change?["parentPath"] as? String
+        let schemaId = first.change?["schemaId"] as? String
+        guard changes.allSatisfy({
+            $0.target == target
+            && $0.fieldId == first.fieldId
+            && ($0.change?["parentPath"] as? String) == parentPath
+            && ($0.change?["schemaId"] as? String) == schemaId
+        }) else {
+            return nil
+        }
         var change: [String: Any]
         if target == "field.value.rowUpdate" {
             let cells = (first.change?["row"] as? [String: Any])?["cells"] as? [String: Any] ?? [:]
@@ -1466,8 +1477,8 @@ extension DocumentEditor {
         } else {
             change = ["rows": changes.compactMap { $0.change?["row"] }]
         }
-        if let parentPath = first.change?["parentPath"] { change["parentPath"] = parentPath }
-        if let schemaId = first.change?["schemaId"] { change["schemaId"] = schemaId }
+        if let parentPath { change["parentPath"] = parentPath }
+        if let schemaId { change["schemaId"] = schemaId }
         return Change(v: 2,
                       sdk: "swift",
                       target: target == "field.value.rowUpdate" ? "field.value.bulkRowUpdate" : "field.value.bulkRowDelete",

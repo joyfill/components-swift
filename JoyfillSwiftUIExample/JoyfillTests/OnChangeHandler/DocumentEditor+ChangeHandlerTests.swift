@@ -1141,24 +1141,30 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertNil(bulk?.change?["columns"])
     }
 
-    func testMakeBulkChange_NestedPassthroughReadsFromFirstChange() {
+    func testMakeBulkChange_MismatchedParentPathReturnsNil() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
             bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
         ]
-        let bulk = DocumentEditor.makeBulkChange(from: changes)
-        XCTAssertEqual(bulk?.change?["parentPath"] as? String, "p.0")
-        XCTAssertEqual(bulk?.change?["schemaId"] as? String, "sch1")
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
     }
 
     // MARK: - makeBulkChange: Edge cases
 
-    func testMakeBulkChange_MixedTargetsKeyOffFirst() {
+    func testMakeBulkChange_MixedTargetsReturnsNil() {
         let changes = [
             bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
             bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
         ]
-        XCTAssertEqual(DocumentEditor.makeBulkChange(from: changes)?.target, "field.value.bulkRowUpdate")
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_MixedFieldIdReturnsNil() {
+        let c1 = bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"])
+        var dict = bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"]).dictionary
+        dict["fieldId"] = "field2"
+        let changes = [c1, Change(dictionary: dict)]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
     }
 }
 // MARK: - Collection (Nested Table) Tests
