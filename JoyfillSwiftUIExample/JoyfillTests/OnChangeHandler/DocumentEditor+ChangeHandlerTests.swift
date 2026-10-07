@@ -934,6 +934,232 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertEqual(row?[0].cells?["67612793b5f860ae8d6a4ae6"]?.text, "67612793a4c7301ba4da1d69")
         XCTAssertEqual(row?[0].cells?["67612793c76286eb2763c366"]?.number, 1712385780000)
     }
+
+    // MARK: - makeBulkChange Builders
+
+    private func bulkRowUpdateChange(
+        rowId: String,
+        cells: [String: Any],
+        parentPath: String? = nil,
+        schemaId: String? = nil
+    ) -> Change {
+        var change: [String: Any] = [
+            "rowId": rowId,
+            "row": ["_id": rowId, "cells": cells]
+        ]
+        if let parentPath { change["parentPath"] = parentPath }
+        if let schemaId { change["schemaId"] = schemaId }
+        return Change(dictionary: [
+            "v": 1, "sdk": "swift", "target": "field.value.rowUpdate", "_id": "doc1",
+            "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+            "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+            "change": change, "createdOn": 1.0
+        ])
+    }
+
+    private func bulkRowDeleteChange(
+        rowId: String,
+        cells: [String: Any],
+        parentPath: String? = nil,
+        schemaId: String? = nil
+    ) -> Change {
+        var change: [String: Any] = [
+            "rowId": rowId,
+            "row": ["_id": rowId, "cells": cells]
+        ]
+        if let parentPath { change["parentPath"] = parentPath }
+        if let schemaId { change["schemaId"] = schemaId }
+        return Change(dictionary: [
+            "v": 1, "sdk": "swift", "target": "field.value.rowDelete", "_id": "doc1",
+            "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+            "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+            "change": change, "createdOn": 1.0
+        ])
+    }
+
+    private func bulkChange(target: String) -> Change {
+        Change(dictionary: [
+            "v": 1, "sdk": "swift", "target": target, "_id": "doc1",
+            "fileId": "file1", "pageId": "page1", "fieldId": "field1",
+            "change": ["rowId": "r1", "row": ["_id": "r1", "cells": [:] as [String: Any]]],
+            "createdOn": 1.0
+        ])
+    }
+
+    // MARK: - makeBulkChange: Returns nil
+
+    func testMakeBulkChange_EmptyArrayReturnsNil() {
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: []))
+    }
+
+    func testMakeBulkChange_SingleRowUpdateReturnsNil() {
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"])]))
+    }
+
+    func testMakeBulkChange_SingleRowDeleteReturnsNil() {
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"])]))
+    }
+
+    func testMakeBulkChange_MultiRowCreateReturnsNil() {
+        let changes = [bulkChange(target: "field.value.rowCreate"), bulkChange(target: "field.value.rowCreate")]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_MultiRowMoveReturnsNil() {
+        let changes = [bulkChange(target: "field.value.rowMove"), bulkChange(target: "field.value.rowMove")]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_NilTargetReturnsNil() {
+        let c = Change(dictionary: ["v": 1, "sdk": "swift", "change": [:] as [String: Any]])
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [c, c]))
+    }
+
+    // MARK: - makeBulkChange: Bulk update
+
+    func testMakeBulkChange_UpdateEnvelope() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertNotNil(bulk)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowUpdate")
+        XCTAssertEqual(bulk?.v, 2)
+        XCTAssertEqual(bulk?.sdk, "swift")
+        XCTAssertEqual(bulk?.id, "doc1")
+        XCTAssertEqual(bulk?.identifier, "doc_ident")
+        XCTAssertEqual(bulk?.fileId, "file1")
+        XCTAssertEqual(bulk?.pageId, "page1")
+        XCTAssertEqual(bulk?.fieldId, "field1")
+        XCTAssertEqual(bulk?.fieldIdentifier, "field_ident")
+        XCTAssertEqual(bulk?.fieldPositionId, "pos1")
+        XCTAssertNotNil(bulk?.createdOn)
+    }
+
+    func testMakeBulkChange_UpdateRowsAreOrderedStrings() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"]),
+            bulkRowUpdateChange(rowId: "r3", cells: ["c1": "c"])
+        ]
+        let rows = DocumentEditor.makeBulkChange(from: changes)?.change?["rows"] as? [String]
+        XCTAssertEqual(rows, ["r1", "r2", "r3"])
+    }
+
+    func testMakeBulkChange_UpdateColumnsFromFirstRowCells() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a", "c2": "x"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        XCTAssertEqual(columns.count, 2)
+        func value(_ id: String) -> Any? { columns.first { $0["id"] as? String == id }?["value"] }
+        XCTAssertEqual(value("c1") as? String, "a")
+        XCTAssertEqual(value("c2") as? String, "x")
+    }
+
+    func testMakeBulkChange_UpdateColumnValueTypeFidelity() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["str": "s", "num": 42, "bool": true]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["str": "t"])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        func value(_ id: String) -> Any? { columns.first { $0["id"] as? String == id }?["value"] }
+        XCTAssertEqual(value("str") as? String, "s")
+        XCTAssertEqual(value("num") as? Int, 42)
+        XCTAssertEqual(value("bool") as? Bool, true)
+    }
+
+    func testMakeBulkChange_UpdateNoParentPathOrSchemaId() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertNil(bulk?.change?["parentPath"])
+        XCTAssertNil(bulk?.change?["schemaId"])
+    }
+
+    func testMakeBulkChange_UpdateEmptyCellsGivesEmptyColumns() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: [:]),
+            bulkRowUpdateChange(rowId: "r2", cells: [:])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]]
+        XCTAssertEqual(columns?.count, 0)
+    }
+
+    // MARK: - makeBulkChange: Bulk delete
+
+    func testMakeBulkChange_DeleteTargetAndRowsAreObjects() {
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowDelete")
+        let rows = bulk?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 2)
+        XCTAssertEqual(rows?[0]["_id"] as? String, "r1")
+        XCTAssertEqual(rows?[1]["_id"] as? String, "r2")
+        XCTAssertNotNil(rows?[0]["cells"])
+    }
+
+    func testMakeBulkChange_DeleteHasNoColumns() {
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes)?.change?["columns"])
+    }
+
+    // MARK: - makeBulkChange: Nested collection
+
+    func testMakeBulkChange_NestedUpdateCarriesParentPathAndSchemaId() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"], parentPath: "p.0", schemaId: "sch1")
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowUpdate")
+        XCTAssertEqual(bulk?.change?["parentPath"] as? String, "p.0")
+        XCTAssertEqual(bulk?.change?["schemaId"] as? String, "sch1")
+        XCTAssertEqual(bulk?.change?["rows"] as? [String], ["r1", "r2"])
+        XCTAssertNotNil(bulk?.change?["columns"])
+    }
+
+    func testMakeBulkChange_NestedDeleteCarriesParentPathAndSchemaId() {
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"], parentPath: "p.0", schemaId: "sch1")
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowDelete")
+        XCTAssertEqual(bulk?.change?["parentPath"] as? String, "p.0")
+        XCTAssertEqual(bulk?.change?["schemaId"] as? String, "sch1")
+        XCTAssertNil(bulk?.change?["columns"])
+    }
+
+    func testMakeBulkChange_NestedPassthroughReadsFromFirstChange() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.change?["parentPath"] as? String, "p.0")
+        XCTAssertEqual(bulk?.change?["schemaId"] as? String, "sch1")
+    }
+
+    // MARK: - makeBulkChange: Edge cases
+
+    func testMakeBulkChange_MixedTargetsKeyOffFirst() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertEqual(DocumentEditor.makeBulkChange(from: changes)?.target, "field.value.bulkRowUpdate")
+    }
 }
 // MARK: - Collection (Nested Table) Tests
 extension DocumentEditorChangeHandlerTests {
