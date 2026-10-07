@@ -94,6 +94,7 @@ struct CollectionFilterModal: View {
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
+                    .accessibilityHidden(true)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 8)
                     .background(Color.searchFieldBackground)
@@ -118,6 +119,7 @@ struct CollectionFilterModal: View {
                                 .contentShape(Rectangle())
                         }
                         .accessibilityIdentifier("SelectSchemaTypeIDentifier")
+                        .accessibilityLabel(selectedSchemaKey.isEmpty ? "Select schema type" : getSelectedSchemaTitle())
                     )
                     if !selectedSchemaKey.isEmpty {
                         sortingView
@@ -191,6 +193,7 @@ struct CollectionFilterModal: View {
                             .font(.system(size: 12))
                             .foregroundColor(.gray)
                     }
+                    .accessibilityHidden(true)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 8)
                     .background(Color.searchFieldBackground)
@@ -212,6 +215,7 @@ struct CollectionFilterModal: View {
                                 .contentShape(Rectangle())
                         }
                         .accessibilityIdentifier("CollectionSortColumnSelectorIdentifier")
+                        .accessibilityLabel(selectedSortedColumnID.isEmpty ? "Select column type" : getSelectedSortedColumnTitle())
                     )
                     
                     Button(action: {
@@ -354,6 +358,7 @@ struct FilteringView: View {
                         .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
+                .accessibilityHidden(true)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 8)
                 .background(Color.searchFieldBackground)
@@ -384,6 +389,7 @@ struct FilteringView: View {
                             .contentShape(Rectangle())
                     }
                     .accessibilityIdentifier("CollectionFilterColumnSelectorIdentifier")
+                    .accessibilityLabel(currentSelectedFilterColumnID.isEmpty ? "Select column type" : getSelectedFilteredColumnTitle(columnID: currentSelectedFilterColumnID))
                 )
                 if let index = collectionFilterModels.firstIndex(where: { $0.colID == currentSelectedFilterColumnID && $0.schemaKey == selectedSchemaKey }) {
                     if let column = getSelectedColumn(columnID: currentSelectedFilterColumnID) {
