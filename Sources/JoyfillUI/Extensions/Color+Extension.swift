@@ -16,6 +16,11 @@ extension Color {
     static let tableDropdownBorderColor = Color(hex: "#D1D1D6")
     static let allFieldBorderColor = Color(hex: "#AAAAAE")
     static let focusedFieldBorderColor = Color(hex: "#2563EB")
+    static let searchFieldBackground = Color(UIColor { trait in
+        trait.userInterfaceStyle == .dark
+            ? UIColor.gray.withAlphaComponent(0.15)
+            : UIColor.gray.withAlphaComponent(0.08)
+    })
     static func rowSelectionBackground(isSelected: Bool, colorScheme: ColorScheme) -> Color {
         guard isSelected else { return .clear }
         return colorScheme == .dark ? Color.blue.opacity(0.35) : Color.blue.opacity(0.1)

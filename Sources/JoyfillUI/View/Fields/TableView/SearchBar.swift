@@ -66,10 +66,10 @@ struct SearchBar: View {
                         TableNumberView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, number: model.filterText)
                             .accessibilityIdentifier("SearchBarNumberIdentifier")
                             .font(.system(size: 12))
-                            .foregroundColor(.black)
+                            .foregroundColor(.primary)
                             .padding(.vertical, 4)
                             .frame(height: 25)
-                            .background(.white)
+                            .background(Color.searchFieldBackground)
                             .cornerRadius(6)
                             .padding(.leading, 8)
                     case .multiSelect:
@@ -79,8 +79,10 @@ struct SearchBar: View {
                         TableBarcodeView(cellModel: Binding.constant(cellModel), isUsedForBulkEdit: true, text: model.filterText)
                             .accessibilityIdentifier("SearchBarCodeFieldIdentifier")
                             .font(.system(size: 12))
+                            .darkLightThemeColor()
                             .padding(.vertical, 4)
                             .frame(height: 25)
+                            .background(Color.searchFieldBackground)
                             .cornerRadius(6)
                             .padding(.leading, 8)
                     case .date:
@@ -105,11 +107,11 @@ struct SearchBar: View {
                             .foregroundColor(getIconColor())
                     }
                     .font(.system(size: 14))
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
                 })
                 .accessibilityIdentifier("SortButtonIdentifier")
                 .frame(width: 75, height: 25)
-                .background(.white)
+                .background(Color.searchFieldBackground)
                 .cornerRadius(4)
 
                 Button(action: {
@@ -120,9 +122,9 @@ struct SearchBar: View {
                     Image(systemName: "xmark")
                         .resizable()
                         .frame(width: 10, height: 10)
-                        .foregroundColor(.black)
+                        .foregroundColor(.primary)
                         .padding(.all, 8)
-                        .background(.white)
+                        .background(Color.searchFieldBackground)
                         .cornerRadius(4)
                         .padding(.trailing, 8)
 
@@ -155,7 +157,7 @@ struct SearchBar: View {
     func getIconColor() -> Color {
         switch viewModel.tableDataModel.sortModel.order {
         case .none:
-            return .black
+            return .primary
         case .ascending, .descending:
             return .blue
         }
