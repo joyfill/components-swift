@@ -1482,7 +1482,10 @@ extension DocumentEditor {
                 "columns": cells.map { ["id": $0.key, "value": $0.value] }
             ]
         } else {
-            change = ["rows": changes.compactMap { $0.change?["row"] }]
+            let rows = changes.compactMap { $0.change?["row"] as? [String: Any] }
+            guard rows.count == changes.count,
+                  rows.allSatisfy({ ($0["_id"] as? String)?.isEmpty == false }) else { return nil }
+            change = ["rows": rows]
         }
         if let parentPath { change["parentPath"] = parentPath }
         if let schemaId { change["schemaId"] = schemaId }

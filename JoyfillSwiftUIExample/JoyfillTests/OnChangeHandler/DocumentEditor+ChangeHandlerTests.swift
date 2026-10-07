@@ -1114,6 +1114,38 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertNil(DocumentEditor.makeBulkChange(from: changes)?.change?["columns"])
     }
 
+    func testMakeBulkChange_DeleteWithMissingRowIdReturnsNil() {
+        func deleteChange(row: [String: Any]) -> Change {
+            Change(dictionary: [
+                "v": 1, "sdk": "swift", "target": "field.value.rowDelete", "_id": "doc1",
+                "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+                "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+                "change": ["rowId": "r1", "row": row], "createdOn": 1.0
+            ])
+        }
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            deleteChange(row: ["cells": ["c1": "b"]]) // no _id
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_DeleteWithEmptyRowIdReturnsNil() {
+        func deleteChange(row: [String: Any]) -> Change {
+            Change(dictionary: [
+                "v": 1, "sdk": "swift", "target": "field.value.rowDelete", "_id": "doc1",
+                "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+                "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+                "change": ["rowId": "r1", "row": row], "createdOn": 1.0
+            ])
+        }
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            deleteChange(row: ["_id": "", "cells": ["c1": "b"]])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
     // MARK: - makeBulkChange: Nested collection
 
     func testMakeBulkChange_NestedUpdateCarriesParentPathAndSchemaId() {
