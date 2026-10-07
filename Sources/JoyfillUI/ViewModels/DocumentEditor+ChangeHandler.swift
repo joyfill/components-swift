@@ -1449,6 +1449,39 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
+    /// Builds one standardized v2 bulk event from a batch of per-row changes. Returns `nil` unless it's a multi-row `rowUpdate`/`rowDelete`.
+    /// `bulkRowUpdate` → `{ rows: [rowId], columns: [{ id, value }] }`; `bulkRowDelete` → `{ rows: [{ _id, cells }] }`.
+    public static func makeBulkChange(from changes: [Change]) -> Change? {
+        guard changes.count > 1, let first = changes.first, let target = first.target,
+              target == "field.value.rowUpdate" || target == "field.value.rowDelete" else {
+            return nil
+        }
+        var change: [String: Any]
+        if target == "field.value.rowUpdate" {
+            let cells = (first.change?["row"] as? [String: Any])?["cells"] as? [String: Any] ?? [:]
+            change = [
+                "rows": changes.compactMap { $0.change?["rowId"] as? String },
+                "columns": cells.map { ["id": $0.key, "value": $0.value] }
+            ]
+        } else {
+            change = ["rows": changes.compactMap { $0.change?["row"] }]
+        }
+        if let parentPath = first.change?["parentPath"] { change["parentPath"] = parentPath }
+        if let schemaId = first.change?["schemaId"] { change["schemaId"] = schemaId }
+        return Change(v: 2,
+                      sdk: "swift",
+                      target: target == "field.value.rowUpdate" ? "field.value.bulkRowUpdate" : "field.value.bulkRowDelete",
+                      _id: first.id ?? "",
+                      identifier: first.identifier,
+                      fileId: first.fileId ?? "",
+                      pageId: first.pageId ?? "",
+                      fieldId: first.fieldId ?? "",
+                      fieldIdentifier: first.fieldIdentifier,
+                      fieldPositionId: first.fieldPositionId ?? "",
+                      change: change,
+                      createdOn: Date().timeIntervalSince1970)
+    }
+
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
         
