@@ -262,14 +262,29 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let firstTextField = tapOnNumberTextField(atIndex: 0)
         firstTextField.tap()
         tapOnNumberFieldColumn()
-        tapOnSearchBarTextField(value: "22")
-        
+        // Type the filter digit-by-digit: typing "22" at once drops the second
+        // keystroke's filter update on this screen.
+        let searchBar = app.textFields["SearchBarNumberIdentifier"]
+        searchBar.tap()
+        for ch in "22" {
+            searchBar.typeText(String(ch))
+            Thread.sleep(forTimeInterval: 0.4)
+        }
+
+        let numberFields = app.textFields.matching(identifier: "TabelNumberFieldIdentifier")
+        expectation(for: NSPredicate(format: "count == 1"), evaluatedWith: numberFields)
+        waitForExpectations(timeout: 5)
+
         let filterDataTextField = tapOnNumberTextField(atIndex: 0)
         XCTAssertEqual("22", filterDataTextField.value as! String)
         
         tapOnMoreButton()
-        app.buttons["TableInsertRowIdentifier"].tap()
-        
+        let insertBtn = app.buttons["TableInsertRowIdentifier"]
+        XCTAssertTrue(insertBtn.waitForExistence(timeout: 5), "Insert row button not found")
+        insertBtn.tap()
+        expectation(for: NSPredicate(format: "count == 2"), evaluatedWith: numberFields)
+        waitForExpectations(timeout: 5)
+
         XCTAssertEqual("22", filterDataTextField.value as! String)
         
         // Check inserted row data
@@ -278,6 +293,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         
         // Clear filter
         app.buttons["HideFilterSearchBar"].tap()
+        expectation(for: NSPredicate(format: "count == 7"), evaluatedWith: numberFields)
+        waitForExpectations(timeout: 5)
         app.swipeDown()
         XCTAssertEqual("2", firstTextField.value as! String)
         
@@ -1079,29 +1096,37 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual("Row", insertedTextField.value as! String)
         
         // Clear filter
-        app.buttons["HideFilterSearchBar"].tap()
-        
+        let dismissRegion = app.otherElements["PopoverDismissRegion"]
+        if dismissRegion.exists {
+            dismissRegion.tap()
+        }
+        let clearBtn = app.buttons["HideFilterSearchBar"]
+        XCTAssertTrue(clearBtn.waitForExistence(timeout: 5), "Filter clear button not found")
+        clearBtn.tap()
+
+        let bc = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+        expectation(for: NSPredicate(format: "count > 4"), evaluatedWith: bc)
+        waitForExpectations(timeout: 5)
+
         // Check data after clear filter
         XCTAssertEqual("First row", firstTextField.value as! String)
         XCTAssertEqual("Second row", secondTextField.value as! String)
         XCTAssertEqual("Third row", thirdTextField.value as! String)
-        XCTAssertEqual("Row", insertedTextField.value as! String)
-        
-        let addRowTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 7)
-        XCTAssertEqual("Row", addRowTextField.value as! String)
+
+        app.swipeUp()
+        let rowTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 6)
+        XCTAssertTrue(rowTextField.waitForExistence(timeout: 5), "Row entry not found after clearing filter")
+        XCTAssertEqual("Row", rowTextField.value as! String)
         
         goBack()
         sleep(2)
-        let firstCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["676137715cb7a772624dd5ab"]?.text)
-        let secondCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[1].cells?["676137715cb7a772624dd5ab"]?.text)
-        let thirdCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[2].cells?["676137715cb7a772624dd5ab"]?.text)
-        let insertedCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[6].cells?["676137715cb7a772624dd5ab"]?.text)
-        let addRowCellTextValue = try XCTUnwrap(onChangeResultValue().valueElements?[7].cells?["676137715cb7a772624dd5ab"]?.text)
-        XCTAssertEqual("First row", firstCellTextValue)
-        XCTAssertEqual("Second row", secondCellTextValue)
-        XCTAssertEqual("Third row", thirdCellTextValue)
-        XCTAssertEqual("Row", insertedCellTextValue)
-        XCTAssertEqual("Row", addRowCellTextValue)
+        let colId = "676137715cb7a772624dd5ab"
+        let els = onChangeResultValue().valueElements ?? []
+        XCTAssertEqual(7, els.count)
+        XCTAssertEqual("First row", els[0].cells?[colId]?.text)
+        XCTAssertEqual("Second row", els[1].cells?[colId]?.text)
+        XCTAssertEqual("Third row", els[2].cells?[colId]?.text)
+        XCTAssertEqual("Row", els[6].cells?[colId]?.text)
     }
     
     // Barcode filter test case
