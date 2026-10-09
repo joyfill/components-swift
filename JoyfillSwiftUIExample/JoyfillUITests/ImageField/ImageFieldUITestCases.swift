@@ -158,7 +158,7 @@ final class ImageFieldUITestCases: JoyfillUITestsBaseClass {
         let imageButton = app.buttons.matching(identifier: "ImageIdentifier").element(boundBy: 0)
         XCTAssertTrue(imageButton.exists, "Required field label should display")
 
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_Image").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
         imageButton.tap()
         assertImageCount(expectedCount: 1)

@@ -27,6 +27,13 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let topCoordinate = app.windows.firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
         topCoordinate.press(forDuration: 0, thenDragTo: bottomCoordinate)
     }
+
+    func closeImageSheet() {
+        let close = app.buttons["xmark.circle"].firstMatch
+        guard close.waitForExistence(timeout: 3) else { return }
+        close.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+    }
     
     func navigateToCollection(index: Int) {
         let goToTableDetailView = app.buttons.matching(identifier: "CollectionDetailViewIdentifier")
@@ -164,40 +171,51 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         XCTAssertTrue(filterModalExists, "Filter modal should be open")
     }
     
+    /// Taps an item inside an open SwiftUI Menu by its title. A selected selector button can share the same visible label (e.g. the Sort selector reads "Text D1" after selection), so restrict the match to real menu items — buttons whose label is the title AND whose accessibility identifier is empty.
+    @discardableResult
+    func tapMenuItem(_ title: String, timeout: TimeInterval = 5) -> Bool {
+        let predicate = NSPredicate(format: "label == %@ AND identifier == ''", title)
+        let item = app.buttons.matching(predicate).firstMatch
+        if item.waitForExistence(timeout: timeout) {
+            item.tap()
+            return true
+        }
+        // iPad presents the Menu as a popover collectionView of buttons.
+        let cvItem = app.collectionViews.buttons[title].firstMatch
+        if cvItem.waitForExistence(timeout: 1) {
+            cvItem.tap()
+            return true
+        }
+        return false
+    }
+
     func selectSchema(_ schemaName: String) {
-        let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier")
-        schemaSelector.element.tap()
-        
-        let schemaOption = app.buttons[schemaName].firstMatch
-        schemaOption.tap()
+        let schemaSelector = app.buttons.matching(identifier: "SelectSchemaTypeIDentifier").element
+        XCTAssertTrue(schemaSelector.waitForExistence(timeout: 5), "Schema selector should exist")
+        schemaSelector.tap()
+        XCTAssertTrue(tapMenuItem(schemaName), "Schema option '\(schemaName)' should exist")
+        // Changing schema clears filters + rebuilds the column list; let it settle before the next interaction.
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.6))
     }
     
     func selectColumn(_ columnName: String, selectorIndex: Int = 0) {
         let selectors = app.buttons.matching(identifier: "CollectionFilterColumnSelectorIdentifier")
         let columnSelector = selectors.element(boundBy: selectorIndex)
-        XCTAssertTrue(
-            columnSelector.exists,
-            "Column selector at index \(selectorIndex) should exist"
-        )
+        XCTAssertTrue(columnSelector.waitForExistence(timeout: 5), "Column selector at index \(selectorIndex) should exist")
         columnSelector.tap()
-        
-        let columnOption = app.buttons[columnName].firstMatch
-        if !columnOption.exists {
-            XCTFail("Column option should exist")
-        }
-        columnOption.tap()
+        XCTAssertTrue(tapMenuItem(columnName), "Column option '\(columnName)' should exist")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
     }
     
     func enterTextFilter(_ text: String) {
         let searchField = app.textFields["TextFieldSearchBarIdentifier"]
-        if searchField.exists {
+        if searchField.waitForExistence(timeout: 5) {
             searchField.tap()
             searchField.clearText()
             searchField.typeText(text)
         } else {
             XCTFail("SearchField Should exist")
         }
-        
     }
     
     func selectDropdownOption(_ optionName: String) {
@@ -1908,8 +1926,8 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         }
         firstImageButton.tap()
         app.buttons["ImageUploadImageIdentifier"].tap()
-        dismissSheet()
         
+        closeImageSheet()
         app.swipeUp()
         // Number Field
         guard let numberTextField = app.swipeToFindElement(identifier: "EditRowsNumberFieldIdentifier", type: .textField) else {
@@ -1919,8 +1937,6 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         numberTextField.tap()
         numberTextField.clearText()
         numberTextField.typeText("123")
-        firstImageButton.tap()
-        dismissSheet()
         
         guard let barcodeTextField = app.swipeToFindElement(identifier: "EditRowsBarcodeFieldIdentifier", type: .textView) else {
             XCTFail("Failed to find barcode text field after swiping")
@@ -2604,7 +2620,7 @@ final class CollectionFieldSearchFilterTests: JoyfillUITestsBaseClass {
         let requiredLabel = app.staticTexts["This is collection\nwith multiline header\ntest."]
         XCTAssertTrue(requiredLabel.exists, "Required field label should display")
         
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_This is collection\nwith multiline header\ntest.").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
         
         goToCollectionDetailField()
