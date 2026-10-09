@@ -620,8 +620,7 @@ final class RequiredLogicTests: XCTestCase {
                        "A newly added row with a missing required answer must be invalid")
 
         let rowIDsBeforeDuplicate = Set(viewModel.tableDataModel.rowOrder)
-        viewModel.tableDataModel.selectedRows = ["added-row"]
-        viewModel.duplicateRow()
+        viewModel.duplicateRow(rowID: "added-row")
         let duplicatedRowID = Set(viewModel.tableDataModel.rowOrder)
             .subtracting(rowIDsBeforeDuplicate)
             .first

@@ -626,8 +626,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: reasonColumnID,
                              isHidden: false, "row2 reason is visible before duplicate")
 
-        vm.tableDataModel.selectedRows = [row2ID]
-        vm.duplicateRow()
+        vm.duplicateRow(rowID: row2ID)
 
         assertCellVisibility(vm, editor: editor, rowID: row1ID, columnID: reasonColumnID,
                              isHidden: false, "row1 reason stays visible after duplicate")

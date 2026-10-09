@@ -123,12 +123,13 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func duplicateRows(rowIDs: [String], fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
+    public func duplicateRows(rowIDs: [String], quantity: Int = 1, fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
             return ([:], [])
         }
+        let copies = max(quantity, 1)
         var targetRows = [TargetRowModel]()
         guard var lastRowOrder = fieldMap[fieldId]?.rowOrder else {
             return ([:], [])
@@ -141,25 +142,28 @@ extension DocumentEditor {
                 Log("Original row not found: \(rowID)", type: .error)
                 continue
             }
-            let newRowID = generateObjectId()
-            element.id = newRowID
-            elements.append(element)
-            
-            guard let lastRowIndex = lastRowOrder.firstIndex(of: rowID) else {
+            guard let originalIndex = lastRowOrder.firstIndex(of: rowID) else {
                 Log("Row order index not found for: \(rowID)", type: .error)
                 continue
             }
-            
-            lastRowOrder.insert(newRowID, at: lastRowIndex+1)
-            targetRows.append(TargetRowModel(id: newRowID, index: lastRowIndex+1))
-            changes[lastRowIndex+1] = element
+
+            for offset in 0..<copies {
+                let newRowID = generateObjectId()
+                element.id = newRowID
+                elements.append(element)
+                let insertAt = originalIndex + 1 + offset
+                lastRowOrder.insert(newRowID, at: insertAt)
+                targetRows.append(TargetRowModel(id: newRowID, index: insertAt))
+                changes[insertAt] = element
+            }
         }
 
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
-        addRowOnChange(event: changeEvent, targetRowIndexes: targetRows)
+        let target = targetRows.count > 1 ? "field.value.bulkRowCreate" : "field.value.rowCreate"
+        addRowOnChange(event: changeEvent, targetRowIndexes: targetRows, target: target)
         return (changes, elements)
     }
     
@@ -1283,7 +1287,7 @@ extension DocumentEditor {
 }
 
 extension DocumentEditor {
-    private func addRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel]) {
+    private func addRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], target: String = "field.value.rowCreate") {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
 
         var changes = [Change]()
@@ -1291,7 +1295,7 @@ extension DocumentEditor {
         for targetRow in targetRowIndexes {
             let change = Change(v: 1,
                                 sdk: "swift",
-                                target: "field.value.rowCreate",
+                                target: target,
                                 _id: context.documentID,
                                 identifier: context.documentIdentifier,
                                 fileId: context.fileID,

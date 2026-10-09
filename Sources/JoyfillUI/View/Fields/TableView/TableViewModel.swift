@@ -163,12 +163,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
     
-    func duplicateRow() {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let result = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+    func duplicateRow(rowID: String, quantity: Int = 1) {
+        guard let result = tableDataModel.documentEditor?.duplicateRows(rowIDs: [rowID], quantity: quantity, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         self.tableDataModel.valueToValueElements = result.1
         let sortedChanges = result.0.sorted { $0.key < $1.key }
         sortedChanges.forEach { (index, value) in
+            seedRowDecorators(for: value)
             updateRow(valueElement: value, at: index)
         }
         tableDataModel.emptySelection()

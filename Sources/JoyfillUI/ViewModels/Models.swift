@@ -500,6 +500,10 @@ struct TableDataModel {
         return singleClickRowEdit && editability(forSchemaKey: schemaKey).formAllowed
     }
 
+    func canShowDuplicateColumn(forSchemaKey schemaKey: String? = nil) -> Bool {
+        return mode == .fill && editability(forSchemaKey: schemaKey).inlineAllowed
+    }
+
     func canShowEditRowsMenuItem(forSchemaKey schemaKey: String? = nil) -> Bool {
         let flags = editability(forSchemaKey: schemaKey)
         return selectedRows.count == 1 ? flags.formAllowed : flags.inlineAllowed

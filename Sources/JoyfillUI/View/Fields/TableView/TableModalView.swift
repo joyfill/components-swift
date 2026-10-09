@@ -60,6 +60,7 @@ struct TableModalView : View {
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     @State private var isDismissingForNavigation = false
+    @State private var duplicateTarget: DuplicateRowTarget?
 
     init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
@@ -243,7 +244,30 @@ struct TableModalView : View {
         var width: CGFloat = 40 // # column
         if viewModel.showRowSelector { width += 40 }
         if viewModel.tableDataModel.canShowSingleClickEditColumn() { width += 40 }
+        if viewModel.tableDataModel.canShowDuplicateColumn() { width += 40 }
         return width
+    }
+
+    @ViewBuilder
+    func duplicatePopover(for rowID: String) -> some View {
+        let content = DuplicateRowSheetView(
+            onApply: { quantity in
+                viewModel.duplicateRow(rowID: rowID, quantity: quantity)
+                duplicateTarget = nil
+            },
+            onCancel: {
+                duplicateTarget = nil
+            }
+        )
+        .frame(width: 300)
+        .fixedSize(horizontal: false, vertical: true)
+        if #available(iOS 16.4, *) {
+            content
+                .presentationCompactAdaptation(.popover)
+                .presentationBackground(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+        } else {
+            content
+        }
     }
 
     var scrollArea: some View {
@@ -269,6 +293,12 @@ struct TableModalView : View {
                         .border(Color.tableCellBorderColor)
                     if viewModel.tableDataModel.canShowSingleClickEditColumn() {
                         Image(systemName: "square.and.pencil")
+                            .frame(width: 40, height: 60)
+                            .foregroundColor(Color.gray.opacity(0.4))
+                            .border(Color.tableCellBorderColor)
+                    }
+                    if viewModel.tableDataModel.canShowDuplicateColumn() {
+                        Image(systemName: "plus.square.on.square")
                             .frame(width: 40, height: 60)
                             .foregroundColor(Color.gray.opacity(0.4))
                             .border(Color.tableCellBorderColor)
@@ -411,6 +441,22 @@ struct TableModalView : View {
                                 showEditMultipleRowsSheetView = true
                             }
                             .accessibilityIdentifier("SingleClickEditButton\(index)")
+                    }
+                    if viewModel.tableDataModel.canShowDuplicateColumn() {
+                        Image(systemName: "plus.square.on.square")
+                            .foregroundColor(.blue)
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                            .onTapGesture {
+                                dismissKeyboard()
+                                duplicateTarget = DuplicateRowTarget(id: rowModel.rowID)
+                            }
+                            .accessibilityIdentifier("DuplicateRowButton\(index)")
+                            .popover(isPresented: Binding(
+                                get: { duplicateTarget?.id == rowModel.rowID },
+                                set: { if !$0 { duplicateTarget = nil } }
+                            )) { duplicatePopover(for: rowModel.rowID) }
                     }
                 }
             }
