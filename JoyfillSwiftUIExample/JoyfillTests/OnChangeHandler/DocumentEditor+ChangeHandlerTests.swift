@@ -304,6 +304,250 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertEqual(field?.rowOrder?.count, 5)
     }
     
+    // MARK: - Per-row duplicate: quantity, positioning, content fidelity, events
+
+    // Shared table fixture ids for the duplicate tests below.
+    private let dupTableFieldID = "67612793c4e6a5e6a05e64a3"
+    private let dupTextColumnID = "676127938fb7c5fd4321a2f4"
+    private let dupDropdownColumnID = "67612793b5f860ae8d6a4ae6"
+    private let dupDateColumnID = "67612793c76286eb2763c366"
+    private let dupFirstRowID = "676127938056dcd158942bad"
+    private let dupSecondRowID = "67612793f70928da78973744"
+    private let dupMidRowID = "67612793a6cd1f9d39c8433b"
+    private let dupDeletedRowID = "67612793a6cd1f9d39c8433c"
+    private let dupLastRowID = "67612793a6cd1f9d39c8433d"
+
+    private func duplicateTableDocument() -> JoyDoc {
+        JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+    }
+
+    private func duplicateFieldIdentifier() -> FieldIdentifier {
+        FieldIdentifier(fieldID: dupTableFieldID, pageID: pageID, fileID: fileID)
+    }
+
+    // A2: quantity = 3 adds three rows, each with a unique, non-empty id.
+    func testDuplicateRowQuantityThreeAddsThreeUniqueRows() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+        let field = documentEditor.field(fieldID: dupTableFieldID)
+
+        // 5 + 3 = 8
+        XCTAssertEqual(field?.rowOrder?.count, 8)
+        let newIDs = Array(field!.rowOrder![5...7])
+        XCTAssertEqual(Set(newIDs).count, 3, "All three duplicated ids must be unique")
+        XCTAssertFalse(newIDs.contains(where: { $0.isEmpty }), "No duplicated id may be empty")
+        XCTAssertFalse(newIDs.contains(dupLastRowID), "Duplicated ids must differ from the original")
+    }
+
+    // A3: copies are inserted directly after the original; the trailing rows shift down.
+    func testDuplicateRowInsertsCopiesRightAfterOriginal() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID], quantity: 2, fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        XCTAssertEqual(rowOrder?.count, 7)
+        XCTAssertEqual(rowOrder?[0], dupFirstRowID, "Original row stays in place")
+        XCTAssertNotEqual(rowOrder?[1], dupSecondRowID, "Index 1 is now a new copy")
+        XCTAssertNotEqual(rowOrder?[2], dupSecondRowID, "Index 2 is now a new copy")
+        XCTAssertEqual(rowOrder?[3], dupSecondRowID, "Previous second row shifted down by the two copies")
+    }
+
+    // A5: quantity of 0 clamps to 1.
+    func testDuplicateRowQuantityZeroClampsToOne() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 0, fieldIdentifier: duplicateFieldIdentifier())
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 6)
+    }
+
+    // A5: negative quantity clamps to 1.
+    func testDuplicateRowNegativeQuantityClampsToOne() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: -5, fieldIdentifier: duplicateFieldIdentifier())
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 6)
+    }
+
+    // A9: duplicating a mid-list row inserts right after it and shifts the tail down.
+    func testDuplicateMidListRowShiftsTail() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupMidRowID], fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        XCTAssertEqual(rowOrder?.count, 6)
+        XCTAssertEqual(rowOrder?[2], dupMidRowID, "Original mid-list row stays at its index")
+        XCTAssertNotEqual(rowOrder?[3], dupDeletedRowID, "Index 3 is the new copy")
+        XCTAssertEqual(rowOrder?[4], dupDeletedRowID, "Row that followed the original shifted down by one")
+    }
+
+    // B10/B11/B12: clone cells match the original across all column types; the clone id is unique; the original is untouched.
+    func testDuplicateRowClonesContentAndLeavesOriginalUntouched() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID], fieldIdentifier: duplicateFieldIdentifier())
+        let field = documentEditor.field(fieldID: dupTableFieldID)
+        let newRowID = field?.rowOrder?[1]
+        let elements = field?.value?.valueElements
+        let newRow = elements?.first(where: { $0.id == newRowID })
+        let originalRow = elements?.first(where: { $0.id == dupFirstRowID })
+
+        XCTAssertNotNil(newRow)
+        XCTAssertNotEqual(newRowID, dupFirstRowID, "Clone id must be unique")
+
+        // All three column types copied verbatim.
+        XCTAssertEqual(newRow?.cells?[dupTextColumnID]?.text, "Value for Row 1, Column 1")
+        XCTAssertEqual(newRow?.cells?[dupTextColumnID]?.text, originalRow?.cells?[dupTextColumnID]?.text)
+        XCTAssertEqual(newRow?.cells?[dupDropdownColumnID]?.text, originalRow?.cells?[dupDropdownColumnID]?.text)
+        XCTAssertEqual(newRow?.cells?[dupDateColumnID]?.number, originalRow?.cells?[dupDateColumnID]?.number)
+
+        // Original stays exactly as it was.
+        XCTAssertEqual(originalRow?.cells?[dupTextColumnID]?.text, "Value for Row 1, Column 1")
+    }
+
+    // B13: the elements array grows by exactly `quantity`.
+    func testDuplicateRowGrowsElementsByQuantity() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        let before = documentEditor.field(fieldID: dupTableFieldID)?.value?.valueElements?.count ?? 0
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+        let after = documentEditor.field(fieldID: dupTableFieldID)?.value?.valueElements?.count ?? 0
+        XCTAssertEqual(after, before + 3)
+    }
+
+    // C15: quantity == 1 emits a single `field.value.rowCreate` change (never bulkRowCreate).
+    func testDuplicateRowQuantityOneEmitsRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
+
+        let rowCreate = captured.filter { $0.target == "field.value.rowCreate" }
+        XCTAssertEqual(rowCreate.count, 1)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.bulkRowCreate" })
+    }
+
+    // C16: quantity > 1 emits one `field.value.bulkRowCreate` change per copy.
+    func testDuplicateRowQuantityManyEmitsBulkRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 3)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" }, "quantity > 1 must not emit plain rowCreate")
+    }
+
+    // C17: every emitted change carries the full row dictionary and a targetRowIndex.
+    func testDuplicateRowBulkChangesCarryRowPayload() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 3)
+        for change in bulk {
+            XCTAssertNotNil(change.change?["row"], "Each bulk change must carry the full row dictionary")
+            XCTAssertNotNil(change.change?["targetRowIndex"], "Each bulk change must carry a targetRowIndex")
+        }
+    }
+
+    // C18: targetRowIndexes are consecutive, starting right after the original.
+    func testDuplicateRowBulkTargetIndexesAreConsecutive() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        // Duplicating the last row (index 4) three times → indexes 5, 6, 7.
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        let indexes = captured
+            .filter { $0.target == "field.value.bulkRowCreate" }
+            .compactMap { $0.change?["targetRowIndex"] as? Int }
+            .sorted()
+        XCTAssertEqual(indexes, [5, 6, 7])
+    }
+
+    // Multi-row: duplicating two distinct rows in one call inserts a copy after each and shifts the tail.
+    func testDuplicateMultipleRowsInOneCall() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        // 5 + 2 = 7
+        XCTAssertEqual(rowOrder?.count, 7)
+        XCTAssertEqual(rowOrder?[0], dupFirstRowID, "First source row stays in place")
+        XCTAssertNotEqual(rowOrder?[1], dupSecondRowID, "A copy of row 1 sits right after it")
+        XCTAssertEqual(rowOrder?[2], dupSecondRowID, "Untouched row shifts down by one copy")
+        XCTAssertEqual(rowOrder?[3], dupMidRowID, "Second source row keeps its (shifted) position")
+        XCTAssertNotEqual(rowOrder?[4], dupDeletedRowID, "A copy of the mid row sits right after it")
+        XCTAssertEqual(rowOrder?[5], dupDeletedRowID, "Tail shifts down by the two copies")
+    }
+
+    // Multi-row with quantity > 1: each source row gets `quantity` copies and the event is bulkRowCreate.
+    func testDuplicateMultipleRowsWithQuantityEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 2, fieldIdentifier: duplicateFieldIdentifier())
+
+        // 5 + (2 rows * 2 copies) = 9
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 9)
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 4, "Two source rows × two copies = four bulkRowCreate changes")
+    }
+
+    // Two source rows at quantity 1 still means 2 target rows -> bulkRowCreate (count > 1), not rowCreate.
+    func testDuplicateTwoRowsQuantityOneStillEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
+
+        XCTAssertEqual(captured.filter { $0.target == "field.value.bulkRowCreate" }.count, 2)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" })
+    }
+
+    // Empty rowIDs is a no-op: nothing is added and no rowCreate/bulkRowCreate change is emitted.
+    func testDuplicateEmptyRowIDsIsNoOp() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [], fieldIdentifier: duplicateFieldIdentifier())
+
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 5, "Row order is unchanged")
+        XCTAssertTrue(captured.isEmpty, "No row-create change is emitted for an empty rowIDs list")
+    }
+
+    // The returned tuple carries one change per copy (keyed by insert index) and the full updated elements array.
+    func testDuplicateRowsReturnValueShape() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        let elementsBefore = documentEditor.field(fieldID: dupTableFieldID)?.value?.valueElements?.count ?? 0
+
+        let (changes, elements) = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        XCTAssertEqual(changes.count, 3, "One entry per copy")
+        XCTAssertEqual(changes.keys.sorted(), [5, 6, 7], "Keys are the consecutive insert indexes")
+        XCTAssertEqual(elements.count, elementsBefore + 3, "Returned elements include the three clones")
+    }
+
     // Move row up tests
     func testMoveRowUp() {
         let tableFieldID = "67612793c4e6a5e6a05e64a3"

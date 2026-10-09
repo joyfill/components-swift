@@ -634,6 +634,66 @@ final class CellVisibilityLogicTest: XCTestCase {
                              isHidden: false, "row2 reason stays visible after duplicate")
     }
 
+    /// A duplicated row inherits the original's resolved visibility: duplicating a row whose
+    /// reason cell is hidden produces a clone whose reason cell is also hidden.
+    func testDuplicateRowClonesVisibilityState() {
+        // row2 status "Approved" != "Rejected" so its reason is hidden (action = show).
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
+        let vm = tableViewModel(editor)
+
+        assertCellVisibility(vm, editor: editor, rowID: row2ID, columnID: reasonColumnID,
+                             isHidden: true, "row2 reason is hidden before duplicate")
+
+        vm.duplicateRow(rowID: row2ID)
+
+        let newRowID = vm.tableDataModel.rowOrder.last!
+        XCTAssertNotEqual(newRowID, row2ID, "A new row id must be appended")
+        assertCellVisibility(vm, editor: editor, rowID: newRowID, columnID: reasonColumnID,
+                             isHidden: true, "cloned row's reason inherits the hidden state")
+    }
+
+    /// With quantity > 1 every clone of a hidden row is also hidden.
+    func testDuplicateRowQuantityManyClonesVisibilityForAllCopies() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
+        let vm = tableViewModel(editor)
+
+        let rowIDsBefore = Set(vm.tableDataModel.rowOrder)
+        vm.duplicateRow(rowID: row2ID, quantity: 3)
+
+        let newRowIDs = vm.tableDataModel.rowOrder.filter { !rowIDsBefore.contains($0) }
+        XCTAssertEqual(newRowIDs.count, 3, "Three new rows must be added")
+        for newRowID in newRowIDs {
+            assertCellVisibility(vm, editor: editor, rowID: newRowID, columnID: reasonColumnID,
+                                 isHidden: true, "every cloned row's reason inherits the hidden state")
+        }
+    }
+
+    /// The view model's rendered state reflects the duplicate: rowOrder grows and the new row's
+    /// cells are present in filteredcellModels.
+    func testDuplicateRowUpdatesRenderedModels() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
+        let vm = tableViewModel(editor)
+        let countBefore = vm.tableDataModel.rowOrder.count
+
+        vm.duplicateRow(rowID: row2ID)
+
+        XCTAssertEqual(vm.tableDataModel.rowOrder.count, countBefore + 1)
+        let newRowID = vm.tableDataModel.rowOrder.last!
+        XCTAssertTrue(vm.tableDataModel.filteredcellModels.contains { $0.rowID == newRowID },
+                      "The duplicated row must be rendered in filteredcellModels")
+    }
+
+    /// Duplicating clears any active row selection.
+    func testDuplicateRowClearsSelection() {
+        let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
+        let vm = tableViewModel(editor)
+        vm.tableDataModel.selectedRows = [row2ID]
+
+        vm.duplicateRow(rowID: row2ID)
+
+        XCTAssertTrue(vm.tableDataModel.selectedRows.isEmpty, "Selection must be cleared after a duplicate")
+    }
+
     // MARK: - Multiple dependents on one source column
 
     /// Two columns whose cellVisibilityLogic both key off the same sibling column are both
