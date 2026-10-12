@@ -1504,8 +1504,10 @@ extension DocumentEditor {
                       createdOn: Date().timeIntervalSince1970)
     }
 
+    /// Builds a type-aware key so two rows' cells can be compared without treating a bool as a number.
     private static func cellsEqualityKey(_ cells: [String: Any]) -> Data? {
-        try? JSONSerialization.data(withJSONObject: cells, options: .sortedKeys)
+        guard JSONSerialization.isValidJSONObject(cells) else { return nil }
+        return try? JSONSerialization.data(withJSONObject: cells, options: .sortedKeys)
     }
 
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {

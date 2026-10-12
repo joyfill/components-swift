@@ -1278,6 +1278,41 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         ]
         XCTAssertNotNil(DocumentEditor.makeBulkChange(from: changes))
     }
+
+    // A non-finite number (NaN/infinity) makes JSONSerialization raise an ObjC
+    // exception that `try?` can't catch; the helper must reject it, not crash.
+
+    func testMakeBulkChange_UpdateNaNInFirstRowReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": Double.nan]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 1])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateNaNInLaterRowReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": 1]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": Double.nan])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateInfinityReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": Double.infinity]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": Double.infinity])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateNaNNestedReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": ["inner": Double.nan]]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": ["inner": 1]])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
 }
 // MARK: - Collection (Nested Table) Tests
 extension DocumentEditorChangeHandlerTests {
