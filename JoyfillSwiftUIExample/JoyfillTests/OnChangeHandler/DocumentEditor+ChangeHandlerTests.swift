@@ -1507,6 +1507,441 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertEqual(updatedNestedRows.count, initialNestedRows.count + 1)
     }
     
+    // MARK: - Collection duplicate: quantity + includeChildren
+
+    // Fixture (setCollectionField): 4 root rows; the 2nd root row has children.
+    private var dupColRootWithChildren: String { "67ddc537b7c2fce05d0c8615" }
+    private var dupColNestedKey: String { "67ddc5c9910a394a1324bfbe" }
+    // Nested rows under dupColRootWithChildren[dupColNestedKey].
+    private var dupColNestedPlainRow: String { "67ddd18bc3a74e6b350987f9" }       // nested index 0, no grandchildren, text "Grok "
+    private var dupColNestedWithGrandchildren: String { "67ddd191ab6a428ea69c77ad" } // nested index 1, has grandchildren
+    private var dupColNestedThirdRow: String { "67ddd193eae737b64c24851a" }        // nested index 2
+    private var dupColNestedTextColumn: String { "67ddc61edce16f8b9f8dbf4b" }      // text column in the nested table
+
+    private func duplicateCollectionDocument() -> JoyDoc {
+        JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+    }
+
+    private func collectionFieldIdentifier() -> FieldIdentifier {
+        FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID)
+    }
+
+    private func rootRows(_ editor: DocumentEditor) -> [ValueElement] {
+        editor.field(fieldID: collectionFieldID)?.valueToValueElements ?? []
+    }
+
+    private func nestedRows(_ editor: DocumentEditor, parentId: String, schemaKey: String) -> [ValueElement] {
+        rootRows(editor)
+            .first(where: { $0.id == parentId })?
+            .childrens?[schemaKey]?.valueToValueElements ?? []
+    }
+
+    // Collection UI default (unchecked box): duplicating a root row drops its child tables.
+    func testDuplicateCollectionRootRowExcludeChildrenStripsChildren() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalRootIDs = Set(rootRows(editor).compactMap { $0.id })
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let after = rootRows(editor)
+        XCTAssertEqual(after.count, originalRootIDs.count + 1, "Root rows grow by one")
+
+        let duplicate = after.first { !originalRootIDs.contains($0.id ?? "") }
+        XCTAssertNotNil(duplicate, "A new root row must exist")
+        XCTAssertNil(duplicate?.childrens, "includeChildren: false must strip the child tables")
+    }
+
+    // Checked box: duplicating a root row deep-copies the child tables with fresh ids.
+    func testDuplicateCollectionRootRowIncludeChildrenDeepCopiesWithNewIDs() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalRootIDs = Set(rootRows(editor).compactMap { $0.id })
+        let originalNestedIDs = Set(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id })
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 1,
+                                       includeChildren: true,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let duplicate = rootRows(editor).first { !originalRootIDs.contains($0.id ?? "") }
+        XCTAssertNotNil(duplicate)
+        let copiedNested = duplicate?.childrens?[dupColNestedKey]?.valueToValueElements ?? []
+        XCTAssertEqual(copiedNested.count, originalNestedIDs.count, "Child rows are copied, not dropped")
+
+        let copiedNestedIDs = Set(copiedNested.compactMap { $0.id })
+        XCTAssertTrue(copiedNestedIDs.isDisjoint(with: originalNestedIDs), "Copied child rows must have fresh ids, not shared with the original")
+    }
+
+    // Nested row, quantity > 1 inserts that many copies under the same parent.
+    func testDuplicateCollectionNestedRowQuantityAddsCopies() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let after = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+        XCTAssertEqual(after.count, before + 2)
+        XCTAssertEqual(Set(after.compactMap { $0.id }).count, after.count, "All nested row ids remain unique")
+    }
+
+    // Nested row, includeChildren: false drops the row's grandchildren.
+    func testDuplicateCollectionNestedRowExcludeChildrenStripsGrandchildren() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalNestedIDs = Set(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id })
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedWithGrandchildren],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let duplicate = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+            .first { !originalNestedIDs.contains($0.id ?? "") }
+        XCTAssertNotNil(duplicate, "A new nested row must exist")
+        XCTAssertNil(duplicate?.childrens, "includeChildren: false must strip the grandchildren")
+    }
+
+    // quantity == 1 emits a single rowCreate (never bulkRowCreate).
+    func testDuplicateCollectionNestedRowQuantityOneEmitsRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(captured.filter { $0.target == "field.value.rowCreate" }.count, 1)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.bulkRowCreate" })
+    }
+
+    // quantity > 1 emits one bulkRowCreate per copy (never plain rowCreate).
+    func testDuplicateCollectionNestedRowQuantityManyEmitsBulkRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(captured.filter { $0.target == "field.value.bulkRowCreate" }.count, 3)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" }, "quantity > 1 must not emit plain rowCreate")
+    }
+
+    // quantity <= 0 clamps to a single copy.
+    func testDuplicateCollectionNestedRowQuantityZeroClampsToOne() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 0,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 1)
+    }
+
+    // Negative quantity clamps to a single copy.
+    func testDuplicateCollectionNestedRowNegativeQuantityClampsToOne() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: -5,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 1)
+    }
+
+    // Copies are inserted directly after the original nested row; the trailing rows shift down.
+    func testDuplicateCollectionNestedRowInsertsCopiesRightAfterOriginal() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 5, "3 original + 2 copies")
+        XCTAssertEqual(order[0], dupColNestedPlainRow, "Original nested row stays in place")
+        XCTAssertNotEqual(order[1], dupColNestedWithGrandchildren, "Index 1 is now a new copy")
+        XCTAssertNotEqual(order[2], dupColNestedWithGrandchildren, "Index 2 is now a new copy")
+        XCTAssertEqual(order[3], dupColNestedWithGrandchildren, "Previous second row shifted down by the two copies")
+    }
+
+    // Duplicating a mid-list nested row inserts right after it and shifts the tail down.
+    func testDuplicateCollectionMidListNestedRowShiftsTail() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedWithGrandchildren],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 4)
+        XCTAssertEqual(order[1], dupColNestedWithGrandchildren, "Original mid-list nested row stays at its index")
+        XCTAssertNotEqual(order[2], dupColNestedThirdRow, "Index 2 is the new copy")
+        XCTAssertEqual(order[3], dupColNestedThirdRow, "Row that followed the original shifted down by one")
+    }
+
+    // Clone cells match the original; the clone id is unique; the original is untouched.
+    func testDuplicateCollectionNestedRowClonesContentAndLeavesOriginalUntouched() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let after = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+        let original = after.first { $0.id == dupColNestedPlainRow }
+        let clone = after[1]
+
+        XCTAssertNotEqual(clone.id, dupColNestedPlainRow, "Clone id must be unique")
+        XCTAssertEqual(clone.cells?[dupColNestedTextColumn]?.text, "Grok ", "Clone copies the cell content verbatim")
+        XCTAssertEqual(clone.cells?[dupColNestedTextColumn]?.text, original?.cells?[dupColNestedTextColumn]?.text)
+        XCTAssertEqual(original?.cells?[dupColNestedTextColumn]?.text, "Grok ", "Original stays exactly as it was")
+    }
+
+    // The nested array grows by exactly `quantity`.
+    func testDuplicateCollectionNestedRowGrowsElementsByQuantity() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 3)
+    }
+
+    // Every emitted bulk change carries the full row dictionary and a targetRowIndex.
+    func testDuplicateCollectionNestedRowBulkChangesCarryRowPayload() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 3)
+        for change in bulk {
+            XCTAssertNotNil(change.change?["row"], "Each bulk change must carry the full row dictionary")
+            XCTAssertNotNil(change.change?["targetRowIndex"], "Each bulk change must carry a targetRowIndex")
+            XCTAssertEqual(change.change?["schemaId"] as? String, dupColNestedKey, "Each nested change must carry the schema id")
+        }
+    }
+
+    // targetRowIndexes are consecutive, starting right after the original nested row (index 0 → 1, 2, 3).
+    func testDuplicateCollectionNestedRowBulkTargetIndexesAreConsecutive() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let indexes = captured
+            .filter { $0.target == "field.value.bulkRowCreate" }
+            .compactMap { $0.change?["targetRowIndex"] as? Int }
+            .sorted()
+        XCTAssertEqual(indexes, [1, 2, 3])
+    }
+
+    // Multi-row: duplicating two distinct nested rows in one call inserts a copy after each and shifts the tail.
+    func testDuplicateCollectionMultipleNestedRowsInOneCall() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 5, "3 original + 2 copies")
+        XCTAssertEqual(order[0], dupColNestedPlainRow, "First source row stays in place")
+        XCTAssertNotEqual(order[1], dupColNestedWithGrandchildren, "A copy of the first row sits right after it")
+        XCTAssertEqual(order[2], dupColNestedWithGrandchildren, "Untouched row shifts down by one copy")
+        XCTAssertEqual(order[3], dupColNestedThirdRow, "Second source row keeps its (shifted) position")
+        XCTAssertNotEqual(order[4], dupColNestedThirdRow, "A copy of the third row sits right after it")
+    }
+
+    // Multi-row with quantity > 1: each source nested row gets `quantity` copies and the event is bulkRowCreate.
+    func testDuplicateCollectionMultipleNestedRowsWithQuantityEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, 7, "3 original + (2 rows × 2 copies)")
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 4, "Two source rows × two copies = four bulkRowCreate changes")
+    }
+
+    // Two source nested rows at quantity 1 still means 2 target rows -> bulkRowCreate (count > 1), not rowCreate.
+    func testDuplicateCollectionTwoNestedRowsQuantityOneStillEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(captured.filter { $0.target == "field.value.bulkRowCreate" }.count, 2)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" })
+    }
+
+    // Empty selectedRowIds is a no-op: nothing is added and no row-create change is emitted.
+    func testDuplicateCollectionEmptyRowIDsIsNoOp() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let beforeRoot = rootRows(editor).count
+        let beforeNested = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(rootRows(editor).count, beforeRoot, "Root rows unchanged")
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, beforeNested, "Nested rows unchanged")
+        XCTAssertTrue(captured.isEmpty, "No row-create change is emitted for an empty selection")
+    }
+
+    // The returned tuple carries one change per copy (keyed by nested insert index) and the full updated root elements array.
+    func testDuplicateCollectionNestedRowsReturnValueShape() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let rootCount = rootRows(editor).count
+
+        let (changes, elements) = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                                             quantity: 3,
+                                                             includeChildren: false,
+                                                             fieldIdentifier: collectionFieldIdentifier(),
+                                                             rootSchemaKey: collectionFieldID,
+                                                             nestedKey: dupColNestedKey,
+                                                             parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(changes.count, 3, "One entry per copy")
+        XCTAssertEqual(changes.keys.sorted(), [1, 2, 3], "Keys are the consecutive nested insert indexes")
+        XCTAssertEqual(elements.count, rootCount, "Returned elements are the root rows (nested growth lives inside them)")
+    }
+
+    // Root-row parity: copies are inserted directly after the original root row.
+    func testDuplicateCollectionRootRowInsertsCopiesRightAfterOriginal() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalOrder = rootRows(editor).compactMap { $0.id }
+        let originalIndex = originalOrder.firstIndex(of: dupColRootWithChildren) ?? 0
+        let followerID = originalIndex + 1 < originalOrder.count ? originalOrder[originalIndex + 1] : nil
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let order = rootRows(editor).compactMap { $0.id }
+        XCTAssertEqual(order.count, originalOrder.count + 2)
+        XCTAssertEqual(order[originalIndex], dupColRootWithChildren, "Original root row stays in place")
+        XCTAssertFalse(originalOrder.contains(order[originalIndex + 1]), "Index after original is a new copy")
+        XCTAssertFalse(originalOrder.contains(order[originalIndex + 2]), "Second slot after original is a new copy")
+        if let followerID = followerID {
+            XCTAssertEqual(order[originalIndex + 3], followerID, "Following root row shifted down by the two copies")
+        }
+    }
+
     func testMoveNestedCollectionItemUp() {
         let collectionFieldID = "67ddc52d35de157f6d7ebb63"
         let parentRowId = "67ddc537b7c2fce05d0c8615"
