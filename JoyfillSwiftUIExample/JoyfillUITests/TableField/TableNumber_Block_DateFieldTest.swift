@@ -1083,18 +1083,34 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         let thirdTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 2)
         XCTAssertEqual("Third row", thirdTextField.value as! String)
         
-        // Add row
+        let barcodeFields = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
+
+        // Add Row while the "Row" filter is active: the new row's barcode cell is
+        // pre-filled with the filter text, so it stays visible (3 filtered rows -> 4).
         app.buttons["TableAddRowIdentifier"].tap()
-        
-        // Insert below with filter
-        app.scrollViews.otherElements.containing(.image, identifier:"MyButton").children(matching: .image).matching(identifier: "MyButton").element(boundBy: 2).tap()
-        app.buttons["TableMoreButtonIdentifier"].tap()
-        app.buttons["TableInsertRowIdentifier"].tap()
-                
-        // Check inserted row data
-        let insertedTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 3)
-        XCTAssertEqual("Row", insertedTextField.value as! String)
-        
+        expectation(for: NSPredicate(format: "count == 4"), evaluatedWith: barcodeFields)
+        waitForExpectations(timeout: 5)
+        let addedTextField = barcodeFields.element(boundBy: 3)
+        XCTAssertEqual("Row", addedTextField.value as! String, "Add Row should append a pre-filled 'Row' entry")
+
+        // Insert Below: select exactly one row, then insert. Insert Below is a no-op
+        // unless a single row is selected, so wait for the selector to be hittable
+        // before tapping it (an un-registered selection silently drops the insertion).
+        let rowSelector = app.images.matching(identifier: "MyButton").element(boundBy: 2)
+        XCTAssertTrue(rowSelector.waitForExistence(timeout: 5), "Row selector not found")
+        rowSelector.tap()
+        let moreButton = app.buttons["TableMoreButtonIdentifier"]
+        XCTAssertTrue(moreButton.waitForExistence(timeout: 5), "More button not found after selecting a row")
+        moreButton.tap()
+        let insertButton = app.buttons["TableInsertRowIdentifier"]
+        XCTAssertTrue(insertButton.waitForExistence(timeout: 5), "Insert row button not found")
+        insertButton.tap()
+
+        // The inserted row is also pre-filled with the filter text, so a 5th "Row"
+        // entry becomes visible. This waits for the insertion to actually persist.
+        expectation(for: NSPredicate(format: "count == 5"), evaluatedWith: barcodeFields)
+        waitForExpectations(timeout: 5)
+
         // Clear filter
         let dismissRegion = app.otherElements["PopoverDismissRegion"]
         if dismissRegion.exists {
@@ -1104,8 +1120,8 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertTrue(clearBtn.waitForExistence(timeout: 5), "Filter clear button not found")
         clearBtn.tap()
 
-        let bc = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier")
-        expectation(for: NSPredicate(format: "count > 4"), evaluatedWith: bc)
+        // 6 original rows + Add Row + Insert Below = 8 visible after clearing.
+        expectation(for: NSPredicate(format: "count == 8"), evaluatedWith: barcodeFields)
         waitForExpectations(timeout: 5)
 
         // Check data after clear filter
@@ -1113,20 +1129,17 @@ final class TableNumber_Block_DateFieldTest: JoyfillUITestsBaseClass {
         XCTAssertEqual("Second row", secondTextField.value as! String)
         XCTAssertEqual("Third row", thirdTextField.value as! String)
 
-        app.swipeUp()
-        let rowTextField = app.textViews.matching(identifier: "TableBarcodeFieldIdentifier").element(boundBy: 6)
-        XCTAssertTrue(rowTextField.waitForExistence(timeout: 5), "Row entry not found after clearing filter")
-        XCTAssertEqual("Row", rowTextField.value as! String)
-        
         goBack()
         sleep(2)
         let colId = "676137715cb7a772624dd5ab"
         let els = onChangeResultValue().valueElements ?? []
-        XCTAssertEqual(7, els.count)
+        XCTAssertEqual(8, els.count, "Add Row and Insert Below should each persist a row")
         XCTAssertEqual("First row", els[0].cells?[colId]?.text)
         XCTAssertEqual("Second row", els[1].cells?[colId]?.text)
         XCTAssertEqual("Third row", els[2].cells?[colId]?.text)
-        XCTAssertEqual("Row", els[6].cells?[colId]?.text)
+        // Both insertions land a "Row" entry; verify both are present.
+        let insertedRowCount = els.filter { $0.cells?[colId]?.text == "Row" }.count
+        XCTAssertEqual(2, insertedRowCount, "Both Add Row and Insert Below should persist a 'Row' entry")
     }
     
     // Barcode filter test case
