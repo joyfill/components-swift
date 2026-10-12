@@ -1225,6 +1225,59 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         }
         XCTAssertNil(DocumentEditor.makeBulkChange(from: [tzChange(rowId: "r1"), tzChange(rowId: "r2")]))
     }
+
+    // MARK: - makeBulkChange: JSON-type-aware cell equality
+
+    func testMakeBulkChange_UpdateBoolVsOneReturnsNil() {
+        // true must not be treated as equal to 1 (NSDictionary.isEqual would coerce it).
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": true]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 1])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateFalseVsZeroReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": false]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 0])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateNestedBoolVsOneReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": ["nested": true]]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": ["nested": 1]])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateMatchingBoolTypesConsolidate() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": true]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": true])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        XCTAssertEqual(columns.first?["value"] as? Bool, true)
+    }
+
+    func testMakeBulkChange_UpdateMatchingNumberTypesConsolidate() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": 1]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 1])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        XCTAssertEqual(columns.first?["value"] as? Int, 1)
+    }
+
+    func testMakeBulkChange_UpdateMatchingNestedTypesConsolidate() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": ["nested": true, "n": 2]]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": ["nested": true, "n": 2]])
+        ]
+        XCTAssertNotNil(DocumentEditor.makeBulkChange(from: changes))
+    }
 }
 // MARK: - Collection (Nested Table) Tests
 extension DocumentEditorChangeHandlerTests {

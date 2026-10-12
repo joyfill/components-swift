@@ -1470,11 +1470,12 @@ extension DocumentEditor {
         var change: [String: Any]
         if target == "field.value.rowUpdate" {
             let cells = (first.change?["row"] as? [String: Any])?["cells"] as? [String: Any] ?? [:]
+            guard let firstCellsKey = cellsEqualityKey(cells) else { return nil }
             let allRowsIdentical = changes.allSatisfy { ch in
                 let row = ch.change?["row"] as? [String: Any] ?? [:]
                 let rowCells = row["cells"] as? [String: Any] ?? [:]
                 let hasExtraContext = row["tz"] != nil || row["metadata"] != nil
-                return !hasExtraContext && NSDictionary(dictionary: rowCells).isEqual(to: cells)
+                return !hasExtraContext && cellsEqualityKey(rowCells) == firstCellsKey
             }
             guard allRowsIdentical else { return nil }
             change = [
@@ -1501,6 +1502,10 @@ extension DocumentEditor {
                       fieldPositionId: first.fieldPositionId ?? "",
                       change: change,
                       createdOn: Date().timeIntervalSince1970)
+    }
+
+    private static func cellsEqualityKey(_ cells: [String: Any]) -> Data? {
+        try? JSONSerialization.data(withJSONObject: cells, options: .sortedKeys)
     }
 
     private func moveNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], parentPath: String, schemaId: String) {
