@@ -1,9 +1,5 @@
 import SwiftUI
 
-struct DuplicateRowTarget: Identifiable {
-    let id: String
-}
-
 struct DuplicateRowSheetView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var quantity: Int = 1
@@ -58,7 +54,7 @@ struct DuplicateRowSheetView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: includeChildren ? "checkmark.square.fill" : "square")
-                        Text("Include child tables")
+                        Text("Include child table(s)")
                             .darkLightThemeColor()
                     }
                 }

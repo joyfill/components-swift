@@ -50,7 +50,6 @@ struct CollectionModalView : View {
     let textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     @State private var isDismissingForNavigation = false
-    @State private var duplicateTarget: DuplicateRowTarget?
     /// Plain @State (not @StateObject) so scroll ticks re-render only the sticky overlay, not the whole grid.
     @State private var stickyTracker = CollectionStickyScrollTracker()
     
@@ -190,12 +189,6 @@ struct CollectionModalView : View {
                     .border(Color.tableCellBorderColor)
             }
 
-            if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: viewModel.rootSchemaKey) {
-                Image(systemName: "plus.square.on.square")
-                    .frame(width: 40, height: 60)
-                    .foregroundColor(Color.gray.opacity(0.4))
-                    .border(Color.tableCellBorderColor)
-            }
         }
         .frame(minHeight: 60)
         .frame(width: collectionLeftColumnWidth, height: 60)
@@ -208,7 +201,6 @@ struct CollectionModalView : View {
         if viewModel.showRowSelector(for: viewModel.tableDataModel) { width += 40 }
         if viewModel.nestedTableCount > 0 { width += 40 }
         if viewModel.tableDataModel.canShowSingleClickEditColumn(forSchemaKey: viewModel.rootSchemaKey) { width += 40 }
-        if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: viewModel.rootSchemaKey) { width += 40 }
         return width
     }
 
@@ -243,7 +235,7 @@ struct CollectionModalView : View {
                         Log("Row not found at this index ", type: .error)
                     }
                 })
-                CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView, duplicateTarget: $duplicateTarget)
+                CollectionRowsHeaderView(viewModel: viewModel, rowModel: bindingRowModel, colorScheme: colorScheme, index: index, showEditMultipleRowsSheetView: $showEditMultipleRowsSheetView)
 
                 let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
                 switch rowCellModels.rowType {
@@ -526,27 +518,6 @@ struct CollectionRowsHeaderView: View {
     let colorScheme: ColorScheme
     let index: Int
     @Binding var showEditMultipleRowsSheetView: Bool
-    @Binding var duplicateTarget: DuplicateRowTarget?
-
-    func duplicatePopover(for rowID: String, showIncludeChildrenOption: Bool) -> some View {
-        DuplicateRowPopover(
-            showIncludeChildrenOption: showIncludeChildrenOption,
-            onApply: { quantity, includeChildren in
-                viewModel.duplicateRow(rowID: rowID, quantity: quantity, includeChildren: includeChildren)
-                duplicateTarget = nil
-            },
-            onCancel: {
-                duplicateTarget = nil
-            }
-        )
-    }
-
-    func rowHasChildren(rowID: String) -> Bool {
-        // A deleted child table keeps its schema key with an empty row array, so check
-        // for at least one actual child row rather than just a non-empty children dict.
-        guard let children = viewModel.rowElement(forRowID: rowID)?.childrens else { return false }
-        return children.values.contains { $0.valueToValueElements?.isEmpty == false }
-    }
 
     var body: some View {
         let rowArray = rowModel.cells
@@ -681,13 +652,6 @@ struct CollectionRowsHeaderView: View {
                         .border(Color.tableCellBorderColor)
                         .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
                 }
-                if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: schemaKey) {
-                    Image(systemName: "plus.square.on.square")
-                        .frame(width: 40, height: 60)
-                        .foregroundColor(Color.gray.opacity(0.4))
-                        .border(Color.tableCellBorderColor)
-                        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
-                }
             case .nestedRow(_, let nastedRowIndex, _, let parentSchemaKey):
                 if !viewModel.isRowValid(for: rowModel.rowID, parentSchemaID: parentSchemaKey) {
                     Image(systemName: "asterisk")
@@ -718,22 +682,6 @@ struct CollectionRowsHeaderView: View {
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
-                }
-                if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: parentSchemaKey) {
-                    Image(systemName: "plus.square.on.square")
-                        .foregroundColor(.blue)
-                        .frame(width: 40, height: 60)
-                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                        .border(Color.tableCellBorderColor)
-                        .onTapGesture {
-                            dismissKeyboard()
-                            duplicateTarget = DuplicateRowTarget(id: rowModel.rowID)
-                        }
-                        .accessibilityIdentifier("DuplicateNestedRowButton\(nastedRowIndex)")
-                        .popover(isPresented: Binding(
-                            get: { duplicateTarget?.id == rowModel.rowID },
-                            set: { if !$0 { duplicateTarget = nil } }
-                        )) { duplicatePopover(for: rowModel.rowID, showIncludeChildrenOption: rowHasChildren(rowID: rowModel.rowID)) }
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
                     let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
@@ -783,22 +731,6 @@ struct CollectionRowsHeaderView: View {
                             showEditMultipleRowsSheetView = true
                         }
                         .accessibilityIdentifier("SingleClickEditButton\(rowIndex)")
-                }
-                if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: viewModel.rootSchemaKey) {
-                    Image(systemName: "plus.square.on.square")
-                        .foregroundColor(.blue)
-                        .frame(width: 40, height: 60)
-                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                        .border(Color.tableCellBorderColor)
-                        .onTapGesture {
-                            dismissKeyboard()
-                            duplicateTarget = DuplicateRowTarget(id: rowModel.rowID)
-                        }
-                        .accessibilityIdentifier("DuplicateRowButton\(rowIndex)")
-                        .popover(isPresented: Binding(
-                            get: { duplicateTarget?.id == rowModel.rowID },
-                            set: { if !$0 { duplicateTarget = nil } }
-                        )) { duplicatePopover(for: rowModel.rowID, showIncludeChildrenOption: rowHasChildren(rowID: rowModel.rowID)) }
                 }
                 if viewModel.showRowDecorators(forSchemaKey: viewModel.rootSchemaKey) {
                     RowDecoratorMenuView(
