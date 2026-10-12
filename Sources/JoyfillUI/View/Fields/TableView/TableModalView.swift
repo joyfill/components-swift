@@ -248,10 +248,9 @@ struct TableModalView : View {
         return width
     }
 
-    @ViewBuilder
     func duplicatePopover(for rowID: String) -> some View {
-        let content = DuplicateRowSheetView(
-            onApply: { quantity in
+        DuplicateRowPopover(
+            onApply: { quantity, _ in
                 viewModel.duplicateRow(rowID: rowID, quantity: quantity)
                 duplicateTarget = nil
             },
@@ -259,15 +258,6 @@ struct TableModalView : View {
                 duplicateTarget = nil
             }
         )
-        .frame(width: 300)
-        .fixedSize(horizontal: false, vertical: true)
-        if #available(iOS 16.4, *) {
-            content
-                .presentationCompactAdaptation(.popover)
-                .presentationBackground(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
-        } else {
-            content
-        }
     }
 
     var scrollArea: some View {

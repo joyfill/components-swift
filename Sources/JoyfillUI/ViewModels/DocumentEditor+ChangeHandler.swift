@@ -119,6 +119,11 @@ extension DocumentEditor {
         return nil
     }
     
+    /// bulkRowCreate when more than one row is created in a single duplicate action, otherwise rowCreate.
+    private func duplicateChangeTarget(for targetRows: [TargetRowModel]) -> String {
+        targetRows.count > 1 ? "field.value.bulkRowCreate" : "field.value.rowCreate"
+    }
+
     /// Duplicates specified rows in a table field.
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
@@ -162,88 +167,103 @@ extension DocumentEditor {
         fieldMap[fieldId]?.rowOrder = lastRowOrder
 
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
-        let target = targetRows.count > 1 ? "field.value.bulkRowCreate" : "field.value.rowCreate"
+        let target = duplicateChangeTarget(for: targetRows)
         addRowOnChange(event: changeEvent, targetRowIndexes: targetRows, target: target)
         return (changes, elements)
     }
     
-    public func duplicateNestedRows(selectedRowIds: [String], fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
+    public func duplicateNestedRows(selectedRowIds: [String], quantity: Int = 1, includeChildren: Bool = true, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([:],[])
         }
+        let copies = max(quantity, 1)
         var targetRows = [TargetRowModel]()
         var changes = [Int: ValueElement]()
         
         for rowId in selectedRowIds {
             if let index = elements.firstIndex(where: { $0.id == rowId }) {
-                let original = elements[index]
-                let duplicate = duplicateValueElement(original)
-                guard let duplicateID = duplicate.id else {
-                    Log("Could not find id for duplicate row", type: .error)
-                    continue
+                for offset in 0..<copies {
+                    let duplicate = duplicateValueElement(elements[index], includeChildren: includeChildren)
+                    guard let duplicateID = duplicate.id else {
+                        Log("Could not find id for duplicate row", type: .error)
+                        continue
+                    }
+                    let insertAt = index + 1 + offset
+                    elements.insert(duplicate, at: insertAt)
+                    targetRows.append(TargetRowModel(id: duplicateID, index: insertAt))
+                    changes[insertAt] = duplicate
                 }
-                elements.insert(duplicate, at: index + 1)
-                targetRows.append(TargetRowModel(id: duplicateID, index: index + 1))
-                changes[index + 1] = duplicate
             } else {
-                if let target = duplicateNestedRow(rowId: rowId, in: &elements, changes: &changes) {
-                    targetRows.append(target)
-                }
+                let targets = duplicateNestedRow(rowId: rowId, quantity: copies, includeChildren: includeChildren, in: &elements, changes: &changes)
+                targetRows.append(contentsOf: targets)
             }
         }
         
         fieldMap[fieldId]?.value = ValueUnion.valueElementArray(elements)
         let changeEvent = FieldChangeData(fieldIdentifier: fieldIdentifier)
         let parentPath = computeParentPath(targetParentId: parentRowId, nestedKey: nestedKey, in: [rootSchemaKey : elements]) ?? ""
-        
+        let target = duplicateChangeTarget(for: targetRows)
+
         addNestedRowOnChange(event: changeEvent,
                              targetRowIndexes: targetRows,
                              valueElements: Array(changes.values),
                              parentPath: parentPath,
-                             schemaKey: nestedKey)
+                             schemaKey: nestedKey,
+                             target: target)
         return (changes, elements)
     }
 
-    private func duplicateNestedRow(rowId: String, in elements: inout [ValueElement], changes: inout [Int: ValueElement]) -> TargetRowModel? {
+    private func duplicateNestedRow(rowId: String, quantity: Int = 1, includeChildren: Bool = true, in elements: inout [ValueElement], changes: inout [Int: ValueElement]) -> [TargetRowModel] {
+        let copies = max(quantity, 1)
         for i in 0..<elements.count {
             if elements[i].id == rowId {
-                let duplicate = duplicateValueElement(elements[i])
-                elements.insert(duplicate, at: i + 1)
-                changes[i + 1] = duplicate
-                guard let duplicateID = duplicate.id else {
-                    Log("Could not find id for duplicate row", type: .error)
-                    continue
+                var targets = [TargetRowModel]()
+                for offset in 0..<copies {
+                    let duplicate = duplicateValueElement(elements[i], includeChildren: includeChildren)
+                    guard let duplicateID = duplicate.id else {
+                        Log("Could not find id for duplicate row", type: .error)
+                        continue
+                    }
+                    let insertAt = i + 1 + offset
+                    elements.insert(duplicate, at: insertAt)
+                    changes[insertAt] = duplicate
+                    targets.append(TargetRowModel(id: duplicateID, index: insertAt))
                 }
-                return TargetRowModel(id: duplicateID, index: i + 1)
+                return targets
             }
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        if let target = duplicateNestedRow(rowId: rowId, in: &nestedElements, changes: &changes) {
+                        let nestedTargets = duplicateNestedRow(rowId: rowId, quantity: copies, includeChildren: includeChildren, in: &nestedElements, changes: &changes)
+                        if !nestedTargets.isEmpty {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
-                            return target
+                            return nestedTargets
                         }
                     }
                 }
             }
         }
-        return nil
+        return []
     }
 
-    func duplicateValueElement(_ element: ValueElement) -> ValueElement {
+    func duplicateValueElement(_ element: ValueElement, includeChildren: Bool = true) -> ValueElement {
         var duplicate = element
         duplicate.id = generateObjectId()
-        
-        if var children = duplicate.childrens {
-            for key in children.keys {
-                if let nestedElements = children[key]?.valueToValueElements {
-                    let newNestedElements = nestedElements.map { duplicateValueElement($0) }
-                    children[key]?.value = ValueUnion.valueElementArray(newNestedElements)
+
+        if includeChildren {
+            if var children = duplicate.childrens {
+                for key in children.keys {
+                    if let nestedElements = children[key]?.valueToValueElements {
+                        let newNestedElements = nestedElements.map { duplicateValueElement($0, includeChildren: includeChildren) }
+                        children[key]?.value = ValueUnion.valueElementArray(newNestedElements)
+                    }
                 }
+                duplicate.childrens = children
             }
-            duplicate.childrens = children
+        } else {
+            duplicate.dictionary.removeValue(forKey: "children")
         }
         
         return duplicate
@@ -1311,7 +1331,7 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
-    private func addNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], valueElements: [ValueElement], parentPath: String, schemaKey: String) {
+    private func addNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], valueElements: [ValueElement], parentPath: String, schemaKey: String, target: String = "field.value.rowCreate") {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
         
         var changes = [Change]()
@@ -1324,7 +1344,7 @@ extension DocumentEditor {
             
             let change = Change(v: 1,
                                 sdk: "swift",
-                                target: "field.value.rowCreate",
+                                target: target,
                                 _id: context.documentID,
                                 identifier: context.documentIdentifier,
                                 fileId: context.fileID,

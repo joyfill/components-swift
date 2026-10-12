@@ -7,7 +7,9 @@ struct DuplicateRowTarget: Identifiable {
 struct DuplicateRowSheetView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var quantity: Int = 1
-    let onApply: (Int) -> Void
+    @State private var includeChildren: Bool = false
+    var showIncludeChildrenOption: Bool = false
+    let onApply: (Int, Bool) -> Void
     let onCancel: () -> Void
 
     private var backgroundColor: Color {
@@ -50,6 +52,19 @@ struct DuplicateRowSheetView: View {
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
 
+            if showIncludeChildrenOption {
+                Button {
+                    includeChildren.toggle()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: includeChildren ? "checkmark.square.fill" : "square")
+                        Text("Include child tables")
+                            .darkLightThemeColor()
+                    }
+                }
+                .accessibilityIdentifier("DuplicateRowIncludeChildrenToggle")
+            }
+
             HStack(spacing: 12) {
                 Button {
                     onCancel()
@@ -61,7 +76,7 @@ struct DuplicateRowSheetView: View {
                 .accessibilityIdentifier("DuplicateRowCancelButton")
 
                 Button {
-                    onApply(quantity)
+                    onApply(quantity, includeChildren)
                 } label: {
                     Text("Apply")
                         .frame(maxWidth: .infinity, minHeight: 40)
@@ -73,5 +88,30 @@ struct DuplicateRowSheetView: View {
         .padding(16)
         .background(RoundedRectangle(cornerRadius: 12).fill(backgroundColor))
         .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.allFieldBorderColor, lineWidth: 1))
+    }
+}
+
+/// Shared popover chrome for the per-row duplicate action (table + collection).
+struct DuplicateRowPopover: View {
+    @Environment(\.colorScheme) var colorScheme
+    var showIncludeChildrenOption: Bool = false
+    let onApply: (Int, Bool) -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        let content = DuplicateRowSheetView(
+            showIncludeChildrenOption: showIncludeChildrenOption,
+            onApply: onApply,
+            onCancel: onCancel
+        )
+        .frame(width: 300)
+        .fixedSize(horizontal: false, vertical: true)
+        if #available(iOS 16.4, *) {
+            content
+                .presentationCompactAdaptation(.popover)
+                .presentationBackground(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
+        } else {
+            content
+        }
     }
 }

@@ -1526,7 +1526,7 @@ final class RequiredLogicTests: XCTestCase {
 
         let rowIDsBeforeDuplicate = Set(viewModel.rowToValueElementMap.keys)
         viewModel.tableDataModel.selectedRows = ["added-root"]
-        viewModel.duplicateRow()
+        viewModel.duplicateRow(rowID: "added-root")
         let duplicatedRowID = Set(viewModel.rowToValueElementMap.keys)
             .subtracting(rowIDsBeforeDuplicate)
             .first

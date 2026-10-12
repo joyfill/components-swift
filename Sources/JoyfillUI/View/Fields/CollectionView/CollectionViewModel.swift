@@ -1086,32 +1086,27 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return ([], rootSchemaKey)
     }
     
-    func duplicateRow() {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
-            Log("No row selected", type: .error)
+    func duplicateRow(rowID: String, quantity: Int = 1, includeChildren: Bool = false) {
+        guard let row = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) else {
+            Log("No row found to duplicate", type: .error)
             return
         }
-        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
-            return
-        }
-        switch firstSelectedRow.rowType {
+        switch row.rowType {
         case .row(index: _):
-            duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey)
+            duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren)
         case .nestedRow(level: let level, index: _, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
             let headerTableColumns: [FieldTableColumn] = tableDataModel.schema[parentSchemaKey]?.tableColumns ?? []
             
-            duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey)
+            duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren)
         default:
             return
         }
-        
-        tableDataModel.emptySelection()
     }
     
-    func duplicateNestedRow(parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String) {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
-        
-        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: tableDataModel.selectedRows,
+    func duplicateNestedRow(rowID: String, parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String, quantity: Int = 1, includeChildren: Bool = false) {
+        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: [rowID],
+                                                                              quantity: quantity,
+                                                                              includeChildren: includeChildren,
                                                                               fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                               rootSchemaKey: rootSchemaKey,
                                                                               nestedKey: parentSchemaKey,
@@ -1121,19 +1116,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         buildRowToValueElementMap()
         
         let sortedChanges = result.0.sorted { $0.key < $1.key }
-        
-        let sortedSelectedRows = tableDataModel.selectedRows.sorted { (rowID1, rowID2) in
-            guard let index1 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID1 }),
-                  let index2 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
-                return false
-            }
-            return index1 < index2
-        }
-        
-        for (offset, change) in sortedChanges.enumerated() {
-            let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-            let rowDataModel = tableDataModel.filteredcellModels[startingIndex]
-            let atIndex = startingIndex + 1 + tableDataModel.childrensForRows(startingIndex, rowDataModel, rowDataModel.rowType.level).count
+
+        var anchorRowID = rowID
+        for change in sortedChanges {
+            guard let anchorIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == anchorRowID }) else { continue }
+            let anchorRow = tableDataModel.filteredcellModels[anchorIndex]
+            let atIndex = anchorIndex + 1 + tableDataModel.childrensForRows(anchorIndex, anchorRow, anchorRow.rowType.level).count
             let valueElement = change.value
             if isNested {
                 addNestedCellModel(rowID: valueElement.id ?? "",
@@ -1141,7 +1129,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    valueElement: valueElement,
                                    columns: tableColumns,
                                    level: level,
-                                   rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey),
+                                   rowType: .nestedRow(level: level,index: anchorRow.rowType.index + 1,parentID: parentID, parentSchemaKey: anchorRow.rowType.parentSchemaKey),
                                    schemaKey: parentSchemaKey)
             } else {
                 addNestedCellModel(rowID: valueElement.id ?? "",
@@ -1149,19 +1137,17 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    valueElement: valueElement,
                                    columns: tableColumns,
                                    level: level,
-                                   rowType: .row(index: rowDataModel.rowType.index + 1),
+                                   rowType: .row(index: anchorRow.rowType.index + 1),
                                    schemaKey: parentSchemaKey)
             }
-//            tableDataModel.filterCollectionRowsIfNeeded()
-//            sortRowsIfNeeded()
+            anchorRowID = valueElement.id ?? anchorRowID
         }
         
-        guard let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
+        guard let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) else {
             Log("Could not find rowDataModel", type: .error)
             return
         }
         reIndexingRows(rowDataModel: rowDataModel)
-        tableDataModel.emptySelection()
     }
             
     func reIndexingRows(rowDataModel: RowDataModel) {
