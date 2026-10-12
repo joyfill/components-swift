@@ -143,10 +143,11 @@ final class CollectionStickyHeadersUITests: JoyfillUITestsBaseClass {
     func testScrollThroughAllFourNestingLevelsWithoutCrash() throws {
         goToCollectionDetailField()
 
-        // Root Row 1 -> Level1 Row 1 -> Level2 Row 1 -> Level3 rows (5 of them)
+        // Root Row 1 -> Level1 Row 1 -> Level2 Row 1 -> Level3 rows. Only the row-1
+        // chain is populated, so drill row-1 at each level to actually reach level 3.
         expandRow(number: 1)
-        expandNestedRow(number: 1)
-        expandNestedRow(number: 2)
+        expandDeepestNestedRow1()
+        expandDeepestNestedRow1()
 
         scrollDown(times: 4)
         scrollUp(times: 2)
@@ -222,22 +223,40 @@ final class CollectionStickyHeadersUITests: JoyfillUITestsBaseClass {
     func testEditDeepestNestedCellAfterScrollingPastAncestorHeaders() throws {
         goToCollectionDetailField()
 
+        // Only the row-1 chain is populated to level 3 (Root Row 1 -> Level1 Row 1 ->
+        // Level2 Row 1 -> Level3 Row 1..7), so drill row-1 at each level rather than
+        // expanding an arbitrary row that has no children.
         expandRow(number: 1)
-        expandNestedRow(number: 1)
-        expandNestedRow(number: 2)
+        expandDeepestNestedRow1()
+        expandDeepestNestedRow1()
 
-        scrollDown(times: 3)
+        scrollDown(times: 2)
 
-        let level3TextField = findElement(identifier: "TabelTextFieldIdentifier", type: .textView)
-        XCTAssertTrue(level3TextField.waitForExistence(timeout: 5), "Expected a visible text cell after scrolling to level 3 rows")
+        // Target a known level-3 cell by its value so we don't accidentally edit a
+        // shallower row's cell (all levels share the TabelTextFieldIdentifier).
+        let level3Predicate = NSPredicate(format: "identifier == %@ AND value == %@", "TabelTextFieldIdentifier", "Level3 Row 1")
+        let level3TextField = app.textViews.matching(level3Predicate).firstMatch
+        XCTAssertTrue(level3TextField.waitForExistence(timeout: 5), "Expected the level-3 cell 'Level3 Row 1' to be present")
         scrollUntilHittable(level3TextField)
         level3TextField.tap()
-        level3TextField.typeText("edited")
+        // Tapping places the cursor at the start of the cell, so typed text is
+        // prepended to the existing value (same behaviour the table cell-edit tests rely on).
+        level3TextField.typeText("Edited L3 ")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
         app.dismissKeyboardIfVisible()
 
-        XCTAssertTrue(app.wait(for: .runningForeground, timeout: 3),
-                      "Editing a level-3 cell underneath pinned ancestor headers should not crash the app")
+        goBack()
+        waitForAppToSettle()
+
+        // Verify the edit saved to the correct deeply-nested cell.
+        let level1 = try XCTUnwrap(onChangeResultValue().valueElements?.first?.childrens?["level1Schema"]?.valueToValueElements,
+                                   "Expected level1Schema rows under Root Row 1")
+        let level2 = try XCTUnwrap(level1.first?.childrens?["level2Schema"]?.valueToValueElements,
+                                   "Expected level2Schema rows under Level1 Row 1")
+        let level3 = try XCTUnwrap(level2.first?.childrens?["level3Schema"]?.valueToValueElements,
+                                   "Expected level3Schema rows under Level2 Row 1")
+        XCTAssertEqual("Edited L3 Level3 Row 1", level3.first?.cells?["text3"]?.text,
+                       "Editing the level-3 cell should persist to Level3 Row 1")
     }
 
     // MARK: - Collapsing a parent row while its children are scrolled into view removes them cleanly
