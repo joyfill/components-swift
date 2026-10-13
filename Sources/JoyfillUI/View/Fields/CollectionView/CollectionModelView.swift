@@ -188,7 +188,6 @@ struct CollectionModalView : View {
                     .foregroundColor(Color.gray.opacity(0.4))
                     .border(Color.tableCellBorderColor)
             }
-
         }
         .frame(minHeight: 60)
         .frame(width: collectionLeftColumnWidth, height: 60)

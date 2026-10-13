@@ -500,7 +500,7 @@ struct TableDataModel {
         return singleClickRowEdit && editability(forSchemaKey: schemaKey).formAllowed
     }
 
-    func canShowDuplicateColumn(forSchemaKey schemaKey: String? = nil) -> Bool {
+    func canShowDuplicateRowMenuItem(forSchemaKey schemaKey: String? = nil) -> Bool {
         return mode == .fill && editability(forSchemaKey: schemaKey).inlineAllowed
     }
 

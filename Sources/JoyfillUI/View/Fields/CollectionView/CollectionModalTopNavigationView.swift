@@ -112,7 +112,7 @@ struct CollectionModalTopNavigationView: View {
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                     
                                 }
-                                if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: viewModel.selectionSchemaKey) {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
@@ -201,7 +201,7 @@ struct CollectionModalTopNavigationView: View {
                                     .padding(.top, 16)
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 }
-                                if viewModel.tableDataModel.canShowDuplicateColumn(forSchemaKey: viewModel.selectionSchemaKey) {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true

@@ -73,7 +73,7 @@ struct TableModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
-                                if viewModel.tableDataModel.canShowDuplicateColumn() {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
@@ -161,7 +161,7 @@ struct TableModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
-                                if viewModel.tableDataModel.canShowDuplicateColumn() {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
