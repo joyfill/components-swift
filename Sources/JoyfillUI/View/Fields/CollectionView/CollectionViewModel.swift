@@ -1100,8 +1100,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         case .row(index: _):
             duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren)
         case .nestedRow(level: let level, index: _, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            let headerTableColumns: [FieldTableColumn] = tableDataModel.schema[parentSchemaKey]?.tableColumns ?? []
             
+            let headerTableColumns = tableDataModel.filterTableColumns(key: parentSchemaKey)
             duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren)
         default:
             return
@@ -1120,7 +1120,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         self.tableDataModel.valueToValueElements = result.1
         buildRowToValueElementMap()
-        
+        getparentToChildRowMap(tableDataModel: tableDataModel)
+
         let sortedChanges = result.0.sorted { $0.key < $1.key }
 
         var anchorRowID = rowID
@@ -1146,6 +1147,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    rowType: .row(index: anchorRow.rowType.index + 1),
                                    schemaKey: parentSchemaKey)
             }
+            setupDuplicatedChildRows(of: valueElement)
             anchorRowID = valueElement.id ?? anchorRowID
         }
         
@@ -1156,6 +1158,20 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         reIndexingRows(rowDataModel: rowDataModel)
     }
             
+    private func setupDuplicatedChildRows(of element: ValueElement) {
+        guard let childrens = element.childrens else { return }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        for (schemaID, childGroup) in childrens {
+            for child in childGroup.valueToValueElements ?? [] {
+                guard let childID = child.id else { continue }
+                tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: fieldID, schemaID: schemaID, row: child)
+                tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: fieldID, schemaID: schemaID, row: child)
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: fieldID, rowID: childID, valueElement: child)
+                setupDuplicatedChildRows(of: child)
+            }
+        }
+    }
+
     func reIndexingRows(rowDataModel: RowDataModel) {
         var localModels = tableDataModel.filteredcellModels
         // find upperMost item of this level
