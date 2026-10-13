@@ -17,7 +17,9 @@ private enum ChangeTargetType: String {
     case fieldValueRowUpdate = "field.value.rowUpdate"
     case fieldValueRowDelete = "field.value.rowDelete"
     case fieldValueRowMove = "field.value.rowMove"
-    
+    case fieldValueBulkRowUpdate = "field.value.bulkRowUpdate"
+    case fieldValueBulkRowDelete = "field.value.bulkRowDelete"
+
     case unknown
 }
 
@@ -326,6 +328,9 @@ public class DocumentEditor: ObservableObject {
             case .fieldValueRowMove:
                 handleFieldValueRowMove(for: change)
                 
+            case .fieldValueBulkRowUpdate, .fieldValueBulkRowDelete:
+                break
+
             case .unknown:
                 break
             }
@@ -496,6 +501,8 @@ public class DocumentEditor: ObservableObject {
         case .fieldValueRowDelete:
             break
         case .fieldValueRowMove:
+            break
+        case .fieldValueBulkRowUpdate, .fieldValueBulkRowDelete:
             break
         case .unknown:
             break
