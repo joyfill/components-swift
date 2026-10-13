@@ -1281,7 +1281,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             return nil
         }
         
-        let tableColumns: [FieldTableColumn] = tableDataModel.schema[nestedKey]?.tableColumns ?? []
+        let tableColumns = tableDataModel.filterTableColumns(key: nestedKey)
         let cellValues = getCellValues(columns: tableColumns)
         let selectedRow = tableDataModel.filteredcellModels[selecteRowIndex]
         
