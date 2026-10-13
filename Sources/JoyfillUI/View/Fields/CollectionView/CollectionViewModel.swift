@@ -1106,6 +1106,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         default:
             return
         }
+        tableDataModel.emptySelection()
     }
     
     func duplicateNestedRow(rowID: String, parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String, quantity: Int = 1, includeChildren: Bool = false) {
