@@ -1544,8 +1544,10 @@ extension DocumentEditorChangeHandlerTests {
     }
 
     // Collection UI default (unchecked box): duplicating a root row drops its child tables.
-    func testDuplicateCollectionRootRowExcludeChildrenStripsChildren() {
+    func testDuplicateCollectionRootRowExcludeChildrenKeepsEmptyChildTables() {
         let editor = documentEditor(document: duplicateCollectionDocument())
+        let original = rootRows(editor).first { $0.id == dupColRootWithChildren }
+        let originalChildKeys = Set(original?.childrens?.keys ?? [:].keys)
         let originalRootIDs = Set(rootRows(editor).compactMap { $0.id })
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
@@ -1561,7 +1563,17 @@ extension DocumentEditorChangeHandlerTests {
 
         let duplicate = after.first { !originalRootIDs.contains($0.id ?? "") }
         XCTAssertNotNil(duplicate, "A new root row must exist")
-        XCTAssertNil(duplicate?.childrens, "includeChildren: false must strip the child tables")
+
+        // includeChildren: false must keep each child-table key (so schema logic still
+        // builds a visibility map for the clone) but reset every table to empty.
+        let childrens = duplicate?.childrens
+        XCTAssertNotNil(childrens, "Child-table keys must be preserved, not stripped")
+        XCTAssertEqual(Set(childrens?.keys ?? [:].keys), originalChildKeys,
+                       "Clone keeps the same child-table schema keys as the original")
+        for (key, child) in childrens ?? [:] {
+            XCTAssertEqual(child.valueToValueElements?.count ?? 0, 0,
+                           "Child table \(key) must be empty when includeChildren is false")
+        }
     }
 
     // Checked box: duplicating a root row deep-copies the child tables with fresh ids.
@@ -1605,9 +1617,12 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertEqual(Set(after.compactMap { $0.id }).count, after.count, "All nested row ids remain unique")
     }
 
-    // Nested row, includeChildren: false drops the row's grandchildren.
-    func testDuplicateCollectionNestedRowExcludeChildrenStripsGrandchildren() {
+    // Nested row, includeChildren: false keeps the grandchild-table keys but empties them.
+    func testDuplicateCollectionNestedRowExcludeChildrenKeepsEmptyGrandchildren() {
         let editor = documentEditor(document: duplicateCollectionDocument())
+        let original = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+            .first { $0.id == dupColNestedWithGrandchildren }
+        let originalChildKeys = Set(original?.childrens?.keys ?? [:].keys)
         let originalNestedIDs = Set(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id })
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedWithGrandchildren],
@@ -1621,7 +1636,15 @@ extension DocumentEditorChangeHandlerTests {
         let duplicate = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
             .first { !originalNestedIDs.contains($0.id ?? "") }
         XCTAssertNotNil(duplicate, "A new nested row must exist")
-        XCTAssertNil(duplicate?.childrens, "includeChildren: false must strip the grandchildren")
+
+        let childrens = duplicate?.childrens
+        XCTAssertNotNil(childrens, "Grandchild-table keys must be preserved, not stripped")
+        XCTAssertEqual(Set(childrens?.keys ?? [:].keys), originalChildKeys,
+                       "Clone keeps the same grandchild-table schema keys as the original")
+        for (key, child) in childrens ?? [:] {
+            XCTAssertEqual(child.valueToValueElements?.count ?? 0, 0,
+                           "Grandchild table \(key) must be empty when includeChildren is false")
+        }
     }
 
     // quantity == 1 emits a single rowCreate (never bulkRowCreate).

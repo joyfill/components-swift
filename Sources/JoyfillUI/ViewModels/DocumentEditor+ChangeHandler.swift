@@ -263,7 +263,12 @@ extension DocumentEditor {
                 duplicate.childrens = children
             }
         } else {
-            duplicate.dictionary.removeValue(forKey: "children")
+            if var children = duplicate.childrens {
+                for key in children.keys {
+                    children[key] = getEmptyChildrenObject()
+                }
+                duplicate.childrens = children
+            }
         }
         
         return duplicate
