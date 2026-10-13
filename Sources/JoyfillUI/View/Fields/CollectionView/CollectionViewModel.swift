@@ -1091,28 +1091,49 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return ([], rootSchemaKey)
     }
     
-    func duplicateRow(rowID: String, quantity: Int = 1, includeChildren: Bool = false) {
+    func duplicateRow(rowID: String, quantity: Int = 1, includeChildren: Bool = false, insertAtEnd: Bool = false) {
         guard let row = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) else {
             Log("No row found to duplicate", type: .error)
             return
         }
         switch row.rowType {
         case .row(index: _):
-            duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren)
+            duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         case .nestedRow(level: let level, index: _, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
             
             let headerTableColumns = tableDataModel.filterTableColumns(key: parentSchemaKey)
-            duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren)
+            duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         default:
             return
         }
         tableDataModel.emptySelection()
     }
-    
-    func duplicateNestedRow(rowID: String, parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String, quantity: Int = 1, includeChildren: Bool = false) {
+
+    /// Finds the last row that belongs to the same sibling group as `rowID`
+    /// (same level and, for nested rows, same parent). Used to anchor
+    /// "add at the end" duplicates after the final sibling in the group.
+    private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String) -> String? {
+        var result: String?
+        for model in tableDataModel.filteredcellModels {
+            switch model.rowType {
+            case .row:
+                if !isNested { result = model.rowID }
+            case .nestedRow(let rowLevel, _, let modelParentID, _):
+                if isNested, rowLevel == level, modelParentID?.rowID == parentRowID {
+                    result = model.rowID
+                }
+            default:
+                break
+            }
+        }
+        return result
+    }
+
+    func duplicateNestedRow(rowID: String, parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String, quantity: Int = 1, includeChildren: Bool = false, insertAtEnd: Bool = false) {
         guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: [rowID],
                                                                               quantity: quantity,
                                                                               includeChildren: includeChildren,
+                                                                              insertAtEnd: insertAtEnd,
                                                                               fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                               rootSchemaKey: rootSchemaKey,
                                                                               nestedKey: parentSchemaKey,
@@ -1125,6 +1146,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         let sortedChanges = result.0.sorted { $0.key < $1.key }
 
         var anchorRowID = rowID
+        if insertAtEnd {
+            anchorRowID = lastSiblingRowID(forSourceRowID: rowID, isNested: isNested, level: level, parentRowID: parentID?.rowID ?? "") ?? rowID
+        }
         for change in sortedChanges {
             guard let anchorIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == anchorRowID }) else { continue }
             let anchorRow = tableDataModel.filteredcellModels[anchorIndex]

@@ -3,8 +3,10 @@ import SwiftUI
 struct DuplicateRowSheetView: View {
     @State private var quantity: Int = 1
     @State private var includeChildren: Bool = false
+    @State private var addAtEnd: Bool = false
     var showIncludeChildrenOption: Bool = false
-    let onApply: (Int, Bool) -> Void
+    var showAddAtEndOption: Bool = false
+    let onApply: (Int, Bool, Bool) -> Void
     let onCancel: () -> Void
 
     private var quantityTextBinding: Binding<String> {
@@ -23,37 +25,43 @@ struct DuplicateRowSheetView: View {
                 .font(.headline)
                 .foregroundColor(Color(UIColor.label))
 
-            HStack(spacing: 0) {
-                Button {
-                    if quantity > 1 { quantity -= 1 }
-                } label: {
-                    Image(systemName: "minus")
-                        .frame(width: 44, height: 44)
-                }
-                .disabled(quantity <= 1)
-                .accessibilityIdentifier("DuplicateRowCounterMinus")
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Number of duplicate rows")
+                    .font(.subheadline)
+                    .foregroundColor(Color(UIColor.secondaryLabel))
 
-                TextField("", text: quantityTextBinding)
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 17, weight: .semibold))
-                    .frame(minWidth: 44)
-                    .foregroundColor(Color(UIColor.label))
-                    .accessibilityIdentifier("DuplicateRowCounterValue")
+                HStack(spacing: 0) {
+                    Button {
+                        if quantity > 1 { quantity -= 1 }
+                    } label: {
+                        Image(systemName: "minus")
+                            .frame(width: 44, height: 44)
+                    }
+                    .disabled(quantity <= 1)
+                    .accessibilityIdentifier("DuplicateRowCounterMinus")
 
-                Button {
-                    quantity += 1
-                } label: {
-                    Image(systemName: "plus")
-                        .frame(width: 44, height: 44)
+                    TextField("", text: quantityTextBinding)
+                        .keyboardType(.numberPad)
+                        .multilineTextAlignment(.center)
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(minWidth: 44)
+                        .foregroundColor(Color(UIColor.label))
+                        .accessibilityIdentifier("DuplicateRowCounterValue")
+
+                    Button {
+                        quantity += 1
+                    } label: {
+                        Image(systemName: "plus")
+                            .frame(width: 44, height: 44)
+                    }
+                    .accessibilityIdentifier("DuplicateRowCounterPlus")
                 }
-                .accessibilityIdentifier("DuplicateRowCounterPlus")
+                .frame(maxWidth: .infinity)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(Color.allFieldBorderColor, lineWidth: 1)
+                )
             }
-            .frame(maxWidth: .infinity)
-            .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
-            )
 
             if showIncludeChildrenOption {
                 Button {
@@ -68,6 +76,19 @@ struct DuplicateRowSheetView: View {
                 .accessibilityIdentifier("DuplicateRowIncludeChildrenToggle")
             }
 
+            if showAddAtEndOption {
+                Button {
+                    addAtEnd.toggle()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: addAtEnd ? "checkmark.square.fill" : "square")
+                        Text("Add duplicated rows at the end")
+                            .foregroundColor(Color(UIColor.label))
+                    }
+                }
+                .accessibilityIdentifier("DuplicateRowAddAtEndToggle")
+            }
+
             HStack(spacing: 12) {
                 Button {
                     onCancel()
@@ -79,7 +100,7 @@ struct DuplicateRowSheetView: View {
                 .accessibilityIdentifier("DuplicateRowCancelButton")
 
                 Button {
-                    onApply(quantity, includeChildren)
+                    onApply(quantity, includeChildren, addAtEnd)
                 } label: {
                     Text("Apply")
                         .frame(maxWidth: .infinity, minHeight: 40)
@@ -95,12 +116,14 @@ struct DuplicateRowSheetView: View {
 /// Shared popover chrome for the per-row duplicate action (table + collection).
 struct DuplicateRowPopover: View {
     var showIncludeChildrenOption: Bool = false
-    let onApply: (Int, Bool) -> Void
+    var showAddAtEndOption: Bool = false
+    let onApply: (Int, Bool, Bool) -> Void
     let onCancel: () -> Void
 
     var body: some View {
         let content = DuplicateRowSheetView(
             showIncludeChildrenOption: showIncludeChildrenOption,
+            showAddAtEndOption: showAddAtEndOption,
             onApply: onApply,
             onCancel: onCancel
         )

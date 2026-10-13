@@ -252,9 +252,10 @@ struct CollectionModalTopNavigationView: View {
                 .popover(isPresented: $showDuplicatePopover) {
                     DuplicateRowPopover(
                         showIncludeChildrenOption: selectedRowHasChildren,
-                        onApply: { quantity, includeChildren in
+                        showAddAtEndOption: true,
+                        onApply: { quantity, includeChildren, addAtEnd in
                             if let rowID = viewModel.tableDataModel.selectedRows.first {
-                                viewModel.duplicateRow(rowID: rowID, quantity: quantity, includeChildren: includeChildren)
+                                viewModel.duplicateRow(rowID: rowID, quantity: quantity, includeChildren: includeChildren, insertAtEnd: addAtEnd)
                             }
                             showDuplicatePopover = false
                         },

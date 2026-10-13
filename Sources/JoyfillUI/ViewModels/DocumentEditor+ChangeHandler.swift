@@ -128,7 +128,7 @@ extension DocumentEditor {
     /// - Parameters:
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
-    public func duplicateRows(rowIDs: [String], quantity: Int = 1, fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
+    public func duplicateRows(rowIDs: [String], quantity: Int = 1, insertAtEnd: Bool = false, fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
@@ -156,7 +156,7 @@ extension DocumentEditor {
                 let newRowID = generateObjectId()
                 element.id = newRowID
                 elements.append(element)
-                let insertAt = originalIndex + 1 + offset
+                let insertAt = insertAtEnd ? lastRowOrder.count : originalIndex + 1 + offset
                 lastRowOrder.insert(newRowID, at: insertAt)
                 targetRows.append(TargetRowModel(id: newRowID, index: insertAt))
                 changes[insertAt] = element
@@ -172,7 +172,7 @@ extension DocumentEditor {
         return (changes, elements)
     }
     
-    public func duplicateNestedRows(selectedRowIds: [String], quantity: Int = 1, includeChildren: Bool = true, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
+    public func duplicateNestedRows(selectedRowIds: [String], quantity: Int = 1, includeChildren: Bool = true, insertAtEnd: Bool = false, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([:],[])
@@ -189,13 +189,13 @@ extension DocumentEditor {
                         Log("Could not find id for duplicate row", type: .error)
                         continue
                     }
-                    let insertAt = index + 1 + offset
+                    let insertAt = insertAtEnd ? elements.count : index + 1 + offset
                     elements.insert(duplicate, at: insertAt)
                     targetRows.append(TargetRowModel(id: duplicateID, index: insertAt))
                     changes[insertAt] = duplicate
                 }
             } else {
-                let targets = duplicateNestedRow(rowId: rowId, quantity: copies, includeChildren: includeChildren, in: &elements, changes: &changes)
+                let targets = duplicateNestedRow(rowId: rowId, quantity: copies, includeChildren: includeChildren, insertAtEnd: insertAtEnd, in: &elements, changes: &changes)
                 targetRows.append(contentsOf: targets)
             }
         }
@@ -214,7 +214,7 @@ extension DocumentEditor {
         return (changes, elements)
     }
 
-    private func duplicateNestedRow(rowId: String, quantity: Int = 1, includeChildren: Bool = true, in elements: inout [ValueElement], changes: inout [Int: ValueElement]) -> [TargetRowModel] {
+    private func duplicateNestedRow(rowId: String, quantity: Int = 1, includeChildren: Bool = true, insertAtEnd: Bool = false, in elements: inout [ValueElement], changes: inout [Int: ValueElement]) -> [TargetRowModel] {
         let copies = max(quantity, 1)
         for i in 0..<elements.count {
             if elements[i].id == rowId {
@@ -225,7 +225,7 @@ extension DocumentEditor {
                         Log("Could not find id for duplicate row", type: .error)
                         continue
                     }
-                    let insertAt = i + 1 + offset
+                    let insertAt = insertAtEnd ? elements.count : i + 1 + offset
                     elements.insert(duplicate, at: insertAt)
                     changes[insertAt] = duplicate
                     targets.append(TargetRowModel(id: duplicateID, index: insertAt))
@@ -235,7 +235,7 @@ extension DocumentEditor {
             if var children = elements[i].childrens {
                 for key in children.keys {
                     if var nestedElements = children[key]?.valueToValueElements {
-                        let nestedTargets = duplicateNestedRow(rowId: rowId, quantity: copies, includeChildren: includeChildren, in: &nestedElements, changes: &changes)
+                        let nestedTargets = duplicateNestedRow(rowId: rowId, quantity: copies, includeChildren: includeChildren, insertAtEnd: insertAtEnd, in: &nestedElements, changes: &changes)
                         if !nestedTargets.isEmpty {
                             children[key]?.value = ValueUnion.valueElementArray(nestedElements)
                             elements[i].childrens = children
