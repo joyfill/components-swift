@@ -47,6 +47,11 @@ public struct Decorator: Equatable {
         set { dictionary["action"] = newValue }
     }
 
+    public var showInBulkForm: Bool {
+        get { dictionary["showInBulkForm"] as? Bool ?? true }
+        set { dictionary["showInBulkForm"] = newValue }
+    }
+
     public var isDisplayable: Bool {
         let hasIcon = icon != nil && !(icon?.isEmpty ?? true)
         let hasLabel = label != nil && !(label?.isEmpty ?? true)
@@ -54,7 +59,7 @@ public struct Decorator: Equatable {
     }
 
     public static func == (lhs: Decorator, rhs: Decorator) -> Bool {
-        lhs.icon == rhs.icon && lhs.label == rhs.label && lhs.color == rhs.color && lhs.action == rhs.action
+        lhs.icon == rhs.icon && lhs.label == rhs.label && lhs.color == rhs.color && lhs.action == rhs.action && lhs.showInBulkForm == rhs.showInBulkForm
     }
 }
 

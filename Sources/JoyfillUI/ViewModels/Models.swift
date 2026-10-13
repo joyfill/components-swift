@@ -423,7 +423,8 @@ struct TableDataModel {
             let key = "\(singleID)/\(columnId)"
             return tableCellDecorators[key] ?? []
         } else {
-            return tableCommonCellDecorators[columnId] ?? []
+            let decorators = tableCommonCellDecorators[columnId] ?? []
+            return decorators.filter { $0.showInBulkForm }
         }
     }
     
@@ -1277,6 +1278,7 @@ struct DecoratorLocal {
     var label: String?
     var color: String?
     var action: String?
+    var showInBulkForm: Bool
 
     var isDisplayable: Bool {
         let hasIcon = !(icon?.isEmpty ?? true)
@@ -1284,11 +1286,12 @@ struct DecoratorLocal {
         return hasIcon || hasLabel
     }
 
-    init(icon: String? = nil, label: String? = nil, color: String? = nil, action: String? = nil) {
+    init(icon: String? = nil, label: String? = nil, color: String? = nil, action: String? = nil, showInBulkForm: Bool = true) {
         self.icon = icon
         self.label = label
         self.color = color
         self.action = action
+        self.showInBulkForm = showInBulkForm
     }
 
     init(from decorator: Decorator) {
@@ -1296,6 +1299,7 @@ struct DecoratorLocal {
         self.label = decorator.label
         self.color = decorator.color
         self.action = decorator.action
+        self.showInBulkForm = decorator.showInBulkForm
     }
 }
 

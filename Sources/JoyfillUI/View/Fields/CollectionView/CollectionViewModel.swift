@@ -79,6 +79,9 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                 .map(DecoratorLocal.init(from:)) ?? []
             if !cellSpecific.isEmpty { return cellSpecific }
         }
+        if rowIds.count > 1 {
+            return columnDecorators.filter { $0.showInBulkForm }
+        }
         return columnDecorators
     }
 
