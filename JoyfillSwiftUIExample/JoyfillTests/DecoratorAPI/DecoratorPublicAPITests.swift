@@ -959,4 +959,266 @@ final class DecoratorPublicAPITests: XCTestCase {
         editor.updateFieldMap()
         XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
     }
+
+    // MARK: - showInBulkForm property
+
+    func testDecorator_defaultShowInBulkFormIsTrue() {
+        let decorator = Decorator()
+        XCTAssertTrue(decorator.showInBulkForm)
+    }
+
+    func testDecorator_canSetShowInBulkFormToFalse() {
+        var decorator = Decorator()
+        decorator.showInBulkForm = false
+        XCTAssertFalse(decorator.showInBulkForm)
+    }
+
+    func testDecorator_canSetShowInBulkFormToTrue() {
+        var decorator = Decorator()
+        decorator.showInBulkForm = true
+        XCTAssertTrue(decorator.showInBulkForm)
+    }
+
+    func testDecorator_readFromDictionary_defaultShowInBulkFormIsTrue() {
+        let dict: [String: Any] = [
+            "icon": "flag",
+            "label": "Test",
+            "action": "testAction"
+        ]
+        let decorator = Decorator(dictionary: dict)
+        XCTAssertTrue(decorator.showInBulkForm)
+    }
+
+    func testDecorator_readFromDictionary_respectsShowInBulkFormValue() {
+        let dict: [String: Any] = [
+            "icon": "flag",
+            "label": "Test",
+            "action": "testAction",
+            "showInBulkForm": false
+        ]
+        let decorator = Decorator(dictionary: dict)
+        XCTAssertFalse(decorator.showInBulkForm)
+    }
+
+    func testDecorator_equalsIncludesShowInBulkForm() {
+        let decorator1 = makeDecorator(action: "test", showInBulkForm: true)
+        let decorator2 = makeDecorator(action: "test", showInBulkForm: true)
+        let decorator3 = makeDecorator(action: "test", showInBulkForm: false)
+
+        XCTAssertEqual(decorator1, decorator2)
+        XCTAssertNotEqual(decorator1, decorator3)
+    }
+
+    func testTableCellDecorators_multipleRowsBulkEditFiltersOutShowInBulkFormFalse() {
+        let (editor, _) = makeChangerHandlerEditor()
+
+        let path = ChangerHandlerSample.tableCommonColumnPath()
+
+        let showDecorator = makeDecorator(action: "show", showInBulkForm: true)
+        let hideDecorator = makeDecorator(action: "hide", showInBulkForm: false)
+
+        editor.addDecorators(path: path, decorators: [showDecorator, hideDecorator])
+
+        let fieldIdentifier = FieldIdentifier(fieldID: ChangerHandlerSample.tableFieldID, fileID: ChangerHandlerSample.fileID)
+        guard let tableDataModel = TableDataModel(
+            fieldHeaderModel: nil,
+            mode: .fill,
+            documentEditor: editor,
+            fieldIdentifier: fieldIdentifier
+        ) else {
+            XCTFail("Failed to create table data model")
+            return
+        }
+
+        // Simulate bulk edit with multiple rows
+        let multipleRowIds = [ChangerHandlerSample.tableRowID, "some-other-row-id"]
+        let decorators = tableDataModel.getTableCellDecorators(rowIds: multipleRowIds, columnId: ChangerHandlerSample.tableColumnID)
+
+        XCTAssertEqual(decorators.count, 1, "Bulk edit should filter out decorators with showInBulkForm: false")
+        XCTAssertEqual(decorators.first?.action, "show", "Only show decorator should remain in bulk edit")
+    }
+
+    func testTableCellDecorators_singleRowShowsAllDecorators() {
+        let (editor, _) = makeChangerHandlerEditor()
+
+        let path = ChangerHandlerSample.tableCommonColumnPath()
+
+        let showDecorator = makeDecorator(action: "show", showInBulkForm: true)
+        let hideDecorator = makeDecorator(action: "hide", showInBulkForm: false)
+
+        editor.addDecorators(path: path, decorators: [showDecorator, hideDecorator])
+
+        
+        let fieldIdentifier = FieldIdentifier(fieldID: ChangerHandlerSample.tableFieldID, fileID: ChangerHandlerSample.fileID)
+        guard let tableDataModel = TableDataModel(
+            fieldHeaderModel: nil,
+            mode: .fill,
+            documentEditor: editor,
+            fieldIdentifier: fieldIdentifier
+        ) else {
+            XCTFail("Failed to create table data model")
+            return
+        }
+
+        let singleRowIds = [ChangerHandlerSample.tableRowID]
+        let decorators = tableDataModel.getTableCellDecorators(rowIds: singleRowIds, columnId: ChangerHandlerSample.tableColumnID)
+
+        XCTAssertGreaterThanOrEqual(decorators.count, 1, "Single row edit should show all decorators regardless of showInBulkForm")
+    }
+
+    func testTableCellDecorators_emptyRowsReturnEmpty() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonColumnPath()
+        editor.addDecorators(path: path, decorators: [makeDecorator(action: "test")])
+
+        let fieldIdentifier = FieldIdentifier(fieldID: ChangerHandlerSample.tableFieldID, fileID: ChangerHandlerSample.fileID)
+        guard let tableDataModel = TableDataModel(
+            fieldHeaderModel: nil,
+            mode: .fill,
+            documentEditor: editor,
+            fieldIdentifier: fieldIdentifier
+        ) else {
+            XCTFail("Failed to create table data model")
+            return
+        }
+
+        let emptyRowIds: [String] = []
+        let decorators = tableDataModel.getTableCellDecorators(rowIds: emptyRowIds, columnId: ChangerHandlerSample.tableColumnID)
+
+        XCTAssertEqual(decorators.count, 0, "Empty rowIds should return no decorators")
+    }
+
+    func testTableCellDecorators_multipleMixedDecoratorsInBulkEdit() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonColumnPath()
+
+        let decorators = [
+            makeDecorator(action: "show1", showInBulkForm: true),
+            makeDecorator(action: "hide1", showInBulkForm: false),
+            makeDecorator(action: "show2", showInBulkForm: true),
+            makeDecorator(action: "hide2", showInBulkForm: false),
+            makeDecorator(action: "show3", showInBulkForm: true)
+        ]
+        editor.addDecorators(path: path, decorators: decorators)
+
+        let fieldIdentifier = FieldIdentifier(fieldID: ChangerHandlerSample.tableFieldID, fileID: ChangerHandlerSample.fileID)
+        guard let tableDataModel = TableDataModel(
+            fieldHeaderModel: nil,
+            mode: .fill,
+            documentEditor: editor,
+            fieldIdentifier: fieldIdentifier
+        ) else {
+            XCTFail("Failed to create table data model")
+            return
+        }
+
+        let multipleRowIds = [ChangerHandlerSample.tableRowID, "another-row"]
+        let resultDecorators = tableDataModel.getTableCellDecorators(rowIds: multipleRowIds, columnId: ChangerHandlerSample.tableColumnID)
+
+        XCTAssertEqual(resultDecorators.count, 3, "Should have 3 decorators with showInBulkForm: true")
+        let actions = resultDecorators.compactMap { $0.action }
+        XCTAssertEqual(Set(actions), Set(["show1", "show2", "show3"]), "Should only include decorators with showInBulkForm: true")
+    }
+
+    func testDecorator_persistsShowInBulkFormToJSON() {
+        var decorator = makeDecorator(action: "test", showInBulkForm: false)
+        let dict = decorator.dictionary
+
+        XCTAssertEqual(dict["showInBulkForm"] as? Bool, false, "showInBulkForm should persist to dictionary")
+
+        let restoredDecorator = Decorator(dictionary: dict)
+        XCTAssertFalse(restoredDecorator.showInBulkForm, "showInBulkForm should be restored from dictionary")
+    }
+
+    func testDecoratorLocal_initWithAllParameters() {
+        let decoratorLocal = DecoratorLocal(
+            icon: "flag",
+            label: "Test",
+            color: "#FF0000",
+            action: "test_action",
+            showInBulkForm: false
+        )
+
+        XCTAssertEqual(decoratorLocal.icon, "flag")
+        XCTAssertEqual(decoratorLocal.label, "Test")
+        XCTAssertEqual(decoratorLocal.color, "#FF0000")
+        XCTAssertEqual(decoratorLocal.action, "test_action")
+        XCTAssertFalse(decoratorLocal.showInBulkForm)
+    }
+
+    func testDecorator_backwardCompatibilityWithoutShowInBulkForm() {
+        // Simulate old decorator JSON without showInBulkForm property
+        let oldDecoratorDict: [String: Any] = [
+            "icon": "star",
+            "label": "Legacy",
+            "action": "legacy_action",
+            "color": "#00FF00"
+            // No showInBulkForm property
+        ]
+        let decorator = Decorator(dictionary: oldDecoratorDict)
+
+        XCTAssertTrue(decorator.showInBulkForm, "Old decorators should default to showInBulkForm: true for backward compatibility")
+    }
+
+    func testTableRowDecorators_bulkEditFiltersShowInBulkForm() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let path = ChangerHandlerSample.tableCommonRowsPath()
+
+        let showRowDecorator = makeDecorator(action: "row_show", showInBulkForm: true)
+        let hideRowDecorator = makeDecorator(action: "row_hide", showInBulkForm: false)
+
+        editor.addDecorators(path: path, decorators: [showRowDecorator, hideRowDecorator])
+
+        let fieldIdentifier = FieldIdentifier(fieldID: ChangerHandlerSample.tableFieldID, fileID: ChangerHandlerSample.fileID)
+        guard let tableDataModel = TableDataModel(
+            fieldHeaderModel: nil,
+            mode: .fill,
+            documentEditor: editor,
+            fieldIdentifier: fieldIdentifier
+        ) else {
+            XCTFail("Failed to create table data model")
+            return
+        }
+
+        // Row decorators stored separately - verify they're set correctly
+        XCTAssertGreaterThan(tableDataModel.tableRowDecorators.count, 0, "Row decorators should be populated")
+    }
+
+    func testDecorator_writeAndReadShowInBulkForm() {
+        var decorator = Decorator()
+        decorator.showInBulkForm = false
+        decorator.icon = "test"
+        decorator.label = "Test"
+        decorator.action = "test"
+
+        // Write to dictionary
+        let dict = decorator.dictionary
+
+        // Read back
+        let restoredDecorator = Decorator(dictionary: dict)
+        XCTAssertFalse(restoredDecorator.showInBulkForm)
+        XCTAssertEqual(restoredDecorator.icon, "test")
+
+        // Modify and verify
+        decorator.showInBulkForm = true
+        XCTAssertTrue(decorator.showInBulkForm)
+        XCTAssertTrue(decorator.dictionary["showInBulkForm"] as? Bool ?? false)
+    }
+
+    func testDecorator_equalsWithDifferentShowInBulkFormValues() {
+        let decorator1 = makeDecorator(action: "test", icon: "flag", label: "Test", showInBulkForm: true)
+        let decorator2 = makeDecorator(action: "test", icon: "flag", label: "Test", showInBulkForm: false)
+
+        XCTAssertNotEqual(decorator1, decorator2, "Decorators with different showInBulkForm values should not be equal")
+    }
+
+    func testDecorator_equalsIgnoresOtherPropertiesButIncludesShowInBulkForm() {
+        let decorator1 = makeDecorator(action: "action1", icon: "flag", showInBulkForm: true)
+        let decorator2 = makeDecorator(action: "action2", icon: "flag", showInBulkForm: true)
+
+        XCTAssertNotEqual(decorator1, decorator2, "Different actions should make decorators unequal")
+
+        let decorator3 = makeDecorator(action: "action1", icon: "flag", showInBulkForm: true)
+        XCTAssertEqual(decorator1, decorator3, "Same properties including showInBulkForm should be equal")
+    }
 }

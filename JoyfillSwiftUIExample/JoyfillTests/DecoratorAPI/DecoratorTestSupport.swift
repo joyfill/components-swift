@@ -154,12 +154,14 @@ func findValueElement(in field: JoyDocField?,
 func makeDecorator(action: String,
                    icon: String? = "flag",
                    label: String? = "Test",
-                   color: String? = "#3B82F6") -> Decorator {
+                   color: String? = "#3B82F6",
+                   showInBulkForm: Bool = true) -> Decorator {
     var d = Decorator()
     d.action = action
     d.icon = icon
     d.label = label
     d.color = color
+    d.showInBulkForm = showInBulkForm
     return d
 }
 
