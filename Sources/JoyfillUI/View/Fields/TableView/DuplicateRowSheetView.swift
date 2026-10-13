@@ -12,6 +12,16 @@ struct DuplicateRowSheetView: View {
         colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white
     }
 
+    private var quantityTextBinding: Binding<String> {
+        Binding(
+            get: { String(quantity) },
+            set: { newValue in
+                let digits = newValue.filter { $0.isNumber }
+                if let typed = Int(digits) { quantity = typed }
+            }
+        )
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Duplicate")
@@ -28,7 +38,9 @@ struct DuplicateRowSheetView: View {
                 .disabled(quantity <= 1)
                 .accessibilityIdentifier("DuplicateRowCounterMinus")
 
-                Text("\(quantity)")
+                TextField("", text: quantityTextBinding)
+                    .keyboardType(.numberPad)
+                    .multilineTextAlignment(.center)
                     .font(.system(size: 17, weight: .semibold))
                     .frame(minWidth: 44)
                     .darkLightThemeColor()
