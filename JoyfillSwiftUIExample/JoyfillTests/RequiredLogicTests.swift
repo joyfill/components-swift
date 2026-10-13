@@ -1525,7 +1525,6 @@ final class RequiredLogicTests: XCTestCase {
                        "A newly added empty required collection cell must be invalid")
 
         let rowIDsBeforeDuplicate = Set(viewModel.rowToValueElementMap.keys)
-        viewModel.tableDataModel.selectedRows = ["added-root"]
         viewModel.duplicateRow(rowID: "added-root")
         let duplicatedRowID = Set(viewModel.rowToValueElementMap.keys)
             .subtracting(rowIDsBeforeDuplicate)
