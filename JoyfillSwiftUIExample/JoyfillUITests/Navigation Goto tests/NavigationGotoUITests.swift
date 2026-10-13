@@ -241,6 +241,27 @@ final class NavigationGotoUITests: XCTestCase {
                       "Picker should be interactive, not merely present in the tree")
     }
 
+    /// Verifies `setPageNavigationVisible(_:)` by tapping the footer's "Hide Pages" / "Show Pages"
+    /// toggle and confirming the built-in page-navigation button disappears and reappears accordingly.
+    func testSetPageNavigationVisibleTogglesPageNavigationButton() throws {
+        let navButton = app.buttons["PageNavigationIdentifier"].firstMatch
+        let toggleButton = app.buttons["TogglePageNavigationButtonIdentifier"].firstMatch
+
+        XCTAssertTrue(navButton.waitForExistence(timeout: 5), "Page navigation button should be visible initially")
+        XCTAssertTrue(toggleButton.waitForExistence(timeout: 5), "Hide/Show Pages toggle button not found")
+        XCTAssertEqual(toggleButton.label, "Hide Pages")
+
+        toggleButton.tap()
+        spinRunloop(0.3)
+        XCTAssertFalse(navButton.exists, "Page navigation button should disappear after tapping Hide Pages")
+        XCTAssertEqual(toggleButton.label, "Show Pages")
+
+        toggleButton.tap()
+        spinRunloop(0.3)
+        XCTAssertTrue(navButton.waitForExistence(timeout: 5), "Page navigation button should reappear after tapping Show Pages")
+        XCTAssertEqual(toggleButton.label, "Hide Pages")
+    }
+
     private func openTableModal() {
         let pageSelectionButton = app.buttons["PageNavigationIdentifier"].firstMatch
         pageSelectionButton.tap()

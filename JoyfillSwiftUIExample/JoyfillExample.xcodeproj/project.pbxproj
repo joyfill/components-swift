@@ -141,6 +141,7 @@
 		36A5EF382E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
 		36A5EF392E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
 		36A5EF3A2E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		CF3AD3E2BE0F4F21A1EE08A3 /* CollectionStickyHeadersTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = BE1FAF22FC8245ED8F68C21E /* CollectionStickyHeadersTestData.json */; };
 		36A5EF3B2E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
 		36A5EF3C2E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
 		36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
@@ -150,6 +151,7 @@
 		36A5EF422E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
 		36A5EF432E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
 		36A5EF442E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		15D1EDBCF606487785DD0ABF /* CollectionStickyHeadersTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = BE1FAF22FC8245ED8F68C21E /* CollectionStickyHeadersTestData.json */; };
 		36A5EF452E29725B0059C2A6 /* TableNewColumns.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2E2E29725B0059C2A6 /* TableNewColumns.json */; };
 		36A5EF462E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */; };
 		36A5EF472E29725B0059C2A6 /* testrow.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2F2E29725B0059C2A6 /* testrow.json */; };
@@ -159,6 +161,7 @@
 		36A5EF4C2E29725B0059C2A6 /* 3000-fields.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF262E29725B0059C2A6 /* 3000-fields.json */; };
 		36A5EF4D2E29725B0059C2A6 /* ErrorHandling.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF282E29725B0059C2A6 /* ErrorHandling.json */; };
 		36A5EF4E2E29725B0059C2A6 /* Joydocjson.json in Resources */ = {isa = PBXBuildFile; fileRef = 36A5EF2D2E29725B0059C2A6 /* Joydocjson.json */; };
+		0E756E63395E4FFDBF21CE8C /* CollectionStickyHeadersTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = BE1FAF22FC8245ED8F68C21E /* CollectionStickyHeadersTestData.json */; };
 		36BCD3732E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36BCD3722E0BFA0600F5DA4B /* FormulaTemplate_TableField.swift */; };
 		36C6F4C52CEF4CEC001765CF /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 36C6F4C42CEF4CEC001765CF /* JoyfillModel */; };
 		36CAEB5F2E2E90A0003D328E /* Joyfill in Frameworks */ = {isa = PBXBuildFile; productRef = 36CAEB5E2E2E90A0003D328E /* Joyfill */; };
@@ -721,6 +724,7 @@
 		E2F568852E2A45BC005216A6 /* ChartFieldTestData.json in Resources */ = {isa = PBXBuildFile; fileRef = E2F5687F2E2A45BC005216A6 /* ChartFieldTestData.json */; };
 		E2F568892E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568862E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift */; };
 		E2F5688A2E2A45D6005216A6 /* CollectionFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F568872E2A45D6005216A6 /* CollectionFieldTests.swift */; };
+		D29602FE19CB43D69B657091 /* CollectionStickyHeadersUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B18CCF2468E4D478C576058 /* CollectionStickyHeadersUITests.swift */; };
 		E2F568902E2A45F9005216A6 /* TableFieldUITestCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5688D2E2A45F9005216A6 /* TableFieldUITestCases.swift */; };
 		E2F568912E2A45F9005216A6 /* TableFieldTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5688C2E2A45F9005216A6 /* TableFieldTests.swift */; };
 		E2F568922E2A45F9005216A6 /* TableNumber_Block_DateFieldTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F5688E2E2A45F9005216A6 /* TableNumber_Block_DateFieldTest.swift */; };
@@ -852,6 +856,7 @@
 		369D45762E0E586300677280 /* FormulaTemplate_CollectionField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_CollectionField.swift; sourceTree = "<group>"; };
 		36A5EF262E29725B0059C2A6 /* 3000-fields.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "3000-fields.json"; sourceTree = "<group>"; };
 		36A5EF272E29725B0059C2A6 /* CollectionFilter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionFilter.json; sourceTree = "<group>"; };
+		BE1FAF22FC8245ED8F68C21E /* CollectionStickyHeadersTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CollectionStickyHeadersTestData.json; sourceTree = "<group>"; };
 		36A5EF282E29725B0059C2A6 /* ErrorHandling.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ErrorHandling.json; sourceTree = "<group>"; };
 		36A5EF292E29725B0059C2A6 /* FieldTemplate_TableCollection_Poplated.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FieldTemplate_TableCollection_Poplated.json; sourceTree = "<group>"; };
 		36A5EF2A2E29725B0059C2A6 /* FirstPageHidden.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FirstPageHidden.json; sourceTree = "<group>"; };
@@ -1141,6 +1146,7 @@
 		E2F568812E2A45BC005216A6 /* ChartFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartFieldUITestCases.swift; sourceTree = "<group>"; };
 		E2F568862E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldSearchFilterTests.swift; sourceTree = "<group>"; };
 		E2F568872E2A45D6005216A6 /* CollectionFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionFieldTests.swift; sourceTree = "<group>"; };
+		2B18CCF2468E4D478C576058 /* CollectionStickyHeadersUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionStickyHeadersUITests.swift; sourceTree = "<group>"; };
 		E2F5688B2E2A45F9005216A6 /* TableFieldTestData.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TableFieldTestData.json; sourceTree = "<group>"; };
 		E2F5688C2E2A45F9005216A6 /* TableFieldTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableFieldTests.swift; sourceTree = "<group>"; };
 		E2F5688D2E2A45F9005216A6 /* TableFieldUITestCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableFieldUITestCases.swift; sourceTree = "<group>"; };
@@ -1411,6 +1417,7 @@
 			children = (
 				36A5EF262E29725B0059C2A6 /* 3000-fields.json */,
 				36A5EF272E29725B0059C2A6 /* CollectionFilter.json */,
+				BE1FAF22FC8245ED8F68C21E /* CollectionStickyHeadersTestData.json */,
 				36A5EF282E29725B0059C2A6 /* ErrorHandling.json */,
 				E27061CD2E797F3B006BAD18 /* ChangerHandlerUnit.json */,
 				E2E3E7622E8450A3002A10C2 /* OnChangeHandler.json */,
@@ -1951,6 +1958,7 @@
 			children = (
 				E2F568862E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift */,
 				E2F568872E2A45D6005216A6 /* CollectionFieldTests.swift */,
+				2B18CCF2468E4D478C576058 /* CollectionStickyHeadersUITests.swift */,
 			);
 			path = Collection;
 			sourceTree = "<group>";
@@ -2308,6 +2316,7 @@
 				E274CB552E2EA8ED00B35C09 /* ConditionalLogic_FormulaTemplate.json in Resources */,
 				E2F568BA2E2A4792005216A6 /* NumberFieldTestData.json in Resources */,
 				36A5EF362E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				CF3AD3E2BE0F4F21A1EE08A3 /* CollectionStickyHeadersTestData.json in Resources */,
 				36A5EF372E29725B0059C2A6 /* FirstPageHidden.json in Resources */,
 				E2C8BD2B2E462A8800B93B9E /* AllFieldTitleDispalayed.json in Resources */,
 				BA23533A2FA1DFEF002D9345 /* PageDeletableCopyable.json in Resources */,
@@ -2588,6 +2597,7 @@
 				36A5EF3D2E29725B0059C2A6 /* testrow.json in Resources */,
 				36A5EF3E2E29725B0059C2A6 /* hint_and_deficiency_demo.json in Resources */,
 				36A5EF402E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				15D1EDBCF606487785DD0ABF /* CollectionStickyHeadersTestData.json in Resources */,
 				E2E3E7632E8450A3002A10C2 /* OnChangeHandler.json in Resources */,
 				E274CA872E2E7FFB00B35C09 /* PageSettingsTemplate.json in Resources */,
 				E2E3E77A2E85611E002A10C2 /* first-form.json in Resources */,
@@ -2756,6 +2766,7 @@
 				E28F3D4A2FE180CC007C7F35 /* DecoratorToRowUpdate.json in Resources */,
 				9EAAC7E22EAB3F89000B6F3C /* PageNavigationTest.json in Resources */,
 				36A5EF4A2E29725B0059C2A6 /* CollectionFilter.json in Resources */,
+				0E756E63395E4FFDBF21CE8C /* CollectionStickyHeadersTestData.json in Resources */,
 				E29FF87F2F2527540079A614 /* TestMobileViewDuplicateLogic.json in Resources */,
 				E274CA502E2E7FB000B35C09 /* chartField.json in Resources */,
 				E274CA512E2E7FB000B35C09 /* numberField.json in Resources */,
@@ -2888,6 +2899,7 @@
 				13A3F8EC2C356DB800B0A255 /* ConditinalPageLogicTests.swift in Sources */,
 				E2F568892E2A45D6005216A6 /* CollectionFieldSearchFilterTests.swift in Sources */,
 				E2F5688A2E2A45D6005216A6 /* CollectionFieldTests.swift in Sources */,
+				D29602FE19CB43D69B657091 /* CollectionStickyHeadersUITests.swift in Sources */,
 				E2F568B42E2A4786005216A6 /* MultiSelectFieldUITestCases.swift in Sources */,
 				95A671D0305A74AA00FDC608 /* FormulaInCell.swift in Sources */,
 				E2F568AB2E2A4758005216A6 /* UITestHelpers.swift in Sources */,

@@ -14,9 +14,9 @@ struct TextFieldSearchBar: View {
         TextField("Search ", text: $text)
             .accessibilityIdentifier("TextFieldSearchBarIdentifier")
             .font(.system(size: 12))
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
             .padding(.all, 4)
-            .background(.white)
+            .background(Color.searchFieldBackground)
             .cornerRadius(6)
             .padding(.leading, 8)
             .overlay(

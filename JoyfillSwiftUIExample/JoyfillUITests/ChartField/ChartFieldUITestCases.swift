@@ -171,7 +171,7 @@ final class ChartFieldUITestCases: JoyfillUITestsBaseClass {
 
     func testRequiredAsteriskPresenceChartField() {
         // Title has asterisk
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_This is first chart\nand testing multiline\nalong with tooltip.").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists)
         // Navigate to first chart
         goToChartDetailField(index: 0)

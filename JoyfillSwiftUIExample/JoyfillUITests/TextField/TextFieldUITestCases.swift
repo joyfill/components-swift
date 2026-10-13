@@ -390,7 +390,7 @@ final class TextFieldUITestCases: JoyfillUITestsBaseClass {
         let requiredLabel = app.staticTexts["Please input your test data here for thorough evaluation and analysis—let's ensure everything runs smoothly and efficiently."]
         XCTAssertTrue(requiredLabel.exists, "Required field label should display")
 
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(NSPredicate(format: "identifier BEGINSWITH %@", "RequiredAsterisk_field_Please input your test data here")).element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
 
         // Enter value and ensure asterisk still remains

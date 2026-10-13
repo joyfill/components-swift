@@ -166,7 +166,7 @@ final class DropdownFieldUITestCases: JoyfillUITestsBaseClass {
         let requiredLabel = app.staticTexts["Dropdown"]
         XCTAssertTrue(requiredLabel.exists, "Required field label should display")
 
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_Dropdown").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
 
         // Enter value and ensure asterisk still remains
