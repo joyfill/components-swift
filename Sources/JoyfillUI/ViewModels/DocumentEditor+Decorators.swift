@@ -755,10 +755,13 @@ public struct DecoratorConfig: Equatable, Sendable {
     /// Maximum number of row decorators (merged common + row-self) shown
     /// inline on a row before the rest move into a kebab menu.
     public var visibleLimitInRows: Int
+    public var showInBulkForm: Bool = true
 
-    public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1) {
+
+    public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1, showInBulkForm: Bool = true) {
         self.visibleLimitInFields = max(0, visibleLimitInFields)
         self.visibleLimitInRows = max(0, visibleLimitInRows)
+        self.showInBulkForm = showInBulkForm
     }
 
     static func rowCellWidth(forVisibleLimit visibleLimitInRows: Int) -> CGFloat {
