@@ -359,6 +359,21 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertEqual(rowOrder?[3], dupSecondRowID, "Previous second row shifted down by the two copies")
     }
 
+    // insertAtEnd: copies are appended to the bottom of the table; the original and the tail stay put.
+    func testDuplicateRowInsertAtEndAppendsCopies() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID], quantity: 2, insertAtEnd: true, fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        XCTAssertEqual(rowOrder?.count, 7)
+        XCTAssertEqual(rowOrder?[0], dupFirstRowID, "Original row stays in place")
+        XCTAssertEqual(rowOrder?[1], dupSecondRowID, "Tail is NOT shifted — copies went to the end")
+        XCTAssertEqual(rowOrder?[4], dupLastRowID, "Last original row stays ahead of the appended copies")
+        let appended = Array(rowOrder![5...6])
+        XCTAssertEqual(Set(appended).count, 2, "Two appended copies have unique ids")
+        XCTAssertFalse(appended.contains(dupFirstRowID), "Appended rows are new copies, not the original")
+    }
+
     // A5: quantity of 0 clamps to 1.
     func testDuplicateRowQuantityZeroClampsToOne() {
         let documentEditor = documentEditor(document: duplicateTableDocument())
@@ -1737,6 +1752,29 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertEqual(order[3], dupColNestedWithGrandchildren, "Previous second row shifted down by the two copies")
     }
 
+    // insertAtEnd: nested copies are appended to the end of the sibling group; the siblings stay put.
+    func testDuplicateCollectionNestedRowInsertAtEndAppendsCopies() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       insertAtEnd: true,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 5, "3 original + 2 copies")
+        XCTAssertEqual(order[0], dupColNestedPlainRow, "Original nested row stays in place")
+        XCTAssertEqual(order[1], dupColNestedWithGrandchildren, "Siblings are NOT shifted — copies went to the end")
+        XCTAssertEqual(order[2], dupColNestedThirdRow, "Last original sibling stays ahead of the appended copies")
+        let appended = Array(order[3...4])
+        XCTAssertEqual(Set(appended).count, 2, "Two appended copies have unique ids")
+        XCTAssertFalse(appended.contains(dupColNestedPlainRow), "Appended rows are new copies, not the original")
+    }
+
     // Duplicating a mid-list nested row inserts right after it and shifts the tail down.
     func testDuplicateCollectionMidListNestedRowShiftsTail() {
         let editor = documentEditor(document: duplicateCollectionDocument())
@@ -1963,6 +2001,33 @@ extension DocumentEditorChangeHandlerTests {
         if let followerID = followerID {
             XCTAssertEqual(order[originalIndex + 3], followerID, "Following root row shifted down by the two copies")
         }
+    }
+
+    // insertAtEnd: root copies are appended to the end of the root list; the original and its follower stay put.
+    func testDuplicateCollectionRootRowInsertAtEndAppendsCopies() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalOrder = rootRows(editor).compactMap { $0.id }
+        let originalIndex = originalOrder.firstIndex(of: dupColRootWithChildren) ?? 0
+        let followerID = originalIndex + 1 < originalOrder.count ? originalOrder[originalIndex + 1] : nil
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       insertAtEnd: true,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let order = rootRows(editor).compactMap { $0.id }
+        XCTAssertEqual(order.count, originalOrder.count + 2)
+        XCTAssertEqual(order[originalIndex], dupColRootWithChildren, "Original root row stays in place")
+        if let followerID = followerID {
+            XCTAssertEqual(order[originalIndex + 1], followerID, "Following root row is NOT shifted — copies went to the end")
+        }
+        let appended = Array(order.suffix(2))
+        XCTAssertEqual(Set(appended).count, 2, "Two appended copies have unique ids")
+        XCTAssertFalse(appended.contains(where: { originalOrder.contains($0) }), "Appended rows are new copies")
     }
 
     func testMoveNestedCollectionItemUp() {
