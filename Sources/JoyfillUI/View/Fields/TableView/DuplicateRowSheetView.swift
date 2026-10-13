@@ -1,16 +1,11 @@
 import SwiftUI
 
 struct DuplicateRowSheetView: View {
-    @Environment(\.colorScheme) var colorScheme
     @State private var quantity: Int = 1
     @State private var includeChildren: Bool = false
     var showIncludeChildrenOption: Bool = false
     let onApply: (Int, Bool) -> Void
     let onCancel: () -> Void
-
-    private var backgroundColor: Color {
-        colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white
-    }
 
     private var quantityTextBinding: Binding<String> {
         Binding(
@@ -26,7 +21,7 @@ struct DuplicateRowSheetView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Duplicate")
                 .font(.headline)
-                .darkLightThemeColor()
+                .foregroundColor(Color(UIColor.label))
 
             HStack(spacing: 0) {
                 Button {
@@ -43,7 +38,7 @@ struct DuplicateRowSheetView: View {
                     .multilineTextAlignment(.center)
                     .font(.system(size: 17, weight: .semibold))
                     .frame(minWidth: 44)
-                    .darkLightThemeColor()
+                    .foregroundColor(Color(UIColor.label))
                     .accessibilityIdentifier("DuplicateRowCounterValue")
 
                 Button {
@@ -67,7 +62,7 @@ struct DuplicateRowSheetView: View {
                     HStack(spacing: 8) {
                         Image(systemName: includeChildren ? "checkmark.square.fill" : "square")
                         Text("Include child table(s)")
-                            .darkLightThemeColor()
+                            .foregroundColor(Color(UIColor.label))
                     }
                 }
                 .accessibilityIdentifier("DuplicateRowIncludeChildrenToggle")
@@ -94,14 +89,11 @@ struct DuplicateRowSheetView: View {
             }
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 12).fill(backgroundColor))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.allFieldBorderColor, lineWidth: 1))
     }
 }
 
 /// Shared popover chrome for the per-row duplicate action (table + collection).
 struct DuplicateRowPopover: View {
-    @Environment(\.colorScheme) var colorScheme
     var showIncludeChildrenOption: Bool = false
     let onApply: (Int, Bool) -> Void
     let onCancel: () -> Void
@@ -117,7 +109,6 @@ struct DuplicateRowPopover: View {
         if #available(iOS 16.4, *) {
             content
                 .presentationCompactAdaptation(.popover)
-                .presentationBackground(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.white)
         } else {
             content
         }
