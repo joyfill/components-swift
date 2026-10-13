@@ -91,7 +91,7 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         // required field is the first multi-select
         let requiredLabel = app.staticTexts["Multiple Choice"]
         XCTAssertTrue(requiredLabel.exists)
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_Multiple Choice").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk should be visible before selection")
 
         // make a selection

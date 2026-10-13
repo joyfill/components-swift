@@ -1,0 +1,633 @@
+{
+  "_id": "68aa00000000000000000001",
+  "identifier": "doc_68aa00000000000000000001",
+  "name": "Collection Sticky Headers Test",
+  "createdOn": 1700000000000,
+  "deleted": false,
+  "files": [
+    {
+      "_id": "68aa00000000000000000002",
+      "name": "New File",
+      "pageOrder": [
+        "68aa00000000000000000003"
+      ],
+      "pages": [
+        {
+          "_id": "68aa00000000000000000003",
+          "name": "New Page",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "fieldPositions": [
+            {
+              "_id": "68aa00000000000000000005",
+              "type": "collection",
+              "field": "collectionStickyHeaders1",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 200
+            }
+          ],
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24
+        }
+      ],
+      "styles": {
+        "margin": 4
+      },
+      "views": []
+    }
+  ],
+  "fields": [
+    {
+      "file": "68aa00000000000000000002",
+      "_id": "collectionStickyHeaders1",
+      "type": "collection",
+      "title": "Sticky Headers Collection",
+      "identifier": "field_68aa00000000000000000004",
+      "value": [
+        {
+          "_id": "68aa10000000000000000001",
+          "cells": {
+            "text0": "Root Row 1",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": [
+                {
+                  "_id": "68aa20000000000000000001",
+                  "cells": {
+                    "text1": "Level1 Row 1",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": [
+                        {
+                          "_id": "68aa30000000000000000001",
+                          "cells": {
+                            "text2": "Level2 Row 1",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": [
+                                {
+                                  "_id": "68aa40000000000000000001",
+                                  "cells": {
+                                    "text3": "Level3 Row 1",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "68aa40000000000000000002",
+                                  "cells": {
+                                    "text3": "Level3 Row 2",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "68aa40000000000000000003",
+                                  "cells": {
+                                    "text3": "Level3 Row 3",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "68aa40000000000000000004",
+                                  "cells": {
+                                    "text3": "Level3 Row 4",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "68aa40000000000000000005",
+                                  "cells": {
+                                    "text3": "Level3 Row 5",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "68aa40000000000000000006",
+                                  "cells": {
+                                    "text3": "Level3 Row 6",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                },
+                                {
+                                  "_id": "68aa40000000000000000007",
+                                  "cells": {
+                                    "text3": "Level3 Row 7",
+                                    "dropdown3": "opt3yes",
+                                    "number3": 1
+                                  },
+                                  "children": {}
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "_id": "68aa30000000000000000002",
+                          "cells": {
+                            "text2": "Level2 Row 2",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": []
+                            }
+                          }
+                        },
+                        {
+                          "_id": "68aa30000000000000000003",
+                          "cells": {
+                            "text2": "Level2 Row 3",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": []
+                            }
+                          }
+                        },
+                        {
+                          "_id": "68aa30000000000000000004",
+                          "cells": {
+                            "text2": "Level2 Row 4",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": []
+                            }
+                          }
+                        },
+                        {
+                          "_id": "68aa30000000000000000005",
+                          "cells": {
+                            "text2": "Level2 Row 5",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": []
+                            }
+                          }
+                        },
+                        {
+                          "_id": "68aa30000000000000000006",
+                          "cells": {
+                            "text2": "Level2 Row 6",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": []
+                            }
+                          }
+                        },
+                        {
+                          "_id": "68aa30000000000000000007",
+                          "cells": {
+                            "text2": "Level2 Row 7",
+                            "dropdown2": "opt2yes",
+                            "number2": 1
+                          },
+                          "children": {
+                            "level3Schema": {
+                              "value": []
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "_id": "68aa20000000000000000002",
+                  "cells": {
+                    "text1": "Level1 Row 2",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": []
+                    }
+                  }
+                },
+                {
+                  "_id": "68aa20000000000000000003",
+                  "cells": {
+                    "text1": "Level1 Row 3",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": []
+                    }
+                  }
+                },
+                {
+                  "_id": "68aa20000000000000000004",
+                  "cells": {
+                    "text1": "Level1 Row 4",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": []
+                    }
+                  }
+                },
+                {
+                  "_id": "68aa20000000000000000005",
+                  "cells": {
+                    "text1": "Level1 Row 5",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": []
+                    }
+                  }
+                },
+                {
+                  "_id": "68aa20000000000000000006",
+                  "cells": {
+                    "text1": "Level1 Row 6",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": []
+                    }
+                  }
+                },
+                {
+                  "_id": "68aa20000000000000000007",
+                  "cells": {
+                    "text1": "Level1 Row 7",
+                    "dropdown1": "opt1yes",
+                    "number1": 1
+                  },
+                  "children": {
+                    "level2Schema": {
+                      "value": []
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000002",
+          "cells": {
+            "text0": "Root Row 2",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000003",
+          "cells": {
+            "text0": "Root Row 3",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000004",
+          "cells": {
+            "text0": "Root Row 4",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000005",
+          "cells": {
+            "text0": "Root Row 5",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000006",
+          "cells": {
+            "text0": "Root Row 6",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000007",
+          "cells": {
+            "text0": "Root Row 7",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000008",
+          "cells": {
+            "text0": "Root Row 8",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000009",
+          "cells": {
+            "text0": "Root Row 9",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000010",
+          "cells": {
+            "text0": "Root Row 10",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000011",
+          "cells": {
+            "text0": "Root Row 11",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000012",
+          "cells": {
+            "text0": "Root Row 12",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000013",
+          "cells": {
+            "text0": "Root Row 13",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000014",
+          "cells": {
+            "text0": "Root Row 14",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        },
+        {
+          "_id": "68aa10000000000000000015",
+          "cells": {
+            "text0": "Root Row 15",
+            "dropdown0": "opt0yes",
+            "number0": 1
+          },
+          "children": {
+            "level1Schema": {
+              "value": []
+            }
+          }
+        }
+      ],
+      "schema": {
+        "rootSchema": {
+          "title": "Root Table",
+          "root": true,
+          "children": [
+            "level1Schema"
+          ],
+          "tableColumns": [
+            {
+              "_id": "text0",
+              "type": "text",
+              "title": "Text L0"
+            },
+            {
+              "_id": "dropdown0",
+              "type": "dropdown",
+              "title": "Dropdown L0",
+              "options": [
+                {
+                  "_id": "opt0yes",
+                  "value": "Yes L0"
+                },
+                {
+                  "_id": "opt0no",
+                  "value": "No L0"
+                }
+              ]
+            },
+            {
+              "_id": "number0",
+              "type": "number",
+              "title": "Number L0"
+            }
+          ]
+        },
+        "level1Schema": {
+          "title": "Level 1 Table",
+          "children": [
+            "level2Schema"
+          ],
+          "tableColumns": [
+            {
+              "_id": "text1",
+              "type": "text",
+              "title": "Text L1"
+            },
+            {
+              "_id": "dropdown1",
+              "type": "dropdown",
+              "title": "Dropdown L1",
+              "options": [
+                {
+                  "_id": "opt1yes",
+                  "value": "Yes L1"
+                },
+                {
+                  "_id": "opt1no",
+                  "value": "No L1"
+                }
+              ]
+            },
+            {
+              "_id": "number1",
+              "type": "number",
+              "title": "Number L1"
+            }
+          ]
+        },
+        "level2Schema": {
+          "title": "Level 2 Table",
+          "children": [
+            "level3Schema"
+          ],
+          "tableColumns": [
+            {
+              "_id": "text2",
+              "type": "text",
+              "title": "Text L2"
+            },
+            {
+              "_id": "dropdown2",
+              "type": "dropdown",
+              "title": "Dropdown L2",
+              "options": [
+                {
+                  "_id": "opt2yes",
+                  "value": "Yes L2"
+                },
+                {
+                  "_id": "opt2no",
+                  "value": "No L2"
+                }
+              ]
+            },
+            {
+              "_id": "number2",
+              "type": "number",
+              "title": "Number L2"
+            }
+          ]
+        },
+        "level3Schema": {
+          "title": "Level 3 Table",
+          "children": [],
+          "tableColumns": [
+            {
+              "_id": "text3",
+              "type": "text",
+              "title": "Text L3"
+            },
+            {
+              "_id": "dropdown3",
+              "type": "dropdown",
+              "title": "Dropdown L3",
+              "options": [
+                {
+                  "_id": "opt3yes",
+                  "value": "Yes L3"
+                },
+                {
+                  "_id": "opt3no",
+                  "value": "No L3"
+                }
+              ]
+            },
+            {
+              "_id": "number3",
+              "type": "number",
+              "title": "Number L3"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "type": "document"
+}
