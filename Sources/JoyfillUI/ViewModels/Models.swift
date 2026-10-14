@@ -183,6 +183,8 @@ struct TableDataModel {
     var fieldRequired: Bool = false
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
+    /// Maximum rows allowed for this field. Absent means no limit.
+    let maxRows: Int?
     var tableColumns = [FieldTableColumn]()
     var requiredColumnIDs: Set<String> = [] // Table only
     var childrens = [String]()
@@ -224,6 +226,11 @@ struct TableDataModel {
         return valueElements.filter { !($0.deleted ?? false) }.count
     }
 
+    var canAddRow: Bool {
+        guard let maxRows = maxRows else { return true }
+        return nondeletedRowsCount < maxRows
+    }
+
     init?(fieldHeaderModel: FieldHeaderModel?,
          mode: Mode,
          documentEditor: DocumentEditor,
@@ -245,6 +252,7 @@ struct TableDataModel {
         self.decorate = fieldData.decorate ?? false
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
+        self.maxRows = fieldData.maxRows
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit

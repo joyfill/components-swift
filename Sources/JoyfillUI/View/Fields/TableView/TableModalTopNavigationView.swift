@@ -33,19 +33,21 @@ struct TableModalTopNavigationView: View {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
-                                Button(action: {
-                                    showingPopover = false
-                                    _ = viewModel.insertBelow()
-                                }) {
-                                    Text("Insert Below")
-                                        .foregroundStyle(.blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
+                                if viewModel.tableDataModel.canAddRow {
+                                    Button(action: {
+                                        showingPopover = false
+                                        _ = viewModel.insertBelow()
+                                    }) {
+                                        Text("Insert Below")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .accessibilityIdentifier("TableInsertRowIdentifier")
                                 }
-                                .padding(.horizontal, 16)
-                                .padding(.top, 16)
-                                .accessibilityIdentifier("TableInsertRowIdentifier")
-                                
+
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.moveUP()
@@ -121,17 +123,19 @@ struct TableModalTopNavigationView: View {
                     } else {
                         VStack(spacing: 8) {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
-                                Button(action: {
-                                    showingPopover = false
-                                    _ = viewModel.insertBelow()
-                                }) {
-                                    Text("Insert Below")
-                                        .foregroundStyle(.blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
+                                if viewModel.tableDataModel.canAddRow {
+                                    Button(action: {
+                                        showingPopover = false
+                                        _ = viewModel.insertBelow()
+                                    }) {
+                                        Text("Insert Below")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("TableInsertRowIdentifier")
                                 }
-                                .padding(.horizontal, 16)
-                                .accessibilityIdentifier("TableInsertRowIdentifier")
 
                                 Button(action: {
                                     showingPopover = false
@@ -204,19 +208,21 @@ struct TableModalTopNavigationView: View {
                 }
             }
 
-            Button(action: {
-                viewModel.addRow()
-            }) {
-                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(.blue)
-                    .font(.system(size: 14))
-                    .frame(height: 27)
-                    .padding(.horizontal, 16)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.buttonBorderColor, lineWidth: 1))
+            if viewModel.tableDataModel.canAddRow {
+                Button(action: {
+                    viewModel.addRow()
+                }) {
+                    Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                        .foregroundStyle(.blue)
+                        .font(.system(size: 14))
+                        .frame(height: 27)
+                        .padding(.horizontal, 16)
+                        .overlay(RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                }
+                .disabled(viewModel.tableDataModel.mode == .readonly)
+                .accessibilityIdentifier("TableAddRowIdentifier")
             }
-            .disabled(viewModel.tableDataModel.mode == .readonly)
-            .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
 
@@ -317,7 +323,7 @@ struct EditMultipleRowsSheetView: View {
                                 .disabled(viewModel.tableDataModel.shouldDisableMoveDown)
                                 .accessibilityIdentifier("LowerRowButtonIdentifier")
                                 
-                                if viewModel.tableDataModel.mode == .fill {
+                                if viewModel.tableDataModel.mode == .fill && viewModel.tableDataModel.canAddRow {
                                     Button(action: {
                                         viewModel.insertBelowFromBulkEdit()
                                     }, label: {
