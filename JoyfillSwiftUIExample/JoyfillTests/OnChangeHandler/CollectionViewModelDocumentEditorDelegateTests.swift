@@ -870,4 +870,119 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertFalse(schemaIsVisible(documentEditor, row: newRowID, schema: hideDepth2SchemaID),
                        "The created row's cells match the hide logic, so its nested schema must start hidden")
     }
+
+    // MARK: - maxRows (per-schema row limit)
+    //
+    // Collections enforce maxRows per schema level: the root schema limits the top-level
+    // rows, each nested schema limits its own level. The limit lives on `Schema.maxRows`.
+    // UI hides the add-row affordances via `canAddRow(schemaKey:parentRowID:)`; the external
+    // host path (`insertRow(for:)`) blocks + warns when the level is already at its limit.
+
+    private let rootSchemaID = "collectionSchemaId"
+
+    /// Injects `maxRows` onto a given schema of the collection field, before the editor is built.
+    private func documentWithSchemaMaxRows(schemaKey: String, _ maxRows: Int?) -> JoyDoc {
+        var document = createTestDocument()
+        var fields = document.fields
+        guard let idx = fields.firstIndex(where: { $0.id == tableFieldID }) else { return document }
+        var schema = fields[idx].schema ?? [:]
+        if var s = schema[schemaKey] {
+            s.maxRows = maxRows
+            schema[schemaKey] = s
+        }
+        fields[idx].schema = schema
+        document.fields = fields
+        return document
+    }
+
+    private func rootRowCount(_ documentEditor: DocumentEditor) -> Int {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.filter { !($0.deleted ?? false) }.count ?? 0
+    }
+
+    private func externalRootRowCreate(rowID: String) -> Change {
+        externalChange(target: "field.value.rowCreate", change: [
+            "schemaId": rootSchemaID,
+            "parentPath": "",
+            "targetRowIndex": 4,
+            "row": [
+                "_id": rowID,
+                "cells": [:] as [String: Any],
+                "children": [hideDepth2SchemaID: ["value": [] as [Any]] as [String: Any]] as [String: Any]
+            ] as [String: Any]
+        ])
+    }
+
+    func testSchemaMaxRows_absentByDefault_readsNil() {
+        let document = createTestDocument()
+        let schema = document.fields.first(where: { $0.id == tableFieldID })?.schema?[rootSchemaID]
+        XCTAssertNil(schema?.maxRows, "maxRows should be absent on the root schema by default")
+    }
+
+    func testSchemaMaxRows_roundTripsThroughDictionary() {
+        let document = documentWithSchemaMaxRows(schemaKey: rootSchemaID, 3)
+        let schema = document.fields.first(where: { $0.id == tableFieldID })?.schema?[rootSchemaID]
+        XCTAssertEqual(schema?.maxRows, 3, "maxRows should round-trip through the schema dictionary")
+    }
+
+    func testRowCount_root_countsNonDeletedRows() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 4, "Fixture starts with four root rows")
+    }
+
+    func testCanAddRow_root_trueWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRow(schemaKey: viewModel.rootSchemaKey), "No limit means rows can always be added")
+    }
+
+    func testCanAddRow_root_falseWhenAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertFalse(viewModel.canAddRow(schemaKey: viewModel.rootSchemaKey), "At four rows with maxRows 4, no more rows may be added")
+    }
+
+    func testCanAddRow_root_trueWhenBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRow(schemaKey: viewModel.rootSchemaKey), "Four rows with maxRows 5 still allows one more")
+    }
+
+    func testExternalRowCreate_root_blockedWhenAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: at the limit")
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "External rowCreate at the limit must be refused")
+    }
+
+    func testExternalRowCreate_root_allowedWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four rows, no limit")
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "With no limit the external row must be inserted")
+    }
+
+    func testExternalRowCreate_root_allowedThenBlockedAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
+        waitForMainQueueToDrain()
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "First add fills the fifth slot")
+
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e3")])
+        waitForMainQueueToDrain()
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "Second add is now at the limit and must be refused")
+    }
 }
