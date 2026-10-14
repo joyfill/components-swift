@@ -755,8 +755,9 @@ public struct DecoratorConfig: Equatable, Sendable {
     /// Maximum number of row decorators (merged common + row-self) shown
     /// inline on a row before the rest move into a kebab menu.
     public var visibleLimitInRows: Int
-    public var showInBulkForm: Bool = true
 
+    /// Whether row/column decorators show in the bulk edit form (2+ rows); set `false` to hide them there. Single-row edit is unaffected.
+    public var showInBulkForm: Bool
 
     public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1, showInBulkForm: Bool = true) {
         self.visibleLimitInFields = max(0, visibleLimitInFields)
