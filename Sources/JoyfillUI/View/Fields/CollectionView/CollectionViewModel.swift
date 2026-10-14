@@ -1098,9 +1098,10 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         }
         switch row.rowType {
         case .row(index: _):
+            guard canDuplicate(schemaKey: rootSchemaKey, parentRowID: nil, quantity: quantity) else { return }
             duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         case .nestedRow(level: let level, index: _, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            
+            guard canDuplicate(schemaKey: parentSchemaKey, parentRowID: parentID?.rowID, quantity: quantity) else { return }
             let headerTableColumns = tableDataModel.filterTableColumns(key: parentSchemaKey)
             duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         default:
@@ -1552,6 +1553,17 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                              maxRows: tableDataModel.schema[schemaKey]?.maxRows)
     }
 
+    /// Whether `quantity` duplicated rows fit under the schema level's `maxRows`. Warns and refuses when they don't.
+    private func canDuplicate(schemaKey: String, parentRowID: String?, quantity: Int) -> Bool {
+        guard rowLimitAllowsAdding(currentCount: rowCount(schemaKey: schemaKey, parentRowID: parentRowID),
+                                   maxRows: tableDataModel.schema[schemaKey]?.maxRows,
+                                   adding: max(quantity, 1)) else {
+            Log("Cannot duplicate row: would exceed maxRows limit for schema \(schemaKey) in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+            return false
+        }
+        return true
+    }
+
     /// Can the selected rows' schema level accept another row — gates Insert Below and the row-form "+".
     var canAddRowForSelection: Bool {
         let schemaKey = selectionSchemaKey
@@ -1565,6 +1577,22 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             parentRowID = nil
         }
         return canAddRow(schemaKey: schemaKey, parentRowID: parentRowID)
+    }
+
+    /// Rows the selected rows' schema level can still accept (`nil` = no limit).
+    var remainingCapacityForSelection: Int? {
+        let schemaKey = selectionSchemaKey
+        let parentRowID: String?
+        if schemaKey == rootSchemaKey {
+            parentRowID = nil
+        } else if let firstSelectedRowID = tableDataModel.selectedRows.first,
+                  let row = tableDataModel.getRowByID(rowID: firstSelectedRowID) {
+            parentRowID = row.rowType.parentID?.rowID
+        } else {
+            parentRowID = nil
+        }
+        guard let maxRows = tableDataModel.schema[schemaKey]?.maxRows else { return nil }
+        return max(maxRows - rowCount(schemaKey: schemaKey, parentRowID: parentRowID), 0)
     }
 
     func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {

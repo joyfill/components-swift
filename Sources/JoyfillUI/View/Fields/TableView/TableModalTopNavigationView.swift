@@ -75,7 +75,7 @@ struct TableModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
-                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() && viewModel.tableDataModel.canAddRow {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
@@ -165,7 +165,7 @@ struct TableModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
-                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() && viewModel.tableDataModel.canAddRow {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
@@ -214,6 +214,7 @@ struct TableModalTopNavigationView: View {
                 .popover(isPresented: $showDuplicatePopover) {
                     DuplicateRowPopover(
                         showAddAtEndOption: true,
+                        remainingCapacity: viewModel.tableDataModel.remainingRowCapacity,
                         onApply: { quantity, _, addAtEnd in
                             if let rowID = viewModel.tableDataModel.selectedRows.first {
                                 viewModel.duplicateRow(rowID: rowID, quantity: quantity, insertAtEnd: addAtEnd)

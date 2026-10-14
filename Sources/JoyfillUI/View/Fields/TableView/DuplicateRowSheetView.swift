@@ -6,6 +6,8 @@ struct DuplicateRowSheetView: View {
     @State private var addAtEnd: Bool = false
     var showIncludeChildrenOption: Bool = false
     var showAddAtEndOption: Bool = false
+    /// Rows the level can still accept (`nil` = no limit).
+    var remainingCapacity: Int? = nil
     let onApply: (Int, Bool, Bool) -> Void
     let onCancel: () -> Void
 
@@ -17,6 +19,11 @@ struct DuplicateRowSheetView: View {
                 if let typed = Int(digits) { quantity = typed }
             }
         )
+    }
+
+    private var exceedsCapacity: Bool {
+        guard let remainingCapacity = remainingCapacity else { return false }
+        return quantity > remainingCapacity
     }
 
     var body: some View {
@@ -61,6 +68,15 @@ struct DuplicateRowSheetView: View {
                     RoundedRectangle(cornerRadius: 10)
                         .stroke(Color.allFieldBorderColor, lineWidth: 1)
                 )
+
+                if exceedsCapacity, let remainingCapacity = remainingCapacity {
+                    Text(remainingCapacity <= 0
+                         ? "Row limit reached. You can't add any more rows."
+                         : "You can add only \(remainingCapacity) more row\(remainingCapacity == 1 ? "" : "s").")
+                        .font(.caption)
+                        .foregroundColor(.red)
+                        .accessibilityIdentifier("DuplicateRowLimitWarning")
+                }
             }
 
             if showIncludeChildrenOption {
@@ -106,6 +122,7 @@ struct DuplicateRowSheetView: View {
                         .frame(maxWidth: .infinity, minHeight: 40)
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(exceedsCapacity)
                 .accessibilityIdentifier("DuplicateRowApplyButton")
             }
         }
@@ -117,6 +134,7 @@ struct DuplicateRowSheetView: View {
 struct DuplicateRowPopover: View {
     var showIncludeChildrenOption: Bool = false
     var showAddAtEndOption: Bool = false
+    var remainingCapacity: Int? = nil
     let onApply: (Int, Bool, Bool) -> Void
     let onCancel: () -> Void
 
@@ -124,6 +142,7 @@ struct DuplicateRowPopover: View {
         let content = DuplicateRowSheetView(
             showIncludeChildrenOption: showIncludeChildrenOption,
             showAddAtEndOption: showAddAtEndOption,
+            remainingCapacity: remainingCapacity,
             onApply: onApply,
             onCancel: onCancel
         )

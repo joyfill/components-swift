@@ -114,7 +114,7 @@ struct CollectionModalTopNavigationView: View {
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                     
                                 }
-                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) && viewModel.canAddRowForSelection {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
@@ -205,7 +205,7 @@ struct CollectionModalTopNavigationView: View {
                                     .padding(.top, 16)
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 }
-                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) && viewModel.canAddRowForSelection {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
@@ -257,6 +257,7 @@ struct CollectionModalTopNavigationView: View {
                     DuplicateRowPopover(
                         showIncludeChildrenOption: selectedRowHasChildren,
                         showAddAtEndOption: true,
+                        remainingCapacity: viewModel.remainingCapacityForSelection,
                         onApply: { quantity, includeChildren, addAtEnd in
                             if let rowID = viewModel.tableDataModel.selectedRows.first {
                                 viewModel.duplicateRow(rowID: rowID, quantity: quantity, includeChildren: includeChildren, insertAtEnd: addAtEnd)

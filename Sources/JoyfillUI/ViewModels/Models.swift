@@ -174,10 +174,11 @@ extension Array where Element == ValueElement {
 
 /// The single rule governing the `maxRows` row limit, shared by tables and every collection
 /// schema level so the two can never drift on how the limit is interpreted.
+/// `adding` is how many rows the action would create (duplicate can add several at once).
 /// A `nil` limit means no limit.
-func rowLimitAllowsAdding(currentCount: Int, maxRows: Int?) -> Bool {
+func rowLimitAllowsAdding(currentCount: Int, maxRows: Int?, adding count: Int = 1) -> Bool {
     guard let maxRows = maxRows else { return true }
-    return currentCount < maxRows
+    return currentCount + count <= maxRows
 }
 
 
@@ -239,6 +240,12 @@ struct TableDataModel {
 
     var canAddRow: Bool {
         rowLimitAllowsAdding(currentCount: nondeletedRowsCount, maxRows: maxRows)
+    }
+
+    /// Rows that may still be added before hitting `maxRows` (`nil` = no limit).
+    var remainingRowCapacity: Int? {
+        guard let maxRows = maxRows else { return nil }
+        return max(maxRows - nondeletedRowsCount, 0)
     }
 
     init?(fieldHeaderModel: FieldHeaderModel?,
