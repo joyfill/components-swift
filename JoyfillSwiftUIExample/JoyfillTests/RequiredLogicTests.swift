@@ -620,8 +620,7 @@ final class RequiredLogicTests: XCTestCase {
                        "A newly added row with a missing required answer must be invalid")
 
         let rowIDsBeforeDuplicate = Set(viewModel.tableDataModel.rowOrder)
-        viewModel.tableDataModel.selectedRows = ["added-row"]
-        viewModel.duplicateRow()
+        viewModel.duplicateRow(rowID: "added-row")
         let duplicatedRowID = Set(viewModel.tableDataModel.rowOrder)
             .subtracting(rowIDsBeforeDuplicate)
             .first
@@ -1526,8 +1525,7 @@ final class RequiredLogicTests: XCTestCase {
                        "A newly added empty required collection cell must be invalid")
 
         let rowIDsBeforeDuplicate = Set(viewModel.rowToValueElementMap.keys)
-        viewModel.tableDataModel.selectedRows = ["added-root"]
-        viewModel.duplicateRow()
+        viewModel.duplicateRow(rowID: "added-root")
         let duplicatedRowID = Set(viewModel.rowToValueElementMap.keys)
             .subtracting(rowIDsBeforeDuplicate)
             .first
@@ -1559,6 +1557,88 @@ final class RequiredLogicTests: XCTestCase {
             .first(where: { $0.fieldId == collectionFieldID })?
             .rowValidities?.contains(where: { $0.rowId == "added-root" }) ?? true,
                        "Validation must not retain a deleted collection row")
+    }
+
+    /// Duplicating a root collection row with `includeChildren: true` must fully wire the cloned
+    /// subtree so the copy behaves identically to the original: its children are registered in
+    /// `parentToChildRowMap`, its nested schema stays visible, descendant cell-visibility logic is
+    /// evaluated, and required rules keep the clone's validity in sync.
+    func testCollectionDuplicateRootRowWithChildrenFullyWiresClone() {
+        let childSecretCol = "child-secret"
+        let childTrigger: [String: Any] = ["_id": childTextCol, "type": "text", "title": "Trigger"]
+        let childNotes: [String: Any] = [
+            "_id": childNotesCol, "type": "text", "title": "Notes",
+            "cellRequiredLogic": cellRequiredLogic(action: "enforce", condColumn: childTextCol, value: optYes)
+        ]
+        let childSecret: [String: Any] = [
+            "_id": childSecretCol, "type": "text", "title": "Secret",
+            "cellVisibilityLogic": [
+                "action": "hide",
+                "eval": "and",
+                "conditions": [["file": fileID, "page": pageID, "column": childTextCol, "condition": "=", "value": optYes, "_id": UUID().uuidString]],
+                "_id": UUID().uuidString
+            ] as [String: Any]
+        ]
+        let rootRows: [[String: Any]] = [[
+            "_id": "root-1", "cells": [rootTextCol: "root"],
+            "children": [nestedSchemaID: ["value": [
+                ["_id": "child-a", "cells": [childTextCol: optYes, childNotesCol: "", childSecretCol: "s"]],
+                ["_id": "child-b", "cells": [childTextCol: optNo, childNotesCol: "", childSecretCol: "s"]],
+            ]]],
+        ]]
+        let editor = documentEditor(document: makeCollectionDoc(
+            rootColumns: [["_id": rootTextCol, "type": "text", "title": "Text"]],
+            nestedColumns: [childTrigger, childNotes, childSecret],
+            rootRows: rootRows
+        ))
+        let viewModel = collectionViewModel(editor)
+        waitForCollectionToLoad(viewModel)
+
+        // Sanity on the original: child-a is required+empty (invalid) and hides its secret cell.
+        XCTAssertFalse(viewModel.isRowValid(for: "root-1", parentSchemaID: rootSchemaID),
+                       "Original row is invalid because child-a's required notes are empty")
+        XCTAssertFalse(viewModel.shouldShowCell(columnID: childSecretCol, rowID: "child-a"),
+                       "Original child-a hides its secret cell (trigger == Yes)")
+        XCTAssertTrue(viewModel.shouldShowCell(columnID: childSecretCol, rowID: "child-b"),
+                      "Original child-b shows its secret cell (trigger == No)")
+
+        let rowIDsBeforeDuplicate = Set(viewModel.rowToValueElementMap.keys)
+        viewModel.duplicateRow(rowID: "root-1", includeChildren: true)
+
+        let newRowIDs = Set(viewModel.rowToValueElementMap.keys).subtracting(rowIDsBeforeDuplicate)
+        let cloneRootID = newRowIDs.first(where: { viewModel.rowToValueElementMap[$0]?.cells?[rootTextCol] != nil })
+        XCTAssertNotNil(cloneRootID, "Duplicating must add a new root row")
+        guard let cloneRootID else { return }
+
+        // parentToChildRowMap: the clone's children are registered with fresh IDs.
+        let cloneChildIDs = viewModel.parentToChildRowMap[RowSchemaID(rowID: cloneRootID, schemaID: nestedSchemaID)] ?? []
+        XCTAssertEqual(cloneChildIDs.count, 2, "Clone must register both child rows in parentToChildRowMap")
+        XCTAssertFalse(cloneChildIDs.contains("child-a") || cloneChildIDs.contains("child-b"),
+                       "Cloned children must get new IDs, not reuse the originals")
+
+        // shouldShowSchema: the clone's nested schema stays visible.
+        XCTAssertTrue(viewModel.shouldShowSchema(rowID: cloneRootID, schemaID: nestedSchemaID),
+                      "Clone's nested schema must stay visible")
+
+        // Descendant cell visibility + required wiring follow the cloned trigger values.
+        let cloneChildYes = cloneChildIDs.first(where: { viewModel.rowToValueElementMap[$0]?.cells?[childTextCol]?.text == optYes })
+        let cloneChildNo = cloneChildIDs.first(where: { viewModel.rowToValueElementMap[$0]?.cells?[childTextCol]?.text == optNo })
+        XCTAssertNotNil(cloneChildYes)
+        XCTAssertNotNil(cloneChildNo)
+        if let cloneChildYes {
+            XCTAssertFalse(viewModel.shouldShowCell(columnID: childSecretCol, rowID: cloneChildYes),
+                           "Cloned child (trigger == Yes) must hide its secret cell")
+            XCTAssertTrue(editor.isCellRequired(columnID: childNotesCol, fieldID: collectionFieldID, rowID: cloneChildYes),
+                          "Cloned child (trigger == Yes) must inherit the required-notes rule")
+        }
+        if let cloneChildNo {
+            XCTAssertTrue(viewModel.shouldShowCell(columnID: childSecretCol, rowID: cloneChildNo),
+                          "Cloned child (trigger == No) must show its secret cell")
+        }
+
+        // isRowValid: the clone mirrors the original's invalid state.
+        XCTAssertFalse(viewModel.isRowValid(for: cloneRootID, parentSchemaID: rootSchemaID),
+                       "Clone must be invalid just like the original (required child notes still empty)")
     }
 
     func testCollection_nestedCellRequiredLogic() {
