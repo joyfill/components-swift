@@ -58,7 +58,8 @@ final class DocumentEditorConfigTests: XCTestCase {
                              currentPageID: nil),
             display: DisplayConfig(singleClickRowEdit: true,
                                    decorators: DecoratorConfig(visibleLimitInFields: 5,
-                                                               visibleLimitInRows: 3))
+                                                               visibleLimitInRows: 3,
+                                                               showInBulkForm: false))
         )
 
         let editor = DocumentEditor(document: JoyDoc(), config: config)
@@ -70,6 +71,7 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertTrue(editor.singleClickRowEdit)             // display.singleClickRowEdit
         XCTAssertEqual(editor.decoratorConfig.visibleLimitInFields, 5)
         XCTAssertEqual(editor.decoratorConfig.visibleLimitInRows, 3)
+        XCTAssertFalse(editor.decoratorConfig.showInBulkForm)   // display.decorators.showInBulkForm
     }
 
     // MARK: - Readonly coercion
@@ -130,6 +132,53 @@ final class DocumentEditorConfigTests: XCTestCase {
                        DecoratorConfig().visibleLimitInFields)
         XCTAssertEqual(config.display.decorators.visibleLimitInRows,
                        DecoratorConfig().visibleLimitInRows)
+        XCTAssertTrue(config.display.decorators.showInBulkForm)
+    }
+
+    // MARK: - DecoratorConfig.showInBulkForm
+
+    /// `showInBulkForm` must default to `true` so existing integrators keep
+    /// seeing decorators in the bulk form unless they opt out.
+    func testDecoratorConfig_showInBulkForm_defaultsTrue() {
+        XCTAssertTrue(DecoratorConfig().showInBulkForm)
+        XCTAssertTrue(DecoratorConfig(visibleLimitInFields: 9, visibleLimitInRows: 9).showInBulkForm)
+    }
+
+    /// An explicit `showInBulkForm` value must be preserved by the initializer.
+    func testDecoratorConfig_showInBulkForm_explicitValuePreserved() {
+        XCTAssertFalse(DecoratorConfig(showInBulkForm: false).showInBulkForm)
+        XCTAssertTrue(DecoratorConfig(showInBulkForm: true).showInBulkForm)
+    }
+
+    /// `showInBulkForm` must participate in `Equatable` — two configs that differ
+    /// only in that flag are not equal.
+    func testDecoratorConfig_showInBulkForm_affectsEquality() {
+        XCTAssertNotEqual(DecoratorConfig(showInBulkForm: true),
+                          DecoratorConfig(showInBulkForm: false))
+        XCTAssertEqual(DecoratorConfig(showInBulkForm: false),
+                       DecoratorConfig(showInBulkForm: false))
+    }
+
+    /// The editor must default `decoratorConfig.showInBulkForm` to `true` when the
+    /// config leaves the decorators untouched.
+    func testConfigInit_defaultDecorators_keepShowInBulkFormTrue() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertTrue(editor.decoratorConfig.showInBulkForm)
+    }
+
+    /// `showInBulkForm` set through `DisplayConfig` must survive onto the editor
+    /// even when the invalid-schema early-return path runs.
+    func testConfigInit_invalidDoc_stillCarriesShowInBulkForm() {
+        let editor = DocumentEditor(
+            document: invalidDocument(),
+            config: DocumentEditorConfig(
+                validateSchema: true,
+                display: DisplayConfig(decorators: DecoratorConfig(showInBulkForm: false))
+            )
+        )
+        XCTAssertNotNil(editor.schemaError)                   // early-return path taken
+        XCTAssertFalse(editor.decoratorConfig.showInBulkForm) // ...and the flag still mapped
     }
 
     // MARK: - Non-default legacy ↔ config equivalence
