@@ -1559,10 +1559,7 @@ final class RequiredLogicTests: XCTestCase {
                        "Validation must not retain a deleted collection row")
     }
 
-    /// Duplicating a root collection row with `includeChildren: true` must fully wire the cloned
-    /// subtree so the copy behaves identically to the original: its children are registered in
-    /// `parentToChildRowMap`, its nested schema stays visible, descendant cell-visibility logic is
-    /// evaluated, and required rules keep the clone's validity in sync.
+    /// Duplicating a root collection row with `includeChildren: true` fully wires the cloned subtree (map registration, schema visibility, descendant cell-visibility, and required rules).
     func testCollectionDuplicateRootRowWithChildrenFullyWiresClone() {
         let childSecretCol = "child-secret"
         let childTrigger: [String: Any] = ["_id": childTextCol, "type": "text", "title": "Trigger"]
@@ -1641,11 +1638,7 @@ final class RequiredLogicTests: XCTestCase {
                        "Clone must be invalid just like the original (required child notes still empty)")
     }
 
-    /// Thread-15 regression: when one parent row has *two* expanded child tables, duplicating a
-    /// row in the first table with `insertAtEnd: true` must anchor the clone to the last sibling of
-    /// *its own* child table (matched by `parentSchemaKey`) — not to the last row of the second
-    /// table, which shares the same level and parent row. The buggy anchor mis-tagged the clone
-    /// with the wrong schema key and dropped it visually under the second table.
+    /// With two expanded child tables under one parent, an "add at end" duplicate of a row in the first table anchors to its own table (via `parentSchemaKey`), not the second.
     func testCollectionDuplicateNestedRowInsertAtEndAnchorsToOwnChildTable() {
         let schemaA = "childSchemaA"
         let schemaB = "childSchemaB"

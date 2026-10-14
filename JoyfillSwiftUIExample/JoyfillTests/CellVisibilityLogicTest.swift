@@ -634,8 +634,7 @@ final class CellVisibilityLogicTest: XCTestCase {
                              isHidden: false, "row2 reason stays visible after duplicate")
     }
 
-    /// A duplicated row inherits the original's resolved visibility: duplicating a row whose
-    /// reason cell is hidden produces a clone whose reason cell is also hidden.
+    /// A duplicated row inherits the original's resolved visibility (a hidden reason cell stays hidden in the clone).
     func testDuplicateRowClonesVisibilityState() {
         // row2 status "Approved" != "Rejected" so its reason is hidden (action = show).
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Approved"))
@@ -668,8 +667,7 @@ final class CellVisibilityLogicTest: XCTestCase {
         }
     }
 
-    /// The view model's rendered state reflects the duplicate: rowOrder grows and the new row's
-    /// cells are present in filteredcellModels.
+    /// The view model's rendered state reflects the duplicate: rowOrder grows and the new row appears in filteredcellModels.
     func testDuplicateRowUpdatesRenderedModels() {
         let editor = documentEditor(document: buildStatusReasonDocument(isShow: true, row1Status: "Rejected", row2Status: "Rejected"))
         let vm = tableViewModel(editor)

@@ -1109,12 +1109,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
 
-    /// Finds the last row that belongs to the same sibling group as `rowID`
-    /// (same level and, for nested rows, same parent *and* same child-table
-    /// schema). Used to anchor "add at the end" duplicates after the final
-    /// sibling in the group. Matching the schema key matters when one parent
-    /// has two expanded child tables under it — otherwise the copy could be
-    /// anchored under the wrong table.
+    /// Returns the last row in `rowID`'s sibling group (same level, parent, and child-table schema) to anchor "add at the end" duplicates.
     private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String, parentSchemaKey: String) -> String? {
         var result: String?
         for model in tableDataModel.filteredcellModels {
