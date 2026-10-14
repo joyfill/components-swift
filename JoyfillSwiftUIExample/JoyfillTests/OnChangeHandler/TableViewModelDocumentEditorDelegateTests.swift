@@ -962,4 +962,99 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertNotNil(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.first { $0.id == "no_limit_row" },
                         "The new row should be inserted when there is no limit")
     }
+
+    // MARK: remainingRowCapacity (drives the duplicate popover's on-screen message)
+
+    func testRemainingRowCapacity_nilWhenNoLimit() {
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(nil), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        XCTAssertNil(viewModel.tableDataModel.remainingRowCapacity, "No maxRows means unlimited capacity (nil)")
+    }
+
+    func testRemainingRowCapacity_valueBelowLimit() {
+        let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let count = nonDeletedCount(baseEditor)
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.tableDataModel.remainingRowCapacity, 2, "Two slots below the limit should report 2 remaining")
+    }
+
+    func testRemainingRowCapacity_zeroAtLimit() {
+        let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let count = nonDeletedCount(baseEditor)
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.tableDataModel.remainingRowCapacity, 0, "At the limit, remaining capacity is 0")
+    }
+
+    func testRemainingRowCapacity_clampedToZeroWhenOverLimit() {
+        let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let count = nonDeletedCount(baseEditor)
+        // maxRows below the current count (e.g. lowered after rows already exist) must not go negative.
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(max(count - 1, 0)), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.tableDataModel.remainingRowCapacity, 0, "Over the limit, remaining capacity clamps to 0 (never negative)")
+    }
+
+    func testRemainingRowCapacity_ignoresDeletedRows() {
+        let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let count = nonDeletedCount(baseEditor)
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.tableDataModel.remainingRowCapacity, 0, "Precondition: starts at the limit")
+
+        guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
+            return XCTFail("Fixture has no rows to delete")
+        }
+        viewModel.deleteSelectedRow([firstRowID])
+        XCTAssertEqual(viewModel.tableDataModel.remainingRowCapacity, 1, "Deleting a row frees one slot; deleted rows don't count")
+    }
+
+    // MARK: duplicateRow (block + warn when quantity would exceed the limit)
+
+    func testDuplicateRow_blockedWhenQuantityExceedsLimit() {
+        let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let count = nonDeletedCount(baseEditor)
+        // One free slot, but the user asks to duplicate 3 rows.
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 1), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
+            return XCTFail("Fixture has no rows to duplicate")
+        }
+        viewModel.duplicateRow(rowID: firstRowID, quantity: 3)
+
+        XCTAssertEqual(viewModel.tableDataModel.nondeletedRowsCount, count,
+                       "Duplicating more rows than the remaining capacity must be blocked (no-op)")
+    }
+
+    func testDuplicateRow_allowedWhenQuantityFitsLimit() {
+        let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let count = nonDeletedCount(baseEditor)
+        // Exactly two free slots, duplicate two rows — fills to the limit.
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
+            return XCTFail("Fixture has no rows to duplicate")
+        }
+        viewModel.duplicateRow(rowID: firstRowID, quantity: 2)
+
+        XCTAssertEqual(viewModel.tableDataModel.nondeletedRowsCount, count + 2,
+                       "Duplicating within the remaining capacity should succeed and fill to the limit")
+    }
+
+    func testDuplicateRow_allowedWhenNoLimit() {
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(nil), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+        let count = viewModel.tableDataModel.nondeletedRowsCount
+
+        guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
+            return XCTFail("Fixture has no rows to duplicate")
+        }
+        viewModel.duplicateRow(rowID: firstRowID, quantity: 5)
+
+        XCTAssertEqual(viewModel.tableDataModel.nondeletedRowsCount, count + 5,
+                       "With no maxRows, duplicating any quantity should succeed")
+    }
 }

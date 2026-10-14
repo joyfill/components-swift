@@ -985,4 +985,67 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         waitForMainQueueToDrain()
         XCTAssertEqual(rootRowCount(documentEditor), 5, "Second add is now at the limit and must be refused")
     }
+
+    // MARK: remainingCapacityForSelection (drives the duplicate popover's on-screen message)
+
+    func testRemainingCapacityForSelection_root_nilWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertNil(viewModel.remainingCapacityForSelection, "No root maxRows means unlimited capacity (nil)")
+    }
+
+    func testRemainingCapacityForSelection_root_valueBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 6), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.remainingCapacityForSelection, 2, "Four root rows with maxRows 6 leaves 2 slots")
+    }
+
+    func testRemainingCapacityForSelection_root_zeroAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.remainingCapacityForSelection, 0, "At the limit, remaining capacity is 0")
+    }
+
+    func testRemainingCapacityForSelection_root_clampedToZeroWhenOverLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.remainingCapacityForSelection, 0, "A limit below the current count clamps to 0 (never negative)")
+    }
+
+    // MARK: duplicateRow (block + warn when quantity would exceed the schema limit)
+
+    func testDuplicateRow_root_blockedWhenQuantityExceedsLimit() async throws {
+        // One free slot, but the user asks to duplicate 3 rows.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 3)
+
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 4, "Duplicating more rows than the remaining capacity must be blocked (no-op)")
+    }
+
+    func testDuplicateRow_root_allowedWhenQuantityFitsLimit() async throws {
+        // Two free slots, duplicate two rows — fills to the limit.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 6), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 2)
+
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 6, "Duplicating within the remaining capacity should succeed and fill to the limit")
+    }
+
+    func testDuplicateRow_root_allowedWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 3)
+
+        XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 7, "With no limit, duplicating any quantity should succeed")
+    }
 }
