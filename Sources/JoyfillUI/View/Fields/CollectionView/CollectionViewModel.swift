@@ -1110,16 +1110,19 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     }
 
     /// Finds the last row that belongs to the same sibling group as `rowID`
-    /// (same level and, for nested rows, same parent). Used to anchor
-    /// "add at the end" duplicates after the final sibling in the group.
-    private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String) -> String? {
+    /// (same level and, for nested rows, same parent *and* same child-table
+    /// schema). Used to anchor "add at the end" duplicates after the final
+    /// sibling in the group. Matching the schema key matters when one parent
+    /// has two expanded child tables under it — otherwise the copy could be
+    /// anchored under the wrong table.
+    private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String, parentSchemaKey: String) -> String? {
         var result: String?
         for model in tableDataModel.filteredcellModels {
             switch model.rowType {
             case .row:
                 if !isNested { result = model.rowID }
-            case .nestedRow(let rowLevel, _, let modelParentID, _):
-                if isNested, rowLevel == level, modelParentID?.rowID == parentRowID {
+            case .nestedRow(let rowLevel, _, let modelParentID, let modelParentSchemaKey):
+                if isNested, rowLevel == level, modelParentID?.rowID == parentRowID, modelParentSchemaKey == parentSchemaKey {
                     result = model.rowID
                 }
             default:
@@ -1147,7 +1150,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 
         var anchorRowID = rowID
         if insertAtEnd {
-            anchorRowID = lastSiblingRowID(forSourceRowID: rowID, isNested: isNested, level: level, parentRowID: parentID?.rowID ?? "") ?? rowID
+            anchorRowID = lastSiblingRowID(forSourceRowID: rowID, isNested: isNested, level: level, parentRowID: parentID?.rowID ?? "", parentSchemaKey: parentSchemaKey) ?? rowID
         }
         for change in sortedChanges {
             guard let anchorIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == anchorRowID }) else { continue }
