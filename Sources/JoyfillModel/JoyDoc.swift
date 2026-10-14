@@ -1322,6 +1322,13 @@ public struct Schema {
         set { dictionary["decorate"] = newValue }
     }
 
+    /// The maximum number of rows a user may add at this schema level.
+    /// Absent means no limit.
+    public var maxRows: Int? {
+        get { dictionary["maxRows"] as? Int }
+        set { dictionary["maxRows"] = newValue }
+    }
+
     public var editability: [String]? {
         get { dictionary["editability"] as? [String] }
         set { dictionary["editability"] = newValue }

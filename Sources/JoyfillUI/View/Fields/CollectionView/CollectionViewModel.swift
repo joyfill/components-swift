@@ -1505,6 +1505,36 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return childrens
     }
     
+    /// Non-deleted row count at a schema level: root value elements, or `parentRowID`'s children for a nested schema.
+    func rowCount(schemaKey: String, parentRowID: String? = nil) -> Int {
+        if schemaKey == rootSchemaKey || parentRowID == nil || (parentRowID?.isEmpty ?? true) {
+            return (tableDataModel.valueToValueElements ?? []).nonDeletedCount
+        }
+        guard let parentRowID = parentRowID else { return 0 }
+        return (rowToValueElementMap[parentRowID]?.childrens?[schemaKey]?.valueToValueElements ?? []).nonDeletedCount
+    }
+
+    /// Whether a row may be added at the given schema level (`true` when the schema has no `maxRows`).
+    func canAddRow(schemaKey: String, parentRowID: String? = nil) -> Bool {
+        rowLimitAllowsAdding(currentCount: rowCount(schemaKey: schemaKey, parentRowID: parentRowID),
+                             maxRows: tableDataModel.schema[schemaKey]?.maxRows)
+    }
+
+    /// Can the selected rows' schema level accept another row — gates Insert Below and the row-form "+".
+    var canAddRowForSelection: Bool {
+        let schemaKey = selectionSchemaKey
+        let parentRowID: String?
+        if schemaKey == rootSchemaKey {
+            parentRowID = nil
+        } else if let firstSelectedRowID = tableDataModel.selectedRows.first,
+                  let row = tableDataModel.getRowByID(rowID: firstSelectedRowID) {
+            parentRowID = row.rowType.parentID?.rowID
+        } else {
+            parentRowID = nil
+        }
+        return canAddRow(schemaKey: schemaKey, parentRowID: parentRowID)
+    }
+
     func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
@@ -2197,9 +2227,17 @@ extension CollectionViewModel: DocumentEditorDelegate {
         if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
             let parentPath = change.change?["parentPath"] as? String ?? ""
             let parentID = decodeParentPath(parentPath: parentPath)
+            guard canAddRow(schemaKey: schemaID, parentRowID: parentID) else {
+                Log("Cannot add row: maxRows limit reached for schema \(schemaID) in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+                return
+            }
             let targetRowIndex = change.change?["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
+            guard canAddRow(schemaKey: rootSchemaKey) else {
+                Log("Cannot add row: maxRows limit reached for root schema in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+                return
+            }
             let targetRowIndex = change.change?["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }

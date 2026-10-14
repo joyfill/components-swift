@@ -360,9 +360,8 @@ public class DocumentEditor: ObservableObject {
     
     /// Whether the field has reached its `maxRows` limit and cannot accept more rows.
     func isRowLimitReached(fieldID: String) -> Bool {
-        guard let field = fieldMap[fieldID], let maxRows = field.maxRows else { return false }
-        let count = field.valueToValueElements?.filter { !($0.deleted ?? false) }.count ?? 0
-        return count >= maxRows
+        guard let field = fieldMap[fieldID] else { return false }
+        return !rowLimitAllowsAdding(currentCount: field.valueToValueElements?.nonDeletedCount ?? 0, maxRows: field.maxRows)
     }
 
     private func handleFieldValueRowCreate(for change: Change) {

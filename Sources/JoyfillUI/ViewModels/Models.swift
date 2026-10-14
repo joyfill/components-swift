@@ -165,6 +165,21 @@ enum RowType: Equatable {
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table, .signature]
 let collectionSupportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .barcode, .signature]
 
+extension Array where Element == ValueElement {
+    /// Rows that are not soft-deleted — the count the `maxRows` limit is measured against.
+    var nonDeletedCount: Int {
+        filter { !($0.deleted ?? false) }.count
+    }
+}
+
+/// The single rule governing the `maxRows` row limit, shared by tables and every collection
+/// schema level so the two can never drift on how the limit is interpreted.
+/// A `nil` limit means no limit.
+func rowLimitAllowsAdding(currentCount: Int, maxRows: Int?) -> Bool {
+    guard let maxRows = maxRows else { return true }
+    return currentCount < maxRows
+}
+
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -219,16 +234,11 @@ struct TableDataModel {
     }
     
     var nondeletedRowsCount: Int {
-        guard let valueElements = valueToValueElements, !valueElements.isEmpty else {
-            return 0
-        }
-
-        return valueElements.filter { !($0.deleted ?? false) }.count
+        (valueToValueElements ?? []).nonDeletedCount
     }
 
     var canAddRow: Bool {
-        guard let maxRows = maxRows else { return true }
-        return nondeletedRowsCount < maxRows
+        rowLimitAllowsAdding(currentCount: nondeletedRowsCount, maxRows: maxRows)
     }
 
     init?(fieldHeaderModel: FieldHeaderModel?,

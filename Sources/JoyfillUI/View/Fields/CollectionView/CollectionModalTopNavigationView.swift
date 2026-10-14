@@ -71,18 +71,20 @@ struct CollectionModalTopNavigationView: View {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
-                                Button(action: {
-                                    showingPopover = false
-                                    _ = viewModel.insertBelow()
-                                }) {
-                                    Text("Insert Below")
-                                        .foregroundStyle(.blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
+                                if viewModel.canAddRowForSelection {
+                                    Button(action: {
+                                        showingPopover = false
+                                        _ = viewModel.insertBelow()
+                                    }) {
+                                        Text("Insert Below")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .accessibilityIdentifier("TableInsertRowIdentifier")
                                 }
-                                .padding(.horizontal, 16)
-                                .padding(.top, 16)
-                                .accessibilityIdentifier("TableInsertRowIdentifier")
                                 if !hasActiveFilters {
                                     Button(action: {
                                         showingPopover = false
@@ -159,18 +161,20 @@ struct CollectionModalTopNavigationView: View {
                     } else {
                         VStack(spacing: 8) {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
-                                Button(action: {
-                                    showingPopover = false
-                                    _ = viewModel.insertBelow()
-                                }) {
-                                    Text("Insert Below")
-                                        .foregroundStyle(.blue)
-                                        .font(.system(size: 14))
-                                        .frame(height: 27)
+                                if viewModel.canAddRowForSelection {
+                                    Button(action: {
+                                        showingPopover = false
+                                        _ = viewModel.insertBelow()
+                                    }) {
+                                        Text("Insert Below")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .accessibilityIdentifier("TableInsertRowIdentifier")
                                 }
-                                .padding(.horizontal, 16)
-                                .padding(.top, 16)
-                                .accessibilityIdentifier("TableInsertRowIdentifier")
                                 if !hasActiveFilters {
                                     Button(action: {
                                         showingPopover = false
@@ -376,7 +380,7 @@ struct CollectionEditMultipleRowsSheetView: View {
                             .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                             .accessibilityIdentifier("LowerRowButtonIdentifier")
                             
-                            if viewModel.tableDataModel.mode == .fill {
+                            if viewModel.tableDataModel.mode == .fill && viewModel.canAddRowForSelection {
                                 Button(action: {
                                     viewModel.insertBelowFromBulkEdit()
                                 }, label: {
