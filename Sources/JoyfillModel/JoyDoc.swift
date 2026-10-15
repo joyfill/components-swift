@@ -574,6 +574,12 @@ public struct JoyDocField: Equatable {
         get { dictionary["rowOrder"] as? [String] }
         set { dictionary["rowOrder"] = newValue }
     }
+
+    /// The maximum number of rows a user may add to this table/collection field.
+    public var maxRows: Int? {
+        get { dictionary["maxRows"] as? Int }
+        set { dictionary["maxRows"] = newValue }
+    }
     
     /// The columns of the field in a table.
     public var tableColumns: [FieldTableColumn]? {
@@ -1314,6 +1320,13 @@ public struct Schema {
     public var decorate: Bool? {
         get { dictionary["decorate"] as? Bool }
         set { dictionary["decorate"] = newValue }
+    }
+
+    /// The maximum number of rows a user may add at this schema level.
+    /// Absent means no limit.
+    public var maxRows: Int? {
+        get { dictionary["maxRows"] as? Int }
+        set { dictionary["maxRows"] = newValue }
     }
 
     public var editability: [String]? {

@@ -981,4 +981,318 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertFalse(schemaIsVisible(documentEditor, row: newRowID, schema: hideDepth2SchemaID),
                        "The created row's cells match the hide logic, so its nested schema must start hidden")
     }
+
+    // MARK: - maxRows (per-schema row limit)
+    //
+    // Collections enforce maxRows per schema level: the root schema limits the top-level
+    // rows, each nested schema limits its own level. The limit lives on `Schema.maxRows`.
+    // UI disables the add-row affordances via `canAddRows(schemaKey:parentRowID:)`; the external
+    // host path (`insertRow(for:)`) blocks + warns when the level is already at its limit.
+
+    private let rootSchemaID = "collectionSchemaId"
+
+    /// Injects `maxRows` onto a given schema of the collection field, before the editor is built.
+    private func documentWithSchemaMaxRows(schemaKey: String, _ maxRows: Int?) -> JoyDoc {
+        var document = createTestDocument()
+        var fields = document.fields
+        guard let idx = fields.firstIndex(where: { $0.id == tableFieldID }) else { return document }
+        var schema = fields[idx].schema ?? [:]
+        if var s = schema[schemaKey] {
+            s.maxRows = maxRows
+            schema[schemaKey] = s
+        }
+        fields[idx].schema = schema
+        document.fields = fields
+        return document
+    }
+
+    private func rootRowCount(_ documentEditor: DocumentEditor) -> Int {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.filter { !($0.deleted ?? false) }.count ?? 0
+    }
+
+    /// Injects field-level `maxRows` onto the collection field, before the editor is built.
+    private func documentWithFieldMaxRows(_ maxRows: Int?) -> JoyDoc {
+        var document = createTestDocument()
+        var fields = document.fields
+        guard let idx = fields.firstIndex(where: { $0.id == tableFieldID }) else { return document }
+        fields[idx].maxRows = maxRows
+        document.fields = fields
+        return document
+    }
+
+    func testIsRowLimitReached_falseForCollectionField() {
+        // Collections enforce maxRows per schema, not field-level; the field-level engine helper
+        // must ignore them so it can't block ahead of the per-schema check.
+        let documentEditor = DocumentEditor(document: documentWithFieldMaxRows(1), config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertFalse(documentEditor.isRowLimitReached(fieldID: tableFieldID),
+                       "isRowLimitReached must exclude collection fields even when field-level maxRows is set")
+    }
+
+    private func externalRootRowCreate(rowID: String) -> Change {
+        externalChange(target: "field.value.rowCreate", change: [
+            "schemaId": rootSchemaID,
+            "parentPath": "",
+            "targetRowIndex": 4,
+            "row": [
+                "_id": rowID,
+                "cells": [:] as [String: Any],
+                "children": [hideDepth2SchemaID: ["value": [] as [Any]] as [String: Any]] as [String: Any]
+            ] as [String: Any]
+        ])
+    }
+
+    func testSchemaMaxRows_absentByDefault_readsNil() {
+        let document = createTestDocument()
+        let schema = document.fields.first(where: { $0.id == tableFieldID })?.schema?[rootSchemaID]
+        XCTAssertNil(schema?.maxRows, "maxRows should be absent on the root schema by default")
+    }
+
+    func testSchemaMaxRows_roundTripsThroughDictionary() {
+        let document = documentWithSchemaMaxRows(schemaKey: rootSchemaID, 3)
+        let schema = document.fields.first(where: { $0.id == tableFieldID })?.schema?[rootSchemaID]
+        XCTAssertEqual(schema?.maxRows, 3, "maxRows should round-trip through the schema dictionary")
+    }
+
+    func testCanAddRow_root_trueWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRows(schemaKey: viewModel.rootSchemaKey), "No limit means rows can always be added")
+    }
+
+    func testCanAddRow_root_falseWhenAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertFalse(viewModel.canAddRows(schemaKey: viewModel.rootSchemaKey), "At four rows with maxRows 4, no more rows may be added")
+    }
+
+    func testCanAddRow_root_trueWhenBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRows(schemaKey: viewModel.rootSchemaKey), "Four rows with maxRows 5 still allows one more")
+    }
+
+    func testExternalRowCreate_root_preservedWhenAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: at the limit")
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "A received row at the limit must still be applied so offline clients stay in sync")
+    }
+
+    func testExternalRowCreate_root_allowedWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four rows, no limit")
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "With no limit the external row must be inserted")
+    }
+
+    func testExternalRowCreate_root_preservedPastLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
+        waitForMainQueueToDrain()
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "First add fills the fifth slot")
+
+        documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e3")])
+        waitForMainQueueToDrain()
+        XCTAssertEqual(rootRowCount(documentEditor), 6, "A received row past the limit must still be applied so offline clients stay in sync")
+    }
+
+    // MARK: remainingCapacity for the current selection (drives the duplicate popover's on-screen message)
+
+    func testRemainingCapacityForSelection_root_nilWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertNil(viewModel.remainingCapacity(schemaKey: viewModel.selectionLevel.schemaKey, parentRowID: viewModel.selectionLevel.parentRowID), "No root maxRows means unlimited capacity (nil)")
+    }
+
+    func testRemainingCapacityForSelection_root_valueBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 6), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.remainingCapacity(schemaKey: viewModel.selectionLevel.schemaKey, parentRowID: viewModel.selectionLevel.parentRowID), 2, "Four root rows with maxRows 6 leaves 2 slots")
+    }
+
+    func testRemainingCapacityForSelection_root_zeroAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.remainingCapacity(schemaKey: viewModel.selectionLevel.schemaKey, parentRowID: viewModel.selectionLevel.parentRowID), 0, "At the limit, remaining capacity is 0")
+    }
+
+    func testRemainingCapacityForSelection_root_clampedToZeroWhenOverLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.remainingCapacity(schemaKey: viewModel.selectionLevel.schemaKey, parentRowID: viewModel.selectionLevel.parentRowID), 0, "A limit below the current count clamps to 0 (never negative)")
+    }
+
+    // MARK: duplicateRow (block + warn when quantity would exceed the schema limit)
+
+    func testDuplicateRow_root_blockedWhenQuantityExceedsLimit() async throws {
+        // One free slot, but the user asks to duplicate 3 rows.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 3)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Duplicating more rows than the remaining capacity must be blocked (no-op)")
+    }
+
+    func testDuplicateRow_root_allowedWhenQuantityFitsLimit() async throws {
+        // Two free slots, duplicate two rows — fills to the limit.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 6), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 2)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 6, "Duplicating within the remaining capacity should succeed and fill to the limit")
+    }
+
+    func testDuplicateRow_root_allowedWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 3)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 7, "With no limit, duplicating any quantity should succeed")
+    }
+
+    // MARK: Nested schema maxRows
+    //
+    // `rootRowA` starts with three children under the nested schema. These exercise the per-schema
+    // limit at a nested level, and that the count reads the live value tree (not the asynchronously
+    // built `rowToValueElementMap`), so an external nested rowCreate can't bypass the limit before
+    // the collection is on screen.
+
+    private func nestedRowCount(_ documentEditor: DocumentEditor, parentRowID: String, schemaKey: String) -> Int {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?
+            .first(where: { $0.id == parentRowID })?
+            .childrens?[schemaKey]?.valueToValueElements?
+            .filter { !($0.deleted ?? false) }.count ?? 0
+    }
+
+    private func externalNestedRowCreate(rowID: String, parentRootIndex: Int, schemaKey: String, targetRowIndex: Int) -> Change {
+        externalChange(target: "field.value.rowCreate", change: [
+            "schemaId": schemaKey,
+            "parentPath": "\(parentRootIndex).\(schemaKey)",
+            "targetRowIndex": targetRowIndex,
+            "row": [
+                "_id": rowID,
+                "cells": [:] as [String: Any],
+                "children": [:] as [String: Any]
+            ] as [String: Any]
+        ])
+    }
+
+    func testCanAddRow_nested_trueWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRows(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA),
+                      "No nested limit means rows can always be added")
+    }
+
+    func testCanAddRow_nested_falseWhenAtLimit() async throws {
+        // Fresh view model, no `sleep`: proves the limit holds even before the async map is built.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertFalse(viewModel.canAddRows(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA),
+                       "Three nested rows with maxRows 3 blocks adding more")
+    }
+
+    func testCanAddRow_nested_trueWhenBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRows(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA),
+                      "Three nested rows with maxRows 5 still allows more")
+    }
+
+    func testExternalRowCreate_nested_preservedWhenAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 3, "Precondition: nested level at the limit")
+
+        documentEditor.change(changes: [externalNestedRowCreate(rowID: "68b6cae471b0cf51b557e9f1", parentRootIndex: 0, schemaKey: hideDepth2SchemaID, targetRowIndex: 3)])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 4,
+                       "A received nested row at the limit must still be applied so offline clients stay in sync")
+    }
+
+    func testExternalRowCreate_nested_allowedWhenBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 3, "Precondition: three nested rows, below the limit")
+
+        documentEditor.change(changes: [externalNestedRowCreate(rowID: "68b6cae471b0cf51b557e9f2", parentRootIndex: 0, schemaKey: hideDepth2SchemaID, targetRowIndex: 3)])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 4,
+                       "Below the limit, the external nested row must be inserted")
+    }
+
+    // MARK: duplicate with children — descendant (child/grandchild) limit preflight
+    //
+    // Duplicating a row with `includeChildren` copies the whole subtree. Each copied child table is a
+    // fresh instance, so its copied non-deleted rows must fit under that schema's maxRows. The whole
+    // duplication is rejected atomically if any descendant copy would overflow. An already-over-limit
+    // source is never rejected — only the copy is measured. `rootRowA`'s first Depth-2 child holds three
+    // Depth-3 (grandchild) rows, so the Depth-3 schema is the deepest level these exercise.
+
+    private let depth3SchemaID = "685753be00360cf5d545a89e"
+
+    func testDuplicateRow_withChildren_blockedWhenGrandchildExceedsLimit() async throws {
+        // Depth-3 maxRows 2, but a copied Depth-3 table would carry three rows.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 1, includeChildren: true)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4,
+                       "Duplicating with children must be rejected atomically when a grandchild table would exceed its maxRows")
+    }
+
+    func testDuplicateRow_withChildren_allowedWhenDescendantAtCapacity() async throws {
+        // Depth-3 maxRows 3 == the largest copied Depth-3 table, so every copy fits exactly.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 1, includeChildren: true)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5,
+                       "A descendant exactly at capacity still allows the duplication")
+    }
+
+    func testDuplicateRow_withoutChildren_allowedEvenWhenDescendantWouldExceedLimit() async throws {
+        // Depth-3 maxRows 2 would overflow if children were copied, but includeChildren is false.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 1, includeChildren: false)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5,
+                       "Without children the descendant limit is irrelevant and duplication succeeds")
+    }
 }

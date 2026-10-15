@@ -1096,11 +1096,25 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             Log("No row found to duplicate", type: .error)
             return
         }
+        // Reject atomically when copying children would push any descendant table over its maxRows.
+        if includeChildren,
+           let source = findRowElement(id: rowID, in: tableDataModel.valueToValueElements),
+           let overflow = overflowingDescendantSchema(of: source) {
+            Log("Cannot duplicate row: copied child table for schema \(overflow) would exceed its maxRows limit in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+            return
+        }
         switch row.rowType {
         case .row(index: _):
+            guard canAddRows(max(quantity, 1), schemaKey: rootSchemaKey, parentRowID: nil) else {
+                Log("Cannot duplicate row: would exceed maxRows limit for schema \(rootSchemaKey) in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+                return
+            }
             duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         case .nestedRow(level: let level, index: _, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            
+            guard canAddRows(max(quantity, 1), schemaKey: parentSchemaKey, parentRowID: parentID?.rowID) else {
+                Log("Cannot duplicate row: would exceed maxRows limit for schema \(parentSchemaKey) in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+                return
+            }
             let headerTableColumns = tableDataModel.filterTableColumns(key: parentSchemaKey)
             duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         default:
@@ -1535,6 +1549,65 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return childrens
     }
     
+    /// Non-deleted row count at a schema level: root value elements, or `parentRowID`'s children for a nested schema.
+    private func rowCount(schemaKey: String, parentRowID: String? = nil) -> Int {
+        if schemaKey == rootSchemaKey || parentRowID == nil || (parentRowID?.isEmpty ?? true) {
+            return (tableDataModel.valueToValueElements ?? []).nonDeletedCount
+        }
+        guard let parentRowID = parentRowID,
+              let parent = findRowElement(id: parentRowID, in: tableDataModel.valueToValueElements) else { return 0 }
+        return (parent.childrens?[schemaKey]?.valueToValueElements ?? []).nonDeletedCount
+    }
+
+    /// Finds a row anywhere in the live value tree, independent of the asynchronously-built `rowToValueElementMap`.
+    private func findRowElement(id: String, in elements: [ValueElement]?) -> ValueElement? {
+        for element in elements ?? [] {
+            if element.id == id { return element }
+            for childGroup in (element.childrens ?? [:]).values {
+                if let found = findRowElement(id: id, in: childGroup.valueToValueElements) { return found }
+            }
+        }
+        return nil
+    }
+
+    /// Returns the first descendant schema whose copied rows would exceed its `maxRows`, or `nil` if the subtree fits.
+    private func overflowingDescendantSchema(of element: ValueElement) -> String? {
+        for (schemaKey, childGroup) in element.childrens ?? [:] {
+            let rows = (childGroup.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
+            if let maxRows = tableDataModel.schema[schemaKey]?.maxRows, rows.count > maxRows {
+                return schemaKey
+            }
+            for child in rows {
+                if let overflow = overflowingDescendantSchema(of: child) {
+                    return overflow
+                }
+            }
+        }
+        return nil
+    }
+
+    /// Rows the given schema level can still accept (`nil` = no limit).
+    func remainingCapacity(schemaKey: String, parentRowID: String? = nil) -> Int? {
+        rowCapacity(maxRows: tableDataModel.schema[schemaKey]?.maxRows,
+                    count: rowCount(schemaKey: schemaKey, parentRowID: parentRowID))
+    }
+
+    /// Whether `count` more rows fit at the given schema level (always true when the schema has no `maxRows`).
+    func canAddRows(_ count: Int = 1, schemaKey: String, parentRowID: String? = nil) -> Bool {
+        (remainingCapacity(schemaKey: schemaKey, parentRowID: parentRowID) ?? .max) >= count
+    }
+
+    /// Schema level + parent row the current selection belongs to — gates Insert Below, the row-form "+" and the duplicate popover.
+    var selectionLevel: (schemaKey: String, parentRowID: String?) {
+        let schemaKey = selectionSchemaKey
+        guard schemaKey != rootSchemaKey,
+              let firstSelectedRowID = tableDataModel.selectedRows.first,
+              let row = tableDataModel.getRowByID(rowID: firstSelectedRowID) else {
+            return (schemaKey, nil)
+        }
+        return (schemaKey, row.rowType.parentID?.rowID)
+    }
+
     func addRow(with rowID: String? = nil, and cellValues: [String: ValueUnion]? = nil, shouldSendEvent: Bool = true) {
         let id = rowID ?? generateObjectId()
         let cellValues = cellValues ?? getCellValues(columns: tableDataModel.tableColumns)
@@ -2244,10 +2317,17 @@ extension CollectionViewModel: DocumentEditorDelegate {
         let cellValues = newRow.cells ?? [:]
         let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
+        // Received rows are always applied so offline clients stay in sync; we only warn past maxRows.
         if let schemaID = schemaID, schemaID != "", schemaID != rootSchemaKey {
             let parentID = decodeParentPath(parentPath: parentPath ?? "")
+            if !canAddRows(schemaKey: schemaID, parentRowID: parentID) {
+                Log("Received row for schema \(schemaID) past its maxRows limit in field \(tableDataModel.fieldIdentifier.fieldID); applying it anyway to stay in sync", type: .warning)
+            }
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
+            if !canAddRows(schemaKey: rootSchemaKey) {
+                Log("Received row for root schema past its maxRows limit in field \(tableDataModel.fieldIdentifier.fieldID); applying it anyway to stay in sync", type: .warning)
+            }
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }
     }
