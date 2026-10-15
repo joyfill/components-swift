@@ -1246,4 +1246,53 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 4,
                        "Below the limit, the external nested row must be inserted")
     }
+
+    // MARK: duplicate with children — descendant (child/grandchild) limit preflight
+    //
+    // Duplicating a row with `includeChildren` copies the whole subtree. Each copied child table is a
+    // fresh instance, so its copied non-deleted rows must fit under that schema's maxRows. The whole
+    // duplication is rejected atomically if any descendant copy would overflow. An already-over-limit
+    // source is never rejected — only the copy is measured. `rootRowA`'s first Depth-2 child holds three
+    // Depth-3 (grandchild) rows, so the Depth-3 schema is the deepest level these exercise.
+
+    private let depth3SchemaID = "685753be00360cf5d545a89e"
+
+    func testDuplicateRow_withChildren_blockedWhenGrandchildExceedsLimit() async throws {
+        // Depth-3 maxRows 2, but a copied Depth-3 table would carry three rows.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 1, includeChildren: true)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4,
+                       "Duplicating with children must be rejected atomically when a grandchild table would exceed its maxRows")
+    }
+
+    func testDuplicateRow_withChildren_allowedWhenDescendantAtCapacity() async throws {
+        // Depth-3 maxRows 3 == the largest copied Depth-3 table, so every copy fits exactly.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 1, includeChildren: true)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5,
+                       "A descendant exactly at capacity still allows the duplication")
+    }
+
+    func testDuplicateRow_withoutChildren_allowedEvenWhenDescendantWouldExceedLimit() async throws {
+        // Depth-3 maxRows 2 would overflow if children were copied, but includeChildren is false.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 1, includeChildren: false)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 5,
+                       "Without children the descendant limit is irrelevant and duplication succeeds")
+    }
 }

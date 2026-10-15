@@ -1096,6 +1096,13 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             Log("No row found to duplicate", type: .error)
             return
         }
+        // Reject atomically when copying children would push any descendant table over its maxRows.
+        if includeChildren,
+           let source = findRowElement(id: rowID, in: tableDataModel.valueToValueElements),
+           let overflow = overflowingDescendantSchema(of: source) {
+            Log("Cannot duplicate row: copied child table for schema \(overflow) would exceed its maxRows limit in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+            return
+        }
         switch row.rowType {
         case .row(index: _):
             guard canAddRows(max(quantity, 1), schemaKey: rootSchemaKey, parentRowID: nil) else {
@@ -1558,6 +1565,22 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             if element.id == id { return element }
             for childGroup in (element.childrens ?? [:]).values {
                 if let found = findRowElement(id: id, in: childGroup.valueToValueElements) { return found }
+            }
+        }
+        return nil
+    }
+
+    /// Returns the first descendant schema whose copied rows would exceed its `maxRows`, or `nil` if the subtree fits.
+    private func overflowingDescendantSchema(of element: ValueElement) -> String? {
+        for (schemaKey, childGroup) in element.childrens ?? [:] {
+            let rows = (childGroup.valueToValueElements ?? []).filter { !($0.deleted ?? false) }
+            if let maxRows = tableDataModel.schema[schemaKey]?.maxRows, rows.count > maxRows {
+                return schemaKey
+            }
+            for child in rows {
+                if let overflow = overflowingDescendantSchema(of: child) {
+                    return overflow
+                }
             }
         }
         return nil
