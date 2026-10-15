@@ -367,7 +367,7 @@ final class MultilineTextFieldUITestCases: JoyfillUITestsBaseClass {
         let requiredFieldLabel = app.staticTexts["Multiline Text"]
         XCTAssertTrue(requiredFieldLabel.exists, "Required multiline label should display")
 
-        let requiredAsterisk = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let requiredAsterisk = app.images.matching(identifier: "RequiredAsterisk_field_Multiline Text").element(boundBy: 0)
         XCTAssertTrue(requiredAsterisk.exists, "Asterisk should be visible for required multiline field")
 
         let requiredField = app.textViews.element(boundBy: 0)

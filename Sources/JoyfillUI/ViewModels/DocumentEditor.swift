@@ -14,10 +14,13 @@ private enum ChangeTargetType: String {
     case fieldUpdate = "field.update"
 
     case fieldValueRowCreate = "field.value.rowCreate"
+    case fieldValueBulkRowCreate = "field.value.bulkRowCreate"
     case fieldValueRowUpdate = "field.value.rowUpdate"
     case fieldValueRowDelete = "field.value.rowDelete"
     case fieldValueRowMove = "field.value.rowMove"
-    
+    case fieldValueBulkRowUpdate = "field.value.bulkRowUpdate"
+    case fieldValueBulkRowDelete = "field.value.bulkRowDelete"
+
     case unknown
 }
 
@@ -314,7 +317,7 @@ public class DocumentEditor: ObservableObject {
             case .fieldUpdate:
                 handleFieldUpdate(for: change)
                 
-            case .fieldValueRowCreate:
+            case .fieldValueRowCreate, .fieldValueBulkRowCreate:
                 handleFieldValueRowCreate(for: change)
                 
             case .fieldValueRowUpdate:
@@ -326,6 +329,9 @@ public class DocumentEditor: ObservableObject {
             case .fieldValueRowMove:
                 handleFieldValueRowMove(for: change)
                 
+            case .fieldValueBulkRowUpdate, .fieldValueBulkRowDelete:
+                break
+
             case .unknown:
                 break
             }
@@ -489,13 +495,15 @@ public class DocumentEditor: ObservableObject {
         switch target {
         case .fieldUpdate:
             logEventForNilObject(change.change?["value"], message: "value not found for change: \(changeId)")
-        case .fieldValueRowCreate:
+        case .fieldValueRowCreate, .fieldValueBulkRowCreate:
             break
         case .fieldValueRowUpdate:
             logEventForNilObject(fieldMap[fieldId], message: "field not found for change: \(changeId)")
         case .fieldValueRowDelete:
             break
         case .fieldValueRowMove:
+            break
+        case .fieldValueBulkRowUpdate, .fieldValueBulkRowDelete:
             break
         case .unknown:
             break

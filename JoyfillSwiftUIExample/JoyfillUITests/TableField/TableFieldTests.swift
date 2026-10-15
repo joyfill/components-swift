@@ -61,11 +61,12 @@ final class TableFieldTests: JoyfillUITestsBaseClass {
         
         let selectallbuttonImage = XCUIApplication().images["SelectAllRowSelectorButton"]
         selectallbuttonImage.tap()
-        XCTAssertTrue(selectallbuttonImage.label == "circle", "The button should initially display the 'circle' image")
+        
+        XCTAssertTrue(selectallbuttonImage.label == "Circle", "The button should initially display the 'circle' image")
         
         app.buttons["TableAddRowIdentifier"].tap()
         selectallbuttonImage.tap()
-        XCTAssertTrue(selectallbuttonImage.label == "record.circle.fill", "The button should initially display the 'record.circle.fill' image")
+        XCTAssertTrue(selectallbuttonImage.label == "Record Button In A Filled Circle", "The button should initially display the 'record.circle.fill' image")
     }
     
     // First Page Table Test Cases

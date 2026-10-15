@@ -14,7 +14,8 @@ struct CollectionModalTopNavigationView: View {
     var onFilterTap: (() -> Void)?
     
     @State private var showingPopover = false
-    
+    @State private var showDuplicatePopover = false
+
     private var hasActiveFilters: Bool {
         return viewModel.tableDataModel.hasActiveFilters
     }
@@ -111,6 +112,19 @@ struct CollectionModalTopNavigationView: View {
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                     
                                 }
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
+                                    Button(action: {
+                                        showingPopover = false
+                                        showDuplicatePopover = true
+                                    }) {
+                                        Text("Duplicate row")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("TableDuplicateRowIdentifier")
+                                }
                             }
                             if viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                 Button(action: {
@@ -139,19 +153,6 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
-
-//                            Button(action: {
-//                                showingPopover = false
-//                                viewModel.duplicateRow()
-//                            }) {
-//                                Text("Duplicate \(rowTitle)")
-//                                    .foregroundStyle(.blue)
-//                                    .font(.system(size: 14))
-//                                    .frame(height: 27)
-//                            }
-//                            .padding(.horizontal, 16)
-//                            .padding(.bottom, 10)
-//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
                         }
                         .frame(width: 180)
                         .presentationCompactAdaptation(.popover)
@@ -200,6 +201,20 @@ struct CollectionModalTopNavigationView: View {
                                     .padding(.top, 16)
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 }
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
+                                    Button(action: {
+                                        showingPopover = false
+                                        showDuplicatePopover = true
+                                    }) {
+                                        Text("Duplicate row")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 16)
+                                    .accessibilityIdentifier("TableDuplicateRowIdentifier")
+                                }
                             }
                             
                             if viewModel.tableDataModel.canShowEditRowsMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
@@ -229,26 +244,34 @@ struct CollectionModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
-                            
-//                            Button(action: {
-//                                viewModel.duplicateRow()
-//                                showingPopover = false
-//                            }) {
-//                                Text("Duplicate \(rowTitle)")
-//                                    .foregroundStyle(.blue)
-//                                    .font(.system(size: 14))
-//                                    .frame(height: 27)
-//                            }
-//                            .padding(.horizontal, 16)
-//                            .padding(.bottom, 10)
-//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
+
                             Spacer()
                         }
                     }
                 }
+                .popover(isPresented: $showDuplicatePopover) {
+                    DuplicateRowPopover(
+                        showIncludeChildrenOption: selectedRowHasChildren,
+                        showAddAtEndOption: true,
+                        onApply: { quantity, includeChildren, addAtEnd in
+                            if let rowID = viewModel.tableDataModel.selectedRows.first {
+                                viewModel.duplicateRow(rowID: rowID, quantity: quantity, includeChildren: includeChildren, insertAtEnd: addAtEnd)
+                            }
+                            showDuplicatePopover = false
+                        },
+                        onCancel: {
+                            showDuplicatePopover = false
+                        }
+                    )
+                }
             }
 
         }
+    }
+
+    private var selectedRowHasChildren: Bool {
+        guard let rowID = viewModel.tableDataModel.selectedRows.first else { return false }
+        return viewModel.rowHasChildren(rowID: rowID)
     }
     
     fileprivate func clearSorting() {
@@ -315,7 +338,8 @@ struct CollectionEditMultipleRowsSheetView: View {
             
             Spacer()
             
-            let decorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
+            let allDecorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
+            let decorators = viewModel.tableDataModel.filterDecoratorsForBulkEdit(allDecorators, selectedRowCount: viewModel.tableDataModel.selectedRows.count, decoratorConfig: viewModel.decoratorConfig)
             if !decorators.isEmpty {
                 let parentPathForSelection: String? = {
                     guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }

@@ -251,7 +251,7 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         let requiredLabel = app.staticTexts["This is first\ntable with multiline header\ntext."]
         XCTAssertTrue(requiredLabel.exists, "Required field label should display")
         
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_This is first\ntable with multiline header\ntext.").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
         
         // Enter value and ensure asterisk still remains

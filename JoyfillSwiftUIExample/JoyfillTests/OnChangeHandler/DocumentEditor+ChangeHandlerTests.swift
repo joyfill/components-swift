@@ -304,6 +304,275 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertEqual(field?.rowOrder?.count, 5)
     }
     
+    // MARK: - Per-row duplicate: quantity, positioning, content fidelity, events
+
+    // Shared table fixture ids for the duplicate tests below.
+    private let dupTableFieldID = "67612793c4e6a5e6a05e64a3"
+    private let dupTextColumnID = "676127938fb7c5fd4321a2f4"
+    private let dupDropdownColumnID = "67612793b5f860ae8d6a4ae6"
+    private let dupDateColumnID = "67612793c76286eb2763c366"
+    private let dupFirstRowID = "676127938056dcd158942bad"
+    private let dupSecondRowID = "67612793f70928da78973744"
+    private let dupMidRowID = "67612793a6cd1f9d39c8433b"
+    private let dupDeletedRowID = "67612793a6cd1f9d39c8433c"
+    private let dupLastRowID = "67612793a6cd1f9d39c8433d"
+
+    private func duplicateTableDocument() -> JoyDoc {
+        JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+    }
+
+    private func duplicateFieldIdentifier() -> FieldIdentifier {
+        FieldIdentifier(fieldID: dupTableFieldID, pageID: pageID, fileID: fileID)
+    }
+
+    // A2: quantity = 3 adds three rows, each with a unique, non-empty id.
+    func testDuplicateRowQuantityThreeAddsThreeUniqueRows() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+        let field = documentEditor.field(fieldID: dupTableFieldID)
+
+        // 5 + 3 = 8
+        XCTAssertEqual(field?.rowOrder?.count, 8)
+        let newIDs = Array(field!.rowOrder![5...7])
+        XCTAssertEqual(Set(newIDs).count, 3, "All three duplicated ids must be unique")
+        XCTAssertFalse(newIDs.contains(where: { $0.isEmpty }), "No duplicated id may be empty")
+        XCTAssertFalse(newIDs.contains(dupLastRowID), "Duplicated ids must differ from the original")
+    }
+
+    // A3: copies are inserted directly after the original; the trailing rows shift down.
+    func testDuplicateRowInsertsCopiesRightAfterOriginal() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID], quantity: 2, fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        XCTAssertEqual(rowOrder?.count, 7)
+        XCTAssertEqual(rowOrder?[0], dupFirstRowID, "Original row stays in place")
+        XCTAssertNotEqual(rowOrder?[1], dupSecondRowID, "Index 1 is now a new copy")
+        XCTAssertNotEqual(rowOrder?[2], dupSecondRowID, "Index 2 is now a new copy")
+        XCTAssertEqual(rowOrder?[3], dupSecondRowID, "Previous second row shifted down by the two copies")
+    }
+
+    // insertAtEnd: copies are appended to the bottom of the table; the original and the tail stay put.
+    func testDuplicateRowInsertAtEndAppendsCopies() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID], quantity: 2, insertAtEnd: true, fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        XCTAssertEqual(rowOrder?.count, 7)
+        XCTAssertEqual(rowOrder?[0], dupFirstRowID, "Original row stays in place")
+        XCTAssertEqual(rowOrder?[1], dupSecondRowID, "Tail is NOT shifted — copies went to the end")
+        XCTAssertEqual(rowOrder?[4], dupLastRowID, "Last original row stays ahead of the appended copies")
+        let appended = Array(rowOrder![5...6])
+        XCTAssertEqual(Set(appended).count, 2, "Two appended copies have unique ids")
+        XCTAssertFalse(appended.contains(dupFirstRowID), "Appended rows are new copies, not the original")
+    }
+
+    // A5: quantity of 0 clamps to 1.
+    func testDuplicateRowQuantityZeroClampsToOne() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 0, fieldIdentifier: duplicateFieldIdentifier())
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 6)
+    }
+
+    // A5: negative quantity clamps to 1.
+    func testDuplicateRowNegativeQuantityClampsToOne() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: -5, fieldIdentifier: duplicateFieldIdentifier())
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 6)
+    }
+
+    // A9: duplicating a mid-list row inserts right after it and shifts the tail down.
+    func testDuplicateMidListRowShiftsTail() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupMidRowID], fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        XCTAssertEqual(rowOrder?.count, 6)
+        XCTAssertEqual(rowOrder?[2], dupMidRowID, "Original mid-list row stays at its index")
+        XCTAssertNotEqual(rowOrder?[3], dupDeletedRowID, "Index 3 is the new copy")
+        XCTAssertEqual(rowOrder?[4], dupDeletedRowID, "Row that followed the original shifted down by one")
+    }
+
+    // B10/B11/B12: clone cells match the original across all column types; the clone id is unique; the original is untouched.
+    func testDuplicateRowClonesContentAndLeavesOriginalUntouched() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID], fieldIdentifier: duplicateFieldIdentifier())
+        let field = documentEditor.field(fieldID: dupTableFieldID)
+        let newRowID = field?.rowOrder?[1]
+        let elements = field?.value?.valueElements
+        let newRow = elements?.first(where: { $0.id == newRowID })
+        let originalRow = elements?.first(where: { $0.id == dupFirstRowID })
+
+        XCTAssertNotNil(newRow)
+        XCTAssertNotEqual(newRowID, dupFirstRowID, "Clone id must be unique")
+
+        // All three column types copied verbatim.
+        XCTAssertEqual(newRow?.cells?[dupTextColumnID]?.text, "Value for Row 1, Column 1")
+        XCTAssertEqual(newRow?.cells?[dupTextColumnID]?.text, originalRow?.cells?[dupTextColumnID]?.text)
+        XCTAssertEqual(newRow?.cells?[dupDropdownColumnID]?.text, originalRow?.cells?[dupDropdownColumnID]?.text)
+        XCTAssertEqual(newRow?.cells?[dupDateColumnID]?.number, originalRow?.cells?[dupDateColumnID]?.number)
+
+        // Original stays exactly as it was.
+        XCTAssertEqual(originalRow?.cells?[dupTextColumnID]?.text, "Value for Row 1, Column 1")
+    }
+
+    // B13: the elements array grows by exactly `quantity`.
+    func testDuplicateRowGrowsElementsByQuantity() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        let before = documentEditor.field(fieldID: dupTableFieldID)?.value?.valueElements?.count ?? 0
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+        let after = documentEditor.field(fieldID: dupTableFieldID)?.value?.valueElements?.count ?? 0
+        XCTAssertEqual(after, before + 3)
+    }
+
+    // C15: quantity == 1 emits a single `field.value.rowCreate` change (never bulkRowCreate).
+    func testDuplicateRowQuantityOneEmitsRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
+
+        let rowCreate = captured.filter { $0.target == "field.value.rowCreate" }
+        XCTAssertEqual(rowCreate.count, 1)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.bulkRowCreate" })
+    }
+
+    // C16: quantity > 1 emits ONE grouped `field.value.bulkRowCreate` change (v: 2)
+    // whose `change.rows` holds one entry per created copy.
+    func testDuplicateRowQuantityManyEmitsBulkRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        XCTAssertEqual(bulk.first?.v, 2, "Grouped bulk change is versioned v: 2")
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 3, "Grouped change carries one row entry per copy")
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" }, "quantity > 1 must not emit plain rowCreate")
+    }
+
+    // C17: every entry inside the grouped change carries the full row dictionary and a targetRowIndex.
+    func testDuplicateRowBulkChangesCarryRowPayload() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1)
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 3)
+        for row in rows ?? [] {
+            XCTAssertNotNil(row["row"], "Each row entry must carry the full row dictionary")
+            XCTAssertNotNil(row["targetRowIndex"], "Each row entry must carry a targetRowIndex")
+        }
+    }
+
+    // C18: targetRowIndexes are consecutive, starting right after the original.
+    func testDuplicateRowBulkTargetIndexesAreConsecutive() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        // Duplicating the last row (index 4) three times → indexes 5, 6, 7.
+        _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        let indexes = (bulk.first?.change?["rows"] as? [[String: Any]])?
+            .compactMap { $0["targetRowIndex"] as? Int }
+            .sorted()
+        XCTAssertEqual(indexes, [5, 6, 7])
+    }
+
+    // Multi-row: duplicating two distinct rows in one call inserts a copy after each and shifts the tail.
+    func testDuplicateMultipleRowsInOneCall() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], fieldIdentifier: duplicateFieldIdentifier())
+        let rowOrder = documentEditor.field(fieldID: dupTableFieldID)?.rowOrder
+
+        // 5 + 2 = 7
+        XCTAssertEqual(rowOrder?.count, 7)
+        XCTAssertEqual(rowOrder?[0], dupFirstRowID, "First source row stays in place")
+        XCTAssertNotEqual(rowOrder?[1], dupSecondRowID, "A copy of row 1 sits right after it")
+        XCTAssertEqual(rowOrder?[2], dupSecondRowID, "Untouched row shifts down by one copy")
+        XCTAssertEqual(rowOrder?[3], dupMidRowID, "Second source row keeps its (shifted) position")
+        XCTAssertNotEqual(rowOrder?[4], dupDeletedRowID, "A copy of the mid row sits right after it")
+        XCTAssertEqual(rowOrder?[5], dupDeletedRowID, "Tail shifts down by the two copies")
+    }
+
+    // Multi-row with quantity > 1: each source row gets `quantity` copies and the event is bulkRowCreate.
+    func testDuplicateMultipleRowsWithQuantityEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 2, fieldIdentifier: duplicateFieldIdentifier())
+
+        // 5 + (2 rows * 2 copies) = 9
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 9)
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 4, "Two source rows × two copies = four grouped row entries")
+    }
+
+    // Two source rows at quantity 1 still means 2 target rows -> bulkRowCreate (count > 1), not rowCreate.
+    func testDuplicateTwoRowsQuantityOneStillEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1)
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 2)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" })
+    }
+
+    // Empty rowIDs is a no-op: nothing is added and no rowCreate/bulkRowCreate change is emitted.
+    func testDuplicateEmptyRowIDsIsNoOp() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = documentEditor.duplicateRows(rowIDs: [], fieldIdentifier: duplicateFieldIdentifier())
+
+        XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 5, "Row order is unchanged")
+        XCTAssertTrue(captured.isEmpty, "No row-create change is emitted for an empty rowIDs list")
+    }
+
+    // The returned tuple carries one change per copy (keyed by insert index) and the full updated elements array.
+    func testDuplicateRowsReturnValueShape() {
+        let documentEditor = documentEditor(document: duplicateTableDocument())
+        let elementsBefore = documentEditor.field(fieldID: dupTableFieldID)?.value?.valueElements?.count ?? 0
+
+        let (changes, elements) = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
+
+        XCTAssertEqual(changes.count, 3, "One entry per copy")
+        XCTAssertEqual(changes.keys.sorted(), [5, 6, 7], "Keys are the consecutive insert indexes")
+        XCTAssertEqual(elements.count, elementsBefore + 3, "Returned elements include the three clones")
+    }
+
     // Move row up tests
     func testMoveRowUp() {
         let tableFieldID = "67612793c4e6a5e6a05e64a3"
@@ -934,6 +1203,385 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertEqual(row?[0].cells?["67612793b5f860ae8d6a4ae6"]?.text, "67612793a4c7301ba4da1d69")
         XCTAssertEqual(row?[0].cells?["67612793c76286eb2763c366"]?.number, 1712385780000)
     }
+
+    // MARK: - makeBulkChange Builders
+
+    private func bulkRowUpdateChange(
+        rowId: String,
+        cells: [String: Any],
+        parentPath: String? = nil,
+        schemaId: String? = nil
+    ) -> Change {
+        var change: [String: Any] = [
+            "rowId": rowId,
+            "row": ["_id": rowId, "cells": cells]
+        ]
+        if let parentPath { change["parentPath"] = parentPath }
+        if let schemaId { change["schemaId"] = schemaId }
+        return Change(dictionary: [
+            "v": 1, "sdk": "swift", "target": "field.value.rowUpdate", "_id": "doc1",
+            "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+            "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+            "change": change, "createdOn": 1.0
+        ])
+    }
+
+    private func bulkRowDeleteChange(
+        rowId: String,
+        cells: [String: Any],
+        parentPath: String? = nil,
+        schemaId: String? = nil
+    ) -> Change {
+        var change: [String: Any] = [
+            "rowId": rowId,
+            "row": ["_id": rowId, "cells": cells]
+        ]
+        if let parentPath { change["parentPath"] = parentPath }
+        if let schemaId { change["schemaId"] = schemaId }
+        return Change(dictionary: [
+            "v": 1, "sdk": "swift", "target": "field.value.rowDelete", "_id": "doc1",
+            "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+            "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+            "change": change, "createdOn": 1.0
+        ])
+    }
+
+    private func bulkChange(target: String) -> Change {
+        Change(dictionary: [
+            "v": 1, "sdk": "swift", "target": target, "_id": "doc1",
+            "fileId": "file1", "pageId": "page1", "fieldId": "field1",
+            "change": ["rowId": "r1", "row": ["_id": "r1", "cells": [:] as [String: Any]]],
+            "createdOn": 1.0
+        ])
+    }
+
+    // MARK: - makeBulkChange: Returns nil
+
+    func testMakeBulkChange_EmptyArrayReturnsNil() {
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: []))
+    }
+
+    func testMakeBulkChange_SingleRowUpdateReturnsNil() {
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"])]))
+    }
+
+    func testMakeBulkChange_SingleRowDeleteReturnsNil() {
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"])]))
+    }
+
+    func testMakeBulkChange_MultiRowCreateReturnsNil() {
+        let changes = [bulkChange(target: "field.value.rowCreate"), bulkChange(target: "field.value.rowCreate")]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_MultiRowMoveReturnsNil() {
+        let changes = [bulkChange(target: "field.value.rowMove"), bulkChange(target: "field.value.rowMove")]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_NilTargetReturnsNil() {
+        let c = Change(dictionary: ["v": 1, "sdk": "swift", "change": [:] as [String: Any]])
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [c, c]))
+    }
+
+    // MARK: - makeBulkChange: Bulk update
+
+    func testMakeBulkChange_UpdateEnvelope() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertNotNil(bulk)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowUpdate")
+        XCTAssertEqual(bulk?.v, 2)
+        XCTAssertEqual(bulk?.sdk, "swift")
+        XCTAssertEqual(bulk?.id, "doc1")
+        XCTAssertEqual(bulk?.identifier, "doc_ident")
+        XCTAssertEqual(bulk?.fileId, "file1")
+        XCTAssertEqual(bulk?.pageId, "page1")
+        XCTAssertEqual(bulk?.fieldId, "field1")
+        XCTAssertEqual(bulk?.fieldIdentifier, "field_ident")
+        XCTAssertEqual(bulk?.fieldPositionId, "pos1")
+        XCTAssertNotNil(bulk?.createdOn)
+    }
+
+    func testMakeBulkChange_UpdateRowsAreOrderedStrings() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r3", cells: ["c1": "a"])
+        ]
+        let rows = DocumentEditor.makeBulkChange(from: changes)?.change?["rows"] as? [String]
+        XCTAssertEqual(rows, ["r1", "r2", "r3"])
+    }
+
+    func testMakeBulkChange_UpdateColumnsReflectUniformCells() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a", "c2": "x"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a", "c2": "x"])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        XCTAssertEqual(columns.count, 2)
+        func value(_ id: String) -> Any? { columns.first { $0["id"] as? String == id }?["value"] }
+        XCTAssertEqual(value("c1") as? String, "a")
+        XCTAssertEqual(value("c2") as? String, "x")
+    }
+
+    func testMakeBulkChange_UpdateColumnValueTypeFidelity() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["str": "s", "num": 42, "bool": true]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["str": "s", "num": 42, "bool": true])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        func value(_ id: String) -> Any? { columns.first { $0["id"] as? String == id }?["value"] }
+        XCTAssertEqual(value("str") as? String, "s")
+        XCTAssertEqual(value("num") as? Int, 42)
+        XCTAssertEqual(value("bool") as? Bool, true)
+    }
+
+    func testMakeBulkChange_UpdateNoParentPathOrSchemaId() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertNil(bulk?.change?["parentPath"])
+        XCTAssertNil(bulk?.change?["schemaId"])
+    }
+
+    func testMakeBulkChange_UpdateEmptyCellsGivesEmptyColumns() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: [:]),
+            bulkRowUpdateChange(rowId: "r2", cells: [:])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]]
+        XCTAssertEqual(columns?.count, 0)
+    }
+
+    // MARK: - makeBulkChange: Bulk delete
+
+    func testMakeBulkChange_DeleteTargetAndRowsAreObjects() {
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowDelete")
+        let rows = bulk?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 2)
+        XCTAssertEqual(rows?[0]["_id"] as? String, "r1")
+        XCTAssertEqual(rows?[1]["_id"] as? String, "r2")
+        XCTAssertNotNil(rows?[0]["cells"])
+    }
+
+    func testMakeBulkChange_DeleteHasNoColumns() {
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes)?.change?["columns"])
+    }
+
+    func testMakeBulkChange_DeleteWithMissingRowIdReturnsNil() {
+        func deleteChange(row: [String: Any]) -> Change {
+            Change(dictionary: [
+                "v": 1, "sdk": "swift", "target": "field.value.rowDelete", "_id": "doc1",
+                "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+                "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+                "change": ["rowId": "r1", "row": row], "createdOn": 1.0
+            ])
+        }
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            deleteChange(row: ["cells": ["c1": "b"]]) // no _id
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_DeleteWithEmptyRowIdReturnsNil() {
+        func deleteChange(row: [String: Any]) -> Change {
+            Change(dictionary: [
+                "v": 1, "sdk": "swift", "target": "field.value.rowDelete", "_id": "doc1",
+                "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+                "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+                "change": ["rowId": "r1", "row": row], "createdOn": 1.0
+            ])
+        }
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"]),
+            deleteChange(row: ["_id": "", "cells": ["c1": "b"]])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    // MARK: - makeBulkChange: Nested collection
+
+    func testMakeBulkChange_NestedUpdateCarriesParentPathAndSchemaId() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1")
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowUpdate")
+        XCTAssertEqual(bulk?.change?["parentPath"] as? String, "p.0")
+        XCTAssertEqual(bulk?.change?["schemaId"] as? String, "sch1")
+        XCTAssertEqual(bulk?.change?["rows"] as? [String], ["r1", "r2"])
+        XCTAssertNotNil(bulk?.change?["columns"])
+    }
+
+    func testMakeBulkChange_NestedDeleteCarriesParentPathAndSchemaId() {
+        let changes = [
+            bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"], parentPath: "p.0", schemaId: "sch1")
+        ]
+        let bulk = DocumentEditor.makeBulkChange(from: changes)
+        XCTAssertEqual(bulk?.target, "field.value.bulkRowDelete")
+        XCTAssertEqual(bulk?.change?["parentPath"] as? String, "p.0")
+        XCTAssertEqual(bulk?.change?["schemaId"] as? String, "sch1")
+        XCTAssertNil(bulk?.change?["columns"])
+    }
+
+    func testMakeBulkChange_MismatchedParentPathReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"], parentPath: "p.0", schemaId: "sch1"),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    // MARK: - makeBulkChange: Edge cases
+
+    func testMakeBulkChange_MixedTargetsReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowDeleteChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_MixedFieldIdReturnsNil() {
+        let c1 = bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"])
+        var dict = bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"]).dictionary
+        dict["fieldId"] = "field2"
+        let changes = [c1, Change(dictionary: dict)]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateDivergentCellsReturnsNil() {
+        // The flat {rows, columns} shape cannot represent per-row values,
+        // so a batch whose rows carry different cell values must not consolidate.
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": "b"])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateWithPerRowTzReturnsNil() {
+        // Per-row tz/metadata (date columns) have no slot in the flat bulk shape.
+        func tzChange(rowId: String) -> Change {
+            Change(dictionary: [
+                "v": 1, "sdk": "swift", "target": "field.value.rowUpdate", "_id": "doc1",
+                "identifier": "doc_ident", "fileId": "file1", "pageId": "page1",
+                "fieldId": "field1", "fieldIdentifier": "field_ident", "fieldPositionId": "pos1",
+                "change": [
+                    "rowId": rowId,
+                    "row": ["_id": rowId, "cells": ["c1": "a"], "tz": "America/New_York"]
+                ],
+                "createdOn": 1.0
+            ])
+        }
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: [tzChange(rowId: "r1"), tzChange(rowId: "r2")]))
+    }
+
+    // MARK: - makeBulkChange: JSON-type-aware cell equality
+
+    func testMakeBulkChange_UpdateBoolVsOneReturnsNil() {
+        // true must not be treated as equal to 1 (NSDictionary.isEqual would coerce it).
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": true]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 1])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateFalseVsZeroReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": false]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 0])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateNestedBoolVsOneReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": ["nested": true]]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": ["nested": 1]])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateMatchingBoolTypesConsolidate() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": true]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": true])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        XCTAssertEqual(columns.first?["value"] as? Bool, true)
+    }
+
+    func testMakeBulkChange_UpdateMatchingNumberTypesConsolidate() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": 1]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 1])
+        ]
+        let columns = DocumentEditor.makeBulkChange(from: changes)?.change?["columns"] as? [[String: Any]] ?? []
+        XCTAssertEqual(columns.first?["value"] as? Int, 1)
+    }
+
+    func testMakeBulkChange_UpdateMatchingNestedTypesConsolidate() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": ["nested": true, "n": 2]]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": ["nested": true, "n": 2]])
+        ]
+        XCTAssertNotNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    // A non-finite number (NaN/infinity) makes JSONSerialization raise an ObjC
+    // exception that `try?` can't catch; the helper must reject it, not crash.
+
+    func testMakeBulkChange_UpdateNaNInFirstRowReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": Double.nan]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": 1])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateNaNInLaterRowReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": 1]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": Double.nan])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateInfinityReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": Double.infinity]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": Double.infinity])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
+
+    func testMakeBulkChange_UpdateNaNNestedReturnsNil() {
+        let changes = [
+            bulkRowUpdateChange(rowId: "r1", cells: ["c1": ["inner": Double.nan]]),
+            bulkRowUpdateChange(rowId: "r2", cells: ["c1": ["inner": 1]])
+        ]
+        XCTAssertNil(DocumentEditor.makeBulkChange(from: changes))
+    }
 }
 // MARK: - Collection (Nested Table) Tests
 extension DocumentEditorChangeHandlerTests {
@@ -1263,6 +1911,526 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertEqual(updatedNestedRows.count, initialNestedRows.count + 1)
     }
     
+    // MARK: - Collection duplicate: quantity + includeChildren
+
+    // Fixture (setCollectionField): 4 root rows; the 2nd root row has children.
+    private var dupColRootWithChildren: String { "67ddc537b7c2fce05d0c8615" }
+    private var dupColNestedKey: String { "67ddc5c9910a394a1324bfbe" }
+    // Nested rows under dupColRootWithChildren[dupColNestedKey].
+    private var dupColNestedPlainRow: String { "67ddd18bc3a74e6b350987f9" }       // nested index 0, no grandchildren, text "Grok "
+    private var dupColNestedWithGrandchildren: String { "67ddd191ab6a428ea69c77ad" } // nested index 1, has grandchildren
+    private var dupColNestedThirdRow: String { "67ddd193eae737b64c24851a" }        // nested index 2
+    private var dupColNestedTextColumn: String { "67ddc61edce16f8b9f8dbf4b" }      // text column in the nested table
+
+    private func duplicateCollectionDocument() -> JoyDoc {
+        JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+    }
+
+    private func collectionFieldIdentifier() -> FieldIdentifier {
+        FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID)
+    }
+
+    private func rootRows(_ editor: DocumentEditor) -> [ValueElement] {
+        editor.field(fieldID: collectionFieldID)?.valueToValueElements ?? []
+    }
+
+    private func nestedRows(_ editor: DocumentEditor, parentId: String, schemaKey: String) -> [ValueElement] {
+        rootRows(editor)
+            .first(where: { $0.id == parentId })?
+            .childrens?[schemaKey]?.valueToValueElements ?? []
+    }
+
+    // Collection UI default (unchecked box): duplicating a root row drops its child tables.
+    func testDuplicateCollectionRootRowExcludeChildrenKeepsEmptyChildTables() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let original = rootRows(editor).first { $0.id == dupColRootWithChildren }
+        let originalChildKeys = Set(original?.childrens?.keys ?? [:].keys)
+        let originalRootIDs = Set(rootRows(editor).compactMap { $0.id })
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let after = rootRows(editor)
+        XCTAssertEqual(after.count, originalRootIDs.count + 1, "Root rows grow by one")
+
+        let duplicate = after.first { !originalRootIDs.contains($0.id ?? "") }
+        XCTAssertNotNil(duplicate, "A new root row must exist")
+
+        // includeChildren: false must keep each child-table key (so schema logic still
+        // builds a visibility map for the clone) but reset every table to empty.
+        let childrens = duplicate?.childrens
+        XCTAssertNotNil(childrens, "Child-table keys must be preserved, not stripped")
+        XCTAssertEqual(Set(childrens?.keys ?? [:].keys), originalChildKeys,
+                       "Clone keeps the same child-table schema keys as the original")
+        for (key, child) in childrens ?? [:] {
+            XCTAssertEqual(child.valueToValueElements?.count ?? 0, 0,
+                           "Child table \(key) must be empty when includeChildren is false")
+        }
+    }
+
+    // Checked box: duplicating a root row deep-copies the child tables with fresh ids.
+    func testDuplicateCollectionRootRowIncludeChildrenDeepCopiesWithNewIDs() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalRootIDs = Set(rootRows(editor).compactMap { $0.id })
+        let originalNestedIDs = Set(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id })
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 1,
+                                       includeChildren: true,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let duplicate = rootRows(editor).first { !originalRootIDs.contains($0.id ?? "") }
+        XCTAssertNotNil(duplicate)
+        let copiedNested = duplicate?.childrens?[dupColNestedKey]?.valueToValueElements ?? []
+        XCTAssertEqual(copiedNested.count, originalNestedIDs.count, "Child rows are copied, not dropped")
+
+        let copiedNestedIDs = Set(copiedNested.compactMap { $0.id })
+        XCTAssertTrue(copiedNestedIDs.isDisjoint(with: originalNestedIDs), "Copied child rows must have fresh ids, not shared with the original")
+    }
+
+    // Nested row, quantity > 1 inserts that many copies under the same parent.
+    func testDuplicateCollectionNestedRowQuantityAddsCopies() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let after = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+        XCTAssertEqual(after.count, before + 2)
+        XCTAssertEqual(Set(after.compactMap { $0.id }).count, after.count, "All nested row ids remain unique")
+    }
+
+    // Nested row, includeChildren: false keeps the grandchild-table keys but empties them.
+    func testDuplicateCollectionNestedRowExcludeChildrenKeepsEmptyGrandchildren() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let original = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+            .first { $0.id == dupColNestedWithGrandchildren }
+        let originalChildKeys = Set(original?.childrens?.keys ?? [:].keys)
+        let originalNestedIDs = Set(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id })
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedWithGrandchildren],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let duplicate = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+            .first { !originalNestedIDs.contains($0.id ?? "") }
+        XCTAssertNotNil(duplicate, "A new nested row must exist")
+
+        let childrens = duplicate?.childrens
+        XCTAssertNotNil(childrens, "Grandchild-table keys must be preserved, not stripped")
+        XCTAssertEqual(Set(childrens?.keys ?? [:].keys), originalChildKeys,
+                       "Clone keeps the same grandchild-table schema keys as the original")
+        for (key, child) in childrens ?? [:] {
+            XCTAssertEqual(child.valueToValueElements?.count ?? 0, 0,
+                           "Grandchild table \(key) must be empty when includeChildren is false")
+        }
+    }
+
+    // quantity == 1 emits a single rowCreate (never bulkRowCreate).
+    func testDuplicateCollectionNestedRowQuantityOneEmitsRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(captured.filter { $0.target == "field.value.rowCreate" }.count, 1)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.bulkRowCreate" })
+    }
+
+    // quantity > 1 emits one bulkRowCreate per copy (never plain rowCreate).
+    func testDuplicateCollectionNestedRowQuantityManyEmitsBulkRowCreate() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        XCTAssertEqual(bulk.first?.v, 2, "Grouped bulk change is versioned v: 2")
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 3)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" }, "quantity > 1 must not emit plain rowCreate")
+    }
+
+    // quantity <= 0 clamps to a single copy.
+    func testDuplicateCollectionNestedRowQuantityZeroClampsToOne() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 0,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 1)
+    }
+
+    // Negative quantity clamps to a single copy.
+    func testDuplicateCollectionNestedRowNegativeQuantityClampsToOne() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: -5,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 1)
+    }
+
+    // Copies are inserted directly after the original nested row; the trailing rows shift down.
+    func testDuplicateCollectionNestedRowInsertsCopiesRightAfterOriginal() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 5, "3 original + 2 copies")
+        XCTAssertEqual(order[0], dupColNestedPlainRow, "Original nested row stays in place")
+        XCTAssertNotEqual(order[1], dupColNestedWithGrandchildren, "Index 1 is now a new copy")
+        XCTAssertNotEqual(order[2], dupColNestedWithGrandchildren, "Index 2 is now a new copy")
+        XCTAssertEqual(order[3], dupColNestedWithGrandchildren, "Previous second row shifted down by the two copies")
+    }
+
+    // insertAtEnd: nested copies are appended to the end of the sibling group; the siblings stay put.
+    func testDuplicateCollectionNestedRowInsertAtEndAppendsCopies() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       insertAtEnd: true,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 5, "3 original + 2 copies")
+        XCTAssertEqual(order[0], dupColNestedPlainRow, "Original nested row stays in place")
+        XCTAssertEqual(order[1], dupColNestedWithGrandchildren, "Siblings are NOT shifted — copies went to the end")
+        XCTAssertEqual(order[2], dupColNestedThirdRow, "Last original sibling stays ahead of the appended copies")
+        let appended = Array(order[3...4])
+        XCTAssertEqual(Set(appended).count, 2, "Two appended copies have unique ids")
+        XCTAssertFalse(appended.contains(dupColNestedPlainRow), "Appended rows are new copies, not the original")
+    }
+
+    // Duplicating a mid-list nested row inserts right after it and shifts the tail down.
+    func testDuplicateCollectionMidListNestedRowShiftsTail() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedWithGrandchildren],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 4)
+        XCTAssertEqual(order[1], dupColNestedWithGrandchildren, "Original mid-list nested row stays at its index")
+        XCTAssertNotEqual(order[2], dupColNestedThirdRow, "Index 2 is the new copy")
+        XCTAssertEqual(order[3], dupColNestedThirdRow, "Row that followed the original shifted down by one")
+    }
+
+    // Clone cells match the original; the clone id is unique; the original is untouched.
+    func testDuplicateCollectionNestedRowClonesContentAndLeavesOriginalUntouched() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let after = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey)
+        let original = after.first { $0.id == dupColNestedPlainRow }
+        let clone = after[1]
+
+        XCTAssertNotEqual(clone.id, dupColNestedPlainRow, "Clone id must be unique")
+        XCTAssertEqual(clone.cells?[dupColNestedTextColumn]?.text, "Grok ", "Clone copies the cell content verbatim")
+        XCTAssertEqual(clone.cells?[dupColNestedTextColumn]?.text, original?.cells?[dupColNestedTextColumn]?.text)
+        XCTAssertEqual(original?.cells?[dupColNestedTextColumn]?.text, "Grok ", "Original stays exactly as it was")
+    }
+
+    // The nested array grows by exactly `quantity`.
+    func testDuplicateCollectionNestedRowGrowsElementsByQuantity() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let before = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 3)
+    }
+
+    // Nested context (schemaId/parentPath) sits beside `rows` at the bulk level — matching
+    // Kotlin — while each row entry carries only the row dictionary and targetRowIndex.
+    func testDuplicateCollectionNestedRowBulkChangesCarryRowPayload() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1)
+        // Nested context lives at the bulk level, beside `rows`.
+        XCTAssertEqual(bulk.first?.change?["schemaId"] as? String, dupColNestedKey, "schemaId must sit beside rows")
+        XCTAssertNotNil(bulk.first?.change?["parentPath"], "parentPath must sit beside rows")
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 3)
+        for row in rows ?? [] {
+            XCTAssertNotNil(row["row"], "Each row entry must carry the full row dictionary")
+            XCTAssertNotNil(row["targetRowIndex"], "Each row entry must carry a targetRowIndex")
+            XCTAssertNil(row["schemaId"], "schemaId must NOT be duplicated inside each row entry")
+        }
+    }
+
+    // targetRowIndexes are consecutive, starting right after the original nested row (index 0 → 1, 2, 3).
+    func testDuplicateCollectionNestedRowBulkTargetIndexesAreConsecutive() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                       quantity: 3,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        let indexes = (bulk.first?.change?["rows"] as? [[String: Any]])?
+            .compactMap { $0["targetRowIndex"] as? Int }
+            .sorted()
+        XCTAssertEqual(indexes, [1, 2, 3])
+    }
+
+    // Multi-row: duplicating two distinct nested rows in one call inserts a copy after each and shifts the tail.
+    func testDuplicateCollectionMultipleNestedRowsInOneCall() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let order = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).compactMap { $0.id }
+        XCTAssertEqual(order.count, 5, "3 original + 2 copies")
+        XCTAssertEqual(order[0], dupColNestedPlainRow, "First source row stays in place")
+        XCTAssertNotEqual(order[1], dupColNestedWithGrandchildren, "A copy of the first row sits right after it")
+        XCTAssertEqual(order[2], dupColNestedWithGrandchildren, "Untouched row shifts down by one copy")
+        XCTAssertEqual(order[3], dupColNestedThirdRow, "Second source row keeps its (shifted) position")
+        XCTAssertNotEqual(order[4], dupColNestedThirdRow, "A copy of the third row sits right after it")
+    }
+
+    // Multi-row with quantity > 1: each source nested row gets `quantity` copies and the event is bulkRowCreate.
+    func testDuplicateCollectionMultipleNestedRowsWithQuantityEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, 7, "3 original + (2 rows × 2 copies)")
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 4, "Two source rows × two copies = four grouped row entries")
+    }
+
+    // Two source nested rows at quantity 1 still means 2 target rows -> bulkRowCreate (count > 1), not rowCreate.
+    func testDuplicateCollectionTwoNestedRowsQuantityOneStillEmitsBulk() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1)
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 2)
+        XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" })
+    }
+
+    // Empty selectedRowIds is a no-op: nothing is added and no row-create change is emitted.
+    func testDuplicateCollectionEmptyRowIDsIsNoOp() {
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let beforeRoot = rootRows(editor).count
+        let beforeNested = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
+        captured.removeAll()
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [],
+                                       quantity: 1,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: dupColNestedKey,
+                                       parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(rootRows(editor).count, beforeRoot, "Root rows unchanged")
+        XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, beforeNested, "Nested rows unchanged")
+        XCTAssertTrue(captured.isEmpty, "No row-create change is emitted for an empty selection")
+    }
+
+    // The returned tuple carries one change per copy (keyed by nested insert index) and the full updated root elements array.
+    func testDuplicateCollectionNestedRowsReturnValueShape() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let rootCount = rootRows(editor).count
+
+        let (changes, elements) = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
+                                                             quantity: 3,
+                                                             includeChildren: false,
+                                                             fieldIdentifier: collectionFieldIdentifier(),
+                                                             rootSchemaKey: collectionFieldID,
+                                                             nestedKey: dupColNestedKey,
+                                                             parentRowId: dupColRootWithChildren)
+
+        XCTAssertEqual(changes.count, 3, "One entry per copy")
+        XCTAssertEqual(changes.keys.sorted(), [1, 2, 3], "Keys are the consecutive nested insert indexes")
+        XCTAssertEqual(elements.count, rootCount, "Returned elements are the root rows (nested growth lives inside them)")
+    }
+
+    // Root-row parity: copies are inserted directly after the original root row.
+    func testDuplicateCollectionRootRowInsertsCopiesRightAfterOriginal() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalOrder = rootRows(editor).compactMap { $0.id }
+        let originalIndex = originalOrder.firstIndex(of: dupColRootWithChildren) ?? 0
+        let followerID = originalIndex + 1 < originalOrder.count ? originalOrder[originalIndex + 1] : nil
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let order = rootRows(editor).compactMap { $0.id }
+        XCTAssertEqual(order.count, originalOrder.count + 2)
+        XCTAssertEqual(order[originalIndex], dupColRootWithChildren, "Original root row stays in place")
+        XCTAssertFalse(originalOrder.contains(order[originalIndex + 1]), "Index after original is a new copy")
+        XCTAssertFalse(originalOrder.contains(order[originalIndex + 2]), "Second slot after original is a new copy")
+        if let followerID = followerID {
+            XCTAssertEqual(order[originalIndex + 3], followerID, "Following root row shifted down by the two copies")
+        }
+    }
+
+    // insertAtEnd: root copies are appended to the end of the root list; the original and its follower stay put.
+    func testDuplicateCollectionRootRowInsertAtEndAppendsCopies() {
+        let editor = documentEditor(document: duplicateCollectionDocument())
+        let originalOrder = rootRows(editor).compactMap { $0.id }
+        let originalIndex = originalOrder.firstIndex(of: dupColRootWithChildren) ?? 0
+        let followerID = originalIndex + 1 < originalOrder.count ? originalOrder[originalIndex + 1] : nil
+
+        _ = editor.duplicateNestedRows(selectedRowIds: [dupColRootWithChildren],
+                                       quantity: 2,
+                                       includeChildren: false,
+                                       insertAtEnd: true,
+                                       fieldIdentifier: collectionFieldIdentifier(),
+                                       rootSchemaKey: collectionFieldID,
+                                       nestedKey: collectionFieldID,
+                                       parentRowId: "")
+
+        let order = rootRows(editor).compactMap { $0.id }
+        XCTAssertEqual(order.count, originalOrder.count + 2)
+        XCTAssertEqual(order[originalIndex], dupColRootWithChildren, "Original root row stays in place")
+        if let followerID = followerID {
+            XCTAssertEqual(order[originalIndex + 1], followerID, "Following root row is NOT shifted — copies went to the end")
+        }
+        let appended = Array(order.suffix(2))
+        XCTAssertEqual(Set(appended).count, 2, "Two appended copies have unique ids")
+        XCTAssertFalse(appended.contains(where: { originalOrder.contains($0) }), "Appended rows are new copies")
+    }
+
     func testMoveNestedCollectionItemUp() {
         let collectionFieldID = "67ddc52d35de157f6d7ebb63"
         let parentRowId = "67ddc537b7c2fce05d0c8615"
