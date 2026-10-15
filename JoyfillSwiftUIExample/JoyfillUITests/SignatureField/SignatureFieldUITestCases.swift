@@ -110,7 +110,7 @@ final class SignatureFieldUITestCases: JoyfillUITestsBaseClass {
     }
 
     func testRequiredAsteriskPresence() throws {
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_Signature").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk should be visible for required signature field")
         // Draw and save signature should not remove the asterisk
         let signatureButton = app.buttons.matching(identifier: "SignatureIdentifier").element(boundBy: 0)

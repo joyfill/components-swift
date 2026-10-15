@@ -338,7 +338,8 @@ struct CollectionEditMultipleRowsSheetView: View {
             
             Spacer()
             
-            let decorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
+            let allDecorators = viewModel.getCollectionCellDecorators(rowIds: viewModel.tableDataModel.selectedRows, columnId: col.id ?? "", schemaKey: schemaKey)
+            let decorators = viewModel.tableDataModel.filterDecoratorsForBulkEdit(allDecorators, selectedRowCount: viewModel.tableDataModel.selectedRows.count, decoratorConfig: viewModel.decoratorConfig)
             if !decorators.isEmpty {
                 let parentPathForSelection: String? = {
                     guard let firstRowId = viewModel.tableDataModel.selectedRows.first else { return nil }

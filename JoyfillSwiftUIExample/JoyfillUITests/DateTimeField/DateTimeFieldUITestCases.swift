@@ -53,7 +53,7 @@ final class DateTimeFieldUITestCases: JoyfillUITestsBaseClass {
     
     
     func testRequiredFieldAsteriskPresence() {
-        let asteriskIcon = app.images.matching(identifier: "asterisk").element(boundBy: 0)
+        let asteriskIcon = app.images.matching(identifier: "RequiredAsterisk_field_Date").element(boundBy: 0)
         XCTAssertTrue(asteriskIcon.exists, "Asterisk icon should be visible for required field")
         
         // Tap the date button to open the picker popup
