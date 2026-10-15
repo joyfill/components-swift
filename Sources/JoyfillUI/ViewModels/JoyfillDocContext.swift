@@ -1969,6 +1969,8 @@ class JoyfillDocContext: EvaluationContext {
         // Note: Currently this only handles the "value" property
         // In the future, this would need to be extended to handle other properties like "hidden", "valid", etc.
         if key == "value" {
+            // Number only: dropdown and multiSelect writes convert text to option ids, so equal text still needs the write.
+            if field.fieldType == .number, isSameValue(field.value, valueUnion) { return }
             Log("🔧 Calling docProvider.updateValue for \(identifier)", type: .debug)
             docProvider.updateValue(for: identifier, value: valueUnion)
         } else if (key == "hidden") {
@@ -1979,6 +1981,18 @@ class JoyfillDocContext: EvaluationContext {
         }
     }
     
+    /// True when writing `new` would not change the stored value; ValueUnion's `==` ignores `.int`, so numbers are compared here.
+    private func isSameValue(_ current: ValueUnion?, _ new: ValueUnion) -> Bool {
+        switch (current, new) {
+        case (.int(let a)?, .int(let b)): return a == b
+        case (.double(let a)?, .double(let b)): return a == b
+        case (.int(let a)?, .double(let b)), (.double(let b)?, .int(let a)): return Double(a) == b
+        case (.string(let a)?, .string(let b)): return a == b
+        case (.bool(let a)?, .bool(let b)): return a == b
+        default: return false
+        }
+    }
+
     /// Converts a FormulaValue to a ValueUnion
     /// - Parameters:
     ///   - value: The FormulaValue to convert
