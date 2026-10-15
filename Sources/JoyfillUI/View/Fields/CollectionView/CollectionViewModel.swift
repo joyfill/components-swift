@@ -444,6 +444,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         rowToValueElementMap[rowID]
     }
 
+    func rowHasChildren(rowID: String) -> Bool {
+        guard let children = rowElement(forRowID: rowID)?.childrens else { return false }
+        return children.values.contains { $0.valueToValueElements?.isEmpty == false }
+    }
+
     func getBuildRowToValueElementMap(tableDataModel: TableDataModel) -> [String: ValueElement] {
         var rowToValueElementMap: [String: ValueElement] = [:]
         let valueElements = tableDataModel.valueToValueElements ?? []
@@ -1086,32 +1091,47 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         return ([], rootSchemaKey)
     }
     
-    func duplicateRow() {
-        guard let firstSelectedRowID = tableDataModel.selectedRows.first else {
-            Log("No row selected", type: .error)
+    func duplicateRow(rowID: String, quantity: Int = 1, includeChildren: Bool = false, insertAtEnd: Bool = false) {
+        guard let row = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) else {
+            Log("No row found to duplicate", type: .error)
             return
         }
-        guard let firstSelectedRow = tableDataModel.filteredcellModels.first(where: { $0.rowID == firstSelectedRowID }) else {
-            return
-        }
-        switch firstSelectedRow.rowType {
+        switch row.rowType {
         case .row(index: _):
-            duplicateNestedRow(parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey)
+            duplicateNestedRow(rowID: rowID, parentID: ("",""), level: 0, isNested: false, tableColumns: tableDataModel.tableColumns, parentSchemaKey: rootSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         case .nestedRow(level: let level, index: _, parentID: let parentID, parentSchemaKey: let parentSchemaKey):
-            let headerTableColumns: [FieldTableColumn] = tableDataModel.schema[parentSchemaKey]?.tableColumns ?? []
             
-            duplicateNestedRow(parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey)
+            let headerTableColumns = tableDataModel.filterTableColumns(key: parentSchemaKey)
+            duplicateNestedRow(rowID: rowID, parentID: parentID, level: level, isNested: true, tableColumns: headerTableColumns, parentSchemaKey: parentSchemaKey, quantity: quantity, includeChildren: includeChildren, insertAtEnd: insertAtEnd)
         default:
             return
         }
-        
         tableDataModel.emptySelection()
     }
-    
-    func duplicateNestedRow(parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String) {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
-        
-        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: tableDataModel.selectedRows,
+
+    /// Returns the last row in `rowID`'s sibling group (same level, parent, and child-table schema) to anchor "add at the end" duplicates.
+    private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String, parentSchemaKey: String) -> String? {
+        var result: String?
+        for model in tableDataModel.filteredcellModels {
+            switch model.rowType {
+            case .row:
+                if !isNested { result = model.rowID }
+            case .nestedRow(let rowLevel, _, let modelParentID, let modelParentSchemaKey):
+                if isNested, rowLevel == level, modelParentID?.rowID == parentRowID, modelParentSchemaKey == parentSchemaKey {
+                    result = model.rowID
+                }
+            default:
+                break
+            }
+        }
+        return result
+    }
+
+    func duplicateNestedRow(rowID: String, parentID: (columnID: String, rowID: String)?, level: Int, isNested: Bool, tableColumns: [FieldTableColumn], parentSchemaKey: String, quantity: Int = 1, includeChildren: Bool = false, insertAtEnd: Bool = false) {
+        guard let result = tableDataModel.documentEditor?.duplicateNestedRows(selectedRowIds: [rowID],
+                                                                              quantity: quantity,
+                                                                              includeChildren: includeChildren,
+                                                                              insertAtEnd: insertAtEnd,
                                                                               fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                               rootSchemaKey: rootSchemaKey,
                                                                               nestedKey: parentSchemaKey,
@@ -1119,21 +1139,18 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         
         self.tableDataModel.valueToValueElements = result.1
         buildRowToValueElementMap()
-        
+        getparentToChildRowMap(tableDataModel: tableDataModel)
+
         let sortedChanges = result.0.sorted { $0.key < $1.key }
-        
-        let sortedSelectedRows = tableDataModel.selectedRows.sorted { (rowID1, rowID2) in
-            guard let index1 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID1 }),
-                  let index2 = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID2 }) else {
-                return false
-            }
-            return index1 < index2
+
+        var anchorRowID = rowID
+        if insertAtEnd {
+            anchorRowID = lastSiblingRowID(forSourceRowID: rowID, isNested: isNested, level: level, parentRowID: parentID?.rowID ?? "", parentSchemaKey: parentSchemaKey) ?? rowID
         }
-        
-        for (offset, change) in sortedChanges.enumerated() {
-            let startingIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == sortedSelectedRows[offset] }) ?? 0
-            let rowDataModel = tableDataModel.filteredcellModels[startingIndex]
-            let atIndex = startingIndex + 1 + tableDataModel.childrensForRows(startingIndex, rowDataModel, rowDataModel.rowType.level).count
+        for change in sortedChanges {
+            guard let anchorIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == anchorRowID }) else { continue }
+            let anchorRow = tableDataModel.filteredcellModels[anchorIndex]
+            let atIndex = anchorIndex + 1 + tableDataModel.childrensForRows(anchorIndex, anchorRow, anchorRow.rowType.level).count
             let valueElement = change.value
             if isNested {
                 addNestedCellModel(rowID: valueElement.id ?? "",
@@ -1141,7 +1158,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    valueElement: valueElement,
                                    columns: tableColumns,
                                    level: level,
-                                   rowType: .nestedRow(level: level,index: rowDataModel.rowType.index + 1,parentID: parentID, parentSchemaKey: rowDataModel.rowType.parentSchemaKey),
+                                   rowType: .nestedRow(level: level,index: anchorRow.rowType.index + 1,parentID: parentID, parentSchemaKey: anchorRow.rowType.parentSchemaKey),
                                    schemaKey: parentSchemaKey)
             } else {
                 addNestedCellModel(rowID: valueElement.id ?? "",
@@ -1149,21 +1166,34 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                    valueElement: valueElement,
                                    columns: tableColumns,
                                    level: level,
-                                   rowType: .row(index: rowDataModel.rowType.index + 1),
+                                   rowType: .row(index: anchorRow.rowType.index + 1),
                                    schemaKey: parentSchemaKey)
             }
-//            tableDataModel.filterCollectionRowsIfNeeded()
-//            sortRowsIfNeeded()
+            setupDuplicatedChildRows(of: valueElement)
+            anchorRowID = valueElement.id ?? anchorRowID
         }
         
-        guard let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == sortedSelectedRows[0] }) else {
+        guard let rowDataModel = tableDataModel.filteredcellModels.first(where: { $0.rowID == rowID }) else {
             Log("Could not find rowDataModel", type: .error)
             return
         }
         reIndexingRows(rowDataModel: rowDataModel)
-        tableDataModel.emptySelection()
     }
             
+    private func setupDuplicatedChildRows(of element: ValueElement) {
+        guard let childrens = element.childrens else { return }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        for (schemaID, childGroup) in childrens {
+            for child in childGroup.valueToValueElements ?? [] {
+                guard let childID = child.id else { continue }
+                tableDataModel.documentEditor?.addCellLogicForNewRow(fieldID: fieldID, schemaID: schemaID, row: child)
+                tableDataModel.documentEditor?.addFormulaValuesForNewRow(fieldID: fieldID, schemaID: schemaID, row: child)
+                tableDataModel.documentEditor?.updateSchemaVisibilityOnNewRow(collectionFieldID: fieldID, rowID: childID, valueElement: child)
+                setupDuplicatedChildRows(of: child)
+            }
+        }
+    }
+
     func reIndexingRows(rowDataModel: RowDataModel) {
         var localModels = tableDataModel.filteredcellModels
         // find upperMost item of this level
@@ -1273,7 +1303,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             return nil
         }
         
-        let tableColumns: [FieldTableColumn] = tableDataModel.schema[nestedKey]?.tableColumns ?? []
+        let tableColumns = tableDataModel.filterTableColumns(key: nestedKey)
         let cellValues = getCellValues(columns: tableColumns)
         let selectedRow = tableDataModel.filteredcellModels[selecteRowIndex]
         
@@ -2189,18 +2219,35 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
     
     func insertRow(for change: Change) {
-        let newRowDict = change.change?["row"] as? [String: Any] ?? [:]
-        let newRow = ValueElement(dictionary: newRowDict)
+        // Bulk create (v: 2) groups every created row under `change.rows`, with the
+        // nested context (`parentPath`/`schemaId`) beside `rows` at the bulk level.
+        if let rows = change.change?["rows"] as? [[String: Any]] {
+            let schemaID = change.change?["schemaId"] as? String
+            let parentPath = change.change?["parentPath"] as? String
+            for row in rows {
+                insertSingleRow(row: row["row"] as? [String: Any],
+                                targetRowIndex: row["targetRowIndex"] as? Int,
+                                schemaID: schemaID,
+                                parentPath: parentPath)
+            }
+            return
+        }
+        // Single-row create (v: 1) carries the row and its context directly in `change`.
+        insertSingleRow(row: change.change?["row"] as? [String: Any],
+                        targetRowIndex: change.change?["targetRowIndex"] as? Int,
+                        schemaID: change.change?["schemaId"] as? String,
+                        parentPath: change.change?["parentPath"] as? String)
+    }
+
+    private func insertSingleRow(row: [String: Any]?, targetRowIndex: Int?, schemaID: String?, parentPath: String?) {
+        let newRow = ValueElement(dictionary: row ?? [:])
         let cellValues = newRow.cells ?? [:]
         let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
-        if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
-            let parentPath = change.change?["parentPath"] as? String ?? ""
-            let parentID = decodeParentPath(parentPath: parentPath)
-            let targetRowIndex = change.change?["targetRowIndex"] as? Int
+        if let schemaID = schemaID, schemaID != "", schemaID != rootSchemaKey {
+            let parentID = decodeParentPath(parentPath: parentPath ?? "")
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
-            let targetRowIndex = change.change?["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }
     }

@@ -61,6 +61,9 @@ struct JoyfillExampleApp: App {
         // Get isPageDeleteEnabled from launch arguments
         let isPageDeleteEnabled = Self.getPageDeleteEnabledFromLaunchArguments()
         
+        // Get showInBulkForm from launch arguments (default true)
+        let showInBulkForm = Self.getShowInBulkFormFromLaunchArguments()
+
         self.documentEditor = DocumentEditor(
             document: sampleJSONDocument(fileName: jsonFileName),
             config: DocumentEditorConfig(
@@ -69,7 +72,8 @@ struct JoyfillExampleApp: App {
                 license: licenseKey,
                 validateSchema: false,
                 page: PageConfig(enableDuplicates: isPageDuplicateEnabled, enableDeletes: isPageDeleteEnabled),
-                display: DisplayConfig(singleClickRowEdit: true)
+                display: DisplayConfig(singleClickRowEdit: true,
+                                       decorators: DecoratorConfig(showInBulkForm: showInBulkForm))
             )
         )
         
@@ -215,6 +219,18 @@ struct JoyfillExampleApp: App {
         return true
     }
     
+    /// Get showInBulkForm from launch arguments
+    /// Usage: --show-in-bulk-form true OR --show-in-bulk-form false
+    private static func getShowInBulkFormFromLaunchArguments() -> Bool {
+        let arguments = CommandLine.arguments
+        if let idx = arguments.firstIndex(of: "--show-in-bulk-form"),
+           idx + 1 < arguments.count {
+            return arguments[idx + 1].lowercased() == "true"
+        }
+        // Default to true to match DecoratorConfig's default
+        return true
+    }
+
     /// Set up crash prevention for UI tests
     private func setupCrashPrevention() {
         // Check if we're in safe mode

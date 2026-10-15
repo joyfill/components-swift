@@ -163,12 +163,12 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
     
-    func duplicateRow() {
-        guard !tableDataModel.selectedRows.isEmpty else { return }
-        guard let result = tableDataModel.documentEditor?.duplicateRows(rowIDs: tableDataModel.selectedRows, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
+    func duplicateRow(rowID: String, quantity: Int = 1, insertAtEnd: Bool = false) {
+        guard let result = tableDataModel.documentEditor?.duplicateRows(rowIDs: [rowID], quantity: quantity, insertAtEnd: insertAtEnd, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         self.tableDataModel.valueToValueElements = result.1
         let sortedChanges = result.0.sorted { $0.key < $1.key }
         sortedChanges.forEach { (index, value) in
+            seedRowDecorators(for: value)
             updateRow(valueElement: value, at: index)
         }
         tableDataModel.emptySelection()
@@ -603,13 +603,24 @@ extension TableViewModel {
 extension TableViewModel: DocumentEditorDelegate {
     
     func insertRow(for change: Change) {
-        var cellValues: [String: ValueUnion] = [:]
-        let newRowDict = change.change?["row"] as? [String : Any] ?? [:]
+        // Bulk create (v: 2) groups every created row under `change.rows`.
+        if let rows = change.change?["rows"] as? [[String: Any]] {
+            for row in rows {
+                insertSingleRow(from: row)
+            }
+            return
+        }
+        // Single-row create (v: 1) carries the row directly under `change.row`.
+        insertSingleRow(from: change.change ?? [:])
+    }
+
+    private func insertSingleRow(from rowChange: [String: Any]) {
+        let newRowDict = rowChange["row"] as? [String : Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
-        cellValues = newRow.cells ?? [:]
+        let cellValues = newRow.cells ?? [:]
         let metadata = newRow.metadata
         guard let newRowID = newRow.id else { return }
-        if let targetRowIndex = change.change?["targetRowIndex"] as? Int {
+        if let targetRowIndex = rowChange["targetRowIndex"] as? Int {
             addRowAtIndex(with: newRowID, and: cellValues, metadata: metadata, shouldSendEvent: false,  index: targetRowIndex)
         } else {
             addRow(with: newRowID, and: newRow.cells, metadata: metadata, shouldSendEvent: false)

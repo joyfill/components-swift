@@ -6,6 +6,7 @@ struct TableModalTopNavigationView: View {
     var onEditTap: (() -> Void)?
     
     @State private var showingPopover = false
+    @State private var showDuplicatePopover = false
 
     var body: some View {
         HStack {
@@ -72,6 +73,20 @@ struct TableModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() {
+                                    Button(action: {
+                                        showingPopover = false
+                                        showDuplicatePopover = true
+                                    }) {
+                                        Text("Duplicate row")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("TableDuplicateRowIdentifier")
+                                }
+
                             }
                             
                             if viewModel.tableDataModel.canShowEditRowsMenuItem() {
@@ -101,19 +116,6 @@ struct TableModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .padding(.bottom, 10)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
-                            
-//                            Button(action: {
-//                                showingPopover = false
-//                                viewModel.duplicateRow()
-//                            }) {
-//                                Text("Duplicate \(rowTitle)")
-//                                    .foregroundStyle(.selection)
-//                                    .font(.system(size: 14))
-//                                    .frame(height: 27)
-//                            }
-//                            .padding(.horizontal, 16)
-//                            .padding(.bottom, 10)
-//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
                         }
                         .frame(width: 180)
                         .presentationCompactAdaptation(.popover)
@@ -159,6 +161,20 @@ struct TableModalTopNavigationView: View {
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableMoveDownRowIdentifier")
 
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem() {
+                                    Button(action: {
+                                        showingPopover = false
+                                        showDuplicatePopover = true
+                                    }) {
+                                        Text("Duplicate row")
+                                            .foregroundStyle(.blue)
+                                            .font(.system(size: 14))
+                                            .frame(height: 27)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("TableDuplicateRowIdentifier")
+                                }
+
                             }
                             if viewModel.tableDataModel.canShowEditRowsMenuItem() {
                                 Button(action: {
@@ -186,21 +202,24 @@ struct TableModalTopNavigationView: View {
                             .padding(.horizontal, 16)
                             .accessibilityIdentifier("TableDeleteRowIdentifier")
 
-//                            Button(action: {
-//                                viewModel.duplicateRow()
-//                                showingPopover = false
-//                            }) {
-//                                Text("Duplicate \(rowTitle)")
-//                                    .foregroundStyle(.selection)
-//                                    .font(.system(size: 14))
-//                                    .frame(height: 27)
-//                            }
-//                            .padding(.horizontal, 16)
-//                            .accessibilityIdentifier("TableDuplicateRowIdentifier")
                             Spacer()
                         }
                         .padding(.top, 12)
                     }
+                }
+                .popover(isPresented: $showDuplicatePopover) {
+                    DuplicateRowPopover(
+                        showAddAtEndOption: true,
+                        onApply: { quantity, _, addAtEnd in
+                            if let rowID = viewModel.tableDataModel.selectedRows.first {
+                                viewModel.duplicateRow(rowID: rowID, quantity: quantity, insertAtEnd: addAtEnd)
+                            }
+                            showDuplicatePopover = false
+                        },
+                        onCancel: {
+                            showDuplicatePopover = false
+                        }
+                    )
                 }
             }
 
