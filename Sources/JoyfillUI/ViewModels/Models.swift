@@ -172,13 +172,10 @@ extension Array where Element == ValueElement {
     }
 }
 
-/// The single rule governing the `maxRows` row limit, shared by tables and every collection
-/// schema level so the two can never drift on how the limit is interpreted.
-/// `adding` is how many rows the action would create (duplicate can add several at once).
-/// A `nil` limit means no limit.
-func rowLimitAllowsAdding(currentCount: Int, maxRows: Int?, adding count: Int = 1) -> Bool {
+/// The single `maxRows` rule for tables and collections; `currentCount` is an autoclosure so it's only counted when a limit exists.
+func rowLimitAllowsAdding(currentCount: @autoclosure () -> Int, maxRows: Int?, adding count: Int = 1) -> Bool {
     guard let maxRows = maxRows else { return true }
-    return currentCount + count <= maxRows
+    return currentCount() + count <= maxRows
 }
 
 
