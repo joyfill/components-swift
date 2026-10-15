@@ -1315,6 +1315,26 @@ extension DocumentEditor {
     private func addRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], target: String = "field.value.rowCreate") {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
 
+        // Bulk create (2+ rows): emit ONE grouped change with `change.rows` (v: 2),
+        // matching the Kotlin/Android SDK. Single-row keeps the v: 1 `change.row` shape.
+        if target == "field.value.bulkRowCreate" {
+            let rows = targetRowIndexes.map { addRowChanges(fieldData: context.field, targetRow: $0) }
+            let change = Change(v: 2,
+                                sdk: "swift",
+                                target: target,
+                                _id: context.documentID,
+                                identifier: context.documentIdentifier,
+                                fileId: context.fileID,
+                                pageId: context.pageID,
+                                fieldId: event.fieldIdentifier.fieldID,
+                                fieldIdentifier: context.fieldIdentifier,
+                                fieldPositionId: context.fieldPositionID,
+                                change: ["rows": rows],
+                                createdOn: Date().timeIntervalSince1970)
+            events?.onChange(changes: [change], document: document)
+            return
+        }
+
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {
@@ -1339,6 +1359,32 @@ extension DocumentEditor {
     private func addNestedRowOnChange(event: FieldChangeData, targetRowIndexes: [TargetRowModel], valueElements: [ValueElement], parentPath: String, schemaKey: String, target: String = "field.value.rowCreate") {
         guard let context = makeFieldChangeContext(for: event.fieldIdentifier) else { return }
         
+        // Bulk create (2+ rows): emit ONE grouped change with `change.rows` (v: 2),
+        // matching the Kotlin/Android SDK. Single-row keeps the v: 1 `change.row` shape.
+        if target == "field.value.bulkRowCreate" {
+            let rows: [[String: Any]] = targetRowIndexes.compactMap { targetRow in
+                guard let valueElement = valueElements.first(where: { $0.id == targetRow.id }) else {
+                    Log("Value element not found for row: \(targetRow.id)", type: .error)
+                    return nil
+                }
+                return addNestedRowChanges(valueElement: valueElement, targetRow: targetRow, parentPath: parentPath, schemaId: schemaKey)
+            }
+            let change = Change(v: 2,
+                                sdk: "swift",
+                                target: target,
+                                _id: context.documentID,
+                                identifier: context.documentIdentifier,
+                                fileId: context.fileID,
+                                pageId: context.pageID,
+                                fieldId: event.fieldIdentifier.fieldID,
+                                fieldIdentifier: context.fieldIdentifier,
+                                fieldPositionId: context.fieldPositionID,
+                                change: ["rows": rows],
+                                createdOn: Date().timeIntervalSince1970)
+            events?.onChange(changes: [change], document: document)
+            return
+        }
+
         var changes = [Change]()
         
         for targetRow in targetRowIndexes {

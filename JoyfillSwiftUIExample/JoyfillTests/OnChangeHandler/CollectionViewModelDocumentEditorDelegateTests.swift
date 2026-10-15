@@ -86,12 +86,62 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(updatedNumberOFRowsFromDocumentEditor, 5, "Rows should be updated")
     }
     
+    // A grouped `field.value.bulkRowCreate` (v: 2) with two root entries under `change.rows`
+    // replays both rows through insertRow(for:).
+    func testApplyRowEditChanges_BulkRowCreateGroupedRows() async throws {
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        func rootRow(_ id: String, _ index: Int) -> [String: Any] {
+            [
+                "row": [
+                    "_id": id,
+                    "cells": [:] as [String: Any],
+                    "children": [
+                        "685753949107b403e2e4a949": ["value": [] as [Any]] as [String: Any]
+                    ] as [String: Any]
+                ] as [String: Any],
+                "schemaId": "collectionSchemaId",
+                "targetRowIndex": index,
+                "parentPath": ""
+            ]
+        }
+
+        let changeDict: [String: Any] = [
+            "fieldIdentifier": "field_68575112847f32f878c77daf",
+            "_id": "685750eff3216b45ffe73c80",
+            "fieldPositionId": "68575112158ff5dbaa9f78e1",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "v": 2,
+            "pageId": "685750efeb612f4fac5819dd",
+            "sdk": "swift",
+            "target": "field.value.bulkRowCreate",
+            "fileId": "685750ef698da1ab427761ba",
+            "fieldId": "6857510fbfed1553e168161b",
+            "createdOn": 1756809956.175348,
+            "change": [
+                "rows": [
+                    rootRow("68b6cae471b0cf51b557e9e2", 4),
+                    rootRow("68b6cae471b0cf51b557e9e3", 5)
+                ]
+            ] as [String: Any]
+        ]
+
+        let change = Change(dictionary: changeDict)
+        documentEditor.change(changes: [change])
+
+        XCTAssertEqual(viewModel.tableDataModel.valueToValueElements?.count, 6, "Both grouped root rows should be inserted")
+        XCTAssertEqual(documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements?.count, 6)
+    }
+
     func testApplyRowEditChanges_BulkUpdate() async throws {
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
-        
+
         let changeDict1: [String: Any] = [
             "pageId": "685750efeb612f4fac5819dd",
             "fieldIdentifier": "field_68575112847f32f878c77daf",

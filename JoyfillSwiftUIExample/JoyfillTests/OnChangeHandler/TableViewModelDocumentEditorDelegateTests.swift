@@ -79,6 +79,46 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(updatedNumberOFRowsFromDocumentEditor, 5, "Rows should be updated from document")
     }
     
+    // A grouped `field.value.bulkRowCreate` (v: 2) with two entries under `change.rows`
+    // replays both rows through insertRow(for:).
+    func testApplyRowEditChanges_BulkRowCreateGroupedRows() {
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = createTableViewModel(documentEditor: documentEditor)
+
+        let changeDict: [String: Any] = [
+            "fieldIdentifier": "field_6857510f0b31d28d169b83d8",
+            "v": 2,
+            "_id": "685750eff3216b45ffe73c80",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "pageId": "685750efeb612f4fac5819dd",
+            "fieldPositionId": "6857510f4313cfbfb43c516c",
+            "fileId": "685750ef698da1ab427761ba",
+            "sdk": "swift",
+            "change": [
+                "rows": [
+                    [
+                        "targetRowIndex": 4,
+                        "row": ["_id": "68b676812ef759de776c02cd", "cells": [:] as [String: Any]]
+                    ],
+                    [
+                        "targetRowIndex": 5,
+                        "row": ["_id": "68b676812ef759de776c02ce", "cells": [:] as [String: Any]]
+                    ]
+                ]
+            ],
+            "createdOn": 1756788353.9459882,
+            "fieldId": "685750f0489567f18eb8a9ec",
+            "target": "field.value.bulkRowCreate"
+        ]
+
+        let change = Change(dictionary: changeDict)
+        documentEditor.change(changes: [change])
+
+        XCTAssertEqual(viewModel.tableDataModel.valueToValueElements?.count, 6, "Both grouped rows should be inserted")
+        XCTAssertEqual(documentEditor.field(fieldID: "685750f0489567f18eb8a9ec")?.valueToValueElements?.count, 6)
+    }
+
     func testApplyRowEditChanges_BulkUpdate() {
         // Given
         let document = createTestDocument()

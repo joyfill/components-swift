@@ -2219,18 +2219,30 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
     
     func insertRow(for change: Change) {
-        let newRowDict = change.change?["row"] as? [String: Any] ?? [:]
+        // Bulk create (v: 2) groups every created row under `change.rows`.
+        if let rows = change.change?["rows"] as? [[String: Any]] {
+            for row in rows {
+                insertSingleRow(from: row)
+            }
+            return
+        }
+        // Single-row create (v: 1) carries the row directly under `change.row`.
+        insertSingleRow(from: change.change ?? [:])
+    }
+
+    private func insertSingleRow(from rowChange: [String: Any]) {
+        let newRowDict = rowChange["row"] as? [String: Any] ?? [:]
         let newRow = ValueElement(dictionary: newRowDict)
         let cellValues = newRow.cells ?? [:]
         let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
-        if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
-            let parentPath = change.change?["parentPath"] as? String ?? ""
+        if let schemaID = rowChange["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
+            let parentPath = rowChange["parentPath"] as? String ?? ""
             let parentID = decodeParentPath(parentPath: parentPath)
-            let targetRowIndex = change.change?["targetRowIndex"] as? Int
+            let targetRowIndex = rowChange["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
-            let targetRowIndex = change.change?["targetRowIndex"] as? Int
+            let targetRowIndex = rowChange["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }
     }
