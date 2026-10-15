@@ -7,7 +7,6 @@ protocol JoyDocProvider: AnyObject {
     func field(fieldID: String?) -> JoyDocField?
     func allFormulsFields() -> [JoyDocField]
     var allFields: [JoyDocField] { get }
-    func formula(with id: String) -> Formula?
     func allFormulas() -> [Formula]
     func updateValue(for identifier: String, value: ValueUnion)
     func setFieldHidden(_ hidden: Bool, for identifier: String)
@@ -27,7 +26,7 @@ class JoyfillDocContext: EvaluationContext {
         return formatter
     }()
     
-    /// Formulas by id, built once per context; the provider rebuilds every Formula on each read.
+    /// Formulas by id, built once per context; assumes the context is recreated whenever document.formulas changes (page duplication does).
     private lazy var formulasByID: [String: Formula] = {
         var map: [String: Formula] = [:]
         for formula in docProvider?.allFormulas() ?? [] {
@@ -1982,11 +1981,11 @@ class JoyfillDocContext: EvaluationContext {
     }
     
     /// True when writing `new` would not change the stored value; ValueUnion's `==` ignores `.int`, so numbers are compared here.
+    /// An int/double mismatch counts as different so the write still normalizes the stored type.
     private func isSameValue(_ current: ValueUnion?, _ new: ValueUnion) -> Bool {
         switch (current, new) {
         case (.int(let a)?, .int(let b)): return a == b
         case (.double(let a)?, .double(let b)): return a == b
-        case (.int(let a)?, .double(let b)), (.double(let b)?, .int(let a)): return Double(a) == b
         case (.string(let a)?, .string(let b)): return a == b
         case (.bool(let a)?, .bool(let b)): return a == b
         default: return false
