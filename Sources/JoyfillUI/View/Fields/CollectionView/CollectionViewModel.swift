@@ -1543,8 +1543,20 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         if schemaKey == rootSchemaKey || parentRowID == nil || (parentRowID?.isEmpty ?? true) {
             return (tableDataModel.valueToValueElements ?? []).nonDeletedCount
         }
-        guard let parentRowID = parentRowID else { return 0 }
-        return (rowToValueElementMap[parentRowID]?.childrens?[schemaKey]?.valueToValueElements ?? []).nonDeletedCount
+        guard let parentRowID = parentRowID,
+              let parent = findRowElement(id: parentRowID, in: tableDataModel.valueToValueElements) else { return 0 }
+        return (parent.childrens?[schemaKey]?.valueToValueElements ?? []).nonDeletedCount
+    }
+
+    /// Finds a row anywhere in the live value tree, independent of the asynchronously-built `rowToValueElementMap`.
+    private func findRowElement(id: String, in elements: [ValueElement]?) -> ValueElement? {
+        for element in elements ?? [] {
+            if element.id == id { return element }
+            for childGroup in (element.childrens ?? [:]).values {
+                if let found = findRowElement(id: id, in: childGroup.valueToValueElements) { return found }
+            }
+        }
+        return nil
     }
 
     /// Whether a row may be added at the given schema level (`true` when the schema has no `maxRows`).

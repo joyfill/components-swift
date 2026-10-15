@@ -1048,4 +1048,87 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
         XCTAssertEqual(viewModel.rowCount(schemaKey: viewModel.rootSchemaKey), 7, "With no limit, duplicating any quantity should succeed")
     }
+
+    // MARK: Nested schema maxRows
+    //
+    // `rootRowA` starts with three children under the nested schema. These exercise the per-schema
+    // limit at a nested level, and that the count reads the live value tree (not the asynchronously
+    // built `rowToValueElementMap`), so an external nested rowCreate can't bypass the limit before
+    // the collection is on screen.
+
+    private func nestedRowCount(_ documentEditor: DocumentEditor, parentRowID: String, schemaKey: String) -> Int {
+        documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?
+            .first(where: { $0.id == parentRowID })?
+            .childrens?[schemaKey]?.valueToValueElements?
+            .filter { !($0.deleted ?? false) }.count ?? 0
+    }
+
+    private func externalNestedRowCreate(rowID: String, parentRootIndex: Int, schemaKey: String, targetRowIndex: Int) -> Change {
+        externalChange(target: "field.value.rowCreate", change: [
+            "schemaId": schemaKey,
+            "parentPath": "\(parentRootIndex).\(schemaKey)",
+            "targetRowIndex": targetRowIndex,
+            "row": [
+                "_id": rowID,
+                "cells": [:] as [String: Any],
+                "children": [:] as [String: Any]
+            ] as [String: Any]
+        ])
+    }
+
+    func testRowCount_nested_countsChildrenFromLiveTree() async throws {
+        // No `sleep`: `rowToValueElementMap` may be empty, so the count must come from the value tree.
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertEqual(viewModel.rowCount(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA), 3,
+                       "rootRowA has three nested rows, counted from the live value tree")
+    }
+
+    func testCanAddRow_nested_trueWhenNoLimit() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRow(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA),
+                      "No nested limit means rows can always be added")
+    }
+
+    func testCanAddRow_nested_falseWhenAtLimit() async throws {
+        // Fresh view model, no `sleep`: proves the limit holds even before the async map is built.
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertFalse(viewModel.canAddRow(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA),
+                       "Three nested rows with maxRows 3 blocks adding more")
+    }
+
+    func testCanAddRow_nested_trueWhenBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        XCTAssertTrue(viewModel.canAddRow(schemaKey: hideDepth2SchemaID, parentRowID: rootRowA),
+                      "Three nested rows with maxRows 5 still allows more")
+    }
+
+    func testExternalRowCreate_nested_blockedWhenAtLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 3, "Precondition: nested level at the limit")
+
+        documentEditor.change(changes: [externalNestedRowCreate(rowID: "68b6cae471b0cf51b557e9f1", parentRootIndex: 0, schemaKey: hideDepth2SchemaID, targetRowIndex: 3)])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 3,
+                       "External nested rowCreate at the limit must be refused")
+    }
+
+    func testExternalRowCreate_nested_allowedWhenBelowLimit() async throws {
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        _ = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 3, "Precondition: three nested rows, below the limit")
+
+        documentEditor.change(changes: [externalNestedRowCreate(rowID: "68b6cae471b0cf51b557e9f2", parentRootIndex: 0, schemaKey: hideDepth2SchemaID, targetRowIndex: 3)])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 4,
+                       "Below the limit, the external nested row must be inserted")
+    }
 }
