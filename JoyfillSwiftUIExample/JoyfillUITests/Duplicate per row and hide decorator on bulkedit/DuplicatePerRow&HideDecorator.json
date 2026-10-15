@@ -1,0 +1,413 @@
+{
+  "categories": [],
+  "type": "template",
+  "_id": "691f3762738ed0e8e217abff",
+  "name": "QA Template: External Navigator",
+  "identifier": "template_691f3762738ed0e8e217abff",
+  "fields": [
+    {
+      "file": "691f3762c80bfb0005c57b48",
+      "_id": "6acc77a650a2ba6467dc1178",
+      "type": "table",
+      "title": "Table",
+      "maxRows": 5,
+      "tableColumns": [
+        {
+          "_id": "6acc778a48f0d631fb643f51",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6acc77a650a2ba6467dc1178_column_6acc778a48f0d631fb643f51",
+          "decorators": [
+            {
+              "_id": "6b00dec017000000000000a1",
+              "icon": "comment",
+              "label": "Comment",
+              "action": "Comment",
+              "color": "#4a018f"
+            }
+          ]
+        },
+        {
+          "_id": "6acc778a6a18b1c4cc324e81",
+          "type": "dropdown",
+          "title": "Dropdown Column",
+          "deleted": false,
+          "width": 0,
+          "options": [
+            {
+              "_id": "6acc778a95b893db02c0a86e",
+              "value": "Yes",
+              "deleted": false
+            },
+            {
+              "_id": "6acc778afe33e23f4b29dfaa",
+              "value": "No",
+              "deleted": false
+            },
+            {
+              "_id": "6acc778a257b8bc83e9426af",
+              "value": "N/A",
+              "deleted": false
+            }
+          ],
+          "identifier": "6acc77a650a2ba6467dc1178_column_6acc778a6a18b1c4cc324e81",
+          "decorators": [
+            {
+              "_id": "6b00dec017000000000000a2",
+              "icon": "camera",
+              "label": "Camera",
+              "action": "Camera",
+              "color": "#a44d1c"
+            }
+          ]
+        },
+        {
+          "_id": "6acc778a660e398ed2848313",
+          "type": "text",
+          "title": "Text Column",
+          "width": 0,
+          "deleted": false,
+          "identifier": "6acc77a650a2ba6467dc1178_column_6acc778a660e398ed2848313",
+          "decorators": [
+            {
+              "_id": "6b00dec017000000000000a3",
+              "icon": "flag",
+              "label": "Flag",
+              "action": "Flag",
+              "color": "#71352b"
+            }
+          ]
+        }
+      ],
+      "value": [
+        {
+          "_id": "6acc778a3dcc67a5f15706b0",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6acc778a571e684744c4c5a2",
+          "deleted": false,
+          "cells": {}
+        },
+        {
+          "_id": "6acc778a5bdcd90f90fbf7b8",
+          "deleted": false,
+          "cells": {}
+        }
+      ],
+      "identifier": "field_6acc77a650a2ba6467dc1178",
+      "tableColumnOrder": [
+        "6acc778a48f0d631fb643f51",
+        "6acc778a6a18b1c4cc324e81",
+        "6acc778a660e398ed2848313"
+      ],
+      "rowOrder": [
+        "6acc778a3dcc67a5f15706b0",
+        "6acc778a571e684744c4c5a2",
+        "6acc778a5bdcd90f90fbf7b8"
+      ],
+      "rowDecorators": []
+    },
+    {
+      "file": "691f3762c80bfb0005c57b48",
+      "_id": "6acdb9e7e41adc636c8eb282",
+      "type": "collection",
+      "title": "Collection",
+      "value": [
+        {
+          "_id": "6acdb9ebb82205b407aadbf8",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6acdb9ed6df8b2db2070f103",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6acdb9ee0feae9e21fe63daa",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6acdb9ee8fe2288b78c0625c",
+          "cells": {},
+          "children": {}
+        },
+        {
+          "_id": "6acdb9ef1d8d23317a188587",
+          "cells": {},
+          "children": {}
+        }
+      ],
+      "schema": {
+        "collectionSchemaId": {
+          "title": "Main Collection",
+          "root": true,
+          "maxRows": 8,
+          "children": [
+            "level1Table1"
+          ],
+          "tableColumns": [
+            {
+              "_id": "6813008e76da519a97819c69",
+              "type": "text",
+              "title": "Text",
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6813008e76da519a97819c69",
+              "width": 0,
+              "decorators": [
+                {
+                  "_id": "6b00dec017000000000000b1",
+                  "icon": "eye",
+                  "label": "Eye",
+                  "action": "Eye",
+                  "color": "#1a567e"
+                }
+              ]
+            },
+            {
+              "_id": "6813008e36be88d98ed5a90a",
+              "type": "dropdown",
+              "title": "Dropdown",
+              "options": [
+                {
+                  "_id": "6813008e634fdf79fe013b42",
+                  "value": "High"
+                },
+                {
+                  "_id": "6813008efb95416fd9326038",
+                  "value": "Medium"
+                },
+                {
+                  "_id": "6813008e095af24f0f0b32f2",
+                  "value": "Low"
+                }
+              ],
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6813008e36be88d98ed5a90a",
+              "width": 0,
+              "decorators": [
+                {
+                  "_id": "6b00dec017000000000000b2",
+                  "icon": "circle-info",
+                  "label": "Info",
+                  "action": "Info",
+                  "color": "#1bb1a0"
+                }
+              ]
+            },
+            {
+              "_id": "6813008ea26d706f2a5db2d5",
+              "type": "image",
+              "title": "Image",
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6813008ea26d706f2a5db2d5",
+              "width": 0
+            },
+            {
+              "_id": "6acdc08209547e0b45b1f033",
+              "type": "image",
+              "title": "Image Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6acdc08209547e0b45b1f033"
+            },
+            {
+              "_id": "6acdc084aab95aae79f4cc9f",
+              "type": "barcode",
+              "title": "Barcode Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6acdc084aab95aae79f4cc9f"
+            }
+          ]
+        },
+        "level1Table1": {
+          "title": "New Table",
+          "maxRows": 3,
+          "children": [
+            "level2Table1"
+          ],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6acdc0e72fb72379c2c1b73e",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6acdc0e72fb72379c2c1b73e",
+              "decorators": [
+                {
+                  "_id": "6b00dec017000000000000c1",
+                  "icon": "magnet",
+                  "label": "Magnet",
+                  "action": "Magnet",
+                  "color": "#8733be"
+                }
+              ]
+            },
+            {
+              "_id": "6ace40f0e0dd2b30165c2e70",
+              "type": "multiSelect",
+              "title": "MultiSelect Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6ace40f001c9b197bac5b9ae",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6ace40f028be298cab304191",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6ace40f0a700c5f99b96b407",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6ace40f0e0dd2b30165c2e70"
+            },
+            {
+              "_id": "6ace40f1f9f08eb8c5f6cff4",
+              "type": "image",
+              "title": "Image Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6ace40f1f9f08eb8c5f6cff4"
+            },
+            {
+              "_id": "6ace40f45b104c81261f618f",
+              "type": "number",
+              "title": "Number Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6ace40f45b104c81261f618f"
+            }
+          ]
+        },
+        "level2Table1": {
+          "title": "New Table",
+          "maxRows": 2,
+          "children": [],
+          "hidden": false,
+          "tableColumns": [
+            {
+              "_id": "6acf8d120f361fa32e420176",
+              "type": "text",
+              "title": "Text Column",
+              "width": 0,
+              "deleted": false
+            },
+            {
+              "_id": "6acf8d14d7b3f891105db0a6",
+              "type": "multiSelect",
+              "title": "MultiSelect Column",
+              "deleted": false,
+              "width": 0,
+              "options": [
+                {
+                  "_id": "6acf8d1493e1c1554381b422",
+                  "value": "Option 1",
+                  "deleted": false
+                },
+                {
+                  "_id": "6acf8d141a46d7c2ccf202d2",
+                  "value": "Option 2",
+                  "deleted": false
+                },
+                {
+                  "_id": "6acf8d148a90366addfe355c",
+                  "value": "Option 3",
+                  "deleted": false
+                }
+              ],
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6acf8d14d7b3f891105db0a6"
+            },
+            {
+              "_id": "6acf8d16ed0c040a842da145",
+              "type": "date",
+              "title": "Date Column",
+              "deleted": false,
+              "width": 0,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6acf8d16ed0c040a842da145"
+            },
+            {
+              "_id": "6acf8d18de7ce92098feb0bd",
+              "type": "block",
+              "title": "Label Column",
+              "width": 0,
+              "deleted": false,
+              "identifier": "6acdb9e7e41adc636c8eb282_column_6acf8d18de7ce92098feb0bd"
+            }
+          ]
+        }
+      },
+      "identifier": "field_6acdb9e7e41adc636c8eb282"
+    }
+  ],
+  "files": [
+    {
+      "_id": "691f3762c80bfb0005c57b48",
+      "styles": {
+        "margin": 4
+      },
+      "pages": [
+        {
+          "padding": 24,
+          "layout": "grid",
+          "deletable": true,
+          "width": 816,
+          "_id": "6970982db629fd3b68d28a35",
+          "presentation": "normal",
+          "cols": 8,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ],
+          "height": 1056,
+          "fieldPositions": [
+            {
+              "_id": "6acc77a65396644e77d6d9ed",
+              "type": "table",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 8,
+              "height": 15,
+              "field": "6acc77a650a2ba6467dc1178"
+            },
+            {
+              "_id": "6acdb9e7e99d9de9d75dd66d",
+              "type": "collection",
+              "displayType": "original",
+              "x": 0,
+              "y": 15,
+              "width": 8,
+              "height": 47,
+              "field": "6acdb9e7e41adc636c8eb282"
+            }
+          ],
+          "rowHeight": 8,
+          "name": "Page 5"
+        }
+      ],
+      "pageOrder": [
+        "6970982db629fd3b68d28a35"
+      ],
+      "version": 1,
+      "views": [],
+      "metadata": {},
+      "name": "QA Template: External Navigator"
+    }
+  ],
+  "createdOn": 1763653482316,
+  "stage": "draft",
+  "metadata": {},
+  "deleted": false
+}
