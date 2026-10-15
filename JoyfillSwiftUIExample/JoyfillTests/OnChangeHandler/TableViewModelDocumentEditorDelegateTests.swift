@@ -787,7 +787,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     // MARK: - maxRows (row limit) coverage
     //
     // `maxRows` is a document-supplied field property that caps how many rows a user may add.
-    // Absent = no limit (default). The UI disables every add surface once reached (`canAddRow`),
+    // Absent = no limit (default). The UI disables every add surface once reached (`canAddRows`),
     // and the external change API blocks + warns (`isRowLimitReached` guard in handleFieldValueRowCreate).
     // These tests pin: the model getter/setter, the gate math (incl. deleted-row exclusion &
     // live recompute), and the external block behavior at / below / above the limit.
@@ -848,12 +848,12 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(field?.dictionary["maxRows"] as? Int, 7, "maxRows should persist into the backing dictionary")
     }
 
-    // MARK: canAddRow gate
+    // MARK: canAddRows gate
 
     func testCanAddRow_trueWhenNoLimit() {
         let documentEditor = DocumentEditor(document: documentWithMaxRows(nil), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
-        XCTAssertTrue(viewModel.tableDataModel.canAddRow, "No maxRows means rows can always be added")
+        XCTAssertTrue(viewModel.tableDataModel.canAddRows(), "No maxRows means rows can always be added")
     }
 
     func testCanAddRow_falseWhenAtLimit() {
@@ -861,7 +861,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let count = nonDeletedCount(documentEditor)
         let limitedEditor = DocumentEditor(document: documentWithMaxRows(count), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: limitedEditor)
-        XCTAssertFalse(viewModel.tableDataModel.canAddRow, "At the limit, canAddRow must be false (add surfaces disabled)")
+        XCTAssertFalse(viewModel.tableDataModel.canAddRows(), "At the limit, canAddRow must be false (add surfaces disabled)")
     }
 
     func testCanAddRow_trueWhenBelowLimit() {
@@ -869,7 +869,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let count = nonDeletedCount(documentEditor)
         let limitedEditor = DocumentEditor(document: documentWithMaxRows(count + 1), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: limitedEditor)
-        XCTAssertTrue(viewModel.tableDataModel.canAddRow, "Below the limit, canAddRow must be true")
+        XCTAssertTrue(viewModel.tableDataModel.canAddRows(), "Below the limit, canAddRow must be true")
     }
 
     func testCanAddRow_recomputesAfterAddingRow() {
@@ -878,9 +878,9 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 1), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
-        XCTAssertTrue(viewModel.tableDataModel.canAddRow, "Precondition: one slot remains")
+        XCTAssertTrue(viewModel.tableDataModel.canAddRows(), "Precondition: one slot remains")
         viewModel.addRow()
-        XCTAssertFalse(viewModel.tableDataModel.canAddRow, "After filling the last slot, canAddRow must flip to false")
+        XCTAssertFalse(viewModel.tableDataModel.canAddRows(), "After filling the last slot, canAddRow must flip to false")
     }
 
     func testCanAddRow_ignoresDeletedRows() {
@@ -889,14 +889,14 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         // Set the limit to exactly the current count so we start at the limit.
         let documentEditor = DocumentEditor(document: documentWithMaxRows(count), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
-        XCTAssertFalse(viewModel.tableDataModel.canAddRow, "Precondition: starts at the limit")
+        XCTAssertFalse(viewModel.tableDataModel.canAddRows(), "Precondition: starts at the limit")
 
         // Deleting a row should drop the non-deleted count below the limit and re-open adding.
         guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
             return XCTFail("Fixture has no rows to delete")
         }
         viewModel.deleteSelectedRow([firstRowID])
-        XCTAssertTrue(viewModel.tableDataModel.canAddRow, "Deleted rows must not count toward maxRows")
+        XCTAssertTrue(viewModel.tableDataModel.canAddRows(), "Deleted rows must not count toward maxRows")
     }
 
     // MARK: isRowLimitReached (engine helper)

@@ -172,10 +172,10 @@ extension Array where Element == ValueElement {
     }
 }
 
-/// The single `maxRows` rule for tables and collections; `currentCount` is an autoclosure so it's only counted when a limit exists.
-func rowLimitAllowsAdding(currentCount: @autoclosure () -> Int, maxRows: Int?, adding count: Int = 1) -> Bool {
-    guard let maxRows = maxRows else { return true }
-    return currentCount() + count <= maxRows
+/// Rows that still fit under `maxRows` (`nil` = no limit); `count` is an autoclosure so it's only counted when a limit exists.
+func rowCapacity(maxRows: Int?, count: @autoclosure () -> Int) -> Int? {
+    guard let maxRows = maxRows else { return nil }
+    return max(maxRows - count(), 0)
 }
 
 
@@ -235,14 +235,14 @@ struct TableDataModel {
         (valueToValueElements ?? []).nonDeletedCount
     }
 
-    var canAddRow: Bool {
-        rowLimitAllowsAdding(currentCount: nondeletedRowsCount, maxRows: maxRows)
-    }
-
     /// Rows that may still be added before hitting `maxRows` (`nil` = no limit).
     var remainingRowCapacity: Int? {
-        guard let maxRows = maxRows else { return nil }
-        return max(maxRows - nondeletedRowsCount, 0)
+        rowCapacity(maxRows: maxRows, count: nondeletedRowsCount)
+    }
+
+    /// Whether `count` more rows fit under `maxRows` (always true when there's no limit).
+    func canAddRows(_ count: Int = 1) -> Bool {
+        (remainingRowCapacity ?? .max) >= count
     }
 
     init?(fieldHeaderModel: FieldHeaderModel?,

@@ -326,7 +326,7 @@ struct CollectionExpanderView: View {
     var body: some View {
         HStack {
             if viewModel.tableDataModel.mode != .readonly {
-                let canAdd = viewModel.canAddRow(schemaKey: schemaValue?.0 ?? "", parentRowID: parentID.rowID)
+                let canAdd = viewModel.canAddRows(schemaKey: schemaValue?.0 ?? "", parentRowID: parentID.rowID)
                 Button(action: {
 //                    viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
                     let startingIndex = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowDataModel.rowID }) ?? 0
@@ -408,7 +408,7 @@ struct RootTitleRowView: View {
     var body: some View {
         HStack(spacing: 0) {
             if viewModel.tableDataModel.mode != .readonly {
-                let canAdd = viewModel.canAddRow(schemaKey: viewModel.rootSchemaKey)
+                let canAdd = viewModel.canAddRows(schemaKey: viewModel.rootSchemaKey)
                 Button(action: {
                     viewModel.addRow()
                 }) {

@@ -164,7 +164,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func duplicateRow(rowID: String, quantity: Int = 1, insertAtEnd: Bool = false) {
-        guard rowLimitAllowsAdding(currentCount: tableDataModel.nondeletedRowsCount, maxRows: tableDataModel.maxRows, adding: max(quantity, 1)) else {
+        guard tableDataModel.canAddRows(max(quantity, 1)) else {
             Log("Cannot duplicate row: would exceed maxRows limit for field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
             return
         }

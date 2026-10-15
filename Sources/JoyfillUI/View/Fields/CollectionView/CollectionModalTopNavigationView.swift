@@ -20,6 +20,18 @@ struct CollectionModalTopNavigationView: View {
         return viewModel.tableDataModel.hasActiveFilters
     }
 
+    /// Whether the current selection's schema level can accept another row — resolves the level once, then asks the shared rule.
+    private var canAddRowForSelection: Bool {
+        let level = viewModel.selectionLevel
+        return viewModel.canAddRows(schemaKey: level.schemaKey, parentRowID: level.parentRowID)
+    }
+
+    /// Rows the current selection's schema level can still accept (`nil` = no limit) — drives the duplicate popover's message.
+    private var remainingCapacityForSelection: Int? {
+        let level = viewModel.selectionLevel
+        return viewModel.remainingCapacity(schemaKey: level.schemaKey, parentRowID: level.parentRowID)
+    }
+
     var body: some View {
         HStack {
             if let title = viewModel.tableDataModel.title {
@@ -77,11 +89,11 @@ struct CollectionModalTopNavigationView: View {
                                     _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                        .foregroundStyle(canAddRowForSelection ? .blue : .gray)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(!viewModel.canAddRowForSelection)
+                                .disabled(!canAddRowForSelection)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
@@ -119,11 +131,11 @@ struct CollectionModalTopNavigationView: View {
                                         showDuplicatePopover = true
                                     }) {
                                         Text("Duplicate row")
-                                            .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                            .foregroundStyle(canAddRowForSelection ? .blue : .gray)
                                             .font(.system(size: 14))
                                             .frame(height: 27)
                                     }
-                                    .disabled(!viewModel.canAddRowForSelection)
+                                    .disabled(!canAddRowForSelection)
                                     .padding(.horizontal, 16)
                                     .accessibilityIdentifier("TableDuplicateRowIdentifier")
                                 }
@@ -167,11 +179,11 @@ struct CollectionModalTopNavigationView: View {
                                     _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                        .foregroundStyle(canAddRowForSelection ? .blue : .gray)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
-                                .disabled(!viewModel.canAddRowForSelection)
+                                .disabled(!canAddRowForSelection)
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
@@ -210,11 +222,11 @@ struct CollectionModalTopNavigationView: View {
                                         showDuplicatePopover = true
                                     }) {
                                         Text("Duplicate row")
-                                            .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                            .foregroundStyle(canAddRowForSelection ? .blue : .gray)
                                             .font(.system(size: 14))
                                             .frame(height: 27)
                                     }
-                                    .disabled(!viewModel.canAddRowForSelection)
+                                    .disabled(!canAddRowForSelection)
                                     .padding(.horizontal, 16)
                                     .padding(.top, 16)
                                     .accessibilityIdentifier("TableDuplicateRowIdentifier")
@@ -257,7 +269,7 @@ struct CollectionModalTopNavigationView: View {
                     DuplicateRowPopover(
                         showIncludeChildrenOption: selectedRowHasChildren,
                         showAddAtEndOption: true,
-                        remainingCapacity: viewModel.remainingCapacityForSelection,
+                        remainingCapacity: remainingCapacityForSelection,
                         onApply: { quantity, includeChildren, addAtEnd in
                             if let rowID = viewModel.tableDataModel.selectedRows.first {
                                 viewModel.duplicateRow(rowID: rowID, quantity: quantity, includeChildren: includeChildren, insertAtEnd: addAtEnd)
@@ -310,6 +322,12 @@ struct CollectionEditMultipleRowsSheetView: View {
 
     init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
+    }
+
+    /// Whether the current selection's schema level can accept another row — resolves the level once, then asks the shared rule.
+    private var canAddRowForSelection: Bool {
+        let level = viewModel.selectionLevel
+        return viewModel.canAddRows(schemaKey: level.schemaKey, parentRowID: level.parentRowID)
     }
 
     private func refreshViewID() {
@@ -410,14 +428,14 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 }, label: {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 6)
-                                            .stroke(viewModel.canAddRowForSelection ? .blue : .gray, lineWidth: 1)
+                                            .stroke(canAddRowForSelection ? .blue : .gray, lineWidth: 1)
                                             .frame(width: 27, height: 27)
 
                                         Image(systemName: "plus")
-                                            .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                            .foregroundStyle(canAddRowForSelection ? .blue : .gray)
                                     }
                                 })
-                                .disabled(!viewModel.canAddRowForSelection)
+                                .disabled(!canAddRowForSelection)
                                 .accessibilityIdentifier("PlusTheRowButtonIdentifier")
                             }
                         } else {

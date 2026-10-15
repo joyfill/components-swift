@@ -363,7 +363,7 @@ public class DocumentEditor: ObservableObject {
     /// they enforce `maxRows` per schema level inside `CollectionViewModel.insertRow(for:)`.
     func isRowLimitReached(fieldID: String) -> Bool {
         guard let field = fieldMap[fieldID], field.fieldType == .table else { return false }
-        return !rowLimitAllowsAdding(currentCount: field.valueToValueElements?.nonDeletedCount ?? 0, maxRows: field.maxRows)
+        return rowCapacity(maxRows: field.maxRows, count: field.valueToValueElements?.nonDeletedCount ?? 0) == 0
     }
 
     private func handleFieldValueRowCreate(for change: Change) {
