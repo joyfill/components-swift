@@ -875,7 +875,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     //
     // Collections enforce maxRows per schema level: the root schema limits the top-level
     // rows, each nested schema limits its own level. The limit lives on `Schema.maxRows`.
-    // UI hides the add-row affordances via `canAddRow(schemaKey:parentRowID:)`; the external
+    // UI disables the add-row affordances via `canAddRow(schemaKey:parentRowID:)`; the external
     // host path (`insertRow(for:)`) blocks + warns when the level is already at its limit.
 
     private let rootSchemaID = "collectionSchemaId"

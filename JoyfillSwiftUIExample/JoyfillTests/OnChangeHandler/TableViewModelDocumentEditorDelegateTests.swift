@@ -787,7 +787,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     // MARK: - maxRows (row limit) coverage
     //
     // `maxRows` is a document-supplied field property that caps how many rows a user may add.
-    // Absent = no limit (default). The UI hides every add surface once reached (`canAddRow`),
+    // Absent = no limit (default). The UI disables every add surface once reached (`canAddRow`),
     // and the external change API blocks + warns (`isRowLimitReached` guard in handleFieldValueRowCreate).
     // These tests pin: the model getter/setter, the gate math (incl. deleted-row exclusion &
     // live recompute), and the external block behavior at / below / above the limit.
@@ -861,7 +861,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let count = nonDeletedCount(documentEditor)
         let limitedEditor = DocumentEditor(document: documentWithMaxRows(count), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: limitedEditor)
-        XCTAssertFalse(viewModel.tableDataModel.canAddRow, "At the limit, canAddRow must be false (add surfaces hidden)")
+        XCTAssertFalse(viewModel.tableDataModel.canAddRow, "At the limit, canAddRow must be false (add surfaces disabled)")
     }
 
     func testCanAddRow_trueWhenBelowLimit() {

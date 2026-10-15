@@ -72,20 +72,19 @@ struct CollectionModalTopNavigationView: View {
                     if #available(iOS 16.4, *) {
                         VStack(spacing: 8) {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
-                                if viewModel.canAddRowForSelection {
-                                    Button(action: {
-                                        showingPopover = false
-                                        _ = viewModel.insertBelow()
-                                    }) {
-                                        Text("Insert Below")
-                                            .foregroundStyle(.blue)
-                                            .font(.system(size: 14))
-                                            .frame(height: 27)
-                                    }
-                                    .padding(.horizontal, 16)
-                                    .padding(.top, 16)
-                                    .accessibilityIdentifier("TableInsertRowIdentifier")
+                                Button(action: {
+                                    showingPopover = false
+                                    _ = viewModel.insertBelow()
+                                }) {
+                                    Text("Insert Below")
+                                        .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
                                 }
+                                .disabled(!viewModel.canAddRowForSelection)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                .accessibilityIdentifier("TableInsertRowIdentifier")
                                 if !hasActiveFilters {
                                     Button(action: {
                                         showingPopover = false
@@ -114,16 +113,17 @@ struct CollectionModalTopNavigationView: View {
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                     
                                 }
-                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) && viewModel.canAddRowForSelection {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
                                     }) {
                                         Text("Duplicate row")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
                                             .font(.system(size: 14))
                                             .frame(height: 27)
                                     }
+                                    .disabled(!viewModel.canAddRowForSelection)
                                     .padding(.horizontal, 16)
                                     .accessibilityIdentifier("TableDuplicateRowIdentifier")
                                 }
@@ -162,20 +162,19 @@ struct CollectionModalTopNavigationView: View {
                     } else {
                         VStack(spacing: 8) {
                             if viewModel.tableDataModel.selectedRows.count == 1 {
-                                if viewModel.canAddRowForSelection {
-                                    Button(action: {
-                                        showingPopover = false
-                                        _ = viewModel.insertBelow()
-                                    }) {
-                                        Text("Insert Below")
-                                            .foregroundStyle(.blue)
-                                            .font(.system(size: 14))
-                                            .frame(height: 27)
-                                    }
-                                    .padding(.horizontal, 16)
-                                    .padding(.top, 16)
-                                    .accessibilityIdentifier("TableInsertRowIdentifier")
+                                Button(action: {
+                                    showingPopover = false
+                                    _ = viewModel.insertBelow()
+                                }) {
+                                    Text("Insert Below")
+                                        .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
+                                        .font(.system(size: 14))
+                                        .frame(height: 27)
                                 }
+                                .disabled(!viewModel.canAddRowForSelection)
+                                .padding(.horizontal, 16)
+                                .padding(.top, 16)
+                                .accessibilityIdentifier("TableInsertRowIdentifier")
                                 if !hasActiveFilters {
                                     Button(action: {
                                         showingPopover = false
@@ -205,16 +204,17 @@ struct CollectionModalTopNavigationView: View {
                                     .padding(.top, 16)
                                     .accessibilityIdentifier("TableMoveDownRowIdentifier")
                                 }
-                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) && viewModel.canAddRowForSelection {
+                                if viewModel.tableDataModel.canShowDuplicateRowMenuItem(forSchemaKey: viewModel.selectionSchemaKey) {
                                     Button(action: {
                                         showingPopover = false
                                         showDuplicatePopover = true
                                     }) {
                                         Text("Duplicate row")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
                                             .font(.system(size: 14))
                                             .frame(height: 27)
                                     }
+                                    .disabled(!viewModel.canAddRowForSelection)
                                     .padding(.horizontal, 16)
                                     .padding(.top, 16)
                                     .accessibilityIdentifier("TableDuplicateRowIdentifier")
@@ -404,19 +404,20 @@ struct CollectionEditMultipleRowsSheetView: View {
                             .disabled(viewModel.tableDataModel.shouldDisableMoveDownFilterActive)
                             .accessibilityIdentifier("LowerRowButtonIdentifier")
                             
-                            if viewModel.tableDataModel.mode == .fill && viewModel.canAddRowForSelection {
+                            if viewModel.tableDataModel.mode == .fill {
                                 Button(action: {
                                     viewModel.insertBelowFromBulkEdit()
                                 }, label: {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 6)
-                                            .stroke(.blue, lineWidth: 1)
+                                            .stroke(viewModel.canAddRowForSelection ? .blue : .gray, lineWidth: 1)
                                             .frame(width: 27, height: 27)
 
                                         Image(systemName: "plus")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(viewModel.canAddRowForSelection ? .blue : .gray)
                                     }
                                 })
+                                .disabled(!viewModel.canAddRowForSelection)
                                 .accessibilityIdentifier("PlusTheRowButtonIdentifier")
                             }
                         } else {
