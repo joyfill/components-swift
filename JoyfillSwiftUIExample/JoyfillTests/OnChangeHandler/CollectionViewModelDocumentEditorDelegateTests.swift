@@ -899,6 +899,24 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.filter { !($0.deleted ?? false) }.count ?? 0
     }
 
+    /// Injects field-level `maxRows` onto the collection field, before the editor is built.
+    private func documentWithFieldMaxRows(_ maxRows: Int?) -> JoyDoc {
+        var document = createTestDocument()
+        var fields = document.fields
+        guard let idx = fields.firstIndex(where: { $0.id == tableFieldID }) else { return document }
+        fields[idx].maxRows = maxRows
+        document.fields = fields
+        return document
+    }
+
+    func testIsRowLimitReached_falseForCollectionField() {
+        // Collections enforce maxRows per schema, not field-level; the field-level engine helper
+        // must ignore them so it can't block ahead of the per-schema check.
+        let documentEditor = DocumentEditor(document: documentWithFieldMaxRows(1), config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertFalse(documentEditor.isRowLimitReached(fieldID: tableFieldID),
+                       "isRowLimitReached must exclude collection fields even when field-level maxRows is set")
+    }
+
     private func externalRootRowCreate(rowID: String) -> Change {
         externalChange(target: "field.value.rowCreate", change: [
             "schemaId": rootSchemaID,
