@@ -164,6 +164,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     }
     
     func duplicateRow(rowID: String, quantity: Int = 1, insertAtEnd: Bool = false) {
+        guard tableDataModel.canAddRows(max(quantity, 1)) else {
+            Log("Cannot duplicate row: would exceed maxRows limit for field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
+            return
+        }
         guard let result = tableDataModel.documentEditor?.duplicateRows(rowIDs: [rowID], quantity: quantity, insertAtEnd: insertAtEnd, fieldIdentifier: tableDataModel.fieldIdentifier) else { return }
         self.tableDataModel.valueToValueElements = result.1
         let sortedChanges = result.0.sorted { $0.key < $1.key }

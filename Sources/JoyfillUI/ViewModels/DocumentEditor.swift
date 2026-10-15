@@ -359,12 +359,23 @@ public class DocumentEditor: ObservableObject {
         }
     }
     
+    /// Whether a table field has reached its field-level `maxRows` limit. Collections are excluded:
+    /// they enforce `maxRows` per schema level inside `CollectionViewModel.insertRow(for:)`.
+    func isRowLimitReached(fieldID: String) -> Bool {
+        guard let field = fieldMap[fieldID], field.fieldType == .table else { return false }
+        return rowCapacity(maxRows: field.maxRows, count: field.valueToValueElements?.nonDeletedCount ?? 0) == 0
+    }
+
     private func handleFieldValueRowCreate(for change: Change) {
         guard let fieldID = change.fieldId,
               let field = fieldMap[fieldID]
         else {
             logChangeError(for: change)
             return
+        }
+        // Received rows are always applied so offline clients stay in sync; we only warn past maxRows.
+        if isRowLimitReached(fieldID: fieldID) {
+            Log("Received row for field \(fieldID) past its maxRows limit; applying it anyway to stay in sync", type: .warning)
         }
         switch field.fieldType {
         case  .table, .collection:

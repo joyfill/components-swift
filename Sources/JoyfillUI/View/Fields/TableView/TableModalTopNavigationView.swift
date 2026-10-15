@@ -39,14 +39,15 @@ struct TableModalTopNavigationView: View {
                                     _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
+                                .disabled(!viewModel.tableDataModel.canAddRows())
                                 .padding(.horizontal, 16)
                                 .padding(.top, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
-                                
+
                                 Button(action: {
                                     showingPopover = false
                                     viewModel.moveUP()
@@ -79,10 +80,11 @@ struct TableModalTopNavigationView: View {
                                         showDuplicatePopover = true
                                     }) {
                                         Text("Duplicate row")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                                             .font(.system(size: 14))
                                             .frame(height: 27)
                                     }
+                                    .disabled(!viewModel.tableDataModel.canAddRows())
                                     .padding(.horizontal, 16)
                                     .accessibilityIdentifier("TableDuplicateRowIdentifier")
                                 }
@@ -128,10 +130,11 @@ struct TableModalTopNavigationView: View {
                                     _ = viewModel.insertBelow()
                                 }) {
                                     Text("Insert Below")
-                                        .foregroundStyle(.blue)
+                                        .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                                         .font(.system(size: 14))
                                         .frame(height: 27)
                                 }
+                                .disabled(!viewModel.tableDataModel.canAddRows())
                                 .padding(.horizontal, 16)
                                 .accessibilityIdentifier("TableInsertRowIdentifier")
 
@@ -167,10 +170,11 @@ struct TableModalTopNavigationView: View {
                                         showDuplicatePopover = true
                                     }) {
                                         Text("Duplicate row")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                                             .font(.system(size: 14))
                                             .frame(height: 27)
                                     }
+                                    .disabled(!viewModel.tableDataModel.canAddRows())
                                     .padding(.horizontal, 16)
                                     .accessibilityIdentifier("TableDuplicateRowIdentifier")
                                 }
@@ -210,6 +214,7 @@ struct TableModalTopNavigationView: View {
                 .popover(isPresented: $showDuplicatePopover) {
                     DuplicateRowPopover(
                         showAddAtEndOption: true,
+                        remainingCapacity: viewModel.tableDataModel.remainingRowCapacity,
                         onApply: { quantity, _, addAtEnd in
                             if let rowID = viewModel.tableDataModel.selectedRows.first {
                                 viewModel.duplicateRow(rowID: rowID, quantity: quantity, insertAtEnd: addAtEnd)
@@ -227,14 +232,14 @@ struct TableModalTopNavigationView: View {
                 viewModel.addRow()
             }) {
                 Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                     .font(.system(size: 14))
                     .frame(height: 27)
                     .padding(.horizontal, 16)
                     .overlay(RoundedRectangle(cornerRadius: 6)
                         .stroke(Color.buttonBorderColor, lineWidth: 1))
             }
-            .disabled(viewModel.tableDataModel.mode == .readonly)
+            .disabled(viewModel.tableDataModel.mode == .readonly || !viewModel.tableDataModel.canAddRows())
             .accessibilityIdentifier("TableAddRowIdentifier")
         }
     }
@@ -343,13 +348,14 @@ struct EditMultipleRowsSheetView: View {
                                     }, label: {
                                         ZStack {
                                             RoundedRectangle(cornerRadius: 6)
-                                                .stroke(.blue, lineWidth: 1)
+                                                .stroke(viewModel.tableDataModel.canAddRows() ? .blue : .gray, lineWidth: 1)
                                                 .frame(width: 27, height: 27)
 
                                             Image(systemName: "plus")
-                                                .foregroundStyle(.blue)
+                                                .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                                         }
                                     })
+                                    .disabled(!viewModel.tableDataModel.canAddRows())
                                     .accessibilityIdentifier("PlusTheRowButtonIdentifier")
                                 }
                             } else {

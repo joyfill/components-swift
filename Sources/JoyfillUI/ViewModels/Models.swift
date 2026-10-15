@@ -165,6 +165,19 @@ enum RowType: Equatable {
 let supportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .progress, .barcode, .table, .signature]
 let collectionSupportedColumnTypes: [ColumnTypes] = [.text, .image, .dropdown, .block, .date, .number, .multiSelect, .barcode, .signature]
 
+extension Array where Element == ValueElement {
+    /// Rows that are not soft-deleted — the count the `maxRows` limit is measured against.
+    var nonDeletedCount: Int {
+        filter { !($0.deleted ?? false) }.count
+    }
+}
+
+/// Rows that still fit under `maxRows` (`nil` = no limit); `count` is an autoclosure so it's only counted when a limit exists.
+func rowCapacity(maxRows: Int?, count: @autoclosure () -> Int) -> Int? {
+    guard let maxRows = maxRows else { return nil }
+    return max(maxRows - count(), 0)
+}
+
 
 extension FieldTableColumn {
     func getFormat(from tableColumns: [TableColumn]?) -> DateFormatType? {
@@ -183,6 +196,8 @@ struct TableDataModel {
     var fieldRequired: Bool = false
     var rowOrder: [String]
     var valueToValueElements: [ValueElement]?
+    /// Maximum rows allowed for this field. Absent means no limit.
+    let maxRows: Int?
     var tableColumns = [FieldTableColumn]()
     var requiredColumnIDs: Set<String> = [] // Table only
     var childrens = [String]()
@@ -217,11 +232,17 @@ struct TableDataModel {
     }
     
     var nondeletedRowsCount: Int {
-        guard let valueElements = valueToValueElements, !valueElements.isEmpty else {
-            return 0
-        }
+        (valueToValueElements ?? []).nonDeletedCount
+    }
 
-        return valueElements.filter { !($0.deleted ?? false) }.count
+    /// Rows that may still be added before hitting `maxRows` (`nil` = no limit).
+    var remainingRowCapacity: Int? {
+        rowCapacity(maxRows: maxRows, count: nondeletedRowsCount)
+    }
+
+    /// Whether `count` more rows fit under `maxRows` (always true when there's no limit).
+    func canAddRows(_ count: Int = 1) -> Bool {
+        (remainingRowCapacity ?? .max) >= count
     }
 
     init?(fieldHeaderModel: FieldHeaderModel?,
@@ -245,6 +266,7 @@ struct TableDataModel {
         self.decorate = fieldData.decorate ?? false
         self.rowOrder = fieldData.rowOrder ?? []
         self.valueToValueElements = fieldData.valueToValueElements
+        self.maxRows = fieldData.maxRows
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
