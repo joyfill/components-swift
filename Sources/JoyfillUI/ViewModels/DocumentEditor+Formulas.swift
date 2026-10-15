@@ -7,8 +7,8 @@
 import JoyfillModel
 
 extension DocumentEditor: JoyDocProvider {
-    func formula(with id: String) -> JoyfillModel.Formula? {
-        document.formulas.first { $0.id == id }
+    func allFormulas() -> [JoyfillModel.Formula] {
+        document.formulas
     }
 
     func allFormulsFields() -> [JoyfillModel.JoyDocField] {
@@ -16,7 +16,7 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     func setFieldHidden(_ hidden: Bool, for identifier: String) {
-        guard let field = allFields.first(where: { $0.id == identifier }) else {
+        guard let field = fieldMap[identifier] else {
             return
         }
         conditionalLogicHandler.showFieldMap[field.id!] = hidden
@@ -24,7 +24,7 @@ extension DocumentEditor: JoyDocProvider {
     }
 
     public func updateValue(for identifier: String, value: JoyfillModel.ValueUnion) {
-        guard let field = allFields.first(where: { $0.id == identifier }) else {
+        guard let field = fieldMap[identifier] else {
             return
         }
         var value = value
@@ -50,7 +50,7 @@ extension DocumentEditor: JoyDocProvider {
     }
     
     func updateValue(for identifier: String, value: JoyfillModel.ValueUnion? = nil, shouldCallOnChange: Bool, chartData: ChartData? = nil) {
-        guard var field = allFields.first(where: { $0.id == identifier }) else {
+        guard var field = fieldMap[identifier] else {
             return
         }
         guard let fieldID = field.id else { return }

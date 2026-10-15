@@ -230,12 +230,15 @@ public class DocumentEditor: ObservableObject {
     }
     
     public func updateFieldMap() {
+        // Build locally and assign once so fieldMap's didSet doesn't rebuild document.fields per field.
+        var map = fieldMap
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
             var f = field
             _ = normalizeDecorateFlag(field: &f)
-            self.fieldMap[fieldID] = f
+            map[fieldID] = f
         }
+        fieldMap = map
     }
     
     public func updateFieldPositionMap() {
