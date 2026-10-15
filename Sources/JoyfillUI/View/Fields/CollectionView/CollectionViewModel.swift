@@ -2219,30 +2219,35 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
     
     func insertRow(for change: Change) {
-        // Bulk create (v: 2) groups every created row under `change.rows`.
+        // Bulk create (v: 2) groups every created row under `change.rows`, with the
+        // nested context (`parentPath`/`schemaId`) beside `rows` at the bulk level.
         if let rows = change.change?["rows"] as? [[String: Any]] {
+            let schemaID = change.change?["schemaId"] as? String
+            let parentPath = change.change?["parentPath"] as? String
             for row in rows {
-                insertSingleRow(from: row)
+                insertSingleRow(row: row["row"] as? [String: Any],
+                                targetRowIndex: row["targetRowIndex"] as? Int,
+                                schemaID: schemaID,
+                                parentPath: parentPath)
             }
             return
         }
-        // Single-row create (v: 1) carries the row directly under `change.row`.
-        insertSingleRow(from: change.change ?? [:])
+        // Single-row create (v: 1) carries the row and its context directly in `change`.
+        insertSingleRow(row: change.change?["row"] as? [String: Any],
+                        targetRowIndex: change.change?["targetRowIndex"] as? Int,
+                        schemaID: change.change?["schemaId"] as? String,
+                        parentPath: change.change?["parentPath"] as? String)
     }
 
-    private func insertSingleRow(from rowChange: [String: Any]) {
-        let newRowDict = rowChange["row"] as? [String: Any] ?? [:]
-        let newRow = ValueElement(dictionary: newRowDict)
+    private func insertSingleRow(row: [String: Any]?, targetRowIndex: Int?, schemaID: String?, parentPath: String?) {
+        let newRow = ValueElement(dictionary: row ?? [:])
         let cellValues = newRow.cells ?? [:]
         let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
-        if let schemaID = rowChange["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
-            let parentPath = rowChange["parentPath"] as? String ?? ""
-            let parentID = decodeParentPath(parentPath: parentPath)
-            let targetRowIndex = rowChange["targetRowIndex"] as? Int
+        if let schemaID = schemaID, schemaID != "", schemaID != rootSchemaKey {
+            let parentID = decodeParentPath(parentPath: parentPath ?? "")
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
-            let targetRowIndex = rowChange["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }
     }

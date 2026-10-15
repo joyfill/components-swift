@@ -2224,7 +2224,8 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 3)
     }
 
-    // Every emitted bulk change carries the full row dictionary and a targetRowIndex.
+    // Nested context (schemaId/parentPath) sits beside `rows` at the bulk level — matching
+    // Kotlin — while each row entry carries only the row dictionary and targetRowIndex.
     func testDuplicateCollectionNestedRowBulkChangesCarryRowPayload() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
@@ -2241,12 +2242,15 @@ extension DocumentEditorChangeHandlerTests {
 
         let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
         XCTAssertEqual(bulk.count, 1)
+        // Nested context lives at the bulk level, beside `rows`.
+        XCTAssertEqual(bulk.first?.change?["schemaId"] as? String, dupColNestedKey, "schemaId must sit beside rows")
+        XCTAssertNotNil(bulk.first?.change?["parentPath"], "parentPath must sit beside rows")
         let rows = bulk.first?.change?["rows"] as? [[String: Any]]
         XCTAssertEqual(rows?.count, 3)
         for row in rows ?? [] {
             XCTAssertNotNil(row["row"], "Each row entry must carry the full row dictionary")
             XCTAssertNotNil(row["targetRowIndex"], "Each row entry must carry a targetRowIndex")
-            XCTAssertEqual(row["schemaId"] as? String, dupColNestedKey, "Each nested row entry must carry the schema id")
+            XCTAssertNil(row["schemaId"], "schemaId must NOT be duplicated inside each row entry")
         }
     }
 
