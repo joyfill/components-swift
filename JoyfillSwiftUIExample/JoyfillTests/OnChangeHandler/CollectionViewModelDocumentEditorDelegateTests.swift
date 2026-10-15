@@ -1071,7 +1071,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertTrue(viewModel.canAddRows(schemaKey: viewModel.rootSchemaKey), "Four rows with maxRows 5 still allows one more")
     }
 
-    func testExternalRowCreate_root_blockedWhenAtLimit() async throws {
+    func testExternalRowCreate_root_preservedWhenAtLimit() async throws {
         let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 4), config: DocumentEditorConfig(validateSchema: false))
         _ = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
@@ -1080,7 +1080,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e2")])
         waitForMainQueueToDrain()
 
-        XCTAssertEqual(rootRowCount(documentEditor), 4, "External rowCreate at the limit must be refused")
+        XCTAssertEqual(rootRowCount(documentEditor), 5, "A received row at the limit must still be applied so offline clients stay in sync")
     }
 
     func testExternalRowCreate_root_allowedWhenNoLimit() async throws {
@@ -1095,7 +1095,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(rootRowCount(documentEditor), 5, "With no limit the external row must be inserted")
     }
 
-    func testExternalRowCreate_root_allowedThenBlockedAtLimit() async throws {
+    func testExternalRowCreate_root_preservedPastLimit() async throws {
         let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
         _ = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
@@ -1106,7 +1106,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
         documentEditor.change(changes: [externalRootRowCreate(rowID: "68b6cae471b0cf51b557e9e3")])
         waitForMainQueueToDrain()
-        XCTAssertEqual(rootRowCount(documentEditor), 5, "Second add is now at the limit and must be refused")
+        XCTAssertEqual(rootRowCount(documentEditor), 6, "A received row past the limit must still be applied so offline clients stay in sync")
     }
 
     // MARK: remainingCapacity for the current selection (drives the duplicate popover's on-screen message)
@@ -1221,7 +1221,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
                       "Three nested rows with maxRows 5 still allows more")
     }
 
-    func testExternalRowCreate_nested_blockedWhenAtLimit() async throws {
+    func testExternalRowCreate_nested_preservedWhenAtLimit() async throws {
         let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: hideDepth2SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
         _ = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
@@ -1230,8 +1230,8 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         documentEditor.change(changes: [externalNestedRowCreate(rowID: "68b6cae471b0cf51b557e9f1", parentRootIndex: 0, schemaKey: hideDepth2SchemaID, targetRowIndex: 3)])
         waitForMainQueueToDrain()
 
-        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 3,
-                       "External nested rowCreate at the limit must be refused")
+        XCTAssertEqual(nestedRowCount(documentEditor, parentRowID: rootRowA, schemaKey: hideDepth2SchemaID), 4,
+                       "A received nested row at the limit must still be applied so offline clients stay in sync")
     }
 
     func testExternalRowCreate_nested_allowedWhenBelowLimit() async throws {

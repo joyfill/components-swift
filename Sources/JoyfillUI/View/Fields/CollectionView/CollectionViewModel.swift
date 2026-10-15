@@ -2317,17 +2317,16 @@ extension CollectionViewModel: DocumentEditorDelegate {
         let cellValues = newRow.cells ?? [:]
         let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
+        // Received rows are always applied so offline clients stay in sync; we only warn past maxRows.
         if let schemaID = schemaID, schemaID != "", schemaID != rootSchemaKey {
             let parentID = decodeParentPath(parentPath: parentPath ?? "")
-            guard canAddRows(schemaKey: schemaID, parentRowID: parentID) else {
-                Log("Cannot add row: maxRows limit reached for schema \(schemaID) in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
-                return
+            if !canAddRows(schemaKey: schemaID, parentRowID: parentID) {
+                Log("Received row for schema \(schemaID) past its maxRows limit in field \(tableDataModel.fieldIdentifier.fieldID); applying it anyway to stay in sync", type: .warning)
             }
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
-            guard canAddRows(schemaKey: rootSchemaKey) else {
-                Log("Cannot add row: maxRows limit reached for root schema in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
-                return
+            if !canAddRows(schemaKey: rootSchemaKey) {
+                Log("Received row for root schema past its maxRows limit in field \(tableDataModel.fieldIdentifier.fieldID); applying it anyway to stay in sync", type: .warning)
             }
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }

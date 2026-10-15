@@ -828,9 +828,9 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     //
     // `maxRows` is a document-supplied field property that caps how many rows a user may add.
     // Absent = no limit (default). The UI disables every add surface once reached (`canAddRows`),
-    // and the external change API blocks + warns (`isRowLimitReached` guard in handleFieldValueRowCreate).
-    // These tests pin: the model getter/setter, the gate math (incl. deleted-row exclusion &
-    // live recompute), and the external block behavior at / below / above the limit.
+    // while the external change API only warns (`isRowLimitReached`) and still applies received rows
+    // so offline clients stay in sync. These tests pin: the model getter/setter, the gate math (incl.
+    // deleted-row exclusion & live recompute), and the external preserve-and-warn behavior at the limit.
 
     /// Returns the fixture document with `maxRows` set (or cleared) on the table field.
     private func documentWithMaxRows(_ maxRows: Int?) -> JoyDoc {
@@ -960,36 +960,36 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertFalse(documentEditor.isRowLimitReached(fieldID: tableFieldID), "Below the limit, not reached")
     }
 
-    // MARK: External change API (block + warn)
+    // MARK: External change API (preserve received rows + warn)
 
-    func testExternalRowCreate_blockedWhenAtLimit() {
+    func testExternalRowCreate_preservedWhenAtLimit() {
         let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let count = nonDeletedCount(baseEditor)
         let documentEditor = DocumentEditor(document: documentWithMaxRows(count), config: DocumentEditorConfig(validateSchema: false))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
-        documentEditor.change(changes: [rowCreateChange(rowID: "max_rows_blocked_row", index: count)])
+        documentEditor.change(changes: [rowCreateChange(rowID: "max_rows_preserved_row", index: count)])
 
-        XCTAssertEqual(nonDeletedCount(documentEditor), count, "External rowCreate at the limit must be blocked (no-op)")
-        XCTAssertNil(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.first { $0.id == "max_rows_blocked_row" },
-                     "The blocked row must not be inserted")
-        XCTAssertFalse(viewModel.tableDataModel.valueToValueElements?.contains { $0.id == "max_rows_blocked_row" } ?? false,
-                       "The blocked row must not reach the view model")
+        XCTAssertEqual(nonDeletedCount(documentEditor), count + 1, "A received rowCreate at the limit must still be applied so offline clients stay in sync")
+        XCTAssertNotNil(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.first { $0.id == "max_rows_preserved_row" },
+                        "The received row must be inserted")
+        XCTAssertTrue(viewModel.tableDataModel.valueToValueElements?.contains { $0.id == "max_rows_preserved_row" } ?? false,
+                      "The received row must reach the view model")
     }
 
-    func testExternalRowCreate_allowedThenBlockedAtLimit() {
+    func testExternalRowCreate_preservedPastLimit() {
         let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let count = nonDeletedCount(baseEditor)
-        // One slot free: first create succeeds, the second is blocked.
+        // One slot free: first create is below the limit, the second is past it — both must apply.
         let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 1), config: DocumentEditorConfig(validateSchema: false))
 
         documentEditor.change(changes: [rowCreateChange(rowID: "max_rows_allowed_row", index: count)])
         XCTAssertEqual(nonDeletedCount(documentEditor), count + 1, "First external rowCreate below the limit should succeed")
 
         documentEditor.change(changes: [rowCreateChange(rowID: "max_rows_second_row", index: count + 1)])
-        XCTAssertEqual(nonDeletedCount(documentEditor), count + 1, "Second external rowCreate at the limit should be blocked")
-        XCTAssertNil(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.first { $0.id == "max_rows_second_row" },
-                     "The over-limit row must not be inserted")
+        XCTAssertEqual(nonDeletedCount(documentEditor), count + 2, "A received rowCreate past the limit must still be applied so offline clients stay in sync")
+        XCTAssertNotNil(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.first { $0.id == "max_rows_second_row" },
+                        "The received over-limit row must be inserted")
     }
 
     func testExternalRowCreate_allowedWhenNoLimit() {

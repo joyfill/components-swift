@@ -373,9 +373,9 @@ public class DocumentEditor: ObservableObject {
             logChangeError(for: change)
             return
         }
-        guard !isRowLimitReached(fieldID: fieldID) else {
-            Log("Cannot add row: maxRows limit reached for field \(fieldID)", type: .warning)
-            return
+        // Received rows are always applied so offline clients stay in sync; we only warn past maxRows.
+        if isRowLimitReached(fieldID: fieldID) {
+            Log("Received row for field \(fieldID) past its maxRows limit; applying it anyway to stay in sync", type: .warning)
         }
         switch field.fieldType {
         case  .table, .collection:
