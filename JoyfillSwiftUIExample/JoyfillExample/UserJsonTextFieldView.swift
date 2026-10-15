@@ -43,13 +43,31 @@ private enum InputMode: String, CaseIterable, Identifiable {
     var icon: String { self == .file ? "doc" : "doc.on.clipboard" }
 }
 
+/// Hands out request ids and accepts a completion only if it belongs to the newest request.
+struct LatestRequestGate {
+    private(set) var current = 0
+
+    mutating func begin() -> Int {
+        current += 1
+        return current
+    }
+
+    mutating func invalidate() {
+        current += 1
+    }
+
+    func accepts(_ id: Int) -> Bool {
+        id == current
+    }
+}
+
 /// Above this size the pasted text is parsed but not shown, since TextEditor chokes on megabytes of text.
 private let largePasteThreshold = 200_000
 
 struct UserJsonTextFieldView: View {
     @State private var inputMode: InputMode = .file
     @State private var pastedText: String = ""
-    @State private var suppressParse: Bool = false
+    @State private var gate = LatestRequestGate()
     @State private var parseTask: Task<Void, Never>? = nil
     @State private var loadedJSON: LoadedJSON? = nil
     @State private var isLoadingFile: Bool = false
@@ -156,7 +174,10 @@ struct UserJsonTextFieldView: View {
     private var pasteEditor: some View {
         VStack(spacing: 12) {
             ZStack(alignment: .topLeading) {
-                TextEditor(text: $pastedText)
+                TextEditor(text: Binding(get: { pastedText }, set: { newText in
+                    pastedText = newText
+                    scheduleParse(newText)
+                }))
                     .font(.system(.footnote, design: .monospaced))
                     .frame(height: 180)
                     .padding(10)
@@ -168,9 +189,6 @@ struct UserJsonTextFieldView: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(Color.gray.opacity(0.25), lineWidth: 1)
                     )
-                    .onChange(of: pastedText) { text in
-                        scheduleParse(text)
-                    }
 
                 if pastedText.isEmpty {
                     Text(loadedJSON == nil ? "Paste your JSON here..." : "Large JSON loaded from the clipboard (not shown)")
@@ -268,7 +286,7 @@ struct UserJsonTextFieldView: View {
                 case .success(let url):
                     loadJSONFile(at: url)
                 case .failure(let error):
-                    errorMessage = error.localizedDescription
+                    failInput(error.localizedDescription)
                 }
             }
 
@@ -474,46 +492,47 @@ struct UserJsonTextFieldView: View {
         return parseJSON(data: data, name: url.lastPathComponent)
     }
 
-    private func beginLoading() {
+    /// Starts a new request, invalidating any load still in flight.
+    private func beginLoading() -> Int {
         parseTask?.cancel()
+        let id = gate.begin()
         isLoadingFile = true
         errorMessage = nil
         loadedJSON = nil
+        return id
     }
 
     private func resetInput() {
         parseTask?.cancel()
+        gate.invalidate()
         isLoadingFile = false
         loadedJSON = nil
         errorMessage = nil
-        if !pastedText.isEmpty {
-            suppressParse = true
-            pastedText = ""
-        }
+        pastedText = ""
+    }
+
+    /// Reports an input problem and drops any load still in flight.
+    private func failInput(_ message: String) {
+        parseTask?.cancel()
+        gate.invalidate()
+        isLoadingFile = false
+        errorMessage = message
     }
 
     /// Typed or pasted text: debounced, parsed off the main thread.
     private func scheduleParse(_ text: String) {
-        if suppressParse {
-            suppressParse = false
-            return
-        }
-        parseTask?.cancel()
-        errorMessage = nil
-        loadedJSON = nil
+        let id = beginLoading()
         guard !text.isEmpty else {
             isLoadingFile = false
             return
         }
-        isLoadingFile = true
         parseTask = Task {
             try? await Task.sleep(nanoseconds: 400_000_000)
             if Task.isCancelled { return }
             let result = await Task.detached(priority: .userInitiated) {
                 Self.parseJSON(data: Data(text.utf8), name: "Pasted JSON")
             }.value
-            if Task.isCancelled { return }
-            finishLoading(result)
+            finishLoading(result, id: id)
         }
     }
 
@@ -521,28 +540,27 @@ struct UserJsonTextFieldView: View {
     private func pasteFromClipboard() {
         guard let text = UIPasteboard.general.string, !text.isEmpty else {
             // iOS returns nil until the user answers its paste prompt, so tell the two cases apart.
-            errorMessage = UIPasteboard.general.hasStrings ? "Allow paste when asked, then tap again" : "The clipboard is empty"
+            failInput(UIPasteboard.general.hasStrings ? "Allow paste when asked, then tap again" : "The clipboard is empty")
             return
         }
         if text.utf8.count <= largePasteThreshold {
             pastedText = text
+            scheduleParse(text)
             return
         }
-        beginLoading()
-        if !pastedText.isEmpty {
-            suppressParse = true
-            pastedText = ""
-        }
+        let id = beginLoading()
+        pastedText = ""
         parseTask = Task {
             let result = await Task.detached(priority: .userInitiated) {
                 Self.parseJSON(data: Data(text.utf8), name: "Pasted JSON")
             }.value
-            if Task.isCancelled { return }
-            finishLoading(result)
+            finishLoading(result, id: id)
         }
     }
 
-    private func finishLoading(_ result: Result<LoadedJSON, JSONLoadError>) {
+    /// Applies a result only if its request is still the newest one.
+    private func finishLoading(_ result: Result<LoadedJSON, JSONLoadError>, id: Int) {
+        guard gate.accepts(id) else { return }
         isLoadingFile = false
         switch result {
         case .success(let loaded): loadedJSON = loaded
@@ -552,12 +570,12 @@ struct UserJsonTextFieldView: View {
 
     /// Picker path: the URL is security-scoped.
     private func loadJSONFile(at url: URL) {
-        beginLoading()
+        let id = beginLoading()
         Task.detached(priority: .userInitiated) {
             let scoped = url.startAccessingSecurityScopedResource()
             defer { if scoped { url.stopAccessingSecurityScopedResource() } }
             let result = Self.readJSON(at: url)
-            await MainActor.run { finishLoading(result) }
+            await MainActor.run { finishLoading(result, id: id) }
         }
     }
 
@@ -566,25 +584,25 @@ struct UserJsonTextFieldView: View {
         let jsonID = UTType.json.identifier
         let fileURLID = UTType.fileURL.identifier
         if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(jsonID) }) {
-            beginLoading()
+            let id = beginLoading()
             provider.loadFileRepresentation(forTypeIdentifier: jsonID) { url, _ in
                 let result: Result<LoadedJSON, JSONLoadError> = url.map { Self.readJSON(at: $0) } ?? .failure(.unreadable)
-                DispatchQueue.main.async { finishLoading(result) }
+                DispatchQueue.main.async { finishLoading(result, id: id) }
             }
             return true
         }
         if let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(fileURLID) }) {
-            beginLoading()
+            let id = beginLoading()
             provider.loadItem(forTypeIdentifier: fileURLID, options: nil) { item, _ in
                 var fileURL: URL?
                 if let data = item as? Data { fileURL = URL(dataRepresentation: data, relativeTo: nil) }
                 else if let url = item as? URL { fileURL = url }
                 let result: Result<LoadedJSON, JSONLoadError> = fileURL.map { Self.readJSON(at: $0) } ?? .failure(.unreadable)
-                DispatchQueue.main.async { finishLoading(result) }
+                DispatchQueue.main.async { finishLoading(result, id: id) }
             }
             return true
         }
-        errorMessage = "Drop a .json file"
+        failInput("Drop a .json file")
         return false
     }
 }
