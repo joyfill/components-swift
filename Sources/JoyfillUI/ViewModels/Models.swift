@@ -449,6 +449,14 @@ struct TableDataModel {
         }
     }
     
+    // Hide decorators in bulk edit if showInBulkForm is false
+    func filterDecoratorsForBulkEdit(_ decorators: [DecoratorLocal], selectedRowCount: Int, decoratorConfig: DecoratorConfig) -> [DecoratorLocal] {
+        if selectedRowCount > 1 && !decoratorConfig.showInBulkForm {
+            return []
+        }
+        return decorators
+    }
+
     fileprivate mutating func setTableCellDecorators(_ row: ValueElement, _ id: String) {
         for column in tableColumns {
             guard let columnID = column.id else { continue }

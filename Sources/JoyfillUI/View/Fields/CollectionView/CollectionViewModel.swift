@@ -1116,17 +1116,15 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
         tableDataModel.emptySelection()
     }
 
-    /// Finds the last row that belongs to the same sibling group as `rowID`
-    /// (same level and, for nested rows, same parent). Used to anchor
-    /// "add at the end" duplicates after the final sibling in the group.
-    private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String) -> String? {
+    /// Returns the last row in `rowID`'s sibling group (same level, parent, and child-table schema) to anchor "add at the end" duplicates.
+    private func lastSiblingRowID(forSourceRowID rowID: String, isNested: Bool, level: Int, parentRowID: String, parentSchemaKey: String) -> String? {
         var result: String?
         for model in tableDataModel.filteredcellModels {
             switch model.rowType {
             case .row:
                 if !isNested { result = model.rowID }
-            case .nestedRow(let rowLevel, _, let modelParentID, _):
-                if isNested, rowLevel == level, modelParentID?.rowID == parentRowID {
+            case .nestedRow(let rowLevel, _, let modelParentID, let modelParentSchemaKey):
+                if isNested, rowLevel == level, modelParentID?.rowID == parentRowID, modelParentSchemaKey == parentSchemaKey {
                     result = model.rowID
                 }
             default:
@@ -1154,7 +1152,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
 
         var anchorRowID = rowID
         if insertAtEnd {
-            anchorRowID = lastSiblingRowID(forSourceRowID: rowID, isNested: isNested, level: level, parentRowID: parentID?.rowID ?? "") ?? rowID
+            anchorRowID = lastSiblingRowID(forSourceRowID: rowID, isNested: isNested, level: level, parentRowID: parentID?.rowID ?? "", parentSchemaKey: parentSchemaKey) ?? rowID
         }
         for change in sortedChanges {
             guard let anchorIndex = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == anchorRowID }) else { continue }
@@ -2271,26 +2269,43 @@ extension CollectionViewModel: DocumentEditorDelegate {
     }
     
     func insertRow(for change: Change) {
-        let newRowDict = change.change?["row"] as? [String: Any] ?? [:]
-        let newRow = ValueElement(dictionary: newRowDict)
+        // Bulk create (v: 2) groups every created row under `change.rows`, with the
+        // nested context (`parentPath`/`schemaId`) beside `rows` at the bulk level.
+        if let rows = change.change?["rows"] as? [[String: Any]] {
+            let schemaID = change.change?["schemaId"] as? String
+            let parentPath = change.change?["parentPath"] as? String
+            for row in rows {
+                insertSingleRow(row: row["row"] as? [String: Any],
+                                targetRowIndex: row["targetRowIndex"] as? Int,
+                                schemaID: schemaID,
+                                parentPath: parentPath)
+            }
+            return
+        }
+        // Single-row create (v: 1) carries the row and its context directly in `change`.
+        insertSingleRow(row: change.change?["row"] as? [String: Any],
+                        targetRowIndex: change.change?["targetRowIndex"] as? Int,
+                        schemaID: change.change?["schemaId"] as? String,
+                        parentPath: change.change?["parentPath"] as? String)
+    }
+
+    private func insertSingleRow(row: [String: Any]?, targetRowIndex: Int?, schemaID: String?, parentPath: String?) {
+        let newRow = ValueElement(dictionary: row ?? [:])
         let cellValues = newRow.cells ?? [:]
         let meta = newRow.metadata
         guard let newRowID = newRow.id else { return }
-        if let schemaID = change.change?["schemaId"] as? String, schemaID != "", schemaID != rootSchemaKey {
-            let parentPath = change.change?["parentPath"] as? String ?? ""
-            let parentID = decodeParentPath(parentPath: parentPath)
+        if let schemaID = schemaID, schemaID != "", schemaID != rootSchemaKey {
+            let parentID = decodeParentPath(parentPath: parentPath ?? "")
             guard canAddRows(schemaKey: schemaID, parentRowID: parentID) else {
                 Log("Cannot add row: maxRows limit reached for schema \(schemaID) in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
                 return
             }
-            let targetRowIndex = change.change?["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex, nestedKey: schemaID, parentRowID: parentID ?? "")
         } else {
             guard canAddRows(schemaKey: rootSchemaKey) else {
                 Log("Cannot add row: maxRows limit reached for root schema in field \(tableDataModel.fieldIdentifier.fieldID)", type: .warning)
                 return
             }
-            let targetRowIndex = change.change?["targetRowIndex"] as? Int
             addRowWithIndex(with: newRowID, and: cellValues, metadata: meta, shouldSendEvent: false, index: targetRowIndex)
         }
     }

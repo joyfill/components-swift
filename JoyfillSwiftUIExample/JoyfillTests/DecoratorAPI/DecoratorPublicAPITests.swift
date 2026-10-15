@@ -959,4 +959,194 @@ final class DecoratorPublicAPITests: XCTestCase {
         editor.updateFieldMap()
         XCTAssertEqual(editor.field(fieldID: "tbl-1")?.decorate, true)
     }
+
+    // MARK: - filterDecoratorsForBulkEdit (showInBulkForm gating)
+
+    /// Builds a real `TableDataModel` for the sample table field so the bulk-edit
+    /// decorator filter can be exercised directly.
+    private func makeTableDataModel() -> TableDataModel {
+        let (editor, _) = makeChangerHandlerEditor()
+        return makeTableDataModel(for: ChangerHandlerSample.tableFieldID, editor: editor)
+    }
+
+    /// Builds a `TableDataModel` for any field in the ChangerHandlerUnit fixture —
+    /// works for both the table and collection fields.
+    private func makeTableDataModel(for fieldID: String, editor: DocumentEditor) -> TableDataModel {
+        let model = TableDataModel(
+            fieldHeaderModel: nil,
+            mode: .fill,
+            documentEditor: editor,
+            fieldIdentifier: FieldIdentifier(fieldID: fieldID,
+                                             pageID: ChangerHandlerSample.pageID,
+                                             fileID: ChangerHandlerSample.fileID)
+        )
+        return model!
+    }
+
+    /// Editor over the ChangerHandlerUnit fixture with a specific `showInBulkForm`
+    /// flag (licensed so the collection field is enabled).
+    private func makeEditor(showInBulkForm: Bool) -> DocumentEditor {
+        let license = (ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return DocumentEditor(
+            document: sampleJSONDocument(fileName: "ChangerHandlerUnit"),
+            config: DocumentEditorConfig(
+                license: license.isEmpty ? nil : license,
+                validateSchema: false,
+                display: DisplayConfig(decorators: DecoratorConfig(showInBulkForm: showInBulkForm))
+            )
+        )
+    }
+
+    private let sampleDecorators = [
+        DecoratorLocal(icon: "flag", label: "A", action: "a"),
+        DecoratorLocal(icon: "flag", label: "B", action: "b"),
+    ]
+
+    /// Multi-row selection + `showInBulkForm == false` must hide every decorator.
+    func testFilterBulk_multiRow_showInBulkFormFalse_hidesAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 2,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false))
+        XCTAssertTrue(result.isEmpty)
+    }
+
+    /// Multi-row selection + `showInBulkForm == true` must pass decorators through untouched.
+    func testFilterBulk_multiRow_showInBulkFormTrue_keepsAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 2,
+            decoratorConfig: DecoratorConfig(showInBulkForm: true))
+        XCTAssertEqual(result.map { $0.action }, ["a", "b"])
+    }
+
+    /// A single selected row is NOT a bulk form, so decorators show even when
+    /// `showInBulkForm == false` — this is the single-row edit case.
+    func testFilterBulk_singleRow_showInBulkFormFalse_keepsAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 1,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false))
+        XCTAssertEqual(result.map { $0.action }, ["a", "b"])
+    }
+
+    /// Single row + `showInBulkForm == true` also keeps decorators.
+    func testFilterBulk_singleRow_showInBulkFormTrue_keepsAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 1,
+            decoratorConfig: DecoratorConfig(showInBulkForm: true))
+        XCTAssertEqual(result.count, 2)
+    }
+
+    /// Zero selected rows is not `> 1`, so the filter leaves the list alone even
+    /// with `showInBulkForm == false` (defensive edge — the UI never calls it this way).
+    func testFilterBulk_zeroRows_showInBulkFormFalse_keepsAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 0,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false))
+        XCTAssertEqual(result.count, 2)
+    }
+
+    /// Larger multi-row selections are gated the same way as the two-row case.
+    func testFilterBulk_manyRows_showInBulkFormFalse_hidesAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 5,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false))
+        XCTAssertTrue(result.isEmpty)
+    }
+
+    /// The default `DecoratorConfig` (showInBulkForm == true) must keep decorators
+    /// visible in bulk — proving the opt-in nature of the flag.
+    func testFilterBulk_multiRow_defaultConfig_keepsAll() {
+        let model = makeTableDataModel()
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 3,
+            decoratorConfig: DecoratorConfig())
+        XCTAssertEqual(result.count, 2)
+    }
+
+    /// An empty decorator list stays empty regardless of the flag or row count.
+    func testFilterBulk_emptyInput_staysEmpty() {
+        let model = makeTableDataModel()
+        XCTAssertTrue(model.filterDecoratorsForBulkEdit(
+            [], selectedRowCount: 2,
+            decoratorConfig: DecoratorConfig(showInBulkForm: true)).isEmpty)
+        XCTAssertTrue(model.filterDecoratorsForBulkEdit(
+            [], selectedRowCount: 2,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false)).isEmpty)
+    }
+
+    // MARK: - filterDecoratorsForBulkEdit on a COLLECTION field
+
+    /// The same gating applies to a collection field's data model: multi-row + off → hidden.
+    func testFilterBulk_collection_multiRow_showInBulkFormFalse_hidesAll() {
+        let model = makeTableDataModel(for: ChangerHandlerSample.collectionFieldID,
+                                       editor: makeEditor(showInBulkForm: false))
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 2,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false))
+        XCTAssertTrue(result.isEmpty)
+    }
+
+    /// Collection, multi-row + on → kept.
+    func testFilterBulk_collection_multiRow_showInBulkFormTrue_keepsAll() {
+        let model = makeTableDataModel(for: ChangerHandlerSample.collectionFieldID,
+                                       editor: makeEditor(showInBulkForm: true))
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 2,
+            decoratorConfig: DecoratorConfig(showInBulkForm: true))
+        XCTAssertEqual(result.map { $0.action }, ["a", "b"])
+    }
+
+    /// Collection, single row → kept even when off (single-row edit always shows).
+    func testFilterBulk_collection_singleRow_showInBulkFormFalse_keepsAll() {
+        let model = makeTableDataModel(for: ChangerHandlerSample.collectionFieldID,
+                                       editor: makeEditor(showInBulkForm: false))
+        let result = model.filterDecoratorsForBulkEdit(
+            sampleDecorators, selectedRowCount: 1,
+            decoratorConfig: DecoratorConfig(showInBulkForm: false))
+        XCTAssertEqual(result.count, 2)
+    }
+
+    // MARK: - viewModel.decoratorConfig surfacing (root-cause regression guard)
+    //
+    // The UI reads `viewModel.decoratorConfig` (vended via the TableDataViewModelProtocol
+    // extension from `documentEditor.decoratorConfig`). If that wiring breaks, the filter
+    // silently sees the default config and decorators reappear in the bulk form.
+
+    /// TableViewModel must surface the editor's configured `showInBulkForm == false`.
+    func testTableViewModel_decoratorConfig_surfacesConfiguredFalse() {
+        let editor = makeEditor(showInBulkForm: false)
+        let vm = TableViewModel(tableDataModel:
+            makeTableDataModel(for: ChangerHandlerSample.tableFieldID, editor: editor))
+        XCTAssertFalse(vm.decoratorConfig.showInBulkForm)
+    }
+
+    /// TableViewModel defaults `showInBulkForm` to true when the editor is unconfigured.
+    func testTableViewModel_decoratorConfig_defaultsTrue() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = TableViewModel(tableDataModel:
+            makeTableDataModel(for: ChangerHandlerSample.tableFieldID, editor: editor))
+        XCTAssertTrue(vm.decoratorConfig.showInBulkForm)
+    }
+
+    /// CollectionViewModel must surface the editor's configured `showInBulkForm == false`.
+    func testCollectionViewModel_decoratorConfig_surfacesConfiguredFalse() {
+        let editor = makeEditor(showInBulkForm: false)
+        let vm = CollectionViewModel(tableDataModel:
+            makeTableDataModel(for: ChangerHandlerSample.collectionFieldID, editor: editor))
+        XCTAssertFalse(vm.decoratorConfig.showInBulkForm)
+    }
+
+    /// CollectionViewModel defaults `showInBulkForm` to true when the editor is unconfigured.
+    func testCollectionViewModel_decoratorConfig_defaultsTrue() {
+        let (editor, _) = makeChangerHandlerEditor()
+        let vm = CollectionViewModel(tableDataModel:
+            makeTableDataModel(for: ChangerHandlerSample.collectionFieldID, editor: editor))
+        XCTAssertTrue(vm.decoratorConfig.showInBulkForm)
+    }
 }

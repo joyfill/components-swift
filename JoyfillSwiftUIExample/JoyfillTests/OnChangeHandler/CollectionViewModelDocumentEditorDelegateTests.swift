@@ -86,12 +86,123 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(updatedNumberOFRowsFromDocumentEditor, 5, "Rows should be updated")
     }
     
+    // A grouped `field.value.bulkRowCreate` (v: 2) with two root entries under `change.rows`
+    // replays both rows through insertRow(for:). The nested context (schemaId/parentPath)
+    // lives beside `rows` at the bulk level, matching Kotlin.
+    func testApplyRowEditChanges_BulkRowCreateGroupedRows() async throws {
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        func rootRow(_ id: String, _ index: Int) -> [String: Any] {
+            [
+                "row": [
+                    "_id": id,
+                    "cells": [:] as [String: Any],
+                    "children": [
+                        "685753949107b403e2e4a949": ["value": [] as [Any]] as [String: Any]
+                    ] as [String: Any]
+                ] as [String: Any],
+                "targetRowIndex": index
+            ]
+        }
+
+        let changeDict: [String: Any] = [
+            "fieldIdentifier": "field_68575112847f32f878c77daf",
+            "_id": "685750eff3216b45ffe73c80",
+            "fieldPositionId": "68575112158ff5dbaa9f78e1",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "v": 2,
+            "pageId": "685750efeb612f4fac5819dd",
+            "sdk": "swift",
+            "target": "field.value.bulkRowCreate",
+            "fileId": "685750ef698da1ab427761ba",
+            "fieldId": "6857510fbfed1553e168161b",
+            "createdOn": 1756809956.175348,
+            "change": [
+                "schemaId": "collectionSchemaId",
+                "parentPath": "",
+                "rows": [
+                    rootRow("68b6cae471b0cf51b557e9e2", 4),
+                    rootRow("68b6cae471b0cf51b557e9e3", 5)
+                ]
+            ] as [String: Any]
+        ]
+
+        let change = Change(dictionary: changeDict)
+        documentEditor.change(changes: [change])
+
+        XCTAssertEqual(viewModel.tableDataModel.valueToValueElements?.count, 6, "Both grouped root rows should be inserted")
+        XCTAssertEqual(documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements?.count, 6)
+    }
+
+    // A grouped `field.value.bulkRowCreate` targeting a nested child schema (Kotlin shape:
+    // schemaId/parentPath beside `rows`, entries carry only row + targetRowIndex) must route
+    // every copy INTO the intended child table, leaving the root row count unchanged.
+    func testApplyRowEditChanges_BulkRowCreateRoutesToNestedChildTable() async throws {
+        let document = createTestDocument()
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        // Root row 0 (68575bb9cdb3707c78d6b2ff) owns child schema 685753949107b403e2e4a949
+        // with 3 existing rows. parentPath "0.<childSchema>" decodes to that root row.
+        let childSchema = "685753949107b403e2e4a949"
+        let rootRowID = "68575bb9cdb3707c78d6b2ff"
+
+        func childRowCount() -> Int {
+            documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements?
+                .first { $0.id == rootRowID }?
+                .childrens?[childSchema]?.valueToValueElements?.count ?? 0
+        }
+
+        let rootBefore = documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements?.count ?? 0
+        let childBefore = childRowCount()
+        XCTAssertEqual(childBefore, 3, "Child table should start with 3 rows")
+
+        func childRow(_ id: String, _ index: Int) -> [String: Any] {
+            ["row": ["_id": id, "cells": [:] as [String: Any]] as [String: Any], "targetRowIndex": index]
+        }
+
+        let changeDict: [String: Any] = [
+            "fieldIdentifier": "field_68575112847f32f878c77daf",
+            "_id": "685750eff3216b45ffe73c80",
+            "fieldPositionId": "68575112158ff5dbaa9f78e1",
+            "identifier": "doc_685750eff3216b45ffe73c80",
+            "v": 2,
+            "pageId": "685750efeb612f4fac5819dd",
+            "sdk": "swift",
+            "target": "field.value.bulkRowCreate",
+            "fileId": "685750ef698da1ab427761ba",
+            "fieldId": "6857510fbfed1553e168161b",
+            "createdOn": 1756809956.175348,
+            "change": [
+                "schemaId": childSchema,
+                "parentPath": "0.\(childSchema)",
+                "rows": [
+                    childRow("68b6cae471b0cf51b557e9f1", 3),
+                    childRow("68b6cae471b0cf51b557e9f2", 4)
+                ]
+            ] as [String: Any]
+        ]
+
+        documentEditor.change(changes: [Change(dictionary: changeDict)])
+        waitForMainQueueToDrain()
+
+        XCTAssertEqual(documentEditor.field(fieldID: "6857510fbfed1553e168161b")?.valueToValueElements?.count, rootBefore,
+                       "Root row count must be unchanged — copies go into the nested child table, not the root")
+        XCTAssertEqual(childRowCount(), childBefore + 2,
+                       "Both grouped copies must land in the intended nested child table")
+        _ = viewModel
+    }
+
     func testApplyRowEditChanges_BulkUpdate() async throws {
         let document = createTestDocument()
         let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
-        
+
         let changeDict1: [String: Any] = [
             "pageId": "685750efeb612f4fac5819dd",
             "fieldIdentifier": "field_68575112847f32f878c77daf",

@@ -756,9 +756,13 @@ public struct DecoratorConfig: Equatable, Sendable {
     /// inline on a row before the rest move into a kebab menu.
     public var visibleLimitInRows: Int
 
-    public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1) {
+    /// Whether row/column decorators show in the bulk edit form (2+ rows); set `false` to hide them there. Single-row edit is unaffected.
+    public var showInBulkForm: Bool
+
+    public init(visibleLimitInFields: Int = 2, visibleLimitInRows: Int = 1, showInBulkForm: Bool = true) {
         self.visibleLimitInFields = max(0, visibleLimitInFields)
         self.visibleLimitInRows = max(0, visibleLimitInRows)
+        self.showInBulkForm = showInBulkForm
     }
 
     static func rowCellWidth(forVisibleLimit visibleLimitInRows: Int) -> CGFloat {

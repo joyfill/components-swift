@@ -446,7 +446,8 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertFalse(captured.contains { $0.target == "field.value.bulkRowCreate" })
     }
 
-    // C16: quantity > 1 emits one `field.value.bulkRowCreate` change per copy.
+    // C16: quantity > 1 emits ONE grouped `field.value.bulkRowCreate` change (v: 2)
+    // whose `change.rows` holds one entry per created copy.
     func testDuplicateRowQuantityManyEmitsBulkRowCreate() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
@@ -456,11 +457,14 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
 
         let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
-        XCTAssertEqual(bulk.count, 3)
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        XCTAssertEqual(bulk.first?.v, 2, "Grouped bulk change is versioned v: 2")
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 3, "Grouped change carries one row entry per copy")
         XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" }, "quantity > 1 must not emit plain rowCreate")
     }
 
-    // C17: every emitted change carries the full row dictionary and a targetRowIndex.
+    // C17: every entry inside the grouped change carries the full row dictionary and a targetRowIndex.
     func testDuplicateRowBulkChangesCarryRowPayload() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
@@ -470,10 +474,12 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
 
         let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
-        XCTAssertEqual(bulk.count, 3)
-        for change in bulk {
-            XCTAssertNotNil(change.change?["row"], "Each bulk change must carry the full row dictionary")
-            XCTAssertNotNil(change.change?["targetRowIndex"], "Each bulk change must carry a targetRowIndex")
+        XCTAssertEqual(bulk.count, 1)
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 3)
+        for row in rows ?? [] {
+            XCTAssertNotNil(row["row"], "Each row entry must carry the full row dictionary")
+            XCTAssertNotNil(row["targetRowIndex"], "Each row entry must carry a targetRowIndex")
         }
     }
 
@@ -487,9 +493,9 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         // Duplicating the last row (index 4) three times → indexes 5, 6, 7.
         _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
 
-        let indexes = captured
-            .filter { $0.target == "field.value.bulkRowCreate" }
-            .compactMap { $0.change?["targetRowIndex"] as? Int }
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        let indexes = (bulk.first?.change?["rows"] as? [[String: Any]])?
+            .compactMap { $0["targetRowIndex"] as? Int }
             .sorted()
         XCTAssertEqual(indexes, [5, 6, 7])
     }
@@ -522,7 +528,9 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         // 5 + (2 rows * 2 copies) = 9
         XCTAssertEqual(documentEditor.field(fieldID: dupTableFieldID)?.rowOrder?.count, 9)
         let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
-        XCTAssertEqual(bulk.count, 4, "Two source rows × two copies = four bulkRowCreate changes")
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 4, "Two source rows × two copies = four grouped row entries")
     }
 
     // Two source rows at quantity 1 still means 2 target rows -> bulkRowCreate (count > 1), not rowCreate.
@@ -534,7 +542,9 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
 
         _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
 
-        XCTAssertEqual(captured.filter { $0.target == "field.value.bulkRowCreate" }.count, 2)
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1)
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 2)
         XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" })
     }
 
@@ -2075,7 +2085,10 @@ extension DocumentEditorChangeHandlerTests {
                                        nestedKey: dupColNestedKey,
                                        parentRowId: dupColRootWithChildren)
 
-        XCTAssertEqual(captured.filter { $0.target == "field.value.bulkRowCreate" }.count, 3)
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        XCTAssertEqual(bulk.first?.v, 2, "Grouped bulk change is versioned v: 2")
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 3)
         XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" }, "quantity > 1 must not emit plain rowCreate")
     }
 
@@ -2211,7 +2224,8 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, before + 3)
     }
 
-    // Every emitted bulk change carries the full row dictionary and a targetRowIndex.
+    // Nested context (schemaId/parentPath) sits beside `rows` at the bulk level — matching
+    // Kotlin — while each row entry carries only the row dictionary and targetRowIndex.
     func testDuplicateCollectionNestedRowBulkChangesCarryRowPayload() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
@@ -2227,11 +2241,16 @@ extension DocumentEditorChangeHandlerTests {
                                        parentRowId: dupColRootWithChildren)
 
         let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
-        XCTAssertEqual(bulk.count, 3)
-        for change in bulk {
-            XCTAssertNotNil(change.change?["row"], "Each bulk change must carry the full row dictionary")
-            XCTAssertNotNil(change.change?["targetRowIndex"], "Each bulk change must carry a targetRowIndex")
-            XCTAssertEqual(change.change?["schemaId"] as? String, dupColNestedKey, "Each nested change must carry the schema id")
+        XCTAssertEqual(bulk.count, 1)
+        // Nested context lives at the bulk level, beside `rows`.
+        XCTAssertEqual(bulk.first?.change?["schemaId"] as? String, dupColNestedKey, "schemaId must sit beside rows")
+        XCTAssertNotNil(bulk.first?.change?["parentPath"], "parentPath must sit beside rows")
+        let rows = bulk.first?.change?["rows"] as? [[String: Any]]
+        XCTAssertEqual(rows?.count, 3)
+        for row in rows ?? [] {
+            XCTAssertNotNil(row["row"], "Each row entry must carry the full row dictionary")
+            XCTAssertNotNil(row["targetRowIndex"], "Each row entry must carry a targetRowIndex")
+            XCTAssertNil(row["schemaId"], "schemaId must NOT be duplicated inside each row entry")
         }
     }
 
@@ -2250,9 +2269,9 @@ extension DocumentEditorChangeHandlerTests {
                                        nestedKey: dupColNestedKey,
                                        parentRowId: dupColRootWithChildren)
 
-        let indexes = captured
-            .filter { $0.target == "field.value.bulkRowCreate" }
-            .compactMap { $0.change?["targetRowIndex"] as? Int }
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        let indexes = (bulk.first?.change?["rows"] as? [[String: Any]])?
+            .compactMap { $0["targetRowIndex"] as? Int }
             .sorted()
         XCTAssertEqual(indexes, [1, 2, 3])
     }
@@ -2295,7 +2314,8 @@ extension DocumentEditorChangeHandlerTests {
 
         XCTAssertEqual(nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count, 7, "3 original + (2 rows × 2 copies)")
         let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
-        XCTAssertEqual(bulk.count, 4, "Two source rows × two copies = four bulkRowCreate changes")
+        XCTAssertEqual(bulk.count, 1, "Bulk create emits a single grouped change")
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 4, "Two source rows × two copies = four grouped row entries")
     }
 
     // Two source nested rows at quantity 1 still means 2 target rows -> bulkRowCreate (count > 1), not rowCreate.
@@ -2313,7 +2333,9 @@ extension DocumentEditorChangeHandlerTests {
                                        nestedKey: dupColNestedKey,
                                        parentRowId: dupColRootWithChildren)
 
-        XCTAssertEqual(captured.filter { $0.target == "field.value.bulkRowCreate" }.count, 2)
+        let bulk = captured.filter { $0.target == "field.value.bulkRowCreate" }
+        XCTAssertEqual(bulk.count, 1)
+        XCTAssertEqual((bulk.first?.change?["rows"] as? [[String: Any]])?.count, 2)
         XCTAssertFalse(captured.contains { $0.target == "field.value.rowCreate" })
     }
 
