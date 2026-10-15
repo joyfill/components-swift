@@ -11,6 +11,10 @@ extension DocumentEditor: JoyDocProvider {
         document.formulas.first { $0.id == id }
     }
 
+    func allFormulas() -> [JoyfillModel.Formula] {
+        document.formulas
+    }
+
     func allFormulsFields() -> [JoyfillModel.JoyDocField] {
         allFields.filter { $0.formulas != nil }
     }

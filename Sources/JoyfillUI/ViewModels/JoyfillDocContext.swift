@@ -8,6 +8,7 @@ protocol JoyDocProvider: AnyObject {
     func allFormulsFields() -> [JoyDocField]
     var allFields: [JoyDocField] { get }
     func formula(with id: String) -> Formula?
+    func allFormulas() -> [Formula]
     func updateValue(for identifier: String, value: ValueUnion)
     func setFieldHidden(_ hidden: Bool, for identifier: String)
 }
@@ -26,6 +27,15 @@ class JoyfillDocContext: EvaluationContext {
         return formatter
     }()
     
+    /// Formulas by id, built once per context; the provider rebuilds every Formula on each read.
+    private lazy var formulasByID: [String: Formula] = {
+        var map: [String: Formula] = [:]
+        for formula in docProvider?.allFormulas() ?? [] {
+            if let id = formula.id, map[id] == nil { map[id] = formula }
+        }
+        return map
+    }()
+
     // Properties for formula dependencies
     private var formulaCache: [String: FormulaValue] = [:]
     private var dependencyGraph: [String: Set<String>] = [:]  // field -> fields it depends on
@@ -228,7 +238,7 @@ class JoyfillDocContext: EvaluationContext {
         }
         
         // Look up the actual formula by ID
-        guard let formula = docProvider?.formula(with: formulaId) else {
+        guard let formula = formulasByID[formulaId] else {
             return nil
         }
         
