@@ -497,6 +497,50 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
         }
     }
     
+    func testCollectionFieldMultiSelectSelectAllAndDeselectAll() {
+        goToCollectionDetailField()
+
+        guard let firstButton = app.swipeToFindElement(identifier: "TableMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
+            XCTFail("Failed to find multiselect button after swiping")
+            return
+        }
+        firstButton.tap()
+
+        // Select All toggle should render for a `multi: true` collection cell.
+        let toggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3), "Select All toggle should render for multi-select collection cell")
+
+        // Select All → every option selected and committed on Apply.
+        toggle.tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        goBack()
+        waitForAppToSettle()
+        do {
+            let selectedAll = try XCTUnwrap(onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray)
+            XCTAssertEqual(Set(["6805b771d4f71eb6c061e494", "6805b7719a178ac79ef6e871", "6805b77130c78af8dcbbac21"]),
+                           Set(selectedAll),
+                           "Select All should select every option of the collection cell")
+        } catch {
+            XCTFail("Failed to unwrap cell multiselect values: \(error)")
+        }
+
+        // Reopen the collection cell and Deselect All → cleared and committed on Apply.
+        goToCollectionDetailField()
+        guard let reopen = app.swipeToFindElement(identifier: "TableMultiSelectionFieldIdentifier", type: .button, direction: "left") else {
+            XCTFail("Failed to find multiselect button on reopen")
+            return
+        }
+        reopen.tap()
+        let deselectToggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").firstMatch
+        XCTAssertTrue(deselectToggle.waitForExistence(timeout: 3), "Deselect All toggle should render")
+        deselectToggle.tap() // labelled "Deselect All" because all are selected
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        goBack()
+        waitForAppToSettle()
+        let afterDeselect = onChangeResultValue().valueElements?[0].cells?["6805b771ab52db07a211a2f6"]?.stringArray
+        XCTAssertEqual(afterDeselect?.count ?? 0, 0, "Deselect All should clear every selected option")
+    }
+
     func testCollectionFieldImage() {
         goToCollectionDetailField()
         
