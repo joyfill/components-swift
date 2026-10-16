@@ -31,7 +31,7 @@ struct MultiSelectionView: View {
             FieldHeaderView(multiSelectionDataModel.fieldHeaderModel, isFilled: isFilled) { decorator in
                 eventHandler.onDecoratorAction(event: multiSelectionDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
-            if multiSelectionDataModel.multi ?? false {
+            if multiSelectionDataModel.multi ?? false, multiSelectionDataModel.mode != .readonly {
                 if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }), !options.isEmpty {
                     SelectAllToggleButton(
                         isAllSelected: allOptionsSelected(options: options),

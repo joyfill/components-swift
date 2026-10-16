@@ -1394,6 +1394,7 @@ struct MultiSelectionDataModel {
     var multi: Bool?
     var options: [Option]?
     var multiSelector: [String]?
+    var mode: Mode = .fill
     var fieldHeaderModel: FieldHeaderModel?
 }
 

@@ -175,7 +175,7 @@ struct TableMultiSelectSheetView: View {
             }
             .padding(.bottom, 12)
             
-            if isMulti, let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }), !options.isEmpty {
+            if isMulti, cellModel.editMode != .readonly, let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }), !options.isEmpty {
                 SelectAllToggleButton(
                     isAllSelected: allTableOptionsSelected(options: options),
                     multiSelectedOptionArray: $tempMultiSelectedOptionArray,
