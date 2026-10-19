@@ -33,6 +33,7 @@ struct MultiSelectionView: View {
             }
             if multiSelectionDataModel.multi ?? false, multiSelectionDataModel.mode != .readonly {
                 if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }), !options.isEmpty {
+                    // Intentional: toggle reads `@State`, checkmarks read `multiSelector` — synced via onChange. Don't merge.
                     SelectAllToggleButton(
                         isAllSelected: allOptionsSelected(options: options),
                         multiSelectedOptionArray: $multiSelectedOptionArray,
@@ -172,7 +173,7 @@ struct RadioView: View {
     }
 }
 
-struct SelectAllToggleButton<T>: View where T: Identifiable {
+struct SelectAllToggleButton<T>: View {
     var isAllSelected: Bool
     @Binding var multiSelectedOptionArray: [String]
     var options: [T]
