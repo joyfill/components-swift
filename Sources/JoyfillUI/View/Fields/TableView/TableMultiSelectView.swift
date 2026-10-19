@@ -245,8 +245,7 @@ struct TableMultiSelectSheetView: View {
     }
 
     private func allTableOptionsSelected(options: [OptionLocal]) -> Bool {
-        let allOptionIds = options.compactMap { $0.id }
-        return allOptionIds.count > 0 && tempMultiSelectedOptionArray.count == allOptionIds.count && allOptionIds.allSatisfy { tempMultiSelectedOptionArray.contains($0) }
+        SelectAllState.allSelected(selectedIds: tempMultiSelectedOptionArray, optionIds: options.compactMap { $0.id })
     }
 }
 

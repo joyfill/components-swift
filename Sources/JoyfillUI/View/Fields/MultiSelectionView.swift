@@ -95,8 +95,7 @@ struct MultiSelectionView: View {
     }
 
     private func allOptionsSelected(options: [Option]) -> Bool {
-        let allOptionIds = options.compactMap { $0.id }
-        return allOptionIds.count > 0 && multiSelectedOptionArray.count == allOptionIds.count && allOptionIds.allSatisfy { multiSelectedOptionArray.contains($0) }
+        SelectAllState.allSelected(selectedIds: multiSelectedOptionArray, optionIds: options.compactMap { $0.id })
     }
 }
 
@@ -206,6 +205,14 @@ struct SelectAllToggleButton<T>: View {
         })
         .accessibilityIdentifier("MultiSelectionSelectAllToggle")
         .frame(maxWidth: .infinity)
+    }
+}
+
+enum SelectAllState {
+    static func allSelected(selectedIds: [String], optionIds: [String]) -> Bool {
+        guard !optionIds.isEmpty, selectedIds.count == optionIds.count else { return false }
+        let selected = Set(selectedIds)
+        return optionIds.allSatisfy { selected.contains($0) }
     }
 }
 
