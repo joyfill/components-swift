@@ -1261,12 +1261,16 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertNil(DocumentEditor.makeBulkChange(from: []))
     }
 
-    func testMakeBulkChange_SingleRowUpdateReturnsNil() {
-        XCTAssertNil(DocumentEditor.makeBulkChange(from: [bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"])]))
+    func testMakeBulkChange_SingleRowUpdateReturnsOriginalEvent() {
+        let result = DocumentEditor.makeBulkChange(from: [bulkRowUpdateChange(rowId: "r1", cells: ["c1": "a"])])
+        XCTAssertEqual(result?.target, "field.value.rowUpdate") // unchanged, not a bulk event
+        XCTAssertEqual(result?.v, 1)
     }
 
-    func testMakeBulkChange_SingleRowDeleteReturnsNil() {
-        XCTAssertNil(DocumentEditor.makeBulkChange(from: [bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"])]))
+    func testMakeBulkChange_SingleRowDeleteReturnsOriginalEvent() {
+        let result = DocumentEditor.makeBulkChange(from: [bulkRowDeleteChange(rowId: "r1", cells: ["c1": "a"])])
+        XCTAssertEqual(result?.target, "field.value.rowDelete") // unchanged, not a bulk event
+        XCTAssertEqual(result?.v, 1)
     }
 
     func testMakeBulkChange_MultiRowCreateReturnsNil() {
