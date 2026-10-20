@@ -441,13 +441,13 @@ struct TableModalView : View {
 }
 
 /// Shared handles to the left column's and top header's UIScrollViews so the grid can drive their offsets directly in UIKit.
-final class TableScrollSync {
+fileprivate final class TableScrollSync {
     weak var leftScrollView: UIScrollView?
     weak var topScrollView: UIScrollView?
 }
 
 /// Observes the grid's UIScrollView and mirrors its offset onto the left column (y) and the header (x). Place in the grid background.
-struct TableGridScrollReader: UIViewRepresentable {
+fileprivate struct TableGridScrollReader: UIViewRepresentable {
     let sync: TableScrollSync
 
     func makeUIView(context: Context) -> ReaderView { ReaderView(sync: sync) }
@@ -488,7 +488,7 @@ struct TableGridScrollReader: UIViewRepresentable {
 }
 
 /// Walks up to the enclosing UIScrollView and hands it to the given sink. Place in that scroll view's content background.
-struct TableScrollCapture: UIViewRepresentable {
+fileprivate struct TableScrollCapture: UIViewRepresentable {
     let assign: (UIScrollView?) -> Void
 
     func makeUIView(context: Context) -> CaptureView { CaptureView(assign: assign) }
