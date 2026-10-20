@@ -470,7 +470,10 @@ struct TableGridScrollReader: UIViewRepresentable {
             guard window != nil else { return }
             var view = superview
             while let current = view, !(current is UIScrollView) { view = current.superview }
-            guard let grid = view as? UIScrollView else { return }
+            guard let grid = view as? UIScrollView else {
+                assertionFailure("TableGridScrollReader: no enclosing UIScrollView found")
+                return
+            }
             observation = grid.observe(\.contentOffset, options: [.initial, .new]) { [weak self] grid, _ in
                 guard let self else { return }
                 if let left = self.sync.leftScrollView, left.contentOffset.y != grid.contentOffset.y {
@@ -506,7 +509,9 @@ struct TableScrollCapture: UIViewRepresentable {
             guard window != nil else { return }
             var view = superview
             while let current = view, !(current is UIScrollView) { view = current.superview }
-            assign(view as? UIScrollView)
+            let scrollView = view as? UIScrollView
+            assert(scrollView != nil, "TableScrollCapture: no enclosing UIScrollView found")
+            assign(scrollView)
         }
     }
 }
