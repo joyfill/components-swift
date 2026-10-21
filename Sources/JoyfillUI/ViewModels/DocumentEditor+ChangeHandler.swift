@@ -129,6 +129,10 @@ extension DocumentEditor {
     ///   - rowIDs: An array of String identifiers for the rows to be duplicated.
     ///   - fieldIdentifier: A `FieldIdentifier` object that uniquely identifies the table field.
     public func duplicateRows(rowIDs: [String], quantity: Int = 1, insertAtEnd: Bool = false, fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
+        guard enableRowDuplicates else {
+            Log("Row duplication is disabled for this document", type: .warning)
+            return ([:], [])
+        }
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             Log("No elements found for field: \(fieldId)", type: .error)
@@ -173,6 +177,10 @@ extension DocumentEditor {
     }
     
     public func duplicateNestedRows(selectedRowIds: [String], quantity: Int = 1, includeChildren: Bool = true, insertAtEnd: Bool = false, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
+        guard enableRowDuplicates else {
+            Log("Row duplication is disabled for this document", type: .warning)
+            return ([:], [])
+        }
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
             return ([:],[])
