@@ -59,7 +59,8 @@ final class DocumentEditorConfigTests: XCTestCase {
             display: DisplayConfig(singleClickRowEdit: true,
                                    decorators: DecoratorConfig(visibleLimitInFields: 5,
                                                                visibleLimitInRows: 3,
-                                                               showInBulkForm: false))
+                                                               showInBulkForm: false),
+                                   enableRowDuplicates: false)
         )
 
         let editor = DocumentEditor(document: JoyDoc(), config: config)
@@ -72,6 +73,27 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertEqual(editor.decoratorConfig.visibleLimitInFields, 5)
         XCTAssertEqual(editor.decoratorConfig.visibleLimitInRows, 3)
         XCTAssertFalse(editor.decoratorConfig.showInBulkForm)   // display.decorators.showInBulkForm
+        XCTAssertFalse(editor.enableRowDuplicates)           // display.enableRowDuplicates
+    }
+
+    /// Row duplication is enabled unless a host explicitly opts out.
+    func testConfigInit_enableRowDuplicates_defaultsTrue() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertTrue(editor.enableRowDuplicates)
+    }
+
+    /// The opt-out must survive even when schema validation fails and the init takes its early-return branch.
+    func testConfigInit_invalidDoc_stillCarriesEnableRowDuplicates() {
+        let editor = DocumentEditor(
+            document: invalidDocument(),
+            config: DocumentEditorConfig(
+                validateSchema: true,
+                display: DisplayConfig(enableRowDuplicates: false)
+            )
+        )
+        XCTAssertNotNil(editor.schemaError)        // early-return path taken
+        XCTAssertFalse(editor.enableRowDuplicates) // ...and the flag still mapped
     }
 
     // MARK: - Readonly coercion
