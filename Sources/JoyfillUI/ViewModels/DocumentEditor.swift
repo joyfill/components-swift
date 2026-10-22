@@ -70,11 +70,14 @@ public struct PageConfig: Equatable, Sendable {
 public struct DisplayConfig: Equatable, Sendable {
     public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
     public var decorators: DecoratorConfig      // was `decoratorConfig`
+    public var enableRowDuplicates: Bool        // SDK-level opt-in for row duplication
 
     public init(singleClickRowEdit: Bool = false,
-                decorators: DecoratorConfig = DecoratorConfig()) {
+                decorators: DecoratorConfig = DecoratorConfig(),
+                enableRowDuplicates: Bool = false) {
         self.singleClickRowEdit = singleClickRowEdit
         self.decorators = decorators
+        self.enableRowDuplicates = enableRowDuplicates
     }
 }
 
@@ -126,6 +129,7 @@ public class DocumentEditor: ObservableObject {
     /// Not `@Published` — the activate/deactivate methods below publish manually, only when it matters.
     private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
+    public var enableRowDuplicates: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -160,6 +164,7 @@ public class DocumentEditor: ObservableObject {
                 self.isPageDeleteEnabled = config.page.enableDeletes
                 self.showPageNavigationView = config.page.navigation
                 self.singleClickRowEdit = config.display.singleClickRowEdit
+                self.enableRowDuplicates = config.display.enableRowDuplicates
                 self.currentPageID = ""
                 self.events = config.events
                 self.decoratorConfig = config.display.decorators
@@ -177,6 +182,7 @@ public class DocumentEditor: ObservableObject {
         self.isPageDeleteEnabled = config.mode == .readonly ? false : config.page.enableDeletes
         self.showPageNavigationView = config.page.navigation
         self.singleClickRowEdit = config.display.singleClickRowEdit
+        self.enableRowDuplicates = config.display.enableRowDuplicates
         self.currentPageID = ""
         self.events = config.events
         // Set feature flags from license
@@ -230,12 +236,15 @@ public class DocumentEditor: ObservableObject {
     }
     
     public func updateFieldMap() {
+        // Build locally and assign once so fieldMap's didSet doesn't rebuild document.fields per field.
+        var map = fieldMap
         document.fields.forEach { field in
             guard let fieldID = field.id else { return }
             var f = field
             _ = normalizeDecorateFlag(field: &f)
-            self.fieldMap[fieldID] = f
+            map[fieldID] = f
         }
+        fieldMap = map
     }
     
     public func updateFieldPositionMap() {

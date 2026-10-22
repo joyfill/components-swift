@@ -220,6 +220,7 @@ struct TableDataModel {
     private(set) var id: String = ""
     var showResetSelectionAlert: Bool = false
     var singleClickRowEdit: Bool = false
+    var enableRowDuplicates: Bool = false
     var navigationIntent = NavigationIntent.none
     private var pendingRowID: [String]?
     
@@ -270,6 +271,7 @@ struct TableDataModel {
         self.fieldPositionTableColumns = fieldPosition.tableColumns
         self.fieldType = fieldData.fieldType
         self.singleClickRowEdit = documentEditor.singleClickRowEdit
+        self.enableRowDuplicates = documentEditor.enableRowDuplicates
         self.cleanUpRowOrder()
         if fieldData.fieldType == .collection {
             self.schema = fieldData.schema ?? [:]
@@ -531,7 +533,7 @@ struct TableDataModel {
     }
 
     func canShowDuplicateRowMenuItem(forSchemaKey schemaKey: String? = nil) -> Bool {
-        return mode == .fill && editability(forSchemaKey: schemaKey).inlineAllowed
+        return enableRowDuplicates && mode == .fill && editability(forSchemaKey: schemaKey).inlineAllowed
     }
 
     func canShowEditRowsMenuItem(forSchemaKey schemaKey: String? = nil) -> Bool {
