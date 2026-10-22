@@ -31,6 +31,18 @@ struct MultiSelectionView: View {
             FieldHeaderView(multiSelectionDataModel.fieldHeaderModel, isFilled: isFilled) { decorator in
                 eventHandler.onDecoratorAction(event: multiSelectionDataModel.fieldIdentifier, action: decorator.action ?? "")
             }
+            if multiSelectionDataModel.multi ?? false, multiSelectionDataModel.mode != .readonly {
+                if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }), !options.isEmpty {
+                    // Intentional: toggle reads `@State`, checkmarks read `multiSelector` — synced via onChange. Don't merge.
+                    SelectAllToggleButton(
+                        isAllSelected: allOptionsSelected(options: options),
+                        multiSelectedOptionArray: $multiSelectedOptionArray,
+                        options: options,
+                        getId: { $0.id }
+                    )
+                }
+            }
+
             VStack {
                 if let options = multiSelectionDataModel.options?.filter({ !($0.deleted ?? false) }) {
                     ForEach(0..<options.count, id: \.self) { index in
@@ -80,6 +92,10 @@ struct MultiSelectionView: View {
             let fieldEvent = FieldChangeData(fieldIdentifier: multiSelectionDataModel.fieldIdentifier, updateValue: newMultiSelectedValue)
             eventHandler.onChange(event: fieldEvent)
         }
+    }
+
+    private func allOptionsSelected(options: [Option]) -> Bool {
+        SelectAllState.allSelected(selectedIds: multiSelectedOptionArray, optionIds: options.compactMap { $0.id })
     }
 }
 
@@ -153,6 +169,50 @@ struct RadioView: View {
         })
         .accessibilityIdentifier("SingleSelectionIdentifier")
         .frame(maxWidth: .infinity)
+    }
+}
+
+struct SelectAllToggleButton<T>: View {
+    var isAllSelected: Bool
+    @Binding var multiSelectedOptionArray: [String]
+    var options: [T]
+    var getId: (T) -> String?
+
+    var body: some View {
+        Button(action: {
+            if isAllSelected {
+                multiSelectedOptionArray = []
+            } else {
+                multiSelectedOptionArray = options.compactMap { getId($0) }
+            }
+        }, label: {
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: isAllSelected ? "checkmark.square.fill" : "square")
+                    .imageScale(.large)
+                    .foregroundColor(.blue)
+                Text(isAllSelected ? "Deselect All" : "Select All")
+                    .multilineTextAlignment(.leading)
+                    .font(.system(size: 15, weight: .semibold))
+                    .darkLightThemeColor()
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.allFieldBorderColor, lineWidth: 1)
+            )
+        })
+        .accessibilityIdentifier("MultiSelectionSelectAllToggle")
+        .frame(maxWidth: .infinity)
+    }
+}
+
+enum SelectAllState {
+    static func allSelected(selectedIds: [String], optionIds: [String]) -> Bool {
+        guard !optionIds.isEmpty, selectedIds.count == optionIds.count else { return false }
+        let selected = Set(selectedIds)
+        return optionIds.allSatisfy { selected.contains($0) }
     }
 }
 

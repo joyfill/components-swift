@@ -175,19 +175,24 @@ struct TableMultiSelectSheetView: View {
             }
             .padding(.bottom, 12)
             
+            if isMulti, cellModel.editMode != .readonly, let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }), !options.isEmpty {
+                SelectAllToggleButton(
+                    isAllSelected: allTableOptionsSelected(options: options),
+                    multiSelectedOptionArray: $tempMultiSelectedOptionArray,
+                    options: options,
+                    getId: { $0.id }
+                )
+                .padding(.bottom, 12)
+            }
+
             ScrollView {
                 VStack(spacing: 0){
                     if let options = cellModel.data.options?.filter({ !($0.deleted ?? false) }) {
                         ForEach(0..<options.count, id: \.self) { index in
                             let optionValue = options[index].value ?? ""
-                            let isSelected: Bool = {
-                                let selectedArray = isMulti ? multiSelectedOptionArray : singleSelectedOptionArray
-                                return selectedArray.contains(options[index].id ?? "")
-                            }()
                             
                             if isMulti {
                                 TableMultiSelection(option: optionValue,
-                                                    isSelected: isSelected,
                                                     multiSelectedOptionArray: $tempMultiSelectedOptionArray,
                                                     selectedItemId: options[index].id ?? "",
                                                     color: Color(hex: options[index].color ?? ""))
@@ -238,18 +243,24 @@ struct TableMultiSelectSheetView: View {
         cellModel.didChange?(cellDataModel)
         cellModel.data = cellDataModel
     }
+
+    private func allTableOptionsSelected(options: [OptionLocal]) -> Bool {
+        SelectAllState.allSelected(selectedIds: tempMultiSelectedOptionArray, optionIds: options.compactMap { $0.id })
+    }
 }
 
 struct TableMultiSelection: View {
     var option: String
-    @State var isSelected: Bool
     @Binding var multiSelectedOptionArray: [String]
     var selectedItemId: String
     var color: Color = .primary
 
+    private var isSelected: Bool {
+        multiSelectedOptionArray.contains(selectedItemId)
+    }
+
     var body: some View {
         Button(action: {
-            isSelected.toggle()
             if let index = multiSelectedOptionArray.firstIndex(of: selectedItemId) {
                 multiSelectedOptionArray.remove(at: index) // Item exists, so remove it
             } else {

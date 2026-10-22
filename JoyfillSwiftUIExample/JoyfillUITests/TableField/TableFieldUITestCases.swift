@@ -966,6 +966,68 @@ final class TableFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(selected.contains("6a5790d0152220240f5f6b59"))
     }
 
+    func testMultiSelectCellSelectAllAndDeselectAll() throws {
+        goToMultiSelectPage()
+        goToTableDetailPage()
+
+        let cells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        XCTAssertTrue(cells.element(boundBy: 0).waitForExistence(timeout: 5), "Table cells should exist")
+        let col3Cell = cells.element(boundBy: 2) // row 0 / column 3 (`multi: true`)
+        for _ in 0..<5 where !col3Cell.isHittable {
+            app.swipeLeft()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+        }
+        XCTAssertTrue(col3Cell.isHittable, "Column 3 cell should be reachable")
+        col3Cell.tap()
+
+        // Select All toggle should be present for a `multi: true` cell.
+        let toggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3), "Select All toggle should render for multi-select cell")
+
+        // Select All → every option selected and committed on Apply.
+        toggle.tap()
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        let selectedAll = try XCTUnwrap(onChangeResultValue().valueElements?.first?.cells?["6a5790d077dfd7c217781f1f"]?.multiSelector)
+        XCTAssertEqual(Set(selectedAll),
+                       Set(["6a5790d07101d73ce15483b7", "6a5790d0152220240f5f6b59", "6a5790d017c763eea28a6094"]),
+                       "Select All should select every option of the cell")
+
+        // Reopen the cell and Deselect All → cleared and committed on Apply.
+        goToTableDetailPage()
+        let reopenCells = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier")
+        let col3Reopen = reopenCells.element(boundBy: 2)
+        for _ in 0..<5 where !col3Reopen.isHittable {
+            app.swipeLeft()
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.4))
+        }
+        col3Reopen.tap()
+        let deselectToggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").firstMatch
+        XCTAssertTrue(deselectToggle.waitForExistence(timeout: 3), "Deselect All toggle should render")
+        deselectToggle.tap() // now labelled "Deselect All" since all were selected
+        app.buttons["TableMultiSelectionFieldApplyIdentifier"].tap()
+        goBack()
+        Thread.sleep(forTimeInterval: 0.5)
+        let afterDeselect = onChangeResultValue().valueElements?.first?.cells?["6a5790d077dfd7c217781f1f"]?.multiSelector
+        XCTAssertEqual(afterDeselect?.count ?? 0, 0, "Deselect All should clear every selected option")
+    }
+
+    func testSingleSelectCellHasNoSelectAllToggle() throws {
+        goToMultiSelectPage()
+        goToTableDetailPage()
+
+        // Column 1 (cell index 0) is a single-select (`multi` absent) cell.
+        let cell = app.buttons.matching(identifier: "TableMultiSelectionFieldIdentifier").element(boundBy: 0)
+        XCTAssertTrue(cell.waitForExistence(timeout: 5), "Single-select cell should exist")
+        cell.tap()
+
+        let singleOptions = app.buttons.matching(identifier: "TableSingleSelectOptionsSheetIdentifier")
+        XCTAssertTrue(singleOptions.element.waitForExistence(timeout: 3), "Single-select options should render")
+        let toggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle")
+        XCTAssertEqual(toggle.count, 0, "Select All toggle must not render for a single-select cell")
+    }
+
     func testRowFormSimpleEditMultiSelectColumnsRespectMultiFlag() throws {
         goToMultiSelectPage()
         goToTableDetailPage()

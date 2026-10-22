@@ -883,6 +883,7 @@ extension DocumentEditor {
                                                 multi: fieldData?.multi,
                                                 options: fieldData?.options,
                                                 multiSelector: fieldData?.value?.multiSelector,
+                                                mode: fieldEditMode,
                                                 fieldHeaderModel: fieldHeaderModel)
             dataModelType = .multiSelect(model)
         case .dropdown:
