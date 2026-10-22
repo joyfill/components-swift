@@ -34,7 +34,8 @@ final class CellVisibilityLogicTest: XCTestCase {
                 mode: mode,
                 license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey,
                 validateSchema: false,
-                page: PageConfig(enableDuplicates: isPageDuplicateEnabled)
+                page: PageConfig(enableDuplicates: isPageDuplicateEnabled),
+                display: DisplayConfig(enableRowDuplicates: true)
             )
         )
     }

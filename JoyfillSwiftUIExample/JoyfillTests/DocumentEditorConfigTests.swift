@@ -76,14 +76,14 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertFalse(editor.enableRowDuplicates)           // display.enableRowDuplicates
     }
 
-    /// Row duplication is enabled unless a host explicitly opts out.
-    func testConfigInit_enableRowDuplicates_defaultsTrue() {
+    /// Row duplication is disabled unless a host explicitly opts in.
+    func testConfigInit_enableRowDuplicates_defaultsFalse() {
         let editor = DocumentEditor(document: JoyDoc(),
                                     config: DocumentEditorConfig(validateSchema: false))
-        XCTAssertTrue(editor.enableRowDuplicates)
+        XCTAssertFalse(editor.enableRowDuplicates)
     }
 
-    /// The opt-out must survive even when schema validation fails and the init takes its early-return branch.
+    /// The opt-in must survive even when schema validation fails and the init takes its early-return branch.
     func testConfigInit_invalidDoc_stillCarriesEnableRowDuplicates() {
         let editor = DocumentEditor(
             document: invalidDocument(),

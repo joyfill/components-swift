@@ -17,7 +17,7 @@ final class TableEditabilityTests: XCTestCase {
     private func makeViewModel(editability: [String]?,
                                mode: Mode = .fill,
                                singleClickRowEdit: Bool = true,
-                               enableRowDuplicates: Bool = true) -> TableViewModel {
+                               enableRowDuplicates: Bool = false) -> TableViewModel {
         var document = sampleJSONDocument(fileName: "ChangerHandlerUnit")
         if let index = document.fields.firstIndex(where: { $0.id == tableFieldID }) {
             document.fields[index].editability = editability
@@ -181,21 +181,21 @@ final class TableEditabilityTests: XCTestCase {
 
     // MARK: - Duplicate row menu item
 
-    func testDuplicateRowMenuItemShownByDefault() {
-        XCTAssertTrue(makeViewModel(editability: nil).tableDataModel.canShowDuplicateRowMenuItem())
+    func testDuplicateRowMenuItemHiddenByDefault() {
+        XCTAssertFalse(makeViewModel(editability: nil).tableDataModel.canShowDuplicateRowMenuItem())
     }
 
-    func testDuplicateRowMenuItemHiddenWhenHostDisablesRowDuplicates() {
-        let tableDataModel = makeViewModel(editability: nil, enableRowDuplicates: false).tableDataModel
-        XCTAssertFalse(tableDataModel.canShowDuplicateRowMenuItem())
+    func testDuplicateRowMenuItemShownWhenHostEnablesRowDuplicates() {
+        let tableDataModel = makeViewModel(editability: nil, enableRowDuplicates: true).tableDataModel
+        XCTAssertTrue(tableDataModel.canShowDuplicateRowMenuItem())
     }
 
     func testDuplicateRowMenuItemHiddenInReadonlyMode() {
-        XCTAssertFalse(makeViewModel(editability: nil, mode: .readonly).tableDataModel.canShowDuplicateRowMenuItem())
+        XCTAssertFalse(makeViewModel(editability: nil, mode: .readonly, enableRowDuplicates: true).tableDataModel.canShowDuplicateRowMenuItem())
     }
 
     func testDuplicateRowMenuItemHiddenForFormOnlyEditability() {
-        XCTAssertFalse(makeViewModel(editability: ["form"]).tableDataModel.canShowDuplicateRowMenuItem())
+        XCTAssertFalse(makeViewModel(editability: ["form"], enableRowDuplicates: true).tableDataModel.canShowDuplicateRowMenuItem())
     }
 
     // MARK: - Bulk edit and row form menu item

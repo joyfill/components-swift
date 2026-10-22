@@ -70,11 +70,11 @@ public struct PageConfig: Equatable, Sendable {
 public struct DisplayConfig: Equatable, Sendable {
     public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
     public var decorators: DecoratorConfig      // was `decoratorConfig`
-    public var enableRowDuplicates: Bool        // SDK-level opt-out for row duplication
+    public var enableRowDuplicates: Bool        // SDK-level opt-in for row duplication
 
     public init(singleClickRowEdit: Bool = false,
                 decorators: DecoratorConfig = DecoratorConfig(),
-                enableRowDuplicates: Bool = true) {
+                enableRowDuplicates: Bool = false) {
         self.singleClickRowEdit = singleClickRowEdit
         self.decorators = decorators
         self.enableRowDuplicates = enableRowDuplicates
@@ -129,7 +129,7 @@ public class DocumentEditor: ObservableObject {
     /// Not `@Published` — the activate/deactivate methods below publish manually, only when it matters.
     private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
-    public var enableRowDuplicates: Bool = true
+    public var enableRowDuplicates: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {

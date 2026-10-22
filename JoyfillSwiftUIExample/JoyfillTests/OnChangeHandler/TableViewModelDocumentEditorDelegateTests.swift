@@ -1056,7 +1056,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let count = nonDeletedCount(baseEditor)
         // One free slot, but the user asks to duplicate 3 rows.
-        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 1), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 1), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
@@ -1072,7 +1072,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
         let baseEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
         let count = nonDeletedCount(baseEditor)
         // Exactly two free slots, duplicate two rows — fills to the limit.
-        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 2), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(count + 2), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
 
         guard let firstRowID = viewModel.tableDataModel.rowOrder.first else {
@@ -1085,7 +1085,7 @@ final class TableViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testDuplicateRow_allowedWhenNoLimit() {
-        let documentEditor = DocumentEditor(document: documentWithMaxRows(nil), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithMaxRows(nil), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = createTableViewModel(documentEditor: documentEditor)
         let count = viewModel.tableDataModel.nondeletedRowsCount
 

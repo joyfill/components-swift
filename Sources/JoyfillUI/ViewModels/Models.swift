@@ -220,7 +220,7 @@ struct TableDataModel {
     private(set) var id: String = ""
     var showResetSelectionAlert: Bool = false
     var singleClickRowEdit: Bool = false
-    var enableRowDuplicates: Bool = true
+    var enableRowDuplicates: Bool = false
     var navigationIntent = NavigationIntent.none
     private var pendingRowID: [String]?
     
