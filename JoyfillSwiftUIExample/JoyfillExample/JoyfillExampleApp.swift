@@ -73,7 +73,8 @@ struct JoyfillExampleApp: App {
                 validateSchema: false,
                 page: PageConfig(enableDuplicates: isPageDuplicateEnabled, enableDeletes: isPageDeleteEnabled),
                 display: DisplayConfig(singleClickRowEdit: true,
-                                       decorators: DecoratorConfig(showInBulkForm: showInBulkForm))
+                                       decorators: DecoratorConfig(showInBulkForm: showInBulkForm),
+                                       enableRowDuplicates: true)
             )
         )
         
