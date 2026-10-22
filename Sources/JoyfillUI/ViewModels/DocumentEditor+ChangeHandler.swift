@@ -131,7 +131,8 @@ extension DocumentEditor {
     public func duplicateRows(rowIDs: [String], quantity: Int = 1, insertAtEnd: Bool = false, fieldIdentifier: FieldIdentifier) -> ([Int: ValueElement], [ValueElement]) {
         guard enableRowDuplicates else {
             Log("Row duplication is disabled for this document", type: .warning)
-            return ([:], [])
+            // No change: return the field's current elements so a caller assigning the result can't wipe the rows.
+            return ([:], field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? [])
         }
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {
@@ -179,7 +180,8 @@ extension DocumentEditor {
     public func duplicateNestedRows(selectedRowIds: [String], quantity: Int = 1, includeChildren: Bool = true, insertAtEnd: Bool = false, fieldIdentifier: FieldIdentifier, rootSchemaKey: String, nestedKey: String, parentRowId: String) -> ([Int: ValueElement], [ValueElement]) {
         guard enableRowDuplicates else {
             Log("Row duplication is disabled for this document", type: .warning)
-            return ([:], [])
+            // No change: return the field's current elements so a caller assigning the result can't wipe the rows.
+            return ([:], field(fieldID: fieldIdentifier.fieldID)?.valueToValueElements ?? [])
         }
         let fieldId = fieldIdentifier.fieldID
         guard var elements = field(fieldID: fieldId)?.valueToValueElements else {

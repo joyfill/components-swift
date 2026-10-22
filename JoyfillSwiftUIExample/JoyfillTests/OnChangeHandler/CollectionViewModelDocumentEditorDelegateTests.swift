@@ -1295,4 +1295,20 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(rootRowCount(documentEditor), 5,
                        "Without children the descendant limit is irrelevant and duplication succeeds")
     }
+
+    // With row duplication disabled, duplicating through the VM must be a no-op that leaves the
+    // existing rows intact rather than wiping them.
+    func testDuplicateRow_disabled_leavesRowsIntact() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: false)))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 2)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4,
+                       "Duplication disabled must be a no-op, not a wipe of the live rows")
+        XCTAssertFalse(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.isEmpty ?? true,
+                       "The field's elements must not be cleared when duplication is disabled")
+    }
 }

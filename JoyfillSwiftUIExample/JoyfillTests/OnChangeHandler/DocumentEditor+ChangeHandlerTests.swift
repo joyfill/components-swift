@@ -237,7 +237,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         let result = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
 
         XCTAssertTrue(result.0.isEmpty, "No changes should be returned when duplication is disabled")
-        XCTAssertTrue(result.1.isEmpty, "No elements should be returned when duplication is disabled")
+        XCTAssertEqual(result.1, initialElements, "Disabled duplication must return the field's current elements unchanged, not an empty list")
         XCTAssertEqual(documentEditor.field(fieldID: tableFieldID)?.rowOrder, initialRowOrder, "rowOrder must be untouched when duplication is disabled")
         XCTAssertEqual(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements, initialElements, "Field elements must be untouched when duplication is disabled")
         XCTAssertEqual(events.onChangeCallCount, 0, "onChange must not fire when duplication is disabled")
@@ -1723,7 +1723,7 @@ extension DocumentEditorChangeHandlerTests {
                                                         parentRowId: parentRowId)
 
         XCTAssertTrue(result.0.isEmpty, "No changes should be returned when duplication is disabled")
-        XCTAssertTrue(result.1.isEmpty, "No elements should be returned when duplication is disabled")
+        XCTAssertEqual(result.1, initialElements, "Disabled duplication must return the field's current elements unchanged, not an empty list")
         XCTAssertEqual(documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements, initialElements, "Field elements must be untouched when duplication is disabled")
         XCTAssertEqual(events.onChangeCallCount, 0, "onChange must not fire when duplication is disabled")
     }
