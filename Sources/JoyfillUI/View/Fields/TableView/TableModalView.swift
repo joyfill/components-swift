@@ -51,7 +51,8 @@ struct TableRowView : View {
 }
 
 struct TableModalView : View {
-    @State private var offset = CGPoint.zero
+    // UIKit-driven offset mirror; the grid's UIScrollView moves the left column without re-evaluating the body.
+    @State private var scrollSync = TableScrollSync()
     @ObservedObject var viewModel: TableViewModel
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) private var dismiss
@@ -248,78 +249,81 @@ struct TableModalView : View {
 
     var scrollArea: some View {
         HStack(alignment: .top, spacing: 0) {
+            // Left row-number column: pinned left, synced to the grid via KVO, isolated in its own view.
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center, spacing: 0) {
-                    if viewModel.showRowSelector  {
-                        Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: 60)
-                            .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
-                            .onTapGesture {
-                                if !viewModel.tableDataModel.allRowSelected {
-                                    viewModel.tableDataModel.selectAllRows()
-                                } else {
-                                    viewModel.tableDataModel.emptySelection()
-                                }
-                            }
-                            .disabled(viewModel.tableDataModel.rowOrder.count == 0)
-                            .accessibilityIdentifier("SelectAllRowSelectorButton")
+                leftCornerHeader
+                TableRowNumbersColumn(
+                    viewModel: viewModel,
+                    width: leftColumnWidth,
+                    sync: scrollSync,
+                    onEditRow: { rowModel in
+                        viewModel.tableDataModel.emptySelection()
+                        viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
+                        viewModel.tableDataModel.navigationIntent = .none
+                        dismissKeyboard()
+                        showEditMultipleRowsSheetView = true
                     }
-                    Text("#")
-                        .frame(width: 40, height: 60)
-                        .border(Color.tableCellBorderColor)
-                    if viewModel.tableDataModel.canShowSingleClickEditColumn() {
-                        Image(systemName: "square.and.pencil")
-                            .frame(width: 40, height: 60)
-                            .foregroundColor(Color.gray.opacity(0.4))
-                            .border(Color.tableCellBorderColor)
-                    }
-                }
-                .frame(minHeight: 50)
-                .frame(width: leftColumnWidth, height: 60)
-                .border(Color.tableCellBorderColor)
-                .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
-                .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
-                
-                if #available(iOS 16, *) {
-                    ScrollView([.vertical], showsIndicators: false) {
-                        rowsHeader
-                            .frame(width: leftColumnWidth)
-                            .offset(y: offset.y)
-                    }
-                    .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
-                    .scrollDisabled(true)
-                } else {
-                    ScrollView([.vertical], showsIndicators: false) {
-                        rowsHeader
-                            .frame(width: leftColumnWidth)
-                            .offset(y: offset.y)
-                    }
-                    .simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
-                }
+                )
             }
-            
+
+            // Header as a separate KVO-synced scroll view, not a pinned Section (a Section breaks TextEditor editing).
             VStack(alignment: .leading, spacing: 0) {
-                if #available(iOS 16, *) {
-                    ScrollView([.horizontal], showsIndicators: false) {
-                        colsHeader
-                            .offset(x: offset.x)
-                    }
-                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
-                    .scrollDisabled(true)
-                } else {
-                    ScrollView([.horizontal], showsIndicators: false) {
-                        colsHeader
-                            .offset(x: offset.x)
-                    }
-                    .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
-                }
-                
-                
+                columnsHeader
                 table
-                    .coordinateSpace(name: "scroll")
             }
         }
         .padding(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
+    }
+
+    @ViewBuilder
+    var columnsHeader: some View {
+        if #available(iOS 16, *) {
+            columnsHeaderScroll.scrollDisabled(true)
+        } else {
+            // iOS 15 has no scrollDisabled: block user drags so the header can't desync from the grid.
+            columnsHeaderScroll.simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
+        }
+    }
+
+    private var columnsHeaderScroll: some View {
+        ScrollView([.horizontal], showsIndicators: false) {
+            colsHeader
+                .background(TableScrollCapture { scrollSync.topScrollView = $0 })
+        }
+        .cornerRadius(14, corners: [.topRight], borderColor: Color.tableCellBorderColor)
+    }
+
+    var leftCornerHeader: some View {
+        HStack(alignment: .center, spacing: 0) {
+            if viewModel.showRowSelector  {
+                Image(systemName: viewModel.tableDataModel.allRowSelected ? "record.circle.fill" : "circle")
+                    .frame(width: 40, height: 60)
+                    .foregroundColor(viewModel.tableDataModel.rowOrder.count == 0 ? Color.gray.opacity(0.4) : nil)
+                    .onTapGesture {
+                        if !viewModel.tableDataModel.allRowSelected {
+                            viewModel.tableDataModel.selectAllRows()
+                        } else {
+                            viewModel.tableDataModel.emptySelection()
+                        }
+                    }
+                    .disabled(viewModel.tableDataModel.rowOrder.count == 0)
+                    .accessibilityIdentifier("SelectAllRowSelectorButton")
+            }
+            Text("#")
+                .frame(width: 40, height: 60)
+                .border(Color.tableCellBorderColor)
+            if viewModel.tableDataModel.canShowSingleClickEditColumn() {
+                Image(systemName: "square.and.pencil")
+                    .frame(width: 40, height: 60)
+                    .foregroundColor(Color.gray.opacity(0.4))
+                    .border(Color.tableCellBorderColor)
+            }
+        }
+        .frame(minHeight: 50)
+        .frame(width: leftColumnWidth, height: 60)
+        .border(Color.tableCellBorderColor)
+        .background(colorScheme == .dark ? Color(UIColor.systemGray6) : Color.tableColumnBgColor)
+        .cornerRadius(14, corners: [.topLeft], borderColor: Color.tableCellBorderColor)
     }
 
     var colsHeader: some View {
@@ -372,51 +376,6 @@ struct TableModalView : View {
         }
     }
     
-    var rowsHeader: some View {
-        LazyVStack(alignment: .leading, spacing: 0) {
-           ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
-                let rowArray = rowModel.cells
-                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
-                HStack(spacing: 0) {
-                    if viewModel.showRowSelector {
-                        Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
-                            }
-                            .accessibilityIdentifier("MyButton")
-                        
-                    }
-                    Text("\(index+1)")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                        .frame(width: 40, height: 60)
-                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                        .border(Color.tableCellBorderColor)
-                        .id("\(index)")
-                    
-                    if viewModel.tableDataModel.canShowSingleClickEditColumn() {
-                        Image(systemName: "square.and.pencil")
-                            .foregroundColor(.blue)
-                            .frame(width: 40, height: 60)
-                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
-                            .border(Color.tableCellBorderColor)
-                            .onTapGesture {
-                                viewModel.tableDataModel.emptySelection()
-                                viewModel.tableDataModel.toggleSelection(rowID: rowModel.rowID)
-                                viewModel.tableDataModel.navigationIntent = .none
-                                dismissKeyboard()
-                                showEditMultipleRowsSheetView = true
-                            }
-                            .accessibilityIdentifier("SingleClickEditButton\(index)")
-                    }
-                }
-            }
-        }
-    }
-    
     // Keeps all columns horizontally scrollable when a filter matches zero rows.
     // minHeight fills the empty body so the whole area catches the horizontal swipe.
     @ViewBuilder
@@ -431,76 +390,24 @@ struct TableModalView : View {
     var table: some View {
         ScrollViewReader { cellProxy in
             GeometryReader { geometry in
-                if #available(iOS 16, *) {
-                    ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                        LazyVStack(alignment: .leading, spacing: 0) {
-                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
-                                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
-                                    .frame(height: 60)
-                            }
-                            emptyFilterSpacer(geometry: geometry)
+                ScrollView([.vertical, .horizontal], showsIndicators: false) {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
+                            let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
+                            TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
+                                .frame(height: 60)
                         }
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
-                        .background( GeometryReader { geo in
-                            Color.clear
-                                .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
-                        })
-                        .onPreferenceChange(ViewOffsetKey.self) { value in
-                            offset = value
-                        }
+                        emptyFilterSpacer(geometry: geometry)
                     }
-                    .accessibilityIdentifier("TableScrollView")
-                    
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
-                            cellProxy.scrollTo(0, anchor: .leading)
-                            let selectedRows = viewModel.tableDataModel.selectedRows
-                            if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    cellProxy.scrollTo(selectedRowID, anchor: .leading)
-                                }
-                                // TODO: (NO-1927) Horizontal grid scrolling intentionally disabled for now.
-//                            if let columnId = viewModel.tableDataModel.scrollToColumnId {
-//                                cellProxy.scrollTo(columnId, anchor: .leading)
-//                            }
-                            }
-                        })
-                    }
-                    .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
-                        // Scroll to keep selected row in view when navigating with arrows
-                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
-                            }
-                        }
-                    }
-                } else {
-                    ScrollView([.vertical, .horizontal], showsIndicators: false) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            ForEach($viewModel.tableDataModel.filteredcellModels, id: \.rowID) { $rowCellModels in
-                                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowCellModels.rowID)
-                                TableRowView(viewModel: viewModel, rowDataModel: $rowCellModels, isSelected: isRowSelected)
-                                    .frame(height: 60)
-                            }
-                            emptyFilterSpacer(geometry: geometry)
-                        }
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
-                        .background( GeometryReader { geo in
-                            Color.clear
-                                .preference(key: ViewOffsetKey.self, value: geo.frame(in: .named("scroll")).origin)
-                        })
-                        .onPreferenceChange(ViewOffsetKey.self) { value in
-                            offset = value
-                        }
-                    }
-                    
-                    .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
-                            cellProxy.scrollTo(0, anchor: .leading)
-                        })
+                    // Removed .fixedSize(vertical: true): it forced full height and eagerly built every row.
+                    .frame(minWidth: geometry.size.width, minHeight: geometry.size.height, alignment: .topLeading)
+                    // KVO on the backing UIScrollView drives the left column (preferences don't fire reliably here).
+                    .background(TableGridScrollReader(sync: scrollSync))
+                }
+                .accessibilityIdentifier("TableScrollView")
+                .onAppear {
+                    DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
+                        cellProxy.scrollTo(0, anchor: .leading)
                         let selectedRows = viewModel.tableDataModel.selectedRows
                         if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
                             withAnimation(.easeInOut(duration: 0.3)) {
@@ -511,13 +418,13 @@ struct TableModalView : View {
 //                                cellProxy.scrollTo(columnId, anchor: .leading)
 //                            }
                         }
-                    }
-                    .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
-                        // Scroll to keep selected row in view when navigating with arrows
-                        if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                cellProxy.scrollTo(selectedRowID, anchor: .leading)
-                            }
+                    })
+                }
+                .onChange(of: viewModel.tableDataModel.selectedRows) { selectedRows in
+                    // Scroll to keep selected row in view when navigating with arrows
+                    if let selectedRowID = selectedRows.first, selectedRows.count == 1 {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            cellProxy.scrollTo(selectedRowID, anchor: .leading)
                         }
                     }
                 }
@@ -533,11 +440,141 @@ struct TableModalView : View {
     }
 }
 
-struct ViewOffsetKey: PreferenceKey {
-    typealias Value = CGPoint
-    static var defaultValue = CGPoint.zero
-    static func reduce(value: inout Value, nextValue: () -> Value) {
-        value.x += nextValue().x
-        value.y += nextValue().y
+/// Shared handles to the left column's and top header's UIScrollViews so the grid can drive their offsets directly in UIKit.
+fileprivate final class TableScrollSync {
+    weak var leftScrollView: UIScrollView?
+    weak var topScrollView: UIScrollView?
+}
+
+/// Observes the grid's UIScrollView and mirrors its offset onto the left column (y) and the header (x). Place in the grid background.
+fileprivate struct TableGridScrollReader: UIViewRepresentable {
+    let sync: TableScrollSync
+
+    func makeUIView(context: Context) -> ReaderView { ReaderView(sync: sync) }
+    func updateUIView(_ uiView: ReaderView, context: Context) {}
+
+    final class ReaderView: UIView {
+        let sync: TableScrollSync
+        private var observation: NSKeyValueObservation?
+
+        init(sync: TableScrollSync) {
+            self.sync = sync
+            super.init(frame: .zero)
+            isUserInteractionEnabled = false
+        }
+        required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            observation = nil
+            guard window != nil else { return }
+            var view = superview
+            while let current = view, !(current is UIScrollView) { view = current.superview }
+            guard let grid = view as? UIScrollView else {
+                assertionFailure("TableGridScrollReader: no enclosing UIScrollView found")
+                return
+            }
+            observation = grid.observe(\.contentOffset, options: [.initial, .new]) { [weak self] grid, _ in
+                guard let self else { return }
+                if let left = self.sync.leftScrollView, left.contentOffset.y != grid.contentOffset.y {
+                    left.contentOffset.y = grid.contentOffset.y
+                }
+                if let top = self.sync.topScrollView, top.contentOffset.x != grid.contentOffset.x {
+                    top.contentOffset.x = grid.contentOffset.x
+                }
+            }
+        }
+    }
+}
+
+/// Walks up to the enclosing UIScrollView and hands it to the given sink. Place in that scroll view's content background.
+fileprivate struct TableScrollCapture: UIViewRepresentable {
+    let assign: (UIScrollView?) -> Void
+
+    func makeUIView(context: Context) -> CaptureView { CaptureView(assign: assign) }
+    func updateUIView(_ uiView: CaptureView, context: Context) {}
+
+    final class CaptureView: UIView {
+        let assign: (UIScrollView?) -> Void
+
+        init(assign: @escaping (UIScrollView?) -> Void) {
+            self.assign = assign
+            super.init(frame: .zero)
+            isUserInteractionEnabled = false
+        }
+        required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            guard window != nil else { return }
+            var view = superview
+            while let current = view, !(current is UIScrollView) { view = current.superview }
+            let scrollView = view as? UIScrollView
+            assert(scrollView != nil, "TableScrollCapture: no enclosing UIScrollView found")
+            assign(scrollView)
+        }
+    }
+}
+
+/// Left row-number/selector column; offset driven by the grid in UIKit, so it only re-evaluates on data changes.
+private struct TableRowNumbersColumn: View {
+    @ObservedObject var viewModel: TableViewModel
+    @Environment(\.colorScheme) var colorScheme
+    let width: CGFloat
+    let sync: TableScrollSync
+    let onEditRow: (RowDataModel) -> Void
+
+    var body: some View {
+        if #available(iOS 16, *) {
+            scroll.scrollDisabled(true)
+        } else {
+            // iOS 15 has no scrollDisabled: block user drags so the column can't desync from the grid.
+            scroll.simultaneousGesture(DragGesture(minimumDistance: 0), including: .all)
+        }
+    }
+
+    private var scroll: some View {
+        ScrollView([.vertical], showsIndicators: false) {
+            rows
+                .frame(width: width)
+                .background(TableScrollCapture { sync.leftScrollView = $0 })
+        }
+    }
+
+    private var rows: some View {
+        LazyVStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(viewModel.tableDataModel.filteredcellModels.enumerated()), id: \.offset) { (index, rowModel) in
+                let rowArray = rowModel.cells
+                let isRowSelected = viewModel.tableDataModel.selectedRows.contains(rowModel.rowID)
+                HStack(spacing: 0) {
+                    if viewModel.showRowSelector {
+                        Image(systemName: isRowSelected ? "record.circle.fill" : "circle")
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                            .onTapGesture {
+                                viewModel.tableDataModel.toggleSelection(rowID: rowArray.first?.rowID ?? "")
+                            }
+                            .accessibilityIdentifier("MyButton")
+                    }
+                    Text("\(index+1)")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                        .frame(width: 40, height: 60)
+                        .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                        .border(Color.tableCellBorderColor)
+                        .id("\(index)")
+                    if viewModel.tableDataModel.canShowSingleClickEditColumn() {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(.blue)
+                            .frame(width: 40, height: 60)
+                            .background(Color.rowSelectionBackground(isSelected: isRowSelected, colorScheme: colorScheme))
+                            .border(Color.tableCellBorderColor)
+                            .onTapGesture { onEditRow(rowModel) }
+                            .accessibilityIdentifier("SingleClickEditButton\(index)")
+                    }
+                }
+            }
+        }
     }
 }
