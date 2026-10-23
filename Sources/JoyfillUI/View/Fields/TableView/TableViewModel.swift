@@ -150,16 +150,19 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func deleteSelectedRow(_ rows: [String]? = nil, shouldSendEvent: Bool = true) {
         let selectedRows: [String] =  rows ?? tableDataModel.selectedRows
+        let selectedRowSet = Set(selectedRows)
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
         tableDataModel.valueToValueElements = tableDataModel.documentEditor?.deleteRows(
             rowIDs: selectedRows,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent
         )
-        for rowID in selectedRows {
-            if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
-                deleteRow(at: index, rowID: rowID)
-            }
-        }
+        // Bulk cleanup in one pass per map/array instead of one pass per deleted row.
+        tableDataModel.documentEditor?.removeCellLogicForRows(fieldID: fieldID, rowIDs: selectedRowSet)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: fieldID, rowIDs: selectedRows)
+        tableDataModel.rowOrder.removeAll { selectedRowSet.contains($0) }
+        tableDataModel.cellModels.removeAll { selectedRowSet.contains($0.rowID) }
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     

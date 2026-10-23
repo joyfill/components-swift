@@ -1035,6 +1035,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func deleteSelectedNestedRow(rowIDs: [String]? = nil, parentRowId: String, nestedKey: String, shouldSendEvent: Bool = true) {
         let selectedRows = rowIDs ?? tableDataModel.selectedRows
+        let selectedRowSet = Set(selectedRows)
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
         let valueToValueElements = tableDataModel.documentEditor?.deleteNestedRows(rowIDs: selectedRows,
                                                                                    fieldIdentifier: tableDataModel.fieldIdentifier,
                                                                                    rootSchemaKey: rootSchemaKey,
@@ -1052,9 +1054,16 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             deletedRowSchemaKey = firstSelectedRow.rowType.parentSchemaKey
         }
         
+        // Bulk cleanup in one pass per map instead of one pass per deleted row.
+        tableDataModel.documentEditor?.removeCellLogicForRows(fieldID: fieldID, rowIDs: selectedRowSet)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: fieldID, rowIDs: selectedRows)
         for rowID in selectedRows {
             if let index = tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rowID }) {
-                deleteRow(at: index, rowID: rowID, isNested: true)
+                let currentRow = tableDataModel.filteredcellModels[index]
+                if currentRow.isExpanded {
+                    collapseTables(index, currentRow, currentRow.rowType.level)
+                }
+                tableDataModel.filteredcellModels.remove(at: index)
             }
             removeChild(rowID, to: parentRowId, schemaID: nestedKey)
         }

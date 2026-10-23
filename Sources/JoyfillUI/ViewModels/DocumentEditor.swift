@@ -293,6 +293,10 @@ public class DocumentEditor: ObservableObject {
     func removeCellLogicForRow(fieldID: String, rowID: String) {
         conditionalLogicHandler.removeCellLogicForRow(fieldID: fieldID, rowID: rowID)
     }
+
+    func removeCellLogicForRows(fieldID: String, rowIDs: Set<String>) {
+        conditionalLogicHandler.removeCellLogicForRows(fieldID: fieldID, rowIDs: rowIDs)
+    }
     
     /// Returns true if the field is force-hidden for the current view via hiddenViews. Takes precedence over conditional logic.
     public func isFieldForceHiddenByView(field: JoyDocField) -> Bool {
