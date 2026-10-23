@@ -508,12 +508,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             (self.tableDataModel.valueToValueElements ?? []).compactMap { row in row.id.map { ($0, row) } },
             uniquingKeysWith: { first, _ in first })
         for rowId in self.tableDataModel.selectedRows {
-            let row = rowsByID[rowId]
+            guard let row = rowsByID[rowId] else { continue }
             for columnID in editedColumnIDs {
-                refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
-                if let row = row {
-                    refreshFormulas(row: row, editedColumnID: columnID)
-                }
+                refreshDependentCellLogic(row: row, editedColumnID: columnID)
+                refreshFormulas(row: row, editedColumnID: columnID)
             }
         }
         isBulkLoading = false
@@ -602,6 +600,13 @@ extension TableViewModel {
         guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
         guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId }) else { return }
 
+        documentEditor.refreshDependentCellLogic(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
+    }
+
+    func refreshDependentCellLogic(row: ValueElement, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor else { return }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
         documentEditor.refreshDependentCellLogic(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }
 }
