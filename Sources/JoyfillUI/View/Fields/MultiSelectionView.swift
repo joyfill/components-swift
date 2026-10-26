@@ -199,7 +199,7 @@ struct SelectAllToggleButton<T>: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.allFieldBorderColor, lineWidth: 1)
             )
         })
