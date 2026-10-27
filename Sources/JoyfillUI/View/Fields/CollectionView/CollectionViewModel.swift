@@ -896,11 +896,12 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
             switch rowDataModel.rowType {
             case .tableExpander(schemaValue: let schemaValue, level: let level, parentID: let parentID, _):
                 let filteredTableColumns = tableDataModel.filterTableColumns(key: schemaValue?.0 ?? "")
+                let nestedRowWidth = rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "", tableDataModel: tableDataModel)
                 cellModels.append(RowDataModel(rowID: UUID().uuidString,
                                                cells: [],
                                                rowType: .header(level: level + 1,
                                                                 tableColumns: filteredTableColumns, schemaKey: schemaValue?.0 ?? ""),
-                                               rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "", tableDataModel: tableDataModel)))
+                                               rowWidth: nestedRowWidth))
                 let childrens = rowToValueElementMap[parentID?.rowID ?? ""]?.childrens ?? [:]
                 let valueToValueElements = childrens[schemaValue?.0 ?? ""]?.valueToValueElements?.filter { valueElement in
                     !(valueElement.deleted ?? false)
@@ -936,7 +937,7 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                                            index: displayIndex,
                                                                            parentID: parentID,
                                                                            parentSchemaKey: schemaValue?.0 ?? ""),
-                                                       rowWidth: rowWidth(filteredTableColumns, level + 1, schemaValue?.0 ?? "", tableDataModel: tableDataModel)
+                                                       rowWidth: nestedRowWidth
                     )
                     if shouldShowRowAccToFilters(schemaKey: schemaValue?.0 ?? "", row: newRowDataModel, tableDataModel: tableDataModel) {
                         cellModels.append(newRowDataModel)
