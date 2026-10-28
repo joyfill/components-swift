@@ -150,6 +150,7 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func deleteSelectedRow(_ rows: [String]? = nil, shouldSendEvent: Bool = true) {
         let selectedRows: [String] =  rows ?? tableDataModel.selectedRows
+        guard !selectedRows.isEmpty else { return }
         let selectedRowSet = Set(selectedRows)
         let fieldID = tableDataModel.fieldIdentifier.fieldID
         tableDataModel.valueToValueElements = tableDataModel.documentEditor?.deleteRows(

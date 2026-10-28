@@ -687,7 +687,6 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
-                    
                     RowDecoratorMenuView(
                         decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey),
                         visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
