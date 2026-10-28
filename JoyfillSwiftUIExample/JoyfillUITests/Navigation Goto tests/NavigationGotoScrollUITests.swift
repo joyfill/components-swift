@@ -20,6 +20,8 @@ final class NavigationGotoScrollUITests: XCTestCase {
     private let tableFieldPositionId = "69709462236416126c166efe"
     private let tableLastRowId = "6abe25bc78732758a2bc9115"
     private let tableLastRowNumber = 38
+    // Unique value seeded into the far-down row's first (text) column so its grid cell is queryable for alignment.
+    private let tableLastRowMarker = "AlignCheck38"
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -98,6 +100,64 @@ final class NavigationGotoScrollUITests: XCTestCase {
         let selectedRowNumber = app.staticTexts["\(tableLastRowNumber)"]
         XCTAssertTrue(waitUntil(5) { selectedRowNumber.exists && selectedRowNumber.isHittable },
                       "Table did not scroll down to the selected row after goto")
+    }
+
+    // Guards the left row-number column against drifting out of sync with the grid after a goto (the late-capture race),
+    // on both the first modal appearance and after the modal is dismissed and re-opened (re-runs scroll + capture).
+    func testGotoKeepsTableRowNumberAlignedWithGridRow() throws {
+        // First appearance.
+        gotoTableLastRowAndDismissForm()
+        assertRowNumberAlignedWithGridCell()
+
+        // Pop the table modal, then navigate into the same row again so the modal reappears and re-scrolls.
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+        let pathField = app.textFields["NavigationManualPathField"]
+        XCTAssertTrue(pathField.waitForExistence(timeout: 5),
+                      "Manual path field not found after dismissing the modal")
+
+        // Reappearance.
+        gotoTableLastRowAndDismissForm()
+        assertRowNumberAlignedWithGridCell()
+    }
+
+    // MARK: - Helpers
+
+    // Navigates via goto into the far-down table row and dismisses the row form it opens.
+    private func gotoTableLastRowAndDismissForm(file: StaticString = #file, line: UInt = #line) {
+        let pathField = app.textFields["NavigationManualPathField"]
+        XCTAssertTrue(pathField.waitForExistence(timeout: 5),
+                      "Manual path field not found on Navigation Test screen", file: file, line: line)
+
+        pathField.tap()
+        // Clear any text left from a previous goto so the path isn't concatenated.
+        if let current = pathField.value as? String, !current.isEmpty {
+            pathField.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: current.count))
+        }
+        pathField.typeText("\(tablePageId)/\(tableFieldPositionId)/\(tableLastRowId)")
+
+        app.dismissKeyboardIfVisible()
+        app.buttons["NavigationManualPathGoButton"].tap()
+        let dismissButton = app.buttons
+            .matching(identifier: "DismissEditSingleRowSheetButtonIdentifier").firstMatch
+        XCTAssertTrue(dismissButton.waitForExistence(timeout: 8),
+                      "Row form sheet should open after goto navigates into the table", file: file, line: line)
+        dismissButton.tap()
+    }
+
+    // The left-column number and the selected row's grid cell (seeded with a unique value) must share a vertical center.
+    private func assertRowNumberAlignedWithGridCell(file: StaticString = #file, line: UInt = #line) {
+        let selectedRowNumber = app.staticTexts["\(tableLastRowNumber)"]
+        XCTAssertTrue(waitUntil(5) { selectedRowNumber.exists && selectedRowNumber.isHittable },
+                      "Table did not scroll down to the selected row after goto", file: file, line: line)
+
+        let gridRowCell = app.textViews.matching(NSPredicate(format: "value == %@", tableLastRowMarker)).firstMatch
+        XCTAssertTrue(waitUntil(5) { gridRowCell.exists },
+                      "Grid cell for the selected row not found", file: file, line: line)
+
+        // One row is 60pt tall; any real misalignment lands a full row (>=60pt) away, so 20pt is a safe threshold.
+        let delta = abs(selectedRowNumber.frame.midY - gridRowCell.frame.midY)
+        XCTAssertLessThan(delta, 20,
+                          "Row number and grid row are vertically misaligned by \(delta)pt", file: file, line: line)
     }
 
 }
