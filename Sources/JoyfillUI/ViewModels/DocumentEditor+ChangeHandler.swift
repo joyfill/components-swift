@@ -1532,13 +1532,15 @@ extension DocumentEditor {
         events?.onChange(changes: changes, document: document)
     }
     
-    /// Builds one standardized v2 bulk event from a batch of per-row changes. Returns `nil` unless it's a multi-row `rowUpdate`/`rowDelete`.
-    /// `bulkRowUpdate` → `{ rows: [rowId], columns: [{ id, value }] }`; `bulkRowDelete` → `{ rows: [{ _id, cells }] }`.
+    /// Returns `nil` for non-`rowUpdate`/`rowDelete` input; passes a single change through unchanged; consolidates 2+ into one v2 `bulkRowUpdate`/`bulkRowDelete` event.
     public static func makeBulkChange(from changes: [Change]) -> Change? {
-        guard changes.count > 1, let first = changes.first, let target = first.target,
+        guard let first = changes.first,
+              let target = first.target,
               target == "field.value.rowUpdate" || target == "field.value.rowDelete" else {
             return nil
-        }  
+        }
+        // A single change needs no consolidation — return the original event as-is.
+        if changes.count == 1 { return first }
         
         let parentPath = first.change?["parentPath"] as? String
         let schemaId = first.change?["schemaId"] as? String
