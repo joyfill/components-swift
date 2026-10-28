@@ -17,7 +17,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     let collectionFieldID = "67ddc52d35de157f6d7ebb63"
     
     func documentEditor(document: JoyDoc) -> DocumentEditor {
-        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false))
+        DocumentEditor(document: document, config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
     }
     // Delete Row tests
     func testDeleteRow() {
@@ -214,6 +214,35 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
         XCTAssertNotNil(duplicatedRowID)
     }
     
+    // When enableRowDuplicates is false, duplicateRows must no-op: no new rows, document untouched, no onChange.
+    func testDuplicateRowDisabledIsNoOp() {
+        let tableFieldID = "67612793c4e6a5e6a05e64a3"
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setRequiredTableField(hideColumn: false, isTableRequired: false, isColumnRequired: false, areCellsEmpty: false, isZeroRows: false, isColumnsZero: false, isRowOrderNil: false)
+            .setTableFieldPosition(hideColumn: false)
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: false)))
+
+        let initialRowOrder = documentEditor.field(fieldID: tableFieldID)?.rowOrder
+        let initialElements = documentEditor.field(fieldID: tableFieldID)?.valueToValueElements
+
+        let result = documentEditor.duplicateRows(rowIDs: ["67612793a6cd1f9d39c8433d"], fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID))
+
+        XCTAssertTrue(result.0.isEmpty, "No changes should be returned when duplication is disabled")
+        XCTAssertEqual(result.1, initialElements, "Disabled duplication must return the field's current elements unchanged, not an empty list")
+        XCTAssertEqual(documentEditor.field(fieldID: tableFieldID)?.rowOrder, initialRowOrder, "rowOrder must be untouched when duplication is disabled")
+        XCTAssertEqual(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements, initialElements, "Field elements must be untouched when duplication is disabled")
+        XCTAssertEqual(events.onChangeCallCount, 0, "onChange must not fire when duplication is disabled")
+    }
+
     // Set value to nil - set true to isZeroRows
     func testSetDuplicateValueToNil() {
         let tableFieldID = "67612793c4e6a5e6a05e64a3"
@@ -436,7 +465,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateRowQuantityOneEmitsRowCreate() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
@@ -451,7 +480,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateRowQuantityManyEmitsBulkRowCreate() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
@@ -468,7 +497,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateRowBulkChangesCarryRowPayload() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = documentEditor.duplicateRows(rowIDs: [dupLastRowID], quantity: 3, fieldIdentifier: duplicateFieldIdentifier())
@@ -487,7 +516,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateRowBulkTargetIndexesAreConsecutive() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         // Duplicating the last row (index 4) three times → indexes 5, 6, 7.
@@ -520,7 +549,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateMultipleRowsWithQuantityEmitsBulk() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 2, fieldIdentifier: duplicateFieldIdentifier())
@@ -537,7 +566,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateTwoRowsQuantityOneStillEmitsBulk() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = documentEditor.duplicateRows(rowIDs: [dupFirstRowID, dupMidRowID], quantity: 1, fieldIdentifier: duplicateFieldIdentifier())
@@ -552,7 +581,7 @@ final class DocumentEditorChangeHandlerTests: XCTestCase {
     func testDuplicateEmptyRowIDsIsNoOp() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let documentEditor = DocumentEditor(document: duplicateTableDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = documentEditor.duplicateRows(rowIDs: [], fieldIdentifier: duplicateFieldIdentifier())
@@ -1669,6 +1698,40 @@ extension DocumentEditorChangeHandlerTests {
         XCTAssertTrue(captured.isEmpty)
     }
 
+    // When enableRowDuplicates is false, duplicateNestedRows must no-op: no new rows, document untouched, no onChange.
+    func testDuplicateNestedRowDisabledIsNoOp() {
+        let collectionFieldID = "67ddc52d35de157f6d7ebb63"
+        let parentRowId = "67ddc537b7c2fce05d0c8615"
+        let nestedKey = "67ddc5c9910a394a1324bfbe"
+        let existingRowID = "67ddd18bc3a74e6b350987f9"
+
+        let document = JoyDoc()
+            .setDocument()
+            .setFile()
+            .setMobileView()
+            .setPageFieldInMobileView()
+            .setPageField()
+            .setCollectionField()
+            .setCollectionFieldPosition()
+
+        var captured: [Change] = []
+        let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
+        let documentEditor = DocumentEditor(document: document, config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: false)))
+
+        let initialElements = documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements
+
+        let result = documentEditor.duplicateNestedRows(selectedRowIds: [existingRowID],
+                                                        fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID, pageID: pageID, fileID: fileID),
+                                                        rootSchemaKey: collectionFieldID,
+                                                        nestedKey: nestedKey,
+                                                        parentRowId: parentRowId)
+
+        XCTAssertTrue(result.0.isEmpty, "No changes should be returned when duplication is disabled")
+        XCTAssertEqual(result.1, initialElements, "Disabled duplication must return the field's current elements unchanged, not an empty list")
+        XCTAssertEqual(documentEditor.field(fieldID: collectionFieldID)?.valueToValueElements, initialElements, "Field elements must be untouched when duplication is disabled")
+        XCTAssertEqual(events.onChangeCallCount, 0, "onChange must not fire when duplication is disabled")
+    }
+
     // Bulk delete with a mix of existing and non-existing rowIDs: only the existing ones get a rowDelete event,
     // and the document only loses the existing ones.
     func testBulkDeleteNestedCollectionItemsWithOneNonExistingRowID() {
@@ -2059,7 +2122,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionNestedRowQuantityOneEmitsRowCreate() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
@@ -2078,7 +2141,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionNestedRowQuantityManyEmitsBulkRowCreate() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
@@ -2233,7 +2296,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionNestedRowBulkChangesCarryRowPayload() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
@@ -2262,7 +2325,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionNestedRowBulkTargetIndexesAreConsecutive() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow],
@@ -2305,7 +2368,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionMultipleNestedRowsWithQuantityEmitsBulk() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
@@ -2326,7 +2389,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionTwoNestedRowsQuantityOneStillEmitsBulk() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         captured.removeAll()
 
         _ = editor.duplicateNestedRows(selectedRowIds: [dupColNestedPlainRow, dupColNestedThirdRow],
@@ -2347,7 +2410,7 @@ extension DocumentEditorChangeHandlerTests {
     func testDuplicateCollectionEmptyRowIDsIsNoOp() {
         var captured: [Change] = []
         let events = CaptureChangeHandler { changes, _ in captured.append(contentsOf: changes) }
-        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false))
+        let editor = DocumentEditor(document: duplicateCollectionDocument(), config: DocumentEditorConfig(events: events, validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let beforeRoot = rootRows(editor).count
         let beforeNested = nestedRows(editor, parentId: dupColRootWithChildren, schemaKey: dupColNestedKey).count
         captured.removeAll()

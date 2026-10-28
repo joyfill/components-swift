@@ -44,7 +44,8 @@ final class RequiredLogicTests: XCTestCase {
                 mode: mode,
                 license: ProcessInfo.processInfo.environment["JOYFILL_TEST_LICENSE"] ?? licenseKey,
                 validateSchema: validateSchema,
-                page: PageConfig(enableDuplicates: isPageDuplicateEnabled)
+                page: PageConfig(enableDuplicates: isPageDuplicateEnabled),
+                display: DisplayConfig(enableRowDuplicates: true)
             )
         )
         if validateSchema {
