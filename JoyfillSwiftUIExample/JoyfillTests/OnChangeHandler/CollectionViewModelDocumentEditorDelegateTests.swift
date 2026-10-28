@@ -1139,7 +1139,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     func testDuplicateRow_root_blockedWhenQuantityExceedsLimit() async throws {
         // One free slot, but the user asks to duplicate 3 rows.
-        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 5), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
@@ -1151,7 +1151,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     func testDuplicateRow_root_allowedWhenQuantityFitsLimit() async throws {
         // Two free slots, duplicate two rows — fills to the limit.
-        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 6), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: rootSchemaID, 6), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
@@ -1162,7 +1162,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
     }
 
     func testDuplicateRow_root_allowedWhenNoLimit() async throws {
-        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
@@ -1259,7 +1259,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     func testDuplicateRow_withChildren_blockedWhenGrandchildExceedsLimit() async throws {
         // Depth-3 maxRows 2, but a copied Depth-3 table would carry three rows.
-        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
@@ -1272,7 +1272,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     func testDuplicateRow_withChildren_allowedWhenDescendantAtCapacity() async throws {
         // Depth-3 maxRows 3 == the largest copied Depth-3 table, so every copy fits exactly.
-        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 3), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 3), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
@@ -1285,7 +1285,7 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
     func testDuplicateRow_withoutChildren_allowedEvenWhenDescendantWouldExceedLimit() async throws {
         // Depth-3 maxRows 2 would overflow if children were copied, but includeChildren is false.
-        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false))
+        let documentEditor = DocumentEditor(document: documentWithSchemaMaxRows(schemaKey: depth3SchemaID, 2), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: true)))
         let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
         sleep(10)
         XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
@@ -1294,5 +1294,21 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
 
         XCTAssertEqual(rootRowCount(documentEditor), 5,
                        "Without children the descendant limit is irrelevant and duplication succeeds")
+    }
+
+    // With row duplication disabled, duplicating through the VM must be a no-op that leaves the
+    // existing rows intact rather than wiping them.
+    func testDuplicateRow_disabled_leavesRowsIntact() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false, display: DisplayConfig(enableRowDuplicates: false)))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+        XCTAssertEqual(rootRowCount(documentEditor), 4, "Precondition: four root rows")
+
+        viewModel.duplicateRow(rowID: rootRowA, quantity: 2)
+
+        XCTAssertEqual(rootRowCount(documentEditor), 4,
+                       "Duplication disabled must be a no-op, not a wipe of the live rows")
+        XCTAssertFalse(documentEditor.field(fieldID: tableFieldID)?.valueToValueElements?.isEmpty ?? true,
+                       "The field's elements must not be cleared when duplication is disabled")
     }
 }
