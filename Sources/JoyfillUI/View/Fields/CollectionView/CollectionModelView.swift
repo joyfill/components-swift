@@ -687,11 +687,11 @@ struct CollectionRowsHeaderView: View {
                         .accessibilityIdentifier("SingleClickEditNestedButton\(nastedRowIndex)")
                 }
                 if viewModel.showRowDecorators(forSchemaKey: parentSchemaKey) {
-                    let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
                     RowDecoratorMenuView(
                         decorators: viewModel.getCollectionRowDecorators(forRowID: rowModel.rowID, schemaKey: parentSchemaKey),
                         visibleLimit: viewModel.decoratorConfig.visibleLimitInRows
                     ) { decorator in
+                        let parentPathForNested = viewModel.getParenthPath(rowId: rowModel.rowID)
                         viewModel.tableDataModel.documentEditor?.reportDecoratorAction(
                             fieldIdentifier: viewModel.tableDataModel.fieldIdentifier,
                             action: decorator.action ?? "",
