@@ -150,16 +150,20 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
     
     func deleteSelectedRow(_ rows: [String]? = nil, shouldSendEvent: Bool = true) {
         let selectedRows: [String] =  rows ?? tableDataModel.selectedRows
+        guard !selectedRows.isEmpty else { return }
+        let selectedRowSet = Set(selectedRows)
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
         tableDataModel.valueToValueElements = tableDataModel.documentEditor?.deleteRows(
             rowIDs: selectedRows,
             fieldIdentifier: tableDataModel.fieldIdentifier,
             shouldSendEvent: shouldSendEvent
         )
-        for rowID in selectedRows {
-            if let index = tableDataModel.rowOrder.firstIndex(of: rowID) {
-                deleteRow(at: index, rowID: rowID)
-            }
-        }
+        // Bulk cleanup in one pass per map/array instead of one pass per deleted row.
+        tableDataModel.documentEditor?.removeCellLogicForRows(fieldID: fieldID, rowIDs: selectedRowSet)
+        tableDataModel.documentEditor?.removeFormulaValues(fieldID: fieldID, rowIDs: selectedRows)
+        tableDataModel.rowOrder.removeAll { selectedRowSet.contains($0) }
+        tableDataModel.cellModels.removeAll { selectedRowSet.contains($0.rowID) }
+        tableDataModel.filterRowsIfNeeded()
         tableDataModel.emptySelection()
     }
     
@@ -505,12 +509,10 @@ class TableViewModel: ObservableObject, TableDataViewModelProtocol {
             (self.tableDataModel.valueToValueElements ?? []).compactMap { row in row.id.map { ($0, row) } },
             uniquingKeysWith: { first, _ in first })
         for rowId in self.tableDataModel.selectedRows {
-            let row = rowsByID[rowId]
+            guard let row = rowsByID[rowId] else { continue }
             for columnID in editedColumnIDs {
-                refreshDependentCellLogic(rowId: rowId, editedColumnID: columnID)
-                if let row = row {
-                    refreshFormulas(row: row, editedColumnID: columnID)
-                }
+                refreshDependentCellLogic(row: row, editedColumnID: columnID)
+                refreshFormulas(row: row, editedColumnID: columnID)
             }
         }
         isBulkLoading = false
@@ -599,6 +601,13 @@ extension TableViewModel {
         guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
         guard let row = (elements ?? tableDataModel.valueToValueElements)?.first(where: { $0.id == rowId }) else { return }
 
+        documentEditor.refreshDependentCellLogic(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
+    }
+
+    func refreshDependentCellLogic(row: ValueElement, editedColumnID: String) {
+        guard let documentEditor = tableDataModel.documentEditor else { return }
+        let fieldID = tableDataModel.fieldIdentifier.fieldID
+        guard documentEditor.hasCellLogicDependents(fieldID: fieldID, editedColumnID: editedColumnID) else { return }
         documentEditor.refreshDependentCellLogic(fieldID: fieldID, editedColumnID: editedColumnID, row: row)
     }
 }

@@ -744,6 +744,11 @@ extension ConditionalLogicHandler {
         cellRequiredMap[fieldID] = cellRequiredMap[fieldID]?.filter { $0.key.rowID != rowID }
     }
 
+    func removeCellLogicForRows(fieldID: String, rowIDs: Set<String>) {
+        cellVisibilityMap[fieldID] = cellVisibilityMap[fieldID]?.filter { !rowIDs.contains($0.key.rowID) }
+        cellRequiredMap[fieldID] = cellRequiredMap[fieldID]?.filter { !rowIDs.contains($0.key.rowID) }
+    }
+
     func shouldShowCell(fieldID: String, columnID: String, rowID: String) -> Bool {
         let cellID = CellID(rowID: rowID, columnID: columnID)
         return cellVisibilityMap[fieldID]?[cellID] ?? true
