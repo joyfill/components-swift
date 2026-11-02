@@ -312,16 +312,46 @@ struct CollectionModalTopNavigationView: View {
     }
 }
 
+/// Reference-typed edit buffer so mutating `changes` never re-renders the sheet (keystroke lag at 11k rows).
+final class RowFormChangesBox {
+    var changes = [String: ValueUnion]()
+}
+
 struct CollectionEditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State var changes = [String: ValueUnion]()
+    @State private var changesBox = RowFormChangesBox()
+    /// Bulk-edit columns currently non-empty; drives the required asterisk, updated only on empty↔filled transitions.
+    @State private var filledColumns = Set<String>()
     @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
+    /// Non-`@State` accessor over the box so existing call sites are unchanged and never trigger re-renders.
+    private var changes: [String: ValueUnion] {
+        get { changesBox.changes }
+        nonmutating set { changesBox.changes = newValue }
+    }
+
     init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
+    }
+
+    /// Writes `@State` only on an empty↔filled transition so repeated keystrokes don't re-render the sheet.
+    private func updateFilledState(columnID: String) {
+        let nowFilled: Bool
+        switch changesBox.changes[columnID] {
+        case .string(let str): nowFilled = !str.isEmpty
+        case .double, .int, .bool: nowFilled = true
+        case .array(let arr): nowFilled = !arr.isEmpty
+        case .valueElementArray(let arr): nowFilled = !arr.isEmpty
+        default: nowFilled = false
+        }
+        if nowFilled, !filledColumns.contains(columnID) {
+            filledColumns.insert(columnID)
+        } else if !nowFilled, filledColumns.contains(columnID) {
+            filledColumns.remove(columnID)
+        }
     }
 
     /// Whether the current selection's schema level can accept another row — resolves the level once, then asks the shared rule.
@@ -335,7 +365,8 @@ struct CollectionEditMultipleRowsSheetView: View {
     }
 
     private func resetChanges() {
-        changes = [:]
+        changesBox.changes = [:]
+        if !filledColumns.isEmpty { filledColumns = [] } // only touch @State when something actually clears
     }
     
     private func isColumnEffectivelyRequired(_ col: FieldTableColumn, schemaKey: String) -> Bool {
@@ -682,6 +713,10 @@ struct CollectionEditMultipleRowsSheetView: View {
                             default:
                                 break
                             }
+                            // Refresh the required-asterisk only on an empty↔filled transition, not per keystroke.
+                            if isUsedForBulkEdit {
+                                updateFilledState(columnID: columnID)
+                            }
                             Task { @MainActor in
                                 if !isUsedForBulkEdit {
                                     await viewModel.bulkEdit(changes: changes)
@@ -689,33 +724,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 }
                             }
                         }
-                        
-                        var isFilledBasedOnChange: Bool {
-                            guard isUsedForBulkEdit, let changeValue = changes[columnID] else {
-                                return false
-                            }
-                            
-                            switch changeValue {
-                            case .string(let str):
-                                return !str.isEmpty
-                            case .double:
-                                return true
-                            case .int:
-                                return true
-                            case .bool:
-                                return true
-                            case .array(let arr):
-                                return !arr.isEmpty
-                            case .valueElementArray(let arr):
-                                return !arr.isEmpty
-                            case .null:
-                                return false
-                            default:
-                                return false
-                            }
-                        }
-                        
-                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.isFilled
+
+                        let isEffectivelyFilled = isUsedForBulkEdit ? filledColumns.contains(columnID) : cellModel.isFilled
                         
                         switch col.type {
                         case .text:
