@@ -585,7 +585,11 @@ private struct PageSelectionSheetPresenter: ViewModifier {
             .onDisappear { documentEditor.deactivatePageSheetHost(hostID) }
             .sheet(isPresented: isPresented) {
             let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
-            if #available(iOS 16, *) {
+            if #available(iOS 16.4, *) {
+                pickerView
+                    .presentationDetents([.medium])
+                    .presentationContentInteraction(.scrolls)
+            } else if #available(iOS 16, *) {
                 pickerView.presentationDetents([.medium])
             } else {
                 pickerView
