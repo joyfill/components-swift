@@ -708,9 +708,9 @@ extension ConditionalLogicHandler {
 
     private func updateCellLogicForRow(fieldID: String, columns: [FieldTableColumn], row: ValueElement) {
         for column in columns {
-            guard let columnID = column.id else { continue }
-            updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
-            _ = updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+            guard column.id != nil else { continue }
+            updateCellVisibility(fieldID: fieldID, columns: columns, column: column, row: row)
+            _ = updateCellRequired(fieldID: fieldID, columns: columns, column: column, row: row)
         }
     }
 
@@ -719,19 +719,17 @@ extension ConditionalLogicHandler {
     /// action decides per row (show -> visible when matched, hide -> visible when not matched); the
     /// static `cellsHidden` baseline applies only to columns without logic.
     @discardableResult
-    private func updateCellVisibility(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
-        guard let rowID = row.id else { return false }
+    private func updateCellVisibility(fieldID: String, columns: [FieldTableColumn], column: FieldTableColumn, row: ValueElement) -> Bool {
+        guard let rowID = row.id, let columnID = column.id else { return false }
         let cellID = CellID(rowID: rowID, columnID: columnID)
 
-        let column = columns.first(where: { $0.id == columnID })
-
         let newValue: Bool
-        if let cellLogic = column?.cellVisibilityLogic, let action = cellLogic.action {
+        if let cellLogic = column.cellVisibilityLogic, let action = cellLogic.action {
             let model = cellLogicModel(logic: cellLogic, columns: columns, row: row)
             let matched = shoulTakeActionOnThisField(logic: model)
             newValue = (action == "hide") ? !matched : matched
         } else {
-            newValue = !(column?.cellsHidden ?? false)
+            newValue = !(column.cellsHidden ?? false)
         }
 
         let didChange = cellVisibilityMap[fieldID]?[cellID] != newValue
@@ -764,22 +762,24 @@ extension ConditionalLogicHandler {
         for ref in refs {
             guard let field = documentEditor.field(fieldID: ref.tableFieldID) else { continue }
             if let schemaID = ref.schemaID {
-                guard let columns = field.schema?[schemaID]?.tableColumns else { continue }
+                guard let columns = field.schema?[schemaID]?.tableColumns,
+                      let column = columns.first(where: { $0.id == ref.columnID }) else { continue }
                 for row in rowsForCollectionSchema(field: field, schemaID: schemaID) {
-                    if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                    if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, column: column, row: row) {
                         changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
                     }
-                    if updateCellRequired(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                    if updateCellRequired(fieldID: ref.tableFieldID, columns: columns, column: column, row: row) {
                         changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
                     }
                 }
             } else {
-                guard let columns = field.tableColumns else { continue }
+                guard let columns = field.tableColumns,
+                      let column = columns.first(where: { $0.id == ref.columnID }) else { continue }
                 for row in field.valueToValueElements ?? [] {
-                    if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                    if updateCellVisibility(fieldID: ref.tableFieldID, columns: columns, column: column, row: row) {
                         changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
                     }
-                    if updateCellRequired(fieldID: ref.tableFieldID, columns: columns, columnID: ref.columnID, row: row) {
+                    if updateCellRequired(fieldID: ref.tableFieldID, columns: columns, column: column, row: row) {
                         changedColumnsByTable[ref.tableFieldID, default: []].insert(ref.columnID)
                     }
                 }
@@ -854,8 +854,8 @@ extension ConditionalLogicHandler {
         }
     }
     
-    private func updateCellRequired(fieldID: String, columns: [FieldTableColumn], columnID: String, row: ValueElement) -> Bool {
-        guard let rowID = row.id, let column = columns.first(where: { $0.id == columnID }) else { return false }
+    private func updateCellRequired(fieldID: String, columns: [FieldTableColumn], column: FieldTableColumn, row: ValueElement) -> Bool {
+        guard let rowID = row.id, let columnID = column.id else { return false }
         let cellID = CellID(rowID: rowID, columnID: columnID)
 
         let columnRequired = isRequiredLocal(column: column)
@@ -892,8 +892,9 @@ extension ConditionalLogicHandler {
         guard let dependentColumns = cellDependencyMap[fieldID]?[editedColumnID],
               let columns = tableColumns(fieldID: fieldID, schemaID: schemaID) else { return }
         for columnID in dependentColumns {
-            updateCellVisibility(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
-            _ = updateCellRequired(fieldID: fieldID, columns: columns, columnID: columnID, row: row)
+            guard let column = columns.first(where: { $0.id == columnID }) else { continue }
+            updateCellVisibility(fieldID: fieldID, columns: columns, column: column, row: row)
+            _ = updateCellRequired(fieldID: fieldID, columns: columns, column: column, row: row)
         }
     }
 }
