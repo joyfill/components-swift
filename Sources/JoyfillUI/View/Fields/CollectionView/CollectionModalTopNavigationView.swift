@@ -313,7 +313,7 @@ struct CollectionModalTopNavigationView: View {
 }
 
 /// Reference-typed edit buffer so mutating `changes` never re-renders the sheet (keystroke lag at 11k rows).
-final class RowFormChangesBox {
+fileprivate final class RowFormChangesBox {
     var changes = [String: ValueUnion]()
 }
 
