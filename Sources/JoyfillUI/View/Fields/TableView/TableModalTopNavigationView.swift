@@ -10,13 +10,6 @@ struct TableModalTopNavigationView: View {
 
     var body: some View {
         HStack {
-            if let title = viewModel.tableDataModel.title {
-                Text("\(title)")
-                    .font(.headline.bold())
-            }
-
-            Spacer()
-
             if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     dismissKeyboard()

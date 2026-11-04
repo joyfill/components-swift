@@ -69,23 +69,6 @@ struct TableModalView : View {
     
     var body: some View {
         VStack {
-            TableModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                viewModel.tableDataModel.navigationIntent = .none
-                dismissKeyboard()
-                showEditMultipleRowsSheetView = true
-            })
-            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
-                if isDismissingForNavigation {
-                    isDismissingForNavigation = false
-                    dismiss()
-                }
-            }) {
-                EditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
             if currentSelectedCol != Int.min {
                 SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
@@ -93,6 +76,24 @@ struct TableModalView : View {
             scrollArea
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
+        }
+        .modalTopBar(title: viewModel.tableDataModel.title ?? "") {
+            TableModalTopNavigationView(
+                viewModel: viewModel,
+                onEditTap: {
+                    viewModel.tableDataModel.navigationIntent = .none
+                    dismissKeyboard()
+                    showEditMultipleRowsSheetView = true
+                })
+        }
+        .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+            if isDismissingForNavigation {
+                isDismissingForNavigation = false
+                dismiss()
+            }
+        }) {
+            EditMultipleRowsSheetView(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()

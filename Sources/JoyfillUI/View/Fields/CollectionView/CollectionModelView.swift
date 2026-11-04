@@ -60,6 +60,11 @@ struct CollectionModalView : View {
 
     var body: some View {
         VStack {
+            scrollArea
+                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
+        }
+        .modalTopBar(title: viewModel.tableDataModel.title ?? "") {
             CollectionModalTopNavigationView(
                 viewModel: viewModel,
                 onEditTap: {
@@ -71,24 +76,19 @@ struct CollectionModalView : View {
                     dismissKeyboard()
                     showFilterModal = true
                 })
-            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
-                if isDismissingForNavigation {
-                    isDismissingForNavigation = false
-                    dismiss()
-                }
-            }) {
-                CollectionEditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
+        }
+        .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+            if isDismissingForNavigation {
+                isDismissingForNavigation = false
+                dismiss()
             }
-            .sheet(isPresented: $showFilterModal) {
-                CollectionFilterModal(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isSearching)
-            }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-
-            scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
-                .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
+        }) {
+            CollectionEditMultipleRowsSheetView(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
+        }
+        .sheet(isPresented: $showFilterModal) {
+            CollectionFilterModal(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isSearching)
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()

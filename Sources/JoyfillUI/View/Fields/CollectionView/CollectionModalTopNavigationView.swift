@@ -34,13 +34,6 @@ struct CollectionModalTopNavigationView: View {
 
     var body: some View {
         HStack {
-            if let title = viewModel.tableDataModel.title {
-                Text("\(title)")
-                    .font(.headline.bold())
-            }
-
-            Spacer()
-            
             // Filter button
             Button(action: {
                 onFilterTap?()
