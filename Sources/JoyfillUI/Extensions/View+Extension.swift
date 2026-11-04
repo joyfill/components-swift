@@ -15,7 +15,7 @@ extension View {
         title: String,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
-        let trailingView = trailing()
+        let trailingView = trailing().disableHoverEffect()
         if #available(iOS 26.0, *) {
             self.navigationTitle(title)
                 .navigationBarTitleDisplayMode(.inline)
@@ -30,6 +30,11 @@ extension View {
                     ToolbarItem(placement: .navigationBarTrailing) { trailingView }
                 }
         }
+    }
+
+    @ViewBuilder
+    func disableHoverEffect() -> some View {
+        if #available(iOS 17.0, *) { self.hoverEffectDisabled() } else { self }
     }
 
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner, borderColor: Color, lineWidth: CGFloat = 1) -> some View {
