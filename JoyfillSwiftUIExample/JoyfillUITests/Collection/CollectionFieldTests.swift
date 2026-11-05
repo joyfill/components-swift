@@ -45,10 +45,17 @@ final class CollectionFieldTests: JoyfillUITestsBaseClass {
     
     func returnToRootView() {
         var attempts = 0
-        while app.navigationBars.count > 1 && attempts < 5 {
-            if app.navigationBars.buttons.count > 0 {
+        while attempts < 5 {
+            // Table/collection modals use a custom top bar (no system nav bar); pop those first.
+            let customBacks = app.buttons.matching(identifier: "ModalBackButtonIdentifier")
+            if customBacks.count > 0 {
+                customBacks.element(boundBy: customBacks.count - 1).tap()
+                waitForAppToSettle()
+            } else if app.navigationBars.count > 1 && app.navigationBars.buttons.count > 0 {
                 app.navigationBars.buttons.element(boundBy: 0).tap()
                 waitForAppToSettle()
+            } else {
+                break
             }
             attempts += 1
         }
