@@ -9,27 +9,12 @@ import Foundation
 import SwiftUI
 
 extension View {
-    /// Puts the modal's title and trailing controls in the system nav bar; on iOS 26+ the controls drop the Liquid Glass background.
-    @ViewBuilder
+    /// Custom single-row top bar (back chevron + leading title + trailing controls) replacing the system nav bar, which can't left-align a title without squeezing the controls.
     func modalTopBar<Trailing: View>(
         title: String,
         @ViewBuilder trailing: () -> Trailing
     ) -> some View {
-        let trailingView = trailing().disableHoverEffect()
-        if #available(iOS 26.0, *) {
-            self.navigationTitle(title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) { trailingView }
-                        .sharedBackgroundVisibility(.hidden)
-                }
-        } else {
-            self.navigationTitle(title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) { trailingView }
-                }
-        }
+        modifier(ModalTopBar(title: title, trailing: trailing().disableHoverEffect()))
     }
 
     @ViewBuilder
@@ -63,6 +48,49 @@ private struct FullWidthModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content.ignoresSafeArea(.container, edges: documentEditor.usesFullWidth ? .horizontal : [])
+    }
+}
+
+/// Replaces the system nav bar with one row so the title can sit leading without the bar squeezing it; `dismiss` drives the back chevron.
+private struct ModalTopBar<Trailing: View>: ViewModifier {
+    @Environment(\.dismiss) private var dismiss
+    let title: String
+    let trailing: Trailing
+
+    func body(content: Content) -> some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 12) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "chevron.backward")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .frame(width: 44, height: 44)
+                        .background(
+                            Circle()
+                                .fill(Color(uiColor: .systemBackground))
+                                .shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 1)
+                        )
+                        .contentShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .disableHoverEffect()
+                .accessibilityIdentifier("ModalBackButtonIdentifier")
+
+                Text(title)
+                    .font(.headline.bold())
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                Spacer(minLength: 12)
+
+                trailing
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+
+            content
+        }
+        .navigationBarHidden(true)
     }
 }
 
