@@ -52,7 +52,15 @@ struct CollectionModalView : View {
     @State private var isDismissingForNavigation = false
     /// Plain @State (not @StateObject) so scroll ticks re-render only the sticky overlay, not the whole grid.
     @State private var stickyTracker = CollectionStickyScrollTracker()
-    
+    /// While the keyboard is up (editing a cell) the sticky headers are dropped so they can't cover the focused cell; they return on dismiss.
+    @State private var isKeyboardVisible = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Drop the sticky header only when the keyboard is up AND vertical space is tight (compact height = iPhone landscape); portrait/iPad keep it.
+    private var hidesHeaderForKeyboard: Bool {
+        isKeyboardVisible && verticalSizeClass == .compact
+    }
+
     init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
@@ -134,6 +142,12 @@ struct CollectionModalView : View {
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
         })
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
+        }
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
                 title: Text("Reset Selection"),
@@ -276,6 +290,7 @@ struct CollectionModalView : View {
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
                     .background(CollectionScrollOffsetReader(tracker: stickyTracker))
                     .overlay(alignment: .topLeading) {
+                        if !hidesHeaderForKeyboard {
                         CollectionStickyHeadersView(viewModel: viewModel,
                                                     tracker: stickyTracker,
                                                     rootHeader: AnyView(VStack(alignment: .leading, spacing: 0) {
@@ -283,6 +298,7 @@ struct CollectionModalView : View {
                                                         rootColumnHeaderRow
                                                     }),
                                                     rowBuilder: { AnyView(collectionRow(at: $0)) })
+                        }
                     }
                 }
                 .onAppear {

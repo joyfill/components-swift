@@ -61,6 +61,13 @@ struct TableModalView : View {
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     @State private var isDismissingForNavigation = false
+    @State private var isKeyboardVisible = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Drop the header only when the keyboard is up AND vertical space is tight (compact height = iPhone landscape); portrait/iPad keep it.
+    private var hidesHeaderForKeyboard: Bool {
+        isKeyboardVisible && verticalSizeClass == .compact
+    }
 
     init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
@@ -139,6 +146,12 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
             clearFilter()
         })
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
+        }
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
@@ -252,7 +265,9 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             // Left row-number column: pinned left, synced to the grid via KVO, isolated in its own view.
             VStack(alignment: .leading, spacing: 0) {
-                leftCornerHeader
+                if !hidesHeaderForKeyboard {
+                    leftCornerHeader
+                }
                 TableRowNumbersColumn(
                     viewModel: viewModel,
                     width: leftColumnWidth,
@@ -269,7 +284,9 @@ struct TableModalView : View {
 
             // Header as a separate KVO-synced scroll view, not a pinned Section (a Section breaks TextEditor editing).
             VStack(alignment: .leading, spacing: 0) {
-                columnsHeader
+                if !hidesHeaderForKeyboard {
+                    columnsHeader
+                }
                 table
             }
         }
