@@ -1,0 +1,760 @@
+{
+  "_id": "64f0c0010000000000000001",
+  "type": "template",
+  "stage": "published",
+  "identifier": "pageCopyableDeletableReference",
+  "name": "Page copyable and deletable reference",
+  "createdOn": 1762300800000,
+  "v": "1.0.5",
+  "metadata": {
+    "description": "Shared reference JoyDoc for JS, iOS, and Kotlin. One page per page.copyable / page.deletable case. The mobile view repeats each page with the same _id and the same copyable and deletable. Each page has a text field and a number field with values so a with-values copy is distinguishable from a without-values copy. Notion #1573 / epic #1557."
+  },
+  "files": [
+    {
+      "_id": "64f0c0020000000000000001",
+      "name": "Page copyable and deletable reference",
+      "pageOrder": [
+        "64f0c0110000000000000001",
+        "64f0c0110000000000000002",
+        "64f0c0110000000000000003",
+        "64f0c0110000000000000004",
+        "64f0c0110000000000000005",
+        "64f0c0110000000000000006",
+        "64f0c0110000000000000007",
+        "64f0c0110000000000000008"
+      ],
+      "pages": [
+        {
+          "_id": "64f0c0110000000000000001",
+          "name": "Case 1: copyable missing",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "deletable": true,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000001",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000001"
+            },
+            {
+              "_id": "64f0c0510000000000000001",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000001"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000002",
+          "name": "Case 2: copyable invalid",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": "not-a-mode",
+          "deletable": true,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000002",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000002"
+            },
+            {
+              "_id": "64f0c0510000000000000002",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000002"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000003",
+          "name": "Case 3: with-values only",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": [
+            "with-values"
+          ],
+          "deletable": true,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000003",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000003"
+            },
+            {
+              "_id": "64f0c0510000000000000003",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000003"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000004",
+          "name": "Case 4: without-values only",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": [
+            "without-values"
+          ],
+          "deletable": true,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000004",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000004"
+            },
+            {
+              "_id": "64f0c0510000000000000004",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000004"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000005",
+          "name": "Case 5: with-values and without-values",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": [
+            "with-values",
+            "without-values"
+          ],
+          "deletable": true,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000005",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000005"
+            },
+            {
+              "_id": "64f0c0510000000000000005",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000005"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000006",
+          "name": "Case 6: none",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": [
+            "none"
+          ],
+          "deletable": true,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000006",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000006"
+            },
+            {
+              "_id": "64f0c0510000000000000006",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000006"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000007",
+          "name": "Case 7: deletable false",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": [
+            "with-values"
+          ],
+          "deletable": false,
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000007",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000007"
+            },
+            {
+              "_id": "64f0c0510000000000000007",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000007"
+            }
+          ]
+        },
+        {
+          "_id": "64f0c0110000000000000008",
+          "name": "Case 8: deletable missing",
+          "width": 816,
+          "height": 1056,
+          "rowHeight": 8,
+          "cols": 8,
+          "layout": "grid",
+          "presentation": "normal",
+          "padding": 24,
+          "copyable": [
+            "without-values"
+          ],
+          "fieldPositions": [
+            {
+              "_id": "64f0c0410000000000000008",
+              "type": "text",
+              "displayType": "original",
+              "x": 0,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0210000000000000008"
+            },
+            {
+              "_id": "64f0c0510000000000000008",
+              "type": "number",
+              "displayType": "original",
+              "x": 4,
+              "y": 0,
+              "width": 4,
+              "height": 2,
+              "field": "64f0c0310000000000000008"
+            }
+          ]
+        }
+      ],
+      "views": [
+        {
+          "_id": "64f0c0030000000000000001",
+          "type": "mobile",
+          "pageOrder": [
+            "64f0c0110000000000000001",
+            "64f0c0110000000000000002",
+            "64f0c0110000000000000003",
+            "64f0c0110000000000000004",
+            "64f0c0110000000000000005",
+            "64f0c0110000000000000006",
+            "64f0c0110000000000000007",
+            "64f0c0110000000000000008"
+          ],
+          "pages": [
+            {
+              "_id": "64f0c0110000000000000001",
+              "name": "Case 1: copyable missing",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "deletable": true,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000001",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000001"
+                },
+                {
+                  "_id": "64f0c0710000000000000001",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000001"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000002",
+              "name": "Case 2: copyable invalid",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": "not-a-mode",
+              "deletable": true,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000002",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000002"
+                },
+                {
+                  "_id": "64f0c0710000000000000002",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000002"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000003",
+              "name": "Case 3: with-values only",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": [
+                "with-values"
+              ],
+              "deletable": true,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000003",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000003"
+                },
+                {
+                  "_id": "64f0c0710000000000000003",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000003"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000004",
+              "name": "Case 4: without-values only",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": [
+                "without-values"
+              ],
+              "deletable": true,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000004",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000004"
+                },
+                {
+                  "_id": "64f0c0710000000000000004",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000004"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000005",
+              "name": "Case 5: with-values and without-values",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": [
+                "with-values",
+                "without-values"
+              ],
+              "deletable": true,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000005",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000005"
+                },
+                {
+                  "_id": "64f0c0710000000000000005",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000005"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000006",
+              "name": "Case 6: none",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": [
+                "none"
+              ],
+              "deletable": true,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000006",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000006"
+                },
+                {
+                  "_id": "64f0c0710000000000000006",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000006"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000007",
+              "name": "Case 7: deletable false",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": [
+                "with-values"
+              ],
+              "deletable": false,
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000007",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000007"
+                },
+                {
+                  "_id": "64f0c0710000000000000007",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000007"
+                }
+              ]
+            },
+            {
+              "_id": "64f0c0110000000000000008",
+              "name": "Case 8: deletable missing",
+              "width": 816,
+              "height": 1056,
+              "rowHeight": 1,
+              "cols": 1,
+              "layout": "grid",
+              "presentation": "normal",
+              "padding": 12,
+              "copyable": [
+                "without-values"
+              ],
+              "fieldPositions": [
+                {
+                  "_id": "64f0c0610000000000000008",
+                  "type": "text",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 0,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0210000000000000008"
+                },
+                {
+                  "_id": "64f0c0710000000000000008",
+                  "type": "number",
+                  "displayType": "original",
+                  "x": 0,
+                  "y": 2,
+                  "width": 1,
+                  "height": 2,
+                  "field": "64f0c0310000000000000008"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "_id": "64f0c0210000000000000001",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case1Text",
+      "title": "Sample text",
+      "value": "Case 1: copyable missing text"
+    },
+    {
+      "_id": "64f0c0310000000000000001",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case1Number",
+      "title": "Sample number",
+      "value": 10
+    },
+    {
+      "_id": "64f0c0210000000000000002",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case2Text",
+      "title": "Sample text",
+      "value": "Case 2: copyable invalid text"
+    },
+    {
+      "_id": "64f0c0310000000000000002",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case2Number",
+      "title": "Sample number",
+      "value": 20
+    },
+    {
+      "_id": "64f0c0210000000000000003",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case3Text",
+      "title": "Sample text",
+      "value": "Case 3: with-values only text"
+    },
+    {
+      "_id": "64f0c0310000000000000003",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case3Number",
+      "title": "Sample number",
+      "value": 30
+    },
+    {
+      "_id": "64f0c0210000000000000004",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case4Text",
+      "title": "Sample text",
+      "value": "Case 4: without-values only text"
+    },
+    {
+      "_id": "64f0c0310000000000000004",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case4Number",
+      "title": "Sample number",
+      "value": 40
+    },
+    {
+      "_id": "64f0c0210000000000000005",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case5Text",
+      "title": "Sample text",
+      "value": "Case 5: with-values and without-values text"
+    },
+    {
+      "_id": "64f0c0310000000000000005",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case5Number",
+      "title": "Sample number",
+      "value": 50
+    },
+    {
+      "_id": "64f0c0210000000000000006",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case6Text",
+      "title": "Sample text",
+      "value": "Case 6: none text"
+    },
+    {
+      "_id": "64f0c0310000000000000006",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case6Number",
+      "title": "Sample number",
+      "value": 60
+    },
+    {
+      "_id": "64f0c0210000000000000007",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case7Text",
+      "title": "Sample text",
+      "value": "Case 7: deletable false text"
+    },
+    {
+      "_id": "64f0c0310000000000000007",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case7Number",
+      "title": "Sample number",
+      "value": 70
+    },
+    {
+      "_id": "64f0c0210000000000000008",
+      "file": "64f0c0020000000000000001",
+      "type": "text",
+      "identifier": "case8Text",
+      "title": "Sample text",
+      "value": "Case 8: deletable missing text"
+    },
+    {
+      "_id": "64f0c0310000000000000008",
+      "file": "64f0c0020000000000000001",
+      "type": "number",
+      "identifier": "case8Number",
+      "title": "Sample number",
+      "value": 80
+    }
+  ]
+}

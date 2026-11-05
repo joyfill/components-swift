@@ -1256,9 +1256,10 @@ extension DocumentEditor {
         
         var duplicatedPage = originalPage
         duplicatedPage.id = newPageID
-        // Copied pages are always fully editable per spec
+        // A duplicate is always deletable so an accidental copy can be removed.
+        // copyable is kept exactly from the source page, including a copy of a copy.
+        // Missing or invalid copyable stays unresolved here and reads as [.withValues].
         duplicatedPage.deletable = true
-        duplicatedPage.copyable = [.withValues, .withoutValues]
         
         var fieldMapping: [String: String] = [:]
         var newFields: [JoyDocField] = []
@@ -1272,7 +1273,12 @@ extension DocumentEditor {
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
                 originalAltPage.deletable = true
-                originalAltPage.copyable = [.withValues, .withoutValues]
+                // The mobile view follows the main page, including a missing or invalid copyable.
+                if let sourceCopyable = duplicatedPage.dictionary["copyable"] {
+                    originalAltPage.dictionary["copyable"] = sourceCopyable
+                } else {
+                    originalAltPage.dictionary.removeValue(forKey: "copyable")
+                }
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
