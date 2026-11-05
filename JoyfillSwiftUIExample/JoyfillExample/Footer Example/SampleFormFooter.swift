@@ -14,7 +14,10 @@ import UIKit
 final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
     weak var documentEditor: DocumentEditor? {
-        didSet { isPageNavigationVisible = documentEditor?.showPageNavigationView ?? true }
+        didSet {
+            isPageNavigationVisible = documentEditor?.showPageNavigationView ?? true
+            isFullWidth = documentEditor?.usesFullWidth ?? false
+        }
     }
 
     @Published private(set) var isFooterVisible = true
@@ -22,6 +25,7 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
     @Published private(set) var completedText = ""
     @Published private(set) var navigationEnabled = false
     @Published private(set) var isPageNavigationVisible = true
+    @Published private(set) var isFullWidth = false
 
     private var footerPageID: String?
     private var fieldPaths: [String] = []
@@ -49,6 +53,12 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
     func showPageSelectionSheetTapped() {
         documentEditor?.presentPageSelectionSheet(true)
+    }
+
+    func toggleFullWidthTapped() {
+        guard let editor = documentEditor else { return }
+        editor.usesFullWidth.toggle()
+        isFullWidth = editor.usesFullWidth
     }
 
     func upTapped() {
@@ -212,6 +222,20 @@ struct SampleFormFooterBar: View {
                     .frame(minHeight: 56)
             }
             .accessibilityIdentifier("ShowPageSelectionSheetButtonIdentifier")
+            .buttonStyle(.plain)
+
+            Rectangle()
+                .fill(Color.white.opacity(0.4))
+                .frame(width: 1, height: 26)
+
+            Button(action: { controller.toggleFullWidthTapped() }) {
+                Text(controller.isFullWidth ? "Inset Width" : "Full Width")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: 56)
+            }
+            .accessibilityIdentifier("ToggleFullWidthButtonIdentifier")
             .buttonStyle(.plain)
 
             Rectangle()
