@@ -37,6 +37,16 @@ extension View {
         if #available(iOS 17.0, *) { self.hoverEffectDisabled() } else { self }
     }
 
+    /// Re-apply at each presented surface's root; sheets get a fresh safe-area context that doesn't inherit it.
+    @ViewBuilder
+    func fullWidth(_ documentEditor: DocumentEditor?) -> some View {
+        if let documentEditor {
+            modifier(FullWidthModifier(documentEditor: documentEditor))
+        } else {
+            self
+        }
+    }
+
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner, borderColor: Color, lineWidth: CGFloat = 1) -> some View {
         self
             .clipShape( RoundedCorner(radius: radius, corners: corners) )
@@ -44,6 +54,15 @@ extension View {
                 RoundedCorner(radius: radius, corners: corners)
                     .stroke(borderColor, lineWidth: lineWidth)
             )
+    }
+}
+
+/// Observes the editor so a runtime `usesFullWidth` change re-lays out the surface.
+private struct FullWidthModifier: ViewModifier {
+    @ObservedObject var documentEditor: DocumentEditor
+
+    func body(content: Content) -> some View {
+        content.ignoresSafeArea(.container, edges: documentEditor.usesFullWidth ? .horizontal : [])
     }
 }
 

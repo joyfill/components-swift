@@ -60,6 +60,7 @@ import JoyfillModel
                 MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
                     .environment(\.footerContainer, FooterContainer())
+                    .fullWidth(cellModel.documentEditor)
             }
             .onChange(of: showMoreImages) { newValue in
                 showMoreImages2 = true
@@ -94,6 +95,7 @@ import JoyfillModel
                 MoreImageView(images: $images, valueElements: $valueElements, isMultiEnabled: isMultiEnabled, showToast: $showToast, uploadAction: uploadAction, isUploadHidden: false)
                     .disabled(cellModel.editMode == .readonly)
                     .environment(\.footerContainer, FooterContainer())
+                    .fullWidth(cellModel.documentEditor)
             }
             .onChange(of: showMoreImages) { newValue in
                 showMoreImages2 = true

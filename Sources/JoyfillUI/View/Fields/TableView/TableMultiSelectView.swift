@@ -102,6 +102,7 @@ struct TableMultiSelectView: View {
                 isMulti: isSearching ? false : isMulti
             )
             .disabled(cellModel.editMode == .readonly)
+            .fullWidth(cellModel.documentEditor)
         }
         .onChange(of: showMoreImages) { _ in
             showMoreImages2 = true

@@ -61,6 +61,7 @@ struct TableDropDownOptionListView: View {
                     cellModel.didFocusBlur?(.blur, cellModel.data)
                 }) {
                     TableDropDownOptionList(data: cellModel.data, selectedDropdownValue: $selectedDropdownValue)
+                        .fullWidth(cellModel.documentEditor)
                 }
             }
             .frame(height: 40)

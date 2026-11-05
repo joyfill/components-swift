@@ -101,11 +101,13 @@ struct TableModalView : View {
         }) {
             EditMultipleRowsSheetView(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isBulkLoading)
+                .fullWidth(viewModel.tableDataModel.documentEditor)
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
+        .fullWidth(viewModel.tableDataModel.documentEditor)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,

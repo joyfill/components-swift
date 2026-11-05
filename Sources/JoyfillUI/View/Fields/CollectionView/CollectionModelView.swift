@@ -93,14 +93,17 @@ struct CollectionModalView : View {
         }) {
             CollectionEditMultipleRowsSheetView(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isBulkLoading)
+                .fullWidth(viewModel.tableDataModel.documentEditor)
         }
         .sheet(isPresented: $showFilterModal) {
             CollectionFilterModal(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isSearching)
+                .fullWidth(viewModel.tableDataModel.documentEditor)
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
+        .fullWidth(viewModel.tableDataModel.documentEditor)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,

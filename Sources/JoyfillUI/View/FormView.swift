@@ -26,6 +26,7 @@ public struct Form: View {
                     .safeAreaInset(edge: .bottom) {
                         FormFooterView()
                     }
+                    .fullWidth(documentEditor)
             }
         }
         .environment(\.footerContainer, footerContainer)
@@ -323,6 +324,7 @@ struct FormView: View {
             .listStyle(PlainListStyle())
             .sheet(item: $activeFieldSheet) { presentation in
                 fieldSheet(for: presentation)
+                    .fullWidth(documentEditor)
             }
             .modifier(KeyboardDismissModifier())
             .onChange(of: $currentFocusedFieldsID.wrappedValue) { newValue in
@@ -585,6 +587,7 @@ private struct PageSelectionSheetPresenter: ViewModifier {
             .onDisappear { documentEditor.deactivatePageSheetHost(hostID) }
             .sheet(isPresented: isPresented) {
             let pickerView = PageDuplicateListView(currentPageID: $documentEditor.currentPageID, documentEditor: documentEditor, pageFieldModels: $documentEditor.pageFieldModels)
+                .fullWidth(documentEditor)
             if #available(iOS 16, *) {
                 pickerView.presentationDetents([.medium])
             } else {
