@@ -25,7 +25,7 @@ final class PageDeletableCopyableMobileViewUITests: JoyfillUITestsBaseClass {
 
     /// Returns the mobile-view page row and its index within the current page-row query.
     /// The fixture's mobile-view page is intentionally restrictive (deletable=false,
-    /// copyable=[with-values]) so the duplicate-reset behavior under test is observable.
+    /// copyable=[with-values]) so the copy keeps that copyable and still becomes deletable.
     private func mobileViewPageRowOrFail(file: StaticString = #filePath, line: UInt = #line) -> (row: XCUIElement, index: Int)? {
         let pageRows = app.buttons.matching(identifier: "PageSelectionIdentifier")
         XCTAssertTrue(pageRows.firstMatch.waitForExistence(timeout: 8), "Page rows should appear in the sheet.", file: file, line: line)
@@ -38,12 +38,10 @@ final class PageDeletableCopyableMobileViewUITests: JoyfillUITestsBaseClass {
         return (rows[idx], idx)
     }
 
-    /// Confirms that after duplicating the mobile-view page, the new page is rendered with
-    /// the spec defaults (NO-2131): `deletable=true` (delete button visible) and
-    /// `copyable=[withValues, withoutValues]` (duplicate dialog offers both modes) —
-    /// EVEN WHEN the source page is restrictive. Also asserts the source page's restrictions
-    /// are preserved (i.e. the reset doesn't mutate the source in place).
-    func testDuplicateInMobileViewProducesPageWithDeletableAndFullCopyable() {
+    /// Confirms that after duplicating the mobile-view page, the new page is deletable
+    /// and keeps the source `copyable=[with-values]` (a second tap duplicates directly,
+    /// with no both-modes dialog). The source page stays non-deletable.
+    func testDuplicateInMobileViewKeepsCopyableAndForcesDeletable() {
         openPageNavigationSheet()
         guard let original = mobileViewPageRowOrFail() else { return }
 
@@ -69,30 +67,23 @@ final class PageDeletableCopyableMobileViewUITests: JoyfillUITestsBaseClass {
         let duplicatedRow = pageRows.element(boundBy: original.index + 1)
         XCTAssertTrue(duplicatedRow.waitForExistence(timeout: 3), "Duplicated row should appear right after the original.")
 
-        // 3. Duplicated page must be deletable — delete control is present. If the alt-page
-        //    reset is removed, the duplicate would inherit deletable=false and this fails.
+        // 3. Duplicated page must be deletable — delete control is present.
         let dupDelete = duplicatedRow.descendants(matching: .button).matching(identifier: "PageDeleteIdentifier")
         XCTAssertGreaterThan(dupDelete.count, 0,
-                             "Duplicated page must show delete button (deletable reset to true).")
+                             "Duplicated page must show delete button (deletable forced to true).")
 
-        // 4. Duplicated page's copyable must include both with-values AND without-values.
-        //    If the reset is removed, the duplicate would inherit copyable=[with-values] only
-        //    and tapping duplicate would skip the dialog entirely — failing the wait below.
+        // 4. Duplicated page keeps copyable=[with-values] only, so duplicate runs directly
+        //    and does not offer the both-modes dialog.
         let dupDuplicate = duplicatedRow.descendants(matching: .button).matching(identifier: "PageDuplicateIdentifier").firstMatch
         XCTAssertTrue(dupDuplicate.exists,
-                      "Duplicated page must show duplicate button (copyable reset).")
+                      "Duplicated page must show duplicate button (with-values is still allowed).")
         dupDuplicate.tap()
 
-        let alert = app.alerts.firstMatch
-        XCTAssertTrue(alert.waitForExistence(timeout: 3), "Duplicate dialog should appear on the duplicated page.")
-        // Label-based matching is fine here: the project is not localized. If localization
-        // is introduced, switch these to accessibility identifiers on the alert buttons.
-        let hasWithValues = alert.buttons["With Values"].exists || app.buttons["With Values"].exists
-        let hasWithoutValues = alert.buttons["Without Values"].exists || app.buttons["Without Values"].exists
-        XCTAssertTrue(hasWithValues, "Duplicated page's copyable must include with-values.")
-        XCTAssertTrue(hasWithoutValues, "Duplicated page's copyable must include without-values.")
-
-        if alert.buttons["Cancel"].exists { alert.buttons["Cancel"].tap() }
+        let alert = app.alerts["Duplicate Page"]
+        XCTAssertFalse(alert.waitForExistence(timeout: 2),
+                       "Copy of a with-values-only page must not offer the both-modes dialog.")
+        XCTAssertTrue(waitUntil(5) { pageRows.count == initialCount + 2 },
+                      "Second duplicate should apply with-values directly and add another page.")
 
         // 5. Inverse assertion: the source page must NOT have been mutated in place by the
         //    duplicate flow. Its delete button should still be hidden (deletable=false).
