@@ -1273,12 +1273,8 @@ extension DocumentEditor {
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
                 originalAltPage.deletable = true
-                // The mobile view follows the main page, including a missing or invalid copyable.
-                if let sourceCopyable = duplicatedPage.dictionary["copyable"] {
-                    originalAltPage.dictionary["copyable"] = sourceCopyable
-                } else {
-                    originalAltPage.dictionary.removeValue(forKey: "copyable")
-                }
+                // Mobile view follows the main page's resolved copyable.
+                originalAltPage.copyable = duplicatedPage.copyable
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
