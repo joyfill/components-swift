@@ -17,8 +17,7 @@
           "name": "Web Only Page",
           "deletable": true,
           "copyable": [
-            "with-values",
-            "without-values"
+            "with-values"
           ],
           "fieldPositions": [],
           "metadata": {},

@@ -533,17 +533,16 @@ struct PageDuplicateListView: View {
 
     private func handleDuplicatePage(pageID: String) {
         guard let page = documentEditor.firstPageFor(currentPageID: pageID) else { return }
-        let copyable = page.copyable
-        let hasWithValues = copyable.contains(.withValues)
-        let hasWithoutValues = copyable.contains(.withoutValues)
-
-        if hasWithValues && hasWithoutValues {
+        switch page.duplicateOffer {
+        case .both:
             pageToCopyID = pageID
             showCopyModeDialog = true
-        } else if hasWithoutValues {
+        case .withoutValues:
             documentEditor.duplicatePage(pageID: pageID, copyWithValues: false)
-        } else if hasWithValues {
+        case .withValues:
             documentEditor.duplicatePage(pageID: pageID, copyWithValues: true)
+        case .hidden:
+            break
         }
     }
 
@@ -598,6 +597,32 @@ private struct PageSelectionSheetPresenter: ViewModifier {
     }
 }
 
+/// Duplicate actions offered for a page.
+/// Missing or invalid `copyable` resolves to with-values only. `none` offers nothing.
+enum PageDuplicateOffer: Equatable {
+    case hidden
+    case withValues
+    case withoutValues
+    case both
+}
+
+extension Page {
+    var duplicateOffer: PageDuplicateOffer {
+        let hasWithValues = copyable.contains(.withValues)
+        let hasWithoutValues = copyable.contains(.withoutValues)
+        switch (hasWithValues, hasWithoutValues) {
+        case (true, true):
+            return .both
+        case (false, true):
+            return .withoutValues
+        case (true, false):
+            return .withValues
+        case (false, false):
+            return .hidden
+        }
+    }
+}
+
 // MARK: - Page Row View
 struct PageRowView: View {
     let page: Page
@@ -611,10 +636,9 @@ struct PageRowView: View {
     @State private var isPressed = false
 
     /// Whether this page can be duplicated based on its copyable property.
-    /// Returns false only when copyable contains .none and no other valid modes.
+    /// Hidden when copyable is `none` or has no valid copy mode.
     private var canDuplicate: Bool {
-        let copyable = page.copyable
-        return copyable.contains(.withValues) || copyable.contains(.withoutValues)
+        page.duplicateOffer != .hidden
     }
 
     /// Whether this page is allowed to be deleted per its deletable property.
