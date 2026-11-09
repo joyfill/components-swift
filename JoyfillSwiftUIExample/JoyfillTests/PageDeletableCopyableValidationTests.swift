@@ -9,7 +9,7 @@ import JoyfillModel
 /// - `Page.deletable = false`  → hide delete button; `canDeletePage` returns `(false, [])`
 /// - `Page.copyable = [.none]` → hide duplicate button
 /// - `Page.copyable = [.withValues, .withoutValues]` → show dialog on duplicate
-/// - Copied pages always reset to `deletable=true, copyable=[.withValues,.withoutValues]`
+/// - Copied pages keep the source `copyable` and always set `deletable=true`
 /// - Last-page protection still applies even when `deletable=true`
 final class PageDeletableCopyableValidationTests: XCTestCase {
 
@@ -165,10 +165,10 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
         XCTAssertTrue(duplicatedPage.deletable, "Duplicated page must have deletable=true regardless of original.")
     }
 
-    // MARK: - duplicatePage: resets copyable=[.withValues,.withoutValues]
+    // MARK: - duplicatePage: preserves source copyable
 
-    /// After duplication the copy should always have full copyable access.
-    func testDuplicatePage_ResetsCopyableToFullAccess_WhenOriginalIsNone() {
+    /// After duplication the copy keeps `copyable=[.none]`.
+    func testDuplicatePage_PreservesCopyable_WhenOriginalIsNone() {
         var document = JoyDoc()
             .setDocument()
             .setFile()
@@ -190,12 +190,12 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(duplicatedPage.copyable, [.withValues, .withoutValues],
-                       "Duplicated page must always have copyable=[.withValues,.withoutValues].")
+        XCTAssertEqual(duplicatedPage.copyable, [.none],
+                       "Duplicated page must keep copyable=[.none] from the source page.")
     }
 
-    /// Original has only one copy mode — duplicate should still be fully copyable.
-    func testDuplicatePage_ResetsCopyableToFullAccess_WhenOriginalIsWithValuesOnly() {
+    /// Original has only one copy mode — the duplicate keeps that mode.
+    func testDuplicatePage_PreservesCopyable_WhenOriginalIsWithValuesOnly() {
         var document = JoyDoc()
             .setDocument()
             .setFile()
@@ -217,8 +217,8 @@ final class PageDeletableCopyableValidationTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(duplicatedPage.copyable, [.withValues, .withoutValues],
-                       "Duplicated page must always have full copyable even when original had only withValues.")
+        XCTAssertEqual(duplicatedPage.copyable, [.withValues],
+                       "Duplicated page must keep copyable=[.withValues] from the source page.")
     }
 
     // MARK: - duplicatePage: original page properties unchanged
