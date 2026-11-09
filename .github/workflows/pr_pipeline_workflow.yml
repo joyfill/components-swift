@@ -59,7 +59,7 @@ jobs:
   # 🔍 Job 1: SwiftLint (Code Quality)
   lint:
     name: "🔍 SwiftLint"
-    runs-on: macos-14  # Latest macOS runner
+    runs-on: macos-15  # Latest macOS runner
     if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_lint == 'true')) }}
     steps:
       - name: Checkout code
@@ -100,7 +100,7 @@ jobs:
   # ⚡ Job 2: Swift Syntax Check (Super Fast)
   syntax-check:
     name: "⚡ Syntax Check"
-    runs-on: macos-14
+    runs-on: macos-15
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type != 'custom' || github.event.inputs.run_syntax_check == 'true')) }}
     steps:
       - name: Checkout code
@@ -135,7 +135,7 @@ jobs:
   # 🏗️ Job 3: Full Build
   build:
     name: "🏗️ Build"
-    runs-on: macos-14
+    runs-on: macos-15
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_build == 'true'))) }}
     needs: [syntax-check]
     steps:
@@ -189,7 +189,7 @@ jobs:
   # 🧪 Job 4: Unit Tests
   unit-tests:
     name: "🧪 Unit Tests"
-    runs-on: macos-14
+    runs-on: macos-15
     if: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'pre-merge' || github.event.inputs.pipeline_type == 'full-validation' || github.event.inputs.pipeline_type == 'with-lint' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_unit_tests == 'true'))) }}
     needs: [build]
     steps:
@@ -264,7 +264,7 @@ jobs:
   # 🖱️ Job 5: UI Tests
   ui-tests:
     name: "🖱️ UI Tests"
-    runs-on: macos-14
+    runs-on: macos-15
     if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.pipeline_type == 'full-validation' || (github.event.inputs.pipeline_type == 'custom' && github.event.inputs.run_ui_tests == 'true')) }}
     needs: [build]
     timeout-minutes: 30  # ← HERE IS THE 30-MINUTE TIMEOUT! 🎯
@@ -317,7 +317,7 @@ jobs:
   # 📊 Job 6: Results Summary
   results-summary:
     name: "📊 Results Summary"
-    runs-on: macos-14
+    runs-on: macos-15
     needs: [lint, syntax-check, build, unit-tests, ui-tests]
     if: always()
     steps:
