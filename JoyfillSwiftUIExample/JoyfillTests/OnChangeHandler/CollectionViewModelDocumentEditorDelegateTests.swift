@@ -776,6 +776,56 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
         XCTAssertEqual(cellText(documentEditor, row: rootRowA, column: rootTextColumnID), "Testing", "bulkEdit must complete and persist despite a truncated cells array")
     }
 
+    // MARK: - updateCellModelForNested — regression for the ServiceTrade/RC31 OOB crash
+    //
+    // A nested rowUpdate without schemaId falls back to the root schema, so the caller's
+    // `colIndex` is computed against the (wider) root columns and can point past the
+    // nested row's own `cells`. The old body did `cells[colIndex]` directly → EXC_BAD_ACCESS.
+    // The fix ignores the positional colIndex and re-resolves the cell by its column id.
+
+    // colIndex is deliberately out of range; the fix must still land the update on the
+    // correct cell by matching its column id, not crash on cells[colIndex].
+    func testUpdateCellModelForNested_outOfRangeColIndex_matchesByColumnIDInsteadOfCrashing() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        guard let idx = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rootRowA }),
+              let cell = viewModel.tableDataModel.filteredcellModels[idx].cells.first(where: { $0.data.id == rootTextColumnID }) else {
+            return XCTFail("Row \(rootRowA) / column \(rootTextColumnID) not found in filteredcellModels")
+        }
+
+        var updated = cell.data
+        updated.title = "guard-worked"
+        // Far past the row's cell count — the pre-fix body would subscript out of bounds.
+        viewModel.tableDataModel.updateCellModelForNested(rowId: rootRowA, colIndex: 999, cellDataModel: updated, isBulkEdit: false)
+
+        let landed = viewModel.tableDataModel.filteredcellModels[idx].cells.first(where: { $0.data.id == rootTextColumnID })?.data.title
+        XCTAssertEqual(landed, "guard-worked", "The update must land on the id-matched cell despite an out-of-range colIndex")
+    }
+
+    // The nested-row case: the row holds fewer cells than the root-derived colIndex.
+    // Must be a safe no-op (the schemaId-less update can't resolve a cell), never a crash.
+    func testUpdateCellModelForNested_rowCellsNarrowerThanColIndex_isNoOpAndDoesNotCrash() async throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+        let viewModel = try await createCollectionViewModel(documentEditor: documentEditor)
+        sleep(10)
+
+        guard let idx = viewModel.tableDataModel.filteredcellModels.firstIndex(where: { $0.rowID == rootRowA }),
+              let cell = viewModel.tableDataModel.filteredcellModels[idx].cells.first(where: { $0.data.id == rootTextColumnID }) else {
+            return XCTFail("Row \(rootRowA) / column \(rootTextColumnID) not found in filteredcellModels")
+        }
+
+        // Emulate a nested row whose cells are narrower than the root column list.
+        viewModel.tableDataModel.filteredcellModels[idx].cells = []
+
+        var updated = cell.data
+        updated.title = "should-not-apply"
+        viewModel.tableDataModel.updateCellModelForNested(rowId: rootRowA, colIndex: 999, cellDataModel: updated, isBulkEdit: false)
+
+        XCTAssertTrue(viewModel.tableDataModel.filteredcellModels[idx].cells.isEmpty, "A column id absent from the row's cells must be a safe no-op, not a crash")
+    }
+
     // MARK: - bulkEdit(changes:) keeps the nested-schema visibility map in step
     //
     // The visibility map is read on the main thread from SwiftUI body evaluation, so the
