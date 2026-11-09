@@ -110,7 +110,7 @@ final class NavigationGotoScrollUITests: XCTestCase {
         assertRowNumberAlignedWithGridCell()
 
         // Pop the table modal, then navigate into the same row again so the modal reappears and re-scrolls.
-        app.buttons["ModalBackButtonIdentifier"].tap()
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         let pathField = app.textFields["NavigationManualPathField"]
         XCTAssertTrue(pathField.waitForExistence(timeout: 5),
                       "Manual path field not found after dismissing the modal")

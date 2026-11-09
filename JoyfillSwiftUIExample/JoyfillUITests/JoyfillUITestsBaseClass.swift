@@ -210,12 +210,6 @@ class JoyfillUITestsBaseClass: XCTestCase {
     }
     
     func goBack() {
-        // Table/collection modals use a custom top bar (no system nav bar); tap the topmost custom back if present.
-        let customBacks = app.buttons.matching(identifier: "ModalBackButtonIdentifier")
-        if customBacks.count > 0 {
-            customBacks.element(boundBy: customBacks.count - 1).tap()
-            return
-        }
         let backButton = app.navigationBars.buttons.element(boundBy: 0)
         XCTAssertTrue(backButton.waitForExistence(timeout: 5))
         backButton.tap()
@@ -415,11 +409,8 @@ class JoyfillUITestsBaseClass: XCTestCase {
 
     /// Reset app state to ensure clean test environment
     func resetAppState() {
-        // Navigate back to root if possible — table/collection modals use a custom top bar (no system nav bar).
-        let customBacks = app.buttons.matching(identifier: "ModalBackButtonIdentifier")
-        if customBacks.count > 0 {
-            customBacks.element(boundBy: customBacks.count - 1).tap()
-        } else if app.navigationBars.buttons.count > 0 {
+        // Navigate back to root if possible
+        if app.navigationBars.buttons.count > 0 {
             app.navigationBars.buttons.element(boundBy: 0).tap()
         }
 

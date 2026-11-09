@@ -46,6 +46,10 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         let multiSelect = app.buttons.matching(identifier: identifier)
         return multiSelect.count
     }
+
+    internal override func goBack() {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
+    }
     
     private func verifyMultiSelectValue(expectedOptionIds: [String]) {
         let result = onChangeResultValue()
