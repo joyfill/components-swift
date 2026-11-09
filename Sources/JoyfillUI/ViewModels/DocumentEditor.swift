@@ -1576,10 +1576,12 @@ extension DocumentEditor {
         updateFieldPositionMap()
         pageFieldModels.removeValue(forKey: pageID)
         
-        // 10. Remove fields from fieldMap (didSet will automatically update document.fields)
+        // 10. Remove fields from fieldMap in one assignment so the didSet rebuilds document.fields once, not per field.
+        var updatedFieldMap = fieldMap
         for fieldID in fieldsToRemove {
-            fieldMap.removeValue(forKey: fieldID)
+            updatedFieldMap.removeValue(forKey: fieldID)
         }
+        fieldMap = updatedFieldMap
         
         // 11. Reinitialize conditional logic handler
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
