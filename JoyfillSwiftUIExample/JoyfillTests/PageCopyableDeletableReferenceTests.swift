@@ -81,7 +81,10 @@ final class PageCopyableDeletableReferenceTests: XCTestCase {
             }
 
             XCTAssertEqual(copyableSignature(mainCopy), sourceMainCopyable, "\(fixture.name): main copy keeps source copyable exactly")
-            XCTAssertEqual(copyableSignature(mobileCopy), copyableSignature(mainCopy), "\(fixture.name): mobile copy matches main copy copyable")
+            // The mobile page follows the main page's RESOLVED copyable (set via the typed
+            // setter), so a missing/invalid source normalizes to the resolved array form here
+            // while the main page keeps its raw value above.
+            XCTAssertEqual(copyableSignature(mobileCopy), resolvedSignature(fixture.resolved), "\(fixture.name): mobile copy normalizes to resolved copyable")
             XCTAssertEqual(mainCopy.copyable, fixture.resolved, "\(fixture.name): resolved copyable on the copy")
             XCTAssertEqual(mobileCopy.copyable, mainCopy.copyable, "\(fixture.name): resolved mobile copyable matches main")
             XCTAssertTrue(mainCopy.deletable, "\(fixture.name): main copy deletable")
@@ -110,7 +113,10 @@ final class PageCopyableDeletableReferenceTests: XCTestCase {
                     continue
                 }
                 let created = Page(dictionary: pageDict)
-                XCTAssertEqual(copyableSignature(created), sourceMainCopyable, "\(fixture.name): changelog copyable \(change.view ?? "main")")
+                // Main page.create (view == nil) carries the raw source copyable; the mobile
+                // page.create (view == "mobile") carries the normalized/resolved copyable.
+                let expectedCopyable = change.view == nil ? sourceMainCopyable : resolvedSignature(fixture.resolved)
+                XCTAssertEqual(copyableSignature(created), expectedCopyable, "\(fixture.name): changelog copyable \(change.view ?? "main")")
                 XCTAssertEqual(deletableSignature(created), "true", "\(fixture.name): changelog deletable \(change.view ?? "main")")
             }
         }
@@ -220,6 +226,12 @@ final class PageCopyableDeletableReferenceTests: XCTestCase {
             return "array:" + modes.map { "\($0)" }.joined(separator: ",")
         }
         return "other:\(String(describing: value))"
+    }
+
+    /// The raw signature the mobile page ends up with: it stores main's RESOLVED copyable
+    /// via the typed setter, so the value is always the normalized `[rawValue]` array form.
+    private func resolvedSignature(_ modes: [CopyMode]) -> String {
+        "array:" + modes.map { $0.rawValue }.joined(separator: ",")
     }
 
     private func deletableSignature(_ page: Page) -> String {
