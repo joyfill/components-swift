@@ -762,6 +762,7 @@ struct TableDataModel {
     }
     
     mutating func updateCellModelForNested(rowId: String, colIndex: Int, cellDataModel: CellDataModel, isBulkEdit: Bool) {
+        // colIndex is ignored; the target cell is resolved by its column id instead.
         guard let index = filteredcellModels.firstIndex(where: { $0.rowID == rowId }),
               let colIndex = filteredcellModels[index].cells.firstIndex(where: { $0.data.id == cellDataModel.id }) else {
             return
