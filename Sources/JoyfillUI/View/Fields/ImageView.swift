@@ -155,7 +155,6 @@ struct ImageView: View {
                           showToast: $showToast,
                           uploadAction: uploadAction,
                           isUploadHidden: imageDataModel.primaryDisplayOnly ?? (imageDataModel.mode == .readonly))
-                .fullWidth(imageDataModel.documentEditor)
         }
         .onChange(of: valueElements) { newValue in
             fetchImages()

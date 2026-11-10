@@ -81,6 +81,7 @@ struct TableModalView : View {
                 EmptyView()
             }
             scrollArea
+                .fullWidth(viewModel.tableDataModel.documentEditor)
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
@@ -101,13 +102,11 @@ struct TableModalView : View {
         }) {
             EditMultipleRowsSheetView(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isBulkLoading)
-                .fullWidth(viewModel.tableDataModel.documentEditor)
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
-        .fullWidth(viewModel.tableDataModel.documentEditor)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,

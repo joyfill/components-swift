@@ -37,7 +37,7 @@ extension View {
         if #available(iOS 17.0, *) { self.hoverEffectDisabled() } else { self }
     }
 
-    /// Re-apply at each presented surface's root; sheets get a fresh safe-area context that doesn't inherit it.
+    /// Applied only to the table/collection grid scroll area so the grid runs edge-to-edge while the rest of the modal keeps its safe-area insets.
     @ViewBuilder
     func fullWidth(_ documentEditor: DocumentEditor?) -> some View {
         if let documentEditor {

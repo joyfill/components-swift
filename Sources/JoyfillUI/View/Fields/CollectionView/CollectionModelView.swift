@@ -69,6 +69,7 @@ struct CollectionModalView : View {
     var body: some View {
         VStack {
             scrollArea
+                .fullWidth(viewModel.tableDataModel.documentEditor)
                 .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
@@ -93,17 +94,14 @@ struct CollectionModalView : View {
         }) {
             CollectionEditMultipleRowsSheetView(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isBulkLoading)
-                .fullWidth(viewModel.tableDataModel.documentEditor)
         }
         .sheet(isPresented: $showFilterModal) {
             CollectionFilterModal(viewModel: viewModel)
                 .interactiveDismissDisabled(viewModel.isSearching)
-                .fullWidth(viewModel.tableDataModel.documentEditor)
         }
         .safeAreaInset(edge: .bottom) {
             FormFooterView()
         }
-        .fullWidth(viewModel.tableDataModel.documentEditor)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
