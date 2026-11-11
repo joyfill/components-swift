@@ -75,14 +75,14 @@ struct TableModalView : View {
     }
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             if currentSelectedCol != Int.min {
                 SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
                 .fullWidth(viewModel.tableDataModel.documentEditor)
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
         .modalTopBar(title: viewModel.tableDataModel.title ?? "") {
@@ -104,7 +104,9 @@ struct TableModalView : View {
                 .interactiveDismissDisabled(viewModel.isBulkLoading)
         }
         .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            if !hidesHeaderForKeyboard {
+                FormFooterView()
+            }
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)

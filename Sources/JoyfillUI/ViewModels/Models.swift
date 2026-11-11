@@ -1384,7 +1384,6 @@ struct ImageDataModel {
     var valueElements: [ValueElement]?
     var mode: Mode
     var fieldHeaderModel: FieldHeaderModel?
-    var documentEditor: DocumentEditor?
 }
 
 struct MultiLineDataModel {

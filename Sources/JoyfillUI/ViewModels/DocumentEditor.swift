@@ -968,8 +968,7 @@ extension DocumentEditor {
                                        primaryDisplayOnly: fieldPosition.primaryDisplayOnly,
                                        valueElements: fieldData?.value?.valueElements,
                                        mode: fieldEditMode,
-                                       fieldHeaderModel: fieldHeaderModel,
-                                       documentEditor: self)
+                                       fieldHeaderModel: fieldHeaderModel)
             dataModelType = .image(model)
         case .none:
             dataModelType = .none

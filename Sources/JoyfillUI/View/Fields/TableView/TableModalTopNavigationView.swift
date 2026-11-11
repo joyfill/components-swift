@@ -1,16 +1,16 @@
 import SwiftUI
 import JoyfillModel
 
-struct TableModalTopNavigationView: View {
+struct TableModalTopNavigationView: ToolbarContent {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
-    
+
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
 
-    var body: some View {
-        HStack {
-            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+    var body: some ToolbarContent {
+        if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     dismissKeyboard()
                     showingPopover = true
@@ -18,9 +18,6 @@ struct TableModalTopNavigationView: View {
                     Text("More ^")
                         .foregroundStyle(.blue)
                         .font(.system(size: 14))
-                        .frame(width: 80, height: 27)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
                 .accessibilityIdentifier("TableMoreButtonIdentifier")
                 .popover(isPresented: $showingPopover) {
@@ -220,17 +217,18 @@ struct TableModalTopNavigationView: View {
                     )
                 }
             }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+            }
+        }
 
+        ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: {
                 viewModel.addRow()
             }) {
                 Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
                     .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
                     .font(.system(size: 14))
-                    .frame(height: 27)
-                    .padding(.horizontal, 16)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.buttonBorderColor, lineWidth: 1))
             }
             .disabled(viewModel.tableDataModel.mode == .readonly || !viewModel.tableDataModel.canAddRows())
             .accessibilityIdentifier("TableAddRowIdentifier")

@@ -8,7 +8,7 @@
 import SwiftUI
 import JoyfillModel
 
-struct CollectionModalTopNavigationView: View {
+struct CollectionModalTopNavigationView: ToolbarContent {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
     var onFilterTap: (() -> Void)?
@@ -32,8 +32,8 @@ struct CollectionModalTopNavigationView: View {
         return viewModel.remainingCapacity(schemaKey: level.schemaKey, parentRowID: level.parentRowID)
     }
 
-    var body: some View {
-        HStack {
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
             // Filter button
             Button(action: {
                 onFilterTap?()
@@ -42,25 +42,29 @@ struct CollectionModalTopNavigationView: View {
             }
             .buttonStyle(AddRowButtonStyle())
             .accessibilityIdentifier("CollectionFilterButtonIdentifier")
-            
-            if hasActiveFilters {
+        }
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+        }
+
+        if hasActiveFilters {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     clearFilter()
                 }, label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            .frame(width: 27, height: 27)
-                        
-                        Image(systemName: "xmark")
-                            .resizable()
-                            .frame(width: 10, height: 10)
-                            .darkLightThemeColor()
-                    }
+                    Image(systemName: "xmark")
+                        .resizable()
+                        .frame(width: 10, height: 10)
+                        .darkLightThemeColor()
                 })
             }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+            }
+        }
 
-            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+        if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+            ToolbarItem(placement: .navigationBarTrailing) {
                 Button(action: {
                     dismissKeyboard()
                     showingPopover = true
@@ -68,9 +72,6 @@ struct CollectionModalTopNavigationView: View {
                     Text("More ^")
                         .foregroundStyle(.blue)
                         .font(.system(size: 14))
-                        .frame(width: 80, height: 27)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
                 }
                 .accessibilityIdentifier("TableMoreButtonIdentifier")
                 .popover(isPresented: $showingPopover) {
@@ -819,22 +820,13 @@ struct CollectionEditMultipleRowsSheetView: View {
 }
 
 /// Filter button, styled like "+ Row": 32pt tall, 8pt continuous corners, surface fill and standard button border.
-/// Active shows blue icon, border and a light blue fill.
+/// Active shows a blue icon; the nav bar's glass capsule provides the background.
 struct FilterButtonLabel: View {
     let isActive: Bool
-    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
-        let surface = colorScheme == .dark ? Color(UIColor.tertiarySystemBackground) : Color.white
-        let border = isActive ? Color.blue : Color.buttonBorderColor
         Image(systemName: "line.3.horizontal.decrease")
             .font(.system(size: 14, weight: .medium))
             .foregroundColor(isActive ? .blue : .gray)
-            .padding(.horizontal, 12)
-            .frame(height: 32)
-            .background(shape.fill(isActive ? Color.blue.opacity(0.12) : surface))
-            .overlay(shape.strokeBorder(border, lineWidth: 1))
-            .contentShape(shape)
     }
 }

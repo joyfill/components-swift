@@ -9,27 +9,26 @@ import Foundation
 import SwiftUI
 
 extension View {
-    /// Puts the modal's title and trailing controls in the system nav bar; on iOS 26+ the controls drop the Liquid Glass background.
-    @ViewBuilder
-    func modalTopBar<Trailing: View>(
+    /// Puts the modal's title in the nav bar and hosts the trailing controls as separate toolbar items — each gets its own Liquid Glass capsule on iOS 26+.
+    func modalTopBar<Trailing: ToolbarContent>(
         title: String,
-        @ViewBuilder trailing: () -> Trailing
+        @ToolbarContentBuilder trailing: () -> Trailing
     ) -> some View {
-        let trailingView = trailing().disableHoverEffect()
-        if #available(iOS 26.0, *) {
-            self.navigationTitle(title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) { trailingView }
-                        .sharedBackgroundVisibility(.hidden)
-                }
-        } else {
-            self.navigationTitle(title)
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) { trailingView }
-                }
+        // Custom title so a long title wraps and scrolls within the bar instead of truncating.
+        let titleView = ScrollView(.vertical, showsIndicators: false) {
+            Text(title)
+                .font(.headline.bold())
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity)
         }
+        .frame(maxHeight: 44)
+        return self.navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) { titleView }
+                trailing()
+            }
     }
 
     @ViewBuilder

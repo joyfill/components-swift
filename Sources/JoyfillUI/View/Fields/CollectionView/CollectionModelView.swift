@@ -67,10 +67,10 @@ struct CollectionModalView : View {
     }
 
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             scrollArea
                 .fullWidth(viewModel.tableDataModel.documentEditor)
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
         .modalTopBar(title: viewModel.tableDataModel.title ?? "") {
@@ -100,7 +100,9 @@ struct CollectionModalView : View {
                 .interactiveDismissDisabled(viewModel.isSearching)
         }
         .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            if !hidesHeaderForKeyboard {
+                FormFooterView()
+            }
         }
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
@@ -799,6 +801,13 @@ struct EmptyRectangleWithBorders: View {
 }
 
 extension View {
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+extension ToolbarContent {
+    /// Same keyboard dismiss as the View helper, callable from ToolbarContent bodies.
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
