@@ -29,6 +29,18 @@ extension View {
                 ToolbarItem(placement: .principal) { titleView }
                 trailing()
             }
+            .opaqueNavBar()
+    }
+
+    /// Solid system-background bar so scrolled grid content can't show through the (translucent/glass) nav bar; adapts to light/dark. Button capsules keep their own glass.
+    @ViewBuilder
+    func opaqueNavBar() -> some View {
+        if #available(iOS 16.0, *) {
+            self.toolbarBackground(Color(UIColor.systemBackground), for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+        } else {
+            self
+        }
     }
 
     @ViewBuilder
