@@ -9,8 +9,9 @@ import Foundation
 import SwiftUI
 
 extension View {
-    /// Puts the modal's title in the nav bar and hosts the trailing controls as separate toolbar items — each gets its own Liquid Glass capsule on iOS 26+.
-    func modalTopBar<Trailing: ToolbarContent>(
+    /// iOS 16+ glass toolbar: separate capsules + a scrollable title + a solid (non-see-through) bar.
+    @available(iOS 16.0, *)
+    func modalTopBarGlass<Trailing: ToolbarContent>(
         title: String,
         @ToolbarContentBuilder trailing: () -> Trailing
     ) -> some View {
@@ -30,6 +31,44 @@ extension View {
                 trailing()
             }
             .opaqueNavBar()
+    }
+
+    /// iOS 15 plain toolbar (no iOS 16-only toolbar APIs); `trailing` must have no toolbar-level conditionals.
+    func modalTopBarLegacy<Trailing: ToolbarContent>(
+        title: String,
+        @ToolbarContentBuilder trailing: () -> Trailing
+    ) -> some View {
+        self.navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { trailing() }
+    }
+
+    /// Table modal nav bar: glass on iOS 16+, plain on iOS 15. The `if #available` encloses the iOS-16 types so iOS 15 compiles.
+    @ViewBuilder
+    func tableModalTopBar(title: String, viewModel: TableViewModel, onEditTap: @escaping () -> Void) -> some View {
+        if #available(iOS 16.0, *) {
+            modalTopBarGlass(title: title) {
+                TableModalTopNavigationView(viewModel: viewModel, onEditTap: onEditTap)
+            }
+        } else {
+            modalTopBarLegacy(title: title) {
+                TableModalTopNavigationLegacy(viewModel: viewModel, onEditTap: onEditTap)
+            }
+        }
+    }
+
+    /// Collection modal nav bar: glass on iOS 16+, plain on iOS 15.
+    @ViewBuilder
+    func collectionModalTopBar(title: String, viewModel: CollectionViewModel, onEditTap: @escaping () -> Void, onFilterTap: @escaping () -> Void) -> some View {
+        if #available(iOS 16.0, *) {
+            modalTopBarGlass(title: title) {
+                CollectionModalTopNavigationView(viewModel: viewModel, onEditTap: onEditTap, onFilterTap: onFilterTap)
+            }
+        } else {
+            modalTopBarLegacy(title: title) {
+                CollectionModalTopNavigationLegacy(viewModel: viewModel, onEditTap: onEditTap, onFilterTap: onFilterTap)
+            }
+        }
     }
 
     /// Solid system-background bar so scrolled grid content can't show through the (translucent/glass) nav bar; adapts to light/dark. Button capsules keep their own glass.

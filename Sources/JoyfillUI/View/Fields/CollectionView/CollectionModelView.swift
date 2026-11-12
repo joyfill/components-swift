@@ -73,19 +73,18 @@ struct CollectionModalView : View {
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
-        .modalTopBar(title: viewModel.tableDataModel.title ?? "") {
-            CollectionModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                    viewModel.tableDataModel.navigationIntent = .none
-                    dismissKeyboard()
-                    showEditMultipleRowsSheetView = true
-                },
-                onFilterTap: {
-                    dismissKeyboard()
-                    showFilterModal = true
-                })
-        }
+        .collectionModalTopBar(
+            title: viewModel.tableDataModel.title ?? "",
+            viewModel: viewModel,
+            onEditTap: {
+                viewModel.tableDataModel.navigationIntent = .none
+                dismissKeyboard()
+                showEditMultipleRowsSheetView = true
+            },
+            onFilterTap: {
+                dismissKeyboard()
+                showFilterModal = true
+            })
         .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
             if isDismissingForNavigation {
                 isDismissingForNavigation = false

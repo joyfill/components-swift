@@ -8,11 +8,12 @@
 import SwiftUI
 import JoyfillModel
 
-struct CollectionModalTopNavigationView: ToolbarContent {
+/// More-row-actions button + its popovers for a collection. Shared by the glass (iOS 16+) and plain (iOS 15) toolbars.
+struct CollectionRowActionsButton: View {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
-    var onFilterTap: (() -> Void)?
-    
+    var bordered: Bool
+
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
 
@@ -32,39 +33,7 @@ struct CollectionModalTopNavigationView: ToolbarContent {
         return viewModel.remainingCapacity(schemaKey: level.schemaKey, parentRowID: level.parentRowID)
     }
 
-    var body: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            // Filter button
-            Button(action: {
-                onFilterTap?()
-            }) {
-                FilterButtonLabel(isActive: hasActiveFilters)
-            }
-            .buttonStyle(AddRowButtonStyle())
-            .accessibilityIdentifier("CollectionFilterButtonIdentifier")
-        }
-        if #available(iOS 26.0, *) {
-            ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
-        }
-
-        if hasActiveFilters {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: {
-                    clearFilter()
-                }, label: {
-                    Image(systemName: "xmark")
-                        .resizable()
-                        .frame(width: 10, height: 10)
-                        .darkLightThemeColor()
-                })
-            }
-            if #available(iOS 26.0, *) {
-                ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
-            }
-        }
-
-        if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
-            ToolbarItem(placement: .navigationBarTrailing) {
+    var body: some View {
                 Button(action: {
                     dismissKeyboard()
                     showingPopover = true
@@ -72,6 +41,7 @@ struct CollectionModalTopNavigationView: ToolbarContent {
                     Text("More ^")
                         .foregroundStyle(.blue)
                         .font(.system(size: 14))
+                        .modifier(NavBarButtonBorder(bordered: bordered, fixedWidth: 80))
                 }
                 .accessibilityIdentifier("TableMoreButtonIdentifier")
                 .popover(isPresented: $showingPopover) {
@@ -275,24 +245,55 @@ struct CollectionModalTopNavigationView: ToolbarContent {
                         }
                     )
                 }
-            }
-
-        }
     }
 
     private var selectedRowHasChildren: Bool {
         guard let rowID = viewModel.tableDataModel.selectedRows.first else { return false }
         return viewModel.rowHasChildren(rowID: rowID)
     }
-    
-    fileprivate func clearSorting() {
+
+    var rowTitle: String {
+        "\(viewModel.tableDataModel.selectedRows.count) " + (viewModel.tableDataModel.selectedRows.count > 1 ? "rows": "row")
+    }
+}
+
+/// Filter toggle button for a collection. Shared by both toolbars.
+struct CollectionFilterButton: View {
+    var isActive: Bool
+    var bordered: Bool
+    var onFilterTap: (() -> Void)?
+
+    var body: some View {
+        Button(action: { onFilterTap?() }) {
+            FilterButtonLabel(isActive: isActive, bordered: bordered)
+        }
+        .buttonStyle(AddRowButtonStyle())
+        .accessibilityIdentifier("CollectionFilterButtonIdentifier")
+    }
+}
+
+/// Clear-filters button for a collection. Shared by both toolbars.
+struct CollectionClearFilterButton: View {
+    @ObservedObject var viewModel: CollectionViewModel
+    var bordered: Bool
+
+    var body: some View {
+        Button(action: { clearFilter() }, label: {
+            Image(systemName: "xmark")
+                .resizable()
+                .frame(width: 10, height: 10)
+                .darkLightThemeColor()
+                .modifier(NavBarButtonBorder(bordered: bordered, fixedWidth: 27))
+        })
+    }
+
+    private func clearSorting() {
         viewModel.tableDataModel.sortModel.order = .none
         viewModel.tableDataModel.sortModel.colID = ""
         viewModel.tableDataModel.sortModel.schemaKey = ""
     }
-    
+
     func clearFilter() {
-//        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
         viewModel.setupCellModels()
         for i in 0..<viewModel.tableDataModel.filterModels.count {
             viewModel.tableDataModel.filterModels[i].filterText = ""
@@ -300,9 +301,60 @@ struct CollectionModalTopNavigationView: ToolbarContent {
         clearSorting()
         viewModel.tableDataModel.emptySelection()
     }
+}
 
-    var rowTitle: String {
-        "\(viewModel.tableDataModel.selectedRows.count) " + (viewModel.tableDataModel.selectedRows.count > 1 ? "rows": "row")
+/// Glass toolbar (iOS 16+): each action its own Liquid Glass capsule, split by spacers.
+@available(iOS 16.0, *)
+struct CollectionModalTopNavigationView: ToolbarContent {
+    @ObservedObject var viewModel: CollectionViewModel
+    var onEditTap: (() -> Void)?
+    var onFilterTap: (() -> Void)?
+
+    private var hasActiveFilters: Bool { viewModel.tableDataModel.hasActiveFilters }
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            CollectionFilterButton(isActive: hasActiveFilters, bordered: false, onFilterTap: onFilterTap)
+        }
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+        }
+        if hasActiveFilters {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                CollectionClearFilterButton(viewModel: viewModel, bordered: false)
+            }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+            }
+        }
+        if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                CollectionRowActionsButton(viewModel: viewModel, onEditTap: onEditTap, bordered: false)
+            }
+        }
+    }
+}
+
+/// Plain toolbar (iOS 15): bordered buttons in a single item, no iOS 16-only toolbar APIs.
+struct CollectionModalTopNavigationLegacy: ToolbarContent {
+    @ObservedObject var viewModel: CollectionViewModel
+    var onEditTap: (() -> Void)?
+    var onFilterTap: (() -> Void)?
+
+    private var hasActiveFilters: Bool { viewModel.tableDataModel.hasActiveFilters }
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            HStack {
+                CollectionFilterButton(isActive: hasActiveFilters, bordered: true, onFilterTap: onFilterTap)
+                if hasActiveFilters {
+                    CollectionClearFilterButton(viewModel: viewModel, bordered: true)
+                }
+                if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+                    CollectionRowActionsButton(viewModel: viewModel, onEditTap: onEditTap, bordered: true)
+                }
+            }
+        }
     }
 }
 
@@ -820,13 +872,28 @@ struct CollectionEditMultipleRowsSheetView: View {
 }
 
 /// Filter button, styled like "+ Row": 32pt tall, 8pt continuous corners, surface fill and standard button border.
-/// Active shows a blue icon; the nav bar's glass capsule provides the background.
+/// Active shows a blue icon. On iOS 16+ the nav bar's glass capsule is the background; on iOS 15 (bordered) it draws its own card/border.
 struct FilterButtonLabel: View {
     let isActive: Bool
+    var bordered: Bool = false
+    @Environment(\.colorScheme) private var colorScheme
 
+    @ViewBuilder
     var body: some View {
-        Image(systemName: "line.3.horizontal.decrease")
+        let icon = Image(systemName: "line.3.horizontal.decrease")
             .font(.system(size: 14, weight: .medium))
             .foregroundColor(isActive ? .blue : .gray)
+        if bordered {
+            let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+            let surface = colorScheme == .dark ? Color(UIColor.tertiarySystemBackground) : Color.white
+            icon
+                .padding(.horizontal, 12)
+                .frame(height: 32)
+                .background(shape.fill(isActive ? Color.blue.opacity(0.12) : surface))
+                .overlay(shape.strokeBorder(isActive ? Color.blue : Color.buttonBorderColor, lineWidth: 1))
+                .contentShape(shape)
+        } else {
+            icon
+        }
     }
 }

@@ -85,15 +85,14 @@ struct TableModalView : View {
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
-        .modalTopBar(title: viewModel.tableDataModel.title ?? "") {
-            TableModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                    viewModel.tableDataModel.navigationIntent = .none
-                    dismissKeyboard()
-                    showEditMultipleRowsSheetView = true
-                })
-        }
+        .tableModalTopBar(
+            title: viewModel.tableDataModel.title ?? "",
+            viewModel: viewModel,
+            onEditTap: {
+                viewModel.tableDataModel.navigationIntent = .none
+                dismissKeyboard()
+                showEditMultipleRowsSheetView = true
+            })
         .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
             if isDismissingForNavigation {
                 isDismissingForNavigation = false
