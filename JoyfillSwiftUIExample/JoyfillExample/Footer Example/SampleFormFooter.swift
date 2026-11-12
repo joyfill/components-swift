@@ -57,7 +57,7 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
     func toggleFullWidthTapped() {
         guard let editor = documentEditor else { return }
-        editor.fullWidthGrid.toggle()
+        editor.setFullWidthGrid(!editor.fullWidthGrid)
         isFullWidth = editor.fullWidthGrid
     }
 
