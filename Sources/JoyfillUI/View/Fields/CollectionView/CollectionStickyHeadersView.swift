@@ -151,7 +151,6 @@ struct CollectionStickyHeadersView: View {
                 .accessibilityHidden(true)
             }
         }
-        .onReceive(viewModel.objectWillChange) { _ in tracker.revision &+= 1 }
     }
 
     /// Next table starting: it rises with its real row and pushes the current header up.

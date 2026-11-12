@@ -52,46 +52,55 @@ struct CollectionModalView : View {
     @State private var isDismissingForNavigation = false
     /// Plain @State (not @StateObject) so scroll ticks re-render only the sticky overlay, not the whole grid.
     @State private var stickyTracker = CollectionStickyScrollTracker()
-    
+    /// While the keyboard is up (editing a cell) the sticky headers are dropped so they can't cover the focused cell; they return on dismiss.
+    @State private var isKeyboardVisible = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Drop the sticky header only when the keyboard is up AND vertical space is tight (compact height = iPhone landscape); portrait/iPad keep it.
+    private var hidesHeaderForKeyboard: Bool {
+        isKeyboardVisible && verticalSizeClass == .compact
+    }
+
     init(viewModel: CollectionViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
         self.showEditMultipleRowsSheetView = showEditMultipleRowsSheetView
     }
 
     var body: some View {
-        VStack {
-            CollectionModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                    viewModel.tableDataModel.navigationIntent = .none
-                    dismissKeyboard()
-                    showEditMultipleRowsSheetView = true
-                },
-                onFilterTap: {
-                    dismissKeyboard()
-                    showFilterModal = true
-                })
-            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
-                if isDismissingForNavigation {
-                    isDismissingForNavigation = false
-                    dismiss()
-                }
-            }) {
-                CollectionEditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
-            .sheet(isPresented: $showFilterModal) {
-                CollectionFilterModal(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isSearching)
-            }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
-
+        VStack(spacing: 0) {
             scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .fullWidth(viewModel.tableDataModel.documentEditor)
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
+        .collectionModalTopBar(
+            title: viewModel.tableDataModel.title ?? "",
+            viewModel: viewModel,
+            onEditTap: {
+                viewModel.tableDataModel.navigationIntent = .none
+                dismissKeyboard()
+                showEditMultipleRowsSheetView = true
+            },
+            onFilterTap: {
+                dismissKeyboard()
+                showFilterModal = true
+            })
+        .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+            if isDismissingForNavigation {
+                isDismissingForNavigation = false
+                dismiss()
+            }
+        }) {
+            CollectionEditMultipleRowsSheetView(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
+        }
+        .sheet(isPresented: $showFilterModal) {
+            CollectionFilterModal(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isSearching)
+        }
         .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            if !hidesHeaderForKeyboard {
+                FormFooterView()
+            }
         }
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
@@ -134,6 +143,12 @@ struct CollectionModalView : View {
         .onDisappear(perform: {
             viewModel.sendEventsIfNeeded()
         })
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
+        }
         .alert(isPresented: $viewModel.tableDataModel.showResetSelectionAlert) {
             Alert(
                 title: Text("Reset Selection"),
@@ -276,6 +291,7 @@ struct CollectionModalView : View {
                     .frame(minWidth: max(viewModel.collectionWidth, geometry.size.width), minHeight: geometry.size.height, alignment: .topLeading)
                     .background(CollectionScrollOffsetReader(tracker: stickyTracker))
                     .overlay(alignment: .topLeading) {
+                        if !hidesHeaderForKeyboard {
                         CollectionStickyHeadersView(viewModel: viewModel,
                                                     tracker: stickyTracker,
                                                     rootHeader: AnyView(VStack(alignment: .leading, spacing: 0) {
@@ -283,6 +299,7 @@ struct CollectionModalView : View {
                                                         rootColumnHeaderRow
                                                     }),
                                                     rowBuilder: { AnyView(collectionRow(at: $0)) })
+                        }
                     }
                 }
                 .onAppear {
@@ -311,6 +328,8 @@ struct CollectionModalView : View {
                 .simultaneousGesture(DragGesture().onChanged({ _ in
                     dismissKeyboard()
                 }))
+                // On the always-mounted grid so the sticky-header cache keeps invalidating even while the keyboard hides the overlay.
+                .onReceive(viewModel.objectWillChange) { _ in stickyTracker.revision &+= 1 }
             }
         }
     }
@@ -782,6 +801,13 @@ struct EmptyRectangleWithBorders: View {
 }
 
 extension View {
+    func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+extension ToolbarContent {
+    /// Same keyboard dismiss as the View helper, callable from ToolbarContent bodies.
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }

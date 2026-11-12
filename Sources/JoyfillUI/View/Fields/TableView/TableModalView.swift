@@ -61,6 +61,13 @@ struct TableModalView : View {
     @State private var textHeight: CGFloat = 50 // Default height
     @State private var currentSelectedCol: Int = Int.min
     @State private var isDismissingForNavigation = false
+    @State private var isKeyboardVisible = false
+    @Environment(\.verticalSizeClass) private var verticalSizeClass
+
+    /// Drop the header only when the keyboard is up AND vertical space is tight (compact height = iPhone landscape); portrait/iPad keep it.
+    private var hidesHeaderForKeyboard: Bool {
+        isKeyboardVisible && verticalSizeClass == .compact
+    }
 
     init(viewModel: TableViewModel, showEditMultipleRowsSheetView: Bool) {
         self.viewModel = viewModel
@@ -68,34 +75,36 @@ struct TableModalView : View {
     }
     
     var body: some View {
-        VStack {
-            TableModalTopNavigationView(
-                viewModel: viewModel,
-                onEditTap: {
-                viewModel.tableDataModel.navigationIntent = .none
-                dismissKeyboard()
-                showEditMultipleRowsSheetView = true
-            })
-            .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
-                if isDismissingForNavigation {
-                    isDismissingForNavigation = false
-                    dismiss()
-                }
-            }) {
-                EditMultipleRowsSheetView(viewModel: viewModel)
-                    .interactiveDismissDisabled(viewModel.isBulkLoading)
-            }
-            .padding(EdgeInsets(top: 16, leading: 10, bottom: 10, trailing: 10))
+        VStack(spacing: 0) {
             if currentSelectedCol != Int.min {
                 SearchBar(model: $viewModel.tableDataModel.filterModels [currentSelectedCol], sortModel: $viewModel.tableDataModel.sortModel, selectedColumnIndex: $currentSelectedCol, viewModel: viewModel)
                 EmptyView()
             }
             scrollArea
-                .padding(EdgeInsets(top: 8, leading: 0, bottom: 0, trailing: 0))
+                .fullWidth(viewModel.tableDataModel.documentEditor)
                 .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: 30) }
         }
+        .tableModalTopBar(
+            title: viewModel.tableDataModel.title ?? "",
+            viewModel: viewModel,
+            onEditTap: {
+                viewModel.tableDataModel.navigationIntent = .none
+                dismissKeyboard()
+                showEditMultipleRowsSheetView = true
+            })
+        .sheet(isPresented: $showEditMultipleRowsSheetView, onDismiss: {
+            if isDismissingForNavigation {
+                isDismissingForNavigation = false
+                dismiss()
+            }
+        }) {
+            EditMultipleRowsSheetView(viewModel: viewModel)
+                .interactiveDismissDisabled(viewModel.isBulkLoading)
+        }
         .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            if !hidesHeaderForKeyboard {
+                FormFooterView()
+            }
         }
         .background(colorScheme == .dark ? Color.black : Color.white)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
@@ -138,6 +147,12 @@ struct TableModalView : View {
             viewModel.sendEventsIfNeeded()
             clearFilter()
         })
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { _ in
+            isKeyboardVisible = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            isKeyboardVisible = false
+        }
         .onChange(of: viewModel.tableDataModel.sortModel.order) { _ in
             viewModel.tableDataModel.filterRowsIfNeeded()
             sortRowsIfNeeded()
@@ -251,7 +266,9 @@ struct TableModalView : View {
         HStack(alignment: .top, spacing: 0) {
             // Left row-number column: pinned left, synced to the grid via KVO, isolated in its own view.
             VStack(alignment: .leading, spacing: 0) {
-                leftCornerHeader
+                if !hidesHeaderForKeyboard {
+                    leftCornerHeader
+                }
                 TableRowNumbersColumn(
                     viewModel: viewModel,
                     width: leftColumnWidth,
@@ -268,7 +285,9 @@ struct TableModalView : View {
 
             // Header as a separate KVO-synced scroll view, not a pinned Section (a Section breaks TextEditor editing).
             VStack(alignment: .leading, spacing: 0) {
-                columnsHeader
+                if !hidesHeaderForKeyboard {
+                    columnsHeader
+                }
                 table
             }
         }

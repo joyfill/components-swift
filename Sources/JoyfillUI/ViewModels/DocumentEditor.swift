@@ -71,13 +71,16 @@ public struct DisplayConfig: Equatable, Sendable {
     public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
     public var decorators: DecoratorConfig      // was `decoratorConfig`
     public var enableRowDuplicates: Bool        // SDK-level opt-in for row duplication
+    public var fullWidthGrid: Bool              // SDK-level opt-in: table/collection grid runs edge-to-edge by ignoring horizontal safe-area insets
 
     public init(singleClickRowEdit: Bool = false,
                 decorators: DecoratorConfig = DecoratorConfig(),
-                enableRowDuplicates: Bool = false) {
+                enableRowDuplicates: Bool = false,
+                fullWidthGrid: Bool = false) {
         self.singleClickRowEdit = singleClickRowEdit
         self.decorators = decorators
         self.enableRowDuplicates = enableRowDuplicates
+        self.fullWidthGrid = fullWidthGrid
     }
 }
 
@@ -130,6 +133,7 @@ public class DocumentEditor: ObservableObject {
     private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
     public var enableRowDuplicates: Bool = false
+    @Published public var fullWidthGrid: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -165,6 +169,7 @@ public class DocumentEditor: ObservableObject {
                 self.showPageNavigationView = config.page.navigation
                 self.singleClickRowEdit = config.display.singleClickRowEdit
                 self.enableRowDuplicates = config.display.enableRowDuplicates
+                self.fullWidthGrid = config.display.fullWidthGrid
                 self.currentPageID = ""
                 self.events = config.events
                 self.decoratorConfig = config.display.decorators
@@ -183,6 +188,7 @@ public class DocumentEditor: ObservableObject {
         self.showPageNavigationView = config.page.navigation
         self.singleClickRowEdit = config.display.singleClickRowEdit
         self.enableRowDuplicates = config.display.enableRowDuplicates
+        self.fullWidthGrid = config.display.fullWidthGrid
         self.currentPageID = ""
         self.events = config.events
         // Set feature flags from license
