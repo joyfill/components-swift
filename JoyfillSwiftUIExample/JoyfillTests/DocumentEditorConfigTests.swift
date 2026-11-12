@@ -111,6 +111,17 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertTrue(editor.fullWidthGrid)     // ...and the flag still mapped
     }
 
+    /// The runtime setter is the only public write path; it must flip the published flag both ways.
+    func testSetFullWidthGrid_updatesPublishedFlag() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertFalse(editor.fullWidthGrid) // default
+        editor.setFullWidthGrid(true)
+        XCTAssertTrue(editor.fullWidthGrid)
+        editor.setFullWidthGrid(false)
+        XCTAssertFalse(editor.fullWidthGrid)
+    }
+
     // MARK: - Readonly coercion
 
     /// Readonly mode must force page duplicate/delete off, even if the config

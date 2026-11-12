@@ -133,7 +133,7 @@ public class DocumentEditor: ObservableObject {
     private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
     public var enableRowDuplicates: Bool = false
-    @Published public var fullWidthGrid: Bool = false
+    @Published public internal(set) var fullWidthGrid: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -698,6 +698,11 @@ extension DocumentEditor {
     /// Shows or hides the built-in page navigation button without affecting the page picker.
     public func setPageNavigationVisible(_ visible: Bool) {
         runOnMain { self.showPageNavigationView = visible }
+    }
+
+    /// Runs the table/collection grid edge-to-edge (ignoring horizontal safe-area insets) when `true`.
+    public func setFullWidthGrid(_ fullWidth: Bool) {
+        runOnMain { self.fullWidthGrid = fullWidth }
     }
 
     public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
