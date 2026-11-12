@@ -8,11 +8,12 @@
 import SwiftUI
 import JoyfillModel
 
-struct CollectionModalTopNavigationView: View {
+/// More-row-actions button + its popovers for a collection. Shared by the glass (iOS 16+) and plain (iOS 15) toolbars.
+struct CollectionRowActionsButton: View {
     @ObservedObject var viewModel: CollectionViewModel
     var onEditTap: (() -> Void)?
-    var onFilterTap: (() -> Void)?
-    
+    var bordered: Bool
+
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
 
@@ -33,41 +34,6 @@ struct CollectionModalTopNavigationView: View {
     }
 
     var body: some View {
-        HStack {
-            if let title = viewModel.tableDataModel.title {
-                Text("\(title)")
-                    .font(.headline.bold())
-            }
-
-            Spacer()
-            
-            // Filter button
-            Button(action: {
-                onFilterTap?()
-            }) {
-                FilterButtonLabel(isActive: hasActiveFilters)
-            }
-            .buttonStyle(AddRowButtonStyle())
-            .accessibilityIdentifier("CollectionFilterButtonIdentifier")
-            
-            if hasActiveFilters {
-                Button(action: {
-                    clearFilter()
-                }, label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.allFieldBorderColor, lineWidth: 1)
-                            .frame(width: 27, height: 27)
-                        
-                        Image(systemName: "xmark")
-                            .resizable()
-                            .frame(width: 10, height: 10)
-                            .darkLightThemeColor()
-                    }
-                })
-            }
-
-            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     dismissKeyboard()
                     showingPopover = true
@@ -75,9 +41,7 @@ struct CollectionModalTopNavigationView: View {
                     Text("More ^")
                         .foregroundStyle(.blue)
                         .font(.system(size: 14))
-                        .frame(width: 80, height: 27)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                        .modifier(NavBarButtonBorder(bordered: bordered, fixedWidth: 80))
                 }
                 .accessibilityIdentifier("TableMoreButtonIdentifier")
                 .popover(isPresented: $showingPopover) {
@@ -281,30 +245,11 @@ struct CollectionModalTopNavigationView: View {
                         }
                     )
                 }
-            }
-
-        }
     }
 
     private var selectedRowHasChildren: Bool {
         guard let rowID = viewModel.tableDataModel.selectedRows.first else { return false }
         return viewModel.rowHasChildren(rowID: rowID)
-    }
-    
-    fileprivate func clearSorting() {
-        viewModel.tableDataModel.sortModel.order = .none
-        viewModel.tableDataModel.sortModel.colID = ""
-        viewModel.tableDataModel.sortModel.schemaKey = ""
-    }
-    
-    func clearFilter() {
-//        viewModel.tableDataModel.filteredcellModels = viewModel.tableDataModel.cellModels
-        viewModel.setupCellModels()
-        for i in 0..<viewModel.tableDataModel.filterModels.count {
-            viewModel.tableDataModel.filterModels[i].filterText = ""
-        }
-        clearSorting()
-        viewModel.tableDataModel.emptySelection()
     }
 
     var rowTitle: String {
@@ -312,16 +257,147 @@ struct CollectionModalTopNavigationView: View {
     }
 }
 
+/// Filter toggle button for a collection. Shared by both toolbars.
+struct CollectionFilterButton: View {
+    var isActive: Bool
+    var bordered: Bool
+    var onFilterTap: (() -> Void)?
+
+    var body: some View {
+        Button(action: { onFilterTap?() }) {
+            FilterButtonLabel(isActive: isActive, bordered: bordered)
+        }
+        .buttonStyle(AddRowButtonStyle())
+        .accessibilityIdentifier("CollectionFilterButtonIdentifier")
+    }
+}
+
+/// Clear-filters button for a collection. Shared by both toolbars.
+struct CollectionClearFilterButton: View {
+    @ObservedObject var viewModel: CollectionViewModel
+    var bordered: Bool
+
+    var body: some View {
+        Button(action: { clearFilter() }, label: {
+            Image(systemName: "xmark")
+                .resizable()
+                .frame(width: 10, height: 10)
+                .darkLightThemeColor()
+                .modifier(NavBarButtonBorder(bordered: bordered, fixedWidth: 27))
+        })
+    }
+
+    private func clearSorting() {
+        viewModel.tableDataModel.sortModel.order = .none
+        viewModel.tableDataModel.sortModel.colID = ""
+        viewModel.tableDataModel.sortModel.schemaKey = ""
+    }
+
+    func clearFilter() {
+        viewModel.setupCellModels()
+        for i in 0..<viewModel.tableDataModel.filterModels.count {
+            viewModel.tableDataModel.filterModels[i].filterText = ""
+        }
+        clearSorting()
+        viewModel.tableDataModel.emptySelection()
+    }
+}
+
+/// Glass toolbar (iOS 16+): each action its own Liquid Glass capsule, split by spacers.
+@available(iOS 16.0, *)
+struct CollectionModalTopNavigationView: ToolbarContent {
+    @ObservedObject var viewModel: CollectionViewModel
+    var onEditTap: (() -> Void)?
+    var onFilterTap: (() -> Void)?
+
+    private var hasActiveFilters: Bool { viewModel.tableDataModel.hasActiveFilters }
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            CollectionFilterButton(isActive: hasActiveFilters, bordered: false, onFilterTap: onFilterTap)
+        }
+        if #available(iOS 26.0, *) {
+            ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+        }
+        if hasActiveFilters {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                CollectionClearFilterButton(viewModel: viewModel, bordered: false)
+            }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+            }
+        }
+        if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                CollectionRowActionsButton(viewModel: viewModel, onEditTap: onEditTap, bordered: false)
+            }
+        }
+    }
+}
+
+/// Plain toolbar (iOS 15): bordered buttons in a single item, no iOS 16-only toolbar APIs.
+struct CollectionModalTopNavigationLegacy: ToolbarContent {
+    @ObservedObject var viewModel: CollectionViewModel
+    var onEditTap: (() -> Void)?
+    var onFilterTap: (() -> Void)?
+
+    private var hasActiveFilters: Bool { viewModel.tableDataModel.hasActiveFilters }
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            HStack {
+                CollectionFilterButton(isActive: hasActiveFilters, bordered: true, onFilterTap: onFilterTap)
+                if hasActiveFilters {
+                    CollectionClearFilterButton(viewModel: viewModel, bordered: true)
+                }
+                if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+                    CollectionRowActionsButton(viewModel: viewModel, onEditTap: onEditTap, bordered: true)
+                }
+            }
+        }
+    }
+}
+
+/// Reference-typed edit buffer so mutating `changes` never re-renders the sheet (keystroke lag at 11k rows).
+fileprivate final class RowFormChangesBox {
+    var changes = [String: ValueUnion]()
+}
+
 struct CollectionEditMultipleRowsSheetView: View {
     @ObservedObject var viewModel: CollectionViewModel
     @Environment(\.presentationMode) var presentationMode
-    @State var changes = [String: ValueUnion]()
+    @State private var changesBox = RowFormChangesBox()
+    /// Bulk-edit columns currently non-empty; drives the required asterisk, updated only on empty↔filled transitions.
+    @State private var filledColumns = Set<String>()
     @State private var isLoading = false
     @State private var viewID = UUID() // Unique ID for the view
     @State private var debounceTask: Task<Void, Never>?
 
+    /// Non-`@State` accessor over the box so existing call sites are unchanged and never trigger re-renders.
+    private var changes: [String: ValueUnion] {
+        get { changesBox.changes }
+        nonmutating set { changesBox.changes = newValue }
+    }
+
     init(viewModel: CollectionViewModel) {
         self.viewModel = viewModel
+    }
+
+    /// Writes `@State` only on an empty↔filled transition so repeated keystrokes don't re-render the sheet.
+    private func updateFilledState(columnID: String) {
+        let nowFilled: Bool
+        switch changesBox.changes[columnID] {
+        case .string(let str): nowFilled = !str.isEmpty
+        case .double, .int, .bool: nowFilled = true
+        case .array(let arr): nowFilled = !arr.isEmpty
+        case .valueElementArray(let arr): nowFilled = !arr.isEmpty
+        default: nowFilled = false
+        }
+        if nowFilled, !filledColumns.contains(columnID) {
+            filledColumns.insert(columnID)
+        } else if !nowFilled, filledColumns.contains(columnID) {
+            filledColumns.remove(columnID)
+        }
     }
 
     /// Whether the current selection's schema level can accept another row — resolves the level once, then asks the shared rule.
@@ -335,7 +411,8 @@ struct CollectionEditMultipleRowsSheetView: View {
     }
 
     private func resetChanges() {
-        changes = [:]
+        changesBox.changes = [:]
+        if !filledColumns.isEmpty { filledColumns = [] } // only touch @State when something actually clears
     }
     
     private func isColumnEffectivelyRequired(_ col: FieldTableColumn, schemaKey: String) -> Bool {
@@ -682,6 +759,10 @@ struct CollectionEditMultipleRowsSheetView: View {
                             default:
                                 break
                             }
+                            // Refresh the required-asterisk only on an empty↔filled transition, not per keystroke.
+                            if isUsedForBulkEdit {
+                                updateFilledState(columnID: columnID)
+                            }
                             Task { @MainActor in
                                 if !isUsedForBulkEdit {
                                     await viewModel.bulkEdit(changes: changes)
@@ -689,33 +770,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                                 }
                             }
                         }
-                        
-                        var isFilledBasedOnChange: Bool {
-                            guard isUsedForBulkEdit, let changeValue = changes[columnID] else {
-                                return false
-                            }
-                            
-                            switch changeValue {
-                            case .string(let str):
-                                return !str.isEmpty
-                            case .double:
-                                return true
-                            case .int:
-                                return true
-                            case .bool:
-                                return true
-                            case .array(let arr):
-                                return !arr.isEmpty
-                            case .valueElementArray(let arr):
-                                return !arr.isEmpty
-                            case .null:
-                                return false
-                            default:
-                                return false
-                            }
-                        }
-                        
-                        let isEffectivelyFilled = isUsedForBulkEdit ? isFilledBasedOnChange : cellModel.isFilled
+
+                        let isEffectivelyFilled = isUsedForBulkEdit ? filledColumns.contains(columnID) : cellModel.isFilled
                         
                         switch col.type {
                         case .text:
@@ -816,22 +872,28 @@ struct CollectionEditMultipleRowsSheetView: View {
 }
 
 /// Filter button, styled like "+ Row": 32pt tall, 8pt continuous corners, surface fill and standard button border.
-/// Active shows blue icon, border and a light blue fill.
+/// Active shows a blue icon. On iOS 16+ the nav bar's glass capsule is the background; on iOS 15 (bordered) it draws its own card/border.
 struct FilterButtonLabel: View {
     let isActive: Bool
+    var bordered: Bool = false
     @Environment(\.colorScheme) private var colorScheme
 
+    @ViewBuilder
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
-        let surface = colorScheme == .dark ? Color(UIColor.tertiarySystemBackground) : Color.white
-        let border = isActive ? Color.blue : Color.buttonBorderColor
-        Image(systemName: "line.3.horizontal.decrease")
+        let icon = Image(systemName: "line.3.horizontal.decrease")
             .font(.system(size: 14, weight: .medium))
             .foregroundColor(isActive ? .blue : .gray)
-            .padding(.horizontal, 12)
-            .frame(height: 32)
-            .background(shape.fill(isActive ? Color.blue.opacity(0.12) : surface))
-            .overlay(shape.strokeBorder(border, lineWidth: 1))
-            .contentShape(shape)
+        if bordered {
+            let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
+            let surface = colorScheme == .dark ? Color(UIColor.tertiarySystemBackground) : Color.white
+            icon
+                .padding(.horizontal, 12)
+                .frame(height: 32)
+                .background(shape.fill(isActive ? Color.blue.opacity(0.12) : surface))
+                .overlay(shape.strokeBorder(isActive ? Color.blue : Color.buttonBorderColor, lineWidth: 1))
+                .contentShape(shape)
+        } else {
+            icon
+        }
     }
 }

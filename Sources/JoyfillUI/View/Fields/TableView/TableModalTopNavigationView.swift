@@ -1,23 +1,16 @@
 import SwiftUI
 import JoyfillModel
 
-struct TableModalTopNavigationView: View {
+/// More-row-actions button + its popovers. Shared by the glass (iOS 16+) and plain (iOS 15) toolbars.
+struct TableRowActionsButton: View {
     @ObservedObject var viewModel: TableViewModel
     var onEditTap: (() -> Void)?
-    
+    var bordered: Bool
+
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
 
     var body: some View {
-        HStack {
-            if let title = viewModel.tableDataModel.title {
-                Text("\(title)")
-                    .font(.headline.bold())
-            }
-
-            Spacer()
-
-            if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
                 Button(action: {
                     dismissKeyboard()
                     showingPopover = true
@@ -25,9 +18,7 @@ struct TableModalTopNavigationView: View {
                     Text("More ^")
                         .foregroundStyle(.blue)
                         .font(.system(size: 14))
-                        .frame(width: 80, height: 27)
-                        .overlay(RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.buttonBorderColor, lineWidth: 1))
+                        .modifier(NavBarButtonBorder(bordered: bordered, fixedWidth: 80))
                 }
                 .accessibilityIdentifier("TableMoreButtonIdentifier")
                 .popover(isPresented: $showingPopover) {
@@ -226,26 +217,89 @@ struct TableModalTopNavigationView: View {
                         }
                     )
                 }
-            }
-
-            Button(action: {
-                viewModel.addRow()
-            }) {
-                Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
-                    .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
-                    .font(.system(size: 14))
-                    .frame(height: 27)
-                    .padding(.horizontal, 16)
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .stroke(Color.buttonBorderColor, lineWidth: 1))
-            }
-            .disabled(viewModel.tableDataModel.mode == .readonly || !viewModel.tableDataModel.canAddRows())
-            .accessibilityIdentifier("TableAddRowIdentifier")
-        }
     }
 
     var rowTitle: String {
         "\(viewModel.tableDataModel.selectedRows.count) " + (viewModel.tableDataModel.selectedRows.count > 1 ? "rows": "row")
+    }
+}
+
+/// The Add Row button. Shared by both toolbars.
+struct TableAddRowButton: View {
+    @ObservedObject var viewModel: TableViewModel
+    var bordered: Bool
+
+    var body: some View {
+        Button(action: {
+            viewModel.addRow()
+        }) {
+            Text(viewModel.tableDataModel.filterModels.noFilterApplied ? "Add Row +": "Add Row With Filters +")
+                .foregroundStyle(viewModel.tableDataModel.canAddRows() ? .blue : .gray)
+                .font(.system(size: 14))
+                .modifier(NavBarButtonBorder(bordered: bordered))
+        }
+        .disabled(viewModel.tableDataModel.mode == .readonly || !viewModel.tableDataModel.canAddRows())
+        .accessibilityIdentifier("TableAddRowIdentifier")
+    }
+}
+
+/// The old bordered-capsule chrome, applied only on iOS 15 (no Liquid Glass there); on iOS 16+ the toolbar's own glass capsule provides the shape.
+struct NavBarButtonBorder: ViewModifier {
+    let bordered: Bool
+    var fixedWidth: CGFloat? = nil
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if bordered {
+            Group {
+                if let fixedWidth {
+                    content.frame(width: fixedWidth, height: 27)
+                } else {
+                    content.frame(height: 27).padding(.horizontal, 16)
+                }
+            }
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.buttonBorderColor, lineWidth: 1))
+        } else {
+            content
+        }
+    }
+}
+
+/// Glass toolbar (iOS 16+): each action is its own Liquid Glass capsule, split by a spacer.
+@available(iOS 16.0, *)
+struct TableModalTopNavigationView: ToolbarContent {
+    @ObservedObject var viewModel: TableViewModel
+    var onEditTap: (() -> Void)?
+
+    var body: some ToolbarContent {
+        if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                TableRowActionsButton(viewModel: viewModel, onEditTap: onEditTap, bordered: false)
+            }
+            if #available(iOS 26.0, *) {
+                ToolbarSpacer(.fixed, placement: .navigationBarTrailing)
+            }
+        }
+        ToolbarItem(placement: .navigationBarTrailing) {
+            TableAddRowButton(viewModel: viewModel, bordered: false)
+        }
+    }
+}
+
+/// Plain toolbar (iOS 15): bordered buttons in a single item, no iOS 16-only toolbar APIs.
+struct TableModalTopNavigationLegacy: ToolbarContent {
+    @ObservedObject var viewModel: TableViewModel
+    var onEditTap: (() -> Void)?
+
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            HStack {
+                if !viewModel.tableDataModel.selectedRows.isEmpty && viewModel.tableDataModel.mode == .fill {
+                    TableRowActionsButton(viewModel: viewModel, onEditTap: onEditTap, bordered: true)
+                }
+                TableAddRowButton(viewModel: viewModel, bordered: true)
+            }
+        }
     }
 }
 

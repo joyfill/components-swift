@@ -71,13 +71,16 @@ public struct DisplayConfig: Equatable, Sendable {
     public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
     public var decorators: DecoratorConfig      // was `decoratorConfig`
     public var enableRowDuplicates: Bool        // SDK-level opt-in for row duplication
+    public var fullWidthGrid: Bool              // SDK-level opt-in: table/collection grid runs edge-to-edge by ignoring horizontal safe-area insets
 
     public init(singleClickRowEdit: Bool = false,
                 decorators: DecoratorConfig = DecoratorConfig(),
-                enableRowDuplicates: Bool = false) {
+                enableRowDuplicates: Bool = false,
+                fullWidthGrid: Bool = false) {
         self.singleClickRowEdit = singleClickRowEdit
         self.decorators = decorators
         self.enableRowDuplicates = enableRowDuplicates
+        self.fullWidthGrid = fullWidthGrid
     }
 }
 
@@ -130,6 +133,7 @@ public class DocumentEditor: ObservableObject {
     private(set) var pageSheetHostStack: [UUID] = []
     public var singleClickRowEdit: Bool = false
     public var enableRowDuplicates: Bool = false
+    @Published public var fullWidthGrid: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -165,6 +169,7 @@ public class DocumentEditor: ObservableObject {
                 self.showPageNavigationView = config.page.navigation
                 self.singleClickRowEdit = config.display.singleClickRowEdit
                 self.enableRowDuplicates = config.display.enableRowDuplicates
+                self.fullWidthGrid = config.display.fullWidthGrid
                 self.currentPageID = ""
                 self.events = config.events
                 self.decoratorConfig = config.display.decorators
@@ -183,6 +188,7 @@ public class DocumentEditor: ObservableObject {
         self.showPageNavigationView = config.page.navigation
         self.singleClickRowEdit = config.display.singleClickRowEdit
         self.enableRowDuplicates = config.display.enableRowDuplicates
+        self.fullWidthGrid = config.display.fullWidthGrid
         self.currentPageID = ""
         self.events = config.events
         // Set feature flags from license
@@ -1256,9 +1262,10 @@ extension DocumentEditor {
         
         var duplicatedPage = originalPage
         duplicatedPage.id = newPageID
-        // Copied pages are always fully editable per spec
+        // A duplicate is always deletable so an accidental copy can be removed.
+        // copyable is kept exactly from the source page, including a copy of a copy.
+        // Missing or invalid copyable stays unresolved here and reads as [.withValues].
         duplicatedPage.deletable = true
-        duplicatedPage.copyable = [.withValues, .withoutValues]
         
         var fieldMapping: [String: String] = [:]
         var newFields: [JoyDocField] = []
@@ -1272,7 +1279,8 @@ extension DocumentEditor {
                 let originalAltPageID = originalAltPage.id
                 originalAltPage.id = duplicatedPage.id
                 originalAltPage.deletable = true
-                originalAltPage.copyable = [.withValues, .withoutValues]
+                // Mobile view follows the main page's resolved copyable.
+                originalAltPage.copyable = duplicatedPage.copyable
                 
                 var alternateFieldMapping: [String: String] = [:]
                 var alternateNewFields: [JoyDocField] = []
@@ -1576,10 +1584,12 @@ extension DocumentEditor {
         updateFieldPositionMap()
         pageFieldModels.removeValue(forKey: pageID)
         
-        // 10. Remove fields from fieldMap (didSet will automatically update document.fields)
+        // 10. Remove fields from fieldMap in one assignment so the didSet rebuilds document.fields once, not per field.
+        var updatedFieldMap = fieldMap
         for fieldID in fieldsToRemove {
-            fieldMap.removeValue(forKey: fieldID)
+            updatedFieldMap.removeValue(forKey: fieldID)
         }
+        fieldMap = updatedFieldMap
         
         // 11. Reinitialize conditional logic handler
         self.conditionalLogicHandler = ConditionalLogicHandler(documentEditor: self)
