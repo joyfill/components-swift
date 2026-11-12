@@ -61,7 +61,7 @@ final class DocumentEditorConfigTests: XCTestCase {
                                                                visibleLimitInRows: 3,
                                                                showInBulkForm: false),
                                    enableRowDuplicates: false,
-                                   usesFullWidth: true)
+                                   fullWidthGrid: true)
         )
 
         let editor = DocumentEditor(document: JoyDoc(), config: config)
@@ -75,7 +75,7 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertEqual(editor.decoratorConfig.visibleLimitInRows, 3)
         XCTAssertFalse(editor.decoratorConfig.showInBulkForm)   // display.decorators.showInBulkForm
         XCTAssertFalse(editor.enableRowDuplicates)           // display.enableRowDuplicates
-        XCTAssertTrue(editor.usesFullWidth)                  // display.usesFullWidth
+        XCTAssertTrue(editor.fullWidthGrid)                  // display.fullWidthGrid
     }
 
     /// Row duplication is disabled unless a host explicitly opts in.
@@ -99,16 +99,16 @@ final class DocumentEditorConfigTests: XCTestCase {
     }
 
     /// The opt-in must survive even when schema validation fails and the init takes its early-return branch.
-    func testConfigInit_invalidDoc_stillCarriesUsesFullWidth() {
+    func testConfigInit_invalidDoc_stillCarriesFullWidthGrid() {
         let editor = DocumentEditor(
             document: invalidDocument(),
             config: DocumentEditorConfig(
                 validateSchema: true,
-                display: DisplayConfig(usesFullWidth: true)
+                display: DisplayConfig(fullWidthGrid: true)
             )
         )
         XCTAssertNotNil(editor.schemaError)     // early-return path taken
-        XCTAssertTrue(editor.usesFullWidth)     // ...and the flag still mapped
+        XCTAssertTrue(editor.fullWidthGrid)     // ...and the flag still mapped
     }
 
     // MARK: - Readonly coercion

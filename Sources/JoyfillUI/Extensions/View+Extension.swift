@@ -107,12 +107,12 @@ extension View {
     }
 }
 
-/// Observes the editor so a runtime `usesFullWidth` change re-lays out the surface.
+/// Observes the editor so a runtime `fullWidthGrid` change re-lays out the surface.
 private struct FullWidthModifier: ViewModifier {
     @ObservedObject var documentEditor: DocumentEditor
 
     func body(content: Content) -> some View {
-        content.ignoresSafeArea(.container, edges: documentEditor.usesFullWidth ? .horizontal : [])
+        content.ignoresSafeArea(.container, edges: documentEditor.fullWidthGrid ? .horizontal : [])
     }
 }
 

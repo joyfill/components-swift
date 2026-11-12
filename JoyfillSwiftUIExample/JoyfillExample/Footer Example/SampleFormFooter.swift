@@ -16,7 +16,7 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
     weak var documentEditor: DocumentEditor? {
         didSet {
             isPageNavigationVisible = documentEditor?.showPageNavigationView ?? true
-            isFullWidth = documentEditor?.usesFullWidth ?? false
+            isFullWidth = documentEditor?.fullWidthGrid ?? false
         }
     }
 
@@ -57,8 +57,8 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
 
     func toggleFullWidthTapped() {
         guard let editor = documentEditor else { return }
-        editor.usesFullWidth.toggle()
-        isFullWidth = editor.usesFullWidth
+        editor.fullWidthGrid.toggle()
+        isFullWidth = editor.fullWidthGrid
     }
 
     func upTapped() {
