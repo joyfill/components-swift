@@ -328,6 +328,8 @@ struct CollectionModalView : View {
                 .simultaneousGesture(DragGesture().onChanged({ _ in
                     dismissKeyboard()
                 }))
+                // On the always-mounted grid so the sticky-header cache keeps invalidating even while the keyboard hides the overlay.
+                .onReceive(viewModel.objectWillChange) { _ in stickyTracker.revision &+= 1 }
             }
         }
     }
