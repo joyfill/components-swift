@@ -60,7 +60,8 @@ final class DocumentEditorConfigTests: XCTestCase {
                                    decorators: DecoratorConfig(visibleLimitInFields: 5,
                                                                visibleLimitInRows: 3,
                                                                showInBulkForm: false),
-                                   enableRowDuplicates: false)
+                                   enableRowDuplicates: false,
+                                   fullWidthGrid: true)
         )
 
         let editor = DocumentEditor(document: JoyDoc(), config: config)
@@ -74,6 +75,7 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertEqual(editor.decoratorConfig.visibleLimitInRows, 3)
         XCTAssertFalse(editor.decoratorConfig.showInBulkForm)   // display.decorators.showInBulkForm
         XCTAssertFalse(editor.enableRowDuplicates)           // display.enableRowDuplicates
+        XCTAssertTrue(editor.fullWidthGrid)                  // display.fullWidthGrid
     }
 
     /// Row duplication is disabled unless a host explicitly opts in.
@@ -94,6 +96,30 @@ final class DocumentEditorConfigTests: XCTestCase {
         )
         XCTAssertNotNil(editor.schemaError)        // early-return path taken
         XCTAssertFalse(editor.enableRowDuplicates) // ...and the flag still mapped
+    }
+
+    /// The opt-in must survive even when schema validation fails and the init takes its early-return branch.
+    func testConfigInit_invalidDoc_stillCarriesFullWidthGrid() {
+        let editor = DocumentEditor(
+            document: invalidDocument(),
+            config: DocumentEditorConfig(
+                validateSchema: true,
+                display: DisplayConfig(fullWidthGrid: true)
+            )
+        )
+        XCTAssertNotNil(editor.schemaError)     // early-return path taken
+        XCTAssertTrue(editor.fullWidthGrid)     // ...and the flag still mapped
+    }
+
+    /// The runtime setter is the only public write path; it must flip the published flag both ways.
+    func testSetFullWidthGrid_updatesPublishedFlag() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertFalse(editor.fullWidthGrid) // default
+        editor.setFullWidthGrid(true)
+        XCTAssertTrue(editor.fullWidthGrid)
+        editor.setFullWidthGrid(false)
+        XCTAssertFalse(editor.fullWidthGrid)
     }
 
     // MARK: - Readonly coercion
