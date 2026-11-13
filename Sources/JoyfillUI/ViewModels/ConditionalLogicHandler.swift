@@ -80,6 +80,17 @@ class ConditionalLogicHandler {
     private var requiredFieldMap = [String: Bool]()            // fieldID : isRequired
     private var cellRequiredMap = [String: [CellID: Bool]]()   // fieldID : (rowID + columnID) : isRequired
         
+    // Guards all cache access. These maps are read by validate() (which consumers may call off the
+    // main thread) and mutated by main-thread edits; concurrent Dictionary access corrupts storage.
+    // Recursive so an entry point calling another entry point on the same thread does not deadlock.
+    private let cacheLock = NSRecursiveLock()
+
+    /// Thread-safe setter for the field-visibility cache, used by the formula layer.
+    func setFieldVisibility(fieldID: String, hidden: Bool) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
+        showFieldMap[fieldID] = hidden
+    }
+
     init(documentEditor: DocumentEditor) {
         self.documentEditor = documentEditor
         documentEditor.allFields.forEach { field in
@@ -215,22 +226,26 @@ class ConditionalLogicHandler {
     }
 
     public func shouldShow(fieldID: String?) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         guard let fieldID = fieldID else { return true }
         return showFieldMap[fieldID] ?? true
     }
 
     public func shouldShow(pageID: String?) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         guard let pageID = pageID else { return true }
         guard let page = documentEditor.pagesForCurrentView.first(where: { $0.id == pageID }) else { return true }
         return shouldShow(page: page)
     }
     
     public func shouldShow(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
         return showColumnLogicMap[fieldID]?.showColumnMap[columnSchemaID] ?? true
     }
 
     func fieldsNeedsToBeRefreshed(fieldID: String) -> [String] {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         var refreshFieldIDs = [String]()
         guard let dependentFields = fieldConditionalDependencyMap[fieldID] else { return []}
         // Refresh dependent fields if required
@@ -317,6 +332,7 @@ class ConditionalLogicHandler {
     }
 
     func shouldShow(page: Page?) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         guard let page = page else { return true }
         let model = conditionalLogicModel(page: page)
         let lastHiddenState = page.hidden
@@ -331,6 +347,7 @@ class ConditionalLogicHandler {
     }
 
     public func shouldShowSchema(for collectionFieldID: String, rowSchemaID: RowSchemaID) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         return showCollectionSchemaMap[collectionFieldID]?.showSchemaMap[rowSchemaID] ?? true
     }
 
@@ -613,6 +630,7 @@ class ConditionalLogicHandler {
     }
 
     func updateSchemaVisibility(collectionFieldID: String, columnID: String, rowID: String, valueElement: ValueElement?) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         guard let dependencyLogic = collectionDependencyMap[collectionFieldID], let affectedSchemas = dependencyLogic.columnDependencyMap[columnID] else { return }
         
         guard let field = documentEditor.field(fieldID: collectionFieldID) else { return }
@@ -635,6 +653,7 @@ class ConditionalLogicHandler {
     }
     
     func updateShowCollectionSchemaMap(collectionFieldID: String, rowID: String, valueElement: ValueElement?) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         var collectionLogic = showCollectionSchemaMap[collectionFieldID] ?? CollectionSchemaLogic()
         
         guard let field = documentEditor.field(fieldID: collectionFieldID) else { return }
@@ -653,6 +672,7 @@ class ConditionalLogicHandler {
     }
     
     func shouldRefreshSchema(for collectionFieldID: String, columnID: String) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         return collectionDependencyMap[collectionFieldID]?.columnDependencyMap.keys.contains(columnID) ?? false
     }
 }
@@ -694,6 +714,7 @@ extension ConditionalLogicHandler {
     }
 
     func addCellLogicForNewRow(fieldID: String, schemaID: String? = nil, row: ValueElement) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         guard let columns = tableColumns(fieldID: fieldID, schemaID: schemaID) else { return }
         updateCellLogicForRow(fieldID: fieldID, columns: columns, row: row)
     }
@@ -738,25 +759,30 @@ extension ConditionalLogicHandler {
     }
 
     func removeCellLogicForRow(fieldID: String, rowID: String) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         cellVisibilityMap[fieldID] = cellVisibilityMap[fieldID]?.filter { $0.key.rowID != rowID }
         cellRequiredMap[fieldID] = cellRequiredMap[fieldID]?.filter { $0.key.rowID != rowID }
     }
 
     func removeCellLogicForRows(fieldID: String, rowIDs: Set<String>) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         cellVisibilityMap[fieldID] = cellVisibilityMap[fieldID]?.filter { !rowIDs.contains($0.key.rowID) }
         cellRequiredMap[fieldID] = cellRequiredMap[fieldID]?.filter { !rowIDs.contains($0.key.rowID) }
     }
 
     func shouldShowCell(fieldID: String, columnID: String, rowID: String) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         let cellID = CellID(rowID: rowID, columnID: columnID)
         return cellVisibilityMap[fieldID]?[cellID] ?? true
     }
 
     func hasCellDependents(fieldID: String, editedColumnID: String) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         return cellDependencyMap[fieldID]?[editedColumnID] != nil
     }
 
     func refreshCellLogic(forChangedField fieldID: String) -> [String: Set<String>] {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         guard let refs = pageFieldCellDependencyMap[fieldID] else { return [:] }
         var changedColumnsByTable = [String: Set<String>]()
         for ref in refs {
@@ -811,15 +837,18 @@ extension ConditionalLogicHandler {
 extension ConditionalLogicHandler {
     // MARK: - Effective-required computation
     public func isFieldRequired(fieldID: String) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         return requiredFieldMap[fieldID] ?? false
     }
 
     public func isColumnRequired(columnID: String, fieldID: String, schemaKey: String? = nil) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         let columnSchemaID = ColumnSchemaID(columnID: columnID, schemaID: schemaKey)
         return showColumnLogicMap[fieldID]?.requiredColumnMap[columnSchemaID] ?? false
     }
     
     public func isCellRequired(columnID: String, fieldID: String, rowID: String) -> Bool {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         let cellID = CellID(rowID: rowID, columnID: columnID)
         return cellRequiredMap[fieldID]?[cellID] ?? false
     }
@@ -888,6 +917,7 @@ extension ConditionalLogicHandler {
     }
     
     func refreshDependentCellLogic(fieldID: String, schemaID: String? = nil, editedColumnID: String, row: ValueElement) {
+        cacheLock.lock(); defer { cacheLock.unlock() }
         // either cell visibility changed or cell requiredness changed
         guard let dependentColumns = cellDependencyMap[fieldID]?[editedColumnID],
               let columns = tableColumns(fieldID: fieldID, schemaID: schemaID) else { return }

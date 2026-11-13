@@ -867,6 +867,50 @@ final class CollectionViewModelDocumentEditorDelegateTests: XCTestCase {
                         "Nested row must still be present after the schemaId-less update")
     }
 
+    // Reproduces the off-main validate() data race that crashes in production: background readers
+    // call validate() while the main thread churns a row's cell-logic cache, as editing does.
+    // Unguarded, the concurrent Dictionary access crashes on a normal run; guarded, it passes.
+    // Synchronous so the writer stays on the main thread (an async XCTest body would not).
+    func testDataRace_validateOffMain_cacheChurn() throws {
+        let documentEditor = DocumentEditor(document: createTestDocument(), config: DocumentEditorConfig(validateSchema: false))
+
+        let setupField = documentEditor.field(fieldID: tableFieldID)
+        let fieldHeaderModel = FieldHeaderModel(title: setupField?.title, required: setupField?.required, tipDescription: setupField?.tipDescription, tipTitle: setupField?.tipTitle, tipVisible: setupField?.tipVisible, visibleLimitInFields: documentEditor.decoratorConfig.visibleLimitInFields)
+        guard let tableDataModel = TableDataModel(fieldHeaderModel: fieldHeaderModel, mode: .fill, documentEditor: documentEditor, fieldIdentifier: FieldIdentifier(fieldID: tableFieldID, pageID: pageID, fileID: fileID)) else {
+            return XCTFail("TableDataModel not found for \(tableFieldID)")
+        }
+        _ = CollectionViewModel(tableDataModel: tableDataModel)
+
+        guard let field = documentEditor.field(fieldID: tableFieldID),
+              let rootSchemaKey = field.schema?.first(where: { $0.value.root == true })?.key,
+              let row = field.valueToValueElements?.first,
+              let rowID = row.id else {
+            return XCTFail("Collection field \(tableFieldID) must have a root schema and at least one row")
+        }
+
+        let iterations = 20_000
+        let readerCount = 3
+        let readers = DispatchGroup()
+
+        // Readers: validate() off-main — the racing call from the production crash.
+        for i in 0..<readerCount {
+            let readerQ = DispatchQueue(label: "com.servicetrade.forms.search.\(i)")
+            readers.enter()
+            readerQ.async {
+                for _ in 0..<iterations { _ = documentEditor.validate() }
+                readers.leave()
+            }
+        }
+
+        // Writer: churn the row's cell-logic cache on main, as editing does (remove then re-add).
+        for _ in 0..<iterations {
+            documentEditor.conditionalLogicHandler.removeCellLogicForRow(fieldID: tableFieldID, rowID: rowID)
+            documentEditor.conditionalLogicHandler.addCellLogicForNewRow(fieldID: tableFieldID, schemaID: rootSchemaKey, row: row)
+        }
+
+        readers.wait()
+    }
+
     // MARK: - bulkEdit(changes:) keeps the nested-schema visibility map in step
     //
     // The visibility map is read on the main thread from SwiftUI body evaluation, so the
