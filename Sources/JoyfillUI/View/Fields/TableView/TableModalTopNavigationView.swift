@@ -9,6 +9,7 @@ struct TableRowActionsButton: View {
 
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
                 Button(action: {
@@ -99,7 +100,7 @@ struct TableRowActionsButton: View {
                             
                             Button(action: {
                                 showingPopover = false
-                                viewModel.deleteSelectedRow()
+                                $showDeleteConfirmation.presentRowDeleteConfirmation()
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -186,8 +187,8 @@ struct TableRowActionsButton: View {
                             }
 
                             Button(action: {
-                                viewModel.deleteSelectedRow()
                                 showingPopover = false
+                                $showDeleteConfirmation.presentRowDeleteConfirmation()
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -216,6 +217,9 @@ struct TableRowActionsButton: View {
                             showDuplicatePopover = false
                         }
                     )
+                }
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle) {
+                    viewModel.deleteSelectedRow()
                 }
     }
 
@@ -771,4 +775,27 @@ struct EditMultipleRowsSheetView: View {
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
     }
 
+}
+
+extension Binding where Value == Bool {
+    /// Presents the row-delete confirmation on the next runloop, after the popover dismisses.
+    func presentRowDeleteConfirmation() {
+        DispatchQueue.main.async { self.wrappedValue = true }
+    }
+}
+
+extension View {
+    /// Shared confirmation gate shown before deleting table/collection rows.
+    func rowDeleteConfirmation(
+        isPresented: Binding<Bool>,
+        rowTitle: String,
+        onConfirm: @escaping () -> Void
+    ) -> some View {
+        alert("Delete \(rowTitle)?", isPresented: isPresented) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive, action: onConfirm)
+        } message: {
+            Text("Deleting the selected rows will also remove any associated data. This action cannot be undone.")
+        }
+    }
 }
