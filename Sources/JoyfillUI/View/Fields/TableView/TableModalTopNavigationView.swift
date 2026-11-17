@@ -100,7 +100,7 @@ struct TableRowActionsButton: View {
                             
                             Button(action: {
                                 showingPopover = false
-                                $showDeleteConfirmation.presentRowDeleteConfirmation()
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -188,7 +188,7 @@ struct TableRowActionsButton: View {
 
                             Button(action: {
                                 showingPopover = false
-                                $showDeleteConfirmation.presentRowDeleteConfirmation()
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -218,7 +218,7 @@ struct TableRowActionsButton: View {
                         }
                     )
                 }
-                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle) {
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle, message: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation.message) {
                     viewModel.deleteSelectedRow()
                 }
     }
@@ -778,9 +778,13 @@ struct EditMultipleRowsSheetView: View {
 }
 
 extension Binding where Value == Bool {
-    /// Presents the row-delete confirmation on the next runloop, after the popover dismisses.
-    func presentRowDeleteConfirmation() {
-        DispatchQueue.main.async { self.wrappedValue = true }
+    /// Presents the confirmation (next runloop, after the popover dismisses) when the gate is enabled; otherwise deletes now.
+    func requestRowDelete(config: RowDeleteConfirmationConfig?, deleteNow: () -> Void) {
+        if config?.isEnabled == true {
+            DispatchQueue.main.async { self.wrappedValue = true }
+        } else {
+            deleteNow()
+        }
     }
 }
 
@@ -789,13 +793,16 @@ extension View {
     func rowDeleteConfirmation(
         isPresented: Binding<Bool>,
         rowTitle: String,
+        message: String?,
         onConfirm: @escaping () -> Void
     ) -> some View {
         alert("Delete \(rowTitle)?", isPresented: isPresented) {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive, action: onConfirm)
         } message: {
-            Text("Deleting the selected rows will also remove any associated data. This action cannot be undone.")
+            if let message, !message.isEmpty {
+                Text(message)
+            }
         }
     }
 }

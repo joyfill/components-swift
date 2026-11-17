@@ -67,6 +67,17 @@ public struct PageConfig: Equatable, Sendable {
     }
 }
 
+/// Host-configurable gate shown before deleting table/collection rows.
+public struct RowDeleteConfirmationConfig: Equatable, Sendable {
+    public var isEnabled: Bool
+    public var message: String?
+
+    public init(isEnabled: Bool = false, message: String? = nil) {
+        self.isEnabled = isEnabled
+        self.message = message
+    }
+}
+
 public struct DisplayConfig: Equatable, Sendable {
     public var singleClickRowEdit: Bool         // was `singleClickRowEdit`
     public var decorators: DecoratorConfig      // was `decoratorConfig`
@@ -134,6 +145,8 @@ public class DocumentEditor: ObservableObject {
     public var singleClickRowEdit: Bool = false
     public var enableRowDuplicates: Bool = false
     @Published public internal(set) var fullWidthGrid: Bool = false
+    /// Set directly, e.g. `documentEditor.rowDeleteConfirmation = .init(isEnabled: true, message: "…")`.
+    public var rowDeleteConfirmation: RowDeleteConfirmationConfig = RowDeleteConfirmationConfig()
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {

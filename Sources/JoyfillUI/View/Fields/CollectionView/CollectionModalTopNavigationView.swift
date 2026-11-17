@@ -122,7 +122,7 @@ struct CollectionRowActionsButton: View {
 
                             Button(action: {
                                 showingPopover = false
-                                $showDeleteConfirmation.presentRowDeleteConfirmation()
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -215,7 +215,7 @@ struct CollectionRowActionsButton: View {
 
                             Button(action: {
                                 showingPopover = false
-                                $showDeleteConfirmation.presentRowDeleteConfirmation()
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -246,7 +246,7 @@ struct CollectionRowActionsButton: View {
                         }
                     )
                 }
-                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle) {
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle, message: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation.message) {
                     viewModel.deleteSelectedRow()
                 }
     }
