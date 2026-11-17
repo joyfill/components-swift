@@ -303,6 +303,9 @@ struct FormDestinationView: View {
 
             // Publish to UI on the main actor
             await MainActor.run {
+                if enableChangelogs {
+                    editor.setPageNavigationVisible(false)
+                }
                 self.documentEditor = editor
                 self.document = JoyDoc(dictionary: dictionary)
             }
@@ -311,50 +314,13 @@ struct FormDestinationView: View {
 
     var body: some View {
         VStack {
-            if enableChangelogs {
+            if enableChangelogs, let editor = documentEditor {
                 HStack {
+                    TopBarPageButton(documentEditor: editor)
                     Spacer()
-                    Button(action: {
-                        showPublicApis = true
-                    }) {
-                        HStack {
-                            Image(systemName: "gearshape.fill")
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .padding(.trailing, 16)
-                    .padding(.top, 8)
-
-                    Button(action: {
-                        showDecoratorManager = true
-                    }) {
-                        Image(systemName: "paintbrush.pointed.fill")
-                    }
-                    .buttonStyle(.bordered)
-                    .padding(.trailing, 16)
-                    .padding(.top, 8)
-
-                    Button(action: {
-                        showChangelogView = true
-                    }) {
-                        HStack {
-                            Image(systemName: "list.clipboard")
-                            Text("Logs")
-                            if !changeManager.displayedEntries.isEmpty {
-                                Text("\(changeManager.displayedEntries.count)")
-                                    .font(.caption)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.red)
-                                    .clipShape(Capsule())
-                            }
-                        }
-                    }
-                    .buttonStyle(.bordered)
-                    .padding(.trailing, 16)
-                    .padding(.top, 8)
                 }
+                .padding(.leading, 16)
+                .padding(.top, 8)
             }
 
             if let editor = documentEditor {
@@ -378,6 +344,46 @@ struct FormDestinationView: View {
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        }
+        .toolbar {
+            if enableChangelogs {
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showPublicApis = true
+                    }) {
+                        HStack {
+                            Image(systemName: "gearshape.fill")
+                        }
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button(action: {
+                        showDecoratorManager = true
+                    }) {
+                        Image(systemName: "paintbrush.pointed.fill")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button(action: {
+                        showChangelogView = true
+                    }) {
+                        HStack {
+                            Image(systemName: "list.clipboard")
+                            Text("Logs")
+                            if !changeManager.displayedEntries.isEmpty {
+                                Text("\(changeManager.displayedEntries.count)")
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 2)
+                                    .background(Color.red)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                }
             }
         }
         .sheet(isPresented: $showChangelogView) {
@@ -420,10 +426,34 @@ struct FormDestinationView: View {
         }
         // Kick off background creation once the view appears
         .task {
-            if documentEditor == nil {
+            if let editor = documentEditor {
+                if enableChangelogs {
+                    editor.setPageNavigationVisible(false)
+                }
+            } else {
                 buildDocumentEditorInBackground()
             }
         }
+    }
+}
+
+private struct TopBarPageButton: View {
+    @ObservedObject var documentEditor: DocumentEditor
+
+    var body: some View {
+        Button(action: {
+            documentEditor.presentPageSelectionSheet(true)
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.down")
+                Text(documentEditor.firstValidPageFor(currentPageID: documentEditor.currentPageID)?.name ?? "Page")
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+        }
+        .buttonStyle(.bordered)
+        .frame(maxWidth: 220, alignment: .leading)
+        .accessibilityIdentifier("PageNavigationIdentifier")
     }
 }
 
