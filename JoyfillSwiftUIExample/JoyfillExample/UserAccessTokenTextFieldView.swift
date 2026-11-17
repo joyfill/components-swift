@@ -303,6 +303,9 @@ struct FormDestinationView: View {
 
             // Publish to UI on the main actor
             await MainActor.run {
+                if enableChangelogs {
+                    editor.setPageNavigationVisible(false)
+                }
                 self.documentEditor = editor
                 self.document = JoyDoc(dictionary: dictionary)
             }
@@ -312,8 +315,13 @@ struct FormDestinationView: View {
     var body: some View {
         VStack {
             if enableChangelogs {
-                HStack {
-                    Spacer()
+                HStack(spacing: 8) {
+                    if let editor = documentEditor {
+                        TopBarPageButton(documentEditor: editor)
+                    }
+
+                    Spacer(minLength: 8)
+
                     Button(action: {
                         showPublicApis = true
                     }) {
@@ -322,8 +330,6 @@ struct FormDestinationView: View {
                         }
                     }
                     .buttonStyle(.bordered)
-                    .padding(.trailing, 16)
-                    .padding(.top, 8)
 
                     Button(action: {
                         showDecoratorManager = true
@@ -331,8 +337,6 @@ struct FormDestinationView: View {
                         Image(systemName: "paintbrush.pointed.fill")
                     }
                     .buttonStyle(.bordered)
-                    .padding(.trailing, 16)
-                    .padding(.top, 8)
 
                     Button(action: {
                         showChangelogView = true
@@ -350,11 +354,12 @@ struct FormDestinationView: View {
                                     .clipShape(Capsule())
                             }
                         }
+                        .fixedSize()
                     }
                     .buttonStyle(.bordered)
-                    .padding(.trailing, 16)
-                    .padding(.top, 8)
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
 
             if let editor = documentEditor {
@@ -420,10 +425,34 @@ struct FormDestinationView: View {
         }
         // Kick off background creation once the view appears
         .task {
-            if documentEditor == nil {
+            if let editor = documentEditor {
+                if enableChangelogs {
+                    editor.setPageNavigationVisible(false)
+                }
+            } else {
                 buildDocumentEditorInBackground()
             }
         }
+    }
+}
+
+private struct TopBarPageButton: View {
+    @ObservedObject var documentEditor: DocumentEditor
+
+    var body: some View {
+        Button(action: {
+            documentEditor.presentPageSelectionSheet(true)
+        }) {
+            HStack(spacing: 4) {
+                Image(systemName: "chevron.down")
+                Text(documentEditor.firstValidPageFor(currentPageID: documentEditor.currentPageID)?.name ?? "Page")
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+        }
+        .buttonStyle(.bordered)
+        .frame(maxWidth: 140, alignment: .leading)
+        .accessibilityIdentifier("PageNavigationIdentifier")
     }
 }
 
