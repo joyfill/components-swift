@@ -410,4 +410,144 @@ final class DocumentEditorConfigTests: XCTestCase {
         XCTAssertFalse(readonlyEditor.isPageDeleteEnabled)
         XCTAssertFalse(readonlyEditor.singleClickRowEdit)
     }
+
+    // MARK: - rowDeleteConfirmation
+
+    /// The config must default to the opt-out state: disabled with no message.
+    func testRowDeleteConfirmationConfig_defaults() {
+        let config = RowDeleteConfirmationConfig()
+        XCTAssertFalse(config.isEnabled)
+        XCTAssertNil(config.message)
+    }
+
+    /// Explicit values passed to the initializer must be preserved.
+    func testRowDeleteConfirmationConfig_explicitValuesPreserved() {
+        let config = RowDeleteConfirmationConfig(isEnabled: true, message: "Are you sure?")
+        XCTAssertTrue(config.isEnabled)
+        XCTAssertEqual(config.message, "Are you sure?")
+    }
+
+    /// Both fields must participate in `Equatable`.
+    func testRowDeleteConfirmationConfig_equality() {
+        XCTAssertEqual(RowDeleteConfirmationConfig(isEnabled: true, message: "x"),
+                       RowDeleteConfirmationConfig(isEnabled: true, message: "x"))
+        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, message: "x"),
+                          RowDeleteConfirmationConfig(isEnabled: false, message: "x"))
+        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, message: "x"),
+                          RowDeleteConfirmationConfig(isEnabled: true, message: "y"))
+    }
+
+    /// A freshly created editor must default to the gate being off, so existing
+    /// integrators keep deleting rows immediately until they opt in.
+    func testEditor_rowDeleteConfirmation_defaultsDisabled() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
+        XCTAssertNil(editor.rowDeleteConfirmation.message)
+    }
+
+    /// The gate is configured directly on the editor (not via init); setting it
+    /// must take effect and preserve both fields.
+    func testEditor_rowDeleteConfirmation_setDirectly() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(
+            isEnabled: true,
+            message: "Deleting this asset will also delete any deficiencies that exist."
+        )
+
+        XCTAssertTrue(editor.rowDeleteConfirmation.isEnabled)
+        XCTAssertEqual(editor.rowDeleteConfirmation.message,
+                       "Deleting this asset will also delete any deficiencies that exist.")
+    }
+
+    /// `isEnabled` passed alone must leave `message` at its nil default.
+    func testRowDeleteConfirmationConfig_isEnabledOnly_messageNil() {
+        let config = RowDeleteConfirmationConfig(isEnabled: true)
+        XCTAssertTrue(config.isEnabled)
+        XCTAssertNil(config.message)
+    }
+
+    /// `message` passed alone must leave `isEnabled` at its false default — a
+    /// message with no enable flag does not turn the gate on.
+    func testRowDeleteConfirmationConfig_messageOnly_isEnabledFalse() {
+        let config = RowDeleteConfirmationConfig(message: "warn")
+        XCTAssertFalse(config.isEnabled)
+        XCTAssertEqual(config.message, "warn")
+    }
+
+    /// An empty-string message must be distinct from a nil message for equality.
+    func testRowDeleteConfirmationConfig_emptyMessageNotEqualNil() {
+        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, message: ""),
+                          RowDeleteConfirmationConfig(isEnabled: true, message: nil))
+    }
+
+    /// The struct is a value type — mutating a copy must not affect the original.
+    func testRowDeleteConfirmationConfig_valueSemantics() {
+        let original = RowDeleteConfirmationConfig(isEnabled: true, message: "a")
+        var copy = original
+        copy.isEnabled = false
+        copy.message = "b"
+        XCTAssertTrue(original.isEnabled)
+        XCTAssertEqual(original.message, "a")
+        XCTAssertFalse(copy.isEnabled)
+        XCTAssertEqual(copy.message, "b")
+    }
+
+    /// Re-assigning the editor's config must fully replace the previous value,
+    /// including clearing a message back to nil.
+    func testEditor_rowDeleteConfirmation_reassignmentReplacesFully() {
+        let editor = DocumentEditor(document: JoyDoc(),
+                                    config: DocumentEditorConfig(validateSchema: false))
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, message: "x")
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig()
+
+        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
+        XCTAssertNil(editor.rowDeleteConfirmation.message)
+    }
+
+    /// Two editors must hold independent gate configs — setting one must not
+    /// leak onto the other.
+    func testEditor_rowDeleteConfirmation_independentBetweenEditors() {
+        let a = DocumentEditor(document: JoyDoc(),
+                               config: DocumentEditorConfig(validateSchema: false))
+        let b = DocumentEditor(document: JoyDoc(),
+                               config: DocumentEditorConfig(validateSchema: false))
+
+        a.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, message: "x")
+
+        XCTAssertTrue(a.rowDeleteConfirmation.isEnabled)
+        XCTAssertFalse(b.rowDeleteConfirmation.isEnabled)
+        XCTAssertNil(b.rowDeleteConfirmation.message)
+    }
+
+    /// The gate is unrelated to `DisplayConfig` — setting other display flags via
+    /// the config must leave `rowDeleteConfirmation` at its disabled default.
+    func testEditor_rowDeleteConfirmation_unaffectedByDisplayConfig() {
+        let editor = DocumentEditor(
+            document: JoyDoc(),
+            config: DocumentEditorConfig(
+                validateSchema: false,
+                display: DisplayConfig(singleClickRowEdit: true,
+                                       enableRowDuplicates: true,
+                                       fullWidthGrid: true)
+            )
+        )
+        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
+        XCTAssertNil(editor.rowDeleteConfirmation.message)
+    }
+
+    /// Even when schema validation fails and the editor takes its early-return
+    /// path, the gate must still be settable and readable.
+    func testEditor_rowDeleteConfirmation_settableOnInvalidSchemaEditor() {
+        let editor = DocumentEditor(document: invalidDocument(),
+                                    config: DocumentEditorConfig(validateSchema: true))
+        XCTAssertNotNil(editor.schemaError)
+        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled) // default survives
+
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, message: "x")
+        XCTAssertTrue(editor.rowDeleteConfirmation.isEnabled)
+        XCTAssertEqual(editor.rowDeleteConfirmation.message, "x")
+    }
 }
