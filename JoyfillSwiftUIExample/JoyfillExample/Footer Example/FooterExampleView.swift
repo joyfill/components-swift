@@ -24,6 +24,10 @@ struct FooterExampleView: View {
                 page: PageConfig(navigation: true, currentPageID: nil)
             )
         )
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(
+            isEnabled: true,
+            message: "You really wants to delete this row ?"
+        )
         controller.documentEditor = editor
         self.footerController = controller
         self.documentEditor = editor
