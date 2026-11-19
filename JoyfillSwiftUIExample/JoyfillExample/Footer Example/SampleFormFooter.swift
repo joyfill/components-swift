@@ -17,6 +17,7 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
         didSet {
             isPageNavigationVisible = documentEditor?.showPageNavigationView ?? true
             isFullWidth = documentEditor?.fullWidthGrid ?? false
+            isRowFormFooterHidden = documentEditor?.hideFooterInRowForm ?? false
         }
     }
 
@@ -26,6 +27,7 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
     @Published private(set) var navigationEnabled = false
     @Published private(set) var isPageNavigationVisible = true
     @Published private(set) var isFullWidth = false
+    @Published private(set) var isRowFormFooterHidden = false
 
     private var footerPageID: String?
     private var fieldPaths: [String] = []
@@ -59,6 +61,12 @@ final class SampleFormFooterController: ObservableObject, FormChangeEvent {
         guard let editor = documentEditor else { return }
         editor.setFullWidthGrid(!editor.fullWidthGrid)
         isFullWidth = editor.fullWidthGrid
+    }
+
+    func toggleRowFormFooterTapped() {
+        guard let editor = documentEditor else { return }
+        editor.setHideFooterInRowForm(!editor.hideFooterInRowForm)
+        isRowFormFooterHidden = editor.hideFooterInRowForm
     }
 
     func upTapped() {
@@ -200,58 +208,80 @@ struct SampleFormFooterBar: View {
 
     private var submitContent: some View {
         HStack(spacing: 0) {
-            Button(action: { controller.togglePageNavigationTapped() }) {
-                Text(controller.isPageNavigationVisible ? "Hide Pages" : "Show Pages")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 56)
-            }
-            .accessibilityIdentifier("TogglePageNavigationButtonIdentifier")
-            .buttonStyle(.plain)
+            actionButton(
+                icon: controller.isPageNavigationVisible ? "sidebar.squares.left" : "sidebar.left",
+                title: controller.isPageNavigationVisible ? "Hide Pages" : "Show Pages",
+                isOn: controller.isPageNavigationVisible,
+                identifier: "TogglePageNavigationButtonIdentifier",
+                action: { controller.togglePageNavigationTapped() }
+            )
 
-            Rectangle()
-                .fill(Color.white.opacity(0.4))
-                .frame(width: 1, height: 26)
+            divider
 
-            Button(action: { controller.showPageSelectionSheetTapped() }) {
-                Text("Pages Sheet")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 56)
-            }
-            .accessibilityIdentifier("ShowPageSelectionSheetButtonIdentifier")
-            .buttonStyle(.plain)
+            actionButton(
+                icon: "square.stack.3d.up",
+                title: "Pages Sheet",
+                isOn: false,
+                identifier: "ShowPageSelectionSheetButtonIdentifier",
+                action: { controller.showPageSelectionSheetTapped() }
+            )
 
-            Rectangle()
-                .fill(Color.white.opacity(0.4))
-                .frame(width: 1, height: 26)
+            divider
 
-            Button(action: { controller.toggleFullWidthTapped() }) {
-                Text(controller.isFullWidth ? "Inset Width" : "Full Width")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 56)
-            }
-            .accessibilityIdentifier("ToggleFullWidthButtonIdentifier")
-            .buttonStyle(.plain)
+            actionButton(
+                icon: "arrow.left.and.right",
+                title: controller.isFullWidth ? "Inset" : "Full Width",
+                isOn: controller.isFullWidth,
+                identifier: "ToggleFullWidthButtonIdentifier",
+                action: { controller.toggleFullWidthTapped() }
+            )
 
-            Rectangle()
-                .fill(Color.white.opacity(0.4))
-                .frame(width: 1, height: 26)
+            divider
 
-            Button(action: { controller.submitTapped() }) {
-                Text("Submit")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(minHeight: 56)
-            }
-            .accessibilityIdentifier("SubmitValidateButtonIdentifier")
-            .buttonStyle(.plain)
+            actionButton(
+                icon: controller.isRowFormFooterHidden ? "rectangle.bottomthird.inset.filled" : "rectangle.dashed",
+                title: "Row Footer",
+                isOn: !controller.isRowFormFooterHidden,
+                identifier: "ToggleRowFormFooterButtonIdentifier",
+                action: { controller.toggleRowFormFooterTapped() }
+            )
+
+            divider
+
+            actionButton(
+                icon: "checkmark.circle",
+                title: "Submit",
+                isOn: false,
+                identifier: "SubmitValidateButtonIdentifier",
+                action: { controller.submitTapped() }
+            )
         }
+    }
+
+    private var divider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.35))
+            .frame(width: 1, height: 30)
+    }
+
+    private func actionButton(icon: String, title: String, isOn: Bool, identifier: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 3) {
+                Image(systemName: icon)
+                    .font(.system(size: 17, weight: .semibold))
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+            }
+            .foregroundStyle(.white)
+            .opacity(isOn ? 1 : 0.78)
+            .frame(maxWidth: .infinity)
+            .frame(minHeight: 56)
+            .contentShape(Rectangle())
+        }
+        .accessibilityIdentifier(identifier)
+        .buttonStyle(.plain)
     }
 
     private var validationContent: some View {

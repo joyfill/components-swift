@@ -72,15 +72,18 @@ public struct DisplayConfig: Equatable, Sendable {
     public var decorators: DecoratorConfig      // was `decoratorConfig`
     public var enableRowDuplicates: Bool        // SDK-level opt-in for row duplication
     public var fullWidthGrid: Bool              // SDK-level opt-in: table/collection grid runs edge-to-edge by ignoring horizontal safe-area insets
+    public var hideFooterInRowForm: Bool        // SDK-level opt-in: hide the form footer inside the row-form modal sheet
 
     public init(singleClickRowEdit: Bool = false,
                 decorators: DecoratorConfig = DecoratorConfig(),
                 enableRowDuplicates: Bool = false,
-                fullWidthGrid: Bool = false) {
+                fullWidthGrid: Bool = false,
+                hideFooterInRowForm: Bool = false) {
         self.singleClickRowEdit = singleClickRowEdit
         self.decorators = decorators
         self.enableRowDuplicates = enableRowDuplicates
         self.fullWidthGrid = fullWidthGrid
+        self.hideFooterInRowForm = hideFooterInRowForm
     }
 }
 
@@ -134,6 +137,7 @@ public class DocumentEditor: ObservableObject {
     public var singleClickRowEdit: Bool = false
     public var enableRowDuplicates: Bool = false
     @Published public internal(set) var fullWidthGrid: Bool = false
+    @Published public internal(set) var hideFooterInRowForm: Bool = false
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
     var fieldMap = [String: JoyDocField]() {
@@ -170,6 +174,7 @@ public class DocumentEditor: ObservableObject {
                 self.singleClickRowEdit = config.display.singleClickRowEdit
                 self.enableRowDuplicates = config.display.enableRowDuplicates
                 self.fullWidthGrid = config.display.fullWidthGrid
+                self.hideFooterInRowForm = config.display.hideFooterInRowForm
                 self.currentPageID = ""
                 self.events = config.events
                 self.decoratorConfig = config.display.decorators
@@ -189,6 +194,7 @@ public class DocumentEditor: ObservableObject {
         self.singleClickRowEdit = config.display.singleClickRowEdit
         self.enableRowDuplicates = config.display.enableRowDuplicates
         self.fullWidthGrid = config.display.fullWidthGrid
+        self.hideFooterInRowForm = config.display.hideFooterInRowForm
         self.currentPageID = ""
         self.events = config.events
         // Set feature flags from license
@@ -703,6 +709,11 @@ extension DocumentEditor {
     /// Runs the table/collection grid edge-to-edge (ignoring horizontal safe-area insets) when `true`.
     public func setFullWidthGrid(_ fullWidth: Bool) {
         runOnMain { self.fullWidthGrid = fullWidth }
+    }
+
+    /// Hides the form footer inside the row-form modal sheet when `true`. The footer still renders on all other screens.
+    public func setHideFooterInRowForm(_ hidden: Bool) {
+        runOnMain { self.hideFooterInRowForm = hidden }
     }
 
     public func getFieldIdentifier(for fieldID: String) -> FieldIdentifier {
