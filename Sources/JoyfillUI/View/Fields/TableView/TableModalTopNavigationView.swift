@@ -218,7 +218,9 @@ struct TableRowActionsButton: View {
                         }
                     )
                 }
-                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle, message: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation.message) {
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation,
+                                       config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation,
+                                       count: viewModel.tableDataModel.selectedRows.count) {
                     viewModel.deleteSelectedRow()
                 }
     }
@@ -790,18 +792,20 @@ extension Binding where Value == Bool {
 
 extension View {
     /// Shared confirmation gate shown before deleting table/collection rows.
+    /// Resolves config + defaults for `count` rows (single vs. bulk copy, `{count}` substitution).
     func rowDeleteConfirmation(
         isPresented: Binding<Bool>,
-        rowTitle: String,
-        message: String?,
+        config: RowDeleteConfirmationConfig?,
+        count: Int,
         onConfirm: @escaping () -> Void
     ) -> some View {
-        alert("Delete \(rowTitle)?", isPresented: isPresented) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive, action: onConfirm)
+        let resolved = (config ?? RowDeleteConfirmationConfig()).resolved(count: count)
+        return alert(resolved.title, isPresented: isPresented) {
+            Button(resolved.cancelText, role: .cancel) { }
+            Button(resolved.submitText, role: .destructive, action: onConfirm)
         } message: {
-            if let message, !message.isEmpty {
-                Text(message)
+            if !resolved.description.isEmpty {
+                Text(resolved.description)
             }
         }
     }

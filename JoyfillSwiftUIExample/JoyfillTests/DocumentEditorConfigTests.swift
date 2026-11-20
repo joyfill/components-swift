@@ -413,29 +413,105 @@ final class DocumentEditorConfigTests: XCTestCase {
 
     // MARK: - rowDeleteConfirmation
 
-    /// The config must default to the opt-out state: disabled with no message.
+    /// The config must default to the opt-out state: disabled with all copy nil.
     func testRowDeleteConfirmationConfig_defaults() {
         let config = RowDeleteConfirmationConfig()
         XCTAssertFalse(config.isEnabled)
-        XCTAssertNil(config.message)
+        XCTAssertNil(config.title)
+        XCTAssertNil(config.description)
+        XCTAssertNil(config.submitText)
+        XCTAssertNil(config.cancelText)
+        XCTAssertNil(config.bulkTitle)
+        XCTAssertNil(config.bulkDescription)
+        XCTAssertNil(config.bulkSubmitText)
     }
 
     /// Explicit values passed to the initializer must be preserved.
     func testRowDeleteConfirmationConfig_explicitValuesPreserved() {
-        let config = RowDeleteConfirmationConfig(isEnabled: true, message: "Are you sure?")
+        let config = RowDeleteConfirmationConfig(
+            isEnabled: true,
+            title: "Delete?",
+            description: "Are you sure?",
+            submitText: "Yes",
+            cancelText: "No",
+            bulkTitle: "Delete {count}?",
+            bulkDescription: "Remove {count} rows?",
+            bulkSubmitText: "Delete all"
+        )
         XCTAssertTrue(config.isEnabled)
-        XCTAssertEqual(config.message, "Are you sure?")
+        XCTAssertEqual(config.title, "Delete?")
+        XCTAssertEqual(config.description, "Are you sure?")
+        XCTAssertEqual(config.submitText, "Yes")
+        XCTAssertEqual(config.cancelText, "No")
+        XCTAssertEqual(config.bulkTitle, "Delete {count}?")
+        XCTAssertEqual(config.bulkDescription, "Remove {count} rows?")
+        XCTAssertEqual(config.bulkSubmitText, "Delete all")
     }
 
-    /// Both fields must participate in `Equatable`.
+    /// Fields must participate in `Equatable`.
     func testRowDeleteConfirmationConfig_equality() {
-        XCTAssertEqual(RowDeleteConfirmationConfig(isEnabled: true, message: "x"),
-                       RowDeleteConfirmationConfig(isEnabled: true, message: "x"))
-        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, message: "x"),
-                          RowDeleteConfirmationConfig(isEnabled: false, message: "x"))
-        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, message: "x"),
-                          RowDeleteConfirmationConfig(isEnabled: true, message: "y"))
+        XCTAssertEqual(RowDeleteConfirmationConfig(isEnabled: true, description: "x"),
+                       RowDeleteConfirmationConfig(isEnabled: true, description: "x"))
+        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, description: "x"),
+                          RowDeleteConfirmationConfig(isEnabled: false, description: "x"))
+        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, description: "x"),
+                          RowDeleteConfirmationConfig(isEnabled: true, description: "y"))
+        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, bulkTitle: "a"),
+                          RowDeleteConfirmationConfig(isEnabled: true, bulkTitle: "b"))
     }
+
+    // MARK: resolved(count:) — defaults, overrides, {count} token
+
+    /// A single-row delete with no overrides must use the single-row defaults.
+    func testResolved_single_usesDefaults() {
+        let r = RowDeleteConfirmationConfig().resolved(count: 1)
+        XCTAssertEqual(r.title, RowDeleteConfirmationConfig.Defaults.title)
+        XCTAssertEqual(r.description, RowDeleteConfirmationConfig.Defaults.description)
+        XCTAssertEqual(r.submitText, RowDeleteConfirmationConfig.Defaults.submitText)
+        XCTAssertEqual(r.cancelText, RowDeleteConfirmationConfig.Defaults.cancelText)
+    }
+
+    /// A multi-row delete with no overrides must use the bulk defaults and
+    /// substitute the row count for `{count}`.
+    func testResolved_bulk_usesBulkDefaultsAndCount() {
+        let r = RowDeleteConfirmationConfig().resolved(count: 3)
+        XCTAssertEqual(r.title, "Delete 3 Rows?")
+        XCTAssertEqual(r.description, "Are you sure you want to delete 3 rows?")
+        XCTAssertEqual(r.submitText, RowDeleteConfirmationConfig.Defaults.bulkSubmitText)
+        XCTAssertEqual(r.cancelText, RowDeleteConfirmationConfig.Defaults.cancelText)
+    }
+
+    /// Single-row overrides must win over defaults; bulk fields stay unused.
+    func testResolved_single_honorsOverrides() {
+        let config = RowDeleteConfirmationConfig(title: "Remove row",
+                                                 description: "Gone forever",
+                                                 submitText: "Remove",
+                                                 cancelText: "Keep",
+                                                 bulkTitle: "SHOULD NOT SHOW")
+        let r = config.resolved(count: 1)
+        XCTAssertEqual(r.title, "Remove row")
+        XCTAssertEqual(r.description, "Gone forever")
+        XCTAssertEqual(r.submitText, "Remove")
+        XCTAssertEqual(r.cancelText, "Keep")
+    }
+
+    /// `{count}` must be substituted inside custom bulk copy.
+    func testResolved_bulk_substitutesCountInOverrides() {
+        let config = RowDeleteConfirmationConfig(bulkTitle: "Delete {count} items",
+                                                 bulkDescription: "{count} rows will be removed")
+        let r = config.resolved(count: 5)
+        XCTAssertEqual(r.title, "Delete 5 items")
+        XCTAssertEqual(r.description, "5 rows will be removed")
+    }
+
+    /// `cancelText` is shared across single and bulk.
+    func testResolved_cancelText_sharedAcrossSingleAndBulk() {
+        let config = RowDeleteConfirmationConfig(cancelText: "Abort")
+        XCTAssertEqual(config.resolved(count: 1).cancelText, "Abort")
+        XCTAssertEqual(config.resolved(count: 4).cancelText, "Abort")
+    }
+
+    // MARK: editor seeding + runtime mutation
 
     /// A freshly created editor must default to the gate being off, so existing
     /// integrators keep deleting rows immediately until they opt in.
@@ -443,68 +519,64 @@ final class DocumentEditorConfigTests: XCTestCase {
         let editor = DocumentEditor(document: JoyDoc(),
                                     config: DocumentEditorConfig(validateSchema: false))
         XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
-        XCTAssertNil(editor.rowDeleteConfirmation.message)
+        XCTAssertNil(editor.rowDeleteConfirmation.description)
     }
 
-    /// The gate is configured directly on the editor (not via init); setting it
-    /// must take effect and preserve both fields.
+    /// The editor must seed its gate from the config passed at init.
+    func testEditor_rowDeleteConfirmation_seededFromConfig() {
+        let gate = RowDeleteConfirmationConfig(isEnabled: true, description: "Careful")
+        let editor = DocumentEditor(
+            document: JoyDoc(),
+            config: DocumentEditorConfig(validateSchema: false, rowDeleteConfirmation: gate)
+        )
+        XCTAssertTrue(editor.rowDeleteConfirmation.isEnabled)
+        XCTAssertEqual(editor.rowDeleteConfirmation.description, "Careful")
+    }
+
+    /// The seeded gate must remain runtime-settable after init.
     func testEditor_rowDeleteConfirmation_setDirectly() {
         let editor = DocumentEditor(document: JoyDoc(),
                                     config: DocumentEditorConfig(validateSchema: false))
 
         editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(
             isEnabled: true,
-            message: "Deleting this asset will also delete any deficiencies that exist."
+            description: "Deleting this asset will also delete any deficiencies that exist."
         )
 
         XCTAssertTrue(editor.rowDeleteConfirmation.isEnabled)
-        XCTAssertEqual(editor.rowDeleteConfirmation.message,
+        XCTAssertEqual(editor.rowDeleteConfirmation.description,
                        "Deleting this asset will also delete any deficiencies that exist.")
     }
 
-    /// `isEnabled` passed alone must leave `message` at its nil default.
-    func testRowDeleteConfirmationConfig_isEnabledOnly_messageNil() {
-        let config = RowDeleteConfirmationConfig(isEnabled: true)
-        XCTAssertTrue(config.isEnabled)
-        XCTAssertNil(config.message)
-    }
-
-    /// `message` passed alone must leave `isEnabled` at its false default — a
-    /// message with no enable flag does not turn the gate on.
-    func testRowDeleteConfirmationConfig_messageOnly_isEnabledFalse() {
-        let config = RowDeleteConfirmationConfig(message: "warn")
+    /// `description` passed alone must leave `isEnabled` at its false default — a
+    /// description with no enable flag does not turn the gate on.
+    func testRowDeleteConfirmationConfig_descriptionOnly_isEnabledFalse() {
+        let config = RowDeleteConfirmationConfig(description: "warn")
         XCTAssertFalse(config.isEnabled)
-        XCTAssertEqual(config.message, "warn")
-    }
-
-    /// An empty-string message must be distinct from a nil message for equality.
-    func testRowDeleteConfirmationConfig_emptyMessageNotEqualNil() {
-        XCTAssertNotEqual(RowDeleteConfirmationConfig(isEnabled: true, message: ""),
-                          RowDeleteConfirmationConfig(isEnabled: true, message: nil))
+        XCTAssertEqual(config.description, "warn")
     }
 
     /// The struct is a value type — mutating a copy must not affect the original.
     func testRowDeleteConfirmationConfig_valueSemantics() {
-        let original = RowDeleteConfirmationConfig(isEnabled: true, message: "a")
+        let original = RowDeleteConfirmationConfig(isEnabled: true, description: "a")
         var copy = original
         copy.isEnabled = false
-        copy.message = "b"
+        copy.description = "b"
         XCTAssertTrue(original.isEnabled)
-        XCTAssertEqual(original.message, "a")
+        XCTAssertEqual(original.description, "a")
         XCTAssertFalse(copy.isEnabled)
-        XCTAssertEqual(copy.message, "b")
+        XCTAssertEqual(copy.description, "b")
     }
 
-    /// Re-assigning the editor's config must fully replace the previous value,
-    /// including clearing a message back to nil.
+    /// Re-assigning the editor's config must fully replace the previous value.
     func testEditor_rowDeleteConfirmation_reassignmentReplacesFully() {
         let editor = DocumentEditor(document: JoyDoc(),
                                     config: DocumentEditorConfig(validateSchema: false))
-        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, message: "x")
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, description: "x")
         editor.rowDeleteConfirmation = RowDeleteConfirmationConfig()
 
         XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
-        XCTAssertNil(editor.rowDeleteConfirmation.message)
+        XCTAssertNil(editor.rowDeleteConfirmation.description)
     }
 
     /// Two editors must hold independent gate configs — setting one must not
@@ -515,39 +587,25 @@ final class DocumentEditorConfigTests: XCTestCase {
         let b = DocumentEditor(document: JoyDoc(),
                                config: DocumentEditorConfig(validateSchema: false))
 
-        a.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, message: "x")
+        a.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, description: "x")
 
         XCTAssertTrue(a.rowDeleteConfirmation.isEnabled)
         XCTAssertFalse(b.rowDeleteConfirmation.isEnabled)
-        XCTAssertNil(b.rowDeleteConfirmation.message)
-    }
-
-    /// The gate is unrelated to `DisplayConfig` — setting other display flags via
-    /// the config must leave `rowDeleteConfirmation` at its disabled default.
-    func testEditor_rowDeleteConfirmation_unaffectedByDisplayConfig() {
-        let editor = DocumentEditor(
-            document: JoyDoc(),
-            config: DocumentEditorConfig(
-                validateSchema: false,
-                display: DisplayConfig(singleClickRowEdit: true,
-                                       enableRowDuplicates: true,
-                                       fullWidthGrid: true)
-            )
-        )
-        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
-        XCTAssertNil(editor.rowDeleteConfirmation.message)
+        XCTAssertNil(b.rowDeleteConfirmation.description)
     }
 
     /// Even when schema validation fails and the editor takes its early-return
-    /// path, the gate must still be settable and readable.
-    func testEditor_rowDeleteConfirmation_settableOnInvalidSchemaEditor() {
+    /// path, the gate must be seeded from config and remain settable.
+    func testEditor_rowDeleteConfirmation_seededAndSettableOnInvalidSchemaEditor() {
+        let gate = RowDeleteConfirmationConfig(isEnabled: true, description: "x")
         let editor = DocumentEditor(document: invalidDocument(),
-                                    config: DocumentEditorConfig(validateSchema: true))
+                                    config: DocumentEditorConfig(validateSchema: true,
+                                                                 rowDeleteConfirmation: gate))
         XCTAssertNotNil(editor.schemaError)
-        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled) // default survives
+        XCTAssertTrue(editor.rowDeleteConfirmation.isEnabled) // seeded despite early return
+        XCTAssertEqual(editor.rowDeleteConfirmation.description, "x")
 
-        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig(isEnabled: true, message: "x")
-        XCTAssertTrue(editor.rowDeleteConfirmation.isEnabled)
-        XCTAssertEqual(editor.rowDeleteConfirmation.message, "x")
+        editor.rowDeleteConfirmation = RowDeleteConfirmationConfig()
+        XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
     }
 }

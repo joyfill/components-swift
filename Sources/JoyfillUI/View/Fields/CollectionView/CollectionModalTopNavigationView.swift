@@ -246,7 +246,9 @@ struct CollectionRowActionsButton: View {
                         }
                     )
                 }
-                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation, rowTitle: rowTitle, message: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation.message) {
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation,
+                                       config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation,
+                                       count: viewModel.tableDataModel.selectedRows.count) {
                     viewModel.deleteSelectedRow()
                 }
     }

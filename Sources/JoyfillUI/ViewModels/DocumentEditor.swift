@@ -68,13 +68,74 @@ public struct PageConfig: Equatable, Sendable {
 }
 
 /// Host-configurable gate shown before deleting table/collection rows.
+///
+/// Single-row deletes use `title`/`description`/`submitText`; multi-row deletes use the `bulk*`
+/// variants. Any `nil` field falls back to the matching default below. `{count}` in any resolved
+/// string is replaced with the number of selected rows.
+///
+/// NOTE: Default strings are general placeholders — confirm against Kotlin #1594 before release.
 public struct RowDeleteConfirmationConfig: Equatable, Sendable {
     public var isEnabled: Bool
-    public var message: String?
+    public var title: String?
+    public var description: String?
+    public var submitText: String?
+    public var cancelText: String?
+    public var bulkTitle: String?
+    public var bulkDescription: String?
+    public var bulkSubmitText: String?
 
-    public init(isEnabled: Bool = false, message: String? = nil) {
+    public init(isEnabled: Bool = false,
+                title: String? = nil,
+                description: String? = nil,
+                submitText: String? = nil,
+                cancelText: String? = nil,
+                bulkTitle: String? = nil,
+                bulkDescription: String? = nil,
+                bulkSubmitText: String? = nil) {
         self.isEnabled = isEnabled
-        self.message = message
+        self.title = title
+        self.description = description
+        self.submitText = submitText
+        self.cancelText = cancelText
+        self.bulkTitle = bulkTitle
+        self.bulkDescription = bulkDescription
+        self.bulkSubmitText = bulkSubmitText
+    }
+}
+
+extension RowDeleteConfirmationConfig {
+    /// Placeholder defaults — confirm against Kotlin #1594.
+    public enum Defaults {
+        public static let title = "Delete Row?"
+        public static let description = "Are you sure you want to delete this row?"
+        public static let submitText = "Delete"
+        public static let cancelText = "Cancel"
+        public static let bulkTitle = "Delete {count} Rows?"
+        public static let bulkDescription = "Are you sure you want to delete {count} rows?"
+        public static let bulkSubmitText = "Delete"
+    }
+
+    /// Fully resolved copy for a confirmation prompt covering `count` rows.
+    public struct Resolved: Equatable {
+        public let title: String
+        public let description: String
+        public let submitText: String
+        public let cancelText: String
+    }
+
+    /// Resolves config + defaults for `count` rows, substituting the `{count}` token.
+    public func resolved(count: Int) -> Resolved {
+        let isBulk = count > 1
+        func sub(_ string: String) -> String {
+            string.replacingOccurrences(of: "{count}", with: "\(count)")
+        }
+        let title = isBulk ? (bulkTitle ?? Defaults.bulkTitle) : (title ?? Defaults.title)
+        let description = isBulk ? (bulkDescription ?? Defaults.bulkDescription) : (description ?? Defaults.description)
+        let submit = isBulk ? (bulkSubmitText ?? Defaults.bulkSubmitText) : (submitText ?? Defaults.submitText)
+        return Resolved(title: sub(title),
+                        description: sub(description),
+                        submitText: sub(submit),
+                        cancelText: sub(cancelText ?? Defaults.cancelText))
     }
 }
 
@@ -102,19 +163,22 @@ public struct DocumentEditorConfig {
     public var page: PageConfig
     public var display: DisplayConfig
     public var events: FormChangeEvent?
+    public var rowDeleteConfirmation: RowDeleteConfirmationConfig
 
     public init(mode: Mode = .fill,
                 events: FormChangeEvent? = nil,
                 license: String? = nil,
                 validateSchema: Bool = true,
                 page: PageConfig = .init(),
-                display: DisplayConfig = .init()) {
+                display: DisplayConfig = .init(),
+                rowDeleteConfirmation: RowDeleteConfirmationConfig = .init()) {
         self.mode = mode
         self.license = license
         self.validateSchema = validateSchema
         self.page = page
         self.display = display
         self.events = events
+        self.rowDeleteConfirmation = rowDeleteConfirmation
     }
 }
 
@@ -145,7 +209,8 @@ public class DocumentEditor: ObservableObject {
     public var singleClickRowEdit: Bool = false
     public var enableRowDuplicates: Bool = false
     @Published public internal(set) var fullWidthGrid: Bool = false
-    /// Set directly, e.g. `documentEditor.rowDeleteConfirmation = .init(isEnabled: true, message: "…")`.
+    /// Seeded from `DocumentEditorConfig` at init; runtime-settable, e.g.
+    /// `documentEditor.rowDeleteConfirmation = .init(isEnabled: true, description: "…")`.
     public var rowDeleteConfirmation: RowDeleteConfirmationConfig = RowDeleteConfirmationConfig()
     public var delegateMap: [String: WeakDocumentEditorDelegate] = [:]
     
@@ -186,7 +251,8 @@ public class DocumentEditor: ObservableObject {
                 self.currentPageID = ""
                 self.events = config.events
                 self.decoratorConfig = config.display.decorators
-                
+                self.rowDeleteConfirmation = config.rowDeleteConfirmation
+
                 // Trigger onError callback if events handler is available
                 config.events?.onError(error: .schemaValidationError(error: schemaError))
                 return
@@ -204,6 +270,7 @@ public class DocumentEditor: ObservableObject {
         self.fullWidthGrid = config.display.fullWidthGrid
         self.currentPageID = ""
         self.events = config.events
+        self.rowDeleteConfirmation = config.rowDeleteConfirmation
         // Set feature flags from license
         self.isCollectionFieldEnabled = LicenseValidator.isCollectionEnabled(licenseToken: config.license)
         self.decoratorConfig = config.display.decorators
