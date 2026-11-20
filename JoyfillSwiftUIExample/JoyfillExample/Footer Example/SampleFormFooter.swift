@@ -239,7 +239,7 @@ struct SampleFormFooterBar: View {
             divider
 
             actionButton(
-                icon: controller.isRowFormFooterHidden ? "rectangle.bottomthird.inset.filled" : "rectangle.dashed",
+                icon: controller.isRowFormFooterHidden ? "rectangle.dashed" : "rectangle.bottomthird.inset.filled",
                 title: "Row Footer",
                 isOn: !controller.isRowFormFooterHidden,
                 identifier: "ToggleRowFormFooterButtonIdentifier",
