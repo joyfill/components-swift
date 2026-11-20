@@ -518,7 +518,6 @@ struct OptionSelectionView: View {
         case simpleForm
         case simpleNavigationTest
         case footerExample
-        case rowDeleteConfirmationDemo
 
         var title: String {
             switch self {
@@ -562,8 +561,6 @@ struct OptionSelectionView: View {
                 return "Navigation Test"
             case .footerExample:
                 return "Footer Example"
-            case .rowDeleteConfirmationDemo:
-                return "Row Delete Confirmation"
             }
         }
 
@@ -609,8 +606,6 @@ struct OptionSelectionView: View {
                 return "Navigate to any page or field in the form"
             case .footerExample:
                 return "Test footer show/hide, expand, and keyboard behaviour"
-            case .rowDeleteConfirmationDemo:
-                return "Configure the delete-row confirmation (single, bulk, {count}) and test it live"
             }
         }
 
@@ -656,8 +651,6 @@ struct OptionSelectionView: View {
                 return "location.circle.fill"
             case .footerExample:
                 return "dock.rectangle"
-            case .rowDeleteConfirmationDemo:
-                return "trash.circle.fill"
             }
         }
 
@@ -703,8 +696,6 @@ struct OptionSelectionView: View {
                 return .indigo
             case .footerExample:
                 return .mint
-            case .rowDeleteConfirmationDemo:
-                return .red
             }
         }
     }
@@ -860,8 +851,6 @@ struct OptionSelectionView: View {
             SimpleNavigationTestView(showAlert: $showNavigationAlert, alertMessage: $navigationAlertMessage)
         case .footerExample:
             FooterExampleView()
-        case .rowDeleteConfirmationDemo:
-            RowDeleteConfirmationDemoView()
         case .none:
             AnyView(EmptyView())
         case .some(.allFormulaJSONs):
