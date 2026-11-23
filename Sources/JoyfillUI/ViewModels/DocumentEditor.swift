@@ -72,8 +72,6 @@ public struct PageConfig: Equatable, Sendable {
 /// Single-row deletes use `title`/`description`/`submitText`; multi-row deletes use the `bulk*`
 /// variants. Any `nil` field falls back to the matching default below. `{count}` in any resolved
 /// string is replaced with the number of selected rows.
-///
-/// NOTE: Default strings are general placeholders — confirm against Kotlin #1594 before release.
 public struct RowDeleteConfirmationConfig: Equatable, Sendable {
     public var isEnabled: Bool
     public var title: String?
@@ -104,14 +102,13 @@ public struct RowDeleteConfirmationConfig: Equatable, Sendable {
 }
 
 extension RowDeleteConfirmationConfig {
-    /// Placeholder defaults — confirm against Kotlin #1594.
     public enum Defaults {
-        public static let title = "Delete Row?"
-        public static let description = "Are you sure you want to delete this row?"
+        public static let title = "Delete 1 row?"
+        public static let description = "This action cannot be undone."
         public static let submitText = "Delete"
         public static let cancelText = "Cancel"
-        public static let bulkTitle = "Delete {count} Rows?"
-        public static let bulkDescription = "Are you sure you want to delete {count} rows?"
+        public static let bulkTitle = "Delete {count} rows?"
+        public static let bulkDescription = "This action cannot be undone."
         public static let bulkSubmitText = "Delete"
     }
 

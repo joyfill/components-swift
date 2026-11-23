@@ -475,8 +475,8 @@ final class DocumentEditorConfigTests: XCTestCase {
     /// substitute the row count for `{count}`.
     func testResolved_bulk_usesBulkDefaultsAndCount() {
         let r = RowDeleteConfirmationConfig().resolved(count: 3)
-        XCTAssertEqual(r.title, "Delete 3 Rows?")
-        XCTAssertEqual(r.description, "Are you sure you want to delete 3 rows?")
+        XCTAssertEqual(r.title, "Delete 3 rows?")
+        XCTAssertEqual(r.description, "This action cannot be undone.")
         XCTAssertEqual(r.submitText, RowDeleteConfirmationConfig.Defaults.bulkSubmitText)
         XCTAssertEqual(r.cancelText, RowDeleteConfirmationConfig.Defaults.cancelText)
     }
