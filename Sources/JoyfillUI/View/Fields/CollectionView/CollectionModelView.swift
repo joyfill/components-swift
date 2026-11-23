@@ -102,6 +102,10 @@ struct CollectionModalView : View {
                 FormFooterView()
             }
         }
+        // Ignore the keyboard safe area: after a portrait keyboard is dismissed and the device rotated,
+        // SwiftUI can apply a stale portrait-keyboard inset to this screen and push content to mid-screen.
+        // FormView already does the same.
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,

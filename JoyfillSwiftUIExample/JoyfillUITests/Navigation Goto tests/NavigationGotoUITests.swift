@@ -39,6 +39,8 @@ final class NavigationGotoUITests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
+        // Reset orientation so a test that rotated the device can't leak landscape into the next test.
+        XCUIDevice.shared.orientation = .portrait
         app?.terminate()
         app = nil
     }
@@ -260,6 +262,38 @@ final class NavigationGotoUITests: XCTestCase {
         spinRunloop(0.3)
         XCTAssertTrue(navButton.waitForExistence(timeout: 5), "Page navigation button should reappear after tapping Show Pages")
         XCTAssertEqual(toggleButton.label, "Hide Pages")
+    }
+
+    /// Regression (NO-1602): on iPadOS, showing a keyboard in portrait, dismissing it, then rotating to
+    /// landscape could leave SwiftUI applying a stale portrait-keyboard safe-area inset to the table modal,
+    /// pushing the footer to the middle of the screen with an empty gap below. `TableModalView` now ignores
+    /// the keyboard safe area (matching `FormView`), so the footer must stay pinned near the bottom.
+    func testTableModalFooterStaysAtBottomAfterKeyboardRotation() throws {
+        // 1. Portrait: open the table modal and raise the keyboard from a grid text cell.
+        XCUIDevice.shared.orientation = .portrait
+        spinRunloop(0.3)
+        openTableModal()
+
+        let textCell = app.textViews["TabelTextFieldIdentifier"].firstMatch
+        XCTAssertTrue(textCell.waitForExistence(timeout: 5), "Table grid text cell not found")
+        textCell.tap()
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 5), "Keyboard should appear in portrait")
+
+        // 2. Dismiss the keyboard, leave the screen, rotate, and reopen — the stale inset is only cached briefly.
+        app.dismissKeyboardIfVisible()
+        let backButton = app.buttons["BackButton"].firstMatch
+        XCTAssertTrue(backButton.waitForExistence(timeout: 5), "Back button not found")
+        backButton.tap()
+        XCUIDevice.shared.orientation = .landscapeLeft
+        openTableModal()
+
+        // 3. The footer must stay near the bottom, not be pushed to mid-screen by a phantom keyboard inset.
+        let footer = app.buttons["SubmitValidateButtonIdentifier"].firstMatch
+        XCTAssertTrue(footer.waitForExistence(timeout: 5), "Footer should render inside the table modal")
+        let window = app.windows.firstMatch
+        let relativeY = (footer.frame.minY - window.frame.minY) / window.frame.height
+        XCTAssertGreaterThan(relativeY, 0.75,
+            "Footer should be pinned near the bottom of the table modal, not pushed to mid-screen by a phantom keyboard inset (relativeY=\(relativeY))")
     }
 
     private func openTableModal() {
