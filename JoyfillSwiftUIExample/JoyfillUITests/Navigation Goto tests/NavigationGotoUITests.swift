@@ -266,9 +266,12 @@ final class NavigationGotoUITests: XCTestCase {
 
     /// Regression (NO-1602): on iPadOS, showing a keyboard in portrait, dismissing it, then rotating to
     /// landscape could leave SwiftUI applying a stale portrait-keyboard safe-area inset to the table modal,
-    /// pushing the footer to the middle of the screen with an empty gap below. `TableModalView` now ignores
-    /// the keyboard safe area (matching `FormView`), so the footer must stay pinned near the bottom.
+    /// pushing the footer to the middle of the screen with an empty gap below. The table modal now ignores
+    /// the keyboard safe area only while no keyboard is up, so the footer (a) lifts above a real keyboard and
+    /// (b) is not pushed to mid-screen by a phantom inset after rotation.
     func testTableModalFooterStaysAtBottomAfterKeyboardRotation() throws {
+        let footerIdentifier = "SubmitValidateButtonIdentifier"
+
         // 1. Portrait: open the table modal and raise the keyboard from a grid text cell.
         XCUIDevice.shared.orientation = .portrait
         spinRunloop(0.3)
@@ -278,6 +281,14 @@ final class NavigationGotoUITests: XCTestCase {
         XCTAssertTrue(textCell.waitForExistence(timeout: 5), "Table grid text cell not found")
         textCell.tap()
         XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 5), "Keyboard should appear in portrait")
+        spinRunloop(0.5) // let keyboard avoidance settle
+
+        // While a real keyboard is up, the footer must lift above it, not hide behind it.
+        let keyboardFrame = app.keyboards.element.frame
+        let footerWhileKeyboardUp = app.buttons[footerIdentifier].firstMatch
+        XCTAssertTrue(footerWhileKeyboardUp.waitForExistence(timeout: 5), "Footer should be present while the keyboard is up")
+        XCTAssertLessThan(footerWhileKeyboardUp.frame.maxY, keyboardFrame.minY + 1,
+            "Footer should sit above the keyboard, not behind it (footer.maxY=\(footerWhileKeyboardUp.frame.maxY), keyboard.minY=\(keyboardFrame.minY))")
 
         // 2. Dismiss the keyboard, leave the screen, rotate, and reopen — the stale inset is only cached briefly.
         app.dismissKeyboardIfVisible()
@@ -288,7 +299,7 @@ final class NavigationGotoUITests: XCTestCase {
         openTableModal()
 
         // 3. The footer must stay near the bottom, not be pushed to mid-screen by a phantom keyboard inset.
-        let footer = app.buttons["SubmitValidateButtonIdentifier"].firstMatch
+        let footer = app.buttons[footerIdentifier].firstMatch
         XCTAssertTrue(footer.waitForExistence(timeout: 5), "Footer should render inside the table modal")
         let window = app.windows.firstMatch
         let relativeY = (footer.frame.minY - window.frame.minY) / window.frame.height

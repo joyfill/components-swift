@@ -102,10 +102,11 @@ struct CollectionModalView : View {
                 FormFooterView()
             }
         }
-        // Ignore the keyboard safe area: after a portrait keyboard is dismissed and the device rotated,
-        // SwiftUI can apply a stale portrait-keyboard inset to this screen and push content to mid-screen.
-        // FormView already does the same.
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        // Ignore the keyboard safe area ONLY when no keyboard is actually up. After a portrait keyboard is
+        // dismissed and the device rotated, SwiftUI can leave a stale portrait-keyboard inset on this screen
+        // and push content to mid-screen; ignoring it then neutralizes that phantom gap. While a real keyboard
+        // is up we keep normal avoidance so the footer still lifts above it instead of hiding behind it.
+        .ignoresSafeArea(.keyboard, edges: isKeyboardVisible ? [] : .bottom)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,
