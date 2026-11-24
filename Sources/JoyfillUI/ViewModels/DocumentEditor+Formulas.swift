@@ -19,7 +19,7 @@ extension DocumentEditor: JoyDocProvider {
         guard let field = fieldMap[identifier] else {
             return
         }
-        conditionalLogicHandler.showFieldMap[field.id!] = hidden
+        conditionalLogicHandler.setFieldVisibility(fieldID: field.id!, hidden: hidden)
         refreshField(fieldId: field.id!)
     }
 

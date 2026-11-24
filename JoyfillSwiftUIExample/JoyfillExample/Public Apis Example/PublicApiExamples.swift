@@ -29,6 +29,40 @@ struct PublicApiExamples: View {
     @State private var gotoOpenModal: Bool = true
     @State private var showGotoAlert: Bool = false
     @State private var gotoAlertMessage: String = ""
+    // Row delete confirmation gate — blank text fields fall back to SDK defaults.
+    @State private var enableRowDeleteConfirmation: Bool = false
+    @State private var rdcTitle: String = ""
+    @State private var rdcDescription: String = ""
+    @State private var rdcSubmit: String = ""
+    @State private var rdcCancel: String = ""
+    @State private var rdcBulkTitle: String = ""
+    @State private var rdcBulkDescription: String = ""
+    @State private var rdcBulkSubmit: String = ""
+
+    /// Nil-out blanks so the SDK uses its own defaults for untouched fields.
+    private var rowDeleteConfirmationConfig: RowDeleteConfirmationConfig {
+        func nonEmpty(_ s: String) -> String? { s.isEmpty ? nil : s }
+        return RowDeleteConfirmationConfig(
+            isEnabled: enableRowDeleteConfirmation,
+            title: nonEmpty(rdcTitle),
+            description: nonEmpty(rdcDescription),
+            submitText: nonEmpty(rdcSubmit),
+            cancelText: nonEmpty(rdcCancel),
+            bulkTitle: nonEmpty(rdcBulkTitle),
+            bulkDescription: nonEmpty(rdcBulkDescription),
+            bulkSubmitText: nonEmpty(rdcBulkSubmit)
+        )
+    }
+
+    @ViewBuilder
+    private func rdcField(_ label: String, _ text: Binding<String>, _ placeholder: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label).font(.caption).fontWeight(.medium).foregroundColor(.secondary)
+            TextField(placeholder, text: text)
+                .textFieldStyle(.roundedBorder)
+                .autocorrectionDisabled()
+        }
+    }
 
     init(documentEditor: Binding<DocumentEditor?>, licenseKey: Binding<String>, validateSchema: Binding<Bool>, isPageDuplicate: Binding<Bool>, isPageDelete: Binding<Bool>, singleClickRowEdit: Binding<Bool>, document: JoyDoc) {
         self._documentEditor = documentEditor
@@ -37,6 +71,15 @@ struct PublicApiExamples: View {
         _showPageNavigationView = State(initialValue: editor?.showPageNavigationView ?? true)
         _mode = State(initialValue: editor?.mode ?? .fill)
         _selectedPageOption = State(initialValue: editor?.currentPageID ?? "")
+        let gate = editor?.rowDeleteConfirmation ?? RowDeleteConfirmationConfig()
+        _enableRowDeleteConfirmation = State(initialValue: gate.isEnabled)
+        _rdcTitle = State(initialValue: gate.title ?? "")
+        _rdcDescription = State(initialValue: gate.description ?? "")
+        _rdcSubmit = State(initialValue: gate.submitText ?? "")
+        _rdcCancel = State(initialValue: gate.cancelText ?? "")
+        _rdcBulkTitle = State(initialValue: gate.bulkTitle ?? "")
+        _rdcBulkDescription = State(initialValue: gate.bulkDescription ?? "")
+        _rdcBulkSubmit = State(initialValue: gate.bulkSubmitText ?? "")
         self._validateSchema = validateSchema
         self._isPageDuplicate = isPageDuplicate
         self._isPageDelete = isPageDelete
@@ -274,7 +317,34 @@ struct PublicApiExamples: View {
                                 .labelsHidden()
                                 .tint(.blue)
                         }
-                        
+
+                        SettingCard(
+                            icon: "trash.circle",
+                            iconColor: .red,
+                            title: "Row Delete Confirmation"
+                        ) {
+                            Toggle("", isOn: $enableRowDeleteConfirmation)
+                                .labelsHidden()
+                                .tint(.red)
+                        }
+
+                        if enableRowDeleteConfirmation {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Blank fields use SDK defaults. Use {count} for the selected row count. Single fields apply to one-row deletes; bulk fields to multi-row deletes.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                rdcField("Title", $rdcTitle, RowDeleteConfirmationConfig.Defaults.title)
+                                rdcField("Description", $rdcDescription, RowDeleteConfirmationConfig.Defaults.description)
+                                rdcField("Submit", $rdcSubmit, RowDeleteConfirmationConfig.Defaults.submitText)
+                                rdcField("Cancel", $rdcCancel, RowDeleteConfirmationConfig.Defaults.cancelText)
+                                rdcField("Bulk Title", $rdcBulkTitle, RowDeleteConfirmationConfig.Defaults.bulkTitle)
+                                rdcField("Bulk Description", $rdcBulkDescription, RowDeleteConfirmationConfig.Defaults.bulkDescription)
+                                rdcField("Bulk Submit", $rdcBulkSubmit, RowDeleteConfirmationConfig.Defaults.bulkSubmitText)
+                            }
+                            .padding(16)
+                            .background(RoundedRectangle(cornerRadius: 12).fill(Color.red.opacity(0.05)))
+                        }
+
                         // Mode Selection Card
                         SettingCard(
                             icon: "pencil.and.list.clipboard",
@@ -393,6 +463,12 @@ struct PublicApiExamples: View {
         .onChange(of: pageID) { newValue in
             documentEditor?.currentPageID = newValue
         }
+        .onChange(of: rowDeleteConfirmationConfig) { newValue in
+            documentEditor?.rowDeleteConfirmation = newValue
+        }
+        .onAppear {
+            documentEditor?.rowDeleteConfirmation = rowDeleteConfirmationConfig
+        }
         .onChange(of: validateSchema) { newValue in
             if let editor = documentEditor {
                 documentEditor = DocumentEditor(
@@ -408,7 +484,8 @@ struct PublicApiExamples: View {
                             enableDeletes: isPageDelete,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
@@ -428,7 +505,8 @@ struct PublicApiExamples: View {
                             enableDeletes: isPageDelete,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
@@ -448,7 +526,8 @@ struct PublicApiExamples: View {
                             enableDeletes: isPageDelete,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
@@ -468,7 +547,8 @@ struct PublicApiExamples: View {
                             enableDeletes: newValue,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
@@ -488,7 +568,8 @@ struct PublicApiExamples: View {
                             enableDeletes: isPageDelete,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
@@ -508,7 +589,8 @@ struct PublicApiExamples: View {
                             enableDeletes: isPageDelete,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit)
+                        display: DisplayConfig(singleClickRowEdit: editor.singleClickRowEdit),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
@@ -528,7 +610,8 @@ struct PublicApiExamples: View {
                             enableDeletes: isPageDelete,
                             currentPageID: editor.currentPageID
                         ),
-                        display: DisplayConfig(singleClickRowEdit: newValue)
+                        display: DisplayConfig(singleClickRowEdit: newValue),
+                        rowDeleteConfirmation: editor.rowDeleteConfirmation
                     )
                 )
             }
