@@ -16,6 +16,7 @@ struct CollectionRowActionsButton: View {
 
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
+    @State private var showDeleteConfirmation = false
 
     private var hasActiveFilters: Bool {
         return viewModel.tableDataModel.hasActiveFilters
@@ -121,7 +122,7 @@ struct CollectionRowActionsButton: View {
 
                             Button(action: {
                                 showingPopover = false
-                                viewModel.deleteSelectedRow()
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -213,8 +214,8 @@ struct CollectionRowActionsButton: View {
                             }
 
                             Button(action: {
-                                viewModel.deleteSelectedRow()
                                 showingPopover = false
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -244,6 +245,11 @@ struct CollectionRowActionsButton: View {
                             showDuplicatePopover = false
                         }
                     )
+                }
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation,
+                                       config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation,
+                                       count: viewModel.tableDataModel.selectedRows.count) {
+                    viewModel.deleteSelectedRow()
                 }
     }
 
