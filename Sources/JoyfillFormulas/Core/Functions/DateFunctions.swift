@@ -33,13 +33,11 @@ public struct DateFunctions {
         }
     }
 
-    /// Interprets a numeric timestamp, using a milliseconds/seconds heuristic.
+    /// Interprets a numeric value as a UTC epoch timestamp in milliseconds.
+    /// Wisdom date inputs are always epoch milliseconds — small numbers are no longer
+    /// treated as seconds, so the whole engine reads numbers the same way.
     private static func dateFromTimestamp(_ timestamp: Double) -> Date {
-        if timestamp > 1000000000000 { // Milliseconds (> ~year 2001 in milliseconds)
-            return Date(timeIntervalSince1970: timestamp / 1000.0)
-        } else { // Seconds
-            return Date(timeIntervalSince1970: timestamp)
-        }
+        return Date(timeIntervalSince1970: timestamp / 1000.0)
     }
 
     private static let isoFractionalFormatter: ISO8601DateFormatter = {
@@ -149,51 +147,244 @@ public struct DateFunctions {
         return .success(.number(Double(day)))
     }
     
-    /// Implements the DATE function: DATE(year, month, day)
+    /// Implements the DATE function: DATE(year, month, day, hour?, minute?, second?)
+    /// Time parts default to 0 and are interpreted in UTC.
     static func date(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
-        guard args.count == 3 else {
-            return .failure(.invalidArguments(function: "DATE", reason: "Expected exactly 3 arguments (year, month, day), got \(args.count)"))
+        guard (3...6).contains(args.count) else {
+            return .failure(.invalidArguments(function: "DATE", reason: "Expected 3 to 6 arguments (year, month, day, hour?, minute?, second?), got \(args.count)"))
         }
-        
-        // Evaluate year
-        let yearResult = evaluator.evaluate(node: args[0], context: context)
-        guard case .success(let yearValue) = yearResult else { return yearResult }
-        guard case .number(let year) = yearValue else {
-            return .failure(.typeMismatch(expected: "Number for year", actual: "Argument 1: \(typeDescription(yearValue))"))
+
+        // Evaluate each argument to an integer; time parts default to 0.
+        func intArg(_ index: Int, _ label: String, default defaultValue: Int? = nil) -> Result<Int, FormulaError> {
+            guard index < args.count else {
+                return .success(defaultValue ?? 0)
+            }
+            let result = evaluator.evaluate(node: args[index], context: context)
+            guard case .success(let value) = result else {
+                if case .failure(let error) = result { return .failure(error) }
+                return .failure(.unknownError("Invalid \(label)"))
+            }
+            guard case .number(let number) = value else {
+                return .failure(.typeMismatch(expected: "Number for \(label)", actual: "Argument \(index + 1): \(typeDescription(value))"))
+            }
+            guard let intValue = number.safeInt else {
+                return .failure(.unknownError("Invalid \(label): \(number)"))
+            }
+            return .success(intValue)
         }
-        
-        // Evaluate month
-        let monthResult = evaluator.evaluate(node: args[1], context: context)
-        guard case .success(let monthValue) = monthResult else { return monthResult }
-        guard case .number(let month) = monthValue else {
-            return .failure(.typeMismatch(expected: "Number for month", actual: "Argument 2: \(typeDescription(monthValue))"))
-        }
-        
-        // Evaluate day
-        let dayResult = evaluator.evaluate(node: args[2], context: context)
-        guard case .success(let dayValue) = dayResult else { return dayResult }
-        guard case .number(let day) = dayValue else {
-            return .failure(.typeMismatch(expected: "Number for day", actual: "Argument 3: \(typeDescription(dayValue))"))
-        }
-        
-        // Out-of-range year/month/day -> invalid date
-        guard let yearInt = year.safeInt, let monthInt = month.safeInt, let dayInt = day.safeInt else {
-            return .failure(.unknownError("Invalid date: year=\(year), month=\(month), day=\(day)"))
+
+        let parts = ["year", "month", "day", "hour", "minute", "second"]
+        var values: [Int] = []
+        for (index, label) in parts.enumerated() {
+            switch intArg(index, label) {
+            case .success(let value): values.append(value)
+            case .failure(let error): return .failure(error)
+            }
         }
 
         // Create date components using UTC calendar
         var components = DateComponents()
-        components.year = yearInt
-        components.month = monthInt
-        components.day = dayInt
-        
-        // Create date using UTC calendar
+        components.year = values[0]
+        components.month = values[1]
+        components.day = values[2]
+        components.hour = values[3]
+        components.minute = values[4]
+        components.second = values[5]
+
         let calendar = utcCalendar
         guard let newDate = calendar.date(from: components) else {
-            return .failure(.unknownError("Invalid date: year=\(year), month=\(month), day=\(day)"))
+            return .failure(.unknownError("Invalid date: \(values)"))
         }
-        
+
         return .success(.date(newDate))
+    }
+
+    /// Implements the TIME function: TIME(hour, minute, second)
+    /// Returns a UTC date on the epoch day (1970-01-01) at the given time.
+    static func time(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        guard args.count == 3 else {
+            return .failure(.invalidArguments(function: "TIME", reason: "Expected exactly 3 arguments (hour, minute, second), got \(args.count)"))
+        }
+
+        var values: [Int] = []
+        for (index, label) in ["hour", "minute", "second"].enumerated() {
+            let result = evaluator.evaluate(node: args[index], context: context)
+            guard case .success(let value) = result else { return result }
+            guard case .number(let number) = value else {
+                return .failure(.typeMismatch(expected: "Number for \(label)", actual: "Argument \(index + 1): \(typeDescription(value))"))
+            }
+            guard let intValue = number.safeInt else {
+                return .failure(.unknownError("Invalid \(label): \(number)"))
+            }
+            values.append(intValue)
+        }
+
+        var components = DateComponents()
+        components.year = 1970
+        components.month = 1
+        components.day = 1
+        components.hour = values[0]
+        components.minute = values[1]
+        components.second = values[2]
+
+        let calendar = utcCalendar
+        guard let newDate = calendar.date(from: components) else {
+            return .failure(.unknownError("Invalid time: \(values)"))
+        }
+
+        return .success(.date(newDate))
+    }
+
+    /// Implements the FORMATDATE function: FORMATDATE(date, format, timezone?)
+    /// `format` uses moment-style tokens (YYYY, MM, DD, HH, hh, mm, ss, a, …).
+    /// `timezone` is "UTC", an IANA id (e.g. "America/New_York"), or omitted for
+    /// the device timezone.
+    static func formatDate(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        guard args.count == 2 || args.count == 3 else {
+            return .failure(.invalidArguments(function: "FORMATDATE", reason: "Expected 2 or 3 arguments (date, format, timezone?), got \(args.count)"))
+        }
+
+        // Date
+        let dateResult = evaluator.evaluate(node: args[0], context: context)
+        guard case .success(let dateValue) = dateResult else { return dateResult }
+        if case .null = dateValue { return .success(.string("")) }
+        guard let date = extractDate(from: dateValue) else {
+            return .success(.string(""))
+        }
+
+        // Format
+        let formatResult = evaluator.evaluate(node: args[1], context: context)
+        guard case .success(let formatValue) = formatResult else { return formatResult }
+        guard case .string(let momentFormat) = formatValue else {
+            return .failure(.typeMismatch(expected: "String for format", actual: "Argument 2: \(typeDescription(formatValue))"))
+        }
+
+        // Timezone (optional)
+        var timeZone = TimeZone.current
+        if args.count == 3 {
+            let tzResult = evaluator.evaluate(node: args[2], context: context)
+            guard case .success(let tzValue) = tzResult else { return tzResult }
+            guard case .string(let tzString) = tzValue else {
+                return .failure(.typeMismatch(expected: "String for timezone", actual: "Argument 3: \(typeDescription(tzValue))"))
+            }
+            if tzString.uppercased() == "UTC" {
+                timeZone = TimeZone(secondsFromGMT: 0)!
+            } else if let zone = TimeZone(identifier: tzString) {
+                timeZone = zone
+            } else {
+                return .success(.string(""))
+            }
+        }
+
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = timeZone
+        formatter.dateFormat = momentToICUFormat(momentFormat)
+
+        return .success(.string(formatter.string(from: date)))
+    }
+
+    /// Converts a moment/dayjs-style format string to a Swift `DateFormatter` (Unicode)
+    /// pattern. Scans maximal runs of the same token letter so `DD` and `D` map
+    /// independently, and preserves quoted literals and other characters verbatim.
+    static func momentToICUFormat(_ format: String) -> String {
+        var result = ""
+        let chars = Array(format)
+        var index = 0
+        // Letters that carry meaning as moment tokens; everything else passes through.
+        let tokenLetters = Set("YMDdHhmsaASZ")
+
+        while index < chars.count {
+            let char = chars[index]
+
+            // Preserve single-quoted literals as-is (DateFormatter literal syntax).
+            if char == "'" {
+                result.append(char)
+                index += 1
+                while index < chars.count {
+                    result.append(chars[index])
+                    if chars[index] == "'" { index += 1; break }
+                    index += 1
+                }
+                continue
+            }
+
+            guard tokenLetters.contains(char) else {
+                result.append(char)
+                index += 1
+                continue
+            }
+
+            // Measure the run length of this token letter.
+            var length = 1
+            while index + length < chars.count && chars[index + length] == char {
+                length += 1
+            }
+            result += icuToken(for: char, length: length)
+            index += length
+        }
+
+        return result
+    }
+
+    private static func icuToken(for char: Character, length: Int) -> String {
+        func run(_ token: Character) -> String { String(repeating: token, count: length) }
+        switch char {
+        case "Y": return length >= 3 ? "yyyy" : "yy"          // year
+        case "M": return run("M")                              // month (M, MM, MMM, MMMM)
+        case "D": return length >= 2 ? "dd" : "d"              // day of month
+        case "d":                                              // day of week
+            switch length {
+            case 1: return "e"
+            case 2: return "EE"
+            case 3: return "EEE"
+            default: return "EEEE"
+            }
+        case "H": return run("H")                              // hour 24
+        case "h": return run("h")                              // hour 12
+        case "m": return run("m")                              // minute
+        case "s": return run("s")                              // second
+        case "S": return run("S")                              // fractional second
+        case "a", "A": return "a"                              // AM/PM
+        case "Z": return length >= 2 ? "ZZ" : "ZZZZZ"          // timezone offset
+        default: return run(char)
+        }
+    }
+
+    /// Implements the HOUR function: HOUR(date) — UTC
+    static func hour(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        return component(.hour, name: "HOUR", args: args, context: context, evaluator: evaluator)
+    }
+
+    /// Implements the MINUTE function: MINUTE(date) — UTC
+    static func minute(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        return component(.minute, name: "MINUTE", args: args, context: context, evaluator: evaluator)
+    }
+
+    /// Implements the SECOND function: SECOND(date) — UTC
+    static func second(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        return component(.second, name: "SECOND", args: args, context: context, evaluator: evaluator)
+    }
+
+    /// Shared extractor for UTC date components, matching YEAR/MONTH/DAY behavior.
+    private static func component(_ component: Calendar.Component, name: String, args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        guard args.count == 1 else {
+            return .failure(.invalidArguments(function: name, reason: "Expected exactly 1 argument, got \(args.count)"))
+        }
+
+        let dateResult = evaluator.evaluate(node: args[0], context: context)
+        guard case .success(let dateValue) = dateResult else { return dateResult }
+
+        if case .null = dateValue {
+            return .success(.null)
+        }
+
+        guard let date = extractDate(from: dateValue) else {
+            return .failure(.typeMismatch(expected: "Date or timestamp", actual: "Argument: \(typeDescription(dateValue))"))
+        }
+
+        return .success(.number(Double(utcCalendar.component(component, from: date))))
     }
     
     /// Implements the DATEADD function: DATEADD(date, amount, unit)

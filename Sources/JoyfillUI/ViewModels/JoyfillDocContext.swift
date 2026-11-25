@@ -82,6 +82,10 @@ class JoyfillDocContext: EvaluationContext {
         for field in docProvider?.allFields ?? []
         where field.fieldType == .table || field.fieldType == .collection {
             guard let fieldID = field.id else { continue }
+            // Cell formulas are Wisdom-only. Without `formulaEngine: "wisdom"`, skip the
+            // setup entirely so legacy Excel-style cells are never evaluated — leaving
+            // `tableSetup` absent also no-ops every incremental store/refresh path.
+            guard field.formulaEngine == "wisdom" else { continue }
             // Table columns are displayed in tableColumnOrder, which can differ from
             // their storage order. Use that same order for spreadsheet references.
             let columns = field.tableColumns
@@ -2996,7 +3000,7 @@ extension JoyfillDocContext {
     /// `storedCellValue`). One rule for the whole family rather than a per-function patch.
     /// `+` means addition here, not concatenation — use `CONCAT()` for joining text.
     private static let numericFunctionNames: Set<String> =
-        ["SUM", "MIN", "MAX", "AVG", "AVERAGE", "ROUND", "CEIL", "FLOOR", "SQRT", "MOD", "POW"]
+        ["SUM", "MIN", "MAX", "AVG", "AVERAGE", "ROUND", "CEIL", "FLOOR", "SQRT", "MOD", "POW", "ABS"]
     private static let arithmeticOperators: Set<String> = ["+", "-", "*", "/"]
     /// Types left unwrapped: numbers need no TONUMBER, and TONUMBER would reject a
     /// multi-select array or a date — both of which the evaluator already handles itself.
@@ -3144,8 +3148,8 @@ extension JoyfillDocContext {
 
     // MARK: Stored results
 
-    /// Column types that can carry a formula.
-    static let formulaCapableTypes: Set<ColumnTypes> = [.text]
+    /// Column types that can carry a formula: text and label (`block`) columns in v1.
+    static let formulaCapableTypes: Set<ColumnTypes> = [.text, .block]
 
     /// The evaluated result for one cell, or `nil` when it holds no formula.
     /// The single read for everything that displays, filters or sorts a formula cell.
