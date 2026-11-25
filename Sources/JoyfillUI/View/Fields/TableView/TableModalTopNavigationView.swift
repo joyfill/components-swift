@@ -772,7 +772,9 @@ struct EditMultipleRowsSheetView: View {
         }
         }
         .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            if viewModel.tableDataModel.documentEditor?.hideFooterInRowForm != true {
+                FormFooterView()
+            }
         }
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
     }
