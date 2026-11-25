@@ -155,9 +155,9 @@ public struct DateFunctions {
         }
 
         // Evaluate each argument to an integer; time parts default to 0.
-        func intArg(_ index: Int, _ label: String, default defaultValue: Int? = nil) -> Result<Int, FormulaError> {
+        func intArg(_ index: Int, _ label: String) -> Result<Int, FormulaError> {
             guard index < args.count else {
-                return .success(defaultValue ?? 0)
+                return .success(0)
             }
             let result = evaluator.evaluate(node: args[index], context: context)
             guard case .success(let value) = result else {

@@ -85,7 +85,7 @@ class JoyfillDocContext: EvaluationContext {
             // Cell formulas are Wisdom-only. Without `formulaEngine: "wisdom"`, skip the
             // setup entirely so legacy Excel-style cells are never evaluated — leaving
             // `tableSetup` absent also no-ops every incremental store/refresh path.
-            guard field.formulaEngine == "wisdom" else { continue }
+            guard field.formulaEngine?.lowercased() == "wisdom" else { continue }
             // Table columns are displayed in tableColumnOrder, which can differ from
             // their storage order. Use that same order for spreadsheet references.
             let columns = field.tableColumns

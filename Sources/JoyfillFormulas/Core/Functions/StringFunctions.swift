@@ -435,8 +435,10 @@ public struct StringFunctions {
         }
 
         let count = text.count
-        // Clamp the zero-based start into [0, count].
-        let start = Swift.max(0, Swift.min(count, Int(startNumber)))
+        // Clamp the zero-based start into [0, count]. safeInt avoids trapping on NaN/huge values;
+        // a non-finite or out-of-range start falls to the matching clamp bound.
+        let startInt = startNumber.safeInt ?? (startNumber > 0 ? count : 0)
+        let start = Swift.max(0, Swift.min(count, startInt))
 
         var end = count
         if args.count == 3 {
@@ -445,7 +447,7 @@ public struct StringFunctions {
             guard case .number(let lengthNumber) = lengthValue else {
                 return .failure(.typeMismatch(expected: "Number for length", actual: "Argument 3: \(typeDescription(lengthValue))"))
             }
-            let length = Swift.max(0, Int(lengthNumber))
+            let length = Swift.max(0, lengthNumber.safeInt ?? (lengthNumber > 0 ? count : 0))
             end = Swift.min(count, start + length)
         }
 
