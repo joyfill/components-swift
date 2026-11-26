@@ -3086,7 +3086,7 @@ extension JoyfillDocContext {
     ///    row, and the cell stays `null`. Neither the formula nor its result is written
     ///    to the cell, so a column-driven table persists as nulls.
     func activeFormula(setup: TableCellFormulaSetup, row: ValueElement, columnID: String) -> String? {
-        // Only a text column carries a formula; `=1+1` in a barcode cell is text.
+        // Only formula-capable columns (text and label/block) carry a formula; `=1+1` in a barcode cell is text.
         guard let type = setup.types[columnID],
               JoyfillDocContext.formulaCapableTypes.contains(type) else { return nil }
         let cell = row.cells?[columnID]
