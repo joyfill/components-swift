@@ -861,7 +861,8 @@ struct CollectionEditMultipleRowsSheetView: View {
                             case .block:
                                 if !isUsedForBulkEdit {
                                     fieldTitle(col, isCellFilled: isEffectivelyFilled, schemaKey: header.schemaKey)
-                                    TableBlockView(cellModel: Binding.constant(cellModel))
+                                    TableBlockView(cellModel: Binding.constant(cellModel),
+                                                   formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row))
                                         .frame(minHeight: 40)
                                         .cellBorder(isFocused: isFocused)
                                 }

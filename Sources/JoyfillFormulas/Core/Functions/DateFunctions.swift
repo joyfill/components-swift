@@ -276,19 +276,28 @@ public struct DateFunctions {
             }
         }
 
+        // DayJS `d` is a 0-based day-of-week number (0=Sunday) that ICU patterns cannot
+        // express, so compute it in the target timezone and inline it as a literal.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        let numericWeekday = calendar.component(.weekday, from: date) - 1
+
         let formatter = DateFormatter()
         formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = timeZone
-        formatter.dateFormat = momentToICUFormat(momentFormat)
+        formatter.dateFormat = momentToICUFormat(momentFormat, numericWeekday: numericWeekday)
 
         return .success(.string(formatter.string(from: date)))
     }
 
     /// Converts a moment/dayjs-style format string to a Swift `DateFormatter` (Unicode)
     /// pattern. Scans maximal runs of the same token letter so `DD` and `D` map
-    /// independently, and preserves quoted literals and other characters verbatim.
-    static func momentToICUFormat(_ format: String) -> String {
+    /// independently. DayJS escapes literal text with square brackets (`[...]`); those
+    /// become ICU quoted literals. Any other non-token letter is also escaped so it
+    /// prints verbatim instead of being read as an ICU pattern letter.
+    /// `numericWeekday` is the date's 0-based day of week (0=Sunday), inlined for `d`.
+    static func momentToICUFormat(_ format: String, numericWeekday: Int = 0) -> String {
         var result = ""
         let chars = Array(format)
         var index = 0
@@ -298,20 +307,26 @@ public struct DateFunctions {
         while index < chars.count {
             let char = chars[index]
 
-            // Preserve single-quoted literals as-is (DateFormatter literal syntax).
-            if char == "'" {
-                result.append(char)
+            // DayJS literal: everything between [ and ] is emitted verbatim.
+            if char == "[" {
                 index += 1
-                while index < chars.count {
-                    result.append(chars[index])
-                    if chars[index] == "'" { index += 1; break }
+                var literal = ""
+                while index < chars.count && chars[index] != "]" {
+                    literal.append(chars[index])
                     index += 1
                 }
+                if index < chars.count { index += 1 } // consume the closing ]
+                result += icuEscapedLiteral(literal)
                 continue
             }
 
             guard tokenLetters.contains(char) else {
-                result.append(char)
+                // Escape stray ASCII letters so DateFormatter does not read them as tokens.
+                if char.isLetter {
+                    result += icuEscapedLiteral(String(char))
+                } else {
+                    result.append(char)
+                }
                 index += 1
                 continue
             }
@@ -321,14 +336,20 @@ public struct DateFunctions {
             while index + length < chars.count && chars[index + length] == char {
                 length += 1
             }
-            result += icuToken(for: char, length: length)
+            result += icuToken(for: char, length: length, numericWeekday: numericWeekday)
             index += length
         }
 
         return result
     }
 
-    private static func icuToken(for char: Character, length: Int) -> String {
+    /// Wraps text as an ICU quoted literal, doubling any embedded single quote. Empty in → empty out.
+    private static func icuEscapedLiteral(_ text: String) -> String {
+        guard !text.isEmpty else { return "" }
+        return "'" + text.replacingOccurrences(of: "'", with: "''") + "'"
+    }
+
+    private static func icuToken(for char: Character, length: Int, numericWeekday: Int) -> String {
         func run(_ token: Character) -> String { String(repeating: token, count: length) }
         switch char {
         case "Y": return length >= 3 ? "yyyy" : "yy"          // year
@@ -336,18 +357,18 @@ public struct DateFunctions {
         case "D": return length >= 2 ? "dd" : "d"              // day of month
         case "d":                                              // day of week
             switch length {
-            case 1: return "e"
-            case 2: return "EE"
-            case 3: return "EEE"
-            default: return "EEEE"
+            case 1: return String(numericWeekday)              // 0-based number (0=Sun), e.g. "0"
+            case 2: return "EEEEEE"                             // short name, e.g. "Su"
+            case 3: return "EEE"                                // abbreviated, e.g. "Sun"
+            default: return "EEEE"                              // full, e.g. "Sunday"
             }
         case "H": return run("H")                              // hour 24
         case "h": return run("h")                              // hour 12
         case "m": return run("m")                              // minute
         case "s": return run("s")                              // second
         case "S": return run("S")                              // fractional second
-        case "a", "A": return "a"                              // AM/PM
-        case "Z": return length >= 2 ? "ZZ" : "ZZZZZ"          // timezone offset
+        case "a", "A": return "a"                              // AM/PM (ICU renders uppercase)
+        case "Z": return length >= 2 ? "xx" : "xxx"            // offset: ZZ=+0000, Z=+00:00
         default: return run(char)
         }
     }

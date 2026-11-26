@@ -1482,6 +1482,21 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertEqual(result(vm, "row_1", "col_label"), "12")
     }
 
+    /// A label (block) column refreshes when a cell it depends on changes — the value the
+    /// grid and the row form both read via `formulaValue` (NO-1607 P2).
+    func testALabelBlockColumnRefreshesWhenItsSourceChanges() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: "col_label", type: .block, title: "Label",
+                              formula: "=\(qtyID) * \(priceID)")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 3, priceID: 4])]))
+        XCTAssertEqual(result(vm, "row_1", "col_label"), "12")
+        vm.tableDataModel.documentEditor?.change(changes: [externalRowUpdate(rowID: "row_1", cells: [priceID: 5])])
+        settle()
+        XCTAssertEqual(result(vm, "row_1", "col_label"), "15", "block refreshes after its source changes")
+    }
+
     /// Without `formulaEngine: "wisdom"`, cell formulas are not evaluated — legacy
     /// Excel-style templates must not be resolved as Wisdom.
     func testCellFormulasAreSkippedWhenEngineIsMissing() {
@@ -1771,6 +1786,19 @@ final class CollectionCellFormulaTests: XCTestCase {
                                                rowID: "child_1")?.text, "20", "4 * 5, never expanded")
         XCTAssertEqual(editor.cellFormulaValue(columnID: totalID, fieldID: collectionFieldID,
                                                rowID: "root_1")?.text, "6", "2 * 3")
+    }
+
+    /// A label (block) column computes its formula in a collection, at both the root and
+    /// nested level — the value the row form now renders (NO-1607 P2).
+    func testALabelBlockColumnEvaluatesInCollection() {
+        let withBlock = columns() + [column(id: "col_label", type: .block, title: "Label", formula: "=A*B")]
+        let editor = editor(rootColumns: withBlock, childColumns: withBlock,
+                            rows: [row("root_1", [qtyID: 2, priceID: 3],
+                                       children: [row("child_1", [qtyID: 4, priceID: 5])])])
+        XCTAssertEqual(editor.cellFormulaValue(columnID: "col_label", fieldID: collectionFieldID,
+                                               rowID: "root_1")?.text, "6", "2 * 3")
+        XCTAssertEqual(editor.cellFormulaValue(columnID: "col_label", fieldID: collectionFieldID,
+                                               rowID: "child_1")?.text, "20", "4 * 5")
     }
 
     func testACellFormulaInANestedRowOverridesItsColumnFormula() {

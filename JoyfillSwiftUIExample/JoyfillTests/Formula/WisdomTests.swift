@@ -1871,6 +1871,27 @@ class WisdomTests: XCTestCase {
         XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdDateResult")?.text, "01/05/2025")
     }
 
+    /// formatDate honors DayJS/Moment format semantics: `[...]` literals, the numeric/short/
+    /// abbreviated/full weekday tokens, and the Z/ZZ timezone offset (NO-1607 P2).
+    func testFormatDateDayJSSemantics() {
+        // 1773583509000 ms = Sunday 2026-03-15 14:05:09 UTC.
+        let ts = "1773583509000"
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "fdLiteral",  formula: "formatDate(\(ts), \"[UTC] HH:mm\", \"UTC\")")
+            .addFormula(id: "fdLiteralA", formula: "formatDate(\(ts), \"[A] HH:mm\", \"UTC\")")
+            .addFormula(id: "fdWeekday",  formula: "formatDate(\(ts), \"d dd ddd dddd\", \"UTC\")")
+            .addFormula(id: "fdOffset",   formula: "formatDate(\(ts), \"Z ZZ\", \"UTC\")")
+            .addTextField(identifier: "fdLiteralResult",  formulaRef: "fdLiteral",  value: "")
+            .addTextField(identifier: "fdLiteralAResult", formulaRef: "fdLiteralA", value: "")
+            .addTextField(identifier: "fdWeekdayResult",  formulaRef: "fdWeekday",  value: "")
+            .addTextField(identifier: "fdOffsetResult",   formulaRef: "fdOffset",   value: "")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdLiteralResult")?.text,  "UTC 14:05", "[..] is a literal, not tokens")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdLiteralAResult")?.text, "A 14:05",   "[A] is a literal A")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdWeekdayResult")?.text,  "0 Su Sun Sunday", "d=0(Sun), dd=Su, ddd=Sun, dddd=Sunday")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdOffsetResult")?.text,   "+00:00 +0000", "Z=+00:00, ZZ=+0000")
+    }
+
     /// Numbers are UTC epoch milliseconds — small numbers are no longer read as seconds.
     func testDateInputNormalizationIsMilliseconds() {
         let document = JoyDoc.addDocument()
