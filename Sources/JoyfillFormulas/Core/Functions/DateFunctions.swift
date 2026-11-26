@@ -299,54 +299,61 @@ public struct DateFunctions {
     /// `numericWeekday` is the date's 0-based day of week (0=Sunday), inlined for `d`.
     static func momentToICUFormat(_ format: String, numericWeekday: Int = 0) -> String {
         var result = ""
+        // Pending literal text, flushed as ONE quoted span so adjacent fragments don't each
+        // get their own quotes (ICU reads the resulting `''` as a literal apostrophe).
+        var literal = ""
         let chars = Array(format)
         var index = 0
-        // Letters that carry meaning as moment tokens; everything else passes through.
+        // Letters that carry meaning as moment tokens; everything else is literal.
         let tokenLetters = Set("YMDdHhmsaASZ")
+
+        func flushLiteral() {
+            guard !literal.isEmpty else { return }
+            result += "'" + literal.replacingOccurrences(of: "'", with: "''") + "'"
+            literal = ""
+        }
 
         while index < chars.count {
             let char = chars[index]
 
-            // DayJS literal: everything between [ and ] is emitted verbatim.
+            // DayJS literal: everything between [ and ] is literal text.
             if char == "[" {
                 index += 1
-                var literal = ""
                 while index < chars.count && chars[index] != "]" {
                     literal.append(chars[index])
                     index += 1
                 }
                 if index < chars.count { index += 1 } // consume the closing ]
-                result += icuEscapedLiteral(literal)
                 continue
             }
 
-            guard tokenLetters.contains(char) else {
-                // Escape stray ASCII letters so DateFormatter does not read them as tokens.
-                if char.isLetter {
-                    result += icuEscapedLiteral(String(char))
-                } else {
-                    result.append(char)
+            if tokenLetters.contains(char) {
+                flushLiteral()
+                // Measure the run length of this token letter.
+                var length = 1
+                while index + length < chars.count && chars[index + length] == char {
+                    length += 1
                 }
+                result += icuToken(for: char, length: length, numericWeekday: numericWeekday)
+                index += length
+                continue
+            }
+
+            // Stray letters and apostrophes are literal; batch them into the pending span.
+            if char.isLetter || char == "'" {
+                literal.append(char)
                 index += 1
                 continue
             }
 
-            // Measure the run length of this token letter.
-            var length = 1
-            while index + length < chars.count && chars[index + length] == char {
-                length += 1
-            }
-            result += icuToken(for: char, length: length, numericWeekday: numericWeekday)
-            index += length
+            // Spaces, punctuation and digits are already literal to ICU — emit verbatim.
+            flushLiteral()
+            result.append(char)
+            index += 1
         }
 
+        flushLiteral()
         return result
-    }
-
-    /// Wraps text as an ICU quoted literal, doubling any embedded single quote. Empty in → empty out.
-    private static func icuEscapedLiteral(_ text: String) -> String {
-        guard !text.isEmpty else { return "" }
-        return "'" + text.replacingOccurrences(of: "'", with: "''") + "'"
     }
 
     private static func icuToken(for char: Character, length: Int, numericWeekday: Int) -> String {

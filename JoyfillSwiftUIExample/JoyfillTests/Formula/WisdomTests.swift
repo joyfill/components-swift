@@ -1881,15 +1881,22 @@ class WisdomTests: XCTestCase {
             .addFormula(id: "fdLiteralA", formula: "formatDate(\(ts), \"[A] HH:mm\", \"UTC\")")
             .addFormula(id: "fdWeekday",  formula: "formatDate(\(ts), \"d dd ddd dddd\", \"UTC\")")
             .addFormula(id: "fdOffset",   formula: "formatDate(\(ts), \"Z ZZ\", \"UTC\")")
+            // Adjacent literal fragments must join into one span (no stray apostrophes).
+            .addFormula(id: "fdBareLetters", formula: "formatDate(\(ts), \"UTC HH:mm\", \"UTC\")")
+            .addFormula(id: "fdAdjacent",    formula: "formatDate(\(ts), \"[A][B] HH:mm\", \"UTC\")")
             .addTextField(identifier: "fdLiteralResult",  formulaRef: "fdLiteral",  value: "")
             .addTextField(identifier: "fdLiteralAResult", formulaRef: "fdLiteralA", value: "")
             .addTextField(identifier: "fdWeekdayResult",  formulaRef: "fdWeekday",  value: "")
             .addTextField(identifier: "fdOffsetResult",   formulaRef: "fdOffset",   value: "")
+            .addTextField(identifier: "fdBareLettersResult", formulaRef: "fdBareLetters", value: "")
+            .addTextField(identifier: "fdAdjacentResult",    formulaRef: "fdAdjacent",    value: "")
         let editor = documentEditor(document: document)
         XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdLiteralResult")?.text,  "UTC 14:05", "[..] is a literal, not tokens")
         XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdLiteralAResult")?.text, "A 14:05",   "[A] is a literal A")
         XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdWeekdayResult")?.text,  "0 Su Sun Sunday", "d=0(Sun), dd=Su, ddd=Sun, dddd=Sunday")
         XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdOffsetResult")?.text,   "+00:00 +0000", "Z=+00:00, ZZ=+0000")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdBareLettersResult")?.text, "UTC 14:05", "bare stray letters join into one literal, not U'T'C")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdAdjacentResult")?.text,    "AB 14:05",  "adjacent [A][B] literals join, not A'B")
     }
 
     /// Numbers are UTC epoch milliseconds — small numbers are no longer read as seconds.
