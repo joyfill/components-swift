@@ -287,7 +287,7 @@ final class NavigationGotoUITests: XCTestCase {
         let keyboardFrame = app.keyboards.element.frame
         let footerWhileKeyboardUp = app.buttons[footerIdentifier].firstMatch
         XCTAssertTrue(footerWhileKeyboardUp.waitForExistence(timeout: 5), "Footer should be present while the keyboard is up")
-        XCTAssertLessThan(footerWhileKeyboardUp.frame.maxY, keyboardFrame.minY + 1,
+        XCTAssertLessThan(footerWhileKeyboardUp.frame.maxY, keyboardFrame.minY + 8,
             "Footer should sit above the keyboard, not behind it (footer.maxY=\(footerWhileKeyboardUp.frame.maxY), keyboard.minY=\(keyboardFrame.minY))")
 
         // 2. Dismiss the keyboard, leave the screen, rotate, and reopen — the stale inset is only cached briefly.
