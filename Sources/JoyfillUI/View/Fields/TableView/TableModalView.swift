@@ -106,6 +106,7 @@ struct TableModalView : View {
                 FormFooterView()
             }
         }
+        .ignoresSafeArea(.keyboard, edges: isKeyboardVisible ? [] : .bottom)
         .background(colorScheme == .dark ? Color.black : Color.white)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
