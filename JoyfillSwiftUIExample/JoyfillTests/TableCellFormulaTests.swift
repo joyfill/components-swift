@@ -43,13 +43,15 @@ final class TableCellFormulaTests: XCTestCase {
     }
 
     private func document(columns: [FieldTableColumn], rows: [ValueElement],
-                          extraFields: [JoyDocField] = []) -> JoyDoc {
+                          extraFields: [JoyDocField] = [],
+                          formulaEngine: String? = "wisdom") -> JoyDoc {
         var field = JoyDocField()
         field.type = "table"
         field.id = tableFieldID
         field.identifier = "field_\(tableFieldID)"
         field.title = "Formula Table"
         field.file = fileID
+        field.formulaEngine = formulaEngine // Cell formulas are Wisdom-gated.
         field.tableColumns = columns
         field.tableColumnOrder = columns.compactMap { $0.id }
         field.rowOrder = rows.compactMap { $0.id }
@@ -1466,6 +1468,63 @@ final class TableCellFormulaTests: XCTestCase {
         XCTAssertNil(result(vm, "row_1", totalID))
         XCTAssertEqual(result(vm, "row_2", totalID), "20", "Other rows are untouched")
     }
+
+    // MARK: - NO-1607: label (block) columns and the Wisdom engine gate
+
+    /// A label (`block`) column carries and evaluates a formula, like a text column.
+    func testALabelBlockColumnEvaluatesItsFormula() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: "col_label", type: .block, title: "Label",
+                              formula: "=\(qtyID) * \(priceID)")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: "3", priceID: "4"])]))
+        XCTAssertEqual(result(vm, "row_1", "col_label"), "12")
+    }
+
+    /// A label (block) column refreshes when a cell it depends on changes — the value the
+    /// grid and the row form both read via `formulaValue` (NO-1607 P2).
+    func testALabelBlockColumnRefreshesWhenItsSourceChanges() {
+        let columns = [column(id: qtyID,   type: .number, title: "Qty"),
+                       column(id: priceID, type: .number, title: "Price"),
+                       column(id: "col_label", type: .block, title: "Label",
+                              formula: "=\(qtyID) * \(priceID)")]
+        let vm = viewModel(document(columns: columns,
+                                    rows: [row("row_1", [qtyID: 3, priceID: 4])]))
+        XCTAssertEqual(result(vm, "row_1", "col_label"), "12")
+        vm.tableDataModel.documentEditor?.change(changes: [externalRowUpdate(rowID: "row_1", cells: [priceID: 5])])
+        settle()
+        XCTAssertEqual(result(vm, "row_1", "col_label"), "15", "block refreshes after its source changes")
+    }
+
+    /// Without `formulaEngine: "wisdom"`, cell formulas are not evaluated — legacy
+    /// Excel-style templates must not be resolved as Wisdom.
+    func testCellFormulasAreSkippedWhenEngineIsMissing() {
+        let doc = document(columns: standardColumns(),
+                           rows: [row("row_1", [qtyID: "3", priceID: "4"])],
+                           formulaEngine: nil)
+        let vm = viewModel(doc)
+        XCTAssertNil(result(vm, "row_1", totalID), "No engine -> no cell formula evaluation")
+    }
+
+    /// An engine set to anything other than "wisdom" is also skipped.
+    func testCellFormulasAreSkippedWhenEngineIsNotWisdom() {
+        let doc = document(columns: standardColumns(),
+                           rows: [row("row_1", [qtyID: "3", priceID: "4"])],
+                           formulaEngine: "excel")
+        let vm = viewModel(doc)
+        XCTAssertNil(result(vm, "row_1", totalID), "Non-wisdom engine -> no cell formula evaluation")
+    }
+
+    /// With the engine set to "wisdom", the same fixture does evaluate — the gate's
+    /// positive side.
+    func testCellFormulasEvaluateWhenEngineIsWisdom() {
+        let doc = document(columns: standardColumns(),
+                           rows: [row("row_1", [qtyID: "3", priceID: "4"])],
+                           formulaEngine: "wisdom")
+        let vm = viewModel(doc)
+        XCTAssertEqual(result(vm, "row_1", totalID), "12")
+    }
 }
 
 /// Collections resolve formulas per schema: column letters are positional, so `A` means a
@@ -1519,6 +1578,7 @@ final class CollectionCellFormulaTests: XCTestCase {
         field.identifier = "field_\(collectionFieldID)"
         field.title = "Formula Collection"
         field.file = fileID
+        field.formulaEngine = "wisdom" // Cell formulas are Wisdom-gated.
         field.dictionary["schema"] = [
             rootSchema:  ["title": "Root",  "root": true,  "children": [childSchema], "tableColumns": rootColumns],
             childSchema: ["title": "Child", "root": false, "children": [String](),    "tableColumns": childColumns]
@@ -1726,6 +1786,19 @@ final class CollectionCellFormulaTests: XCTestCase {
                                                rowID: "child_1")?.text, "20", "4 * 5, never expanded")
         XCTAssertEqual(editor.cellFormulaValue(columnID: totalID, fieldID: collectionFieldID,
                                                rowID: "root_1")?.text, "6", "2 * 3")
+    }
+
+    /// A label (block) column computes its formula in a collection, at both the root and
+    /// nested level — the value the row form now renders (NO-1607 P2).
+    func testALabelBlockColumnEvaluatesInCollection() {
+        let withBlock = columns() + [column(id: "col_label", type: .block, title: "Label", formula: "=A*B")]
+        let editor = editor(rootColumns: withBlock, childColumns: withBlock,
+                            rows: [row("root_1", [qtyID: 2, priceID: 3],
+                                       children: [row("child_1", [qtyID: 4, priceID: 5])])])
+        XCTAssertEqual(editor.cellFormulaValue(columnID: "col_label", fieldID: collectionFieldID,
+                                               rowID: "root_1")?.text, "6", "2 * 3")
+        XCTAssertEqual(editor.cellFormulaValue(columnID: "col_label", fieldID: collectionFieldID,
+                                               rowID: "child_1")?.text, "20", "4 * 5")
     }
 
     func testACellFormulaInANestedRowOverridesItsColumnFormula() {

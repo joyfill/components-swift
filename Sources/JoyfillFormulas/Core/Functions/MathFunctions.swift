@@ -246,7 +246,22 @@ public struct MathFunctions {
         
         return .success(.number(Foundation.sqrt(number)))
     }
-    
+
+    /// Implements the ABS function: ABS(number)
+    static func abs(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        guard args.count == 1 else {
+            return .failure(.invalidArguments(function: "ABS", reason: "Expected exactly 1 argument, got \(args.count)"))
+        }
+
+        let numberResult = evaluator.evaluate(node: args[0], context: context)
+        guard case .success(let numberValue) = numberResult else { return numberResult }
+        guard case .number(let number) = numberValue else {
+            return .failure(.typeMismatch(expected: "Number", actual: "Argument: \(typeDescription(numberValue))"))
+        }
+
+        return .success(.number(Swift.abs(number)))
+    }
+
     /// Implements the MIN function: MIN(number1, number2, ...) or MIN(arrayOfNumbers)
     static func min(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
         guard !args.isEmpty else {

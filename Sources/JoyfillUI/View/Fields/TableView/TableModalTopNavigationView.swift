@@ -723,7 +723,8 @@ struct EditMultipleRowsSheetView: View {
                             case .block:
                                 if !isUsedForBulkEdit {
                                     columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                    TableBlockView(cellModel: Binding.constant(cellModel))
+                                    TableBlockView(cellModel: Binding.constant(cellModel),
+                                                   formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row))
                                         .frame(minHeight: 40)
                                         .cellBorder(isFocused: isFocused)
                                 }

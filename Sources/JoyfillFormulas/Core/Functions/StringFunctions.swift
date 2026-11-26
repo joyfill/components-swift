@@ -413,7 +413,49 @@ public struct StringFunctions {
         // Trim whitespace and newlines from both ends
         return .success(.string(text.trimmingCharacters(in: .whitespacesAndNewlines)))
     }
-    
+
+    /// Implements the SUBSTRING function: SUBSTRING(text, start, length?)
+    /// `start` is zero-based. `length` is optional; omitted means to the end.
+    /// Out-of-range start/length are clamped rather than erroring.
+    static func substring(args: [ASTNode], context: EvaluationContext, evaluator: Evaluator) -> Result<FormulaValue, FormulaError> {
+        guard args.count == 2 || args.count == 3 else {
+            return .failure(.invalidArguments(function: "SUBSTRING", reason: "Expected 2 or 3 arguments (text, start, length?), got \(args.count)"))
+        }
+
+        let textResult = evaluator.evaluate(node: args[0], context: context)
+        guard case .success(let textValue) = textResult else { return textResult }
+        guard case .string(let text) = textValue else {
+            return .failure(.typeMismatch(expected: "String", actual: "Argument 1: \(typeDescription(textValue))"))
+        }
+
+        let startResult = evaluator.evaluate(node: args[1], context: context)
+        guard case .success(let startValue) = startResult else { return startResult }
+        guard case .number(let startNumber) = startValue else {
+            return .failure(.typeMismatch(expected: "Number for start", actual: "Argument 2: \(typeDescription(startValue))"))
+        }
+
+        let count = text.count
+        // Clamp the zero-based start into [0, count]. safeInt avoids trapping on NaN/huge values;
+        // a non-finite or out-of-range start falls to the matching clamp bound.
+        let startInt = startNumber.safeInt ?? (startNumber > 0 ? count : 0)
+        let start = Swift.max(0, Swift.min(count, startInt))
+
+        var end = count
+        if args.count == 3 {
+            let lengthResult = evaluator.evaluate(node: args[2], context: context)
+            guard case .success(let lengthValue) = lengthResult else { return lengthResult }
+            guard case .number(let lengthNumber) = lengthValue else {
+                return .failure(.typeMismatch(expected: "Number for length", actual: "Argument 3: \(typeDescription(lengthValue))"))
+            }
+            let length = Swift.max(0, lengthNumber.safeInt ?? (lengthNumber > 0 ? count : 0))
+            end = Swift.min(count, start + length)
+        }
+
+        let startIndex = text.index(text.startIndex, offsetBy: start)
+        let endIndex = text.index(text.startIndex, offsetBy: end)
+        return .success(.string(String(text[startIndex..<endIndex])))
+    }
+
     // Helper function to get type description
     private static func typeDescription(_ value: FormulaValue) -> String {
         switch value {

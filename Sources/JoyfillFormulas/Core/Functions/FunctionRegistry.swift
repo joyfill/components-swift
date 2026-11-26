@@ -58,6 +58,7 @@ public class FunctionRegistry {
         
         // Logical Functions
         register(name: "IF", function: LogicalFunctions.if)
+        register(name: "IFF", function: LogicalFunctions.if) // Wisdom inline-if alias
         register(name: "AND", function: LogicalFunctions.and)
         register(name: "OR", function: LogicalFunctions.or)
         register(name: "NOT", function: LogicalFunctions.not)
@@ -74,6 +75,7 @@ public class FunctionRegistry {
         register(name: "JOIN", function: StringFunctions.join)
         register(name: "EQUALS", function: StringFunctions.equals)
         register(name: "TRIM", function: StringFunctions.trim)
+        register(name: "SUBSTRING", function: StringFunctions.substring)
         
         // Math Functions
         register(name: "SUM", function: MathFunctions.sum)
@@ -88,16 +90,22 @@ public class FunctionRegistry {
         register(name: "AVG", function: MathFunctions.avg)
         register(name: "AVERAGE", function: MathFunctions.avg) // Alias for AVG
         register(name: "SQRT", function: MathFunctions.sqrt)
+        register(name: "ABS", function: MathFunctions.abs)
         
         // Date Functions
         register(name: "NOW", function: DateFunctions.now)
         register(name: "YEAR", function: DateFunctions.year)
         register(name: "MONTH", function: DateFunctions.month)
         register(name: "DAY", function: DateFunctions.day)
+        register(name: "HOUR", function: DateFunctions.hour)
+        register(name: "MINUTE", function: DateFunctions.minute)
+        register(name: "SECOND", function: DateFunctions.second)
         register(name: "DATE", function: DateFunctions.date)
+        register(name: "TIME", function: DateFunctions.time)
         register(name: "DATEADD", function: DateFunctions.dateAdd)
         register(name: "DATESUBTRACT", function: DateFunctions.dateSubtract)
         register(name: "TIMESTAMP", function: DateFunctions.timestamp)
+        register(name: "FORMATDATE", function: DateFunctions.formatDate)
         
         // Array Functions
         register(name: "FLAT", function: ArrayFunctions.flat)

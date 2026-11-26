@@ -10,19 +10,27 @@ import SwiftUI
 struct TableBlockView: View {
     @FocusState private var isTextFieldFocused: Bool
     @Binding var cellModel: TableCellModel
-    
-    public init(cellModel: Binding<TableCellModel>) {
+    /// Pulled by the cell builder; a Wisdom cell formula result to show instead of the static title.
+    let formulaValue: CellFormulaValue?
+
+    public init(cellModel: Binding<TableCellModel>, formulaValue: CellFormulaValue? = nil) {
         _cellModel = cellModel
+        self.formulaValue = formulaValue
     }
-    
+
+    /// The formula result when present, otherwise the authored label text.
+    private var displayText: String {
+        formulaValue?.text ?? cellModel.data.title
+    }
+
     var body: some View {
         if cellModel.viewMode == .quickView {
-            Text(cellModel.data.title)
+            Text(displayText)
                 .font(.system(size: 15))
                 .lineLimit(1)
         } else {
                 ScrollView {
-                    Text(cellModel.data.title)
+                    Text(displayText)
                         .accessibilityIdentifier("TabelBlockFieldIdentifier")
                         .font(.system(size: 15))
                         .frame(maxWidth: .infinity, alignment: .leading)
