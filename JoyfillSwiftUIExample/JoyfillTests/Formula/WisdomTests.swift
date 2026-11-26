@@ -1759,6 +1759,174 @@ class WisdomTests: XCTestCase {
         
         print("✅ All MultiSelect Field Resolution tests completed!")
     }
+
+    // MARK: - NO-1607 Wisdom v1 additions
+
+    func testAbsFunction() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "absNeg", formula: "abs(-5)")
+            .addFormula(id: "absPos", formula: "abs(5)")
+            .addFormula(id: "absZero", formula: "abs(0)")
+            .addNumberField(identifier: "absNegResult", formulaRef: "absNeg")
+            .addNumberField(identifier: "absPosResult", formulaRef: "absPos")
+            .addNumberField(identifier: "absZeroResult", formulaRef: "absZero")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "absNegResult")?.number, 5)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "absPosResult")?.number, 5)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "absZeroResult")?.number, 0)
+    }
+
+    func testIffFunction() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "iffTrue", formula: "iff(5 > 2, 10, 20)")
+            .addFormula(id: "iffFalse", formula: "iff(1 > 2, 10, 20)")
+            .addNumberField(identifier: "iffTrueResult", formulaRef: "iffTrue")
+            .addNumberField(identifier: "iffFalseResult", formulaRef: "iffFalse")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "iffTrueResult")?.number, 10)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "iffFalseResult")?.number, 20)
+    }
+
+    func testHourMinuteSecondUTC() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "h", formula: "hour(date(2025, 6, 15, 13, 30, 45))")
+            .addFormula(id: "m", formula: "minute(date(2025, 6, 15, 13, 30, 45))")
+            .addFormula(id: "s", formula: "second(date(2025, 6, 15, 13, 30, 45))")
+            .addNumberField(identifier: "hResult", formulaRef: "h")
+            .addNumberField(identifier: "mResult", formulaRef: "m")
+            .addNumberField(identifier: "sResult", formulaRef: "s")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "hResult")?.number, 13)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "mResult")?.number, 30)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "sResult")?.number, 45)
+    }
+
+    func testDateWithOptionalTimeParts() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "y", formula: "year(date(2025, 6, 15, 13, 30, 45))")
+            .addFormula(id: "mo", formula: "month(date(2025, 6, 15, 13, 30, 45))")
+            .addFormula(id: "d", formula: "day(date(2025, 6, 15, 13, 30, 45))")
+            .addFormula(id: "hNoTime", formula: "hour(date(2025, 6, 15))") // omitted time -> 0
+            .addNumberField(identifier: "yResult", formulaRef: "y")
+            .addNumberField(identifier: "moResult", formulaRef: "mo")
+            .addNumberField(identifier: "dResult", formulaRef: "d")
+            .addNumberField(identifier: "hNoTimeResult", formulaRef: "hNoTime")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "yResult")?.number, 2025)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "moResult")?.number, 6)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "dResult")?.number, 15)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "hNoTimeResult")?.number, 0)
+    }
+
+    func testTimeFunction() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "th", formula: "hour(time(9, 15, 30))")
+            .addFormula(id: "tm", formula: "minute(time(9, 15, 30))")
+            .addFormula(id: "ts", formula: "second(time(9, 15, 30))")
+            .addNumberField(identifier: "thResult", formulaRef: "th")
+            .addNumberField(identifier: "tmResult", formulaRef: "tm")
+            .addNumberField(identifier: "tsResult", formulaRef: "ts")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "thResult")?.number, 9)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "tmResult")?.number, 15)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "tsResult")?.number, 30)
+    }
+
+    func testSubstringZeroBased() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "subFrom", formula: "substring(\"hello\", 1)")      // "ello"
+            .addFormula(id: "subRange", formula: "substring(\"hello\", 1, 3)")  // "ell"
+            .addFormula(id: "subStart", formula: "substring(\"hello\", 0, 2)")  // "he"
+            .addFormula(id: "subClamp", formula: "substring(\"hi\", 1, 50)")    // "i"
+            .addTextField(identifier: "subFromResult", formulaRef: "subFrom", value: "")
+            .addTextField(identifier: "subRangeResult", formulaRef: "subRange", value: "")
+            .addTextField(identifier: "subStartResult", formulaRef: "subStart", value: "")
+            .addTextField(identifier: "subClampResult", formulaRef: "subClamp", value: "")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "subFromResult")?.text, "ello")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "subRangeResult")?.text, "ell")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "subStartResult")?.text, "he")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "subClampResult")?.text, "i")
+    }
+
+    func testLengthStringAndArray() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "lenStr", formula: "length(\"hello\")")
+            .addFormula(id: "lenArr", formula: "length([1, 2, 3, 4])")
+            .addNumberField(identifier: "lenStrResult", formulaRef: "lenStr")
+            .addNumberField(identifier: "lenArrResult", formulaRef: "lenArr")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "lenStrResult")?.number, 5)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "lenArrResult")?.number, 4)
+    }
+
+    func testFormatDateUTC() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "fdFull", formula: "formatDate(date(2025, 6, 15, 13, 30, 45), \"YYYY-MM-DD HH:mm:ss\", \"UTC\")")
+            .addFormula(id: "fdDate", formula: "formatDate(date(2025, 1, 5), \"MM/DD/YYYY\", \"UTC\")")
+            .addTextField(identifier: "fdFullResult", formulaRef: "fdFull", value: "")
+            .addTextField(identifier: "fdDateResult", formulaRef: "fdDate", value: "")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdFullResult")?.text, "2025-06-15 13:30:45")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdDateResult")?.text, "01/05/2025")
+    }
+
+    /// formatDate honors DayJS/Moment format semantics: `[...]` literals, the numeric/short/
+    /// abbreviated/full weekday tokens, and the Z/ZZ timezone offset (NO-1607 P2).
+    func testFormatDateDayJSSemantics() {
+        // 1773583509000 ms = Sunday 2026-03-15 14:05:09 UTC.
+        let ts = "1773583509000"
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "fdLiteral",  formula: "formatDate(\(ts), \"[UTC] HH:mm\", \"UTC\")")
+            .addFormula(id: "fdLiteralA", formula: "formatDate(\(ts), \"[A] HH:mm\", \"UTC\")")
+            .addFormula(id: "fdWeekday",  formula: "formatDate(\(ts), \"d dd ddd dddd\", \"UTC\")")
+            .addFormula(id: "fdOffset",   formula: "formatDate(\(ts), \"Z ZZ\", \"UTC\")")
+            // Adjacent literal fragments must join into one span (no stray apostrophes).
+            .addFormula(id: "fdBareLetters", formula: "formatDate(\(ts), \"UTC HH:mm\", \"UTC\")")
+            .addFormula(id: "fdAdjacent",    formula: "formatDate(\(ts), \"[A][B] HH:mm\", \"UTC\")")
+            .addTextField(identifier: "fdLiteralResult",  formulaRef: "fdLiteral",  value: "")
+            .addTextField(identifier: "fdLiteralAResult", formulaRef: "fdLiteralA", value: "")
+            .addTextField(identifier: "fdWeekdayResult",  formulaRef: "fdWeekday",  value: "")
+            .addTextField(identifier: "fdOffsetResult",   formulaRef: "fdOffset",   value: "")
+            .addTextField(identifier: "fdBareLettersResult", formulaRef: "fdBareLetters", value: "")
+            .addTextField(identifier: "fdAdjacentResult",    formulaRef: "fdAdjacent",    value: "")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdLiteralResult")?.text,  "UTC 14:05", "[..] is a literal, not tokens")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdLiteralAResult")?.text, "A 14:05",   "[A] is a literal A")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdWeekdayResult")?.text,  "0 Su Sun Sunday", "d=0(Sun), dd=Su, ddd=Sun, dddd=Sunday")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdOffsetResult")?.text,   "+00:00 +0000", "Z=+00:00, ZZ=+0000")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdBareLettersResult")?.text, "UTC 14:05", "bare stray letters join into one literal, not U'T'C")
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "fdAdjacentResult")?.text,    "AB 14:05",  "adjacent [A][B] literals join, not A'B")
+    }
+
+    /// Numbers are UTC epoch milliseconds — small numbers are no longer read as seconds.
+    func testDateInputNormalizationIsMilliseconds() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "yEpoch", formula: "year(0)")          // 1970-01-01 UTC
+            .addFormula(id: "hOneHour", formula: "hour(3600000)")  // 1h in ms -> hour 1 (0 under old seconds heuristic)
+            .addFormula(id: "dOneDay", formula: "day(86400000)")   // 1d in ms -> 1970-01-02 -> day 2
+            .addNumberField(identifier: "yEpochResult", formulaRef: "yEpoch")
+            .addNumberField(identifier: "hOneHourResult", formulaRef: "hOneHour")
+            .addNumberField(identifier: "dOneDayResult", formulaRef: "dOneDay")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "yEpochResult")?.number, 1970)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "hOneHourResult")?.number, 1)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "dOneDayResult")?.number, 2)
+    }
+
+    func testDateAddDateSubtractTimeUnits() {
+        let document = JoyDoc.addDocument()
+            .addFormula(id: "addHours", formula: "hour(dateAdd(date(2025, 6, 15, 10, 0, 0), 3, \"hours\"))")       // 13
+            .addFormula(id: "addMinutes", formula: "minute(dateAdd(date(2025, 6, 15, 10, 0, 0), 25, \"minutes\"))") // 25
+            .addFormula(id: "subSeconds", formula: "second(dateSubtract(date(2025, 6, 15, 10, 0, 30), 10, \"seconds\"))") // 20
+            .addNumberField(identifier: "addHoursResult", formulaRef: "addHours")
+            .addNumberField(identifier: "addMinutesResult", formulaRef: "addMinutes")
+            .addNumberField(identifier: "subSecondsResult", formulaRef: "subSeconds")
+        let editor = documentEditor(document: document)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "addHoursResult")?.number, 13)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "addMinutesResult")?.number, 25)
+        XCTAssertEqual(editor.value(ofFieldWithIdentifier: "subSecondsResult")?.number, 20)
+    }
 }
 
 extension DocumentEditor {

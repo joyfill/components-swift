@@ -102,6 +102,7 @@ struct CollectionModalView : View {
                 FormFooterView()
             }
         }
+        .ignoresSafeArea(.keyboard, edges: isKeyboardVisible ? [] : .bottom)
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
         .onReceive(viewModel.tableDataModel.documentEditor?.navigationPublisher.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { event in
             guard let fieldID = event.fieldID,

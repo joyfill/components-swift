@@ -40,7 +40,7 @@ struct CollectionViewCellBuilder: View {
             TableImageView(cellModel: $cellModel, viewModel: viewModel)
                 .disabled(cellModel.editMode == .readonly)
         case .block:
-            TableBlockView(cellModel: $cellModel)
+            TableBlockView(cellModel: $cellModel, formulaValue: formulaValue)
         case .date:
             TableDateView(cellModel: $cellModel)
                 .disabled(cellModel.editMode == .readonly)

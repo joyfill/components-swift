@@ -83,10 +83,14 @@ class nowTests: XCTestCase {
         XCTAssertEqual(ms, nowMs - sevenDaysMs, accuracy: toleranceMs, "dateSubtract(now(), 7, days) should be 7 days before now")
     }
 
-    /// Test: Greeting uses hour(now()) which is unsupported, so the formula resolves to empty
+    /// Test: Greeting uses hour(now()) (UTC) to pick a time-of-day message.
     func testGreeting() {
         let result = getFieldValue("advanced_example_greeting")
-        XCTAssertEqual(result, "", "greeting resolves to empty (hour() unsupported)")
+        var utc = Calendar(identifier: .gregorian)
+        utc.timeZone = TimeZone(secondsFromGMT: 0)!
+        let hour = utc.component(.hour, from: Date())
+        let expected = hour < 12 ? "Good morning!" : (hour < 18 ? "Good afternoon!" : "Good evening!")
+        XCTAssertEqual(result, expected, "greeting should reflect the current UTC hour via hour(now())")
     }
 
     /// Test: Duration subtracts a text-string startDate from now(), which is not supported, so empty

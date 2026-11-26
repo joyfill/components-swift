@@ -9,6 +9,7 @@ struct TableRowActionsButton: View {
 
     @State private var showingPopover = false
     @State private var showDuplicatePopover = false
+    @State private var showDeleteConfirmation = false
 
     var body: some View {
                 Button(action: {
@@ -99,7 +100,7 @@ struct TableRowActionsButton: View {
                             
                             Button(action: {
                                 showingPopover = false
-                                viewModel.deleteSelectedRow()
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -186,8 +187,8 @@ struct TableRowActionsButton: View {
                             }
 
                             Button(action: {
-                                viewModel.deleteSelectedRow()
                                 showingPopover = false
+                                $showDeleteConfirmation.requestRowDelete(config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation) { viewModel.deleteSelectedRow() }
                             }) {
                                 Text("Delete \(rowTitle)")
                                     .foregroundStyle(.red)
@@ -216,6 +217,11 @@ struct TableRowActionsButton: View {
                             showDuplicatePopover = false
                         }
                     )
+                }
+                .rowDeleteConfirmation(isPresented: $showDeleteConfirmation,
+                                       config: viewModel.tableDataModel.documentEditor?.rowDeleteConfirmation,
+                                       count: viewModel.tableDataModel.selectedRows.count) {
+                    viewModel.deleteSelectedRow()
                 }
     }
 
@@ -717,7 +723,8 @@ struct EditMultipleRowsSheetView: View {
                             case .block:
                                 if !isUsedForBulkEdit {
                                     columnTitle(col, isCellFilled: isEffectivelyFilled)
-                                    TableBlockView(cellModel: Binding.constant(cellModel))
+                                    TableBlockView(cellModel: Binding.constant(cellModel),
+                                                   formulaValue: viewModel.formulaValue(columnID: columnID, rowID: row))
                                         .frame(minHeight: 40)
                                         .cellBorder(isFocused: isFocused)
                                 }
@@ -766,9 +773,43 @@ struct EditMultipleRowsSheetView: View {
         }
         }
         .safeAreaInset(edge: .bottom) {
-            FormFooterView()
+            if viewModel.tableDataModel.documentEditor?.hideFooterInRowForm != true {
+                FormFooterView()
+            }
         }
         .presentsPageSelectionSheet(documentEditor: viewModel.tableDataModel.documentEditor)
     }
 
+}
+
+extension Binding where Value == Bool {
+    /// Presents the confirmation (next runloop, after the popover dismisses) when the gate is enabled; otherwise deletes now.
+    func requestRowDelete(config: RowDeleteConfirmationConfig?, deleteNow: () -> Void) {
+        if config?.isEnabled == true {
+            DispatchQueue.main.async { self.wrappedValue = true }
+        } else {
+            deleteNow()
+        }
+    }
+}
+
+extension View {
+    /// Shared confirmation gate shown before deleting table/collection rows.
+    /// Resolves config + defaults for `count` rows (single vs. bulk copy, `{count}` substitution).
+    func rowDeleteConfirmation(
+        isPresented: Binding<Bool>,
+        config: RowDeleteConfirmationConfig?,
+        count: Int,
+        onConfirm: @escaping () -> Void
+    ) -> some View {
+        let resolved = (config ?? RowDeleteConfirmationConfig()).resolved(count: count)
+        return alert(resolved.title, isPresented: isPresented) {
+            Button(resolved.cancelText, role: .cancel) { }
+            Button(resolved.submitText, role: .destructive, action: onConfirm)
+        } message: {
+            if !resolved.description.isEmpty {
+                Text(resolved.description)
+            }
+        }
+    }
 }

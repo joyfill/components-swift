@@ -379,6 +379,13 @@ public struct JoyDocField: Equatable {
         set { dictionary["type"] = newValue.rawValue }
     }
 
+    /// The formula engine for a table/collection field's cell formulas.
+    /// Cell formulas are evaluated only when this is `"wisdom"`.
+    public var formulaEngine: String? {
+        get { dictionary["formulaEngine"] as? String }
+        set { dictionary["formulaEngine"] = newValue }
+    }
+
     /// The ID of the field.
     public var id: String? {
         get { dictionary["_id"] as? String }
