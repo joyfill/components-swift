@@ -507,6 +507,7 @@ struct OptionSelectionView: View {
         case allFormulaJSONs
         case formulaFunctionTests
         case tenKRowsCollection
+        case heavyFormsList
         case schemaValidationExampleView
         case oChangeHandlerTest
         case manipulateDataOnChangeView
@@ -539,6 +540,8 @@ struct OptionSelectionView: View {
                 return "Formula Function Tests"
             case .tenKRowsCollection:
                 return "10k Rows Collection"
+            case .heavyFormsList:
+                return "Heavy Forms"
             case .schemaValidationExampleView:
                 return "Schema Validation"
             case .manipulateDataOnChangeView:
@@ -584,6 +587,8 @@ struct OptionSelectionView: View {
                 return "Test individual formula functions (if, sum, etc.)"
             case .tenKRowsCollection:
                 return "Open heavy sample JSON with 10k rows to stress test"
+            case .heavyFormsList:
+                return "Browse a list of heavy sample JSONs and tap one to open its form"
             case .schemaValidationExampleView:
                 return "Test schema validation and error handling features"
             case .manipulateDataOnChangeView:
@@ -629,6 +634,8 @@ struct OptionSelectionView: View {
                 return "f.cursive"
             case .tenKRowsCollection:
                 return "square.grid.3x3"
+            case .heavyFormsList:
+                return "square.stack.3d.up.fill"
             case .schemaValidationExampleView:
                 return "checkmark.seal.fill"
             case .manipulateDataOnChangeView:
@@ -680,6 +687,8 @@ struct OptionSelectionView: View {
                 return .teal
             case .tenKRowsCollection:
                 return .green
+            case .heavyFormsList:
+                return .purple
             case .createRowUISample:
                 return .red
             case .failureCaptureDemo:
@@ -859,6 +868,8 @@ struct OptionSelectionView: View {
             FormulaFunctionTestsView()
         case .some(.tenKRowsCollection):
             AllSampleJSONs(initialFileName: "10kRowsCollection", lockToFileName: true)
+        case .some(.heavyFormsList):
+            HeavyFormsListView()
         }
     }
 }

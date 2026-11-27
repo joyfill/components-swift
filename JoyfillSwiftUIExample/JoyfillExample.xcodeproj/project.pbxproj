@@ -93,6 +93,7 @@
 		3697A95D2E27837600FA87E3 /* JoyfillModel in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A95C2E27837600FA87E3 /* JoyfillModel */; };
 		3697A9622E27839100FA87E3 /* JoyfillFormulas in Frameworks */ = {isa = PBXBuildFile; productRef = 3697A9612E27839100FA87E3 /* JoyfillFormulas */; };
 		369D45042E0E4C3F00677280 /* AllSampleJSONs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369D45032E0E4C2600677280 /* AllSampleJSONs.swift */; };
+		FF0000000000000000001001 /* HeavyFormsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF0000000000000000001002 /* HeavyFormsListView.swift */; };
 		369D451E2E0E51AC00677280 /* FormulaTemplate_TextField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45102E0E51AC00677280 /* FormulaTemplate_TextField.json */; };
 		369D45242E0E51AC00677280 /* FormulaTemplate_CollectionField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */; };
 		369D45262E0E51AC00677280 /* FormulaTemplate_NumberField.json in Resources */ = {isa = PBXBuildFile; fileRef = 369D450D2E0E51AC00677280 /* FormulaTemplate_NumberField.json */; };
@@ -845,6 +846,7 @@
 		3682A4CB2E158D21005B73C3 /* FormulaTemplate_Write_ChartField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormulaTemplate_Write_ChartField.swift; sourceTree = "<group>"; };
 		369025642E06E8EC00DCFF5B /* SimpleTableTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTableTest.swift; sourceTree = "<group>"; };
 		369D45032E0E4C2600677280 /* AllSampleJSONs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllSampleJSONs.swift; sourceTree = "<group>"; };
+		FF0000000000000000001002 /* HeavyFormsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeavyFormsListView.swift; sourceTree = "<group>"; };
 		369D45092E0E51AC00677280 /* FormulaTemplate_CollectionField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_CollectionField.json; sourceTree = "<group>"; };
 		369D450A2E0E51AC00677280 /* FormulaTemplate_DateField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_DateField.json; sourceTree = "<group>"; };
 		369D450B2E0E51AC00677280 /* FormulaTemplate_DropdownField.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FormulaTemplate_DropdownField.json; sourceTree = "<group>"; };
@@ -2111,6 +2113,7 @@
 				E2E27D012E8C10000041FF1F /* MetadataChangeAPIDemoView.swift */,
 				364615AA2E29692D00F237F6 /* OnChangeHandlerTest.swift */,
 				369D45032E0E4C2600677280 /* AllSampleJSONs.swift */,
+				FF0000000000000000001002 /* HeavyFormsListView.swift */,
 				E27C87E42D39438C008EA35C /* CameraScannerViewController.swift */,
 				364615AD2E29694800F237F6 /* SchemaValidationExampleView.swift */,
 				36CE14662DB6680000799B25 /* LiveViewTest.swift */,
@@ -3068,6 +3071,7 @@
 				E20E53022F876E500088A4E4 /* DecoratorAPIDemoView.swift in Sources */,
 				FA28C96B2BB4359600A2D65C /* ChangeManager.swift in Sources */,
 				369D45042E0E4C3F00677280 /* AllSampleJSONs.swift in Sources */,
+				FF0000000000000000001001 /* HeavyFormsListView.swift in Sources */,
 				FA529C7D2BA1D28B000200F5 /* TemplateListView.swift in Sources */,
 				E2ABC23F2DF06C7800A33038 /* ChangelogView.swift in Sources */,
 				E2B5F7612D75E67C0057FD85 /* TemplateSearchView.swift in Sources */,
