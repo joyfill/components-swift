@@ -608,4 +608,92 @@ final class DocumentEditorConfigTests: XCTestCase {
         editor.rowDeleteConfirmation = RowDeleteConfirmationConfig()
         XCTAssertFalse(editor.rowDeleteConfirmation.isEnabled)
     }
+
+    // MARK: - Memory-leak regression (DocumentEditor retain cycle)
+
+    /// Documents whose fields exercise the table/collection/chart/signature models that
+    /// hold the editor back. If those references are strong, the editor forms a cycle with
+    /// its own `pageFieldModels` and never deallocates — the whole parsed document stays in
+    /// memory, and each reopen stacks another copy.
+    private let leakProneDocuments = [
+        "FieldTemplate_TableCollection_Poplated", // table + collection
+        "Joydocjson",                             // mixed field types
+        "ChangerHandlerUnit"                      // collection
+    ]
+
+    /// Opening a form builds `pageFieldModels`; the editor must still deallocate once the
+    /// last strong reference goes away. Making a model's `documentEditor` non-weak brings
+    /// the leak back and fails this test.
+    func testDocumentEditorDeallocatesAfterUse() {
+        for fileName in leakProneDocuments {
+            weak var weakEditor: DocumentEditor?
+
+            autoreleasepool {
+                let document = sampleJSONDocument(fileName: fileName)
+                let editor = DocumentEditor(document: document,
+                                            config: DocumentEditorConfig(validateSchema: false))
+                weakEditor = editor
+                XCTAssertNotNil(weakEditor, "\(fileName): editor should be alive inside its scope")
+            }
+
+            drainMainQueue()
+            XCTAssertNil(weakEditor,
+                         "\(fileName): DocumentEditor leaked — a model in pageFieldModels is retaining it strongly")
+        }
+    }
+
+    /// A collection builds its cells — and each cell's `didChange`/`didFocusBlur` closures —
+    /// on a background queue. If a closure captures the view model strongly, the view model
+    /// is retained by its own cells and leaks on every open.
+    func testCollectionViewModelDeallocatesAfterBuildingCells() throws {
+        // IDs of the collection field in ChangerHandlerUnit (shared with the delegate tests).
+        let fileID = "685750ef698da1ab427761ba"
+        let pageID = "685750efeb612f4fac5819dd"
+        let collectionFieldID = "6857510fbfed1553e168161b"
+
+        let document = sampleJSONDocument(fileName: "ChangerHandlerUnit")
+        let editor = DocumentEditor(document: document,
+                                    config: DocumentEditorConfig(validateSchema: false))
+
+        weak var weakViewModel: CollectionViewModel?
+
+        try autoreleasepool {
+            let field = editor.field(fieldID: collectionFieldID)
+            let header = FieldHeaderModel(title: field?.title,
+                                          required: field?.required,
+                                          tipDescription: field?.tipDescription,
+                                          tipTitle: field?.tipTitle,
+                                          tipVisible: field?.tipVisible,
+                                          visibleLimitInFields: editor.decoratorConfig.visibleLimitInFields)
+            let tableDataModel = try XCTUnwrap(
+                TableDataModel(fieldHeaderModel: header,
+                               mode: .fill,
+                               documentEditor: editor,
+                               fieldIdentifier: FieldIdentifier(fieldID: collectionFieldID,
+                                                                pageID: pageID,
+                                                                fileID: fileID)),
+                "Could not build TableDataModel for the collection field")
+
+            let viewModel = CollectionViewModel(tableDataModel: tableDataModel)
+            weakViewModel = viewModel
+
+            // The view model builds its cells (and their closures) on `dispatchQueue`, then
+            // hops to main to store them. Wait for both so the closures that could form the
+            // cycle actually exist before we release the view model.
+            viewModel.dispatchQueue.sync { }
+            drainMainQueue()
+        }
+
+        drainMainQueue()
+        XCTAssertNil(weakViewModel,
+                     "CollectionViewModel leaked — a cell closure is capturing self strongly")
+    }
+
+    /// Runs the main run loop until a block enqueued now has executed, so any
+    /// `DispatchQueue.main.async` hop that still holds a reference has completed.
+    private func drainMainQueue() {
+        let drained = expectation(description: "main queue drained")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: 2.0)
+    }
 }
