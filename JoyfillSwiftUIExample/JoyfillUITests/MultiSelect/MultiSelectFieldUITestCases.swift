@@ -243,6 +243,67 @@ final class MultiSelectFieldUITestCases: JoyfillUITestsBaseClass {
         XCTAssertTrue(isSecondGroupHidden())
     }
     
+    // MARK: — Select All / Deselect All
+
+    // All option IDs of the first multi-select field ("Multiple Choice")
+    private let allFirstFieldOptionIds = [
+        "686b85454ac2c55af987d4bb", // Yes
+        "686b854528a03e7759da506c", // No (preselected)
+        "686b854514dfef2c5bb24eed", // N/A
+        "686b905d0fe4f86919203f5b", // Hello
+        "686b906491d2faa41fbc6fab"  // Joyfill
+    ]
+
+    func testSelectAllSelectsEveryOption() throws {
+        let toggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").element(boundBy: 0)
+        XCTAssertTrue(toggle.exists, "Select All toggle should exist for a multi-select field")
+        toggle.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        let result = onChangeResultValue()
+        XCTAssertEqual(Set(result.multiSelector ?? []),
+                       Set(allFirstFieldOptionIds),
+                       "Select All should select every option of the field")
+    }
+
+    func testDeselectAllClearsEveryOption() throws {
+        let toggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").element(boundBy: 0)
+        XCTAssertTrue(toggle.exists, "Select All toggle should exist for a multi-select field")
+
+        // First tap selects all, second tap (now "Deselect All") clears everything
+        toggle.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+        toggle.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        let result = onChangeResultValue()
+        XCTAssertEqual(result.multiSelector?.count ?? 0, 0,
+                       "Deselect All should clear every selected option")
+    }
+
+    func testSelectAllThenDeselectOneOption() throws {
+        let toggle = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle").element(boundBy: 0)
+        XCTAssertTrue(toggle.exists, "Select All toggle should exist for a multi-select field")
+        toggle.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        // Toggling one option off should leave the remaining four selected
+        let firstOption = app.buttons.matching(identifier: "MultiSelectionIdenitfier").element(boundBy: 0)
+        firstOption.tap()
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 1.0))
+
+        let result = onChangeResultValue()
+        XCTAssertEqual(result.multiSelector?.count ?? 0, allFirstFieldOptionIds.count - 1,
+                       "Deselecting one option after Select All should leave the rest selected")
+    }
+
+    func testSelectAllToggleShownOnlyForEditableMultiFields() throws {
+        // Only editable multi-select fields render a Select All toggle (not single-select, not readonly).
+        let toggles = app.buttons.matching(identifier: "MultiSelectionSelectAllToggle")
+        XCTAssertEqual(toggles.count, 1,
+                       "Select All toggle should render only for editable multi-select fields (not single-select, not readonly)")
+    }
+
     func testReadonlyMultiselectNotChange() {
         app.swipeUp()
         
