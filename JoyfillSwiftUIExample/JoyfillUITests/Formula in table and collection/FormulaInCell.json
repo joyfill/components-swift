@@ -90,6 +90,7 @@
       "file": "6a391e43a8cddd370e37c724",
       "_id": "6aaa3c19cd3c5261876db4d4",
       "type": "table",
+      "formulaEngine": "wisdom",
       "title": "Table",
       "identifier": "field_6aaa3c19cd3c5261876db4d4",
       "tableColumns": [
@@ -237,6 +238,7 @@
       "file": "6a391e43a8cddd370e37c724",
       "_id": "6aaa3c2b31eed6c73246717c",
       "type": "collection",
+      "formulaEngine": "wisdom",
       "title": "Collection",
       "identifier": "field_6aaa3c2b31eed6c73246717c",
       "schema": {

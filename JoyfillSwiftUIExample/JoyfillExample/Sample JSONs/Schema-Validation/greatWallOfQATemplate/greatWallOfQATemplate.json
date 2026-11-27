@@ -21805,6 +21805,7 @@
             "file": "6813008fb01f916557ea9b7b",
             "_id": "68474c0339e66c35b7dd1fe9",
             "type": "table",
+            "formulaEngine": "wisdom",
             "title": "Table (Excel Formulas)",
             "tableColumns": [
                 {
@@ -21896,6 +21897,7 @@
             "file": "6813008fb01f916557ea9b7b",
             "_id": "68474c757a99110ed602354f",
             "type": "table",
+            "formulaEngine": "wisdom",
             "title": "Input Group (Excel Formulas)",
             "tableColumns": [
                 {
