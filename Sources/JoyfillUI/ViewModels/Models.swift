@@ -188,7 +188,7 @@ extension FieldTableColumn {
 struct TableDataModel {
     let fieldHeaderModel: FieldHeaderModel?
     let mode: Mode
-    let documentEditor: DocumentEditor?
+    weak var documentEditor: DocumentEditor?
     let fieldIdentifier: FieldIdentifier
     var decorate: Bool
     let title: String?
@@ -1342,7 +1342,7 @@ struct ChartDataModel {
     var valueElements: [ValueElement]?
     var chartCoordinates: ChartAxisConfiguration?
     var mode: Mode
-    var documentEditor: DocumentEditor?
+    weak var documentEditor: DocumentEditor?
     var fieldHeaderModel: FieldHeaderModel?
 }
 
@@ -1417,7 +1417,7 @@ struct SignatureDataModel {
     var fieldIdentifier: FieldIdentifier
     var signatureURL: String?
     var fieldHeaderModel: FieldHeaderModel?
-    var documentEditor: DocumentEditor?
+    weak var documentEditor: DocumentEditor?
 }
 
 struct TextDataModel {

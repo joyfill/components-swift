@@ -564,11 +564,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
-                }) { cellDataModel in
+                }) { [weak self] cellDataModel in
                     let columnIndex = columns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
-                    self.cellDidChange(rowId: rowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                    self?.cellDidChange(rowId: rowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                 }
                 rowCellModels.append(cellModel)
             }
@@ -628,8 +628,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
-                    }) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                    }) { [weak self] cellDataModel in
+                        self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -663,8 +663,8 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                    editMode: gridEditMode,
                                                    didFocusBlur: { [weak self] action, cellDataModel in
                         self?.emitCellFocusBlur(action: action, rowID: rowID, columnID: cellDataModel.id)
-                    }) { cellDataModel in
-                        self.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
+                    }) { [weak self] cellDataModel in
+                        self?.cellDidChange(rowId: rowID, colIndex: colIndex, cellDataModel: cellDataModel, isNestedCell: false)
                     }
                     rowCellModels.append(cellModel)
                 }
@@ -737,11 +737,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                editMode: gridEditMode,
                                                didFocusBlur: { [weak self] action, cellDataModel in
                     self?.emitCellFocusBlur(action: action, rowID: childRowID, columnID: cellDataModel.id)
-                }) { cellDataModel in
+                }) { [weak self] cellDataModel in
                     let columnIndex = filteredTableColumns.firstIndex(where: { column in
                         column.id == cellDataModel.id
                     })
-                    self.cellDidChange(rowId: childRowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                    self?.cellDidChange(rowId: childRowID, colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                 }
                 nestedCells.append(cellModel)
             }
@@ -923,11 +923,11 @@ class CollectionViewModel: ObservableObject, TableDataViewModelProtocol {
                                                        editMode: gridEditMode,
                                                        didFocusBlur: { [weak self] action, cellDataModel in
                             self?.emitCellFocusBlur(action: action, rowID: row.id ?? "", columnID: cellDataModel.id)
-                        }) { cellDataModel in
+                        }) { [weak self] cellDataModel in
                             let columnIndex = filteredTableColumns.firstIndex(where: { column in
                                 column.id == cellDataModel.id
                             })
-                            self.cellDidChange(rowId: row.id ?? "", colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
+                            self?.cellDidChange(rowId: row.id ?? "", colIndex: columnIndex ?? 0, cellDataModel: cellDataModel, isNestedCell: true)
                         }
                         subCells.append(cellModel)
                     }
